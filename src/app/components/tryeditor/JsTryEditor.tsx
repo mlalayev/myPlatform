@@ -1,5 +1,4 @@
-// Required packages: npm install react-simple-code-editor prismjs
-// For types: npm install --save-dev @types/react-simple-code-editor
+"use client"
 import React, { useState } from 'react';
 import Editor from 'react-simple-code-editor';
 import Prism from 'prismjs';
