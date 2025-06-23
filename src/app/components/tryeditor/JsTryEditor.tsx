@@ -1,9 +1,6 @@
 "use client"
 import React, { useState } from 'react';
-import Editor from 'react-simple-code-editor';
-import Prism from 'prismjs';
-import 'prismjs/components/prism-javascript';
-import 'prismjs/themes/prism.css';
+import MonacoEditor from "@monaco-editor/react";
 import styles from './JsTryEditor.module.css';
 
 interface JsTryEditorProps {
@@ -19,9 +16,9 @@ salam();`;
 export default function JsTryEditor({ value, onChange }: JsTryEditorProps) {
   const [internalCode, setInternalCode] = useState(defaultCode);
   const code = value !== undefined ? value : internalCode;
-  const handleChange = (val: string) => {
-    if (onChange) onChange(val);
-    else setInternalCode(val);
+  const handleChange = (val: string | undefined) => {
+    if (onChange) onChange(val ?? "");
+    else setInternalCode(val ?? "");
   };
   const [output, setOutput] = useState('');
   const [error, setError] = useState('');
@@ -41,13 +38,18 @@ export default function JsTryEditor({ value, onChange }: JsTryEditorProps) {
 
   return (
     <div className={styles.editorContainer}>
-      <Editor
+      <MonacoEditor
+        height="300px"
+        defaultLanguage="javascript"
         value={code}
-        onValueChange={handleChange}
-        highlight={(code: string) => Prism.highlight(code, Prism.languages.javascript, 'javascript')}
-        padding={16}
-        className={styles.editor}
-        style={{ fontFamily: 'HelveticaNeue-Medium, Helvetica Neue, Arial, sans-serif', fontSize: 16 }}
+        onChange={handleChange}
+        theme="vs-dark"
+        options={{
+          fontSize: 16,
+          minimap: { enabled: false },
+          scrollBeyondLastLine: false,
+          wordWrap: "on",
+        }}
       />
       {/* Demo run button, not used in main exercise page */}
       {/* <button className={styles.runButton} onClick={runCode}>İcra et</button> */}
