@@ -35,7 +35,7 @@ export default function ExerciseDetailPage({
     null
   );
   const [activeCase, setActiveCase] = useState(0);
-  const [userCode, setUserCode] = useState("function sum() {\n\n}");
+  const [userCode, setUserCode] = useState("function solution() {\n\n}");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [detectedComplexity, setDetectedComplexity] = useState<string | null>(
     null
@@ -83,24 +83,41 @@ export default function ExerciseDetailPage({
   }
 
   function isEqual(result: any, expected: any): boolean {
-    // Try deep equality for arrays/objects
+    // Try to parse expected if it's a stringified array/object
+    let parsedExpected = expected;
+
+    if (typeof expected === "string") {
+      try {
+        parsedExpected = JSON.parse(expected);
+      } catch {
+        // not a JSON string, leave as is
+      }
+    }
+
+    // Deep equality check for arrays/objects
     if (
       typeof result === "object" &&
       result !== null &&
-      typeof expected === "object" &&
-      expected !== null
+      typeof parsedExpected === "object" &&
+      parsedExpected !== null
     ) {
-      return JSON.stringify(result) === JSON.stringify(expected);
+      return JSON.stringify(result) === JSON.stringify(parsedExpected);
     }
-    // Try loose equality for primitives
+
+    // Loose equality for primitives
     if (
-      (typeof result === "number" || typeof result === "string" || typeof result === "boolean") &&
-      (typeof expected === "number" || typeof expected === "string" || typeof expected === "boolean")
+      (typeof result === "number" ||
+        typeof result === "string" ||
+        typeof result === "boolean") &&
+      (typeof parsedExpected === "number" ||
+        typeof parsedExpected === "string" ||
+        typeof parsedExpected === "boolean")
     ) {
-      return result == expected;
+      return result == parsedExpected;
     }
-    // Fallback to string comparison
-    return String(result).trim() === String(expected).trim();
+
+    // Final fallback to string comparison
+    return String(result).trim() === String(parsedExpected).trim();
   }
 
   const submitCode = async () => {
