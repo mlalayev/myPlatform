@@ -4,7 +4,6 @@ import { use } from "react";
 import { exercises } from "../exercisesData";
 import JsTryEditor from "@/app/components/tryeditor/JsTryEditor";
 import Header from "../../components/header/Header";
-import Sidebar from "../../components/sidebar/Sidebar";
 import styles from "../ExercisesList.module.css";
 import detailStyles from "./ExerciseDetail.module.css";
 import workerCode from "./sandboxWorkerString";
@@ -23,7 +22,6 @@ function createSandboxWorker() {
 export default function ExerciseDetailPage({
   params,
 }: ExerciseDetailPageProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { id } = use(params);
   const [leftTab, setLeftTab] = useState(0);
   const [customInput, setCustomInput] = useState("");
@@ -43,8 +41,6 @@ export default function ExerciseDetailPage({
 
   const exercise = exercises.find((ex) => ex.id === id);
   if (!exercise) return <div>Tapşırıq tapılmadı.</div>;
-
-  const toggleSidebar = () => setIsSidebarOpen((v) => !v);
 
   // Mock run/submit logic
   const runCode = () => {
@@ -217,12 +213,9 @@ export default function ExerciseDetailPage({
 
   return (
     <>
-      <Header isSidebarOpen={isSidebarOpen} onToggleSidebar={toggleSidebar} />
+      <Header />
       <div className={styles.layout}>
-        <Sidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
-        <div
-          className={isSidebarOpen ? styles.contentOpen : styles.contentClosed}
-        >
+        <div className={styles.contentOpen}>
           <div className={detailStyles.container}>
             {/* Left Panel: Problem Details with Tabs */}
             <div className={detailStyles.leftPanel}>

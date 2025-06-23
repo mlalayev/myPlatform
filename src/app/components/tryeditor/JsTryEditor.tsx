@@ -6,38 +6,52 @@ import styles from './JsTryEditor.module.css';
 interface JsTryEditorProps {
   value?: string;
   onChange?: (val: string) => void;
+  showRunButton?: boolean;
 }
 
-const defaultCode = `function salam() {
+const defaultCode = `
+
+function salam() {
   return 'Salam, dünya!';
 }
+  
 salam();`;
 
-export default function JsTryEditor({ value, onChange }: JsTryEditorProps) {
+export default function JsTryEditor({ value, onChange, showRunButton }: JsTryEditorProps) {
   const [internalCode, setInternalCode] = useState(defaultCode);
   const code = value !== undefined ? value : internalCode;
   const handleChange = (val: string | undefined) => {
     if (onChange) onChange(val ?? "");
     else setInternalCode(val ?? "");
+    setOutput("");
+    setError("");
+    setShowOutput(false);
   };
   const [output, setOutput] = useState('');
   const [error, setError] = useState('');
+  const [showOutput, setShowOutput] = useState(false);
 
-  // The runCode logic is not used in controlled mode, so we keep it for demo only
   const runCode = () => {
     setError('');
     try {
       // eslint-disable-next-line no-eval
       const result = eval(code);
       setOutput(String(result));
+      setShowOutput(true);
     } catch (err: any) {
       setOutput('');
       setError(err.message);
+      setShowOutput(true);
     }
   };
 
   return (
-    <div className={styles.editorContainer}>
+    <div className={styles.editorSection}>
+      {showRunButton && (
+        <button className={styles.runButtonTopRight} onClick={runCode}>
+          İcra et
+        </button>
+      )}
       <MonacoEditor
         height="300px"
         defaultLanguage="javascript"
@@ -51,15 +65,13 @@ export default function JsTryEditor({ value, onChange }: JsTryEditorProps) {
           wordWrap: "on",
         }}
       />
-      {/* Demo run button, not used in main exercise page */}
-      {/* <button className={styles.runButton} onClick={runCode}>İcra et</button> */}
-      {output && (
+      {showOutput && output && (
         <div className={styles.outputSection}>
           <div className={styles.outputLabel}>Nəticə:</div>
           <pre className={styles.output}>{output}</pre>
         </div>
       )}
-      {error && (
+      {showOutput && error && (
         <div className={styles.outputSection}>
           <pre className={styles.error}>Xəta: {error}</pre>
         </div>
