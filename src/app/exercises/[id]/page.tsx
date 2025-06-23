@@ -35,11 +35,11 @@ export default function ExerciseDetailPage({
     null
   );
   const [activeCase, setActiveCase] = useState(0);
-  const [userCode, setUserCode] = useState(
-    "function sum() {\n\n}"
-  );
+  const [userCode, setUserCode] = useState("function sum() {\n\n}");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [detectedComplexity, setDetectedComplexity] = useState<string | null>(null);
+  const [detectedComplexity, setDetectedComplexity] = useState<string | null>(
+    null
+  );
 
   const exercise = exercises.find((ex) => ex.id === id);
   if (!exercise) return <div>Tapşırıq tapılmadı.</div>;
@@ -54,10 +54,10 @@ export default function ExerciseDetailPage({
     // Simple static analysis: count nested for-loops
     // This is a naive approach and can be improved with a real parser
     const forMatches = code.match(/for\s*\(/g) || [];
-    if (forMatches.length === 0) return 'O(1)';
-    if (forMatches.length === 1) return 'O(n)';
-    if (forMatches.length === 2) return 'O(n^2)';
-    if (forMatches.length === 3) return 'O(n^3)';
+    if (forMatches.length === 0) return "O(1)";
+    if (forMatches.length === 1) return "O(n)";
+    if (forMatches.length === 2) return "O(n^2)";
+    if (forMatches.length === 3) return "O(n^3)";
     return `O(n^${forMatches.length})`;
   };
 
@@ -80,6 +80,27 @@ export default function ExerciseDetailPage({
       /eval\b/i,
     ];
     return !blacklist.some((re) => re.test(code));
+  }
+
+  function isEqual(result: any, expected: any): boolean {
+    // Try deep equality for arrays/objects
+    if (
+      typeof result === "object" &&
+      result !== null &&
+      typeof expected === "object" &&
+      expected !== null
+    ) {
+      return JSON.stringify(result) === JSON.stringify(expected);
+    }
+    // Try loose equality for primitives
+    if (
+      (typeof result === "number" || typeof result === "string" || typeof result === "boolean") &&
+      (typeof expected === "number" || typeof expected === "string" || typeof expected === "boolean")
+    ) {
+      return result == expected;
+    }
+    // Fallback to string comparison
+    return String(result).trim() === String(expected).trim();
   }
 
   const submitCode = async () => {
@@ -105,14 +126,16 @@ export default function ExerciseDetailPage({
         if (exercise.inputParser) {
           args = exercise.inputParser(tc.input);
         } else {
-          args = tc.input.split(' ').map(Number);
+          args = tc.input.split(" ").map(Number);
         }
         // Run in sandbox worker
         const worker = createSandboxWorker();
-        const resultPromise = new Promise<{ result?: any; error?: string }>((resolve) => {
-          worker.onmessage = (e: MessageEvent) => resolve(e.data);
-          worker.postMessage({ code: userCode, args });
-        });
+        const resultPromise = new Promise<{ result?: any; error?: string }>(
+          (resolve) => {
+            worker.onmessage = (e: MessageEvent) => resolve(e.data);
+            worker.postMessage({ code: userCode, args });
+          }
+        );
         // Timeout after 2s
         const timeoutPromise = new Promise<{ error: string }>((resolve) =>
           setTimeout(() => {
@@ -120,7 +143,10 @@ export default function ExerciseDetailPage({
             resolve({ error: "Kodun icrası çox uzun çəkdi (timeout)!" });
           }, 2000)
         );
-        const response: { result?: any; error?: string } = await Promise.race([resultPromise, timeoutPromise]);
+        const response: { result?: any; error?: string } = await Promise.race([
+          resultPromise,
+          timeoutPromise,
+        ]);
         const { result, error } = response;
         if (error) {
           setFeedback(error);
@@ -131,7 +157,8 @@ export default function ExerciseDetailPage({
           setDetectedComplexity(null);
           return;
         }
-        const passed = String(result) === tc.expectedOutput;
+        const passed = isEqual(result, tc.expectedOutput);
+
         if (!passed) {
           failedCase = {
             input: tc.input,
@@ -434,7 +461,9 @@ export default function ExerciseDetailPage({
                 </span>
               </div>
               {detectedComplexity && (
-                <div style={{ marginTop: 12, color: '#ff6600', fontWeight: 600 }}>
+                <div
+                  style={{ marginTop: 12, color: "#ff6600", fontWeight: 600 }}
+                >
                   Tapılan zaman mürəkkəbliyi: {detectedComplexity}
                 </div>
               )}
