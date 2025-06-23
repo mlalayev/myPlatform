@@ -7,11 +7,17 @@ import Header from "../../components/header/Header";
 import Sidebar from "../../components/sidebar/Sidebar";
 import styles from "../ExercisesList.module.css";
 import detailStyles from "./ExerciseDetail.module.css";
+import workerCode from "./sandboxWorkerString";
 
 const LEFT_TABS = ["Təsvir", "Redaktə", "Həllər", "Təqdimatlar"];
 
 interface ExerciseDetailPageProps {
   params: Promise<{ id: string }>;
+}
+
+function createSandboxWorker() {
+  const blob = new Blob([workerCode], { type: "application/javascript" });
+  return new Worker(URL.createObjectURL(blob));
 }
 
 export default function ExerciseDetailPage({
@@ -54,52 +60,91 @@ export default function ExerciseDetailPage({
     if (forMatches.length === 3) return 'O(n^3)';
     return `O(n^${forMatches.length})`;
   };
-  const submitCode = () => {
+
+  function isSafeCode(code: string): boolean {
+    // Block dangerous keywords
+    const blacklist = [
+      /window\b/i,
+      /document\b/i,
+      /fetch\b/i,
+      /require\b/i,
+      /import\b/i,
+      /\bFunction\s*\(/,
+      /setInterval\b/i,
+      /setTimeout\b/i,
+      /XMLHttpRequest\b/i,
+      /localStorage\b/i,
+      /sessionStorage\b/i,
+      /globalThis\b/i,
+      /process\b/i,
+      /eval\b/i,
+    ];
+    return !blacklist.some((re) => re.test(code));
+  }
+
+  const submitCode = async () => {
     setIsSubmitting(true);
+    setDetectedComplexity(null);
     let passedCount = 0;
     let failedCase = null;
+    if (!isSafeCode(userCode)) {
+      setFeedback("Kod təhlükəli əmrlər ehtiva edir!");
+      setFeedbackType("error");
+      setTestResults([]);
+      setSubmitted(true);
+      setIsSubmitting(false);
+      return;
+    }
+    // Extract the function body for complexity analysis
+    const bodyMatch = userCode.match(/{([\s\S]*)}/);
+    if (bodyMatch) setDetectedComplexity(analyzeTimeComplexity(bodyMatch[1]));
     try {
-      // Extract the function body from userCode
-      const bodyMatch = userCode.match(/{([\s\S]*)}/);
-      if (!bodyMatch) {
-        setFeedback("Funksiya gövdəsi tapılmadı!");
-        setFeedbackType("error");
-        setTestResults([]);
-        setSubmitted(true);
-        setIsSubmitting(false);
-        setDetectedComplexity(null);
-        return;
-      }
-      const userBody = bodyMatch[1];
-      const userFunc = new Function(
-        "...args",
-        `const [a, b] = args; ${userBody}`
-      );
       for (let i = 0; i < exercise.testCases.length; i++) {
         const tc = exercise.testCases[i];
-        const args = tc.input.split(" ").map(Number);
-        let userOutput;
-        try {
-          userOutput = userFunc(...args);
-        } catch (e) {
-          userOutput = "Xəta";
+        let args;
+        if (exercise.inputParser) {
+          args = exercise.inputParser(tc.input);
+        } else {
+          args = tc.input.split(' ').map(Number);
         }
-        const passed = String(userOutput) === tc.expectedOutput;
+        // Run in sandbox worker
+        const worker = createSandboxWorker();
+        const resultPromise = new Promise<{ result?: any; error?: string }>((resolve) => {
+          worker.onmessage = (e: MessageEvent) => resolve(e.data);
+          worker.postMessage({ code: userCode, args });
+        });
+        // Timeout after 2s
+        const timeoutPromise = new Promise<{ error: string }>((resolve) =>
+          setTimeout(() => {
+            worker.terminate();
+            resolve({ error: "Kodun icrası çox uzun çəkdi (timeout)!" });
+          }, 2000)
+        );
+        const response: { result?: any; error?: string } = await Promise.race([resultPromise, timeoutPromise]);
+        const { result, error } = response;
+        if (error) {
+          setFeedback(error);
+          setFeedbackType("error");
+          setTestResults([]);
+          setSubmitted(true);
+          setIsSubmitting(false);
+          setDetectedComplexity(null);
+          return;
+        }
+        const passed = String(result) === tc.expectedOutput;
         if (!passed) {
           failedCase = {
             input: tc.input,
             expected: tc.expectedOutput,
-            output: String(userOutput),
+            output: String(result),
             index: i + 1,
           };
           break;
         }
         passedCount++;
       }
-      // Analyze time complexity
-      setDetectedComplexity(analyzeTimeComplexity(userBody));
     } catch (e) {
-      setFeedback("Kodda xəta var!");
+      setFeedback(`Kodda xəta var! ${String(e)}`);
       setFeedbackType("error");
       setTestResults([]);
       setSubmitted(true);
