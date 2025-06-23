@@ -1,86 +1,62 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
-import HeaderStyle from './Header.module.css';
+import React, { useState, useRef, useEffect } from "react";
+import HeaderStyle from "./Header.module.css";
+import Image from "next/image";
+import WhiteLogo from "@/../public/svg/whiteLogo.svg";
 
-interface HeaderProps {
-  isSidebarOpen: boolean;
-  onToggleSidebar: () => void;
-}
+const navItems = [
+  { label: "Home", href: "/" },
+  { label: "Tutorials", href: "/tutorials" },
+  { label: "Exercises", href: "/exercises" },
+  { label: "Premium", href: "/premium" },
+];
 
-const Header: React.FC<HeaderProps> = ({ isSidebarOpen, onToggleSidebar }) => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+const Header: React.FC = () => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-  };
-
-  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target as Node)
+      ) {
         setIsProfileDropdownOpen(false);
       }
     };
-
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   return (
-    <header 
-      className={`${HeaderStyle.header} ${isSidebarOpen ? HeaderStyle.sidebarOpen : HeaderStyle.sidebarClosed}`}
-    >
+    <header className={HeaderStyle.header}>
       <div className={HeaderStyle.leftSection}>
-        <button 
-          className={HeaderStyle.menuButton}
-          onClick={onToggleSidebar}
-          aria-label="Menu"
-        >
-          ☰
-        </button>
+        <Image src={WhiteLogo} alt="Logo" className={HeaderStyle.logo} />
       </div>
-
-      <div className={HeaderStyle.rightSection}>
-        <div className={HeaderStyle.searchContainer}>
-          <input
-            type="text"
-            placeholder="Axtar..."
-            className={HeaderStyle.searchInput}
-          />
-          <span className={HeaderStyle.searchIcon}>🔍</span>
-        </div>
-        <button
-          className={HeaderStyle.darkModeButton}
-          onClick={toggleDarkMode}
-          aria-label={isDarkMode ? 'İşıq rejimi' : 'Qaranlıq rejim'}
-        >
-          {isDarkMode ? '☀️' : '🌙'}
-        </button>
-
+      <div className={HeaderStyle.navAndProfile}>
+        <nav className={HeaderStyle.navbar}>
+          {navItems.map((item) => (
+            <a key={item.label} href={item.href} className={HeaderStyle.navLink}>
+              {item.label}
+            </a>
+          ))}
+        </nav>
         <div className={HeaderStyle.profileDropdown} ref={profileDropdownRef}>
           <button
             className={HeaderStyle.profileButton}
-            onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+            onClick={() => setIsProfileDropdownOpen((v) => !v)}
+            aria-label="Profil"
           >
             <div className={HeaderStyle.avatar}>👤</div>
           </button>
           {isProfileDropdownOpen && (
             <div className={HeaderStyle.profileMenu}>
-              <button className={HeaderStyle.profileOption}>
-                👤 Profilim
-              </button>
-              <button className={HeaderStyle.profileOption}>
-                ⚙️ Ayarlar
-              </button>
+              <button className={HeaderStyle.profileOption}>👤 Profilim</button>
+              <button className={HeaderStyle.profileOption}>⚙️ Ayarlar</button>
               <hr className={HeaderStyle.divider} />
-              <button className={HeaderStyle.profileOption}>
-                🔓 Çıxış
-              </button>
+              <button className={HeaderStyle.profileOption}>🔓 Çıxış</button>
             </div>
           )}
         </div>
@@ -89,4 +65,4 @@ const Header: React.FC<HeaderProps> = ({ isSidebarOpen, onToggleSidebar }) => {
   );
 };
 
-export default Header; 
+export default Header;

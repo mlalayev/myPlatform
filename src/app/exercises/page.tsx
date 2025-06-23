@@ -1,10 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import Link from "next/link";
 import { exercises } from "./exercisesData";
 import styles from "./ExercisesList.module.css";
 import Header from "../components/header/Header";
-import Sidebar from "../components/sidebar/Sidebar";
+import Link from "next/link";
 
 const difficultyColor = (diff: string) =>
   diff === "Asan"
@@ -15,21 +14,17 @@ const difficultyColor = (diff: string) =>
 
 export default function ExercisesPage() {
   const [search, setSearch] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const filtered = exercises.filter(
     (ex) =>
       ex.title.toLowerCase().includes(search.toLowerCase()) ||
       ex.description.toLowerCase().includes(search.toLowerCase())
   );
 
-  const toggleSidebar = () => setIsSidebarOpen((v) => !v);
-
   return (
     <>
-      <Header isSidebarOpen={isSidebarOpen} onToggleSidebar={toggleSidebar} />
+      <Header />
       <div className={styles.layout}>
-        <Sidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
-        <div className={isSidebarOpen ? styles.contentOpen : styles.contentClosed}>
+        <div className={styles.contentOpen}>
           <div className={styles.page}>
             <div className={styles.headerBar}>
               <button className={styles.filterBtn + " " + styles.selected}>

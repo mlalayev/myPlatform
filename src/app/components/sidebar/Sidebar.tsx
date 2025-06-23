@@ -30,6 +30,7 @@ function Sidebar({ isOpen, onToggle }: SidebarProps) {
         isOpen ? SidebarStyle.open : SidebarStyle.closed
       }`}
     >
+
       <div className={SidebarStyle.logoSection}>
         <Image
           className={isOpen ? SidebarStyle.logo : SidebarStyle.bookLogo}
