@@ -43,21 +43,21 @@ const Header: React.FC<HeaderProps> = ({ isSidebarOpen, onToggleSidebar }) => {
         >
           ☰
         </button>
+      </div>
+
+      <div className={HeaderStyle.rightSection}>
         <div className={HeaderStyle.searchContainer}>
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Axtar..."
             className={HeaderStyle.searchInput}
           />
           <span className={HeaderStyle.searchIcon}>🔍</span>
         </div>
-      </div>
-
-      <div className={HeaderStyle.rightSection}>
         <button
           className={HeaderStyle.darkModeButton}
           onClick={toggleDarkMode}
-          aria-label={isDarkMode ? 'Light Mode' : 'Dark Mode'}
+          aria-label={isDarkMode ? 'İşıq rejimi' : 'Qaranlıq rejim'}
         >
           {isDarkMode ? '☀️' : '🌙'}
         </button>
@@ -72,14 +72,14 @@ const Header: React.FC<HeaderProps> = ({ isSidebarOpen, onToggleSidebar }) => {
           {isProfileDropdownOpen && (
             <div className={HeaderStyle.profileMenu}>
               <button className={HeaderStyle.profileOption}>
-                👤 My Profile
+                👤 Profilim
               </button>
               <button className={HeaderStyle.profileOption}>
-                ⚙️ Settings
+                ⚙️ Ayarlar
               </button>
               <hr className={HeaderStyle.divider} />
               <button className={HeaderStyle.profileOption}>
-                🔓 Log Out
+                🔓 Çıxış
               </button>
             </div>
           )}
