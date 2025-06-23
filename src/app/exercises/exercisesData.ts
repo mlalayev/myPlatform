@@ -24,147 +24,139 @@ export interface Exercise {
 export const exercises: Exercise[] = [
   {
     id: "1",
-    title: "Ədədlərin cəmi",
-    difficulty: "Asan",
-    description: "Verilmiş iki ədədin cəmini qaytaran funksiya yazın.",
-    acceptance: 92.1,
-    constraints: ["-10^9 ≤ a, b ≤ 10^9"],
-    examples: [
-      { input: "a = 2, b = 3", output: "5" },
-      { input: "a = -1, b = 1", output: "0" },
-    ],
-    tags: ["Array", "Math"],
-    solution: `function sum(a, b) {
-  return a + b;
-}`,
-    timeComplexity: "O(1)",
-    spaceComplexity: "O(1)",
-    hints: ["Sadəcə toplama operatorundan istifadə edin."],
-    testCases: [
-      { input: "2 3", expectedOutput: "5", hidden: false },
-      { input: "-1 1", expectedOutput: "0", hidden: false },
-      { input: "100 200", expectedOutput: "300", hidden: true },
-      { input: "-1000000000 1000000000", expectedOutput: "0", hidden: true },
-      { input: "0 0", expectedOutput: "0", hidden: true },
-      { input: "123 456", expectedOutput: "579", hidden: true },
-      { input: "-5 -5", expectedOutput: "-10", hidden: true },
-      { input: "999999999 1", expectedOutput: "1000000000", hidden: true },
-      { input: "1 -1", expectedOutput: "0", hidden: true },
-      { input: "42 58", expectedOutput: "100", hidden: true },
-    ],
-    inputParser: (input: string) => input.split(" ").map(Number),
-  },
-  {
-    id: "2",
-    title: "Tək və ya cüt",
+    title: "Two Sum",
     difficulty: "Asan",
     description:
-      "Verilmiş ədədin tək və ya cüt olduğunu müəyyən edən funksiya yazın.",
-    acceptance: 88.4,
-    constraints: ["-10^9 ≤ n ≤ 10^9"],
+      "Verilmiş array və target üçün iki indeksin cəmi target-ə bərabər olan index-lərini qaytaran funksiya yazın.",
+    acceptance: 88.2,
+    constraints: ["2 ≤ nums.length ≤ 10^4", "-10^9 ≤ nums[i], target ≤ 10^9"],
     examples: [
-      { input: "n = 4", output: "Cüt" },
-      { input: "n = 7", output: "Tək" },
+      { input: "2 7 11 15|9", output: "[0,1]" },
+      { input: "3 2 4|6", output: "[1,2]" },
     ],
-    tags: ["Math", "Conditional"],
-    solution: `function isEven(n) {
-  return n % 2 === 0 ? 'Cüt' : 'Tək';
+    tags: ["Array", "HashMap"],
+    solution: `function solution(nums, target) {
+  const map = {};
+  for (let i = 0; i < nums.length; i++) {
+    const diff = target - nums[i];
+    if (diff in map) return [map[diff], i];
+    map[nums[i]] = i;
+  }
 }`,
-    timeComplexity: "O(1)",
-    spaceComplexity: "O(1)",
-    hints: ["% operatoru ilə ədədin 2-yə bölünüb bölünmədiyini yoxlayın."],
+    timeComplexity: "O(n)",
+    spaceComplexity: "O(n)",
     testCases: [
-      { input: "2", expectedOutput: "Cüt", hidden: false },
-      { input: "3", expectedOutput: "Tək", hidden: false },
-      { input: "0", expectedOutput: "Cüt", hidden: true },
-      { input: "-2", expectedOutput: "Cüt", hidden: true },
-      { input: "-3", expectedOutput: "Tək", hidden: true },
-      { input: "1000000000", expectedOutput: "Cüt", hidden: true },
-      { input: "999999999", expectedOutput: "Tək", hidden: true },
+      { input: "2 7 11 15|9", expectedOutput: "[0,1]" },
+      { input: "3 2 4|6", expectedOutput: "[1,2]" },
+      { input: "3 3|6", expectedOutput: "[0,1]", hidden: true },
+      { input: "1 2 3 4 5|9", expectedOutput: "[3,4]", hidden: true },
     ],
-    inputParser: (input: string) => [Number(input)],
-  },
-  {
-    id: "3",
-    title: "Ən böyük ədəd",
-    difficulty: "Asan",
-    description: "Verilmiş iki ədədin ən böyüyünü qaytaran funksiya yazın.",
-    acceptance: 85.7,
-    constraints: ["-10^9 ≤ a, b ≤ 10^9"],
-    examples: [
-      { input: "a = 5, b = 3", output: "5" },
-      { input: "a = -1, b = 1", output: "1" },
-    ],
-    tags: ["Math", "Conditional"],
-    solution: `function max(a, b) {
-  return a > b ? a : b;
-}`,
-    timeComplexity: "O(1)",
-    spaceComplexity: "O(1)",
-    hints: ["Sadə if və ya ternary operator istifadə edin."],
-    testCases: [
-      { input: "5 3", expectedOutput: "5", hidden: false },
-      { input: "-1 1", expectedOutput: "1", hidden: false },
-      { input: "0 0", expectedOutput: "0", hidden: true },
-      { input: "100 -100", expectedOutput: "100", hidden: true },
-      { input: "-10 -20", expectedOutput: "-10", hidden: true },
-      { input: "999999999 1", expectedOutput: "999999999", hidden: true },
-    ],
-    inputParser: (input: string) => input.split(" ").map(Number),
+    inputParser: (input: string) => {
+      const [numsStr, targetStr] = input.split("|");
+      const nums = numsStr.trim().split(" ").map(Number);
+      const target = Number(targetStr.trim());
+      return [nums, target];
+    },
   },
   {
     id: "4",
-    title: "Array-in uzunluğu",
-    difficulty: "Asan",
-    description: "Verilmiş array-in uzunluğunu qaytaran funksiya yazın.",
-    acceptance: 90.2,
-    constraints: ["Array 1000 elementdən çox olmamalıdır."],
+    title: "Median of Two Sorted Arrays",
+    difficulty: "Çətin",
+    description:
+      "Verilmiş iki sıralanmış array-in medianını qaytaran funksiya yazın.",
+    acceptance: 49.3,
+    constraints: ["0 ≤ nums1.length, nums2.length ≤ 1000"],
     examples: [
-      { input: "[1, 2, 3]", output: "3" },
-      { input: "[]", output: "0" },
+      { input: "1 3 | 2", output: "2.0" },
+      { input: "1 2 | 3 4", output: "2.5" },
     ],
-    tags: ["Array", "Basic"],
-    solution: `function length(arr) {
-  return arr.length;
+    tags: ["Array", "Binary Search", "Divide and Conquer"],
+    solution: `function solution(nums1, nums2) {
+  const merged = [...nums1, ...nums2].sort((a, b) => a - b);
+  const mid = Math.floor(merged.length / 2);
+  if (merged.length % 2 === 0) {
+    return (merged[mid - 1] + merged[mid]) / 2;
+  } else {
+    return merged[mid];
+  }
 }`,
-    timeComplexity: "O(1)",
-    spaceComplexity: "O(1)",
-    hints: ["`.length` xüsusiyyətindən istifadə edin."],
+    timeComplexity: "O((m+n) log(m+n)",
+    spaceComplexity: "O(m+n)",
     testCases: [
-      { input: "1 2 3", expectedOutput: "3", hidden: false },
-      { input: "", expectedOutput: "0", hidden: false },
-      { input: "5 10 15 20", expectedOutput: "4", hidden: true },
-      { input: "-1 -2 -3 -4 -5", expectedOutput: "5", hidden: true },
+      { input: "1 3|2", expectedOutput: "2.0" },
+      { input: "1 2|3 4", expectedOutput: "2.5" },
+      { input: "0 0|0 0", expectedOutput: "0.0", hidden: true },
     ],
-    inputParser: (input: string) => [
-      input.trim() ? input.trim().split(" ").map(Number) : [],
-    ],
+    inputParser: (input: string) => {
+      const [part1, part2] = input.split("|");
+      return [
+        part1.trim() ? part1.trim().split(" ").map(Number) : [],
+        part2.trim() ? part2.trim().split(" ").map(Number) : [],
+      ];
+    },
   },
   {
-    id: "5",
-    title: "Salam, ad!",
-    difficulty: "Asan",
+    id: "11",
+    title: "Container With Most Water",
+    difficulty: "Orta",
     description:
-      'Verilmiş ad üçün "Salam, [ad]!" formatında string qaytaran funksiya yazın.',
-    acceptance: 95.5,
-    constraints: ["Ad 50 simvoldan uzun olmamalıdır."],
-    examples: [
-      { input: "name = Murad", output: "Salam, Murad!" },
-      { input: "name = Aysel", output: "Salam, Aysel!" },
-    ],
-    tags: ["String", "Template"],
-    solution: `function greet(name) {
-  return "Salam, " + name + "!";
+      "Verilmiş array-də maksimum su tutumu olan iki index arasındakı məsafəni hesablayın.",
+    acceptance: 67.9,
+    constraints: ["n ≥ 2", "0 ≤ height[i] ≤ 10^4"],
+    examples: [{ input: "1 8 6 2 5 4 8 3 7", output: "49" }],
+    tags: ["Two Pointers", "Greedy"],
+    solution: `function solution(height) {
+  let left = 0, right = height.length - 1, maxArea = 0;
+  while (left < right) {
+    const h = Math.min(height[left], height[right]);
+    const w = right - left;
+    maxArea = Math.max(maxArea, h * w);
+    if (height[left] < height[right]) left++;
+    else right--;
+  }
+  return maxArea;
 }`,
-    timeComplexity: "O(1)",
+    timeComplexity: "O(n)",
     spaceComplexity: "O(1)",
-    hints: ["String birləşdirmə və ya template literal istifadə edin."],
     testCases: [
-      { input: "Murad", expectedOutput: "Salam, Murad!", hidden: false },
-      { input: "Aysel", expectedOutput: "Salam, Aysel!", hidden: false },
-      { input: "Eli", expectedOutput: "Salam, Eli!", hidden: true },
-      { input: "Fatima", expectedOutput: "Salam, Fatima!", hidden: true },
+      { input: "1 8 6 2 5 4 8 3 7", expectedOutput: "49" },
+      { input: "1 1", expectedOutput: "1", hidden: true },
     ],
-    inputParser: (input: string) => [input],
+    inputParser: (input: string) => [input.trim().split(" ").map(Number)],
+  },
+  {
+    id: "74",
+    title: "Search a 2D Matrix",
+    difficulty: "Orta",
+    description: "2D matrix daxilində hədəf ədədin olub olmadığını təyin edin.",
+    acceptance: 61.3,
+    constraints: ["matrix.length, matrix[0].length ≥ 1"],
+    examples: [{ input: "1 3 5 7|10 11 16 20|23 30 34 60|3", output: "true" }],
+    tags: ["Matrix", "Binary Search"],
+    solution: `function solution(matrix, target) {
+  if (!matrix.length || !matrix[0].length) return false;
+  let rows = matrix.length, cols = matrix[0].length;
+  let left = 0, right = rows * cols - 1;
+  while (left <= right) {
+    let mid = Math.floor((left + right) / 2);
+    let midVal = matrix[Math.floor(mid / cols)][mid % cols];
+    if (midVal === target) return true;
+    else if (midVal < target) left = mid + 1;
+    else right = mid - 1;
+  }
+  return false;
+}`,
+    timeComplexity: "O(log(m*n))",
+    spaceComplexity: "O(1)",
+    testCases: [
+      { input: "1 3 5 7|10 11 16 20|23 30 34 60|3", expectedOutput: "true" },
+      { input: "1 3 5 7|10 11 16 20|23 30 34 60|13", expectedOutput: "false" },
+    ],
+    inputParser: (input: string) => {
+      const parts = input.split("|");
+      const target = Number(parts.pop());
+      const matrix = parts.map((row) => row.trim().split(" ").map(Number));
+      return [matrix, target];
+    },
   },
 ];

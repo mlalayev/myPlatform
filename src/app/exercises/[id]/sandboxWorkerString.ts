@@ -4,35 +4,42 @@ self.onmessage = async function (e) {
   let timer = setTimeout(() => self.close(), 2000);
 
   try {
-    let solution;
-
+    // Əvvəlcə eval + self.solution metodu
     try {
-      // Əlavə olaraq kodun sonuna self.solution = solution əlavə et
       const wrappedCode = \`\${code}\\nself.solution = solution;\`;
       eval(wrappedCode);
-      solution = self.solution;
     } catch (_) {}
 
-    // Əgər hələ də function tapılmayıbsa, müxtəlif regex-lərlə axtar
-    if (typeof solution !== 'function') {
+    // Əgər hələ də function tapılmayıbsa, regex ilə yoxla
+    if (typeof self.solution !== 'function') {
       const decl = code.match(/function\\s+solution\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/);
-      const expr = code.match(/const\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/);
-      const arrow = code.match(/const\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/);
-      const conciseArrow = code.match(/const\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*([^\\{][^;]*)/);
+      const exprConst = code.match(/const\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/);
+      const exprLet = code.match(/let\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/);
+      const exprVar = code.match(/var\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/);
+      const arrowConst = code.match(/const\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/);
+      const arrowLet = code.match(/let\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/);
+      const arrowVar = code.match(/var\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/);
+      const conciseArrow = code.match(/(?:const|let|var)\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*([^\\{;\\n]+)/);
 
-      if (decl) solution = new Function(decl[1], decl[2]);
-      else if (expr) solution = new Function(expr[1], expr[2]);
-      else if (arrow) solution = new Function(arrow[1], arrow[2]);
-      else if (conciseArrow) solution = new Function(conciseArrow[1], \`return \${conciseArrow[2].trim()}\`);
+      if (decl) self.solution = new Function(decl[1], decl[2]);
+      else if (exprConst) self.solution = new Function(exprConst[1], exprConst[2]);
+      else if (exprLet) self.solution = new Function(exprLet[1], exprLet[2]);
+      else if (exprVar) self.solution = new Function(exprVar[1], exprVar[2]);
+      else if (arrowConst) self.solution = new Function(arrowConst[1], arrowConst[2]);
+      else if (arrowLet) self.solution = new Function(arrowLet[1], arrowLet[2]);
+      else if (arrowVar) self.solution = new Function(arrowVar[1], arrowVar[2]);
+      else if (conciseArrow) self.solution = new Function(conciseArrow[1], \`return \${conciseArrow[2].trim()};\`);
     }
 
-    if (typeof solution !== 'function') {
-      self.postMessage({ error: 'Funksiya tapılmadı! function solution(...) və ya const solution = ... yazın.' });
+    // Funksiya tapılmayıbsa error at
+    if (typeof self.solution !== 'function') {
+      self.postMessage({ error: 'Funksiya tapılmadı! function solution(...) və ya const/let/var solution = ... yazın.' });
       clearTimeout(timer);
       return;
     }
 
-    let result = solution(...args);
+    // Funksiyanı çağır
+    let result = self.solution(...args);
     if (result instanceof Promise) {
       result = await result;
     }
