@@ -1,12 +1,15 @@
-"use client"
-import React, { useState } from 'react';
+"use client";
+import React, { useState } from "react";
 import MonacoEditor from "@monaco-editor/react";
-import styles from './JsTryEditor.module.css';
+import styles from "./JsTryEditor.module.css";
+import SavadliButton from "../Buttons/savadliButton/SavadliButton";
+import CopyButton from "../Buttons/copyButton/CopyButton";
 
 interface JsTryEditorProps {
   value?: string;
   onChange?: (val: string) => void;
   showRunButton?: boolean;
+  showCopyButton?: boolean;
 }
 
 const defaultCode = `
@@ -17,7 +20,12 @@ function salam() {
   
 salam();`;
 
-export default function JsTryEditor({ value, onChange, showRunButton }: JsTryEditorProps) {
+export default function JsTryEditor({
+  value,
+  onChange,
+  showRunButton,
+  showCopyButton,
+}: JsTryEditorProps) {
   const [internalCode, setInternalCode] = useState(defaultCode);
   const code = value !== undefined ? value : internalCode;
   const handleChange = (val: string | undefined) => {
@@ -27,19 +35,19 @@ export default function JsTryEditor({ value, onChange, showRunButton }: JsTryEdi
     setError("");
     setShowOutput(false);
   };
-  const [output, setOutput] = useState('');
-  const [error, setError] = useState('');
+  const [output, setOutput] = useState("");
+  const [error, setError] = useState("");
   const [showOutput, setShowOutput] = useState(false);
 
   const runCode = () => {
-    setError('');
+    setError("");
     try {
       // eslint-disable-next-line no-eval
       const result = eval(code);
       setOutput(String(result));
       setShowOutput(true);
     } catch (err: any) {
-      setOutput('');
+      setOutput("");
       setError(err.message);
       setShowOutput(true);
     }
@@ -47,11 +55,6 @@ export default function JsTryEditor({ value, onChange, showRunButton }: JsTryEdi
 
   return (
     <div className={styles.editorSection}>
-      {showRunButton && (
-        <button className={styles.runButtonTopRight} onClick={runCode}>
-          İcra et
-        </button>
-      )}
       <MonacoEditor
         height="300px"
         defaultLanguage="javascript"
@@ -76,6 +79,8 @@ export default function JsTryEditor({ value, onChange, showRunButton }: JsTryEdi
           <pre className={styles.error}>Xəta: {error}</pre>
         </div>
       )}
+      {showRunButton && <SavadliButton position="absolute" bottom="5px" right="10px" text="Kodlaşdır"></SavadliButton>}
+      {showCopyButton && <CopyButton position="absolute" bottom="5px" right="160px"></CopyButton>}
     </div>
   );
-} 
+}

@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./MainPageContent.module.css";
+import JsTryEditor from "../tryeditor/JsTryEditor";
 
 const features = [
   { icon: "🔢", label: "Massivlər" },
@@ -40,6 +41,7 @@ export default function MainPageContent() {
           `}
         </pre>
       </section>
+      <JsTryEditor showCopyButton={true} showRunButton={true} />
     </main>
   );
 }
