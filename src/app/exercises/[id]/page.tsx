@@ -7,6 +7,8 @@ import Header from "../../components/header/Header";
 import styles from "../ExercisesList.module.css";
 import detailStyles from "./ExerciseDetail.module.css";
 import workerCode from "./sandboxWorkerString";
+import SavadliButton from "@/app/components/Buttons/savadliButton/SavadliButton";
+import CodeEvalResult from "./CodeEvalResult";
 
 const LEFT_TABS = ["Təsvir", "Redaktə", "Həllər", "Təqdimatlar"];
 
@@ -17,6 +19,12 @@ interface ExerciseDetailPageProps {
 function createSandboxWorker() {
   const blob = new Blob([workerCode], { type: "application/javascript" });
   return new Worker(URL.createObjectURL(blob));
+}
+
+interface FailedCase {
+  input: string;
+  output: string;
+  expected: string;
 }
 
 export default function ExerciseDetailPage({
@@ -38,6 +46,11 @@ export default function ExerciseDetailPage({
   const [detectedComplexity, setDetectedComplexity] = useState<string | null>(
     null
   );
+  const [activeLeftTab, setActiveLeftTab] = useState(0); // 0: Description, 1: Editorial, 2: Solutions, 3: Submissions, 4: Result
+  const resultTabAvailable = submitted;
+  const isCorrect = feedbackType === "success";
+  const [showComplexity, setShowComplexity] = useState(false);
+  const [failedCases, setFailedCases] = useState<FailedCase[]>([]);
 
   const exercise = exercises.find((ex) => ex.id === id);
   if (!exercise) return <div>Tapşırıq tapılmadı.</div>;
@@ -121,12 +134,15 @@ export default function ExerciseDetailPage({
     setDetectedComplexity(null);
     let passedCount = 0;
     let failedCase = null;
+    let failedCasesArr = [];
     if (!isSafeCode(userCode)) {
       setFeedback("Kod təhlükəli əmrlər ehtiva edir!");
       setFeedbackType("error");
       setTestResults([]);
       setSubmitted(true);
       setIsSubmitting(false);
+      setActiveLeftTab(4);
+      setFailedCases([]);
       return;
     }
     // Extract the function body for complexity analysis
@@ -168,18 +184,18 @@ export default function ExerciseDetailPage({
           setSubmitted(true);
           setIsSubmitting(false);
           setDetectedComplexity(null);
+          setActiveLeftTab(4);
+          setFailedCases([]);
           return;
         }
         const passed = isEqual(result, tc.expectedOutput);
-
         if (!passed) {
           failedCase = {
             input: tc.input,
-            expected: tc.expectedOutput,
             output: String(result),
-            index: i + 1,
+            expected: String(tc.expectedOutput),
           };
-          break;
+          failedCasesArr.push(failedCase);
         }
         passedCount++;
       }
@@ -190,303 +206,202 @@ export default function ExerciseDetailPage({
       setSubmitted(true);
       setIsSubmitting(false);
       setDetectedComplexity(null);
+      setActiveLeftTab(4);
+      setFailedCases([]);
       return;
     }
     setSubmitted(true);
     setIsSubmitting(false);
+    setActiveLeftTab(4);
+    setFailedCases(failedCasesArr);
     if (failedCase) {
       setFeedback(
         `${passedCount}/${exercise.testCases.length} test keçdi. İlk səhv test: input = ${failedCase.input}, gözlənilən = ${failedCase.expected}, sənin çıxışın = ${failedCase.output}`
       );
       setFeedbackType("error");
-    } else {
-      setFeedback(
-        `${exercise.testCases.length}/${exercise.testCases.length} test uğurla keçdi!`
-      );
-      setFeedbackType("success");
+      setTestResults([]);
+      setDetectedComplexity(null);
+      return;
     }
+    setFeedback(
+      `${exercise.testCases.length}/${exercise.testCases.length} test uğurla keçdi!`
+    );
+    setFeedbackType("success");
     setTestResults([]); // Hide detailed results
   };
 
   // Test case panel logic
   const visibleCases = exercise.testCases.filter((tc) => !tc.hidden);
 
+  type LeftTab = { label: string; result?: boolean };
+  const leftTabs: LeftTab[] = [
+    { label: "Description" },
+    { label: "Editorial" },
+    { label: "Solutions" },
+    { label: "Submissions" },
+  ];
+  if (resultTabAvailable) {
+    leftTabs.push({ label: isCorrect ? "Doğru Cavab" : "Yalnış Cavab", result: true });
+  }
+
   return (
     <>
       <Header />
-      <div className={styles.layout}>
-        <div className={styles.contentOpen}>
-          <div className={detailStyles.container}>
-            {/* Left Panel: Problem Details with Tabs */}
-            <div className={detailStyles.leftPanel}>
-              {/* Modern Tab Bar */}
-              <div className={detailStyles.tabsBar}>
-                {LEFT_TABS.map((tab, i) => (
-                  <button
-                    key={tab}
-                    onClick={() => setLeftTab(i)}
+      <div className={detailStyles.leetcodeContainer}>
+        {/* Left: Problem Description and Tabs */}
+        <div className={detailStyles.leetcodeLeft}>
+          <div className={detailStyles.leetcodeTabBar}>
+            {leftTabs.map((tab, i) => (
+              <button
+                key={tab.label}
+                className={
+                  detailStyles.leetcodeTabButton +
+                  (activeLeftTab === i ? " " + detailStyles.active : "") +
+                  ((tab.result ?? false) && isCorrect ? " " + detailStyles.correct : "") +
+                  ((tab.result ?? false) && !isCorrect ? " " + detailStyles.wrong : "")
+                }
+                onClick={() => setActiveLeftTab(i)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <div className={detailStyles.leetcodeTabContent}>
+            {activeLeftTab === 0 && (
+              <>
+                <div className={detailStyles.leetcodeTitleRow}>
+                  <span className={detailStyles.leetcodeTitle}>{exercise.title}</span>
+                  <span
                     className={
-                      detailStyles.tabButton +
-                      (leftTab === i ? " " + detailStyles.active : "")
+                      detailStyles.leetcodeDifficulty +
+                      " " +
+                      (exercise.difficulty === "Asan"
+                        ? detailStyles.easy
+                        : exercise.difficulty === "Orta"
+                        ? detailStyles.medium
+                        : detailStyles.hard)
                     }
-                    tabIndex={0}
                   >
-                    {tab}
-                  </button>
-                ))}
-              </div>
-              {/* Tab Content */}
-              <div style={{ marginTop: 18 }}>
-                {leftTab === 0 && (
-                  <div className={detailStyles.leftTabContent}>
-                    <h1
-                      style={{
-                        fontSize: "1.5rem",
-                        fontWeight: 700,
-                        marginBottom: 8,
-                      }}
-                    >
-                      {exercise.title}
-                    </h1>
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: 12,
-                        alignItems: "center",
-                        marginBottom: 8,
-                      }}
-                    >
-                      <span
-                        className={
-                          detailStyles.difficulty +
-                          " " +
-                          (exercise.difficulty === "Asan"
-                            ? detailStyles.easy
-                            : exercise.difficulty === "Orta"
-                            ? detailStyles.medium
-                            : detailStyles.hard)
-                        }
-                      >
-                        {exercise.difficulty}
-                      </span>
-                      {exercise.tags.map((tag) => (
-                        <span key={tag} className={detailStyles.tag}>
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <div style={{ color: "#f3f3f3", marginBottom: 18 }}>
-                      {exercise.description}
-                    </div>
-                    <div style={{ marginBottom: 12 }}>
-                      <b>Məhdudiyyətlər:</b>
-                      <ul style={{ margin: 0, paddingLeft: 18 }}>
-                        {exercise.constraints.map((c, i) => (
-                          <li key={i}>{c}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div style={{ marginBottom: 12 }}>
-                      <b>Nümunələr:</b>
-                      <ul style={{ margin: 0, paddingLeft: 18 }}>
-                        {exercise.examples.map((ex, i) => (
-                          <li key={i}>
-                            <span style={{ color: "#6c3fc5" }}>Input:</span>{" "}
-                            {ex.input}{" "}
-                            <span style={{ color: "#ff8800", marginLeft: 8 }}>
-                              Output:
-                            </span>{" "}
-                            {ex.output}
-                            {ex.explanation && (
-                              <span style={{ color: "#888", marginLeft: 8 }}>
-                                ({ex.explanation})
-                              </span>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-                {leftTab !== 0 && (
-                  <div
-                    style={{ color: "#aaa", fontStyle: "italic", marginTop: 32 }}
-                  >
-                    Bu bölmə hələ aktiv deyil.
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Right Panel: Code Editor and Output */}
-            <div className={detailStyles.rightPanel}>
-              <div className={detailStyles.editorSection}>
-                <div className={detailStyles.codeHeader}>
-                  <div className={detailStyles.codeHeaderRow}>
-                    <span style={{ fontWeight: 700, fontSize: "1.1rem" }}>
-                      Kod
-                    </span>
-                    <button
-                      onClick={submitCode}
-                      className={detailStyles.submitButton}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? "Yoxlanır..." : "Submit"}
-                    </button>
-                  </div>
-                  <JsTryEditor value={userCode} onChange={setUserCode} />
-                </div>
-              </div>
-              <div className={detailStyles.outputSection}>
-                {/* Testcase Panel */}
-                <div className={detailStyles.testcasePanel}>
-                  <div className={detailStyles.testcaseTabs}>
-                    {visibleCases.map((tc, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setActiveCase(i)}
-                        className={
-                          detailStyles.testcaseTabButton +
-                          (activeCase === i ? " " + detailStyles.active : "")
-                        }
-                      >
-                        Case {i + 1}
-                      </button>
-                    ))}
-                  </div>
-                  <div style={{ marginBottom: 8, color: "#bdbdbd" }}>
-                    <b>Input:</b> {visibleCases[activeCase]?.input}
-                  </div>
-                  <div style={{ marginBottom: 8, color: "#bdbdbd" }}>
-                    <b>Gözlənilən çıxış:</b>{" "}
-                    {visibleCases[activeCase]?.expectedOutput}
-                  </div>
-                  <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-                    <input
-                      value={customInput}
-                      onChange={(e) => setCustomInput(e.target.value)}
-                      placeholder="Custom input (məsələn: 2 3)"
-                      className={detailStyles.inputBox}
-                    />
-                    <button onClick={runCode} className={detailStyles.runButton}>
-                      Run
-                    </button>
-                  </div>
-                  {output && (
-                    <div className={detailStyles.outputBox}>Nəticə: {output}</div>
-                  )}
-                </div>
-                {/* Test Case Results */}
-                {submitted && (
-                  <div style={{ marginBottom: 24 }}>
-                    {feedback && (
-                      <div
-                        className={
-                          detailStyles.feedback +
-                          " " +
-                          (feedbackType === "success"
-                            ? detailStyles.success
-                            : feedbackType === "error"
-                            ? detailStyles.error
-                            : "")
-                        }
-                      >
-                        {feedback}
-                      </div>
-                    )}
-                    <div className={detailStyles.testResultsHeader}>
-                      Test nəticələri:
-                    </div>
-                    <div className={detailStyles.testResultsBox}>
-                      {testResults.map((r, i) => (
-                        <div
-                          key={i}
-                          className={
-                            detailStyles.testResultRow +
-                            " " +
-                            (r.status === "Passed"
-                              ? detailStyles.passed
-                              : detailStyles.failed)
-                          }
-                        >
-                          <b>
-                            {r.status === "Passed" ? "✅ Keçdi" : "❌ Uğursuz"}
-                          </b>{" "}
-                          | <b>Input:</b> {r.hidden ? "[Gizli test]" : r.input} |{" "}
-                          <b>Sənin çıxışın:</b> {r.output} |{" "}
-                          <b>Gözlənilən çıxış:</b> {r.expected} | <b>Zaman:</b>{" "}
-                          {r.time} | <b>Yaddaş:</b> {r.memory}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {/* Hints */}
-                {exercise.hints && exercise.hints.length > 0 && (
-                  <div className={detailStyles.hintsBox}>
-                    <b>İpuçları:</b>
-                    <ul style={{ margin: 0, paddingLeft: 18 }}>
-                      {exercise.hints.map((h, i) => (
-                        <li key={i}>{h}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {/* Post-solve UI */}
-                {submitted && (
-                  <div className={detailStyles.postSolveBox}>
-                    <div style={{ fontWeight: 700, marginBottom: 8 }}>
-                      Həll və Analiz
-                    </div>
-                    <div style={{ marginBottom: 8 }}>
-                      <b>Həll:</b>
-                      <pre
-                        style={{
-                          background: "#232136",
-                          color: "#fff",
-                          borderRadius: 6,
-                          padding: 12,
-                          fontSize: 15,
-                          marginTop: 6,
-                        }}
-                      >
-                        {exercise.solution}
-                      </pre>
-                    </div>
-                    <div style={{ marginBottom: 8 }}>
-                      <b>Zaman mürəkkəbliyi:</b> {exercise.timeComplexity}
-                    </div>
-                    <div style={{ marginBottom: 8 }}>
-                      <b>Yaddaş mürəkkəbliyi:</b> {exercise.spaceComplexity}
-                    </div>
-                    <button
-                      onClick={() => (window.location.href = "/exercises")}
-                      className={detailStyles.submitButton}
-                      style={{ marginTop: 8 }}
-                    >
-                      Başqa tapşırıq
-                    </button>
-                  </div>
-                )}
-                {/* Star/Save, Daily Challenge, Stats (mocked) */}
-                <div className={detailStyles.saveRow}>
-                  <button className={detailStyles.saveButton}>
-                    ⭐ Yadda saxla
-                  </button>
-                  <span className={detailStyles.dailyTag}>Günün tapşırığı</span>
-                  <span className={detailStyles.stats}>
-                    Cəhd sayı: 2 | Uğur faizi: 100%
+                    {exercise.difficulty}
                   </span>
+                  {exercise.tags.map((tag) => (
+                    <span key={tag} className={detailStyles.leetcodeTag}>
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-                {detectedComplexity && (
-                  <div
-                    style={{ marginTop: 12, color: "#ff6600", fontWeight: 600 }}
-                  >
-                    Tapılan zaman mürəkkəbliyi: {detectedComplexity}
-                  </div>
-                )}
+                <div className={detailStyles.leetcodeDescription}>
+                  {exercise.description}
+                </div>
+                <div className={detailStyles.leetcodeNotes}>
+                  <b>Qeyd:</b>
+                  <ul>
+                    <li>Altardiz sıfırlar ola bilər.</li>
+                    <li>Boş string 0-a bərabər sayılır.</li>
+                    <li>
+                      <b>Altardiz</b> - ardıcıllığı pozmadan bəzi simvolları silməklə
+                      əldə olunan string.
+                    </li>
+                  </ul>
+                </div>
+                <div className={detailStyles.leetcodeExamples}>
+                  <b>Nümunə:</b>
+                  {exercise.examples.map((ex, i) => (
+                    <div key={i} className={detailStyles.leetcodeExampleBlock}>
+                      <div>
+                        <b>Input:</b> {ex.input}
+                      </div>
+                      <div>
+                        <b>Output:</b> {ex.output}
+                      </div>
+                      {ex.explanation && (
+                        <div>
+                          <b>Explanation:</b> {ex.explanation}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+            {activeLeftTab === 1 && (
+              <div style={{ color: '#aaa', fontStyle: 'italic', marginTop: 32 }}>Editorial bölməsi tezliklə...</div>
+            )}
+            {activeLeftTab === 2 && (
+              <div style={{ color: '#aaa', fontStyle: 'italic', marginTop: 32 }}>Solutions bölməsi tezliklə...</div>
+            )}
+            {activeLeftTab === 3 && (
+              <div style={{ color: '#aaa', fontStyle: 'italic', marginTop: 32 }}>Submissions bölməsi tezliklə...</div>
+            )}
+            {activeLeftTab === 4 && resultTabAvailable && (
+              <CodeEvalResult
+                status={isCorrect ? "correct" : "wrong"}
+                passedCount={testResults.filter(r => r.status === 'Passed').length}
+                totalCount={testResults.length}
+                failedCases={failedCases}
+                onAnalyzeComplexity={() => setShowComplexity((v) => !v)}
+              />
+            )}
+          </div>
+        </div>
+        {/* Right: Code Editor, Submit, Testcase */}
+        <div className={detailStyles.leetcodeRight}>
+          <div className={detailStyles.leetcodeSubmitRow}></div>
+          <div className={detailStyles.leetcodeEditorBlock}>
+            <JsTryEditor value={userCode} onChange={setUserCode} />
+
+            <SavadliButton
+              text={isSubmitting ? "Yoxlanır..." : "Submit"}
+              position="absolute"
+              right={"2%"}
+              bottom={"6%"}
+              onClick={submitCode}
+              disabled={isSubmitting}
+            />
+          </div>
+          <div className={detailStyles.leetcodeTestcaseBlock}>
+            <div className={detailStyles.leetcodeTestcaseTabs}>
+              {visibleCases.map((tc, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveCase(i)}
+                  className={
+                    detailStyles.leetcodeTestcaseTab +
+                    (activeCase === i ? " " + detailStyles.active : "")
+                  }
+                >
+                  Case {i + 1}
+                </button>
+              ))}
+            </div>
+            <div className={detailStyles.leetcodeTestcaseInputRow}>
+              <div>
+                <b>Input:</b> {visibleCases[activeCase]?.input}
+              </div>
+              <div>
+                <b>Gözlənilən çıxış:</b>{" "}
+                {visibleCases[activeCase]?.expectedOutput}
               </div>
             </div>
+            <div className={detailStyles.leetcodeTestcaseCustomRow}>
+              <input
+                value={customInput}
+                onChange={(e) => setCustomInput(e.target.value)}
+                placeholder="Custom input (məsələn: 2 3)"
+                className={detailStyles.leetcodeInputBox}
+              />
+              <button
+                onClick={runCode}
+                className={detailStyles.leetcodeRunButton}
+              >
+                Run
+              </button>
+            </div>
+            {output && (
+              <div className={detailStyles.leetcodeOutputBox}>
+                Nəticə: {output}
+              </div>
+            )}
           </div>
         </div>
       </div>

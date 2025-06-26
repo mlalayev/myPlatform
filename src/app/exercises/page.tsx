@@ -47,31 +47,47 @@ export default function ExercisesPage() {
                 <Link
                   href={`/exercises/${ex.id}`}
                   key={ex.id}
-                  className={
-                    styles.row + " " + (i % 2 === 0 ? styles.rowEven : styles.rowOdd)
-                  }
+                  className={styles.row}
                 >
-                  <div
-                    className={styles.cell}
-                    style={{ width: 40, color: "#424242", fontWeight: 600 }}
-                  >
-                    {i + 1}. &nbsp;
+                  <div className={styles.cardHeader}>
+                    <span className={styles.cardIndex}>{i + 1}.</span>
                     <span className={styles.cellTitle}>{ex.title}</span>
-                    <div className={styles.cellDesc}>{ex.description}</div>
+                    <span className={styles.cellDiff + " " + difficultyColor(ex.difficulty)}>
+                      {ex.difficulty}
+                    </span>
                   </div>
-                  <div
-                    className={
-                      styles.cellDiff + " " + difficultyColor(ex.difficulty)
-                    }
-                  >
-                    {ex.difficulty}
+                  <div className={styles.cellDesc}>{ex.description}</div>
+                  <div className={styles.cardFooter}>
+                    <span className={styles.cellAcc}>{ex.acceptance}% Acceptance</span>
+                    <div className={styles.cardTags}>
+                      {ex.tags.map((tag) => (
+                        <span className={styles.cardTag} key={tag}>{tag}</span>
+                      ))}
+                    </div>
                   </div>
-                  <div className={styles.cellAcc}>{ex.acceptance}%</div>
                 </Link>
               ))}
             </div>
           </div>
         </div>
+        <aside className={styles.sidebar}>
+          <div className={styles.sidebarSection}>
+            <h3 className={styles.sidebarTitle}>Trending Companies</h3>
+            <div className={styles.trendingCompaniesPlaceholder}>
+              <span>Meta</span>
+              <span>Google</span>
+              <span>Amazon</span>
+              <span>Microsoft</span>
+              <span>Uber</span>
+            </div>
+          </div>
+          <div className={styles.sidebarSection}>
+            <h3 className={styles.sidebarTitle}>Calendar</h3>
+            <div className={styles.calendarPlaceholder}>
+              <span>[Calendar Here]</span>
+            </div>
+          </div>
+        </aside>
       </div>
     </>
   );
