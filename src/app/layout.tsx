@@ -5,7 +5,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body  style={{
-        height: "100000px"
+        // height: "100000px"
       }}>
         {children}
       </body>

@@ -8,6 +8,8 @@ type SavadliTypes = {
   bottom?: string | undefined;
   left?: string | undefined;
   right?: string | undefined;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  disabled?: boolean;
 };
 
 function SavadliButton(props: SavadliTypes) {
@@ -22,6 +24,8 @@ function SavadliButton(props: SavadliTypes) {
           right: props.position ? props.right : undefined,
           left: props.position ? props.left : undefined,
         }}
+        onClick={props.onClick}
+        disabled={props.disabled}
       >
         <span>
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
