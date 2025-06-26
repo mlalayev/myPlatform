@@ -8,6 +8,7 @@ import styles from "../ExercisesList.module.css";
 import detailStyles from "./ExerciseDetail.module.css";
 import workerCode from "./sandboxWorkerString";
 import SavadliButton from "@/app/components/Buttons/savadliButton/SavadliButton";
+import CodeEvalResult from "./CodeEvalResult";
 
 const LEFT_TABS = ["Təsvir", "Redaktə", "Həllər", "Təqdimatlar"];
 
@@ -18,6 +19,12 @@ interface ExerciseDetailPageProps {
 function createSandboxWorker() {
   const blob = new Blob([workerCode], { type: "application/javascript" });
   return new Worker(URL.createObjectURL(blob));
+}
+
+interface FailedCase {
+  input: string;
+  output: string;
+  expected: string;
 }
 
 export default function ExerciseDetailPage({
@@ -39,6 +46,11 @@ export default function ExerciseDetailPage({
   const [detectedComplexity, setDetectedComplexity] = useState<string | null>(
     null
   );
+  const [activeLeftTab, setActiveLeftTab] = useState(0); // 0: Description, 1: Editorial, 2: Solutions, 3: Submissions, 4: Result
+  const resultTabAvailable = submitted;
+  const isCorrect = feedbackType === "success";
+  const [showComplexity, setShowComplexity] = useState(false);
+  const [failedCases, setFailedCases] = useState<FailedCase[]>([]);
 
   const exercise = exercises.find((ex) => ex.id === id);
   if (!exercise) return <div>Tapşırıq tapılmadı.</div>;
@@ -122,12 +134,15 @@ export default function ExerciseDetailPage({
     setDetectedComplexity(null);
     let passedCount = 0;
     let failedCase = null;
+    let failedCasesArr = [];
     if (!isSafeCode(userCode)) {
       setFeedback("Kod təhlükəli əmrlər ehtiva edir!");
       setFeedbackType("error");
       setTestResults([]);
       setSubmitted(true);
       setIsSubmitting(false);
+      setActiveLeftTab(4);
+      setFailedCases([]);
       return;
     }
     // Extract the function body for complexity analysis
@@ -169,18 +184,18 @@ export default function ExerciseDetailPage({
           setSubmitted(true);
           setIsSubmitting(false);
           setDetectedComplexity(null);
+          setActiveLeftTab(4);
+          setFailedCases([]);
           return;
         }
         const passed = isEqual(result, tc.expectedOutput);
-
         if (!passed) {
           failedCase = {
             input: tc.input,
-            expected: tc.expectedOutput,
             output: String(result),
-            index: i + 1,
+            expected: String(tc.expectedOutput),
           };
-          break;
+          failedCasesArr.push(failedCase);
         }
         passedCount++;
       }
@@ -191,85 +206,142 @@ export default function ExerciseDetailPage({
       setSubmitted(true);
       setIsSubmitting(false);
       setDetectedComplexity(null);
+      setActiveLeftTab(4);
+      setFailedCases([]);
       return;
     }
     setSubmitted(true);
     setIsSubmitting(false);
+    setActiveLeftTab(4);
+    setFailedCases(failedCasesArr);
     if (failedCase) {
       setFeedback(
         `${passedCount}/${exercise.testCases.length} test keçdi. İlk səhv test: input = ${failedCase.input}, gözlənilən = ${failedCase.expected}, sənin çıxışın = ${failedCase.output}`
       );
       setFeedbackType("error");
-    } else {
-      setFeedback(
-        `${exercise.testCases.length}/${exercise.testCases.length} test uğurla keçdi!`
-      );
-      setFeedbackType("success");
+      setTestResults([]);
+      setDetectedComplexity(null);
+      return;
     }
+    setFeedback(
+      `${exercise.testCases.length}/${exercise.testCases.length} test uğurla keçdi!`
+    );
+    setFeedbackType("success");
     setTestResults([]); // Hide detailed results
   };
 
   // Test case panel logic
   const visibleCases = exercise.testCases.filter((tc) => !tc.hidden);
 
+  type LeftTab = { label: string; result?: boolean };
+  const leftTabs: LeftTab[] = [
+    { label: "Description" },
+    { label: "Editorial" },
+    { label: "Solutions" },
+    { label: "Submissions" },
+  ];
+  if (resultTabAvailable) {
+    leftTabs.push({ label: isCorrect ? "Doğru Cavab" : "Yalnış Cavab", result: true });
+  }
+
   return (
     <>
       <Header />
       <div className={detailStyles.leetcodeContainer}>
-        {/* Left: Problem Description */}
+        {/* Left: Problem Description and Tabs */}
         <div className={detailStyles.leetcodeLeft}>
-          <div className={detailStyles.leetcodeTitleRow}>
-            <span className={detailStyles.leetcodeTitle}>{exercise.title}</span>
-            <span
-              className={
-                detailStyles.leetcodeDifficulty +
-                " " +
-                (exercise.difficulty === "Asan"
-                  ? detailStyles.easy
-                  : exercise.difficulty === "Orta"
-                  ? detailStyles.medium
-                  : detailStyles.hard)
-              }
-            >
-              {exercise.difficulty}
-            </span>
-            {exercise.tags.map((tag) => (
-              <span key={tag} className={detailStyles.leetcodeTag}>
-                {tag}
-              </span>
+          <div className={detailStyles.leetcodeTabBar}>
+            {leftTabs.map((tab, i) => (
+              <button
+                key={tab.label}
+                className={
+                  detailStyles.leetcodeTabButton +
+                  (activeLeftTab === i ? " " + detailStyles.active : "") +
+                  ((tab.result ?? false) && isCorrect ? " " + detailStyles.correct : "") +
+                  ((tab.result ?? false) && !isCorrect ? " " + detailStyles.wrong : "")
+                }
+                onClick={() => setActiveLeftTab(i)}
+              >
+                {tab.label}
+              </button>
             ))}
           </div>
-          <div className={detailStyles.leetcodeDescription}>
-            {exercise.description}
-          </div>
-          <div className={detailStyles.leetcodeNotes}>
-            <b>Qeyd:</b>
-            <ul>
-              <li>Altardiz sıfırlar ola bilər.</li>
-              <li>Boş string 0-a bərabər sayılır.</li>
-              <li>
-                <b>Altardiz</b> - ardıcıllığı pozmadan bəzi simvolları silməklə
-                əldə olunan string.
-              </li>
-            </ul>
-          </div>
-          <div className={detailStyles.leetcodeExamples}>
-            <b>Nümunə:</b>
-            {exercise.examples.map((ex, i) => (
-              <div key={i} className={detailStyles.leetcodeExampleBlock}>
-                <div>
-                  <b>Input:</b> {ex.input}
+          <div className={detailStyles.leetcodeTabContent}>
+            {activeLeftTab === 0 && (
+              <>
+                <div className={detailStyles.leetcodeTitleRow}>
+                  <span className={detailStyles.leetcodeTitle}>{exercise.title}</span>
+                  <span
+                    className={
+                      detailStyles.leetcodeDifficulty +
+                      " " +
+                      (exercise.difficulty === "Asan"
+                        ? detailStyles.easy
+                        : exercise.difficulty === "Orta"
+                        ? detailStyles.medium
+                        : detailStyles.hard)
+                    }
+                  >
+                    {exercise.difficulty}
+                  </span>
+                  {exercise.tags.map((tag) => (
+                    <span key={tag} className={detailStyles.leetcodeTag}>
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-                <div>
-                  <b>Output:</b> {ex.output}
+                <div className={detailStyles.leetcodeDescription}>
+                  {exercise.description}
                 </div>
-                {ex.explanation && (
-                  <div>
-                    <b>Explanation:</b> {ex.explanation}
-                  </div>
-                )}
-              </div>
-            ))}
+                <div className={detailStyles.leetcodeNotes}>
+                  <b>Qeyd:</b>
+                  <ul>
+                    <li>Altardiz sıfırlar ola bilər.</li>
+                    <li>Boş string 0-a bərabər sayılır.</li>
+                    <li>
+                      <b>Altardiz</b> - ardıcıllığı pozmadan bəzi simvolları silməklə
+                      əldə olunan string.
+                    </li>
+                  </ul>
+                </div>
+                <div className={detailStyles.leetcodeExamples}>
+                  <b>Nümunə:</b>
+                  {exercise.examples.map((ex, i) => (
+                    <div key={i} className={detailStyles.leetcodeExampleBlock}>
+                      <div>
+                        <b>Input:</b> {ex.input}
+                      </div>
+                      <div>
+                        <b>Output:</b> {ex.output}
+                      </div>
+                      {ex.explanation && (
+                        <div>
+                          <b>Explanation:</b> {ex.explanation}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+            {activeLeftTab === 1 && (
+              <div style={{ color: '#aaa', fontStyle: 'italic', marginTop: 32 }}>Editorial bölməsi tezliklə...</div>
+            )}
+            {activeLeftTab === 2 && (
+              <div style={{ color: '#aaa', fontStyle: 'italic', marginTop: 32 }}>Solutions bölməsi tezliklə...</div>
+            )}
+            {activeLeftTab === 3 && (
+              <div style={{ color: '#aaa', fontStyle: 'italic', marginTop: 32 }}>Submissions bölməsi tezliklə...</div>
+            )}
+            {activeLeftTab === 4 && resultTabAvailable && (
+              <CodeEvalResult
+                status={isCorrect ? "correct" : "wrong"}
+                passedCount={testResults.filter(r => r.status === 'Passed').length}
+                totalCount={testResults.length}
+                failedCases={failedCases}
+                onAnalyzeComplexity={() => setShowComplexity((v) => !v)}
+              />
+            )}
           </div>
         </div>
         {/* Right: Code Editor, Submit, Testcase */}
@@ -281,7 +353,7 @@ export default function ExerciseDetailPage({
             <SavadliButton
               text={isSubmitting ? "Yoxlanır..." : "Submit"}
               position="absolute"
-              right={"1%"}
+              right={"2%"}
               bottom={"6%"}
               onClick={submitCode}
               disabled={isSubmitting}
@@ -328,27 +400,6 @@ export default function ExerciseDetailPage({
             {output && (
               <div className={detailStyles.leetcodeOutputBox}>
                 Nəticə: {output}
-              </div>
-            )}
-            {submitted && (
-              <div className={detailStyles.leetcodeTestResultsBox}>
-                {testResults.map((r, i) => (
-                  <div
-                    key={i}
-                    className={
-                      detailStyles.leetcodeTestResultRow +
-                      (r.status === "Passed"
-                        ? " " + detailStyles.passed
-                        : " " + detailStyles.failed)
-                    }
-                  >
-                    <b>{r.status === "Passed" ? "✅ Keçdi" : "❌ Uğursuz"}</b> |{" "}
-                    <b>Input:</b> {r.hidden ? "[Gizli test]" : r.input} |{" "}
-                    <b>Sənin çıxışın:</b> {r.output} | <b>Gözlənilən çıxış:</b>{" "}
-                    {r.expected} | <b>Zaman:</b> {r.time} | <b>Yaddaş:</b>{" "}
-                    {r.memory}
-                  </div>
-                ))}
               </div>
             )}
           </div>
