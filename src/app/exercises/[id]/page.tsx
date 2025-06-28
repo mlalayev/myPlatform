@@ -507,23 +507,49 @@ export default function ExerciseDetailPage({
                       </div>
                     </div>
                   </div>
-                  {/* Lower details box */}
-                  <div className={detailStyles.failedCaseOuterBox}>
-                    <div className={detailStyles.failedCasesSection}>
-                      <div className={detailStyles.sectionHeaderRow}>
-                        <FiAlertTriangle className={detailStyles.sectionIcon} />
-                        <h4 className={detailStyles.sectionTitle}>İlk uğursuz test</h4>
-                      </div>
-                      <div className={detailStyles.sectionDivider} />
-                      <div className={detailStyles.failedCasesList}>
-                        <div className={detailStyles.failedCaseCardPro}>
-                          <div className={detailStyles.caseHeaderRow}>
-                            <span className={detailStyles.caseNumber}>Test #{failedCases[0].index ?? 1}</span>
-                            <div className={detailStyles.caseStatusFail}><FiXCircle className={detailStyles.failIcon} /> Uğursuz</div>
+                  {/* Failed Cases Section */}
+                  <div className={detailStyles.failedCasesSection}>
+                    <div className={detailStyles.sectionHeader}>
+                      <FiAlertTriangle className={detailStyles.sectionIcon} />
+                      <h4 className={detailStyles.sectionTitle}>
+                        İlk Uğursuz Test Halı
+                      </h4>
+                    </div>
+                    <div className={detailStyles.failedCasesList}>
+                      <div className={detailStyles.failedCaseCard}>
+                        <div className={detailStyles.caseHeader}>
+                          <span className={detailStyles.caseNumber}>Test #1</span>
+                          <div className={detailStyles.caseStatus}>
+                            <FiXCircle className={detailStyles.failIcon} />
+                            <span>Uğursuz</span>
                           </div>
-                          <div className={detailStyles.caseRow}><span className={detailStyles.caseLabel}><FiCode className={detailStyles.caseIcon} /> Input:</span> <code className={detailStyles.caseCode}>{failedCases[0].input}</code></div>
-                          <div className={detailStyles.caseRow}><span className={detailStyles.caseLabel}><FiInfo className={detailStyles.caseIcon} /> Sənin çıxışın:</span> <code className={detailStyles.caseCode + ' ' + detailStyles.wrongOutput}>{failedCases[0].output}</code></div>
-                          <div className={detailStyles.caseRow}><span className={detailStyles.caseLabel}><FiCheckCircle className={detailStyles.caseIcon} /> Gözlənilən:</span> <code className={detailStyles.caseCode + ' ' + detailStyles.expectedOutput}>{failedCases[0].expected}</code></div>
+                        </div>
+                        <div className={detailStyles.caseContent}>
+                          <div className={detailStyles.caseRow}>
+                            <div className={detailStyles.caseLabel}>
+                              <FiCode className={detailStyles.caseIcon} />
+                              <span>Input:</span>
+                            </div>
+                            <code className={detailStyles.caseValue}>{failedCases[0].input}</code>
+                          </div>
+                          <div className={detailStyles.caseRow}>
+                            <div className={detailStyles.caseLabel}>
+                              <FiInfo className={detailStyles.caseIcon} />
+                              <span>Sizin çıxışınız:</span>
+                            </div>
+                            <code className={`${detailStyles.caseValue} ${detailStyles.wrongOutput}`}>
+                              {failedCases[0].output}
+                            </code>
+                          </div>
+                          <div className={detailStyles.caseRow}>
+                            <div className={detailStyles.caseLabel}>
+                              <FiCheckCircle className={detailStyles.caseIcon} />
+                              <span>Gözlənilən:</span>
+                            </div>
+                            <code className={`${detailStyles.caseValue} ${detailStyles.expectedOutput}`}>
+                              {failedCases[0].expected}
+                            </code>
+                          </div>
                         </div>
                       </div>
                     </div>
