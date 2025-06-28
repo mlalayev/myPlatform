@@ -18,8 +18,8 @@ const HeroSection = () => {
           Get Started <span className={styles.heroButtonIcon}><FiArrowUpRight /></span>
         </button>
       </div>
-      <div className={styles.heroImageWrapper}>
-        <Image src={heroImg} alt="Hero Illustration" className={styles.heroImage} />
+      <div className={styles.heroLogoWrapper}>
+        <Image src={heroImg} alt="Hero Logo" className={styles.heroImage} />
       </div>
     </section>
   );
