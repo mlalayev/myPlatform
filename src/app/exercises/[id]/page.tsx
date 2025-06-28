@@ -11,7 +11,7 @@ import workerCode from "./sandboxWorkerString";
 import SavadliButton from "@/app/components/Buttons/savadliButton/SavadliButton";
 import CodeEvalResult from "./CodeEvalResult";
 import ComplexityModal from "./ComplexityModal";
-import { FiCode, FiPlay, FiCheckCircle, FiXCircle, FiClock, FiUsers, FiTarget, FiBookOpen, FiEdit3, FiEye } from "react-icons/fi";
+import { FiCode, FiPlay, FiCheckCircle, FiXCircle, FiClock, FiUsers, FiTarget, FiBookOpen, FiEdit3, FiEye, FiAlertTriangle, FiInfo } from "react-icons/fi";
 
 const LEFT_TABS = ["Təsvir", "Redaktə", "Həllər", "Təqdimatlar"];
 
@@ -40,7 +40,7 @@ export default function ExerciseDetailPage({
   const [testResults, setTestResults] = useState<any[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [feedbackType, setFeedbackType] = useState<"success" | "error" | null>(
+  const [feedbackType, setFeedbackType] = useState<"success" | "error" | "wrong" | null>(
     null
   );
   const [activeCase, setActiveCase] = useState(0);
@@ -190,9 +190,10 @@ export default function ExerciseDetailPage({
           resultPromise,
           timeoutPromise,
         ]);
-        
+        console.log("Worker response:", response);
         const { result, error } = response;
         if (error) {
+          console.log("Worker error received:", error);
           setFeedback(error);
           setFeedbackType("error");
           setTestResults([]);
@@ -246,7 +247,7 @@ export default function ExerciseDetailPage({
       setFeedback(
         `${passedCount}/${exercise.testCases.length} test keçdi. İlk səhv test: input = ${failedCasesArr[0].input}, gözlənilən = ${failedCasesArr[0].expected}, sənin çıxışın = ${failedCasesArr[0].output}`
       );
-      setFeedbackType("error");
+      setFeedbackType("wrong");
       setTestResults([]);
       setDetectedComplexity(null);
       return;
@@ -272,11 +273,19 @@ export default function ExerciseDetailPage({
   ];
   
   if (resultTabAvailable) {
-    leftTabs.push({ 
-      label: isCorrect ? "Doğru Cavab" : "Yalnış Cavab", 
-      result: true,
-      icon: isCorrect ? <FiCheckCircle /> : <FiXCircle />
-    });
+    if (feedbackType === 'error') {
+      leftTabs.push({
+        label: 'Xəta',
+        result: true,
+        icon: <FiXCircle />
+      });
+    } else {
+      leftTabs.push({
+        label: isCorrect ? 'Doğru Cavab' : 'Yalnış Cavab',
+        result: true,
+        icon: isCorrect ? <FiCheckCircle /> : <FiXCircle />
+      });
+    }
   }
 
   const difficultyColor = (diff: string) => {
@@ -365,11 +374,13 @@ export default function ExerciseDetailPage({
             {leftTabs.map((tab, i) => (
               <button
                 key={tab.label}
-                className={`${detailStyles.tabButton} ${
-                  activeLeftTab === i ? detailStyles.active : ""
-                } ${(tab.result ?? false) && isCorrect ? detailStyles.correct : ""} ${
-                  (tab.result ?? false) && !isCorrect ? detailStyles.wrong : ""
-                }`}
+                className={
+                  `${detailStyles.tabButton} ` +
+                  (activeLeftTab === i ? detailStyles.active : "") +
+                  ((tab.result ?? false) && feedbackType === 'error' ? ' ' + detailStyles.xeta : "") +
+                  ((tab.result ?? false) && isCorrect ? ' ' + detailStyles.correct : "") +
+                  ((tab.result ?? false) && !isCorrect && feedbackType !== 'error' ? ' ' + detailStyles.wrong : "")
+                }
                 onClick={() => setActiveLeftTab(i)}
               >
                 {tab.icon}
@@ -451,13 +462,82 @@ export default function ExerciseDetailPage({
             )}
             
             {activeLeftTab === 4 && resultTabAvailable && (
-              <CodeEvalResult
-                status={isCorrect ? "correct" : "wrong"}
-                passedCount={isCorrect ? exercise.testCases.length : exercise.testCases.length - failedCases.length}
-                totalCount={exercise.testCases.length}
-                failedCases={failedCases}
-                onAnalyzeComplexity={() => setIsComplexityModalOpen(true)}
-              />
+              feedbackType === 'error' ? (
+                <div className={detailStyles.errorResultBox}>
+                  <div className={detailStyles.errorHeader}>
+                    <FiXCircle className={detailStyles.errorIcon} />
+                    <h3 className={detailStyles.errorTitle}>Xəta baş verdi</h3>
+                  </div>
+                  <div className={detailStyles.errorMessage}>{feedback}</div>
+                </div>
+              ) : (feedbackType === 'wrong' && failedCases.length > 0 ? (
+                <>
+                  {/* Top summary box */}
+                  <div className={detailStyles.resultContainer + ' ' + detailStyles.wrongTheme}>
+                    <div className={detailStyles.resultHeader}>
+                      <div className={detailStyles.statusSection}>
+                        <div className={`${detailStyles.statusIcon} ${detailStyles.error}`}> <FiXCircle /> </div>
+                        <div className={detailStyles.statusContent}>
+                          <h3 className={detailStyles.statusTitle}>Bəzi testlər uğursuz oldu</h3>
+                          <p className={detailStyles.statusSubtitle}>
+                            Kodunuz bəzi test hallarını keçmədi. Aşağıda ilk uğursuz test göstərilib.
+                          </p>
+                        </div>
+                      </div>
+                      <div className={detailStyles.statsSection}>
+                        <div className={detailStyles.statCard}>
+                          <div className={detailStyles.statHeader}>
+                            <FiTarget className={detailStyles.statIcon} />
+                            <span className={detailStyles.statLabel}>Test Nəticələri</span>
+                          </div>
+                          <div className={detailStyles.statValue}>
+                            <span className={detailStyles.passedCount}>{exercise.testCases.length - failedCases.length}</span>
+                            <span className={detailStyles.totalCount}>/ {exercise.testCases.length}</span>
+                          </div>
+                          <div className={detailStyles.progressBar}>
+                            <div 
+                              className={`${detailStyles.progressFill} ${detailStyles.error}`}
+                              style={{ width: `${Math.round(((exercise.testCases.length - failedCases.length) / exercise.testCases.length) * 100)}%` }}
+                            ></div>
+                          </div>
+                          <div className={detailStyles.percentageText}>
+                            {Math.round(((exercise.testCases.length - failedCases.length) / exercise.testCases.length) * 100)}% uğurlu
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Lower details box */}
+                  <div className={detailStyles.failedCaseOuterBox}>
+                    <div className={detailStyles.failedCasesSection}>
+                      <div className={detailStyles.sectionHeaderRow}>
+                        <FiAlertTriangle className={detailStyles.sectionIcon} />
+                        <h4 className={detailStyles.sectionTitle}>İlk uğursuz test</h4>
+                      </div>
+                      <div className={detailStyles.sectionDivider} />
+                      <div className={detailStyles.failedCasesList}>
+                        <div className={detailStyles.failedCaseCardPro}>
+                          <div className={detailStyles.caseHeaderRow}>
+                            <span className={detailStyles.caseNumber}>Test #{failedCases[0].index ?? 1}</span>
+                            <div className={detailStyles.caseStatusFail}><FiXCircle className={detailStyles.failIcon} /> Uğursuz</div>
+                          </div>
+                          <div className={detailStyles.caseRow}><span className={detailStyles.caseLabel}><FiCode className={detailStyles.caseIcon} /> Input:</span> <code className={detailStyles.caseCode}>{failedCases[0].input}</code></div>
+                          <div className={detailStyles.caseRow}><span className={detailStyles.caseLabel}><FiInfo className={detailStyles.caseIcon} /> Sənin çıxışın:</span> <code className={detailStyles.caseCode + ' ' + detailStyles.wrongOutput}>{failedCases[0].output}</code></div>
+                          <div className={detailStyles.caseRow}><span className={detailStyles.caseLabel}><FiCheckCircle className={detailStyles.caseIcon} /> Gözlənilən:</span> <code className={detailStyles.caseCode + ' ' + detailStyles.expectedOutput}>{failedCases[0].expected}</code></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <CodeEvalResult
+                  status={isCorrect ? 'correct' : 'wrong'}
+                  passedCount={isCorrect ? exercise.testCases.length : exercise.testCases.length - failedCases.length}
+                  totalCount={exercise.testCases.length}
+                  failedCases={failedCases}
+                  onAnalyzeComplexity={() => setIsComplexityModalOpen(true)}
+                />
+              ))
             )}
           </div>
         </div>

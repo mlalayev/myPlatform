@@ -19,6 +19,11 @@ self.onmessage = function (e) {
       clearTimeout(timer);
       return;
     }
+    if (userFunc.length < args.length) {
+      self.postMessage({ error: 'Funksiya kifayət qədər parametr qəbul etmir! Gözlənilən: ' + args.length + ', tapıldı: ' + userFunc.length });
+      clearTimeout(timer);
+      return;
+    }
     let result;
     try {
       result = userFunc(...args);
