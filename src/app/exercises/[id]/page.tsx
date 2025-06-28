@@ -470,91 +470,6 @@ export default function ExerciseDetailPage({
                   </div>
                   <div className={detailStyles.errorMessage}>{feedback}</div>
                 </div>
-              ) : (feedbackType === 'wrong' && failedCases.length > 0 ? (
-                <>
-                  {/* Top summary box */}
-                  <div className={detailStyles.resultContainer + ' ' + detailStyles.wrongTheme}>
-                    <div className={detailStyles.resultHeader}>
-                      <div className={detailStyles.statusSection}>
-                        <div className={`${detailStyles.statusIcon} ${detailStyles.error}`}> <FiXCircle /> </div>
-                        <div className={detailStyles.statusContent}>
-                          <h3 className={detailStyles.statusTitle}>Bəzi testlər uğursuz oldu</h3>
-                          <p className={detailStyles.statusSubtitle}>
-                            Kodunuz bəzi test hallarını keçmədi. Aşağıda ilk uğursuz test göstərilib.
-                          </p>
-                        </div>
-                      </div>
-                      <div className={detailStyles.statsSection}>
-                        <div className={detailStyles.statCard}>
-                          <div className={detailStyles.statHeader}>
-                            <FiTarget className={detailStyles.statIcon} />
-                            <span className={detailStyles.statLabel}>Test Nəticələri</span>
-                          </div>
-                          <div className={detailStyles.statValue}>
-                            <span className={detailStyles.passedCount}>{exercise.testCases.length - failedCases.length}</span>
-                            <span className={detailStyles.totalCount}>/ {exercise.testCases.length}</span>
-                          </div>
-                          <div className={detailStyles.progressBar}>
-                            <div 
-                              className={`${detailStyles.progressFill} ${detailStyles.error}`}
-                              style={{ width: `${Math.round(((exercise.testCases.length - failedCases.length) / exercise.testCases.length) * 100)}%` }}
-                            ></div>
-                          </div>
-                          <div className={detailStyles.percentageText}>
-                            {Math.round(((exercise.testCases.length - failedCases.length) / exercise.testCases.length) * 100)}% uğurlu
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Failed Cases Section */}
-                  <div className={detailStyles.failedCasesSection}>
-                    <div className={detailStyles.sectionHeader}>
-                      <FiAlertTriangle className={detailStyles.sectionIcon} />
-                      <h4 className={detailStyles.sectionTitle}>
-                        İlk Uğursuz Test Halı
-                      </h4>
-                    </div>
-                    <div className={detailStyles.failedCasesList}>
-                      <div className={detailStyles.failedCaseCard}>
-                        <div className={detailStyles.caseHeader}>
-                          <span className={detailStyles.caseNumber}>Test #1</span>
-                          <div className={detailStyles.caseStatus}>
-                            <FiXCircle className={detailStyles.failIcon} />
-                            <span>Uğursuz</span>
-                          </div>
-                        </div>
-                        <div className={detailStyles.caseContent}>
-                          <div className={detailStyles.caseRow}>
-                            <div className={detailStyles.caseLabel}>
-                              <FiCode className={detailStyles.caseIcon} />
-                              <span>Input:</span>
-                            </div>
-                            <code className={detailStyles.caseValue}>{failedCases[0].input}</code>
-                          </div>
-                          <div className={detailStyles.caseRow}>
-                            <div className={detailStyles.caseLabel}>
-                              <FiInfo className={detailStyles.caseIcon} />
-                              <span>Sizin çıxışınız:</span>
-                            </div>
-                            <code className={`${detailStyles.caseValue} ${detailStyles.wrongOutput}`}>
-                              {failedCases[0].output}
-                            </code>
-                          </div>
-                          <div className={detailStyles.caseRow}>
-                            <div className={detailStyles.caseLabel}>
-                              <FiCheckCircle className={detailStyles.caseIcon} />
-                              <span>Gözlənilən:</span>
-                            </div>
-                            <code className={`${detailStyles.caseValue} ${detailStyles.expectedOutput}`}>
-                              {failedCases[0].expected}
-                            </code>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </>
               ) : (
                 <CodeEvalResult
                   status={isCorrect ? 'correct' : 'wrong'}
@@ -563,7 +478,7 @@ export default function ExerciseDetailPage({
                   failedCases={failedCases}
                   onAnalyzeComplexity={() => setIsComplexityModalOpen(true)}
                 />
-              ))
+              )
             )}
           </div>
         </div>
