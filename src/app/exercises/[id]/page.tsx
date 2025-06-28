@@ -10,7 +10,8 @@ import detailStyles from "./ExerciseDetail.module.css";
 import workerCode from "./sandboxWorkerString";
 import SavadliButton from "@/app/components/Buttons/savadliButton/SavadliButton";
 import CodeEvalResult from "./CodeEvalResult";
-import { FiCode, FiPlay, FiCheckCircle, FiXCircle, FiClock, FiUsers, FiTarget, FiBookOpen, FiEdit3, FiEye } from "react-icons/fi";
+import ComplexityModal from "./ComplexityModal";
+import { FiCode, FiPlay, FiCheckCircle, FiXCircle, FiClock, FiUsers, FiTarget, FiBookOpen, FiEdit3, FiEye, FiAlertTriangle, FiInfo } from "react-icons/fi";
 
 const LEFT_TABS = ["Təsvir", "Redaktə", "Həllər", "Təqdimatlar"];
 
@@ -39,7 +40,7 @@ export default function ExerciseDetailPage({
   const [testResults, setTestResults] = useState<any[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [feedbackType, setFeedbackType] = useState<"success" | "error" | null>(
+  const [feedbackType, setFeedbackType] = useState<"success" | "error" | "wrong" | null>(
     null
   );
   const [activeCase, setActiveCase] = useState(0);
@@ -49,10 +50,11 @@ export default function ExerciseDetailPage({
     null
   );
   const [activeLeftTab, setActiveLeftTab] = useState(0);
-  const resultTabAvailable = submitted;
-  const isCorrect = feedbackType === "success";
-  const [showComplexity, setShowComplexity] = useState(false);
   const [failedCases, setFailedCases] = useState<FailedCase[]>([]);
+  const resultTabAvailable = submitted;
+  const isCorrect = submitted && failedCases.length === 0;
+  const [showComplexity, setShowComplexity] = useState(false);
+  const [isComplexityModalOpen, setIsComplexityModalOpen] = useState(false);
 
   const exercise = exercises.find((ex) => ex.id === id);
   if (!exercise) return <div>Tapşırıq tapılmadı.</div>;
@@ -100,6 +102,20 @@ export default function ExerciseDetailPage({
       } catch {
         // not a JSON string, leave as is
       }
+    }
+
+    // If result is undefined or null, only pass if expected is also undefined or null
+    if (result === undefined || result === null) {
+      return parsedExpected === undefined || parsedExpected === null;
+    }
+
+    // Strict array check
+    if (Array.isArray(result) && Array.isArray(parsedExpected)) {
+      if (result.length !== parsedExpected.length) return false;
+      for (let i = 0; i < result.length; i++) {
+        if (result[i] === undefined || result[i] !== parsedExpected[i]) return false;
+      }
+      return true;
     }
 
     if (
@@ -174,9 +190,10 @@ export default function ExerciseDetailPage({
           resultPromise,
           timeoutPromise,
         ]);
-        
+        console.log("Worker response:", response);
         const { result, error } = response;
         if (error) {
+          console.log("Worker error received:", error);
           setFeedback(error);
           setFeedbackType("error");
           setTestResults([]);
@@ -192,6 +209,15 @@ export default function ExerciseDetailPage({
         if (passed) {
           passedCount++;
         } else {
+          // Debug: Log the failed test details
+          console.log('Test failed:', {
+            testCase: i + 1,
+            input: tc.input,
+            expected: tc.expectedOutput,
+            actual: result,
+            expectedType: typeof tc.expectedOutput,
+            actualType: typeof result
+          });
           failedCase = {
             input: tc.input,
             output: String(result),
@@ -215,18 +241,20 @@ export default function ExerciseDetailPage({
     setSubmitted(true);
     setIsSubmitting(false);
     setActiveLeftTab(4);
-    setFailedCases(failedCasesArr);
-    
-    if (failedCase) {
+
+    if (failedCasesArr.length > 0) {
+      setFailedCases(failedCasesArr);
       setFeedback(
-        `${passedCount}/${exercise.testCases.length} test keçdi. İlk səhv test: input = ${failedCase.input}, gözlənilən = ${failedCase.expected}, sənin çıxışın = ${failedCase.output}`
+        `${passedCount}/${exercise.testCases.length} test keçdi. İlk səhv test: input = ${failedCasesArr[0].input}, gözlənilən = ${failedCasesArr[0].expected}, sənin çıxışın = ${failedCasesArr[0].output}`
       );
-      setFeedbackType("error");
+      setFeedbackType("wrong");
       setTestResults([]);
       setDetectedComplexity(null);
       return;
     }
-    
+
+    // All tests passed
+    setFailedCases([]);
     setFeedback(
       `${exercise.testCases.length}/${exercise.testCases.length} test uğurla keçdi!`
     );
@@ -245,11 +273,19 @@ export default function ExerciseDetailPage({
   ];
   
   if (resultTabAvailable) {
-    leftTabs.push({ 
-      label: isCorrect ? "Doğru Cavab" : "Yalnış Cavab", 
-      result: true,
-      icon: isCorrect ? <FiCheckCircle /> : <FiXCircle />
-    });
+    if (feedbackType === 'error') {
+      leftTabs.push({
+        label: 'Xəta',
+        result: true,
+        icon: <FiXCircle />
+      });
+    } else {
+      leftTabs.push({
+        label: isCorrect ? 'Doğru Cavab' : 'Yalnış Cavab',
+        result: true,
+        icon: isCorrect ? <FiCheckCircle /> : <FiXCircle />
+      });
+    }
   }
 
   const difficultyColor = (diff: string) => {
@@ -338,11 +374,13 @@ export default function ExerciseDetailPage({
             {leftTabs.map((tab, i) => (
               <button
                 key={tab.label}
-                className={`${detailStyles.tabButton} ${
-                  activeLeftTab === i ? detailStyles.active : ""
-                } ${(tab.result ?? false) && isCorrect ? detailStyles.correct : ""} ${
-                  (tab.result ?? false) && !isCorrect ? detailStyles.wrong : ""
-                }`}
+                className={
+                  `${detailStyles.tabButton} ` +
+                  (activeLeftTab === i ? detailStyles.active : "") +
+                  ((tab.result ?? false) && feedbackType === 'error' ? ' ' + detailStyles.xeta : "") +
+                  ((tab.result ?? false) && isCorrect ? ' ' + detailStyles.correct : "") +
+                  ((tab.result ?? false) && !isCorrect && feedbackType !== 'error' ? ' ' + detailStyles.wrong : "")
+                }
                 onClick={() => setActiveLeftTab(i)}
               >
                 {tab.icon}
@@ -424,13 +462,23 @@ export default function ExerciseDetailPage({
             )}
             
             {activeLeftTab === 4 && resultTabAvailable && (
-              <CodeEvalResult
-                status={isCorrect ? "correct" : "wrong"}
-                passedCount={isCorrect ? exercise.testCases.length : exercise.testCases.length - failedCases.length}
-                totalCount={exercise.testCases.length}
-                failedCases={failedCases}
-                onAnalyzeComplexity={() => setShowComplexity((v) => !v)}
-              />
+              feedbackType === 'error' ? (
+                <div className={detailStyles.errorResultBox}>
+                  <div className={detailStyles.errorHeader}>
+                    <FiXCircle className={detailStyles.errorIcon} />
+                    <h3 className={detailStyles.errorTitle}>Xəta baş verdi</h3>
+                  </div>
+                  <div className={detailStyles.errorMessage}>{feedback}</div>
+                </div>
+              ) : (
+                <CodeEvalResult
+                  status={isCorrect ? 'correct' : 'wrong'}
+                  passedCount={isCorrect ? exercise.testCases.length : exercise.testCases.length - failedCases.length}
+                  totalCount={exercise.testCases.length}
+                  failedCases={failedCases}
+                  onAnalyzeComplexity={() => setIsComplexityModalOpen(true)}
+                />
+              )
             )}
           </div>
         </div>
@@ -515,6 +563,14 @@ export default function ExerciseDetailPage({
           </div>
         </div>
       </div>
+      
+      <ComplexityModal
+        isOpen={isComplexityModalOpen}
+        onClose={() => setIsComplexityModalOpen(false)}
+        timeComplexity={detectedComplexity}
+        spaceComplexity={null}
+        userCode={userCode}
+      />
       
       <Footer />
     </>
