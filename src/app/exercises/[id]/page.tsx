@@ -10,6 +10,7 @@ import detailStyles from "./ExerciseDetail.module.css";
 import workerCode from "./sandboxWorkerString";
 import SavadliButton from "@/app/components/Buttons/savadliButton/SavadliButton";
 import CodeEvalResult from "./CodeEvalResult";
+import ComplexityModal from "./ComplexityModal";
 import { FiCode, FiPlay, FiCheckCircle, FiXCircle, FiClock, FiUsers, FiTarget, FiBookOpen, FiEdit3, FiEye } from "react-icons/fi";
 
 const LEFT_TABS = ["Təsvir", "Redaktə", "Həllər", "Təqdimatlar"];
@@ -49,10 +50,11 @@ export default function ExerciseDetailPage({
     null
   );
   const [activeLeftTab, setActiveLeftTab] = useState(0);
-  const resultTabAvailable = submitted;
-  const isCorrect = feedbackType === "success";
-  const [showComplexity, setShowComplexity] = useState(false);
   const [failedCases, setFailedCases] = useState<FailedCase[]>([]);
+  const resultTabAvailable = submitted;
+  const isCorrect = submitted && failedCases.length === 0;
+  const [showComplexity, setShowComplexity] = useState(false);
+  const [isComplexityModalOpen, setIsComplexityModalOpen] = useState(false);
 
   const exercise = exercises.find((ex) => ex.id === id);
   if (!exercise) return <div>Tapşırıq tapılmadı.</div>;
@@ -100,6 +102,20 @@ export default function ExerciseDetailPage({
       } catch {
         // not a JSON string, leave as is
       }
+    }
+
+    // If result is undefined or null, only pass if expected is also undefined or null
+    if (result === undefined || result === null) {
+      return parsedExpected === undefined || parsedExpected === null;
+    }
+
+    // Strict array check
+    if (Array.isArray(result) && Array.isArray(parsedExpected)) {
+      if (result.length !== parsedExpected.length) return false;
+      for (let i = 0; i < result.length; i++) {
+        if (result[i] === undefined || result[i] !== parsedExpected[i]) return false;
+      }
+      return true;
     }
 
     if (
@@ -192,6 +208,15 @@ export default function ExerciseDetailPage({
         if (passed) {
           passedCount++;
         } else {
+          // Debug: Log the failed test details
+          console.log('Test failed:', {
+            testCase: i + 1,
+            input: tc.input,
+            expected: tc.expectedOutput,
+            actual: result,
+            expectedType: typeof tc.expectedOutput,
+            actualType: typeof result
+          });
           failedCase = {
             input: tc.input,
             output: String(result),
@@ -215,18 +240,20 @@ export default function ExerciseDetailPage({
     setSubmitted(true);
     setIsSubmitting(false);
     setActiveLeftTab(4);
-    setFailedCases(failedCasesArr);
-    
-    if (failedCase) {
+
+    if (failedCasesArr.length > 0) {
+      setFailedCases(failedCasesArr);
       setFeedback(
-        `${passedCount}/${exercise.testCases.length} test keçdi. İlk səhv test: input = ${failedCase.input}, gözlənilən = ${failedCase.expected}, sənin çıxışın = ${failedCase.output}`
+        `${passedCount}/${exercise.testCases.length} test keçdi. İlk səhv test: input = ${failedCasesArr[0].input}, gözlənilən = ${failedCasesArr[0].expected}, sənin çıxışın = ${failedCasesArr[0].output}`
       );
       setFeedbackType("error");
       setTestResults([]);
       setDetectedComplexity(null);
       return;
     }
-    
+
+    // All tests passed
+    setFailedCases([]);
     setFeedback(
       `${exercise.testCases.length}/${exercise.testCases.length} test uğurla keçdi!`
     );
@@ -429,7 +456,7 @@ export default function ExerciseDetailPage({
                 passedCount={isCorrect ? exercise.testCases.length : exercise.testCases.length - failedCases.length}
                 totalCount={exercise.testCases.length}
                 failedCases={failedCases}
-                onAnalyzeComplexity={() => setShowComplexity((v) => !v)}
+                onAnalyzeComplexity={() => setIsComplexityModalOpen(true)}
               />
             )}
           </div>
@@ -515,6 +542,14 @@ export default function ExerciseDetailPage({
           </div>
         </div>
       </div>
+      
+      <ComplexityModal
+        isOpen={isComplexityModalOpen}
+        onClose={() => setIsComplexityModalOpen(false)}
+        timeComplexity={detectedComplexity}
+        spaceComplexity={null}
+        userCode={userCode}
+      />
       
       <Footer />
     </>

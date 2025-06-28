@@ -4,41 +4,63 @@ self.onmessage = async function (e) {
   let timer = setTimeout(() => self.close(), 2000);
 
   try {
-    // Əvvəlcə eval + self.solution metodu
+    // Eval + fallback
     try {
-      const wrappedCode = \`\${code}\\nself.solution = solution;\`;
+      const wrappedCode = \`\${code}\nself.solution = solution;\`;
       eval(wrappedCode);
     } catch (_) {}
 
-    // Əgər hələ də function tapılmayıbsa, regex ilə yoxla
+    // Əgər hələ də function tapılmayıbsa, regex ilə axtar
     if (typeof self.solution !== 'function') {
-      const decl = code.match(/function\\s+solution\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/);
-      const exprConst = code.match(/const\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/);
-      const exprLet = code.match(/let\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/);
-      const exprVar = code.match(/var\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/);
-      const arrowConst = code.match(/const\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/);
-      const arrowLet = code.match(/let\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/);
-      const arrowVar = code.match(/var\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/);
-      const conciseArrow = code.match(/(?:const|let|var)\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*([^\\{;\\n]+)/);
+      const patterns = [
+        /function\s+solution\s*\(([^)]*)\)\s*\{([\s\S]*)\}/,                       // function solution(...) {...}
+        /const\s+solution\s*=\s*function\s*\(([^)]*)\)\s*\{([\s\S]*)\}/,         // const solution = function(...) {...}
+        /let\s+solution\s*=\s*function\s*\(([^)]*)\)\s*\{([\s\S]*)\}/,
+        /var\s+solution\s*=\s*function\s*\(([^)]*)\)\s*\{([\s\S]*)\}/,
+        /const\s+solution\s*=\s*\(([^)]*)\)\s*=>\s*\{([\s\S]*)\}/,               // const solution = (...) => {...}
+        /let\s+solution\s*=\s*\(([^)]*)\)\s*=>\s*\{([\s\S]*)\}/,
+        /var\s+solution\s*=\s*\(([^)]*)\)\s*=>\s*\{([\s\S]*)\}/,
+        /(?:const|let|var)\s+solution\s*=\s*\(([^)]*)\)\s*=>\s*([^\{;\n]+)/        // const solution = (...) => expr
+      ];
 
-      if (decl) self.solution = new Function(decl[1], decl[2]);
-      else if (exprConst) self.solution = new Function(exprConst[1], exprConst[2]);
-      else if (exprLet) self.solution = new Function(exprLet[1], exprLet[2]);
-      else if (exprVar) self.solution = new Function(exprVar[1], exprVar[2]);
-      else if (arrowConst) self.solution = new Function(arrowConst[1], arrowConst[2]);
-      else if (arrowLet) self.solution = new Function(arrowLet[1], arrowLet[2]);
-      else if (arrowVar) self.solution = new Function(arrowVar[1], arrowVar[2]);
-      else if (conciseArrow) self.solution = new Function(conciseArrow[1], \`return \${conciseArrow[2].trim()};\`);
+      for (const pattern of patterns) {
+        const match = code.match(pattern);
+        if (match) {
+          const params = match[1].trim();
+          const body = match[2].trim();
+
+          if (!params && args.length > 0) {
+            self.postMessage({ error: 'Funksiya parametr qəbul etmir! Ən azı 1 input parameter yazılmalıdır.' });
+            clearTimeout(timer);
+            return;
+          }
+
+          const finalBody = pattern.source.includes('=>') && !body.includes('return')
+            ? \`return \${body};\`
+            : body;
+
+          self.solution = new Function(params, finalBody);
+          break;
+        }
+      }
     }
 
-    // Funksiya tapılmayıbsa error at
+    // Hələ də tapılmayıbsa
     if (typeof self.solution !== 'function') {
       self.postMessage({ error: 'Funksiya tapılmadı! function solution(...) və ya const/let/var solution = ... yazın.' });
       clearTimeout(timer);
       return;
     }
 
-    // Funksiyanı çağır
+    // Əgər input göndərilir amma funksiya parametrləri yoxdursa
+    const fnParamsCount = self.solution.length;
+    if (fnParamsCount === 0 && args.length > 0) {
+      self.postMessage({ error: 'Funksiya parametr qəbul etmir! Ən azı 1 input parameter yazılmalıdır.' });
+      clearTimeout(timer);
+      return;
+    }
+
+    // Funksiya çağır
     let result = self.solution(...args);
     if (result instanceof Promise) {
       result = await result;
@@ -46,7 +68,7 @@ self.onmessage = async function (e) {
 
     self.postMessage({ result });
   } catch (err) {
-    self.postMessage({ error: 'Kodda xəta var!' });
+    self.postMessage({ error: 'Kodda xəta var! ' + err.message });
   }
 
   clearTimeout(timer);
