@@ -3,7 +3,9 @@ import React, { useState } from "react";
 import { exercises } from "./exercisesData";
 import styles from "./ExercisesList.module.css";
 import Header from "../components/header/Header";
+import Footer from "../components/footer/Footer";
 import Link from "next/link";
+import { FiSearch, FiFilter, FiTrendingUp, FiCalendar, FiCode, FiUsers, FiClock } from "react-icons/fi";
 
 const difficultyColor = (diff: string) =>
   diff === "Asan"
@@ -12,36 +14,148 @@ const difficultyColor = (diff: string) =>
     ? styles.diffMed
     : styles.diffHard;
 
+const difficultyIcon = (diff: string) => {
+  switch (diff) {
+    case "Asan":
+      return "🟢";
+    case "Orta":
+      return "🟡";
+    case "Çətin":
+      return "🔴";
+    default:
+      return "⚪";
+  }
+};
+
 export default function ExercisesPage() {
   const [search, setSearch] = useState("");
-  const filtered = exercises.filter(
-    (ex) =>
-      ex.title.toLowerCase().includes(search.toLowerCase()) ||
-      ex.description.toLowerCase().includes(search.toLowerCase())
-  );
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("Bütün");
+  
+  const filtered = exercises.filter((ex) => {
+    const matchesSearch = ex.title.toLowerCase().includes(search.toLowerCase()) ||
+                         ex.description.toLowerCase().includes(search.toLowerCase()) ||
+                         ex.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()));
+    
+    const matchesDifficulty = selectedDifficulty === "Bütün" || ex.difficulty === selectedDifficulty;
+    
+    return matchesSearch && matchesDifficulty;
+  });
+
+  const stats = {
+    total: exercises.length,
+    easy: exercises.filter(ex => ex.difficulty === "Asan").length,
+    medium: exercises.filter(ex => ex.difficulty === "Orta").length,
+    hard: exercises.filter(ex => ex.difficulty === "Çətin").length,
+  };
 
   return (
     <>
       <Header />
+      
+      {/* Hero Section */}
+      <section className={styles.heroSection}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.heroTitle}>Kodlaşdırma Tapşırıqları</h1>
+          <p className={styles.heroSubtitle}>
+            Algoritm və məlumat strukturları problemlərini həll edərək proqramlaşdırma bacarıqlarınızı təkmilləşdirin
+          </p>
+          
+          {/* Stats Cards */}
+          <div className={styles.statsContainer}>
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}>📊</div>
+              <div className={styles.statInfo}>
+                <div className={styles.statNumber}>{stats.total}</div>
+                <div className={styles.statLabel}>Ümumi Tapşırıq</div>
+              </div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}>🟢</div>
+              <div className={styles.statInfo}>
+                <div className={styles.statNumber}>{stats.easy}</div>
+                <div className={styles.statLabel}>Asan</div>
+              </div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}>🟡</div>
+              <div className={styles.statInfo}>
+                <div className={styles.statNumber}>{stats.medium}</div>
+                <div className={styles.statLabel}>Orta</div>
+              </div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}>🔴</div>
+              <div className={styles.statInfo}>
+                <div className={styles.statNumber}>{stats.hard}</div>
+                <div className={styles.statLabel}>Çətin</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className={styles.layout}>
         <div className={styles.contentOpen}>
           <div className={styles.page}>
+            {/* Search and Filter Section */}
             <div className={styles.headerBar}>
-              <button className={styles.filterBtn + " " + styles.selected}>
-                Bütün Tapşırıqlar
-              </button>
-              <button className={styles.filterBtn}>Asan</button>
-              <button className={styles.filterBtn}>Orta</button>
-              <button className={styles.filterBtn}>Çətin</button>
+              <div className={styles.filterSection}>
+                <div className={styles.filterTitle}>
+                  <FiFilter className={styles.filterIcon} />
+                  Çətinlik Səviyyəsi
+                </div>
+                <div className={styles.filterButtons}>
+                  <button 
+                    className={`${styles.filterBtn} ${selectedDifficulty === "Bütün" ? styles.selected : ""}`}
+                    onClick={() => setSelectedDifficulty("Bütün")}
+                  >
+                    Bütün
+                  </button>
+                  <button 
+                    className={`${styles.filterBtn} ${selectedDifficulty === "Asan" ? styles.selected : ""}`}
+                    onClick={() => setSelectedDifficulty("Asan")}
+                  >
+                    Asan
+                  </button>
+                  <button 
+                    className={`${styles.filterBtn} ${selectedDifficulty === "Orta" ? styles.selected : ""}`}
+                    onClick={() => setSelectedDifficulty("Orta")}
+                  >
+                    Orta
+                  </button>
+                  <button 
+                    className={`${styles.filterBtn} ${selectedDifficulty === "Çətin" ? styles.selected : ""}`}
+                    onClick={() => setSelectedDifficulty("Çətin")}
+                  >
+                    Çətin
+                  </button>
+                </div>
+              </div>
+              
               <div className={styles.searchBox}>
+                <FiSearch className={styles.searchIcon} />
                 <input
                   className={styles.searchInput}
-                  placeholder="Axtar..."
+                  placeholder="Tapşırıq, təsvir və ya tag axtarın..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
             </div>
+
+            {/* Results Count */}
+            <div className={styles.resultsInfo}>
+              <span className={styles.resultsCount}>
+                {filtered.length} tapşırıq tapıldı
+              </span>
+              {search && (
+                <span className={styles.searchTerm}>
+                  "{search}" üçün nəticələr
+                </span>
+              )}
+            </div>
+
+            {/* Exercises List */}
             <div className={styles.list}>
               {filtered.map((ex, i) => (
                 <Link
@@ -50,45 +164,107 @@ export default function ExercisesPage() {
                   className={styles.row}
                 >
                   <div className={styles.cardHeader}>
-                    <span className={styles.cardIndex}>{i + 1}.</span>
-                    <span className={styles.cellTitle}>{ex.title}</span>
-                    <span className={styles.cellDiff + " " + difficultyColor(ex.difficulty)}>
-                      {ex.difficulty}
-                    </span>
+                    <div className={styles.cardLeft}>
+                      <span className={styles.cardIndex}>#{ex.id}</span>
+                      <span className={styles.cellTitle}>{ex.title}</span>
+                    </div>
+                    <div className={styles.cardRight}>
+                      <span className={`${styles.cellDiff} ${difficultyColor(ex.difficulty)}`}>
+                        {difficultyIcon(ex.difficulty)} {ex.difficulty}
+                      </span>
+                    </div>
                   </div>
+                  
                   <div className={styles.cellDesc}>{ex.description}</div>
+                  
                   <div className={styles.cardFooter}>
-                    <span className={styles.cellAcc}>{ex.acceptance}% Acceptance</span>
+                    <div className={styles.cardStats}>
+                      <span className={styles.cellAcc}>
+                        <FiUsers className={styles.statIconSmall} />
+                        {ex.acceptance}% Qəbul
+                      </span>
+                      <span className={styles.timeComplexity}>
+                        <FiClock className={styles.statIconSmall} />
+                        {ex.timeComplexity}
+                      </span>
+                    </div>
                     <div className={styles.cardTags}>
                       {ex.tags.map((tag) => (
-                        <span className={styles.cardTag} key={tag}>{tag}</span>
+                        <span className={styles.cardTag} key={tag}>
+                          <FiCode className={styles.tagIcon} />
+                          {tag}
+                        </span>
                       ))}
                     </div>
                   </div>
                 </Link>
               ))}
             </div>
+
+            {/* Empty State */}
+            {filtered.length === 0 && (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>🔍</div>
+                <h3 className={styles.emptyTitle}>Heç bir tapşırıq tapılmadı</h3>
+                <p className={styles.emptyText}>
+                  Axtarış şərtlərinizi dəyişdirin və ya başqa açar sözlər sınayın
+                </p>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Sidebar */}
         <aside className={styles.sidebar}>
           <div className={styles.sidebarSection}>
-            <h3 className={styles.sidebarTitle}>Trending Companies</h3>
-            <div className={styles.trendingCompaniesPlaceholder}>
-              <span>Meta</span>
-              <span>Google</span>
-              <span>Amazon</span>
-              <span>Microsoft</span>
-              <span>Uber</span>
+            <h3 className={styles.sidebarTitle}>
+              <FiTrendingUp className={styles.sidebarIcon} />
+              Trend Şirkətlər
+            </h3>
+            <div className={styles.trendingCompanies}>
+              <span className={styles.companyTag}>Meta</span>
+              <span className={styles.companyTag}>Google</span>
+              <span className={styles.companyTag}>Amazon</span>
+              <span className={styles.companyTag}>Microsoft</span>
+              <span className={styles.companyTag}>Uber</span>
+              <span className={styles.companyTag}>Apple</span>
             </div>
           </div>
+          
           <div className={styles.sidebarSection}>
-            <h3 className={styles.sidebarTitle}>Calendar</h3>
-            <div className={styles.calendarPlaceholder}>
-              <span>[Calendar Here]</span>
+            <h3 className={styles.sidebarTitle}>
+              <FiCalendar className={styles.sidebarIcon} />
+              Günlük Məqsəd
+            </h3>
+            <div className={styles.dailyGoal}>
+              <div className={styles.goalProgress}>
+                <div className={styles.progressBar}>
+                  <div className={styles.progressFill} style={{width: '65%'}}></div>
+                </div>
+                <span className={styles.progressText}>65% tamamlandı</span>
+              </div>
+              <p className={styles.goalText}>Günlük 3 tapşırıq həll edin</p>
+            </div>
+          </div>
+
+          <div className={styles.sidebarSection}>
+            <h3 className={styles.sidebarTitle}>
+              <FiCode className={styles.sidebarIcon} />
+              Populyar Tag-lər
+            </h3>
+            <div className={styles.popularTags}>
+              <span className={styles.tagItem}>Array</span>
+              <span className={styles.tagItem}>String</span>
+              <span className={styles.tagItem}>Dynamic Programming</span>
+              <span className={styles.tagItem}>Tree</span>
+              <span className={styles.tagItem}>Graph</span>
+              <span className={styles.tagItem}>Binary Search</span>
             </div>
           </div>
         </aside>
       </div>
+      
+      <Footer />
     </>
   );
 }
