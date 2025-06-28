@@ -189,7 +189,9 @@ export default function ExerciseDetailPage({
         }
         
         const passed = isEqual(result, tc.expectedOutput);
-        if (!passed) {
+        if (passed) {
+          passedCount++;
+        } else {
           failedCase = {
             input: tc.input,
             output: String(result),
@@ -197,7 +199,6 @@ export default function ExerciseDetailPage({
           };
           failedCasesArr.push(failedCase);
         }
-        passedCount++;
       }
     } catch (e) {
       setFeedback(`Kodda xəta var! ${String(e)}`);
@@ -425,8 +426,8 @@ export default function ExerciseDetailPage({
             {activeLeftTab === 4 && resultTabAvailable && (
               <CodeEvalResult
                 status={isCorrect ? "correct" : "wrong"}
-                passedCount={testResults.filter(r => r.status === 'Passed').length}
-                totalCount={testResults.length}
+                passedCount={isCorrect ? exercise.testCases.length : exercise.testCases.length - failedCases.length}
+                totalCount={exercise.testCases.length}
                 failedCases={failedCases}
                 onAnalyzeComplexity={() => setShowComplexity((v) => !v)}
               />
@@ -451,7 +452,7 @@ export default function ExerciseDetailPage({
                 text={isSubmitting ? "Yoxlanır..." : "Submit"}
                 position="absolute"
                 right={"2%"}
-                bottom={"6%"}
+                bottom={"11.3%"}
                 onClick={submitCode}
                 disabled={isSubmitting}
               />

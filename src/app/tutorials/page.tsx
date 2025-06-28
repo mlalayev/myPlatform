@@ -41,6 +41,7 @@ import {
 } from "react-icons/si";
 import Link from "next/link";
 import Header from "../components/header/Header";
+import Footer from "../components/footer/Footer";
 
 // Type for language cards
 interface LanguageAvailable {
@@ -228,6 +229,7 @@ export default function TutorialsPage() {
           )}
         </div>
       </div>
+      <Footer></Footer>
     </>
   );
 }

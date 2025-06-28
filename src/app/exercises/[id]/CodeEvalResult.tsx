@@ -1,4 +1,6 @@
 import React from "react";
+import { FiCheckCircle, FiXCircle, FiAlertTriangle, FiInfo, FiCode, FiTarget, FiClock } from "react-icons/fi";
+import styles from "./CodeEvalResult.module.css";
 
 interface FailedCase {
   input: string;
@@ -22,54 +24,134 @@ const CodeEvalResult: React.FC<CodeEvalResultProps> = ({
   onAnalyzeComplexity,
 }) => {
   const isCorrect = status === "correct";
+  const passedPercentage = Math.round((passedCount / totalCount) * 100);
+
   return (
-    <div className="bg-[#1e1e1e] text-white p-6 rounded-lg w-full max-w-md space-y-6 font-mono shadow-lg">
-      {/* Status Row */}
-      <div className="flex items-center gap-3">
-        <span className={`font-semibold text-lg ${isCorrect ? "text-green-400" : "text-red-400"}`}>
-          {isCorrect ? "✅ Correct Answer" : "❌ Wrong Answer"}
-        </span>
-        <span className="text-gray-400 text-sm">
-          {passedCount} / {totalCount} testcases passed
-        </span>
+    <div className={styles.resultContainer}>
+      {/* Header Section */}
+      <div className={styles.resultHeader}>
+        <div className={styles.statusSection}>
+          <div className={`${styles.statusIcon} ${isCorrect ? styles.success : styles.error}`}>
+            {isCorrect ? <FiCheckCircle /> : <FiXCircle />}
+          </div>
+          <div className={styles.statusContent}>
+            <h3 className={styles.statusTitle}>
+              {isCorrect ? "Bütün testlər keçdi!" : "Bəzi testlər uğursuz oldu"}
+            </h3>
+            <p className={styles.statusSubtitle}>
+              {isCorrect 
+                ? "Təbriklər! Kodunuz bütün test hallarını uğurla keçdi."
+                : "Kodunuzda bəzi xətalar var. Aşağıdakı test hallarını yoxlayın."
+              }
+            </p>
+          </div>
+        </div>
+        
+        <div className={styles.statsSection}>
+          <div className={styles.statCard}>
+            <div className={styles.statHeader}>
+              <FiTarget className={styles.statIcon} />
+              <span className={styles.statLabel}>Test Nəticələri</span>
+            </div>
+            <div className={styles.statValue}>
+              <span className={`${styles.passedCount} ${isCorrect ? styles.allPassed : ""}`}>
+                {passedCount}
+              </span>
+              <span className={styles.totalCount}>/ {totalCount}</span>
+            </div>
+            <div className={styles.progressBar}>
+              <div 
+                className={`${styles.progressFill} ${isCorrect ? styles.success : styles.error}`}
+                style={{ width: `${passedPercentage}%` }}
+              ></div>
+            </div>
+            <div className={styles.percentageText}>
+              {passedPercentage}% uğurlu
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Failed Cases */}
+      {/* Failed Cases Section */}
       {failedCases.length > 0 && (
-        <div className="space-y-6">
-          {failedCases.map((tc, idx) => (
-            <div key={idx} className="space-y-3">
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Input</div>
-                <div className="bg-[#2d2d2d] p-2 rounded text-sm">
-                  {tc.input}
+        <div className={styles.failedCasesSection}>
+          <div className={styles.sectionHeader}>
+            <FiAlertTriangle className={styles.sectionIcon} />
+            <h4 className={styles.sectionTitle}>
+              İlk Uğursuz Test Halı
+            </h4>
+          </div>
+          
+          <div className={styles.failedCasesList}>
+            <div className={styles.failedCaseCard}>
+              <div className={styles.caseHeader}>
+                <span className={styles.caseNumber}>Test #{1}</span>
+                <div className={styles.caseStatus}>
+                  <FiXCircle className={styles.failIcon} />
+                  <span>Uğursuz</span>
                 </div>
               </div>
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Output</div>
-                <div className="bg-[#2d2d2d] p-2 rounded text-sm text-red-400">
-                  {tc.output}
+              
+              <div className={styles.caseContent}>
+                <div className={styles.caseRow}>
+                  <div className={styles.caseLabel}>
+                    <FiCode className={styles.caseIcon} />
+                    <span>Input:</span>
+                  </div>
+                  <code className={styles.caseValue}>{failedCases[0].input}</code>
                 </div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Expected</div>
-                <div className="bg-[#2d2d2d] p-2 rounded text-sm text-green-400">
-                  {tc.expected}
+                
+                <div className={styles.caseRow}>
+                  <div className={styles.caseLabel}>
+                    <FiInfo className={styles.caseIcon} />
+                    <span>Sizin çıxışınız:</span>
+                  </div>
+                  <code className={`${styles.caseValue} ${styles.wrongOutput}`}>
+                    {failedCases[0].output}
+                  </code>
+                </div>
+                
+                <div className={styles.caseRow}>
+                  <div className={styles.caseLabel}>
+                    <FiCheckCircle className={styles.caseIcon} />
+                    <span>Gözlənilən:</span>
+                  </div>
+                  <code className={`${styles.caseValue} ${styles.expectedOutput}`}>
+                    {failedCases[0].expected}
+                  </code>
                 </div>
               </div>
             </div>
-          ))}
+          </div>
         </div>
       )}
 
-      {/* Analyze Complexity Button */}
-      <div className="flex justify-end pt-2">
-        <button
-          className="text-blue-400 border border-blue-400 rounded px-4 py-1 text-sm font-semibold hover:bg-blue-900 transition"
-          onClick={onAnalyzeComplexity}
-        >
-          Analyze Complexity
-        </button>
+      {/* Success Message */}
+      {isCorrect && (
+        <div className={styles.successSection}>
+          <div className={styles.successCard}>
+            <div className={styles.successIcon}>
+              <FiCheckCircle />
+            </div>
+            <div className={styles.successContent}>
+              <h4 className={styles.successTitle}>Mükəmməl!</h4>
+              <p className={styles.successMessage}>
+                Kodunuz bütün {totalCount} test halını uğurla keçdi. 
+                Həlliniz düzgün və effektivdir.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className={styles.actionSection}>
+        {onAnalyzeComplexity && (
+          <button className={styles.analyzeButton} onClick={onAnalyzeComplexity}>
+            <FiClock className={styles.buttonIcon} />
+            Mürəkkəblik Analizi
+          </button>
+        )}
       </div>
     </div>
   );
