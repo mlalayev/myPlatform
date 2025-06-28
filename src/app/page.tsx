@@ -8,6 +8,7 @@ import SavadliButton from "./components/Buttons/savadliButton/SavadliButton";
 import CopyButton from "./components/Buttons/copyButton/CopyButton";
 import PayButton from "./components/Buttons/payButton/PayButton";
 import RegisterButton from "./components/Buttons/registerButton/RegisterButton";
+import Footer from "./components/footer/Footer";
 
 export default function HomePage() {
   return (
@@ -18,6 +19,7 @@ export default function HomePage() {
           <MainPageContent />
         </div>
       </div>
+      <Footer/>
     </>
   );
 }
