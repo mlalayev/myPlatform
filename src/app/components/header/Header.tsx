@@ -3,12 +3,13 @@ import React, { useState, useRef, useEffect } from "react";
 import HeaderStyle from "./Header.module.css";
 import Image from "next/image";
 import WhiteLogo from "@/../public/svg/whiteLogo.svg";
+import { FiHome, FiBookOpen, FiEdit, FiStar, FiArrowUpRight } from "react-icons/fi";
 
 const navItems = [
-  { label: "Home", href: "/" },
-  { label: "Tutorials", href: "/tutorials" },
-  { label: "Exercises", href: "/exercises" },
-  { label: "Premium", href: "/premium" },
+  { label: "Home", href: "/", icon: <FiHome /> },
+  { label: "Tutorials", href: "/tutorials", icon: <FiBookOpen /> },
+  { label: "Exercises", href: "/exercises", icon: <FiEdit /> },
+  { label: "Premium", href: "/premium", icon: <FiStar /> },
 ];
 
 const Header: React.FC = () => {
@@ -35,11 +36,12 @@ const Header: React.FC = () => {
       <div className={HeaderStyle.leftSection}>
         <Image src={WhiteLogo} alt="Logo" className={HeaderStyle.logo} />
       </div>
-      <div className={HeaderStyle.navAndProfile}>
+      {/* <div className={HeaderStyle.navAndProfile}> */}
         <nav className={HeaderStyle.navbar}>
           {navItems.map((item) => (
-            <a key={item.label} href={item.href} className={HeaderStyle.navLink}>
-              {item.label}
+            <a key={item.label} href={item.href} className={HeaderStyle.navButton}>
+              <span className={HeaderStyle.navIcon}>{item.icon}</span>
+              <span>{item.label}</span>
             </a>
           ))}
         </nav>
@@ -60,7 +62,7 @@ const Header: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
+      {/* </div> */}
     </header>
   );
 };
