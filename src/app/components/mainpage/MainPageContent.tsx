@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./MainPageContent.module.css";
 import JsTryEditor from "../tryeditor/JsTryEditor";
+import HeroSection from "./HeroSection";
 
 const features = [
   { icon: "🔢", label: "Massivlər" },
@@ -12,16 +13,7 @@ const features = [
 export default function MainPageContent() {
   return (
     <main className={styles.main}>
-      <section className={styles.hero}>
-        <h1 className={styles.title}>
-          Alqoritmlər və Məlumat Strukturunu Öyrən
-        </h1>
-        <p className={styles.subtitle}>
-          Əsas anlayışları mənimsə və proqramlaşdırma bacarıqlarını inkişaf
-          etdir
-        </p>
-        <button className={styles.cta}>Başla</button>
-      </section>
+      <HeroSection />
       <section className={styles.features}>
         {features.map((f) => (
           <div className={styles.featureCard} key={f.label}>
