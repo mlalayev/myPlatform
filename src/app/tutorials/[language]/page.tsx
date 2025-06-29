@@ -5,6 +5,7 @@ import styles from "./TutorialPage.module.css";
 import * as FiIcons from "react-icons/fi";
 import Header from "@/app/components/header/Header";
 import Footer from "@/app/components/footer/Footer";
+import JsTryEditor from "@/app/components/tryeditor/JsTryEditor";
 
 interface ContentBlock {
   type: 'heading' | 'paragraph' | 'code' | 'editor';
@@ -47,9 +48,27 @@ const languageShortMap: Record<string, string> = {
 function renderContentBlock(block: ContentBlock, i: number) {
   switch (block.type) {
     case 'heading':
-      return <h2 key={i}>{block.text}</h2>;
+      return <h2 key={i} className={styles.contentHeading}>{block.text}</h2>;
     case 'paragraph':
-      return <p key={i}>{block.text}</p>;
+      return (
+        <p key={i}>
+          {block.text?.split('\n').map((line, idx, arr) => {
+            const parts = line.split(/(\*\*[^*]+\*\*)/g);
+            return (
+              <React.Fragment key={idx}>
+                {parts.map((part, j) =>
+                  part.startsWith('**') && part.endsWith('**') ? (
+                    <strong key={j} style={{ fontWeight: 700 }}>{part.slice(2, -2)}</strong>
+                  ) : (
+                    <React.Fragment key={j}>{part}</React.Fragment>
+                  )
+                )}
+                {idx < arr.length - 1 && <br />}
+              </React.Fragment>
+            );
+          })}
+        </p>
+      );
     case 'code':
       return (
         <pre key={i} style={{ background: '#f7f7f7', padding: '10px', borderRadius: '8px', overflowX: 'auto' }}>
@@ -57,11 +76,9 @@ function renderContentBlock(block: ContentBlock, i: number) {
         </pre>
       );
     case 'editor':
-      // Replace with your TryEditor component if you have one
       return (
         <div key={i} style={{ margin: '18px 0' }}>
-          <strong>Try it:</strong>
-          <pre style={{ background: '#f0f0f0', padding: '10px', borderRadius: '8px', overflowX: 'auto' }}>{block.initialCode}</pre>
+          <JsTryEditor value={block.initialCode || ''} showRunButton={true} />
         </div>
       );
     default:

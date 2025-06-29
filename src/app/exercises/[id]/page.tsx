@@ -11,7 +11,20 @@ import workerCode from "./sandboxWorkerString";
 import SavadliButton from "@/app/components/Buttons/savadliButton/SavadliButton";
 import CodeEvalResult from "./CodeEvalResult";
 import ComplexityModal from "./ComplexityModal";
-import { FiCode, FiPlay, FiCheckCircle, FiXCircle, FiClock, FiUsers, FiTarget, FiBookOpen, FiEdit3, FiEye, FiAlertTriangle, FiInfo } from "react-icons/fi";
+import {
+  FiCode,
+  FiPlay,
+  FiCheckCircle,
+  FiXCircle,
+  FiClock,
+  FiUsers,
+  FiTarget,
+  FiBookOpen,
+  FiEdit3,
+  FiEye,
+  FiAlertTriangle,
+  FiInfo,
+} from "react-icons/fi";
 
 const LEFT_TABS = ["Təsvir", "Redaktə", "Həllər", "Təqdimatlar"];
 
@@ -40,9 +53,9 @@ export default function ExerciseDetailPage({
   const [testResults, setTestResults] = useState<any[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [feedbackType, setFeedbackType] = useState<"success" | "error" | "wrong" | null>(
-    null
-  );
+  const [feedbackType, setFeedbackType] = useState<
+    "success" | "error" | "wrong" | null
+  >(null);
   const [activeCase, setActiveCase] = useState(0);
   const [userCode, setUserCode] = useState("function solution() {\n\n}");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,7 +76,7 @@ export default function ExerciseDetailPage({
   const runCode = () => {
     setOutput(customInput ? `Çıxış: ${customInput}` : "Çıxış yoxdur");
   };
-  
+
   const analyzeTimeComplexity = (code: string) => {
     const forMatches = code.match(/for\s*\(/g) || [];
     if (forMatches.length === 0) return "O(1)";
@@ -113,7 +126,8 @@ export default function ExerciseDetailPage({
     if (Array.isArray(result) && Array.isArray(parsedExpected)) {
       if (result.length !== parsedExpected.length) return false;
       for (let i = 0; i < result.length; i++) {
-        if (result[i] === undefined || result[i] !== parsedExpected[i]) return false;
+        if (result[i] === undefined || result[i] !== parsedExpected[i])
+          return false;
       }
       return true;
     }
@@ -157,10 +171,10 @@ export default function ExerciseDetailPage({
       setFailedCases([]);
       return;
     }
-    
+
     const bodyMatch = userCode.match(/{([\s\S]*)}/);
     if (bodyMatch) setDetectedComplexity(analyzeTimeComplexity(bodyMatch[1]));
-    
+
     try {
       for (let i = 0; i < exercise.testCases.length; i++) {
         const tc = exercise.testCases[i];
@@ -170,7 +184,7 @@ export default function ExerciseDetailPage({
         } else {
           args = tc.input.split(" ").map(Number);
         }
-        
+
         const worker = createSandboxWorker();
         const resultPromise = new Promise<{ result?: any; error?: string }>(
           (resolve) => {
@@ -178,14 +192,14 @@ export default function ExerciseDetailPage({
             worker.postMessage({ code: userCode, args });
           }
         );
-        
+
         const timeoutPromise = new Promise<{ error: string }>((resolve) =>
           setTimeout(() => {
             worker.terminate();
             resolve({ error: "Kodun icrası çox uzun çəkdi (timeout)!" });
           }, 2000)
         );
-        
+
         const response: { result?: any; error?: string } = await Promise.race([
           resultPromise,
           timeoutPromise,
@@ -204,19 +218,19 @@ export default function ExerciseDetailPage({
           setFailedCases([]);
           return;
         }
-        
+
         const passed = isEqual(result, tc.expectedOutput);
         if (passed) {
           passedCount++;
         } else {
           // Debug: Log the failed test details
-          console.log('Test failed:', {
+          console.log("Test failed:", {
             testCase: i + 1,
             input: tc.input,
             expected: tc.expectedOutput,
             actual: result,
             expectedType: typeof tc.expectedOutput,
-            actualType: typeof result
+            actualType: typeof result,
           });
           failedCase = {
             input: tc.input,
@@ -237,7 +251,7 @@ export default function ExerciseDetailPage({
       setFailedCases([]);
       return;
     }
-    
+
     setSubmitted(true);
     setIsSubmitting(false);
     setActiveLeftTab(4);
@@ -271,19 +285,19 @@ export default function ExerciseDetailPage({
     { label: "Həllər", icon: <FiCode /> },
     { label: "Təqdimatlar", icon: <FiEye /> },
   ];
-  
+
   if (resultTabAvailable) {
-    if (feedbackType === 'error') {
+    if (feedbackType === "error") {
       leftTabs.push({
-        label: 'Xəta',
+        label: "Xəta",
         result: true,
-        icon: <FiXCircle />
+        icon: <FiXCircle />,
       });
     } else {
       leftTabs.push({
-        label: isCorrect ? 'Doğru Cavab' : 'Yalnış Cavab',
+        label: isCorrect ? "Doğru Cavab" : "Yalnış Cavab",
         result: true,
-        icon: isCorrect ? <FiCheckCircle /> : <FiXCircle />
+        icon: isCorrect ? <FiCheckCircle /> : <FiXCircle />,
       });
     }
   }
@@ -317,7 +331,7 @@ export default function ExerciseDetailPage({
   return (
     <>
       <Header />
-      
+
       {/* Hero Section */}
       <section className={detailStyles.heroSection}>
         <div className={detailStyles.heroContent}>
@@ -328,8 +342,10 @@ export default function ExerciseDetailPage({
               <span>#{exercise.id}</span>
             </div>
             <h1 className={detailStyles.heroTitle}>{exercise.title}</h1>
-            <p className={detailStyles.heroDescription}>{exercise.description}</p>
-            
+            <p className={detailStyles.heroDescription}>
+              {exercise.description}
+            </p>
+
             <div className={detailStyles.heroStats}>
               <div className={detailStyles.statItem}>
                 <FiUsers className={detailStyles.statIcon} />
@@ -345,12 +361,16 @@ export default function ExerciseDetailPage({
               </div>
             </div>
           </div>
-          
+
           <div className={detailStyles.heroRight}>
             <div className={detailStyles.difficultyCard}>
               <div className={detailStyles.difficultyHeader}>
                 <span className={detailStyles.difficultyLabel}>Çətinlik</span>
-                <span className={`${detailStyles.difficultyBadge} ${difficultyColor(exercise.difficulty)}`}>
+                <span
+                  className={`${detailStyles.difficultyBadge} ${difficultyColor(
+                    exercise.difficulty
+                  )}`}
+                >
                   {difficultyIcon(exercise.difficulty)} {exercise.difficulty}
                 </span>
               </div>
@@ -377,9 +397,17 @@ export default function ExerciseDetailPage({
                 className={
                   `${detailStyles.tabButton} ` +
                   (activeLeftTab === i ? detailStyles.active : "") +
-                  ((tab.result ?? false) && feedbackType === 'error' ? ' ' + detailStyles.xeta : "") +
-                  ((tab.result ?? false) && isCorrect ? ' ' + detailStyles.correct : "") +
-                  ((tab.result ?? false) && !isCorrect && feedbackType !== 'error' ? ' ' + detailStyles.wrong : "")
+                  ((tab.result ?? false) && feedbackType === "error"
+                    ? " " + detailStyles.xeta
+                    : "") +
+                  ((tab.result ?? false) && isCorrect
+                    ? " " + detailStyles.correct
+                    : "") +
+                  ((tab.result ?? false) &&
+                  !isCorrect &&
+                  feedbackType !== "error"
+                    ? " " + detailStyles.wrong
+                    : "")
                 }
                 onClick={() => setActiveLeftTab(i)}
               >
@@ -388,15 +416,17 @@ export default function ExerciseDetailPage({
               </button>
             ))}
           </div>
-          
+
           <div className={detailStyles.tabContent}>
             {activeLeftTab === 0 && (
               <div className={detailStyles.descriptionContent}>
                 <div className={detailStyles.section}>
                   <h3 className={detailStyles.sectionTitle}>Problem Təsviri</h3>
-                  <p className={detailStyles.descriptionText}>{exercise.description}</p>
+                  <p className={detailStyles.descriptionText}>
+                    {exercise.description}
+                  </p>
                 </div>
-                
+
                 <div className={detailStyles.section}>
                   <h3 className={detailStyles.sectionTitle}>Məhdudiyyətlər</h3>
                   <ul className={detailStyles.constraintsList}>
@@ -407,27 +437,41 @@ export default function ExerciseDetailPage({
                     ))}
                   </ul>
                 </div>
-                
+
                 <div className={detailStyles.section}>
                   <h3 className={detailStyles.sectionTitle}>Nümunələr</h3>
                   {exercise.examples.map((ex, i) => (
                     <div key={i} className={detailStyles.exampleCard}>
                       <div className={detailStyles.exampleHeader}>
-                        <span className={detailStyles.exampleNumber}>Nümunə {i + 1}</span>
+                        <span className={detailStyles.exampleNumber}>
+                          Nümunə {i + 1}
+                        </span>
                       </div>
                       <div className={detailStyles.exampleContent}>
                         <div className={detailStyles.exampleRow}>
-                          <span className={detailStyles.exampleLabel}>Input:</span>
-                          <code className={detailStyles.exampleCode}>{ex.input}</code>
+                          <span className={detailStyles.exampleLabel}>
+                            Input:
+                          </span>
+                          <code className={detailStyles.exampleCode}>
+                            {ex.input}
+                          </code>
                         </div>
                         <div className={detailStyles.exampleRow}>
-                          <span className={detailStyles.exampleLabel}>Output:</span>
-                          <code className={detailStyles.exampleCode}>{ex.output}</code>
+                          <span className={detailStyles.exampleLabel}>
+                            Output:
+                          </span>
+                          <code className={detailStyles.exampleCode}>
+                            {ex.output}
+                          </code>
                         </div>
                         {ex.explanation && (
                           <div className={detailStyles.exampleRow}>
-                            <span className={detailStyles.exampleLabel}>İzah:</span>
-                            <span className={detailStyles.exampleExplanation}>{ex.explanation}</span>
+                            <span className={detailStyles.exampleLabel}>
+                              İzah:
+                            </span>
+                            <span className={detailStyles.exampleExplanation}>
+                              {ex.explanation}
+                            </span>
                           </div>
                         )}
                       </div>
@@ -436,7 +480,7 @@ export default function ExerciseDetailPage({
                 </div>
               </div>
             )}
-            
+
             {activeLeftTab === 1 && (
               <div className={detailStyles.placeholderContent}>
                 <FiEdit3 className={detailStyles.placeholderIcon} />
@@ -444,7 +488,7 @@ export default function ExerciseDetailPage({
                 <p>Bu bölmə tezliklə əlavə olunacaq...</p>
               </div>
             )}
-            
+
             {activeLeftTab === 2 && (
               <div className={detailStyles.placeholderContent}>
                 <FiCode className={detailStyles.placeholderIcon} />
@@ -452,7 +496,7 @@ export default function ExerciseDetailPage({
                 <p>Bu bölmə tezliklə əlavə olunacaq...</p>
               </div>
             )}
-            
+
             {activeLeftTab === 3 && (
               <div className={detailStyles.placeholderContent}>
                 <FiEye className={detailStyles.placeholderIcon} />
@@ -460,9 +504,10 @@ export default function ExerciseDetailPage({
                 <p>Bu bölmə tezliklə əlavə olunacaq...</p>
               </div>
             )}
-            
-            {activeLeftTab === 4 && resultTabAvailable && (
-              feedbackType === 'error' ? (
+
+            {activeLeftTab === 4 &&
+              resultTabAvailable &&
+              (feedbackType === "error" ? (
                 <div className={detailStyles.errorResultBox}>
                   <div className={detailStyles.errorHeader}>
                     <FiXCircle className={detailStyles.errorIcon} />
@@ -472,14 +517,17 @@ export default function ExerciseDetailPage({
                 </div>
               ) : (
                 <CodeEvalResult
-                  status={isCorrect ? 'correct' : 'wrong'}
-                  passedCount={isCorrect ? exercise.testCases.length : exercise.testCases.length - failedCases.length}
+                  status={isCorrect ? "correct" : "wrong"}
+                  passedCount={
+                    isCorrect
+                      ? exercise.testCases.length
+                      : exercise.testCases.length - failedCases.length
+                  }
                   totalCount={exercise.testCases.length}
                   failedCases={failedCases}
                   onAnalyzeComplexity={() => setIsComplexityModalOpen(true)}
                 />
-              )
-            )}
+              ))}
           </div>
         </div>
 
@@ -492,10 +540,10 @@ export default function ExerciseDetailPage({
                 Kod Redaktəsi
               </h3>
             </div>
-            
+
             <div className={detailStyles.editorContainer}>
               <JsTryEditor value={userCode} onChange={setUserCode} />
-              
+
               <SavadliButton
                 text={isSubmitting ? "Yoxlanır..." : "Submit"}
                 position="absolute"
@@ -514,7 +562,7 @@ export default function ExerciseDetailPage({
                 Test Halları
               </h3>
             </div>
-            
+
             <div className={detailStyles.testCasesTabs}>
               {visibleCases.map((tc, i) => (
                 <button
@@ -528,18 +576,24 @@ export default function ExerciseDetailPage({
                 </button>
               ))}
             </div>
-            
+
             <div className={detailStyles.testCaseContent}>
               <div className={detailStyles.testCaseRow}>
                 <span className={detailStyles.testCaseLabel}>Input:</span>
-                <code className={detailStyles.testCaseCode}>{visibleCases[activeCase]?.input}</code>
+                <code className={detailStyles.testCaseCode}>
+                  {visibleCases[activeCase]?.input}
+                </code>
               </div>
-              
+
               <div className={detailStyles.testCaseRow}>
-                <span className={detailStyles.testCaseLabel}>Gözlənilən çıxış:</span>
-                <code className={detailStyles.testCaseCode}>{visibleCases[activeCase]?.expectedOutput}</code>
+                <span className={detailStyles.testCaseLabel}>
+                  Gözlənilən çıxış:
+                </span>
+                <code className={detailStyles.testCaseCode}>
+                  {visibleCases[activeCase]?.expectedOutput}
+                </code>
               </div>
-              
+
               <div className={detailStyles.customInputSection}>
                 <input
                   value={customInput}
@@ -552,7 +606,7 @@ export default function ExerciseDetailPage({
                   Run
                 </button>
               </div>
-              
+
               {output && (
                 <div className={detailStyles.outputBox}>
                   <span className={detailStyles.outputLabel}>Nəticə:</span>
@@ -563,7 +617,7 @@ export default function ExerciseDetailPage({
           </div>
         </div>
       </div>
-      
+
       <ComplexityModal
         isOpen={isComplexityModalOpen}
         onClose={() => setIsComplexityModalOpen(false)}
@@ -571,7 +625,7 @@ export default function ExerciseDetailPage({
         spaceComplexity={null}
         userCode={userCode}
       />
-      
+
       <Footer />
     </>
   );
