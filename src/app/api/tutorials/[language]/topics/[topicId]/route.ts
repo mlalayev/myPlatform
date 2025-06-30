@@ -16,9 +16,11 @@ type Topic = {
   content: ContentBlock[];
 };
 
-export async function GET(req: NextRequest, { params }: { params: { language: string } }) {
-  const { language } = params;
-  let topics = [];
+export async function GET(
+  req: NextRequest, 
+  { params }: { params: { language: string; topicId: string } }
+) {
+  const { language, topicId } = params;
   
   try {
     // Check if language has a folder structure
@@ -30,35 +32,36 @@ export async function GET(req: NextRequest, { params }: { params: { language: st
       const indexContents = await fs.readFile(indexPath, 'utf-8');
       const topicList = JSON.parse(indexContents);
       
-      // Load each topic from its individual file
-      for (const topicInfo of topicList) {
-        try {
-          const topicPath = path.join(folderPath, topicInfo.file);
-          const topicContents = await fs.readFile(topicPath, 'utf-8');
-          const topic = JSON.parse(topicContents);
-          topics.push(topic);
-        } catch (topicError) {
-          console.error(`Error loading topic ${topicInfo.file}:`, topicError);
-          // Add topic info without content if file is missing
-          topics.push({
-            id: topicInfo.id,
-            title: topicInfo.title,
-            icon: topicInfo.icon,
-            description: topicInfo.description,
-            content: []
-          });
-        }
+      // Find the specific topic
+      const topicInfo = topicList.find((topic: any) => topic.id === topicId);
+      
+      if (!topicInfo) {
+        return NextResponse.json({ error: 'Topic not found' }, { status: 404 });
       }
+      
+      // Load the specific topic from its file
+      const topicPath = path.join(folderPath, topicInfo.file);
+      const topicContents = await fs.readFile(topicPath, 'utf-8');
+      const topic = JSON.parse(topicContents);
+      
+      return NextResponse.json(topic);
+      
     } catch (folderError) {
       // Fallback to old single file structure
       const filePath = path.join(process.cwd(), 'src', 'app', 'api', 'tutorials', '[language]', 'topics', `${language}.json`);
       const fileContents = await fs.readFile(filePath, 'utf-8');
-      topics = JSON.parse(fileContents);
+      const topics = JSON.parse(fileContents);
+      
+      const topic = topics.find((t: Topic) => t.id === topicId);
+      
+      if (!topic) {
+        return NextResponse.json({ error: 'Topic not found' }, { status: 404 });
+      }
+      
+      return NextResponse.json(topic);
     }
   } catch (e) {
-    console.error('Error loading topics:', e);
-    topics = [];
+    console.error('Error loading topic:', e);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-  
-  return NextResponse.json(topics);
 } 
