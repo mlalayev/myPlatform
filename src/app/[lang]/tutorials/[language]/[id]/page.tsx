@@ -90,7 +90,7 @@ function renderContentBlock(block: ContentBlock, i: number, editorStates: any, s
           <code>{block.code}</code>
         </pre>
       );
-    case 'editor': {
+    case "editor": {
       const editorKey = `editor-${i}`;
       const codeValue = editorStates[editorKey] !== undefined ? editorStates[editorKey] : (block.initialCode || '');
       const handleEditorChange = (val: string) => {
@@ -99,10 +99,6 @@ function renderContentBlock(block: ContentBlock, i: number, editorStates: any, s
       return (
         <div key={i} style={{ margin: '18px 0' }}>
           <JsTryEditor value={codeValue} onChange={handleEditorChange} showRunButton={true} />
-    case "editor":
-      return (
-        <div key={i} style={{ margin: "18px 0" }}>
-          <JsTryEditor value={block.initialCode || ""} showRunButton={true} />
         </div>
       );
     }
@@ -271,10 +267,15 @@ export default function TutorialTopicPage() {
               {topicContent.content && topicContent.content.map((block: any, i: number) =>
                 renderContentBlock(block, i, editorStates, setEditorStates)
               )}
-              <h2 className={styles.topicTitle}>{selectedTopic.title}</h2>
-              <p className={styles.topicDesc}>{selectedTopic.description}</p>
-              {selectedTopic.content &&
-                selectedTopic.content.map(renderContentBlock)}
+              {selectedTopic && (
+                <>
+                  <h2 className={styles.topicTitle}>{selectedTopic.title}</h2>
+                  <p className={styles.topicDesc}>{selectedTopic.description}</p>
+                  {selectedTopic.content && selectedTopic.content.map((block: any, i: number) =>
+                    renderContentBlock(block, i, editorStates, setEditorStates)
+                  )}
+                </>
+              )}
             </>
           ) : (
             <div className={styles.topicEmpty}>Mövzu tapılmadı</div>
