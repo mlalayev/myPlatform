@@ -267,15 +267,6 @@ export default function TutorialTopicPage() {
               {topicContent.content && topicContent.content.map((block: any, i: number) =>
                 renderContentBlock(block, i, editorStates, setEditorStates)
               )}
-              {selectedTopic && (
-                <>
-                  <h2 className={styles.topicTitle}>{selectedTopic.title}</h2>
-                  <p className={styles.topicDesc}>{selectedTopic.description}</p>
-                  {selectedTopic.content && selectedTopic.content.map((block: any, i: number) =>
-                    renderContentBlock(block, i, editorStates, setEditorStates)
-                  )}
-                </>
-              )}
             </>
           ) : (
             <div className={styles.topicEmpty}>Mövzu tapılmadı</div>
