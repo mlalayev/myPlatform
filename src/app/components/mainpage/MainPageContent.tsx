@@ -15,6 +15,11 @@ import {
   SiSwift,
   SiCplusplus,
 } from "react-icons/si";
+<<<<<<< HEAD
+=======
+
+import Marquee from "react-fast-marquee";
+>>>>>>> 36b9f73ab7fee396018b7ce24bbcc2f57c9cb5f8
 
 const features = [
   {
@@ -49,6 +54,10 @@ const features = [
   },
 ];
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 36b9f73ab7fee396018b7ce24bbcc2f57c9cb5f8
 const languages = [
   {
     name: "JavaScript",
@@ -56,11 +65,14 @@ const languages = [
     description: "Most popular scripting language for web development.",
   },
   {
+<<<<<<< HEAD
     name: "HTML",
     icon: <SiHtml5 color="#e34c26" size={32} />,
     description: "The standard markup language for web pages.",
   },
   {
+=======
+>>>>>>> 36b9f73ab7fee396018b7ce24bbcc2f57c9cb5f8
     name: "CSS",
     icon: <SiCss3 color="#1572b6" size={32} />,
     description: "Style your web pages with modern CSS.",
@@ -90,6 +102,25 @@ const languages = [
     icon: <SiSwift color="#ffac45" size={32} />,
     description: "Powerful language for iOS and macOS development.",
   },
+<<<<<<< HEAD
+=======
+  {
+    name: "C++",
+    icon: <SiCplusplus color="#00599C" size={32} />,
+    description: "High-performance language for system/software development.",
+  },
+const languageIcons = [
+  { icon: <SiJavascript size={32} color="#f7df1e" />, name: "JavaScript" },
+  { icon: <SiHtml5 size={32} color="#e34c26" />, name: "HTML" },
+  { icon: <SiCss3 size={32} color="#1572b6" />, name: "CSS" },
+  { icon: <SiNodedotjs size={32} color="#339933" />, name: "Node.js" },
+  { icon: <SiOpenjdk size={32} color="#b07219" />, name: "Java" },
+  { icon: <SiSharp size={32} color="#178600" />, name: "C#" },
+  { icon: <SiDart size={32} color="#0175c2" />, name: "Dart" },
+  { icon: <SiKotlin size={32} color="#7f52ff" />, name: "Kotlin" },
+  { icon: <SiSwift size={32} color="#ffac45" />, name: "Swift" },
+  { icon: <SiCplusplus size={32} color="#00599C" />, name: "C++" },
+>>>>>>> 36b9f73ab7fee396018b7ce24bbcc2f57c9cb5f8
 ];
 
 export default function MainPageContent() {
@@ -108,6 +139,20 @@ export default function MainPageContent() {
                 <p className={styles.featureDescription}>
                   {feature.description}
                 </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className={styles.languagesSection}>
+        <h2 className={styles.languagesTitle}>Languages in Our Courses</h2>
+        <div className={styles.languagesGrid}>
+          {languages.map((lang) => (
+            <div className={styles.languageCard} key={lang.name}>
+              <div className={styles.languageIcon}>{lang.icon}</div>
+              <div className={styles.languageName}>{lang.name}</div>
+              <div className={styles.languageDescription}>
+                {lang.description}
               </div>
             </div>
           ))}
