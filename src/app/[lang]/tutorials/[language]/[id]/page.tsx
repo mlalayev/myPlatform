@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+"use client";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import styles from "../../TutorialsPage.module.css";
 import * as FiIcons from "react-icons/fi";
@@ -45,7 +46,7 @@ const languageShortMap: Record<string, string> = {
   matlab: "ML",
 };
 
-function renderContentBlock(block: ContentBlock, i: number) {
+function renderContentBlock(block: ContentBlock, i: number, editorStates: any, setEditorStates: any) {
   switch (block.type) {
     case "heading":
       return (
@@ -89,12 +90,22 @@ function renderContentBlock(block: ContentBlock, i: number) {
           <code>{block.code}</code>
         </pre>
       );
+    case 'editor': {
+      const editorKey = `editor-${i}`;
+      const codeValue = editorStates[editorKey] !== undefined ? editorStates[editorKey] : (block.initialCode || '');
+      const handleEditorChange = (val: string) => {
+        setEditorStates((prev: any) => ({ ...prev, [editorKey]: val }));
+      };
+      return (
+        <div key={i} style={{ margin: '18px 0' }}>
+          <JsTryEditor value={codeValue} onChange={handleEditorChange} showRunButton={true} />
     case "editor":
       return (
         <div key={i} style={{ margin: "18px 0" }}>
           <JsTryEditor value={block.initialCode || ""} showRunButton={true} />
         </div>
       );
+    }
     default:
       return null;
   }
@@ -106,26 +117,31 @@ export default function TutorialTopicPage() {
     ? params.language[0]
     : params.language;
   const topicId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const lang = Array.isArray(params.lang) ? params.lang[0] : params.lang;
   const safeLanguage = typeof language === "string" ? language : "";
   const router = useRouter();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [topicContent, setTopicContent] = useState<any>(null);
+  const [editorStates, setEditorStates] = useState<any>({});
 
   useEffect(() => {
-    if (!language || !topicId) return;
-    // First, load all topics to populate the sidebar
+    if (!language || !topicId || !lang) return;
+    // Fetch topics for sidebar from API
     fetch(`/api/tutorials/${language}/topics`)
       .then((res) => res.json())
       .then((data) => {
-        setTopics(data);
+        const langKey = typeof lang === 'string' ? lang : (Array.isArray(lang) ? lang[0] : 'az');
+        const topicsArr = data[langKey] || [];
+        setTopics(topicsArr);
         // Check if the current topicId exists in the topics list
-        const topic = data.find((t: Topic) => t.id === topicId);
+        const topic = topicsArr.find((t: Topic) => t.id === topicId);
         if (!topic) {
           // If topic doesn't exist, redirect to first topic
-          if (data.length > 0) {
-            router.replace(`/tutorials/${language}/${data[0].id}`);
+          if (topicsArr.length > 0) {
+            router.replace(`/${langKey}/tutorials/${language}/${topicsArr[0].id}`);
           }
           return;
         }
@@ -136,11 +152,26 @@ export default function TutorialTopicPage() {
         console.error("Error loading topic:", error);
         setLoading(false);
       });
-  }, [language, topicId, router]);
+
+    // Fetch topic content from API
+    fetch(`/api/tutorials/${language}/${topicId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const langKey = typeof lang === 'string' ? lang : (Array.isArray(lang) ? lang[0] : 'az');
+        setTopicContent(data[langKey]);
+      })
+      .catch((error) => {
+        console.error('Error loading topic content:', error);
+      });
+  }, [language, topicId, lang, router]);
+
+  useEffect(() => {
+    setEditorStates({}); // Reset editor states when topic changes
+  }, [language, topicId, lang, router]);
 
   const handleSelect = (id: string) => {
     if (id !== topicId) {
-      router.push(`/tutorials/${language}/${id}`);
+      router.push(`/${lang}/tutorials/${language}/${id}`);
     }
   };
 
@@ -233,8 +264,13 @@ export default function TutorialTopicPage() {
         <main className={styles.topicContent}>
           {topics.length === 0 ? (
             <div className={styles.topicEmpty}>Bu dil üçün mövzu yoxdur.</div>
-          ) : selectedTopic ? (
+          ) : topicContent ? (
             <>
+              <h2 className={styles.topicTitle}>{topicContent.title}</h2>
+              <p className={styles.topicDesc}>{topicContent.description}</p>
+              {topicContent.content && topicContent.content.map((block: any, i: number) =>
+                renderContentBlock(block, i, editorStates, setEditorStates)
+              )}
               <h2 className={styles.topicTitle}>{selectedTopic.title}</h2>
               <p className={styles.topicDesc}>{selectedTopic.description}</p>
               {selectedTopic.content &&

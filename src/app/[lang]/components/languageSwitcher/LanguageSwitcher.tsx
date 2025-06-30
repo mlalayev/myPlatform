@@ -17,8 +17,10 @@ export default function LanguageSwitcher() {
   return (
     <select onChange={handleChange} defaultValue={pathname.split("/")[1]}>
       {languages.map((lang) => (
-        <option key={lang} value={lang}>{lang.toUpperCase()}</option>
+        <option key={lang} value={lang}>
+          {lang.toUpperCase()}
+        </option>
       ))}
     </select>
   );
-} 
+}
