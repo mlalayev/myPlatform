@@ -8,11 +8,13 @@ export default function TutorialLanguagePage() {
 
   useEffect(() => {
     if (!language || !lang) return;
+    const langKey = Array.isArray(lang) ? lang[0] : lang;
     fetch(`/api/tutorials/${language}/topics`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.length > 0) {
-          router.replace(`/${lang}/tutorials/${language}/${data[0].id}`);
+        const topics = data[langKey] || [];
+        if (topics.length > 0) {
+          router.replace(`/${langKey}/tutorials/${language}/${topics[0].id}`);
         }
       })
       .catch((error) => {

@@ -4,10 +4,10 @@ import { promises as fs } from 'fs';
 
 export async function GET(
   req: Request,
-  { params }: { params: { language: string } }
+  { params }: { params: { language: string, id: string } }
 ) {
-  const { language } = params;
-  const filePath = path.join(process.cwd(), 'public', 'tutorials', language, 'topics.json');
+  const { language, id } = params;
+  const filePath = path.join(process.cwd(), 'public', 'tutorials', language, `${id}.json`);
   try {
     const file = await fs.readFile(filePath, 'utf-8');
     return NextResponse.json(JSON.parse(file));
