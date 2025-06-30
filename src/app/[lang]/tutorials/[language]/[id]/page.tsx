@@ -9,7 +9,7 @@ import JsTryEditor from "../../../components/tryeditor/JsTryEditor";
 import CodeLoader from "../../../components/loading/CodeLoader";
 
 interface ContentBlock {
-  type: 'heading' | 'paragraph' | 'code' | 'editor';
+  type: "heading" | "paragraph" | "code" | "editor";
   text?: string;
   language?: string;
   code?: string;
@@ -48,18 +48,24 @@ const languageShortMap: Record<string, string> = {
 
 function renderContentBlock(block: ContentBlock, i: number, editorStates: any, setEditorStates: any) {
   switch (block.type) {
-    case 'heading':
-      return <h2 key={i} className={styles.contentHeading}>{block.text}</h2>;
-    case 'paragraph':
+    case "heading":
+      return (
+        <h2 key={i} className={styles.contentHeading}>
+          {block.text}
+        </h2>
+      );
+    case "paragraph":
       return (
         <p key={i}>
-          {block.text?.split('\n').map((line, idx, arr) => {
+          {block.text?.split("\n").map((line, idx, arr) => {
             const parts = line.split(/(\*\*[^*]+\*\*)/g);
             return (
               <React.Fragment key={idx}>
                 {parts.map((part, j) =>
-                  part.startsWith('**') && part.endsWith('**') ? (
-                    <strong key={j} style={{ fontWeight: 700 }}>{part.slice(2, -2)}</strong>
+                  part.startsWith("**") && part.endsWith("**") ? (
+                    <strong key={j} style={{ fontWeight: 700 }}>
+                      {part.slice(2, -2)}
+                    </strong>
                   ) : (
                     <React.Fragment key={j}>{part}</React.Fragment>
                   )
@@ -70,9 +76,17 @@ function renderContentBlock(block: ContentBlock, i: number, editorStates: any, s
           })}
         </p>
       );
-    case 'code':
+    case "code":
       return (
-        <pre key={i} style={{ background: '#f7f7f7', padding: '10px', borderRadius: '8px', overflowX: 'auto' }}>
+        <pre
+          key={i}
+          style={{
+            background: "#f7f7f7",
+            padding: "10px",
+            borderRadius: "8px",
+            overflowX: "auto",
+          }}
+        >
           <code>{block.code}</code>
         </pre>
       );
@@ -85,6 +99,10 @@ function renderContentBlock(block: ContentBlock, i: number, editorStates: any, s
       return (
         <div key={i} style={{ margin: '18px 0' }}>
           <JsTryEditor value={codeValue} onChange={handleEditorChange} showRunButton={true} />
+    case "editor":
+      return (
+        <div key={i} style={{ margin: "18px 0" }}>
+          <JsTryEditor value={block.initialCode || ""} showRunButton={true} />
         </div>
       );
     }
@@ -95,7 +113,9 @@ function renderContentBlock(block: ContentBlock, i: number, editorStates: any, s
 
 export default function TutorialTopicPage() {
   const params = useParams();
-  const language = Array.isArray(params.language) ? params.language[0] : params.language;
+  const language = Array.isArray(params.language)
+    ? params.language[0]
+    : params.language;
   const topicId = Array.isArray(params.id) ? params.id[0] : params.id;
   const lang = Array.isArray(params.lang) ? params.lang[0] : params.lang;
   const safeLanguage = typeof language === "string" ? language : "";
@@ -129,7 +149,7 @@ export default function TutorialTopicPage() {
         setLoading(false);
       })
       .catch((error) => {
-        console.error('Error loading topic:', error);
+        console.error("Error loading topic:", error);
         setLoading(false);
       });
 
@@ -163,20 +183,24 @@ export default function TutorialTopicPage() {
         <Header />
         <div className={styles.tutorialLayout}>
           <div className={styles.topicContent}>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
-              height: '50vh',
-              flexDirection: 'column',
-              gap: '20px'
-            }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "50vh",
+                flexDirection: "column",
+                gap: "20px",
+              }}
+            >
               <CodeLoader />
-              <div style={{ 
-                fontSize: '18px', 
-                color: '#666',
-                fontFamily: 'Consolas, Menlo, Monaco, monospace'
-              }}>
+              <div
+                style={{
+                  fontSize: "18px",
+                  color: "#666",
+                  fontFamily: "Consolas, Menlo, Monaco, monospace",
+                }}
+              >
                 Yüklənir...
               </div>
             </div>
@@ -195,15 +219,25 @@ export default function TutorialTopicPage() {
           <div className={styles.sidebarHeader}>
             <span className={styles.sidebarTitle}>
               {collapsed
-                ? languageShortMap[safeLanguage] || (safeLanguage ? safeLanguage.slice(0, 2).toUpperCase() : "L")
-                : `${safeLanguage ? safeLanguage.charAt(0).toUpperCase() + safeLanguage.slice(1) : "Language"} Mövzular`}
+                ? languageShortMap[safeLanguage] ||
+                  (safeLanguage ? safeLanguage.slice(0, 2).toUpperCase() : "L")
+                : `${
+                    safeLanguage
+                      ? safeLanguage.charAt(0).toUpperCase() +
+                        safeLanguage.slice(1)
+                      : "Language"
+                  } Mövzular`}
             </span>
             <button
               className={styles.collapseBtn}
               onClick={toggleSidebar}
               aria-label={collapsed ? "Expand" : "Collapse"}
             >
-              {collapsed ? <FiIcons.FiChevronRight /> : <FiIcons.FiChevronLeft />}
+              {collapsed ? (
+                <FiIcons.FiChevronRight />
+              ) : (
+                <FiIcons.FiChevronLeft />
+              )}
             </button>
           </div>
           <nav className={styles.topicList}>
@@ -237,6 +271,10 @@ export default function TutorialTopicPage() {
               {topicContent.content && topicContent.content.map((block: any, i: number) =>
                 renderContentBlock(block, i, editorStates, setEditorStates)
               )}
+              <h2 className={styles.topicTitle}>{selectedTopic.title}</h2>
+              <p className={styles.topicDesc}>{selectedTopic.description}</p>
+              {selectedTopic.content &&
+                selectedTopic.content.map(renderContentBlock)}
             </>
           ) : (
             <div className={styles.topicEmpty}>Mövzu tapılmadı</div>
@@ -246,4 +284,4 @@ export default function TutorialTopicPage() {
       <Footer />
     </>
   );
-} 
+}
