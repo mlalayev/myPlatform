@@ -1,3 +1,5 @@
+"use client"
+
 import React from "react";
 import styles from "./TutorialsPage.module.css";
 import {
@@ -43,6 +45,7 @@ import Link from "next/link";
 import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
 
 // Type for language cards
 interface LanguageAvailable {
@@ -199,6 +202,9 @@ const languages: Language[] = [
 ];
 
 export default function TutorialsPage() {
+  const pathname = usePathname();
+  const currentLang = pathname.split("/")[1] || "en";
+
   return (
     <>
       <Header />
@@ -208,7 +214,7 @@ export default function TutorialsPage() {
           {languages.map((lang) =>
             lang.available ? (
               <Link
-                href={lang.href}
+                href={`/${currentLang}/tutorials/${lang.href.replace(/^\/tutorials\//, '')}`}
                 className={styles.languageCard}
                 key={lang.name}
               >

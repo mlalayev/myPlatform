@@ -2,20 +2,26 @@ import styles from "./MainPageContent.module.css";
 import { FiArrowUpRight } from "react-icons/fi";
 import Image from "next/image";
 import heroImg from "@/../public/svg/bookLogo.svg";
+import { useI18n } from "@/contexts/I18nContext";
 
 const HeroSection = () => {
+  const { t } = useI18n();
   return (
     <section className={styles.heroSection}>
       <div className={styles.heroContent}>
         <h1 className={styles.heroTitle}>
-          Control your learning<br />
-          future easily
+          {t("hero.title").split("\n").map((line, i) => (
+            <span key={i}>
+              {line}
+              <br />
+            </span>
+          ))}
         </h1>
         <p className={styles.heroSubtitle}>
-          Streamline your programming journey with our intuitive, scalable platform. Designed for everyone who wants to learn and grow.
+          {t("hero.subtitle")}
         </p>
         <button className={styles.heroButton}>
-          Get Started <span className={styles.heroButtonIcon}><FiArrowUpRight /></span>
+          {t("hero.cta")} <span className={styles.heroButtonIcon}><FiArrowUpRight /></span>
         </button>
       </div>
       <div className={styles.heroLogoWrapper}>

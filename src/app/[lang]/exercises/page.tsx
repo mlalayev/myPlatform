@@ -6,6 +6,7 @@ import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
 import Link from "next/link";
 import { FiSearch, FiFilter, FiTrendingUp, FiCalendar, FiCode, FiUsers, FiClock } from "react-icons/fi";
+import { usePathname } from "next/navigation";
 
 const difficultyColor = (diff: string) =>
   diff === "Asan"
@@ -31,6 +32,9 @@ export default function ExercisesPage() {
   const [search, setSearch] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("Bütün");
   
+  const pathname = usePathname();
+  const currentLang = pathname.split("/")[1] || "en";
+
   const filtered = exercises.filter((ex) => {
     const matchesSearch = ex.title.toLowerCase().includes(search.toLowerCase()) ||
                          ex.description.toLowerCase().includes(search.toLowerCase()) ||
@@ -159,7 +163,7 @@ export default function ExercisesPage() {
             <div className={styles.list}>
               {filtered.map((ex, i) => (
                 <Link
-                  href={`/exercises/${ex.id}`}
+                  href={`/${currentLang}/exercises/${ex.id}`}
                   key={ex.id}
                   className={styles.row}
                 >

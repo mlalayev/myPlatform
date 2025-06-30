@@ -1,12 +1,23 @@
 "use client";
 import { useEffect, useState } from "react";
 
-export default function HomePage() {
-  const [showLoader, setShowLoader] = useState(true);
+export default function ClientRedirect() {
+  const [showLoader, setShowLoader] = useState(false);
 
   useEffect(() => {
-    // Optionally, you can add a timeout or logic here if needed
-    setShowLoader(true);
+    if (window.location.pathname === "/") {
+      setShowLoader(true);
+      let lang = localStorage.getItem("selectedLanguage");
+      if (!lang) {
+        lang = "az";
+        localStorage.setItem("selectedLanguage", lang);
+      }
+      setTimeout(() => {
+        if (window.location.pathname !== `/${lang}`) {
+          window.location.replace(`/${lang}`);
+        }
+      }, 600); // Show loader for at least 600ms
+    }
   }, []);
 
   if (!showLoader) return null;
@@ -40,4 +51,4 @@ export default function HomePage() {
       `}</style>
     </div>
   );
-}
+} 

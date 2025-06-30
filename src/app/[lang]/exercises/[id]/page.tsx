@@ -2,13 +2,13 @@
 import React, { useState } from "react";
 import { use } from "react";
 import { exercises } from "../exercisesData";
-import JsTryEditor from "@/app/components/tryeditor/JsTryEditor";
+import JsTryEditor from "../../components/tryeditor/JsTryEditor";
 import Header from "../../components/header/Header";
 import Footer from "../../components/footer/Footer";
 import styles from "../ExercisesList.module.css";
 import detailStyles from "./ExerciseDetail.module.css";
 import workerCode from "./sandboxWorkerString";
-import SavadliButton from "@/app/components/Buttons/savadliButton/SavadliButton";
+import SavadliButton from "../../components/Buttons/savadliButton/SavadliButton";
 import CodeEvalResult from "./CodeEvalResult";
 import ComplexityModal from "./ComplexityModal";
 import {

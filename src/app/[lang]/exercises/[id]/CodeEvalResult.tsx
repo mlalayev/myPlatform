@@ -1,5 +1,13 @@
 import React from "react";
-import { FiCheckCircle, FiXCircle, FiAlertTriangle, FiInfo, FiCode, FiTarget, FiClock } from "react-icons/fi";
+import {
+  FiCheckCircle,
+  FiXCircle,
+  FiAlertTriangle,
+  FiInfo,
+  FiCode,
+  FiTarget,
+  FiClock,
+} from "react-icons/fi";
 import styles from "./CodeEvalResult.module.css";
 
 interface FailedCase {
@@ -31,7 +39,11 @@ const CodeEvalResult: React.FC<CodeEvalResultProps> = ({
       {/* Header Section */}
       <div className={styles.resultHeader}>
         <div className={styles.statusSection}>
-          <div className={`${styles.statusIcon} ${isCorrect ? styles.success : styles.error}`}>
+          <div
+            className={`${styles.statusIcon} ${
+              isCorrect ? styles.success : styles.error
+            }`}
+          >
             {isCorrect ? <FiCheckCircle /> : <FiXCircle />}
           </div>
           <div className={styles.statusContent}>
@@ -39,14 +51,13 @@ const CodeEvalResult: React.FC<CodeEvalResultProps> = ({
               {isCorrect ? "Bütün testlər keçdi!" : "Bəzi testlər uğursuz oldu"}
             </h3>
             <p className={styles.statusSubtitle}>
-              {isCorrect 
+              {isCorrect
                 ? "Təbriklər! Kodunuz bütün test hallarını uğurla keçdi."
-                : "Kodunuzda bəzi xətalar var. Aşağıdakı test hallarını yoxlayın."
-              }
+                : "Kodunuzda bəzi xətalar var. Aşağıdakı test hallarını yoxlayın."}
             </p>
           </div>
         </div>
-        
+
         <div className={styles.statsSection}>
           <div className={styles.statCard}>
             <div className={styles.statHeader}>
@@ -54,14 +65,20 @@ const CodeEvalResult: React.FC<CodeEvalResultProps> = ({
               <span className={styles.statLabel}>Test Nəticələri</span>
             </div>
             <div className={styles.statValue}>
-              <span className={`${styles.passedCount} ${isCorrect ? styles.allPassed : ""}`}>
+              <span
+                className={`${styles.passedCount} ${
+                  isCorrect ? styles.allPassed : ""
+                }`}
+              >
                 {passedCount}
               </span>
               <span className={styles.totalCount}>/ {totalCount}</span>
             </div>
             <div className={styles.progressBar}>
-              <div 
-                className={`${styles.progressFill} ${isCorrect ? styles.success : styles.error}`}
+              <div
+                className={`${styles.progressFill} ${
+                  isCorrect ? styles.success : styles.error
+                }`}
                 style={{ width: `${passedPercentage}%` }}
               ></div>
             </div>
@@ -77,11 +94,9 @@ const CodeEvalResult: React.FC<CodeEvalResultProps> = ({
         <div className={styles.failedCasesSection}>
           <div className={styles.sectionHeader}>
             <FiAlertTriangle className={styles.sectionIcon} />
-            <h4 className={styles.sectionTitle}>
-              İlk Uğursuz Test Halı
-            </h4>
+            <h4 className={styles.sectionTitle}>İlk Uğursuz Test Halı</h4>
           </div>
-          
+
           <div className={styles.failedCasesList}>
             <div className={styles.failedCaseCard}>
               <div className={styles.caseHeader}>
@@ -91,16 +106,18 @@ const CodeEvalResult: React.FC<CodeEvalResultProps> = ({
                   <span>Uğursuz</span>
                 </div>
               </div>
-              
+
               <div className={styles.caseContent}>
                 <div className={styles.caseRow}>
                   <div className={styles.caseLabel}>
                     <FiCode className={styles.caseIcon} />
                     <span>Input:</span>
                   </div>
-                  <code className={styles.caseValue}>{failedCases[0].input}</code>
+                  <code className={styles.caseValue}>
+                    {failedCases[0].input}
+                  </code>
                 </div>
-                
+
                 <div className={styles.caseRow}>
                   <div className={styles.caseLabel}>
                     <FiInfo className={styles.caseIcon} />
@@ -110,13 +127,15 @@ const CodeEvalResult: React.FC<CodeEvalResultProps> = ({
                     {failedCases[0].output}
                   </code>
                 </div>
-                
+
                 <div className={styles.caseRow}>
                   <div className={styles.caseLabel}>
                     <FiCheckCircle className={styles.caseIcon} />
                     <span>Gözlənilən:</span>
                   </div>
-                  <code className={`${styles.caseValue} ${styles.expectedOutput}`}>
+                  <code
+                    className={`${styles.caseValue} ${styles.expectedOutput}`}
+                  >
                     {failedCases[0].expected}
                   </code>
                 </div>
@@ -136,8 +155,8 @@ const CodeEvalResult: React.FC<CodeEvalResultProps> = ({
             <div className={styles.successContent}>
               <h4 className={styles.successTitle}>Mükəmməl!</h4>
               <p className={styles.successMessage}>
-                Kodunuz bütün {totalCount} test halını uğurla keçdi. 
-                Həlliniz düzgün və effektivdir.
+                Kodunuz bütün {totalCount} test halını uğurla keçdi. Həlliniz
+                düzgün və effektivdir.
               </p>
             </div>
           </div>
@@ -147,7 +166,10 @@ const CodeEvalResult: React.FC<CodeEvalResultProps> = ({
       {/* Action Buttons */}
       <div className={styles.actionSection}>
         {onAnalyzeComplexity && (
-          <button className={styles.analyzeButton} onClick={onAnalyzeComplexity}>
+          <button
+            className={styles.analyzeButton}
+            onClick={onAnalyzeComplexity}
+          >
             <FiClock className={styles.buttonIcon} />
             Mürəkkəblik Analizi
           </button>
@@ -157,4 +179,4 @@ const CodeEvalResult: React.FC<CodeEvalResultProps> = ({
   );
 };
 
-export default CodeEvalResult; 
+export default CodeEvalResult;
