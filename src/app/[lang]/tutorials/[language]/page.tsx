@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import CodeLoader from "../../components/loading/CodeLoader";
 
 export default function TutorialLanguagePage() {
   const { language, lang } = useParams();
@@ -18,20 +19,22 @@ export default function TutorialLanguagePage() {
         }
       })
       .catch((error) => {
-        console.error('Error loading topics:', error);
+        console.error("Error loading topics:", error);
       });
   }, [language, lang, router]);
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      height: '100vh',
-      fontSize: '18px',
-      color: '#666'
-    }}>
-      Yönləndirilir...
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        fontSize: "18px",
+        color: "#666",
+      }}
+    >
+      <CodeLoader />
     </div>
   );
 }
