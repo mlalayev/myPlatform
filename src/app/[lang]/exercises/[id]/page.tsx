@@ -313,26 +313,7 @@ export default function ExerciseDetailPage({
     setIsSubmitting(false);
     setActiveLeftTab(4);
 
-    if (failedCasesArr.length > 0) {
-      setFailedCases(failedCasesArr);
-      setFeedback(
-        `${passedCount}/${exercise.testCases.length} test keçdi. İlk səhv test: input = ${failedCasesArr[0].input}, gözlənilən = ${failedCasesArr[0].expected}, sənin çıxışın = ${failedCasesArr[0].output}`
-      );
-      setFeedbackType("wrong");
-      setTestResults([]);
-      setDetectedComplexity(null);
-      return;
-    }
-
-    // All tests passed
-    setFailedCases([]);
-    setFeedback(
-      exercise ? `${exercise.testCases.length}/${exercise.testCases.length} test uğurla keçdi!` : "Bütün testlər uğurla keçdi!"
-    );
-    setFeedbackType("success");
-    setTestResults([]);
-
-    // Submit to backend
+    // Submit to backend - ALWAYS submit regardless of correctness
     try {
       await fetch("/api/quiz/submit", {
         method: "POST",
@@ -351,8 +332,27 @@ export default function ExerciseDetailPage({
       // After submit, refresh latest submission and status icon
       await refreshLatestSubmission();
     } catch (e) {
-      // Optionally handle error
+      console.error("Error submitting to backend:", e);
     }
+
+    if (failedCasesArr.length > 0) {
+      setFailedCases(failedCasesArr);
+      setFeedback(
+        `${passedCount}/${exercise.testCases.length} test keçdi. İlk səhv test: input = ${failedCasesArr[0].input}, gözlənilən = ${failedCasesArr[0].expected}, sənin çıxışın = ${failedCasesArr[0].output}`
+      );
+      setFeedbackType("wrong");
+      setTestResults([]);
+      setDetectedComplexity(null);
+      return;
+    }
+
+    // All tests passed
+    setFailedCases([]);
+    setFeedback(
+      exercise ? `${exercise.testCases.length}/${exercise.testCases.length} test uğurla keçdi!` : "Bütün testlər uğurla keçdi!"
+    );
+    setFeedbackType("success");
+    setTestResults([]);
   };
 
   const visibleCases = exercise.testCases.filter((tc) => !tc.hidden);
