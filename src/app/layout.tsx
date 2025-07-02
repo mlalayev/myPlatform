@@ -2,7 +2,27 @@
 import React from "react";
 import "./globals.css";
 import ClientRedirect from "./ClientRedirect";
-import { SessionProvider } from "next-auth/react";
+import { SessionProvider, useSession } from "next-auth/react";
+import CodeLoader from "./[lang]/components/loading/CodeLoader";
+
+function SessionGate({ children }: { children: React.ReactNode }) {
+  const { status } = useSession();
+  if (status === "loading") {
+    return (
+      <div
+        style={{
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CodeLoader />
+      </div>
+    );
+  }
+  return <>{children}</>;
+}
 
 export default function RootLayout({
   children,
@@ -20,7 +40,7 @@ export default function RootLayout({
       >
         <SessionProvider>
           <ClientRedirect />
-          {children}
+          <SessionGate>{children}</SessionGate>
         </SessionProvider>
       </body>
     </html>

@@ -2,6 +2,10 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import styles from "./LoginPage.module.css";
+import { FiLogIn } from "react-icons/fi";
+import { useI18n } from "@/contexts/I18nContext";
+import { FcGoogle } from "react-icons/fc";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -10,7 +14,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const lang = searchParams.get("lang") || "en";
+  const { t, lang } = useI18n();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,45 +31,57 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className={styles.container}>
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-xl shadow-md w-full max-w-sm"
+        className={styles.card}
       >
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+        <h2 className={styles.title}>{t("login.title")}</h2>
         <input
           type="email"
-          placeholder="Email"
-          className="w-full mb-4 p-3 border rounded"
+          placeholder={t("login.email")}
+          className={styles.input}
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
         />
         <input
           type="password"
-          placeholder="Password"
-          className="w-full mb-4 p-3 border rounded"
+          placeholder={t("login.password")}
+          className={styles.input}
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
         />
-        <div className="flex items-center mb-4">
+        <div className={styles.checkboxRow}>
           <input
             id="remember"
             type="checkbox"
             checked={remember}
             onChange={e => setRemember(e.target.checked)}
-            className="mr-2"
+            className={styles.checkbox}
           />
-          <label htmlFor="remember" className="text-gray-700 text-sm">Remember Me</label>
+          <label htmlFor="remember" className={styles.checkboxLabel}>{t("login.remember")}</label>
         </div>
-        {error && <div className="text-red-500 mb-4">{error}</div>}
+        {error && <div className={styles.error}>{t("login.invalid")}</div>}
         <button
           type="submit"
-          className="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition"
+          className={styles.loginButton}
         >
-          Login
+          <span className={styles.loginIcon}><FiLogIn /></span>
+          {t("login.button")}
         </button>
+        <button
+          type="button"
+          className={styles.googleButton}
+          onClick={() => signIn("google", { callbackUrl: `/${lang}` })}
+        >
+          <span className={styles.googleIcon}><FcGoogle /></span>
+          {t("login.google")}
+        </button>
+        <div className={styles.signupText}>
+          {t("login.noAccount")} <a href={`/${lang}/signup`} className={styles.signupLink}>{t("login.signup")}</a>
+        </div>
       </form>
     </div>
   );

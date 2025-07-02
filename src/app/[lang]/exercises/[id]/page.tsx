@@ -386,7 +386,6 @@ export default function ExerciseDetailPage({
           </div>
         </div>
       </section>
-
       <div className={detailStyles.mainContainer}>
         {/* Left: Problem Description and Tabs */}
         <div className={detailStyles.leftPanel}>

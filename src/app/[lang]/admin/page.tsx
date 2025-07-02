@@ -1,8 +1,18 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import styles from "./AdminPanel.module.css";
-import Header from "../components/header/Header";
-import { FiUser } from "react-icons/fi";
+import {
+  FiUser,
+  FiHome,
+  FiUsers,
+  FiBookOpen,
+  FiLayers,
+  FiEdit,
+  FiMessageCircle,
+  FiAward,
+  FiSettings,
+} from "react-icons/fi";
+import { useRouter } from "next/navigation";
 
 const LANGUAGES = [
   "JavaScript",
@@ -22,9 +32,14 @@ const LANGUAGES = [
 ];
 
 const PANELS = [
-  { key: "users", label: "Users" },
-  { key: "questions", label: "Questions" },
-  { key: "topics", label: "Topics" },
+  { key: "dashboard", label: "Dashboard", icon: <FiHome /> },
+  { key: "users", label: "Users", icon: <FiUsers /> },
+  { key: "topics", label: "Topics", icon: <FiLayers /> },
+  { key: "lessons", label: "Lessons", icon: <FiBookOpen /> },
+  { key: "questions", label: "Questions", icon: <FiEdit /> },
+  { key: "feedback", label: "Feedback", icon: <FiMessageCircle /> },
+  { key: "badges", label: "Badges", icon: <FiAward /> },
+  { key: "settings", label: "Settings", icon: <FiSettings /> },
 ];
 
 type User = {
@@ -35,9 +50,13 @@ type User = {
 };
 
 export default function AdminPanelPage() {
+  const router = useRouter();
+  const currentLang =
+    typeof window !== "undefined"
+      ? window.location.pathname.split("/")[1] || "en"
+      : "en";
 
-
-  const [panel, setPanel] = useState("users");
+  const [panel, setPanel] = useState("dashboard");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
@@ -105,14 +124,15 @@ export default function AdminPanelPage() {
       setLoading(false);
       return;
     }
-    setUsers((prev) => prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
+    setUsers((prev) =>
+      prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
+    );
     setEditUser(null);
     setLoading(false);
   };
 
   return (
-    <>
-      <Header />
+    <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100vh'}}>
       <div className={styles.container}>
         <aside className={styles.sidebar}>
           {PANELS.map((p) => (
@@ -125,11 +145,95 @@ export default function AdminPanelPage() {
               }
               onClick={() => setPanel(p.key)}
             >
-              {p.label}
+              <span className={styles.sidebarItemIcon}>{p.icon}</span>
+              <span>{p.label}</span>
             </button>
           ))}
+          <button
+            className={styles.goBackButton}
+            onClick={() => router.push(`/${currentLang}`)}
+          >
+            ← Go Back
+          </button>
         </aside>
         <main className={styles.panelContent}>
+          {panel === "dashboard" && (
+            <div>
+              <h2 className={styles.pageTitle}>Admin Dashboard</h2>
+              <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+                <div className={styles.card} style={{ minWidth: 220 }}>
+                  <div
+                    style={{
+                      fontWeight: 700,
+                      fontSize: "1.1rem",
+                      marginBottom: 8,
+                    }}
+                  >
+                    Total Users
+                  </div>
+                  <div style={{ fontSize: "2rem", color: "#6c3fc5" }}>1234</div>
+                </div>
+                <div className={styles.card} style={{ minWidth: 220 }}>
+                  <div
+                    style={{
+                      fontWeight: 700,
+                      fontSize: "1.1rem",
+                      marginBottom: 8,
+                    }}
+                  >
+                    Active Users (24h)
+                  </div>
+                  <div style={{ fontSize: "2rem", color: "#6c3fc5" }}>87</div>
+                </div>
+                <div className={styles.card} style={{ minWidth: 220 }}>
+                  <div
+                    style={{
+                      fontWeight: 700,
+                      fontSize: "1.1rem",
+                      marginBottom: 8,
+                    }}
+                  >
+                    Most Viewed Lesson
+                  </div>
+                  <div style={{ fontSize: "1.1rem", color: "#444" }}>
+                    JavaScript Variables
+                  </div>
+                </div>
+                <div className={styles.card} style={{ minWidth: 220 }}>
+                  <div
+                    style={{
+                      fontWeight: 700,
+                      fontSize: "1.1rem",
+                      marginBottom: 8,
+                    }}
+                  >
+                    Most Completed Topic
+                  </div>
+                  <div style={{ fontSize: "1.1rem", color: "#444" }}>
+                    DOM Manipulation
+                  </div>
+                </div>
+              </div>
+              <div className={styles.card} style={{ marginTop: 32 }}>
+                <div
+                  style={{
+                    fontWeight: 700,
+                    fontSize: "1.1rem",
+                    marginBottom: 8,
+                  }}
+                >
+                  Notifications
+                </div>
+                <ul style={{ paddingLeft: 18 }}>
+                  <li>
+                    New user registered: <b>Jane Doe</b>
+                  </li>
+                  <li>Feedback received: "Great platform!"</li>
+                  <li>Error report: "Lesson not loading"</li>
+                </ul>
+              </div>
+            </div>
+          )}
           {panel === "users" && (
             <div>
               <h2 className={styles.pageTitle}>All Users</h2>
@@ -143,12 +247,34 @@ export default function AdminPanelPage() {
                     onClick={() => setSelectedUser(user)}
                   >
                     <div>
-                      <span className="font-semibold text-gray-800">{user.name}</span>
-                      <span className="ml-2 text-xs text-gray-500">({user.role})</span>
+                      <span className="font-semibold text-gray-800">
+                        {user.name}
+                      </span>
+                      <span className="ml-2 text-xs text-gray-500">
+                        ({user.role})
+                      </span>
                     </div>
                     <div className="flex gap-2">
-                      <button className={styles.button} style={{background:'#eee',color:'#444'}} onClick={e => {e.stopPropagation(); handleEdit(user);}}>Edit</button>
-                      <button className={styles.button} style={{background:'#ffeaea',color:'#d32f2f'}} onClick={e => {e.stopPropagation(); handleDelete(user.id);}}>Delete</button>
+                      <button
+                        className={styles.button}
+                        style={{ background: "#eee", color: "#444" }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(user);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className={styles.button}
+                        style={{ background: "#ffeaea", color: "#d32f2f" }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(user.id);
+                        }}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -157,10 +283,22 @@ export default function AdminPanelPage() {
                 <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
                   <div className="bg-white rounded-2xl shadow-xl p-8 min-w-[320px] max-w-[90vw]">
                     <h3 className="text-xl font-bold mb-4">User Details</h3>
-                    <div className="mb-2"><b>Name:</b> {selectedUser.name}</div>
-                    <div className="mb-2"><b>Email:</b> {selectedUser.email}</div>
-                    <div className="mb-2"><b>Role:</b> {selectedUser.role}</div>
-                    <button className={styles.button} onClick={()=>setSelectedUser(null)} style={{marginTop:16}}>Close</button>
+                    <div className="mb-2">
+                      <b>Name:</b> {selectedUser.name}
+                    </div>
+                    <div className="mb-2">
+                      <b>Email:</b> {selectedUser.email}
+                    </div>
+                    <div className="mb-2">
+                      <b>Role:</b> {selectedUser.role}
+                    </div>
+                    <button
+                      className={styles.button}
+                      onClick={() => setSelectedUser(null)}
+                      style={{ marginTop: 16 }}
+                    >
+                      Close
+                    </button>
                   </div>
                 </div>
               )}
@@ -173,14 +311,24 @@ export default function AdminPanelPage() {
                         <FiUser className="text-purple-600 text-xl" />
                       </div>
                       <div>
-                        <div className="font-bold text-lg text-gray-900">Edit User</div>
-                        <div className="text-gray-500 text-sm">Update user information</div>
+                        <div className="font-bold text-lg text-gray-900">
+                          Edit User
+                        </div>
+                        <div className="text-gray-500 text-sm">
+                          Update user information
+                        </div>
                       </div>
                     </div>
                     {/* Main Content */}
-                    <form id="edit-user-form" onSubmit={handleEditSubmit} className="px-6 py-4 flex flex-col gap-4">
+                    <form
+                      id="edit-user-form"
+                      onSubmit={handleEditSubmit}
+                      className="px-6 py-4 flex flex-col gap-4"
+                    >
                       <div>
-                        <label className="block text-gray-700 font-medium mb-1">Name</label>
+                        <label className="block text-gray-700 font-medium mb-1">
+                          Name
+                        </label>
                         <input
                           name="name"
                           defaultValue={editUser.name}
@@ -189,7 +337,9 @@ export default function AdminPanelPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-gray-700 font-medium mb-1">Email</label>
+                        <label className="block text-gray-700 font-medium mb-1">
+                          Email
+                        </label>
                         <input
                           name="email"
                           defaultValue={editUser.email}
@@ -198,7 +348,9 @@ export default function AdminPanelPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-gray-700 font-medium mb-1">Role</label>
+                        <label className="block text-gray-700 font-medium mb-1">
+                          Role
+                        </label>
                         <select
                           name="role"
                           defaultValue={editUser.role}
@@ -210,7 +362,9 @@ export default function AdminPanelPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-gray-700 font-medium mb-1">New Password (optional)</label>
+                        <label className="block text-gray-700 font-medium mb-1">
+                          New Password (optional)
+                        </label>
                         <input
                           name="password"
                           type="password"
@@ -392,6 +546,6 @@ export default function AdminPanelPage() {
           )}
         </main>
       </div>
-    </>
+    </div>
   );
 }
