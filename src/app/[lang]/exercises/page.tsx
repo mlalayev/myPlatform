@@ -56,11 +56,13 @@ export default function ExercisesPage() {
         exercises.map(async (ex: Exercise) => {
           const exId = Number(ex.id);
           try {
-            const res = await fetch(`/api/quiz/${exId}/latest`);
+            const maxTestCases = ex.testCases ? ex.testCases.length : 0;
+            const res = await fetch(`/api/quiz/${exId}/latest?maxTestCases=${maxTestCases}`);
             const data = await res.json();
             if (!data.latest) statusObj[exId] = "not_submitted";
-            else if (ex.testCases && data.latest.score >= ex.testCases.length) statusObj[exId] = "correct";
-            else statusObj[exId] = "wrong";
+            else if (data.hasPassed) statusObj[exId] = "correct";
+            else if (data.hasWrong) statusObj[exId] = "wrong";
+            else statusObj[exId] = "not_submitted";
           } catch {
             statusObj[exId] = "not_submitted";
           }

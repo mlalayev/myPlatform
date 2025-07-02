@@ -263,10 +263,8 @@ export default function ExerciseDetailPage({
           resultPromise,
           timeoutPromise,
         ]);
-        console.log("Worker response:", response);
         const { result, error } = response;
         if (error) {
-          console.log("Worker error received:", error);
           setFeedback(error);
           setFeedbackType("error");
           setTestResults([]);
