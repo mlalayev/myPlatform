@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import copyButton from "./CopyButton.module.css";
 
 type CopyType = {
@@ -7,10 +7,20 @@ type CopyType = {
   right?: string;
   bottom?: string;
   left?: string;
+  text: string;
 };
 
 function CopyButton(props: CopyType) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    if (props.text) {
+      await navigator.clipboard.writeText(props.text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    }
+  };
   return (
+    <>
     <button
       style={{
         ...(props.position && { position: props.position }),
@@ -20,6 +30,8 @@ function CopyButton(props: CopyType) {
         ...(props.left && { left: props.left }),
       }}
       className={copyButton.Btn}
+        onClick={handleCopy}
+        type="button"
     >
       <span className={copyButton.svgIcon}>
         <svg
@@ -32,8 +44,13 @@ function CopyButton(props: CopyType) {
         </svg>
       </span>
       <span className={copyButton.text}>Kopyala</span>
-      
     </button>
+      {copied && (
+        <div className={copyButton.copyFeedback}>
+          Kopyalandı!
+        </div>
+      )}
+    </>
   );
 }
 

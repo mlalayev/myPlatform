@@ -1,17 +1,23 @@
-import { NextResponse } from 'next/server';
-import path from 'path';
-import { promises as fs } from 'fs';
+import { NextResponse } from "next/server";
+import path from "path";
+import { promises as fs } from "fs";
 
 export async function GET(
   req: Request,
-  { params }: { params: { language: string, id: string } }
+  { params }: { params: { language: string; id: string } }
 ) {
   const { language, id } = params;
-  const filePath = path.join(process.cwd(), 'public', 'tutorials', language, `${id}.json`);
+  const filePath = path.join(
+    process.cwd(),
+    "public",
+    "tutorials",
+    language,
+    `${id}.json`
+  );
   try {
-    const file = await fs.readFile(filePath, 'utf-8');
+    const file = await fs.readFile(filePath, "utf-8");
     return NextResponse.json(JSON.parse(file));
   } catch (e) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-} 
+}

@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./MainPageContent.module.css";
 import JsTryEditor from "../tryeditor/JsTryEditor";
 import HeroSection from "./HeroSection";
-import { FiLayers, FiRefreshCw, FiGitBranch, FiShare2 } from "react-icons/fi";
+import { FiLayers, FiRefreshCw, FiGitBranch, FiShare2, FiChevronDown } from "react-icons/fi";
 import {
   SiJavascript,
   SiHtml5,
@@ -19,6 +19,25 @@ import { useI18n } from "@/contexts/I18nContext";
 
 export default function MainPageContent() {
   const { t } = useI18n();
+  const [editorLanguage, setEditorLanguage] = useState("javascript");
+  const editorLanguages = [
+    { label: "C++", value: "cpp" },
+    { label: "Java", value: "java" },
+    { label: "Python", value: "python" },
+    { label: "Python3", value: "python3" },
+    { label: "C", value: "c" },
+    { label: "C#", value: "csharp" },
+    { label: "JavaScript", value: "javascript" },
+    { label: "TypeScript", value: "typescript" },
+    { label: "PHP", value: "php" },
+    { label: "Swift", value: "swift" },
+    { label: "Kotlin", value: "kotlin" },
+    { label: "Dart", value: "dart" },
+    { label: "Go", value: "go" },
+    { label: "Ruby", value: "ruby" },
+    { label: "Scala", value: "scala" },
+    { label: "Rust", value: "rust" },
+  ];
 
   const features = [
     {
@@ -86,6 +105,23 @@ export default function MainPageContent() {
     },
   ];
 
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Divide languages into two columns
+  const leftLanguages = editorLanguages.slice(0, Math.ceil(editorLanguages.length / 2));
+  const rightLanguages = editorLanguages.slice(Math.ceil(editorLanguages.length / 2));
+
   return (
     <main className={styles.main}>
       <HeroSection />
@@ -118,7 +154,65 @@ export default function MainPageContent() {
       </section>
       <section className={styles.introSection}>
         <h2 className={styles.introTitle}>{t("main.introTitle")}</h2>
-        <JsTryEditor showCopyButton={true} showRunButton={true} />
+        <div style={{ marginBottom: 16 }}>
+          <div className={styles.languageDropdownWrapper} ref={dropdownRef}>
+            <button
+              className={styles.languageDropdownButton}
+              type="button"
+              onClick={() => setDropdownOpen((open) => !open)}
+              aria-haspopup="listbox"
+              aria-expanded={dropdownOpen}
+            >
+              {editorLanguages.find((l) => l.value === editorLanguage)?.label || "Select Language"}
+              <FiChevronDown style={{ marginLeft: 8, fontSize: 18 }} />
+            </button>
+            {dropdownOpen && (
+              <div className={styles.languageDropdownMenu} role="listbox">
+                <div className={styles.languageDropdownColumn}>
+                  {leftLanguages.map((lang) => (
+                    <button
+                      key={lang.value}
+                      className={
+                        styles.languageDropdownItem +
+                        (editorLanguage === lang.value ? " " + styles.selected : "")
+                      }
+                      onClick={() => {
+                        setEditorLanguage(lang.value);
+                        setDropdownOpen(false);
+                      }}
+                      type="button"
+                      role="option"
+                      aria-selected={editorLanguage === lang.value}
+                    >
+                      {lang.label}
+                    </button>
+                  ))}
+                </div>
+                <div className={styles.languageDropdownColumn}>
+                  {rightLanguages.map((lang) => (
+                    <button
+                      key={lang.value}
+                      className={
+                        styles.languageDropdownItem +
+                        (editorLanguage === lang.value ? " " + styles.selected : "")
+                      }
+                      onClick={() => {
+                        setEditorLanguage(lang.value);
+                        setDropdownOpen(false);
+                      }}
+                      type="button"
+                      role="option"
+                      aria-selected={editorLanguage === lang.value}
+                    >
+                      {lang.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        <JsTryEditor showCopyButton={true} showRunButton={true} language={editorLanguage} />
       </section>
     </main>
   );
