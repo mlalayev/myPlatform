@@ -3,9 +3,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import { PrismaClient } from "@prisma/client";
 
+console.log('API /api/quiz/submit called');
+
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
+  console.log('API /api/quiz/submit POST called');
   // Get user session
   const session = await getServerSession(authOptions);
   if (!session || !session.user?.email) {
@@ -24,6 +27,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
+  // Debug log before creating submission
+  console.log('Submitting quiz:', { userId: user.id, quizId, score, answers, code });
+
   // Store quiz submission
   const submission = await prisma.quizSubmission.create({
     data: {
@@ -34,6 +40,9 @@ export async function POST(req: Request) {
       timestamp: new Date(),
     },
   });
+
+  // Debug log after creating submission
+  console.log('Created submission:', submission);
 
   return NextResponse.json({ success: true, submission });
 } 
