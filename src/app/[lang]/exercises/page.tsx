@@ -1,12 +1,24 @@
 "use client";
 import React, { useState } from "react";
-import { exercises } from "./exercisesData";
+import { exercises, Exercise } from "./exercisesData";
 import styles from "./ExercisesList.module.css";
 import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
 import Link from "next/link";
-import { FiSearch, FiFilter, FiTrendingUp, FiCalendar, FiCode, FiUsers, FiClock } from "react-icons/fi";
+import { FiSearch, FiFilter, FiTrendingUp, FiCalendar, FiCode, FiUsers, FiClock, FiBarChart2, FiSmile, FiMeh, FiFrown, FiCheckCircle, FiXCircle, FiMinusCircle } from "react-icons/fi";
 import { usePathname } from "next/navigation";
+import {
+  SiJavascript,
+  SiPython,
+  SiCplusplus,
+  SiGo,
+  SiOpenjdk,
+  SiTypescript,
+  SiPhp,
+  SiSwift,
+  SiKotlin,
+  SiRuby,
+} from "react-icons/si";
 
 const difficultyColor = (diff: string) =>
   diff === "Asan"
@@ -31,9 +43,33 @@ const difficultyIcon = (diff: string) => {
 export default function ExercisesPage() {
   const [search, setSearch] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("Bütün");
+  const [statuses, setStatuses] = useState<{ [id: number]: "not_submitted" | "wrong" | "correct" }>({});
   
   const pathname = usePathname();
   const currentLang = pathname.split("/")[1] || "en";
+
+  // Fetch latest submission status for each exercise
+  React.useEffect(() => {
+    async function fetchStatuses() {
+      const statusObj: { [id: number]: "not_submitted" | "wrong" | "correct" } = {};
+      await Promise.all(
+        exercises.map(async (ex: Exercise) => {
+          const exId = Number(ex.id);
+          try {
+            const res = await fetch(`/api/quiz/${exId}/latest`);
+            const data = await res.json();
+            if (!data.latest) statusObj[exId] = "not_submitted";
+            else if (ex.testCases && data.latest.score >= ex.testCases.length) statusObj[exId] = "correct";
+            else statusObj[exId] = "wrong";
+          } catch {
+            statusObj[exId] = "not_submitted";
+          }
+        })
+      );
+      setStatuses(statusObj);
+    }
+    fetchStatuses();
+  }, []);
 
   const filtered = exercises.filter((ex) => {
     const matchesSearch = ex.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -97,6 +133,36 @@ export default function ExercisesPage() {
           </div>
         </div>
       </section>
+
+      <div>
+        <div className={styles.challengeSlideContainer}>
+          <div className={styles.challengeCard} style={{background: 'linear-gradient(120deg, #f7971e 0%, #ffd200 100%)'}}>
+            <SiJavascript className={styles.challengeIcon} />
+            <div className={styles.challengeTitle}>JavaScript 30 Days Challenge</div>
+            <button className={styles.challengeButton}>Start</button>
+          </div>
+          <div className={styles.challengeCard} style={{background: 'linear-gradient(120deg, #43e97b 0%, #38f9d7 100%)'}}>
+            <SiPython className={styles.challengeIcon} />
+            <div className={styles.challengeTitle}>Python 30 Days Challenge</div>
+            <button className={styles.challengeButton}>Start</button>
+          </div>
+          <div className={styles.challengeCard} style={{background: 'linear-gradient(120deg, #7f53ac 0%, #657ced 100%)'}}>
+            <SiCplusplus className={styles.challengeIcon} />
+            <div className={styles.challengeTitle}>C++ 30 Days Challenge</div>
+            <button className={styles.challengeButton}>Start</button>
+          </div>
+          <div className={styles.challengeCard} style={{background: 'linear-gradient(120deg, #f953c6 0%, #b91d73 100%)'}}>
+            <SiGo className={styles.challengeIcon} />
+            <div className={styles.challengeTitle}>Go 30 Days Challenge</div>
+            <button className={styles.challengeButton}>Start</button>
+          </div>
+          <div className={styles.challengeCard} style={{background: 'linear-gradient(120deg, #43cea2 0%, #185a9d 100%)'}}>
+            <SiOpenjdk className={styles.challengeIcon} />
+            <div className={styles.challengeTitle}>Java 30 Days Challenge</div>
+            <button className={styles.challengeButton}>Start</button>
+          </div>
+        </div>
+      </div>
 
       <div className={styles.layout}>
         <div className={styles.contentOpen}>
@@ -176,6 +242,9 @@ export default function ExercisesPage() {
                       <span className={`${styles.cellDiff} ${difficultyColor(ex.difficulty)}`}>
                         {difficultyIcon(ex.difficulty)} {ex.difficulty}
                       </span>
+                      {statuses[Number(ex.id)] === "correct" && <FiCheckCircle color="green" title="Doğru" style={{marginLeft:8, fontSize:22}} />}
+                      {statuses[Number(ex.id)] === "wrong" && <FiXCircle color="red" title="Yanlış" style={{marginLeft:8, fontSize:22}} />}
+                      {statuses[Number(ex.id)] === "not_submitted" && <FiMinusCircle color="gray" title="Göndərilməyib" style={{marginLeft:8, fontSize:22}} />}
                     </div>
                   </div>
                   

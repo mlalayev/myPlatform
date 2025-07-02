@@ -1,9 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import CodeLoader from "./[lang]/components/loading/CodeLoader";
+import { useRouter } from "next/navigation";
 
 export default function ClientRedirect() {
   const [showLoader, setShowLoader] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (window.location.pathname === "/") {
@@ -15,11 +17,11 @@ export default function ClientRedirect() {
       }
       setTimeout(() => {
         if (window.location.pathname !== `/${lang}`) {
-          window.location.replace(`/${lang}`);
+          router.replace(`/${lang}`);
         }
       }, 600); // Show loader for at least 600ms
     }
-  }, []);
+  }, [router]);
 
   if (!showLoader) return null;
 

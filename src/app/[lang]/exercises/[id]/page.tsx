@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { use } from "react";
 import { exercises } from "../exercisesData";
 import JsTryEditor from "../../components/tryeditor/JsTryEditor";
@@ -24,6 +24,7 @@ import {
   FiEye,
   FiAlertTriangle,
   FiInfo,
+  FiMinusCircle,
 } from "react-icons/fi";
 
 const LEFT_TABS = ["Təsvir", "Redaktə", "Həllər", "Təqdimatlar"];
@@ -68,9 +69,67 @@ export default function ExerciseDetailPage({
   const isCorrect = submitted && failedCases.length === 0;
   const [showComplexity, setShowComplexity] = useState(false);
   const [isComplexityModalOpen, setIsComplexityModalOpen] = useState(false);
+  const [latestSubmission, setLatestSubmission] = useState<any>(null);
+  const [statusIcon, setStatusIcon] = useState<React.ReactNode>(<FiMinusCircle color="gray" title="Not submitted" />);
+  const codeInitialized = useRef(false);
 
   const exercise = exercises.find((ex) => ex.id === id);
   if (!exercise) return <div>Tapşırıq tapılmadı.</div>;
+
+  // When quiz id changes, reset codeInitialized
+  useEffect(() => {
+    codeInitialized.current = false;
+  }, [id]);
+
+  // Only set code from backend on initial load per quiz
+  useEffect(() => {
+    if (
+      latestSubmission &&
+      latestSubmission.answers &&
+      typeof latestSubmission.answers.code === "string" &&
+      !codeInitialized.current
+    ) {
+      setUserCode(latestSubmission.answers.code);
+      codeInitialized.current = true;
+    }
+  }, [latestSubmission]);
+
+  // Add a function to fetch and update latest submission and status icon
+  const refreshLatestSubmission = useCallback(async () => {
+    if (!exercise) return;
+    const res = await fetch(`/api/quiz/${id}/latest?maxTestCases=${exercise.testCases.length}`);
+    const data = await res.json();
+    console.log('Latest submission from backend:', data.latest, 'hasPassed:', data.hasPassed, 'hasWrong:', data.hasWrong);
+    setLatestSubmission(data.latest);
+    // Improved status icon logic
+    if (data.hasPassed) {
+      setStatusIcon(<FiCheckCircle color="green" title="Correct" />);
+    } else if (data.hasWrong) {
+      setStatusIcon(<FiXCircle color="red" title="Incorrect" />);
+    } else {
+      setStatusIcon(<FiMinusCircle color="gray" title="Not submitted" />);
+    }
+  }, [exercise, id]);
+
+  // On mount, fetch latest submission
+  useEffect(() => {
+    refreshLatestSubmission();
+  }, [refreshLatestSubmission]);
+
+  // Autosave code to localStorage on every change
+  useEffect(() => {
+    if (id) {
+      localStorage.setItem(`quiz_code_${id}`, userCode);
+    }
+  }, [userCode, id]);
+
+  // On mount, if no latest submission, restore code from localStorage
+  useEffect(() => {
+    if (!latestSubmission && id) {
+      const saved = localStorage.getItem(`quiz_code_${id}`);
+      if (saved) setUserCode(saved);
+    }
+  }, [latestSubmission, id]);
 
   // Mock run/submit logic
   const runCode = () => {
@@ -270,10 +329,32 @@ export default function ExerciseDetailPage({
     // All tests passed
     setFailedCases([]);
     setFeedback(
-      `${exercise.testCases.length}/${exercise.testCases.length} test uğurla keçdi!`
+      exercise ? `${exercise.testCases.length}/${exercise.testCases.length} test uğurla keçdi!` : "Bütün testlər uğurla keçdi!"
     );
     setFeedbackType("success");
     setTestResults([]);
+
+    // Submit to backend
+    try {
+      await fetch("/api/quiz/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          quizId: Number(id),
+          score: exercise ? (failedCasesArr.length === 0 ? exercise.testCases.length : exercise.testCases.length - failedCasesArr.length) : 0,
+          answers: { failedCases: failedCasesArr },
+          code: userCode,
+        }),
+      });
+      // Save code to localStorage after submit
+      if (id) {
+        localStorage.setItem(`quiz_code_${id}`, userCode);
+      }
+      // After submit, refresh latest submission and status icon
+      await refreshLatestSubmission();
+    } catch (e) {
+      // Optionally handle error
+    }
   };
 
   const visibleCases = exercise.testCases.filter((tc) => !tc.hidden);
@@ -341,7 +422,7 @@ export default function ExerciseDetailPage({
               <span className={detailStyles.breadcrumbSeparator}>/</span>
               <span>#{exercise.id}</span>
             </div>
-            <h1 className={detailStyles.heroTitle}>{exercise.title}</h1>
+            <h1 className={detailStyles.heroTitle}>{exercise.title} {statusIcon}</h1>
             <p className={detailStyles.heroDescription}>
               {exercise.description}
             </p>
@@ -386,7 +467,6 @@ export default function ExerciseDetailPage({
           </div>
         </div>
       </section>
-
       <div className={detailStyles.mainContainer}>
         {/* Left: Problem Description and Tabs */}
         <div className={detailStyles.leftPanel}>

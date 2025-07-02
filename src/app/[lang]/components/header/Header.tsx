@@ -9,10 +9,16 @@ import {
   FiEdit,
   FiStar,
   FiArrowUpRight,
+  FiLogIn,
+  FiUser,
+  FiSettings,
+  FiLogOut,
+  FiShield,
 } from "react-icons/fi";
 import { usePathname, useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSession, signOut } from "next-auth/react";
+import Link from "next/link";
 
 const languages = [
   { code: "en", label: "EN" },
@@ -22,7 +28,7 @@ const languages = [
 
 const Header: React.FC = () => {
   const { t } = useI18n();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -87,14 +93,14 @@ const Header: React.FC = () => {
       </div>
       <nav className={HeaderStyle.navbar}>
         {navItems.map((item) => (
-          <a
+          <Link
             key={item.label}
             href={item.href}
             className={HeaderStyle.navButton}
           >
             <span className={HeaderStyle.navIcon}>{item.icon}</span>
             <span>{item.label}</span>
-          </a>
+          </Link>
         ))}
       </nav>
       <div className={HeaderStyle.rightSection}>
@@ -144,13 +150,17 @@ const Header: React.FC = () => {
             </div>
           )}
         </div>
-        {!session?.user ? (
-          <a
+        {status === "loading" ? (
+          null
+        ) : !session?.user ? (
+          <Link
             href={`/${currentLang}/login`}
-            className="bg-purple-600 text-white px-5 py-2 rounded-lg shadow hover:bg-purple-700 transition font-semibold ml-4"
+            className={HeaderStyle.loginButton}
+            aria-label="Login"
           >
+            <span className={HeaderStyle.loginIcon}><FiLogIn /></span>
             Login
-          </a>
+          </Link>
         ) : (
           <div className={HeaderStyle.profileDropdown} ref={profileDropdownRef}>
             <button
@@ -168,17 +178,38 @@ const Header: React.FC = () => {
             </button>
             {isProfileDropdownOpen && (
               <div className={HeaderStyle.profileMenu}>
+                <div className={HeaderStyle.profileMenuUser}>
+                  {(session.user as any).avatar ? (
+                    <img src={(session.user as any).avatar} alt="avatar" className={HeaderStyle.profileMenuAvatar} />
+                  ) : (
+                    <div className={HeaderStyle.profileMenuAvatar}>
+                      {session.user.name?.[0]?.toUpperCase() || "👤"}
+                    </div>
+                  )}
+                  <div>
+                    <div className={HeaderStyle.profileMenuName}>{session.user.name}</div>
+                    <div className={HeaderStyle.profileMenuEmail}>{(session.user as any).username || session.user.email}</div>
+                  </div>
+                </div>
+                <hr className={HeaderStyle.profileMenuDivider} />
                 {(session.user as any).role === "ADMIN" && (
                   <a
                     href={`/${currentLang}/admin`}
                     className={HeaderStyle.profileOption}
                   >
-                    🛠️ Admin Panel
+                    <span className={HeaderStyle.profileOptionIcon}><FiShield /></span>
+                    Admin Panel
                   </a>
                 )}
-                <button className={HeaderStyle.profileOption}>👤 {t("header.profile")}</button>
-                <button className={HeaderStyle.profileOption}>⚙️ {t("header.settings")}</button>
-                <hr className={HeaderStyle.divider} />
+                <button className={HeaderStyle.profileOption}>
+                  <span className={HeaderStyle.profileOptionIcon}><FiUser /></span>
+                  {t("header.profile")}
+                </button>
+                <button className={HeaderStyle.profileOption}>
+                  <span className={HeaderStyle.profileOptionIcon}><FiSettings /></span>
+                  {t("header.settings")}
+                </button>
+                <hr className={HeaderStyle.profileMenuDivider} />
                 <button
                   className={HeaderStyle.profileOption}
                   onClick={async () => {
@@ -186,7 +217,8 @@ const Header: React.FC = () => {
                     await signOut({ callbackUrl: `/${currentLang}/login` });
                   }}
                 >
-                  🔓 {t("header.logout")}
+                  <span className={HeaderStyle.profileOptionIcon}><FiLogOut /></span>
+                  {t("header.logout")}
                 </button>
               </div>
             )}
