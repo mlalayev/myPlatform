@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import { usePathname, useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
+import { useSession, signOut } from "next-auth/react";
 
 const languages = [
   { code: "en", label: "EN" },
@@ -21,6 +22,7 @@ const languages = [
 
 const Header: React.FC = () => {
   const { t } = useI18n();
+  const { data: session } = useSession();
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -142,23 +144,54 @@ const Header: React.FC = () => {
             </div>
           )}
         </div>
-        <div className={HeaderStyle.profileDropdown} ref={profileDropdownRef}>
-          <button
-            className={HeaderStyle.profileButton}
-            onClick={() => setIsProfileDropdownOpen((v) => !v)}
-            aria-label="Profil"
+        {!session?.user ? (
+          <a
+            href={`/${currentLang}/login`}
+            className="bg-purple-600 text-white px-5 py-2 rounded-lg shadow hover:bg-purple-700 transition font-semibold ml-4"
           >
-            <div className={HeaderStyle.avatar}>👤</div>
-          </button>
-          {isProfileDropdownOpen && (
-            <div className={HeaderStyle.profileMenu}>
-              <button className={HeaderStyle.profileOption}>👤 {t("header.profile")}</button>
-              <button className={HeaderStyle.profileOption}>⚙️ {t("header.settings")}</button>
-              <hr className={HeaderStyle.divider} />
-              <button className={HeaderStyle.profileOption}>🔓 {t("header.logout")}</button>
-            </div>
-          )}
-        </div>
+            Login
+          </a>
+        ) : (
+          <div className={HeaderStyle.profileDropdown} ref={profileDropdownRef}>
+            <button
+              className={HeaderStyle.profileButton}
+              onClick={() => setIsProfileDropdownOpen((v) => !v)}
+              aria-label="Profil"
+            >
+              {(session.user as any).avatar ? (
+                <img src={(session.user as any).avatar} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
+              ) : (
+                <div className={HeaderStyle.avatar}>
+                  {session.user.name?.[0]?.toUpperCase() || "👤"}
+                </div>
+              )}
+            </button>
+            {isProfileDropdownOpen && (
+              <div className={HeaderStyle.profileMenu}>
+                {(session.user as any).role === "ADMIN" && (
+                  <a
+                    href={`/${currentLang}/admin`}
+                    className={HeaderStyle.profileOption}
+                  >
+                    🛠️ Admin Panel
+                  </a>
+                )}
+                <button className={HeaderStyle.profileOption}>👤 {t("header.profile")}</button>
+                <button className={HeaderStyle.profileOption}>⚙️ {t("header.settings")}</button>
+                <hr className={HeaderStyle.divider} />
+                <button
+                  className={HeaderStyle.profileOption}
+                  onClick={async () => {
+                    setIsProfileDropdownOpen(false);
+                    await signOut({ callbackUrl: `/${currentLang}/login` });
+                  }}
+                >
+                  🔓 {t("header.logout")}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </header>
   );

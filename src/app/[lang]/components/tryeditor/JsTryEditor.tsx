@@ -10,6 +10,7 @@ interface JsTryEditorProps {
   onChange?: (val: string) => void;
   showRunButton?: boolean;
   showCopyButton?: boolean;
+  language?: string;
 }
 
 const defaultCode = `
@@ -25,6 +26,7 @@ export default function JsTryEditor({
   onChange,
   showRunButton,
   showCopyButton,
+  language = "typescript",
 }: JsTryEditorProps) {
   const [internalCode, setInternalCode] = useState(defaultCode);
   const code = value !== undefined ? value : internalCode;
@@ -67,7 +69,8 @@ export default function JsTryEditor({
       <div className={styles.editorSection}>
         <MonacoEditor
           height="300px"
-          defaultLanguage="javascript"
+          defaultLanguage={language}
+          language={language}
           value={code}
           onChange={handleChange}
           theme="vs-dark"
@@ -87,7 +90,7 @@ export default function JsTryEditor({
             onClick={runCode}
           />
         )}
-        {showCopyButton && <CopyButton position="absolute" bottom="5px" right="160px"></CopyButton>}
+        {showCopyButton && <CopyButton position="absolute" bottom="5px" right="160px" text={code}></CopyButton>}
       </div>
       {showOutput && (output || error) && (
         <div className={styles.tryOutputBox}>

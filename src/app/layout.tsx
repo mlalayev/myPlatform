@@ -1,6 +1,8 @@
+"use client";
 import React from "react";
 import "./globals.css";
 import ClientRedirect from "./ClientRedirect";
+import { SessionProvider } from "next-auth/react";
 
 export default function RootLayout({
   children,
@@ -16,8 +18,10 @@ export default function RootLayout({
           background: "linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);",
         }}
       >
-        <ClientRedirect />
-        {children}
+        <SessionProvider>
+          <ClientRedirect />
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );
