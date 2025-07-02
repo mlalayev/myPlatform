@@ -1,11 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import { exercises } from "./exercisesData";
+import { exercises, Exercise } from "./exercisesData";
 import styles from "./ExercisesList.module.css";
 import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
 import Link from "next/link";
-import { FiSearch, FiFilter, FiTrendingUp, FiCalendar, FiCode, FiUsers, FiClock, FiBarChart2, FiSmile, FiMeh, FiFrown } from "react-icons/fi";
+import { FiSearch, FiFilter, FiTrendingUp, FiCalendar, FiCode, FiUsers, FiClock, FiBarChart2, FiSmile, FiMeh, FiFrown, FiCheckCircle, FiXCircle, FiMinusCircle } from "react-icons/fi";
 import { usePathname } from "next/navigation";
 import {
   SiJavascript,
@@ -43,9 +43,33 @@ const difficultyIcon = (diff: string) => {
 export default function ExercisesPage() {
   const [search, setSearch] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("Bütün");
+  const [statuses, setStatuses] = useState<{ [id: number]: "not_submitted" | "wrong" | "correct" }>({});
   
   const pathname = usePathname();
   const currentLang = pathname.split("/")[1] || "en";
+
+  // Fetch latest submission status for each exercise
+  React.useEffect(() => {
+    async function fetchStatuses() {
+      const statusObj: { [id: number]: "not_submitted" | "wrong" | "correct" } = {};
+      await Promise.all(
+        exercises.map(async (ex: Exercise) => {
+          const exId = Number(ex.id);
+          try {
+            const res = await fetch(`/api/quiz/${exId}/latest`);
+            const data = await res.json();
+            if (!data.latest) statusObj[exId] = "not_submitted";
+            else if (ex.testCases && data.latest.score >= ex.testCases.length) statusObj[exId] = "correct";
+            else statusObj[exId] = "wrong";
+          } catch {
+            statusObj[exId] = "not_submitted";
+          }
+        })
+      );
+      setStatuses(statusObj);
+    }
+    fetchStatuses();
+  }, []);
 
   const filtered = exercises.filter((ex) => {
     const matchesSearch = ex.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -218,6 +242,9 @@ export default function ExercisesPage() {
                       <span className={`${styles.cellDiff} ${difficultyColor(ex.difficulty)}`}>
                         {difficultyIcon(ex.difficulty)} {ex.difficulty}
                       </span>
+                      {statuses[Number(ex.id)] === "correct" && <FiCheckCircle color="green" title="Doğru" style={{marginLeft:8, fontSize:22}} />}
+                      {statuses[Number(ex.id)] === "wrong" && <FiXCircle color="red" title="Yanlış" style={{marginLeft:8, fontSize:22}} />}
+                      {statuses[Number(ex.id)] === "not_submitted" && <FiMinusCircle color="gray" title="Göndərilməyib" style={{marginLeft:8, fontSize:22}} />}
                     </div>
                   </div>
                   

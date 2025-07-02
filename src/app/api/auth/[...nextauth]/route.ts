@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -14,7 +15,7 @@ type UserWithAuthFields = {
   avatar: string | null;
 };
 
-const handler = NextAuth({
+const authOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
@@ -28,18 +29,21 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        console.log("Credentials received:", credentials);
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
-        }) as UserWithAuthFields | null;
-        if (!user) return null;
-        if (user.password !== credentials.password) return null;
+        });
+        console.log("User found:", user);
+        if (!user || !user.passwordHash) return null;
+        const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
+        console.log("Password valid:", isValid);
+        if (!isValid) return null;
         return {
           id: String(user.id),
-          name: user.name,
+          name: user.username,
           email: user.email,
           role: user.role,
-          avatar: user.avatar,
+          avatar: user.avatarUrl,
         };
       },
     }),
@@ -63,6 +67,8 @@ const handler = NextAuth({
   pages: {
     signIn: "/login",
   },
-});
+};
 
-export { handler as GET, handler as POST };
+const handler = NextAuth(authOptions);
+
+export { handler as GET, handler as POST, authOptions };
