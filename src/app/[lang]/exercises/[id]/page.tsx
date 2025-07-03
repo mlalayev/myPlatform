@@ -26,6 +26,7 @@ import {
   FiInfo,
   FiMinusCircle,
 } from "react-icons/fi";
+import { useI18n } from '@/contexts/I18nContext';
 
 const LEFT_TABS = ["Təsvir", "Redaktə", "Həllər", "Təqdimatlar"];
 
@@ -72,6 +73,8 @@ export default function ExerciseDetailPage({
   const [latestSubmission, setLatestSubmission] = useState<any>(null);
   const [statusIcon, setStatusIcon] = useState<React.ReactNode>(<FiMinusCircle color="gray" title="Not submitted" />);
   const codeInitialized = useRef(false);
+  const { t } = useI18n();
+  const [language, setLanguage] = useState('javascript');
 
   const exercise = exercises.find((ex) => ex.id === id);
   if (!exercise) return <div>Tapşırıq tapılmadı.</div>;
@@ -130,6 +133,20 @@ export default function ExerciseDetailPage({
       if (saved) setUserCode(saved);
     }
   }, [latestSubmission, id]);
+
+  // Save language per exercise
+  useEffect(() => {
+    if (id) {
+      const savedLang = localStorage.getItem(`quiz_lang_${id}`);
+      if (savedLang) setLanguage(savedLang);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      localStorage.setItem(`quiz_lang_${id}`, language);
+    }
+  }, [language, id]);
 
   // Mock run/submit logic
   const runCode = () => {
@@ -619,9 +636,30 @@ export default function ExerciseDetailPage({
               </h3>
             </div>
 
-            <div className={detailStyles.editorContainer}>
-              <JsTryEditor value={userCode} onChange={setUserCode} />
-
+            <div className={detailStyles.editorContainer} style={{ position: 'relative' }}>
+              {/* Language Picker */}
+              <select
+                value={language}
+                onChange={e => setLanguage(e.target.value)}
+                style={{
+                  position: 'absolute',
+                  top: 8,
+                  left: 8,
+                  zIndex: 2,
+                  padding: '4px 8px',
+                  borderRadius: 6,
+                  border: '1px solid #e2e8f0',
+                  background: 'white',
+                  fontWeight: 500,
+                  fontSize: 14,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                }}
+                aria-label={t ? t('Select language') : 'Select language'}
+              >
+                <option value="javascript">JavaScript</option>
+                <option value="python">Python</option>
+              </select>
+              <JsTryEditor value={userCode} onChange={setUserCode} language={language} />
               <SavadliButton
                 text={isSubmitting ? "Yoxlanır..." : "Submit"}
                 position="absolute"

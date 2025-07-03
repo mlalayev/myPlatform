@@ -1,4 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { exec, spawn } from 'child_process';
+import { promisify } from 'util';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
+
+const execAsync = promisify(exec);
 
 // WebAssembly-based execution configuration
 const wasmConfigs = {
@@ -19,79 +26,73 @@ const wasmConfigs = {
 export async function POST(request: NextRequest) {
   try {
     const { code, language } = await request.json();
-    
-    // Input validation
     if (!code || !language) {
-      return NextResponse.json(
-        { error: 'Code and language are required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Code and language are required' }, { status: 400 });
+    }
+    if (language.toLowerCase() !== 'python' && language.toLowerCase() !== 'python3') {
+      return NextResponse.json({ error: 'Only Python is supported in this runner.' }, { status: 400 });
     }
 
-    // Security: Limit code size
-    if (code.length > 10000) {
-      return NextResponse.json(
-        { error: 'Code too large (max 10KB)' },
-        { status: 400 }
-      );
-    }
+    // Create a temporary file for the code
+    const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'pycode-'));
+    const filePath = path.join(tmpDir, 'main.py');
+    await fs.promises.writeFile(filePath, code);
 
-    // For JavaScript/TypeScript, we can execute directly
-    if (language === 'javascript' || language === 'typescript') {
-      try {
-        let output = '';
-        let error = '';
-        const startTime = Date.now();
+    let output = '';
+    let error = '';
+    let exitCode = 0;
+    try {
+      // Run the code with a timeout (3 seconds) and force UTF-8 encoding, using safe_runner.py
+      const safeRunnerPath = path.join(process.cwd(), 'src/app/api/execute/safe_runner.py');
+      const pythonProcess = spawn('python', ['-X', 'utf8', safeRunnerPath], {
+        env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
+      });
 
-        // Capture console.log output
-        const originalLog = console.log;
-        const logs: string[] = [];
-        console.log = (...args: any[]) => {
-          logs.push(args.map(String).join(" "));
-          originalLog(...args);
-        };
+      // Pipe user code to stdin
+      const codeStr = await fs.promises.readFile(filePath, 'utf-8');
+      pythonProcess.stdin.write(codeStr);
+      pythonProcess.stdin.end();
 
-        // Execute the code
-        const result = eval(code);
-        const executionTime = Date.now() - startTime;
+      // Capture output
+      let stdout = '';
+      let stderr = '';
+      pythonProcess.stdout.on('data', (data) => {
+        stdout += data.toString();
+      });
+      pythonProcess.stderr.on('data', (data) => {
+        stderr += data.toString();
+      });
 
-        // Restore console.log
-        console.log = originalLog;
+      // Handle timeout
+      const timeout = setTimeout(() => {
+        error = 'Execution timed out.';
+        pythonProcess.kill('SIGKILL');
+      }, 3000);
 
-        output = logs.length > 0 ? logs.join("\n") : String(result);
-
-        return NextResponse.json({
-          output: output.trim(),
-          error: error.trim(),
-          executionTime,
-          language,
-          runtime: 'native'
+      await new Promise((resolve) => {
+        pythonProcess.on('close', (code) => {
+          clearTimeout(timeout);
+          output = stdout;
+          error = error || stderr;
+          exitCode = code || 0;
+          resolve(null);
         });
-      } catch (err: any) {
-        return NextResponse.json({
-          output: '',
-          error: err.message,
-          executionTime: 0,
-          language,
-          runtime: 'native'
-        });
-      }
+      });
+    } catch (err: any) {
+      error = err.message;
+      exitCode = 1;
     }
 
-    // For other languages, return instructions for client-side execution
+    // Clean up
+    await fs.promises.rm(tmpDir, { recursive: true, force: true });
+
     return NextResponse.json({
-      output: '',
-      error: `Language ${language} requires client-side execution. Please use the built-in executor.`,
-      executionTime: 0,
-      language,
-      runtime: 'client-side'
+      output: output.trim(),
+      error: error.trim(),
+      exitCode,
+      language: 'python',
     });
-
   } catch (error: any) {
-    console.error('Code execution error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 } 

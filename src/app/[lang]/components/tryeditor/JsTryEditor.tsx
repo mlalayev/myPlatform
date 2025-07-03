@@ -287,14 +287,22 @@ export default function JsTryEditor({
       }
       if (lang === "python" || lang === "python3") {
         try {
-          setOutput("Pyodide yüklənir...");
-          const pyodideInstance = await loadPyodide();
-          setOutput("");
-          const result = await pyodideInstance.runPythonAsync(code);
-          setOutput(String(result));
+          const response = await fetch('/api/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, language: lang }),
+          });
+          const result = await response.json();
+          if (result.error) {
+            setError(result.error);
+            setOutput(result.output || "");
+          } else {
+            setOutput(result.output || "");
+            setError(result.error || "");
+          }
           setShowOutput(true);
         } catch (err: any) {
-          setError(t('tryeditor.pyodide').replace('{{message}}', err.message));
+          setError("Server error: " + err.message);
           setShowOutput(true);
         } finally {
           setIsLoading(false);
