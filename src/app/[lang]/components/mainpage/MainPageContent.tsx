@@ -2,7 +2,13 @@ import React, { useState } from "react";
 import styles from "./MainPageContent.module.css";
 import JsTryEditor from "../tryeditor/JsTryEditor";
 import HeroSection from "./HeroSection";
-import { FiLayers, FiRefreshCw, FiGitBranch, FiShare2, FiChevronDown } from "react-icons/fi";
+import {
+  FiLayers,
+  FiRefreshCw,
+  FiGitBranch,
+  FiShare2,
+  FiChevronDown,
+} from "react-icons/fi";
 import {
   SiJavascript,
   SiHtml5,
@@ -111,7 +117,10 @@ export default function MainPageContent() {
 
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setDropdownOpen(false);
       }
     }
@@ -120,25 +129,17 @@ export default function MainPageContent() {
   }, []);
 
   // Divide languages into two columns
-  const leftLanguages = editorLanguages.slice(0, Math.ceil(editorLanguages.length / 2));
-  const rightLanguages = editorLanguages.slice(Math.ceil(editorLanguages.length / 2));
+  const leftLanguages = editorLanguages.slice(
+    0,
+    Math.ceil(editorLanguages.length / 2)
+  );
+  const rightLanguages = editorLanguages.slice(
+    Math.ceil(editorLanguages.length / 2)
+  );
 
   return (
     <main className={styles.main}>
       <HeroSection />
-      <section className={styles.featuresSection}>
-        <h2 className={styles.featuresTitle}>{t("main.featuresTitle")}</h2>
-        <p className={styles.featuresSubtitle}>{t("main.featuresSubtitle")}</p>
-        <div className={styles.features}>
-          {features.map((f) => (
-            <div className={styles.featureCard} key={f.label}>
-              <span className={styles.featureIcon}>{f.icon}</span>
-              <span className={styles.featureLabel}>{f.label}</span>
-              <span className={styles.featureDescription}>{f.description}</span>
-            </div>
-          ))}
-        </div>
-      </section>
       <section className={styles.languagesSection}>
         <h2 className={styles.languagesTitle}>{t("main.languagesTitle")}</h2>
         <div className={styles.languagesGrid}>
@@ -164,7 +165,8 @@ export default function MainPageContent() {
               aria-haspopup="listbox"
               aria-expanded={dropdownOpen}
             >
-              {editorLanguages.find((l) => l.value === editorLanguage)?.label || "Select Language"}
+              {editorLanguages.find((l) => l.value === editorLanguage)?.label ||
+                "Select Language"}
               <FiChevronDown style={{ marginLeft: 8, fontSize: 18 }} />
             </button>
             {dropdownOpen && (
@@ -175,7 +177,9 @@ export default function MainPageContent() {
                       key={lang.value}
                       className={
                         styles.languageDropdownItem +
-                        (editorLanguage === lang.value ? " " + styles.selected : "")
+                        (editorLanguage === lang.value
+                          ? " " + styles.selected
+                          : "")
                       }
                       onClick={() => {
                         setEditorLanguage(lang.value);
@@ -195,7 +199,9 @@ export default function MainPageContent() {
                       key={lang.value}
                       className={
                         styles.languageDropdownItem +
-                        (editorLanguage === lang.value ? " " + styles.selected : "")
+                        (editorLanguage === lang.value
+                          ? " " + styles.selected
+                          : "")
                       }
                       onClick={() => {
                         setEditorLanguage(lang.value);
@@ -213,7 +219,11 @@ export default function MainPageContent() {
             )}
           </div>
         </div>
-        <JsTryEditor showCopyButton={true} showRunButton={true} language={editorLanguage} />
+        <JsTryEditor
+          showCopyButton={true}
+          showRunButton={true}
+          language={editorLanguage}
+        />
       </section>
     </main>
   );
