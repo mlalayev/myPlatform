@@ -110,7 +110,7 @@ const Header: React.FC = () => {
             onClick={() => setDropdownOpen((open) => !open)}
             aria-label="Select language"
           >
-            <span className={HeaderStyle.languageDropdownLabel}>
+            <span className={HeaderStyle.languageDropdownLabel} style={{fontWeight:600, fontSize:'1.05em'}}>
               {languages.find((l) => l.code === currentLang)?.label || "LANG"}
             </span>
             <svg
@@ -143,8 +143,9 @@ const Header: React.FC = () => {
                   tabIndex={0}
                   role="button"
                   aria-label={lang.label}
+                  style={{fontWeight:600,fontSize:'1.05em'}}
                 >
-                  {lang.label}
+                  <span>{lang.label}</span>
                 </div>
               ))}
             </div>

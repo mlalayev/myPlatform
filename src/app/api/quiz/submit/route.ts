@@ -3,12 +3,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import { PrismaClient } from "@prisma/client";
 
-console.log('API /api/quiz/submit called');
 
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
-  console.log('API /api/quiz/submit POST called');
   // Get user session
   const session = await getServerSession(authOptions);
   if (!session || !session.user?.email) {
