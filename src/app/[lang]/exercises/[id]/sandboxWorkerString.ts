@@ -60,10 +60,31 @@ self.onmessage = async function (e) {
 
     // Hələ də tapılmayıbsa
     if (typeof self.solution !== 'function') {
-      console.log('[worker] No solution function found');
-      self.postMessage({ error: 'Funksiya tapılmadı! function solution(...) və ya const/let/var solution = ... yazın.' });
-      clearTimeout(timer);
-      return;
+      console.log('[worker] Trying to fallback to first found function in code');
+
+      const singleFunctionMatch = code.match(/function\s+([a-zA-Z0-9_$]+)?\s*\(([^)]*)\)\s*\{([\s\S]*)\}/);
+      if (singleFunctionMatch) {
+        const params = singleFunctionMatch[2].trim();
+        const body = singleFunctionMatch[3].trim();
+        self.solution = new Function(params, body);
+        console.log('[worker] Fallback function loaded');
+      } else {
+        const arrowFuncMatch = code.match(/(?:const|let|var)?\s*[a-zA-Z0-9_$]*\s*=\s*\(([^)]*)\)\s*=>\s*\{([\s\S]*)\}/);
+        if (arrowFuncMatch) {
+          const params = arrowFuncMatch[1].trim();
+          const body = arrowFuncMatch[2].trim();
+          self.solution = new Function(params, body);
+          console.log('[worker] Arrow function fallback loaded');
+        }
+      }
+
+      // Əgər hələ də function tapılmadısa, error qaytar
+      if (typeof self.solution !== 'function') {
+        console.log('[worker] No fallback function found');
+        self.postMessage({ error: 'Funksiya tapılmadı! Kod daxilində heç bir function aşkarlanmadı.' });
+        clearTimeout(timer);
+        return;
+      }
     }
 
     // Əgər input göndərilir amma funksiya parametrləri yoxdursa və ya azdır

@@ -1,9 +1,9 @@
 import builtins
 import sys
 
-# Remove dangerous built-ins (but keep 'exec' and '__import__' and others needed by the runner)
+# Remove dangerous built-ins (but keep 'exec', '__import__', 'globals', and others needed by the runner)
 for name in [
-    'open', 'eval', 'compile', 'input', 'exit', 'quit', 'help', 'dir', 'globals', 'locals', 'vars'
+    'open', 'compile', 'input', 'exit', 'quit', 'help', 'dir', 'locals', 'vars'
 ]:
     if hasattr(builtins, name):
         delattr(builtins, name)
