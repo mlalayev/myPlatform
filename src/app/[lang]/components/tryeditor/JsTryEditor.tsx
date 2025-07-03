@@ -7,6 +7,8 @@ import CopyButton from "../Buttons/copyButton/CopyButton";
 import workerCode from "../../exercises/[id]/sandboxWorkerString";
 import tryEditorWorkerCode from "./tryEditorWorkerString";
 import Interpreter from 'js-interpreter';
+import * as Babel from '@babel/standalone';
+import { useI18n } from '@/contexts/I18nContext';
 
 interface JsTryEditorProps {
   value?: string;
@@ -166,6 +168,7 @@ export default function JsTryEditor({
   showCopyButton,
   language = "typescript",
 }: JsTryEditorProps) {
+  const { t } = useI18n();
   const [internalCode, setInternalCode] = useState(defaultCode);
   const code = value !== undefined ? value : internalCode;
   const [output, setOutput] = useState("");
@@ -194,13 +197,31 @@ export default function JsTryEditor({
     setOutput("");
     setShowOutput(false);
     setIsLoading(true);
-    
+
     try {
-      if (language === "javascript" || language === "typescript") {
+      const lang = (language || '').toLowerCase();
+      if (lang === "javascript" || lang === "typescript" || lang === "js") {
         try {
           let logs: string[] = [];
-          const myInterpreter = new Interpreter(code, function(interpreter, globalObject) {
+          let logCount = 0;
+          const maxLogs = 5;
+          let stoppedForLogs = false;
+          let transpiled = code;
+          try {
+            transpiled = Babel.transform(code, { presets: ['env'] }).code || code;
+          } catch (babelErr: any) {
+            setError(t('tryeditor.babel').replace('{{message}}', babelErr.message));
+            setShowOutput(true);
+            setIsLoading(false);
+            return;
+          }
+          const myInterpreter = new Interpreter(transpiled, function(interpreter, globalObject) {
             const wrapper = function(...args: any[]) {
+              logCount++;
+              if (logCount > maxLogs) {
+                stoppedForLogs = true;
+                throw new Error(t('tryeditor.tooManyLogs'));
+              }
               logs.push(args.map(String).join(" "));
             };
             const consoleObj = interpreter.nativeToPseudo({ log: wrapper });
@@ -211,26 +232,45 @@ export default function JsTryEditor({
           const maxSteps = 100000; // Adjust as needed
           const stepBatch = 1000; // Steps per batch
           let finished = false;
+          setIsLoading(true);
 
           function stepLoop() {
             let batchSteps = 0;
-            while (myInterpreter.step()) {
-              steps++;
-              batchSteps++;
-              if (steps > maxSteps) {
-                setError("Kod icrası çox uzun çəkdi və dayandırıldı.");
-                setShowOutput(true);
-                setIsLoading(false);
-                finished = true;
-                return;
+            try {
+              while (myInterpreter.step()) {
+                steps++;
+                batchSteps++;
+                if (steps > maxSteps) {
+                  setError(t('tryeditor.timeout'));
+                  setShowOutput(true);
+                  setIsLoading(false);
+                  finished = true;
+                  return;
+                }
+                if (batchSteps >= stepBatch) {
+                  setTimeout(stepLoop, 0);
+                  return;
+                }
               }
-              if (batchSteps >= stepBatch) {
-                setTimeout(stepLoop, 0);
-                return;
+            } catch (err: any) {
+              if (stoppedForLogs) {
+                setError(t('tryeditor.tooManyLogs'));
+              } else {
+                setError(t('tryeditor.jsInterpreter').replace('{{message}}', err.message));
               }
+              setShowOutput(true);
+              setIsLoading(false);
+              finished = true;
+              return;
             }
             if (!finished) {
-              setOutput(logs.join("\n"));
+              if (logs.length === 0) {
+                setOutput("");
+                setError(t('tryeditor.noOutput'));
+              } else {
+                setOutput(logs.join("\n"));
+                setError("");
+              }
               setShowOutput(true);
               setIsLoading(false);
             }
@@ -239,12 +279,13 @@ export default function JsTryEditor({
           stepLoop();
           return;
         } catch (err: any) {
-          setError("JS-Interpreter error: " + err.message);
+          setError(t('tryeditor.jsInterpreter').replace('{{message}}', err.message));
           setShowOutput(true);
           setIsLoading(false);
         }
+        return;
       }
-      if (language === "python" || language === "python3") {
+      if (lang === "python" || lang === "python3") {
         try {
           setOutput("Pyodide yüklənir...");
           const pyodideInstance = await loadPyodide();
@@ -253,18 +294,18 @@ export default function JsTryEditor({
           setOutput(String(result));
           setShowOutput(true);
         } catch (err: any) {
-          setError("Pyodide və ya Python kodunda xəta: " + err.message);
+          setError(t('tryeditor.pyodide').replace('{{message}}', err.message));
           setShowOutput(true);
         } finally {
           setIsLoading(false);
         }
         return;
       }
-      setError(`Bu dil üçün icra dəstəklənmir.`);
+      setError(t('tryeditor.unsupported'));
       setShowOutput(true);
       setIsLoading(false);
     } catch (err: any) {
-      setError('İcra xətası: ' + err.message);
+      setError(t('tryeditor.general').replace('{{message}}', err.message));
       setShowOutput(true);
       setIsLoading(false);
     }
@@ -318,7 +359,7 @@ export default function JsTryEditor({
           )}
           {error && (
             <div className={styles.outputSection}>
-              <pre className={styles.error}>Xəta: {error}</pre>
+              <pre className={styles.error}>{t('tryeditor.errorLabel')} {error}</pre>
             </div>
           )}
         </div>
