@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { exercises, Exercise } from "./exercisesData";
 import styles from "./ExercisesList.module.css";
 import Header from "../components/header/Header";
@@ -44,9 +44,30 @@ export default function ExercisesPage() {
   const [search, setSearch] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("Bütün");
   const [statuses, setStatuses] = useState<{ [id: number]: "not_submitted" | "wrong" | "correct" }>({});
+  const [globalLanguage, setGlobalLanguage] = useState('javascript');
   
   const pathname = usePathname();
   const currentLang = pathname.split("/")[1] || "en";
+
+  useEffect(() => {
+    const savedGlobalLang = localStorage.getItem('quiz_global_lang');
+    if (savedGlobalLang) setGlobalLanguage(savedGlobalLang);
+  }, []);
+
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'quiz_global_lang' && e.newValue) {
+        setGlobalLanguage(e.newValue);
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  const handleLanguageChange = (lang: string) => {
+    setGlobalLanguage(lang);
+    localStorage.setItem('quiz_global_lang', lang);
+  };
 
   // Fetch latest submission status for each exercise
   React.useEffect(() => {

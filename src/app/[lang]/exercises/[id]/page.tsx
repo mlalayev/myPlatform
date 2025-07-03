@@ -26,6 +26,7 @@ import {
   FiInfo,
   FiMinusCircle,
 } from "react-icons/fi";
+import { useI18n } from '@/contexts/I18nContext';
 
 const LEFT_TABS = ["Təsvir", "Redaktə", "Həllər", "Təqdimatlar"];
 
@@ -43,6 +44,18 @@ interface FailedCase {
   output: string;
   expected: string;
 }
+
+// Add languageSamples for default code templates
+const languageSamples = {
+  javascript: `function solution() {\n  \n}`,
+  python: `def solution():\n    pass`,
+};
+
+const languageOptions = [
+  { value: 'javascript', label: 'JavaScript' },
+  { value: 'python', label: 'Python' },
+  // Add more languages here as needed
+];
 
 export default function ExerciseDetailPage({
   params,
@@ -72,6 +85,17 @@ export default function ExerciseDetailPage({
   const [latestSubmission, setLatestSubmission] = useState<any>(null);
   const [statusIcon, setStatusIcon] = useState<React.ReactNode>(<FiMinusCircle color="gray" title="Not submitted" />);
   const codeInitialized = useRef(false);
+  const { t } = useI18n();
+  const getInitialLanguage = () => {
+    if (typeof window !== 'undefined') {
+      const globalLang = localStorage.getItem('quiz_global_lang');
+      if (globalLang) return globalLang;
+    }
+    return 'javascript';
+  };
+  const [language, setLanguage] = useState(getInitialLanguage);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const exercise = exercises.find((ex) => ex.id === id);
   if (!exercise) return <div>Tapşırıq tapılmadı.</div>;
@@ -130,6 +154,34 @@ export default function ExerciseDetailPage({
       if (saved) setUserCode(saved);
     }
   }, [latestSubmission, id]);
+
+  // On mount, set language from localStorage
+  useEffect(() => {
+    if (id) {
+      const savedLang = localStorage.getItem(`quiz_lang_${id}`);
+      if (savedLang) {
+        setLanguage(savedLang);
+      } else {
+        const globalLang = localStorage.getItem('quiz_global_lang');
+        setLanguage(globalLang || 'javascript');
+      }
+    }
+  }, [id]);
+
+  // When user changes language, update only the global value
+  useEffect(() => {
+    if (language) {
+      localStorage.setItem('quiz_global_lang', language);
+    }
+  }, [language]);
+
+  // On mount, if no latest submission, restore code from localStorage for this question and language
+  useEffect(() => {
+    if (!latestSubmission && id && language) {
+      const saved = localStorage.getItem(`quiz_code_${id}_${language}`);
+      if (saved) setUserCode(saved);
+    }
+  }, [latestSubmission, id, language]);
 
   // Mock run/submit logic
   const runCode = () => {
@@ -244,26 +296,86 @@ export default function ExerciseDetailPage({
           args = tc.input.split(" ").map(Number);
         }
 
-        const worker = createSandboxWorker();
-        const resultPromise = new Promise<{ result?: any; error?: string }>(
-          (resolve) => {
-            worker.onmessage = (e: MessageEvent) => resolve(e.data);
-            worker.postMessage({ code: userCode, args });
+        let result, error;
+        let functionName = 'solution';
+        let functionFound = true;
+        if (language === 'python') {
+          // Detect function name in user code
+          const match = userCode.match(/def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          if (match) functionName = match[1];
+          else functionFound = false;
+          if (!functionFound) {
+            setFeedback('Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: def myfunc(...):');
+            setFeedbackType('error');
+            setTestResults([]);
+            setSubmitted(true);
+            setIsSubmitting(false);
+            setDetectedComplexity(null);
+            setActiveLeftTab(4);
+            setFailedCases([]);
+            return;
           }
-        );
-
-        const timeoutPromise = new Promise<{ error: string }>((resolve) =>
-          setTimeout(() => {
-            worker.terminate();
-            resolve({ error: "Kodun icrası çox uzun çəkdi (timeout)!" });
-          }, 2000)
-        );
-
-        const response: { result?: any; error?: string } = await Promise.race([
-          resultPromise,
-          timeoutPromise,
-        ]);
-        const { result, error } = response;
+          // Prepare Python code to call the detected function and print result as JSON if needed
+          let callCode = '';
+          let argsStr = '';
+          if (Array.isArray(args)) {
+            argsStr = args.map(a => (typeof a === 'string' ? `\"${a}\"` : JSON.stringify(a))).join(', ');
+          } else {
+            argsStr = JSON.stringify(args);
+          }
+          callCode = `\nimport json\nresult = ${functionName}(${argsStr})\nif isinstance(result, (list, dict)):\n    print(json.dumps(result))\nelse:\n    print(result)`;
+          const fullCode = `${userCode}${callCode}`;
+          const resp = await fetch('/api/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: fullCode, language: 'python' })
+          });
+          const data = await resp.json();
+          try {
+            // Try to parse as JSON (for lists, dicts, etc.)
+            result = JSON.parse(data.output);
+          } catch {
+            // Fallback to string
+            result = data.output;
+          }
+          error = data.error;
+        } else {
+          // Detect function name in JS code
+          const match = userCode.match(/function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          if (match) functionName = match[1];
+          else functionFound = false;
+          if (!functionFound) {
+            setFeedback('Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: function myfunc(...) {} və ya const/let/var myfunc = ...');
+            setFeedbackType('error');
+            setTestResults([]);
+            setSubmitted(true);
+            setIsSubmitting(false);
+            setDetectedComplexity(null);
+            setActiveLeftTab(4);
+            setFailedCases([]);
+            return;
+          }
+          // JS/TS: use worker, pass functionName
+          const worker = createSandboxWorker();
+          const resultPromise = new Promise<{ result?: any; error?: string }>(
+            (resolve) => {
+              worker.onmessage = (e: MessageEvent) => resolve(e.data);
+              worker.postMessage({ code: userCode, args, functionName });
+            }
+          );
+          const timeoutPromise = new Promise<{ error: string }>((resolve) =>
+            setTimeout(() => {
+              worker.terminate();
+              resolve({ error: "Kodun icrası çox uzun çəkdi (timeout)!" });
+            }, 2000)
+          );
+          const response: { result?: any; error?: string } = await Promise.race([
+            resultPromise,
+            timeoutPromise,
+          ]);
+          result = response.result;
+          error = response.error;
+        }
         if (error) {
           setFeedback(error);
           setFeedbackType("error");
@@ -275,20 +387,10 @@ export default function ExerciseDetailPage({
           setFailedCases([]);
           return;
         }
-
         const passed = isEqual(result, tc.expectedOutput);
         if (passed) {
           passedCount++;
         } else {
-          // Debug: Log the failed test details
-          console.log("Test failed:", {
-            testCase: i + 1,
-            input: tc.input,
-            expected: tc.expectedOutput,
-            actual: result,
-            expectedType: typeof tc.expectedOutput,
-            actualType: typeof result,
-          });
           failedCase = {
             input: tc.input,
             output: String(result),
@@ -323,11 +425,12 @@ export default function ExerciseDetailPage({
           score: exercise ? (failedCasesArr.length === 0 ? exercise.testCases.length : exercise.testCases.length - failedCasesArr.length) : 0,
           answers: { failedCases: failedCasesArr },
           code: userCode,
+          language,
         }),
       });
       // Save code to localStorage after submit
       if (id) {
-        localStorage.setItem(`quiz_code_${id}`, userCode);
+        localStorage.setItem(`quiz_code_${id}_${language}`, userCode);
       }
       // After submit, refresh latest submission and status icon
       await refreshLatestSubmission();
@@ -406,6 +509,27 @@ export default function ExerciseDetailPage({
         return "⚪";
     }
   };
+
+  useEffect(() => {
+    // Only update code if it matches the previous language's default or is empty
+    if (
+      (!userCode || userCode === languageSamples.javascript || userCode === languageSamples.python)
+    ) {
+      setUserCode(languageSamples[language as keyof typeof languageSamples] || '');
+    }
+    // eslint-disable-next-line
+  }, [language]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <>
@@ -619,9 +743,74 @@ export default function ExerciseDetailPage({
               </h3>
             </div>
 
-            <div className={detailStyles.editorContainer}>
-              <JsTryEditor value={userCode} onChange={setUserCode} />
-
+            <div className={detailStyles.editorContainer} style={{ position: 'relative' }}>
+              {/* Custom Language Picker Dropdown */}
+              <div
+                ref={dropdownRef}
+                style={{
+                  position: 'absolute',
+                  top: 8,
+                  left: 8,
+                  zIndex: 2,
+                  minWidth: 120,
+                  userSelect: 'none',
+                }}
+              >
+                <div
+                  onClick={() => setDropdownOpen((open) => !open)}
+                  style={{
+                    padding: '6px 14px 6px 10px',
+                    borderRadius: 8,
+                    border: '1px solid #e2e8f0',
+                    background: 'white',
+                    fontWeight: 600,
+                    fontSize: 15,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <span style={{ marginRight: 4 }}>
+                    {languageOptions.find(opt => opt.value === language)?.label || language}
+                  </span>
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M6 8L10 12L14 8" stroke="#888" strokeWidth="2" strokeLinecap="round"/></svg>
+                </div>
+                {dropdownOpen && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '110%',
+                      left: 0,
+                      background: 'white',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: 8,
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+                      minWidth: 120,
+                      padding: '4px 0',
+                    }}
+                  >
+                    {languageOptions.map(opt => (
+                      <div
+                        key={opt.value}
+                        onClick={() => { setLanguage(opt.value); setDropdownOpen(false); }}
+                        style={{
+                          padding: '8px 16px',
+                          cursor: 'pointer',
+                          background: opt.value === language ? '#f0f4fa' : 'white',
+                          fontWeight: opt.value === language ? 700 : 500,
+                          color: opt.value === language ? '#2b6cb0' : '#222',
+                          fontSize: 15,
+                        }}
+                      >
+                        {opt.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <JsTryEditor value={userCode} onChange={setUserCode} language={language} />
               <SavadliButton
                 text={isSubmitting ? "Yoxlanır..." : "Submit"}
                 position="absolute"

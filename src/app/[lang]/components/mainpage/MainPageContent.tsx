@@ -21,22 +21,23 @@ export default function MainPageContent() {
   const { t } = useI18n();
   const [editorLanguage, setEditorLanguage] = useState("javascript");
   const editorLanguages = [
-    { label: "C++", value: "cpp" },
-    { label: "Java", value: "java" },
-    { label: "Python", value: "python" },
-    { label: "Python3", value: "python3" },
-    { label: "C", value: "c" },
-    { label: "C#", value: "csharp" },
     { label: "JavaScript", value: "javascript" },
     { label: "TypeScript", value: "typescript" },
-    { label: "PHP", value: "php" },
-    { label: "Swift", value: "swift" },
-    { label: "Kotlin", value: "kotlin" },
-    { label: "Dart", value: "dart" },
-    { label: "Go", value: "go" },
-    { label: "Ruby", value: "ruby" },
-    { label: "Scala", value: "scala" },
-    { label: "Rust", value: "rust" },
+    { label: "Python", value: "python" },
+    { label: "Python3", value: "python3" },
+    // Languages that require external execution (commented out)
+    // { label: "PHP", value: "php" },
+    // { label: "C++", value: "cpp" },
+    // { label: "Java", value: "java" },
+    // { label: "C", value: "c" },
+    // { label: "C#", value: "csharp" },
+    // { label: "Go", value: "go" },
+    // { label: "Rust", value: "rust" },
+    // { label: "Ruby", value: "ruby" },
+    // { label: "Swift", value: "swift" },
+    // { label: "Kotlin", value: "kotlin" },
+    // { label: "Dart", value: "dart" },
+    // { label: "Scala", value: "scala" },
   ];
 
   const features = [
