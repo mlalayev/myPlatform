@@ -51,6 +51,12 @@ const languageSamples = {
   python: `def solution():\n    pass`,
 };
 
+const languageOptions = [
+  { value: 'javascript', label: 'JavaScript' },
+  { value: 'python', label: 'Python' },
+  // Add more languages here as needed
+];
+
 export default function ExerciseDetailPage({
   params,
 }: ExerciseDetailPageProps) {
@@ -80,7 +86,16 @@ export default function ExerciseDetailPage({
   const [statusIcon, setStatusIcon] = useState<React.ReactNode>(<FiMinusCircle color="gray" title="Not submitted" />);
   const codeInitialized = useRef(false);
   const { t } = useI18n();
-  const [language, setLanguage] = useState('javascript');
+  const getInitialLanguage = () => {
+    if (typeof window !== 'undefined') {
+      const globalLang = localStorage.getItem('quiz_global_lang');
+      if (globalLang) return globalLang;
+    }
+    return 'javascript';
+  };
+  const [language, setLanguage] = useState(getInitialLanguage);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const exercise = exercises.find((ex) => ex.id === id);
   if (!exercise) return <div>Tapşırıq tapılmadı.</div>;
@@ -140,43 +155,29 @@ export default function ExerciseDetailPage({
     }
   }, [latestSubmission, id]);
 
-  // Save language per exercise
+  // On mount, set language from localStorage
   useEffect(() => {
     if (id) {
       const savedLang = localStorage.getItem(`quiz_lang_${id}`);
-      if (savedLang) setLanguage(savedLang);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (id) {
-      localStorage.setItem(`quiz_lang_${id}`, language);
-    }
-  }, [language, id]);
-
-  // If no saved language for this question, use global
-  useEffect(() => {
-    if (id) {
-      const savedLang = localStorage.getItem(`quiz_lang_${id}`);
-      if (savedLang) setLanguage(savedLang);
-      else {
+      if (savedLang) {
+        setLanguage(savedLang);
+      } else {
         const globalLang = localStorage.getItem('quiz_global_lang');
-        if (globalLang) setLanguage(globalLang);
+        setLanguage(globalLang || 'javascript');
       }
     }
   }, [id]);
 
-  // When user changes language, update global
+  // When user changes language, update only the global value
   useEffect(() => {
-    if (id) {
-      localStorage.setItem(`quiz_lang_${id}`, language);
+    if (language) {
       localStorage.setItem('quiz_global_lang', language);
     }
-  }, [language, id]);
+  }, [language]);
 
   // On mount, if no latest submission, restore code from localStorage for this question and language
   useEffect(() => {
-    if (!latestSubmission && id) {
+    if (!latestSubmission && id && language) {
       const saved = localStorage.getItem(`quiz_code_${id}_${language}`);
       if (saved) setUserCode(saved);
     }
@@ -514,10 +515,21 @@ export default function ExerciseDetailPage({
     if (
       (!userCode || userCode === languageSamples.javascript || userCode === languageSamples.python)
     ) {
-      setUserCode(languageSamples[language] || '');
+      setUserCode(languageSamples[language as keyof typeof languageSamples] || '');
     }
     // eslint-disable-next-line
   }, [language]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <>
@@ -732,28 +744,72 @@ export default function ExerciseDetailPage({
             </div>
 
             <div className={detailStyles.editorContainer} style={{ position: 'relative' }}>
-              {/* Language Picker */}
-              <select
-                value={language}
-                onChange={e => setLanguage(e.target.value)}
+              {/* Custom Language Picker Dropdown */}
+              <div
+                ref={dropdownRef}
                 style={{
                   position: 'absolute',
                   top: 8,
                   left: 8,
                   zIndex: 2,
-                  padding: '4px 8px',
-                  borderRadius: 6,
-                  border: '1px solid #e2e8f0',
-                  background: 'white',
-                  fontWeight: 500,
-                  fontSize: 14,
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                  minWidth: 120,
+                  userSelect: 'none',
                 }}
-                aria-label={t ? t('Select language') : 'Select language'}
               >
-                <option value="javascript">JavaScript</option>
-                <option value="python">Python</option>
-              </select>
+                <div
+                  onClick={() => setDropdownOpen((open) => !open)}
+                  style={{
+                    padding: '6px 14px 6px 10px',
+                    borderRadius: 8,
+                    border: '1px solid #e2e8f0',
+                    background: 'white',
+                    fontWeight: 600,
+                    fontSize: 15,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <span style={{ marginRight: 4 }}>
+                    {languageOptions.find(opt => opt.value === language)?.label || language}
+                  </span>
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M6 8L10 12L14 8" stroke="#888" strokeWidth="2" strokeLinecap="round"/></svg>
+                </div>
+                {dropdownOpen && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '110%',
+                      left: 0,
+                      background: 'white',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: 8,
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+                      minWidth: 120,
+                      padding: '4px 0',
+                    }}
+                  >
+                    {languageOptions.map(opt => (
+                      <div
+                        key={opt.value}
+                        onClick={() => { setLanguage(opt.value); setDropdownOpen(false); }}
+                        style={{
+                          padding: '8px 16px',
+                          cursor: 'pointer',
+                          background: opt.value === language ? '#f0f4fa' : 'white',
+                          fontWeight: opt.value === language ? 700 : 500,
+                          color: opt.value === language ? '#2b6cb0' : '#222',
+                          fontSize: 15,
+                        }}
+                      >
+                        {opt.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <JsTryEditor value={userCode} onChange={setUserCode} language={language} />
               <SavadliButton
                 text={isSubmitting ? "Yoxlanır..." : "Submit"}
