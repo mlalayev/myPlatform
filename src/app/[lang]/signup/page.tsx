@@ -26,9 +26,21 @@ export default function SignupPage() {
       setError(t("signup.passwordMismatch"));
       return;
     }
-    // TODO: Implement actual sign up logic (API call)
-    // For now, just redirect to login
-    router.push(`/${lang}/login`);
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, surname, username, email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Signup failed");
+        return;
+      }
+      router.push(`/${lang}/login`);
+    } catch (err) {
+      setError("Signup failed");
+    }
   };
 
   return (
