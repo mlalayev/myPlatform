@@ -9,6 +9,26 @@ export async function DELETE(req, { params }) {
   return NextResponse.json({ success: true });
 }
 
+export async function GET(req, { params }) {
+  const id = Number(params.id);
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      role: true,
+      avatarUrl: true,
+      dailyLoginPoints: true,
+      lastLoginDate: true,
+    },
+  });
+  if (!user) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+  return NextResponse.json(user);
+}
+
 export async function PATCH(req, { params }) {
   try {
     const id = Number(params.id);

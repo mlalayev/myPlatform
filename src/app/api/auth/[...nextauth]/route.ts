@@ -18,7 +18,7 @@ type UserWithAuthFields = {
 const authOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as const,
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   providers: [
@@ -31,35 +31,67 @@ const authOptions = {
       async authorize(credentials) {
         console.log("Credentials received:", credentials);
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials?.email ?? "" },
         });
         console.log("User found:", user);
-        if (!user || !user.passwordHash) return null;
-        const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
+        if (!user || !user.passwordHash) {
+          console.log("No user or no passwordHash");
+          return null;
+        }
+        console.log("PasswordHash:", user.passwordHash);
+        const isValid = await bcrypt.compare(credentials?.password ?? "", user.passwordHash);
         console.log("Password valid:", isValid);
-        if (!isValid) return null;
+        if (!isValid) {
+          console.log("Password is not valid");
+          return null;
+        }
+
+        // Daily login points logic
+        const today = new Date();
+        const lastLogin = user.lastLoginDate ? new Date(user.lastLoginDate) : null;
+        const isNewDay = !lastLogin ||
+          today.getFullYear() !== lastLogin.getFullYear() ||
+          today.getMonth() !== lastLogin.getMonth() ||
+          today.getDate() !== lastLogin.getDate();
+        if (isNewDay) {
+          try {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                dailyLoginPoints: (user.dailyLoginPoints || 0) + 1,
+                lastLoginDate: today,
+              },
+            });
+          } catch (err) {
+            console.error('Failed to update daily login points:', err);
+          }
+        }
+
         return {
           id: String(user.id),
-          name: user.username,
+          name: user.username || user.email,
           email: user.email,
           role: user.role,
-          avatar: user.avatarUrl,
         };
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: any, user?: any }) {
       if (user) {
-        (token as any).role = (user as any).role;
-        (token as any).avatar = (user as any).avatar;
+        token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
+        token.role = user.role;
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: any, token: any }) {
       if (session.user && token) {
-        (session.user as any).role = (token as any).role;
-        (session.user as any).avatar = (token as any).avatar;
+        session.user.id = token.id;
+        session.user.name = token.name;
+        session.user.email = token.email;
+        session.user.role = token.role;
       }
       return session;
     },
