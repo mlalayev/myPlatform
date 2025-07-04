@@ -11,34 +11,34 @@ import Header from "../../components/header/Header";
 import Footer from "../../components/footer/Footer";
 
 const frameworks = [
-  { name: "React", icon: <SiReact size={32} color="#61dafb" />, available: true, description: "UI Kitabxanası." },
-  { name: "Vue.js", icon: <SiVuedotjs size={32} color="#42b883" />, available: true, description: "Progressive framework." },
-  { name: "Angular", icon: <SiAngular size={32} color="#dd0031" />, available: true, description: "Platform for web apps." },
-  { name: "Svelte", icon: <SiSvelte size={32} color="#ff3e00" />, available: true, description: "Cybernetically enhanced UI." },
-  { name: "Next.js", icon: <SiNextdotjs size={32} color="#000" />, available: false, description: "React framework." },
-  { name: "Node.js", icon: <SiNodedotjs size={32} color="#43853d" />, available: false, description: "Server-side JS." },
+  { name: "React", icon: <SiReact size={32} color="#61dafb" />, available: true, description: "UI Kitabxanası.", progress: 75 },
+  { name: "Vue.js", icon: <SiVuedotjs size={32} color="#42b883" />, available: true, description: "Progressive framework.", progress: 60 },
+  { name: "Angular", icon: <SiAngular size={32} color="#dd0031" />, available: true, description: "Platform for web apps.", progress: 45 },
+  { name: "Svelte", icon: <SiSvelte size={32} color="#ff3e00" />, available: true, description: "Cybernetically enhanced UI.", progress: 30 },
+  { name: "Next.js", icon: <SiNextdotjs size={32} color="#000" />, available: false, description: "React framework.", progress: 0 },
+  { name: "Node.js", icon: <SiNodedotjs size={32} color="#43853d" />, available: false, description: "Server-side JS.", progress: 0 },
 ];
 
 const languages = [
-  { name: "JavaScript", icon: <SiJavascript size={32} color="#f7df1e" />, available: true, description: "Web üçün." },
-  { name: "Python", icon: <SiPython size={32} color="#3572A5" />, available: false, description: "Data science, backend." },
-  { name: "Java", icon: <SiOpenjdk size={32} color="#b07219" />, available: false, description: "Android, enterprise." },
-  { name: "C", icon: <SiC size={32} color="#00599C" />, available: false, description: "Sistem proqramları." },
-  { name: "C++", icon: <SiCplusplus size={32} color="#00599C" />, available: false, description: "Oyunlar, performans." },
-  { name: "C#", icon: <FiIcons.FiHash size={32} color="#178600" />, available: false, description: ".NET, Unity." },
-  { name: "Go (Golang)", icon: <SiGo size={32} color="#00ADD8" />, available: false, description: "Backend." },
-  { name: "Rust", icon: <SiRust size={32} color="#dea584" />, available: false, description: "Təhlükəsizlik, performans." },
-  { name: "TypeScript", icon: <SiTypescript size={32} color="#3178c6" />, available: false, description: "Tipli JS." },
-  { name: "PHP", icon: <SiPhp size={32} color="#777bb4" />, available: false, description: "Web backend." },
-  { name: "Swift", icon: <SiSwift size={32} color="#ffac45" />, available: false, description: "iOS/macOS." },
-  { name: "Kotlin", icon: <SiKotlin size={32} color="#7f52ff" />, available: false, description: "Android." },
-  { name: "Ruby", icon: <SiRuby size={32} color="#cc342d" />, available: false, description: "Web backend." },
-  { name: "R", icon: <SiR size={32} color="#276dc3" />, available: false, description: "Statistika, data." },
-  { name: "SQL", icon: <SiMysql size={32} color="#00758f" />, available: false, description: "Verilənlər bazası." },
-  { name: "Shell/Bash", icon: <SiGnubash size={32} color="#4eaa25" />, available: false, description: "Sistem əmrləri." },
-  { name: "Scala", icon: <SiScala size={32} color="#c22d40" />, available: false, description: "Functional, OOP." },
-  { name: "Dart", icon: <SiDart size={32} color="#00b4ab" />, available: false, description: "Mobil app." },
-  { name: "Haskell", icon: <SiHaskell size={32} color="#5e5086" />, available: false, description: "Functional." },
+  { name: "JavaScript", icon: <SiJavascript size={32} color="#f7df1e" />, available: true, description: "Web üçün.", progress: 85 },
+  { name: "Python", icon: <SiPython size={32} color="#3572A5" />, available: false, description: "Data science, backend.", progress: 0 },
+  { name: "Java", icon: <SiOpenjdk size={32} color="#b07219" />, available: false, description: "Android, enterprise.", progress: 0 },
+  { name: "C", icon: <SiC size={32} color="#00599C" />, available: false, description: "Sistem proqramları.", progress: 0 },
+  { name: "C++", icon: <SiCplusplus size={32} color="#00599C" />, available: false, description: "Oyunlar, performans.", progress: 0 },
+  { name: "C#", icon: <FiIcons.FiHash size={32} color="#178600" />, available: false, description: ".NET, Unity.", progress: 0 },
+  { name: "Go (Golang)", icon: <SiGo size={32} color="#00ADD8" />, available: false, description: "Backend.", progress: 0 },
+  { name: "Rust", icon: <SiRust size={32} color="#dea584" />, available: false, description: "Təhlükəsizlik, performans.", progress: 0 },
+  { name: "TypeScript", icon: <SiTypescript size={32} color="#3178c6" />, available: false, description: "Tipli JS.", progress: 0 },
+  { name: "PHP", icon: <SiPhp size={32} color="#777bb4" />, available: false, description: "Web backend.", progress: 0 },
+  { name: "Swift", icon: <SiSwift size={32} color="#ffac45" />, available: false, description: "iOS/macOS.", progress: 0 },
+  { name: "Kotlin", icon: <SiKotlin size={32} color="#7f52ff" />, available: false, description: "Android.", progress: 0 },
+  { name: "Ruby", icon: <SiRuby size={32} color="#cc342d" />, available: false, description: "Web backend.", progress: 0 },
+  { name: "R", icon: <SiR size={32} color="#276dc3" />, available: false, description: "Statistika, data.", progress: 0 },
+  { name: "SQL", icon: <SiMysql size={32} color="#00758f" />, available: false, description: "Verilənlər bazası.", progress: 0 },
+  { name: "Shell/Bash", icon: <SiGnubash size={32} color="#4eaa25" />, available: false, description: "Sistem əmrləri.", progress: 0 },
+  { name: "Scala", icon: <SiScala size={32} color="#c22d40" />, available: false, description: "Functional, OOP.", progress: 0 },
+  { name: "Dart", icon: <SiDart size={32} color="#00b4ab" />, available: false, description: "Mobil app.", progress: 0 },
+  { name: "Haskell", icon: <SiHaskell size={32} color="#5e5086" />, available: false, description: "Functional.", progress: 0 },
 ];
 
 export default function TutorialLanguagePage() {
@@ -51,6 +51,44 @@ export default function TutorialLanguagePage() {
     router.push(`/${langKey}/tutorials`);
   };
 
+  // Card component for tutorials
+  const TutorialCard = ({ item, isLink = false, href = "" }) => {
+    const cardContent = (
+      <div className={item.available ? styles.tutorialCard : styles.tutorialCard + ' ' + styles.tutorialCardUnavailable}>
+        {!item.available && <div className={styles.comingSoonBadge}>Tezliklə</div>}
+        
+        <div className={styles.tutorialCardHeader}>
+          <div className={styles.tutorialCardIcon}>
+            {item.icon}
+          </div>
+          <div className={styles.tutorialCardInfo}>
+            <div className={styles.tutorialCardTitle}>{item.name}</div>
+            <div className={styles.tutorialCardDesc}>{item.description}</div>
+          </div>
+        </div>
+        
+        <div className={styles.progressSection}>
+          <div className={styles.progressLabel}>
+            <span className={styles.progressText}>Tərəqqi</span>
+            <span className={styles.progressPercentage}>{item.progress}%</span>
+          </div>
+          <div className={styles.progressBar}>
+            <div 
+              className={styles.progressFill} 
+              style={{ width: `${item.progress}%` }}
+            ></div>
+          </div>
+        </div>
+      </div>
+    );
+
+    if (isLink && item.available) {
+      return <Link href={href} style={{ textDecoration: 'none' }}>{cardContent}</Link>;
+    }
+    
+    return cardContent;
+  };
+
   // List view for frameworks
   if (language === "frameworks") {
     return (
@@ -58,19 +96,9 @@ export default function TutorialLanguagePage() {
         <Header />
         <div className={styles.categoryListWrapper}>
           <h2 className={styles.tutorialsTitle}>Frameworklər</h2>
-          <div className={styles.list}>
+          <div className={styles.tutorialsGrid}>
             {frameworks.map((fw) => (
-              <div
-                key={fw.name}
-                className={fw.available ? styles.row : styles.row + ' ' + styles.categoryListItemUnavailable}
-              >
-                <div className={styles.cardHeader}>
-                  <div className={styles.cardLeft}>
-                    <span className={styles.categoryListIcon}>{fw.icon}</span>
-                    <span className={styles.cellTitle}>{fw.name}</span>
-                  </div>
-                </div>
-              </div>
+              <TutorialCard key={fw.name} item={fw} />
             ))}
           </div>
           <button className={styles.backButton} onClick={handleBack}>
@@ -89,19 +117,9 @@ export default function TutorialLanguagePage() {
         <Header />
         <div className={styles.categoryListWrapper}>
           <h2 className={styles.tutorialsTitle}>Proqramlaşdırma Dilləri</h2>
-          <div className={styles.list}>
+          <div className={styles.tutorialsGrid}>
             {languages.map((lang) => (
-              <div
-                key={lang.name}
-                className={lang.available ? styles.row : styles.row + ' ' + styles.categoryListItemUnavailable}
-              >
-                <div className={styles.cardHeader}>
-                  <div className={styles.cardLeft}>
-                    <span className={styles.categoryListIcon}>{lang.icon}</span>
-                    <span className={styles.cellTitle}>{lang.name}</span>
-                  </div>
-                </div>
-              </div>
+              <TutorialCard key={lang.name} item={lang} />
             ))}
           </div>
           <button className={styles.backButton} onClick={handleBack}>
@@ -122,7 +140,14 @@ export default function TutorialLanguagePage() {
       .then((res) => res.json())
       .then((data) => {
         const arr = data[langKey] || [];
-        setTopics(arr);
+        // Add mock progress data for topics
+        const topicsWithProgress = arr.map((topic: any) => ({
+          ...topic,
+          progress: Math.floor(Math.random() * 100), // Mock progress - will be replaced with real data later
+          available: true,
+          description: topic.description || "Təlimat və nümunələr"
+        }));
+        setTopics(topicsWithProgress);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -135,27 +160,29 @@ export default function TutorialLanguagePage() {
         <h2 className={styles.tutorialsTitle}>
           {language === "algorithms" ? "Alqoritmlər" : "Məlumat Strukturları"}
         </h2>
-        <div className={styles.list}>
+        <div className={styles.tutorialsGrid}>
           {loading ? (
             <CodeLoader />
           ) : topics.length === 0 ? (
-            <div style={{ color: "#aaa", textAlign: "center", marginTop: 40 }}>Mövzu yoxdur.</div>
+            <div style={{ color: "#aaa", textAlign: "center", marginTop: 40, gridColumn: "1 / -1" }}>Mövzu yoxdur.</div>
           ) : (
             topics.map((topic) => {
               const Icon = (FiIcons as any)[topic.icon] || FiIcons.FiBookOpen;
+              const topicItem = {
+                name: topic.title,
+                icon: <Icon size={32} color="#007bff" />,
+                available: topic.available,
+                description: topic.description,
+                progress: topic.progress
+              };
+              
               return (
-                <Link
-                  href={`/${langKey}/tutorials/${language}/${topic.id}`}
-                  className={styles.row}
-                  key={topic.id}
-                >
-                  <div className={styles.cardHeader}>
-                    <div className={styles.cardLeft}>
-                      <span className={styles.categoryListIcon}><Icon /></span>
-                      <span className={styles.cellTitle}>{topic.title}</span>
-                    </div>
-                  </div>
-                </Link>
+                <TutorialCard 
+                  key={topic.id} 
+                  item={topicItem}
+                  isLink={true}
+                  href={`/${langKey}/tutorials/languages/${language}/${topic.id}`}
+                />
               );
             })
           )}
