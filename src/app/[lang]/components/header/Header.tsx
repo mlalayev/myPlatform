@@ -207,7 +207,13 @@ const Header: React.FC = () => {
                   <span className={HeaderStyle.profileOptionIcon}><FiUser /></span>
                   {t("header.profile")}
                 </button>
-                <button className={HeaderStyle.profileOption}>
+                <button 
+                  className={HeaderStyle.profileOption}
+                  onClick={() => {
+                    setIsProfileDropdownOpen(false);
+                    router.push(`/${currentLang}/settings`);
+                  }}
+                >
                   <span className={HeaderStyle.profileOptionIcon}><FiSettings /></span>
                   {t("header.settings")}
                 </button>

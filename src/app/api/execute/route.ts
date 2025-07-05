@@ -13,6 +13,10 @@ const wasmConfigs = {
     runtime: 'pyodide',
     url: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js'
   },
+  cpp: {
+    runtime: 'emscripten',
+    url: 'https://cdn.jsdelivr.net/npm/@emscripten/compiler@3.1.45/compiler.js'
+  },
   javascript: {
     runtime: 'native',
     execute: 'eval'
@@ -99,15 +103,14 @@ export async function POST(request: NextRequest) {
       // Clean up
       await fs.promises.rm(tmpDir, { recursive: true, force: true });
     } else if (lang === 'cpp') {
+      // Use local C++ execution with MSYS2 and g++
       try {
-        // Try local compilation first
         const safeRunnerPath = path.join(process.cwd(), 'src/app/api/execute/safe_cpp_runner.py');
         const cppProcess = spawn('python', [safeRunnerPath], {
           env: { 
-            ...process.env,
-            PATH: process.env.PATH + ';C:\\msys64\\mingw64\\bin',
-            GPP_PATH: 'C:\\msys64\\mingw64\\bin',
-            USER_LANG: userLang  // Pass detected language to the runner
+            ...process.env, 
+            USER_LANG: userLang,
+            PYTHONIOENCODING: 'utf-8'
           },
         });
 
@@ -129,53 +132,19 @@ export async function POST(request: NextRequest) {
         const timeout = setTimeout(() => {
           error = 'Execution timed out.';
           cppProcess.kill('SIGKILL');
-        }, 8000);
+        }, 10000); // 10 seconds for C++ compilation and execution
 
-                await new Promise(async (resolve) => {
-          cppProcess.on('close', async (code) => {
+        await new Promise((resolve) => {
+          cppProcess.on('close', (code) => {
             clearTimeout(timeout);
             output = stdout;
             error = error || stderr;
             exitCode = code || 0;
-            console.log('C++ Debug:', { output, error, exitCode, stdout, stderr });
-            
-            // If local compilation failed, try online compiler
-            if (exitCode !== 0 || error.includes('not found') || error.includes('failed')) {
-              console.log('Local compilation failed, trying online compiler...');
-              // Use online C++ compiler as fallback
-              try {
-                const onlineResponse = await fetch('https://codex-api.vercel.app/api/execute', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                    code: code,
-                    language: 'cpp'
-                  })
-                });
-                
-                if (onlineResponse.ok) {
-                  const onlineResult = await onlineResponse.json();
-                  if (onlineResult.output) {
-                    output = onlineResult.output;
-                    error = '';
-                    exitCode = 0;
-                  } else if (onlineResult.error) {
-                    error = onlineResult.error;
-                    exitCode = 1;
-                  }
-                }
-              } catch (onlineErr) {
-                console.log('Online compiler also failed:', onlineErr);
-              }
-            }
-            
             resolve(null);
           });
         });
       } catch (err: any) {
-        error = err.message;
+        error = 'Server error: ' + err.message;
         exitCode = 1;
       }
     }

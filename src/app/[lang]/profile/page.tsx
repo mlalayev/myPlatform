@@ -1,306 +1,179 @@
-"use client"
+"use client";
 
 import React, { useState } from "react";
 import styles from "./ProfilePage.module.css";
 import {
-  FiAward,
-  FiBarChart2,
-  FiTarget,
-  FiCalendar,
-  FiUsers,
-  FiMessageSquare,
-  FiChevronLeft,
-  FiChevronRight,
   FiUser,
-  FiStar,
-  FiCheckCircle,
+  FiSettings,
+  FiAward,
   FiTrendingUp,
   FiBookOpen,
-  FiCode,
+  FiStar,
+  FiUsers,
+  FiActivity,
+  FiTarget,
+  FiBarChart2,
+  FiCalendar,
+  FiChevronRight,
+  FiChevronLeft,
+  FiShield,
+  FiBell,
+  FiHeart,
+  FiGift,
   FiZap,
 } from "react-icons/fi";
+import Link from "next/link";
 import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
+import HeroSection from "../components/heroSection/HeroSection";
+import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 
-// Profile data
-const profileData = {
-  user: {
-    name: "Əli Məmmədov",
-    email: "ali.mammadov@example.com",
-    avatar: "https://via.placeholder.com/80",
-    joinDate: "2024 Yanvar",
-    level: "Orta",
-    totalPoints: 2840,
-  },
-  badges: [
-    { name: "100% JavaScript", icon: "🏆", description: "JavaScript dərslərini tamamladı", earned: "2024 Fevral" },
-    { name: "Quiz Master", icon: "🎯", description: "10 testdən 10-u düzgün cavabladı", earned: "2024 Mart" },
-    { name: "Early Bird", icon: "🌅", description: "7 gün ardıcıl səhər girişi", earned: "2024 Yanvar" },
-    { name: "Code Warrior", icon: "⚔️", description: "50 məsələ həll etdi", earned: "2024 Aprel" },
-  ],
-  progress: [
-    { subject: "JavaScript", completed: 85, total: 100, color: "#f7df1e" },
-    { subject: "React", completed: 60, total: 80, color: "#61dafb" },
-    { subject: "Algorithms", completed: 45, total: 70, color: "#6c3fc5" },
-    { subject: "Data Structures", completed: 30, total: 50, color: "#1a7f6b" },
-  ],
-  achievements: [
-    { name: "30 gün giriş", icon: "🔥", description: "30 gün ardıcıl giriş", earned: "2024 Mart" },
-    { name: "10/10 Test", icon: "⭐", description: "Testdə mükəmməl nəticə", earned: "2024 Fevral" },
-    { name: "Speed Learner", icon: "⚡", description: "Həftədə 5 dərs tamamladı", earned: "2024 Yanvar" },
-  ],
-  activity: [
-    { type: "Dərs", title: "JavaScript - Arrow Functions", date: "Bugün", status: "Tamamlandı" },
-    { type: "Test", title: "React Hooks Quiz", date: "Dünən", status: "90%" },
-    { type: "Məsələ", title: "Array Methods", date: "2 gün əvvəl", status: "Həll edildi" },
-    { type: "Dərs", title: "Algorithms - Sorting", date: "3 gün əvvəl", status: "Davam edir" },
-  ],
-  mockInterviews: [
-    { company: "Google", role: "Frontend Developer", date: "2024 Mart", result: "Keçdi", score: "85%" },
-    { company: "Microsoft", role: "React Developer", date: "2024 Fevral", result: "Keçdi", score: "78%" },
-    { company: "Amazon", role: "JavaScript Developer", date: "2024 Yanvar", result: "Uğursuz", score: "65%" },
-  ],
-  mentorFeedback: [
-    { mentor: "Aysu Həsənova", feedback: "Kod yazma bacarığın çox yaxşıdır. Clean code prinsiplərinə daha çox diqqət et.", date: "2024 Mart" },
-    { mentor: "Elçin Əliyev", feedback: "Algoritm düşüncə tərzin inkişaf edir. Daha çox praktika et.", date: "2024 Fevral" },
-  ],
-  followers: [
-    { name: "Aysu Həsənova", avatar: "https://via.placeholder.com/40", status: "Online" },
-    { name: "Elçin Əliyev", avatar: "https://via.placeholder.com/40", status: "Offline" },
-    { name: "Leyla Məmmədova", avatar: "https://via.placeholder.com/40", status: "Online" },
-  ],
-  following: [
-    { name: "Tech Mentor", avatar: "https://via.placeholder.com/40", status: "Online" },
-    { name: "Code Master", avatar: "https://via.placeholder.com/40", status: "Offline" },
-  ],
+// Profile stats data
+const profileStats = {
+  totalPoints: 1250,
+  completedLessons: 45,
+  streakDays: 12,
+  achievements: 8,
 };
 
 const profileTabs = [
   {
-    key: "badges",
-    name: "🏆 Badges",
-    description: "Qazandığı nişanlar",
-    icon: <FiAward size={20} />,
+    key: "overview",
+    name: "Profile Overview",
+    icon: <FiUser size={24} />,
+    description: "View your profile information and basic stats.",
   },
   {
-    key: "progress",
-    name: "📊 Progress",
-    description: "Dərs və mövzular üzrə tamamlama",
-    icon: <FiBarChart2 size={20} />,
+    key: "settings",
+    name: "Account Settings",
+    icon: <FiSettings size={24} />,
+    description: "Manage your account details and preferences.",
   },
   {
     key: "achievements",
-    name: "🎯 Achievements",
-    description: "Xüsusi nailiyyətlər",
-    icon: <FiTarget size={20} />,
+    name: "Achievements",
+    icon: <FiAward size={24} />,
+    description: "View your earned badges and accomplishments.",
   },
   {
-    key: "activity",
-    name: "📅 Activity",
-    description: "Son dərslər və testlər",
-    icon: <FiCalendar size={20} />,
+    key: "progress",
+    name: "Learning Progress",
+    icon: <FiTrendingUp size={24} />,
+    description: "Track your learning journey and statistics.",
   },
   {
-    key: "interviews",
-    name: "🧠 Mock Interviews",
-    description: "Texniki görüşlər",
-    icon: <FiUsers size={20} />,
+    key: "lessons",
+    name: "My Lessons",
+    icon: <FiBookOpen size={24} />,
+    description: "Access your saved and completed lessons.",
   },
   {
-    key: "feedback",
-    name: "🧾 Mentor Feedback",
-    description: "Mentor rəyləri",
-    icon: <FiMessageSquare size={20} />,
+    key: "exercises",
+    name: "Exercise History",
+    icon: <FiActivity size={24} />,
+    description: "Review your coding exercise submissions.",
   },
   {
-    key: "followers",
-    name: "👥 Followers",
-    description: "İzləyənlər və izlədikləri",
-    icon: <FiUsers size={20} />,
+    key: "goals",
+    name: "Learning Goals",
+    icon: <FiTarget size={24} />,
+    description: "Set and track your learning objectives.",
+  },
+  {
+    key: "analytics",
+    name: "Analytics",
+    icon: <FiBarChart2 size={24} />,
+    description: "Detailed insights about your learning patterns.",
+  },
+  {
+    key: "calendar",
+    name: "Study Calendar",
+    icon: <FiCalendar size={24} />,
+    description: "Plan and view your study schedule.",
+  },
+  {
+    key: "security",
+    name: "Security",
+    icon: <FiShield size={24} />,
+    description: "Manage your account security settings.",
+  },
+  {
+    key: "notifications",
+    name: "Notifications",
+    icon: <FiBell size={24} />,
+    description: "Configure your notification preferences.",
+  },
+  {
+    key: "favorites",
+    name: "Favorites",
+    icon: <FiHeart size={24} />,
+    description: "Access your bookmarked content.",
   },
 ];
 
 export default function ProfilePage() {
-  const [selectedTab, setSelectedTab] = useState("badges");
+  const pathname = usePathname();
+  const currentLang = pathname.split("/")[1] || "en";
+  const { data: session } = useSession();
+  const [selectedTab, setSelectedTab] = useState(profileTabs[0].key);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  // Profile-specific hero boxes
+  const profileHeroBoxes = [
+    {
+      key: "totalPoints",
+      icon: FiStar,
+      number: profileStats.totalPoints,
+      titleKey: "profile.hero.stats.totalPoints",
+    },
+    {
+      key: "completedLessons",
+      icon: FiBookOpen,
+      number: profileStats.completedLessons,
+      titleKey: "profile.hero.stats.completedLessons",
+    },
+    {
+      key: "streakDays",
+      icon: FiZap,
+      number: profileStats.streakDays,
+      titleKey: "profile.hero.stats.streakDays",
+    },
+    {
+      key: "achievements",
+      icon: FiAward,
+      number: profileStats.achievements,
+      titleKey: "profile.hero.stats.achievements",
+    },
+  ];
+
+  // Render content for each tab (placeholder for now)
   const renderTabContent = () => {
     switch (selectedTab) {
-      case "badges":
-        return (
-          <div className={styles.tabContent}>
-            <h2 className={styles.tabTitle}>Qazandığınız Nişanlar</h2>
-            <div className={styles.badgesGrid}>
-              {profileData.badges.map((badge, index) => (
-                <div key={index} className={styles.badgeCard}>
-                  <div className={styles.badgeIcon}>{badge.icon}</div>
-                  <div className={styles.badgeInfo}>
-                    <h3 className={styles.badgeName}>{badge.name}</h3>
-                    <p className={styles.badgeDescription}>{badge.description}</p>
-                    <span className={styles.badgeDate}>Qazanıldı: {badge.earned}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
-      case "progress":
-        return (
-          <div className={styles.tabContent}>
-            <h2 className={styles.tabTitle}>Təhsil Proqresi</h2>
-            <div className={styles.progressGrid}>
-              {profileData.progress.map((item, index) => (
-                <div key={index} className={styles.progressCard}>
-                  <div className={styles.progressHeader}>
-                    <h3 className={styles.progressSubject}>{item.subject}</h3>
-                    <span className={styles.progressPercentage}>
-                      {Math.round((item.completed / item.total) * 100)}%
-                    </span>
-                  </div>
-                  <div className={styles.progressBar}>
-                    <div 
-                      className={styles.progressFill} 
-                      style={{ 
-                        width: `${(item.completed / item.total) * 100}%`,
-                        backgroundColor: item.color 
-                      }}
-                    />
-                  </div>
-                  <div className={styles.progressStats}>
-                    <span>{item.completed}/{item.total} dərs</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
+      case "overview":
+        return <div className={styles.tabContent}>Profile Overview content</div>;
+      case "settings":
+        return <div className={styles.tabContent}>Settings content (link to settings page or embed form)</div>;
       case "achievements":
-        return (
-          <div className={styles.tabContent}>
-            <h2 className={styles.tabTitle}>Nailiyyətlər</h2>
-            <div className={styles.achievementsGrid}>
-              {profileData.achievements.map((achievement, index) => (
-                <div key={index} className={styles.achievementCard}>
-                  <div className={styles.achievementIcon}>{achievement.icon}</div>
-                  <div className={styles.achievementInfo}>
-                    <h3 className={styles.achievementName}>{achievement.name}</h3>
-                    <p className={styles.achievementDescription}>{achievement.description}</p>
-                    <span className={styles.achievementDate}>Qazanıldı: {achievement.earned}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
-      case "activity":
-        return (
-          <div className={styles.tabContent}>
-            <h2 className={styles.tabTitle}>Son Fəaliyyətlər</h2>
-            <div className={styles.activityList}>
-              {profileData.activity.map((activity, index) => (
-                <div key={index} className={styles.activityItem}>
-                  <div className={styles.activityIcon}>
-                    {activity.type === "Dərs" && <FiBookOpen />}
-                    {activity.type === "Test" && <FiCheckCircle />}
-                    {activity.type === "Məsələ" && <FiCode />}
-                  </div>
-                  <div className={styles.activityInfo}>
-                    <h3 className={styles.activityTitle}>{activity.title}</h3>
-                    <span className={styles.activityDate}>{activity.date}</span>
-                  </div>
-                  <div className={styles.activityStatus}>{activity.status}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
-      case "interviews":
-        return (
-          <div className={styles.tabContent}>
-            <h2 className={styles.tabTitle}>Mock Görüşlər</h2>
-            <div className={styles.interviewsList}>
-              {profileData.mockInterviews.map((interview, index) => (
-                <div key={index} className={styles.interviewCard}>
-                  <div className={styles.interviewHeader}>
-                    <h3 className={styles.interviewCompany}>{interview.company}</h3>
-                    <span className={`${styles.interviewResult} ${styles[interview.result.toLowerCase()]}`}>
-                      {interview.result}
-                    </span>
-                  </div>
-                  <p className={styles.interviewRole}>{interview.role}</p>
-                  <div className={styles.interviewStats}>
-                    <span className={styles.interviewDate}>{interview.date}</span>
-                    <span className={styles.interviewScore}>Nəticə: {interview.score}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
-      case "feedback":
-        return (
-          <div className={styles.tabContent}>
-            <h2 className={styles.tabTitle}>Mentor Rəyləri</h2>
-            <div className={styles.feedbackList}>
-              {profileData.mentorFeedback.map((feedback, index) => (
-                <div key={index} className={styles.feedbackCard}>
-                  <div className={styles.feedbackHeader}>
-                    <h3 className={styles.feedbackMentor}>{feedback.mentor}</h3>
-                    <span className={styles.feedbackDate}>{feedback.date}</span>
-                  </div>
-                  <p className={styles.feedbackText}>{feedback.feedback}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
-      case "followers":
-        return (
-          <div className={styles.tabContent}>
-            <h2 className={styles.tabTitle}>Sosial Şəbəkə</h2>
-            <div className={styles.socialGrid}>
-              <div className={styles.socialSection}>
-                <h3 className={styles.socialTitle}>İzləyənlər ({profileData.followers.length})</h3>
-                <div className={styles.followersList}>
-                  {profileData.followers.map((follower, index) => (
-                    <div key={index} className={styles.followerItem}>
-                      <img src={follower.avatar} alt={follower.name} className={styles.followerAvatar} />
-                      <div className={styles.followerInfo}>
-                        <span className={styles.followerName}>{follower.name}</span>
-                        <span className={`${styles.followerStatus} ${styles[follower.status.toLowerCase()]}`}>
-                          {follower.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className={styles.socialSection}>
-                <h3 className={styles.socialTitle}>İzlədikləri ({profileData.following.length})</h3>
-                <div className={styles.followingList}>
-                  {profileData.following.map((following, index) => (
-                    <div key={index} className={styles.followingItem}>
-                      <img src={following.avatar} alt={following.name} className={styles.followingAvatar} />
-                      <div className={styles.followingInfo}>
-                        <span className={styles.followingName}>{following.name}</span>
-                        <span className={`${styles.followingStatus} ${styles[following.status.toLowerCase()]}`}>
-                          {following.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
+        return <div className={styles.tabContent}>Achievements content</div>;
+      case "progress":
+        return <div className={styles.tabContent}>Progress content</div>;
+      case "lessons":
+        return <div className={styles.tabContent}>My Lessons content</div>;
+      case "exercises":
+        return <div className={styles.tabContent}>Exercise History content</div>;
+      case "goals":
+        return <div className={styles.tabContent}>Learning Goals content</div>;
+      case "analytics":
+        return <div className={styles.tabContent}>Analytics content</div>;
+      case "calendar":
+        return <div className={styles.tabContent}>Study Calendar content</div>;
+      case "security":
+        return <div className={styles.tabContent}>Security content</div>;
+      case "notifications":
+        return <div className={styles.tabContent}>Notifications content</div>;
+      case "favorites":
+        return <div className={styles.tabContent}>Favorites content</div>;
       default:
         return null;
     }
@@ -310,31 +183,27 @@ export default function ProfilePage() {
     <>
       <Header />
       <div className={styles.profileLayout}>
-        <div className={`${styles.sidebar} ${sidebarCollapsed ? styles.sidebarCollapsed : ""}`}>
+        <div className={`${styles.sidebar} ${sidebarCollapsed ? styles.sidebarCollapsed : ""}`}> 
           <div className={styles.sidebarHeader}>
-            <div className={styles.userInfo}>
-              <img src={profileData.user.avatar} alt={profileData.user.name} className={styles.userAvatar} />
-              {!sidebarCollapsed && (
-                <div className={styles.userDetails}>
-                  <h3 className={styles.userName}>{profileData.user.name}</h3>
-                  <span className={styles.userLevel}>{profileData.user.level}</span>
-                </div>
-              )}
-            </div>
+            {!sidebarCollapsed && (
+              <span className={styles.sidebarTitle}>Profile</span>
+            )}
             <button
               className={styles.collapseBtn}
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              onClick={() => setSidebarCollapsed((v) => !v)}
+              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              style={sidebarCollapsed ? { margin: "0 auto" } : {}}
             >
               {sidebarCollapsed ? <FiChevronRight /> : <FiChevronLeft />}
             </button>
           </div>
-          
           <div className={styles.tabList}>
             {profileTabs.map((tab) => (
               <button
                 key={tab.key}
                 className={`${styles.tabBtn} ${selectedTab === tab.key ? styles.tabBtnSelected : ""}`}
                 onClick={() => setSelectedTab(tab.key)}
+                title={tab.name}
               >
                 <span className={styles.tabIcon}>{tab.icon}</span>
                 {!sidebarCollapsed && (
@@ -347,28 +216,7 @@ export default function ProfilePage() {
             ))}
           </div>
         </div>
-
-        <div className={styles.content}>
-          <div className={styles.contentHeader}>
-            <h1 className={styles.contentTitle}>
-              {profileTabs.find(tab => tab.key === selectedTab)?.name}
-            </h1>
-            <div className={styles.userStats}>
-              <div className={styles.statItem}>
-                <FiStar />
-                <span>{profileData.user.totalPoints} xal</span>
-              </div>
-              <div className={styles.statItem}>
-                <FiUser />
-                <span>{profileData.user.joinDate}</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className={styles.contentBody}>
-            {renderTabContent()}
-          </div>
-        </div>
+        <div className={styles.content}>{renderTabContent()}</div>
       </div>
       <Footer />
     </>
