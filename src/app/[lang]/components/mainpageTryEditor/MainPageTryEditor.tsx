@@ -20,9 +20,9 @@ const MainPageTryEditor: React.FC = () => {
     { label: "TypeScript", value: "typescript" },
     { label: "Python", value: "python" },
     { label: "Python3", value: "python3" },
+    { label: "C++", value: "cpp" },
     // Languages that require external execution (commented out)
     // { label: "PHP", value: "php" },
-    // { label: "C++", value: "cpp" },
     // { label: "Java", value: "java" },
     // { label: "C", value: "c" },
     // { label: "C#", value: "csharp" },
