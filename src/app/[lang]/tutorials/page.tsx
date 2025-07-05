@@ -158,18 +158,18 @@ export default function TutorialsPage() {
       <div className={styles.tutorialsWrapper}>
         <div className={styles.mainCategoriesGrid}>
           {mainCategories.map((cat) => (
-            <Link
+              <Link
               href={`/${currentLang}/tutorials/${cat.key}`}
               className={styles.mainCategoryCard}
               key={cat.key}
-            >
+              >
               <div className={styles.mainCategoryIcon}>{cat.icon}</div>
               <div className={styles.mainCategoryName}>{cat.name}</div>
               <div className={styles.mainCategoryDesc}>{cat.description}</div>
-              <span className={styles.languageArrow}>
-                <FiChevronRight size={22} />
-              </span>
-            </Link>
+                <span className={styles.languageArrow}>
+                  <FiChevronRight size={22} />
+                </span>
+              </Link>
           ))}
         </div>
       </div>

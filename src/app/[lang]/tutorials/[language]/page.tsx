@@ -68,7 +68,7 @@ export default function TutorialLanguagePage() {
         
         <div className={styles.progressSection}>
           <div className={styles.progressLabel}>
-            <span className={styles.progressText}>Tərəqqi</span>
+            <span className={styles.progressText}>Progress</span>
             <span className={styles.progressPercentage}>{item.progress}%</span>
           </div>
           <div className={styles.progressBar}>
@@ -205,7 +205,7 @@ export default function TutorialLanguagePage() {
         </h2>
         <div className={styles.tutorialsGrid}>
           {loading ? (
-            <CodeLoader />
+      <CodeLoader />
           ) : topics.length === 0 ? (
             <div style={{ color: "#aaa", textAlign: "center", marginTop: 40, gridColumn: "1 / -1" }}>Mövzu yoxdur.</div>
           ) : (
@@ -233,7 +233,7 @@ export default function TutorialLanguagePage() {
         <button className={styles.backButton} onClick={handleBack}>
           <FiIcons.FiChevronLeft /> Geri
         </button>
-      </div>
+    </div>
       <Footer />
     </>
   );
