@@ -19,8 +19,8 @@ const MainPageTryEditor: React.FC = () => {
     { label: "JavaScript", value: "javascript" },
     { label: "TypeScript", value: "typescript" },
     { label: "Python", value: "python" },
-    { label: "Python3", value: "python3" },
     { label: "C++", value: "cpp" },
+    // { label: "Python3", value: "python3" },
     // Languages that require external execution (commented out)
     // { label: "PHP", value: "php" },
     // { label: "Java", value: "java" },
@@ -59,8 +59,15 @@ const MainPageTryEditor: React.FC = () => {
 
   return (
     <section className={styles.introSection}>
-      <h2 className={styles.introTitle}>{t("main.introTitle")}</h2>
-      <div style={{ marginBottom: 16 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          margin:"0 0 10px 0",
+          justifyContent: "space-between",
+        }}
+      >
+        <h2 className={styles.introTitle}>{t("main.introTitle")}</h2>
         <div className={styles.languageDropdownWrapper} ref={dropdownRef}>
           <button
             className={styles.languageDropdownButton}
@@ -69,9 +76,18 @@ const MainPageTryEditor: React.FC = () => {
             aria-haspopup="listbox"
             aria-expanded={dropdownOpen}
           >
-            {editorLanguages.find((l) => l.value === editorLanguage)?.label ||
-              "Select Language"}
-            <FiChevronDown style={{ marginLeft: 8, fontSize: 18 }} />
+            <span>
+              {editorLanguages.find((l) => l.value === editorLanguage)?.label ||
+                "Select Language"}
+            </span>
+            <FiChevronDown
+              style={{
+                marginLeft: 8,
+                fontSize: 16,
+                transition: "transform 0.2s ease",
+                transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+              }}
+            />
           </button>
           {dropdownOpen && (
             <div className={styles.languageDropdownMenu} role="listbox">
@@ -132,4 +148,4 @@ const MainPageTryEditor: React.FC = () => {
   );
 };
 
-export default MainPageTryEditor; 
+export default MainPageTryEditor;
