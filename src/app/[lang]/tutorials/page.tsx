@@ -96,6 +96,15 @@ const mainCategories = [
   },
 ];
 
+// Tutorial stats data
+const tutorialStats = {
+  total: 156,
+  algorithms: 42,
+  dataStructures: 38,
+  frameworks: 28,
+  languages: 48,
+};
+
 export default function TutorialsPage() {
   const pathname = usePathname();
   const currentLang = pathname.split("/")[1] || "en";
@@ -103,22 +112,64 @@ export default function TutorialsPage() {
   return (
     <>
       <Header />
+      
+      {/* Hero Section */}
+      <section className={styles.heroSection}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.heroTitle}>Tutoriallar</h1>
+          <p className={styles.heroSubtitle}>
+            Proqramlaşdırma dillərini, frameworkləri və alqoritmləri interaktiv dərslərlə öyrənin
+          </p>
+          
+          {/* Stats Cards */}
+          <div className={styles.statsContainer}>
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}>📚</div>
+              <div className={styles.statInfo}>
+                <div className={styles.statNumber}>{tutorialStats.total}</div>
+                <div className={styles.statLabel}>Ümumi Tutorial</div>
+              </div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}>⚙️</div>
+              <div className={styles.statInfo}>
+                <div className={styles.statNumber}>{tutorialStats.algorithms}</div>
+                <div className={styles.statLabel}>Alqoritmlər</div>
+              </div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}>🏗️</div>
+              <div className={styles.statInfo}>
+                <div className={styles.statNumber}>{tutorialStats.dataStructures}</div>
+                <div className={styles.statLabel}>Məlumat Strukturları</div>
+              </div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}>⚛️</div>
+              <div className={styles.statInfo}>
+                <div className={styles.statNumber}>{tutorialStats.frameworks}</div>
+                <div className={styles.statLabel}>Frameworklər</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className={styles.tutorialsWrapper}>
-        <h1 className={styles.tutorialsTitle}>Tutoriallar</h1>
         <div className={styles.mainCategoriesGrid}>
           {mainCategories.map((cat) => (
-            <Link
+              <Link
               href={`/${currentLang}/tutorials/${cat.key}`}
               className={styles.mainCategoryCard}
               key={cat.key}
-            >
+              >
               <div className={styles.mainCategoryIcon}>{cat.icon}</div>
               <div className={styles.mainCategoryName}>{cat.name}</div>
               <div className={styles.mainCategoryDesc}>{cat.description}</div>
-              <span className={styles.languageArrow}>
-                <FiChevronRight size={22} />
-              </span>
-            </Link>
+                <span className={styles.languageArrow}>
+                  <FiChevronRight size={22} />
+                </span>
+              </Link>
           ))}
         </div>
       </div>

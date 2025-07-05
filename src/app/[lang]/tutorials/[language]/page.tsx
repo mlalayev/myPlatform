@@ -52,11 +52,10 @@ export default function TutorialLanguagePage() {
   };
 
   // Card component for tutorials
-  const TutorialCard = ({ item, isLink = false, href = "" }) => {
+  const TutorialCard = ({ item, isLink = false, href = "" }: { item: any, isLink?: boolean, href?: string }) => {
     const cardContent = (
       <div className={item.available ? styles.tutorialCard : styles.tutorialCard + ' ' + styles.tutorialCardUnavailable}>
         {!item.available && <div className={styles.comingSoonBadge}>Tezliklə</div>}
-        
         <div className={styles.tutorialCardHeader}>
           <div className={styles.tutorialCardIcon}>
             {item.icon}
@@ -69,7 +68,7 @@ export default function TutorialLanguagePage() {
         
         <div className={styles.progressSection}>
           <div className={styles.progressLabel}>
-            <span className={styles.progressText}>Tərəqqi</span>
+            <span className={styles.progressText}>Progress</span>
             <span className={styles.progressPercentage}>{item.progress}%</span>
           </div>
           <div className={styles.progressBar}>
@@ -112,15 +111,59 @@ export default function TutorialLanguagePage() {
 
   // List view for programming languages
   if (language === "languages") {
+    const [languageTopics, setLanguageTopics] = React.useState<{[key: string]: any[]}>({});
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+      if (!langKey) return;
+      
+      // Fetch topics for available languages
+      const availableLanguages = languages.filter(lang => lang.available);
+      const fetchPromises = availableLanguages.map(lang => 
+        fetch(`/api/tutorials/${lang.name.toLowerCase()}/topics`)
+          .then(res => res.json())
+          .then(data => ({ lang: lang.name.toLowerCase(), topics: data[langKey] || [] }))
+          .catch(() => ({ lang: lang.name.toLowerCase(), topics: [] }))
+      );
+
+      Promise.all(fetchPromises)
+        .then(results => {
+          const topicsMap: {[key: string]: any[]} = {};
+          results.forEach(({ lang, topics }) => {
+            topicsMap[lang] = topics;
+          });
+          setLanguageTopics(topicsMap);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    }, [langKey]);
+
+    const getFirstTopicHref = (langName: string) => {
+      const topics = languageTopics[langName.toLowerCase()];
+      if (topics && topics.length > 0) {
+        return `/${langKey}/tutorials/languages/${langName.toLowerCase()}/${topics[0].id}`;
+      }
+      return `/${langKey}/tutorials/languages/${langName.toLowerCase()}`;
+    };
+
     return (
       <>
         <Header />
         <div className={styles.categoryListWrapper}>
           <h2 className={styles.tutorialsTitle}>Proqramlaşdırma Dilləri</h2>
           <div className={styles.tutorialsGrid}>
-            {languages.map((lang) => (
-              <TutorialCard key={lang.name} item={lang} />
-            ))}
+            {loading ? (
+              <CodeLoader />
+            ) : (
+              languages.map((lang) => (
+                <TutorialCard 
+                  key={lang.name} 
+                  item={lang} 
+                  isLink={lang.available}
+                  href={lang.available ? getFirstTopicHref(lang.name) : ""}
+                />
+              ))
+            )}
           </div>
           <button className={styles.backButton} onClick={handleBack}>
             <FiIcons.FiChevronLeft /> Geri
@@ -162,7 +205,7 @@ export default function TutorialLanguagePage() {
         </h2>
         <div className={styles.tutorialsGrid}>
           {loading ? (
-            <CodeLoader />
+      <CodeLoader />
           ) : topics.length === 0 ? (
             <div style={{ color: "#aaa", textAlign: "center", marginTop: 40, gridColumn: "1 / -1" }}>Mövzu yoxdur.</div>
           ) : (
@@ -190,7 +233,7 @@ export default function TutorialLanguagePage() {
         <button className={styles.backButton} onClick={handleBack}>
           <FiIcons.FiChevronLeft /> Geri
         </button>
-      </div>
+    </div>
       <Footer />
     </>
   );
