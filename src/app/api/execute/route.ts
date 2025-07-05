@@ -34,6 +34,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Only Python and C++ are supported in this runner.' }, { status: 400 });
     }
 
+    // Auto-detect user language from referer URL
+    const referer = request.headers.get('referer') || '';
+    let userLang = 'en'; // default to English
+    
+    // Extract language from URL path like /az/, /ru/, /en/
+    const langMatch = referer.match(/\/(az|ru|en)\//);
+    if (langMatch) {
+      userLang = langMatch[1];
+    }
+
     let output = '';
     let error = '';
     let exitCode = 0;
@@ -96,7 +106,8 @@ export async function POST(request: NextRequest) {
           env: { 
             ...process.env,
             PATH: process.env.PATH + ';C:\\msys64\\mingw64\\bin',
-            GPP_PATH: 'C:\\msys64\\mingw64\\bin'
+            GPP_PATH: 'C:\\msys64\\mingw64\\bin',
+            USER_LANG: userLang  // Pass detected language to the runner
           },
         });
 

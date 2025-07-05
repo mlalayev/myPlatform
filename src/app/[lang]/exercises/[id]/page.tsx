@@ -85,7 +85,7 @@ export default function ExerciseDetailPage({
   const [latestSubmission, setLatestSubmission] = useState<any>(null);
   const [statusIcon, setStatusIcon] = useState<React.ReactNode>(<FiMinusCircle color="gray" title="Not submitted" />);
   const codeInitialized = useRef(false);
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const getInitialLanguage = () => {
     if (typeof window !== 'undefined') {
       const globalLang = localStorage.getItem('quiz_global_lang');

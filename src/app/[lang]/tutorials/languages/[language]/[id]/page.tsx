@@ -46,7 +46,12 @@ const languageShortMap: Record<string, string> = {
   matlab: "ML",
 };
 
-function renderContentBlock(block: ContentBlock, i: number, editorStates: any, setEditorStates: any) {
+function renderContentBlock(
+  block: ContentBlock,
+  i: number,
+  editorStates: any,
+  setEditorStates: any
+) {
   switch (block.type) {
     case "heading":
       return (
@@ -84,13 +89,20 @@ function renderContentBlock(block: ContentBlock, i: number, editorStates: any, s
       );
     case "editor": {
       const editorKey = `editor-${i}`;
-      const codeValue = editorStates[editorKey] !== undefined ? editorStates[editorKey] : (block.initialCode || '');
+      const codeValue =
+        editorStates[editorKey] !== undefined
+          ? editorStates[editorKey]
+          : block.initialCode || "";
       const handleEditorChange = (val: string) => {
         setEditorStates((prev: any) => ({ ...prev, [editorKey]: val }));
       };
       return (
         <div key={i} className={styles.editorContainer}>
-          <JsTryEditor value={codeValue} onChange={handleEditorChange} showRunButton={true} />
+          <JsTryEditor
+            value={codeValue}
+            onChange={handleEditorChange}
+            showRunButton={true}
+          />
         </div>
       );
     }
@@ -121,7 +133,12 @@ export default function TutorialTopicPage() {
     fetch(`/api/tutorials/languages/${language}/topics`)
       .then((res) => res.json())
       .then((data) => {
-        const langKey = typeof lang === 'string' ? lang : (Array.isArray(lang) ? lang[0] : 'az');
+        const langKey =
+          typeof lang === "string"
+            ? lang
+            : Array.isArray(lang)
+            ? lang[0]
+            : "az";
         const topicsArr = data[langKey] || [];
         setTopics(topicsArr);
         // Check if the current topicId exists in the topics list
@@ -129,7 +146,9 @@ export default function TutorialTopicPage() {
         if (!topic) {
           // If topic doesn't exist, redirect to first topic
           if (topicsArr.length > 0) {
-            router.replace(`/${langKey}/tutorials/languages/${language}/${topicsArr[0].id}`);
+            router.replace(
+              `/${langKey}/tutorials/languages/${language}/${topicsArr[0].id}`
+            );
           }
           return;
         }
@@ -145,11 +164,16 @@ export default function TutorialTopicPage() {
     fetch(`/api/tutorials/languages/${language}/${topicId}`)
       .then((res) => res.json())
       .then((data) => {
-        const langKey = typeof lang === 'string' ? lang : (Array.isArray(lang) ? lang[0] : 'az');
+        const langKey =
+          typeof lang === "string"
+            ? lang
+            : Array.isArray(lang)
+            ? lang[0]
+            : "az";
         setTopicContent(data[langKey]);
       })
       .catch((error) => {
-        console.error('Error loading topic content:', error);
+        console.error("Error loading topic content:", error);
       });
   }, [language, topicId, lang, router]);
 
@@ -177,9 +201,7 @@ export default function TutorialTopicPage() {
           <div className={styles.topicContentNew}>
             <div className={styles.loadingContainer}>
               <CodeLoader />
-              <div className={styles.loadingText}>
-                Yüklənir...
-              </div>
+              <div className={styles.loadingText}>Yüklənir...</div>
             </div>
           </div>
         </div>
@@ -192,7 +214,9 @@ export default function TutorialTopicPage() {
     <>
       <Header />
       <div className={styles.tutorialLayoutNew}>
-        <aside className={collapsed ? styles.sidebarNewCollapsed : styles.sidebarNew}>
+        <aside
+          className={collapsed ? styles.sidebarNewCollapsed : styles.sidebarNew}
+        >
           <div className={styles.sidebarHeaderNew}>
             <span className={styles.sidebarTitleNew}>
               {collapsed
@@ -240,23 +264,33 @@ export default function TutorialTopicPage() {
         </aside>
         <main className={styles.topicContentNew}>
           <div className={styles.contentHeader}>
-            <button className={styles.backButtonNew} onClick={handleBack}>
-              <FiIcons.FiChevronLeft /> Geri
-            </button>
             <h1 className={styles.topicTitleNew}>
               {topicContent?.title || selectedTopic?.title || "Mövzu"}
             </h1>
+            <button className={styles.backButtonNew} onClick={handleBack}>
+              <FiIcons.FiChevronLeft /> Geri
+            </button>
           </div>
           <div className={styles.contentBody}>
             {topics.length === 0 ? (
-              <div className={styles.topicEmptyNew}>Bu dil üçün mövzu yoxdur.</div>
+              <div className={styles.topicEmptyNew}>
+                Bu dil üçün mövzu yoxdur.
+              </div>
             ) : topicContent ? (
               <>
-                <p className={styles.topicDescNew}>{topicContent.description}</p>
+                <p className={styles.topicDescNew}>
+                  {topicContent.description}
+                </p>
                 <div className={styles.contentBlocks}>
-                  {topicContent.content && topicContent.content.map((block: any, i: number) =>
-                    renderContentBlock(block, i, editorStates, setEditorStates)
-                  )}
+                  {topicContent.content &&
+                    topicContent.content.map((block: any, i: number) =>
+                      renderContentBlock(
+                        block,
+                        i,
+                        editorStates,
+                        setEditorStates
+                      )
+                    )}
                 </div>
               </>
             ) : (
@@ -268,4 +302,4 @@ export default function TutorialTopicPage() {
       <Footer />
     </>
   );
-} 
+}
