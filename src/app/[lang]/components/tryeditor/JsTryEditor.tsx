@@ -163,7 +163,7 @@ export default function JsTryEditor({
   showCopyButton,
   language = "typescript",
 }: JsTryEditorProps) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [internalCode, setInternalCode] = useState(defaultCode);
   const code = value !== undefined ? value : internalCode;
   const [output, setOutput] = useState("");

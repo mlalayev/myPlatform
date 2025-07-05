@@ -110,19 +110,20 @@ const Header: React.FC = () => {
             onClick={() => setDropdownOpen((open) => !open)}
             aria-label="Select language"
           >
-            <span className={HeaderStyle.languageDropdownLabel} style={{fontWeight:600, fontSize:'1.05em'}}>
-              {languages.find((l) => l.code === currentLang)?.label || "LANG"}
+            <span className={HeaderStyle.languageDropdownLabel}>
+              {languages.find((l) => l.code === currentLang)?.label || "EN"}
             </span>
             <svg
-              width="18"
-              height="18"
-              viewBox="0 0 20 20"
+              className={`${HeaderStyle.languageDropdownIcon} ${dropdownOpen ? HeaderStyle.languageDropdownIconRotated : ''}`}
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
               fill="none"
-              style={{ marginLeft: 6 }}
+              xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M6 8l4 4 4-4"
-                stroke="#6c3fc5"
+                d="M6 9l6 6 6-6"
+                stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -132,7 +133,7 @@ const Header: React.FC = () => {
           {dropdownOpen && (
             <div className={HeaderStyle.languageDropdownMenu}>
               {languages.map((lang) => (
-                <div
+                <button
                   key={lang.code}
                   className={
                     currentLang === lang.code
@@ -140,13 +141,10 @@ const Header: React.FC = () => {
                       : HeaderStyle.languageDropdownItem
                   }
                   onClick={() => handleLangChange(lang.code)}
-                  tabIndex={0}
-                  role="button"
-                  aria-label={lang.label}
-                  style={{fontWeight:600,fontSize:'1.05em'}}
+                  aria-label={`Switch to ${lang.label}`}
                 >
-                  <span>{lang.label}</span>
-                </div>
+                  {lang.label}
+                </button>
               ))}
             </div>
           )}
