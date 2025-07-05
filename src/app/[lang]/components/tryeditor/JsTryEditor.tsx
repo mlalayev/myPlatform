@@ -38,14 +38,9 @@ print(salam())`,
 
 print(salam())`,
   cpp: `#include <iostream>
-#include <string>
-
-std::string salam() {
-    return "Salam, Dünya!";
-}
 
 int main() {
-    std::cout << salam() << std::endl;
+    std::cout << "Salam, Dünya!" << std::endl;
     return 0;
 }`,
   java: `public class Main {
@@ -101,7 +96,7 @@ fun main() {
   dart: `String salam() {
   return 'Salam, Dünya!';
 }
-
+  
 void main() {
   print(salam());
 }`,
@@ -202,7 +197,7 @@ export default function JsTryEditor({
       const lang = (language || '').toLowerCase();
       if (lang === "javascript" || lang === "typescript" || lang === "js") {
         try {
-          let logs: string[] = [];
+    let logs: string[] = [];
           let logCount = 0;
           const maxLogs = 5;
           let stoppedForLogs = false;
@@ -222,7 +217,7 @@ export default function JsTryEditor({
                 stoppedForLogs = true;
                 throw new Error(t('tryeditor.tooManyLogs'));
               }
-              logs.push(args.map(String).join(" "));
+      logs.push(args.map(String).join(" "));
             };
             const consoleObj = interpreter.nativeToPseudo({ log: wrapper });
             interpreter.setProperty(globalObject, 'console', consoleObj);
@@ -309,6 +304,30 @@ export default function JsTryEditor({
         }
         return;
       }
+      if (lang === "cpp") {
+        try {
+          const response = await fetch('/api/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, language: lang }),
+          });
+          const result = await response.json();
+          if (result.error) {
+            setError(result.error);
+            setOutput(result.output || "");
+          } else {
+            setOutput(result.output || "");
+            setError(result.error || "");
+          }
+          setShowOutput(true);
+        } catch (err: any) {
+          setError("Server error: " + err.message);
+          setShowOutput(true);
+        } finally {
+          setIsLoading(false);
+        }
+        return;
+      }
       setError(t('tryeditor.unsupported'));
       setShowOutput(true);
       setIsLoading(false);
@@ -324,8 +343,8 @@ export default function JsTryEditor({
     return () => {
       if (workerRef.current) {
         workerRef.current.terminate();
-      }
-    };
+    }
+  };
   }, []);
 
   return (
