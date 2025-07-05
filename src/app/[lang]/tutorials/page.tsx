@@ -20,6 +20,10 @@ import {
   FiPlay,
   FiHash,
   FiChevronRight,
+  FiBook,
+  FiCpu as FiCpuIcon,
+  FiBox,
+  FiPackage,
 } from "react-icons/fi";
 import {
   SiJavascript,
@@ -50,6 +54,7 @@ import {
 import Link from "next/link";
 import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
+import HeroSection from "../components/heroSection/HeroSection";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 
@@ -98,62 +103,53 @@ const mainCategories = [
 
 // Tutorial stats data
 const tutorialStats = {
-  total: 156,
-  algorithms: 42,
-  dataStructures: 38,
-  frameworks: 28,
-  languages: 48,
+  languages: 5,
+  algorithms: 23,
+  dataStructures: 32,
+  frameworks: 8,
 };
 
 export default function TutorialsPage() {
   const pathname = usePathname();
   const currentLang = pathname.split("/")[1] || "en";
 
+  // Tutorial-specific hero boxes
+  const tutorialHeroBoxes = [
+    {
+      key: "languages",
+      icon: FiBook,
+      number: tutorialStats.languages,
+      titleKey: "tutorials.hero.stats.languages",
+    },
+    {
+      key: "algorithms",
+      icon: FiCpuIcon,
+      number: tutorialStats.algorithms,
+      titleKey: "tutorials.hero.stats.algorithms",
+    },
+    {
+      key: "dataStructures",
+      icon: FiBox,
+      number: tutorialStats.dataStructures,
+      titleKey: "tutorials.hero.stats.dataStructures",
+    },
+    {
+      key: "frameworks",
+      icon: FiPackage,
+      number: tutorialStats.frameworks,
+      titleKey: "tutorials.hero.stats.frameworks",
+    },
+  ];
+
   return (
     <>
       <Header />
       
-      {/* Hero Section */}
-      <section className={styles.heroSection}>
-        <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>Tutoriallar</h1>
-          <p className={styles.heroSubtitle}>
-            Proqramlaşdırma dillərini, frameworkləri və alqoritmləri interaktiv dərslərlə öyrənin
-          </p>
-          
-          {/* Stats Cards */}
-          <div className={styles.statsContainer}>
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}>📚</div>
-              <div className={styles.statInfo}>
-                <div className={styles.statNumber}>{tutorialStats.total}</div>
-                <div className={styles.statLabel}>Ümumi Tutorial</div>
-              </div>
-            </div>
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}>⚙️</div>
-              <div className={styles.statInfo}>
-                <div className={styles.statNumber}>{tutorialStats.algorithms}</div>
-                <div className={styles.statLabel}>Alqoritmlər</div>
-              </div>
-            </div>
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}>🏗️</div>
-              <div className={styles.statInfo}>
-                <div className={styles.statNumber}>{tutorialStats.dataStructures}</div>
-                <div className={styles.statLabel}>Məlumat Strukturları</div>
-              </div>
-            </div>
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}>⚛️</div>
-              <div className={styles.statInfo}>
-                <div className={styles.statNumber}>{tutorialStats.frameworks}</div>
-                <div className={styles.statLabel}>Frameworklər</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection 
+        titleKey="tutorials.hero.title"
+        subtitleKey="tutorials.hero.subtitle"
+        boxes={tutorialHeroBoxes}
+      />
 
       <div className={styles.tutorialsWrapper}>
         <div className={styles.mainCategoriesGrid}>
