@@ -4,6 +4,7 @@ import sys
 import os
 import tempfile
 from pathlib import Path
+import re
 
 def windows_to_msys_path(win_path):
     """Convert Windows path to MSYS2 Unix-style path."""
@@ -13,8 +14,36 @@ def windows_to_msys_path(win_path):
         path = f'/{drive}{path[2:]}'
     return path
 
+def inject_operation_limiter(code):
+    """Inject code to limit std::cout operations to 5."""
+    lines = code.split('\n')
+    modified_lines = []
+    operation_counter_code = """
+    #include <iostream>
+    static int __operation_counter = 0;
+    #define MAX_OPERATIONS 5
+    """
+    
+    for i, line in enumerate(lines):
+        # Detect cout statements
+        if re.search(r'\bstd::cout\b', line):
+            modified_lines.append(f"    if (++__operation_counter > MAX_OPERATIONS) {{ std::cerr << \"Error: Cannot perform more than 5 operations\" << std::endl; exit(1); }}")
+            modified_lines.append(line)
+        else:
+            modified_lines.append(line)
+    
+    # Insert counter code after #include directives or at start
+    include_idx = 0
+    for i, line in enumerate(modified_lines):
+        if not line.strip().startswith('#include'):
+            include_idx = i
+            break
+    
+    modified_lines.insert(include_idx, operation_counter_code)
+    return '\n'.join(modified_lines)
+
 def run_cpp_safely(code, timeout=3, debug=False):
-    """Run C++ code safely, with optional debug logging."""
+    """Run C++ code safely with operation limit of 5."""
     def log(message):
         if debug:
             print(f"DEBUG: {message}", file=sys.stderr, flush=True)
@@ -25,11 +54,15 @@ def run_cpp_safely(code, timeout=3, debug=False):
         tmp_path = Path(tmp_dir)
         source_file = tmp_path / "main.cpp"
         executable = tmp_path / "main.exe"
-        log(f"Writing code to {source_file}")
-        log(f"Code content: {repr(code)}")
-        source_file.write_text(code, encoding='utf-8')
+        
+        # Inject operation limiter code
+        modified_code = inject_operation_limiter(code)
+        log(f"Writing modified code to {source_file}")
+        log(f"Modified code content: {repr(modified_code)}")
+        source_file.write_text(modified_code, encoding='utf-8')
         log(f"Source file exists: {source_file.exists()}")
         log(f"Code written successfully")
+        
         try:
             msys_bash = "C:\\msys64\\usr\\bin\\bash.exe"
             if not os.path.exists(msys_bash):
