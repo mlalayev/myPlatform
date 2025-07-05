@@ -26,7 +26,7 @@ def limited_print(*args, **kwargs):
         _real_print(*args, **kwargs)
         _print_count += 1
     elif _print_count == MAX_PRINT_CALLS:
-        _real_print("[output truncated: too many print calls]")
+        print("[output truncated: too many print calls]", file=sys.stderr)
         _print_count += 1
 
 builtins.print = limited_print

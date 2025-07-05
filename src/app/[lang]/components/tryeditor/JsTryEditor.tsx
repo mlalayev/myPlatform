@@ -138,6 +138,7 @@ const defaultCode = languageSamples.javascript;
 
 // WebAssembly runtimes
 let pyodide: any = null;
+let cppWasmModule: any = null;
 
 const loadPyodide = async () => {
   if (!(window as any).loadPyodide) {
@@ -156,6 +157,48 @@ const loadPyodide = async () => {
   return pyodide;
 };
 
+const loadCppWasm = async () => {
+  if (!cppWasmModule) {
+    // Load a pre-compiled C++ runtime using Emscripten
+    const response = await fetch('/api/cpp-wasm-runtime');
+    const wasmBuffer = await response.arrayBuffer();
+    cppWasmModule = await WebAssembly.instantiate(wasmBuffer, {
+      env: {
+        memory: new WebAssembly.Memory({ initial: 256 }),
+        // C++ standard library functions
+        printf: (ptr: number) => {
+          // Implementation for printf
+          return 0;
+        },
+        malloc: (size: number) => {
+          // Implementation for malloc
+          return 0;
+        },
+        free: (ptr: number) => {
+          // Implementation for free
+        },
+        // Add more C++ standard library functions as needed
+      }
+    });
+  }
+  return cppWasmModule;
+};
+
+const tryeditorErrorOverrides = {
+  az: {
+    tsFilenameError: 'TypeScript transpilyasiya xətası: Bu kodun bəzi hissələri dəstəklənmir və ya sintaksis səhvidir. Zəhmət olmasa, kodunuzu yoxlayın və yalnız əsas TypeScript sintaksisindən istifadə edin.',
+    tsCompileError: 'TypeScript transpilyasiya xətası: Kodunuzda sintaksis və ya tip xətası var. Zəhmət olmasa, kodunuzu yoxlayın.'
+  },
+  ru: {
+    tsFilenameError: 'Ошибка транспиляции TypeScript: Некоторые части этого кода не поддерживаются или содержат синтаксическую ошибку. Пожалуйста, проверьте ваш код и используйте только базовый синтаксис TypeScript.',
+    tsCompileError: 'Ошибка транспиляции TypeScript: В вашем коде есть синтаксическая или типовая ошибка. Пожалуйста, проверьте ваш код.'
+  },
+  en: {
+    tsFilenameError: 'TypeScript transpilation error: Some parts of this code are not supported or contain a syntax error. Please check your code and use only basic TypeScript syntax.',
+    tsCompileError: 'TypeScript transpilation error: There is a syntax or type error in your code. Please check your code.'
+  }
+};
+
 export default function JsTryEditor({
   value,
   onChange,
@@ -172,6 +215,10 @@ export default function JsTryEditor({
   const [isLoading, setIsLoading] = useState(false);
   const workerRef = useRef<Worker | null>(null);
   
+  function tWithOverride(key: string) {
+    return (tryeditorErrorOverrides[lang] && tryeditorErrorOverrides[lang][key]) || t(key);
+  }
+
   // Update sample code when language changes
   useEffect(() => {
     if (!value && languageSamples[language as keyof typeof languageSamples]) {
@@ -197,19 +244,65 @@ export default function JsTryEditor({
       const lang = (language || '').toLowerCase();
       if (lang === "javascript" || lang === "typescript" || lang === "js") {
         try {
-    let logs: string[] = [];
+          let logs: string[] = [];
           let logCount = 0;
           const maxLogs = 5;
           let stoppedForLogs = false;
           let transpiled = code;
-          try {
-            transpiled = Babel.transform(code, { presets: ['env'] }).code || code;
-          } catch (babelErr: any) {
-            setError(t('tryeditor.babel').replace('{{message}}', babelErr.message));
-            setShowOutput(true);
-            setIsLoading(false);
-            return;
+          if (lang === 'typescript') {
+            // Check for unsupported features
+            const unsupported = /(Promise|async\s+function|await\s|private |public |protected )/;
+            if (unsupported.test(code)) {
+              setError(tWithOverride('unsupportedTsFeature'));
+              setShowOutput(true);
+              setIsLoading(false);
+              return;
+            }
+            // Use TypeScript compiler if available
+            if (typeof window !== 'undefined' && (window as any).ts) {
+              try {
+                const ts = (window as any).ts;
+                const transpileResult = ts.transpileModule(code, {
+                  compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2017 },
+                  reportDiagnostics: true
+                });
+                if (transpileResult.diagnostics && transpileResult.diagnostics.length > 0) {
+                  const errorMsg = transpileResult.diagnostics.map((d: any) => d.messageText).join('\n');
+                  setError(tWithOverride('tsCompileError') + '\n' + errorMsg);
+                  setShowOutput(true);
+                  setIsLoading(false);
+                  return;
+                }
+                transpiled = transpileResult.outputText;
+              } catch (tsErr: any) {
+                setError(tWithOverride('tsCompileError') + '\n' + (tsErr.message || tsErr));
+                setShowOutput(true);
+                setIsLoading(false);
+                return;
+              }
+            } else {
+              // Try Babel TypeScript preset if available
+              let canUseBabelTs = false;
+              try {
+                if (Babel.availablePresets && Babel.availablePresets['typescript']) {
+                  canUseBabelTs = true;
+                }
+              } catch {}
+              if (canUseBabelTs) {
+                transpiled = Babel.transform(code, { presets: ['env', 'typescript'], filename: 'file.ts' }).code || code;
+              } else {
+                // Fallback: Remove interfaces, type annotations, and access modifiers
+                transpiled = code
+                  .replace(/interface [^{]+{[^}]+}/g, '') // Remove interfaces
+                  .replace(/type\s+\w+\s*=\s*[^;]+;/g, '') // Remove type aliases
+                  .replace(/: *[^,)]+(?=[,)])/g, '') // Remove all type annotations in params (including unions)
+                  .replace(/: *[^;{]+(?=[;{])/g, '') // Remove return types and property types
+                  .replace(/<[^>]*>/g, '') // Remove generics
+                  .replace(/\b(private|public|protected)\s+/g, ''); // Remove access modifiers
+              }
+            }
           }
+          transpiled = Babel.transform(transpiled, { presets: ['env'] }).code || transpiled;
           const myInterpreter = new Interpreter(transpiled, function(interpreter, globalObject) {
             const wrapper = function(...args: any[]) {
               logCount++;
@@ -217,7 +310,7 @@ export default function JsTryEditor({
                 stoppedForLogs = true;
                 throw new Error(t('tryeditor.tooManyLogs'));
               }
-      logs.push(args.map(String).join(" "));
+              logs.push(args.map(String).join(" "));
             };
             const consoleObj = interpreter.nativeToPseudo({ log: wrapper });
             interpreter.setProperty(globalObject, 'console', consoleObj);
@@ -249,6 +342,7 @@ export default function JsTryEditor({
               }
             } catch (err: any) {
               if (stoppedForLogs) {
+                setOutput(logs.join("\n"));
                 setError(t('tryeditor.tooManyLogs'));
               } else {
                 setError(t('tryeditor.jsInterpreter').replace('{{message}}', err.message));
