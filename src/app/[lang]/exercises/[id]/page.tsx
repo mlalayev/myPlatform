@@ -26,7 +26,7 @@ import {
   FiInfo,
   FiMinusCircle,
 } from "react-icons/fi";
-import { useI18n } from '@/contexts/I18nContext';
+import { useI18n } from "@/contexts/I18nContext";
 
 const LEFT_TABS = ["Təsvir", "Redaktə", "Həllər", "Təqdimatlar"];
 
@@ -52,8 +52,8 @@ const languageSamples = {
 };
 
 const languageOptions = [
-  { value: 'javascript', label: 'JavaScript' },
-  { value: 'python', label: 'Python' },
+  { value: "javascript", label: "JavaScript" },
+  { value: "python", label: "Python" },
   // Add more languages here as needed
 ];
 
@@ -83,15 +83,17 @@ export default function ExerciseDetailPage({
   const [showComplexity, setShowComplexity] = useState(false);
   const [isComplexityModalOpen, setIsComplexityModalOpen] = useState(false);
   const [latestSubmission, setLatestSubmission] = useState<any>(null);
-  const [statusIcon, setStatusIcon] = useState<React.ReactNode>(<FiMinusCircle color="gray" title="Not submitted" />);
+  const [statusIcon, setStatusIcon] = useState<React.ReactNode>(
+    <FiMinusCircle color="gray" title="Not submitted" />
+  );
   const codeInitialized = useRef(false);
   const { t, lang } = useI18n();
   const getInitialLanguage = () => {
-    if (typeof window !== 'undefined') {
-      const globalLang = localStorage.getItem('quiz_global_lang');
+    if (typeof window !== "undefined") {
+      const globalLang = localStorage.getItem("quiz_global_lang");
       if (globalLang) return globalLang;
     }
-    return 'javascript';
+    return "javascript";
   };
   const [language, setLanguage] = useState(getInitialLanguage);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -121,9 +123,18 @@ export default function ExerciseDetailPage({
   // Add a function to fetch and update latest submission and status icon
   const refreshLatestSubmission = useCallback(async () => {
     if (!exercise) return;
-    const res = await fetch(`/api/quiz/${id}/latest?maxTestCases=${exercise.testCases.length}`);
+    const res = await fetch(
+      `/api/quiz/${id}/latest?maxTestCases=${exercise.testCases.length}`
+    );
     const data = await res.json();
-    console.log('Latest submission from backend:', data.latest, 'hasPassed:', data.hasPassed, 'hasWrong:', data.hasWrong);
+    console.log(
+      "Latest submission from backend:",
+      data.latest,
+      "hasPassed:",
+      data.hasPassed,
+      "hasWrong:",
+      data.hasWrong
+    );
     setLatestSubmission(data.latest);
     // Improved status icon logic
     if (data.hasPassed) {
@@ -162,8 +173,8 @@ export default function ExerciseDetailPage({
       if (savedLang) {
         setLanguage(savedLang);
       } else {
-        const globalLang = localStorage.getItem('quiz_global_lang');
-        setLanguage(globalLang || 'javascript');
+        const globalLang = localStorage.getItem("quiz_global_lang");
+        setLanguage(globalLang || "javascript");
       }
     }
   }, [id]);
@@ -171,7 +182,7 @@ export default function ExerciseDetailPage({
   // When user changes language, update only the global value
   useEffect(() => {
     if (language) {
-      localStorage.setItem('quiz_global_lang', language);
+      localStorage.setItem("quiz_global_lang", language);
     }
   }, [language]);
 
@@ -297,16 +308,18 @@ export default function ExerciseDetailPage({
         }
 
         let result, error;
-        let functionName = 'solution';
+        let functionName = "solution";
         let functionFound = true;
-        if (language === 'python') {
+        if (language === "python") {
           // Detect function name in user code
           const match = userCode.match(/def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
           if (match) functionName = match[1];
           else functionFound = false;
           if (!functionFound) {
-            setFeedback('Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: def myfunc(...):');
-            setFeedbackType('error');
+            setFeedback(
+              "Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: def myfunc(...):"
+            );
+            setFeedbackType("error");
             setTestResults([]);
             setSubmitted(true);
             setIsSubmitting(false);
@@ -316,19 +329,23 @@ export default function ExerciseDetailPage({
             return;
           }
           // Prepare Python code to call the detected function and print result as JSON if needed
-          let callCode = '';
-          let argsStr = '';
+          let callCode = "";
+          let argsStr = "";
           if (Array.isArray(args)) {
-            argsStr = args.map(a => (typeof a === 'string' ? `\"${a}\"` : JSON.stringify(a))).join(', ');
+            argsStr = args
+              .map((a) =>
+                typeof a === "string" ? `\"${a}\"` : JSON.stringify(a)
+              )
+              .join(", ");
           } else {
             argsStr = JSON.stringify(args);
           }
           callCode = `\nimport json\nresult = ${functionName}(${argsStr})\nif isinstance(result, (list, dict)):\n    print(json.dumps(result))\nelse:\n    print(result)`;
           const fullCode = `${userCode}${callCode}`;
-          const resp = await fetch('/api/execute', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code: fullCode, language: 'python' })
+          const resp = await fetch("/api/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: fullCode, language: "python" }),
           });
           const data = await resp.json();
           try {
@@ -341,12 +358,16 @@ export default function ExerciseDetailPage({
           error = data.error;
         } else {
           // Detect function name in JS code
-          const match = userCode.match(/function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          const match = userCode.match(
+            /function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/
+          );
           if (match) functionName = match[1];
           else functionFound = false;
           if (!functionFound) {
-            setFeedback('Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: function myfunc(...) {} və ya const/let/var myfunc = ...');
-            setFeedbackType('error');
+            setFeedback(
+              "Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: function myfunc(...) {} və ya const/let/var myfunc = ..."
+            );
+            setFeedbackType("error");
             setTestResults([]);
             setSubmitted(true);
             setIsSubmitting(false);
@@ -369,10 +390,9 @@ export default function ExerciseDetailPage({
               resolve({ error: "Kodun icrası çox uzun çəkdi (timeout)!" });
             }, 2000)
           );
-          const response: { result?: any; error?: string } = await Promise.race([
-            resultPromise,
-            timeoutPromise,
-          ]);
+          const response: { result?: any; error?: string } = await Promise.race(
+            [resultPromise, timeoutPromise]
+          );
           result = response.result;
           error = response.error;
         }
@@ -422,7 +442,11 @@ export default function ExerciseDetailPage({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           quizId: Number(id),
-          score: exercise ? (failedCasesArr.length === 0 ? exercise.testCases.length : exercise.testCases.length - failedCasesArr.length) : 0,
+          score: exercise
+            ? failedCasesArr.length === 0
+              ? exercise.testCases.length
+              : exercise.testCases.length - failedCasesArr.length
+            : 0,
           answers: { failedCases: failedCasesArr },
           code: userCode,
           language,
@@ -452,7 +476,9 @@ export default function ExerciseDetailPage({
     // All tests passed
     setFailedCases([]);
     setFeedback(
-      exercise ? `${exercise.testCases.length}/${exercise.testCases.length} test uğurla keçdi!` : "Bütün testlər uğurla keçdi!"
+      exercise
+        ? `${exercise.testCases.length}/${exercise.testCases.length} test uğurla keçdi!`
+        : "Bütün testlər uğurla keçdi!"
     );
     setFeedbackType("success");
     setTestResults([]);
@@ -513,9 +539,13 @@ export default function ExerciseDetailPage({
   useEffect(() => {
     // Only update code if it matches the previous language's default or is empty
     if (
-      (!userCode || userCode === languageSamples.javascript || userCode === languageSamples.python)
+      !userCode ||
+      userCode === languageSamples.javascript ||
+      userCode === languageSamples.python
     ) {
-      setUserCode(languageSamples[language as keyof typeof languageSamples] || '');
+      setUserCode(
+        languageSamples[language as keyof typeof languageSamples] || ""
+      );
     }
     // eslint-disable-next-line
   }, [language]);
@@ -523,12 +553,15 @@ export default function ExerciseDetailPage({
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setDropdownOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -544,7 +577,9 @@ export default function ExerciseDetailPage({
               <span className={detailStyles.breadcrumbSeparator}>/</span>
               <span>#{exercise.id}</span>
             </div>
-            <h1 className={detailStyles.heroTitle}>{exercise.title} {statusIcon}</h1>
+            <h1 className={detailStyles.heroTitle}>
+              {exercise.title} {statusIcon}
+            </h1>
             <p className={detailStyles.heroDescription}>
               {exercise.description}
             </p>
@@ -741,76 +776,102 @@ export default function ExerciseDetailPage({
                 <FiCode className={detailStyles.editorIcon} />
                 Kod Redaktəsi
               </h3>
-            </div>
 
-            <div className={detailStyles.editorContainer} style={{ position: 'relative' }}>
-              {/* Custom Language Picker Dropdown */}
-              <div
-                ref={dropdownRef}
-                style={{
-                  position: 'absolute',
-                  top: 8,
-                  left: 8,
-                  zIndex: 2,
-                  minWidth: 120,
-                  userSelect: 'none',
-                }}
-              >
+              <div style={{ position: "relative" }}>
                 <div
                   onClick={() => setDropdownOpen((open) => !open)}
                   style={{
-                    padding: '6px 14px 6px 10px',
+                    padding: "6px 14px 6px 10px",
                     borderRadius: 8,
-                    border: '1px solid #e2e8f0',
-                    background: 'white',
+                    border: "1px solid #e2e8f0",
+                    background: "white",
                     fontWeight: 600,
                     fontSize: 15,
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
                     gap: 8,
                   }}
                 >
                   <span style={{ marginRight: 4 }}>
-                    {languageOptions.find(opt => opt.value === language)?.label || language}
+                    {languageOptions.find((opt) => opt.value === language)
+                      ?.label || language}
                   </span>
-                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M6 8L10 12L14 8" stroke="#888" strokeWidth="2" strokeLinecap="round"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <path
+                      d="M6 8L10 12L14 8"
+                      stroke="#888"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
                 </div>
-                {dropdownOpen && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '110%',
-                      left: 0,
-                      background: 'white',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: 8,
-                      boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-                      minWidth: 120,
-                      padding: '4px 0',
-                    }}
-                  >
-                    {languageOptions.map(opt => (
-                      <div
-                        key={opt.value}
-                        onClick={() => { setLanguage(opt.value); setDropdownOpen(false); }}
-                        style={{
-                          padding: '8px 16px',
-                          cursor: 'pointer',
-                          background: opt.value === language ? '#f0f4fa' : 'white',
-                          fontWeight: opt.value === language ? 700 : 500,
-                          color: opt.value === language ? '#2b6cb0' : '#222',
-                          fontSize: 15,
-                        }}
-                      >
-                        {opt.label}
-                      </div>
-                    ))}
-                  </div>
-                )}
+
+                <div
+                  ref={dropdownRef}
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    zIndex: 2,
+                    width: 120,
+                    display: "flex",
+                    justifyContent: "center",
+                    userSelect: "none",
+                  }}
+                >
+                  {dropdownOpen && (
+                    <div
+                      style={{
+                        position: "relative",
+                        top: "100%",
+                        left: 0,
+                        background: "white",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: 8,
+                        boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+                        minWidth: 120,
+                        padding: "4px 0",
+                      }}
+                    >
+                      {languageOptions.map((opt) => (
+                        <div
+                          key={opt.value}
+                          onClick={() => {
+                            setLanguage(opt.value);
+                            setDropdownOpen(false);
+                          }}
+                          style={{
+                            padding: "8px 16px",
+                            cursor: "pointer",
+                            background:
+                              opt.value === language ? "#f0f4fa" : "white",
+                            fontWeight: opt.value === language ? 700 : 500,
+                            color: opt.value === language ? "#2b6cb0" : "#222",
+                            fontSize: 15,
+                          }}
+                        >
+                          {opt.label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-              <JsTryEditor value={userCode} onChange={setUserCode} language={language} />
+            </div>
+
+            <div
+              className={detailStyles.editorContainer}
+              style={{ position: "relative" }}
+            >
+              {/* Custom Language Picker Dropdown */}
+
+              <JsTryEditor
+                value={userCode}
+                onChange={setUserCode}
+                language={language}
+              />
               <SavadliButton
                 text={isSubmitting ? "Yoxlanır..." : "Submit"}
                 position="absolute"

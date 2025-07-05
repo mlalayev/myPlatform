@@ -31,7 +31,11 @@ function LoginPointPopup() {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    if (status !== "authenticated" || !(session?.user && (session.user as any).id)) return;
+    if (
+      status !== "authenticated" ||
+      !(session?.user && (session.user as any).id)
+    )
+      return;
     const userId = (session.user as any).id;
     const lastPopupKey = `loginPointPopup_${userId}`;
     const lastShown = localStorage.getItem(lastPopupKey);
@@ -43,8 +47,8 @@ function LoginPointPopup() {
     }
     // Fetch user profile to check if login point was received today
     fetch(`/api/admin/users/${userId}`)
-      .then(res => res.json())
-      .then(user => {
+      .then((res) => res.json())
+      .then((user) => {
         if (!user || !user.lastLoginDate) return setChecked(true);
         const lastLogin = new Date(user.lastLoginDate);
         if (
@@ -75,15 +79,38 @@ function LoginPointPopup() {
       <div className={`login-point-popup${fadeOut ? " fade-out" : ""}`}>
         <span className="coin-spin">
           {/* SVG Coin Icon */}
-          <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            width="38"
+            height="38"
+            viewBox="0 0 38 38"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <defs>
               <radialGradient id="coinGradient" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#fff7c1"/>
-                <stop offset="100%" stopColor="#ffd700"/>
+                <stop offset="0%" stopColor="#fff7c1" />
+                <stop offset="100%" stopColor="#ffd700" />
               </radialGradient>
             </defs>
-            <circle cx="19" cy="19" r="18" fill="url(#coinGradient)" stroke="#e6c200" strokeWidth="2"/>
-            <text x="50%" y="54%" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#e6c200" fontFamily="Helvetica Neue, Arial, sans-serif">₵</text>
+            <circle
+              cx="19"
+              cy="19"
+              r="18"
+              fill="url(#coinGradient)"
+              stroke="#e6c200"
+              strokeWidth="2"
+            />
+            <text
+              x="50%"
+              y="54%"
+              textAnchor="middle"
+              fontSize="18"
+              fontWeight="bold"
+              fill="#e6c200"
+              fontFamily="Helvetica Neue, Arial, sans-serif"
+            >
+              ₵
+            </text>
           </svg>
         </span>
         <span className="login-point-text">
@@ -151,7 +178,8 @@ export default function RootLayout({
         style={{
           minHeight: "100vh",
           // background: "linear-gradient(135deg,rgb(115, 156, 184) 0%,rgb(91, 132, 173) 100%);",
-          background: "linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);",
+          // background: "linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);",
+          background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
         }}
       >
         <SessionProvider>
