@@ -4,8 +4,9 @@ import { exercises, Exercise } from "./exercisesData";
 import styles from "./ExercisesList.module.css";
 import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
+import HeroSection from "../components/heroSection/HeroSection";
 import Link from "next/link";
-import { FiSearch, FiFilter, FiTrendingUp, FiCalendar, FiCode, FiUsers, FiClock, FiBarChart2, FiSmile, FiMeh, FiFrown, FiCheckCircle, FiXCircle, FiMinusCircle } from "react-icons/fi";
+import { FiSearch, FiFilter, FiTrendingUp, FiCalendar, FiCode, FiUsers, FiClock, FiBarChart2, FiSmile, FiMeh, FiFrown, FiCheckCircle, FiXCircle, FiMinusCircle, FiDatabase, FiTarget, FiZap, FiAward } from "react-icons/fi";
 import { usePathname } from "next/navigation";
 import {
   SiJavascript,
@@ -111,51 +112,43 @@ export default function ExercisesPage() {
     hard: exercises.filter(ex => ex.difficulty === "Çətin").length,
   };
 
+  // Exercise-specific hero boxes
+  const exerciseHeroBoxes = [
+    {
+      key: "total",
+      icon: FiDatabase,
+      number: stats.total,
+      titleKey: "exercises.hero.stats.total",
+    },
+    {
+      key: "easy",
+      icon: FiTarget,
+      number: stats.easy,
+      titleKey: "exercises.hero.stats.easy",
+    },
+    {
+      key: "medium",
+      icon: FiZap,
+      number: stats.medium,
+      titleKey: "exercises.hero.stats.medium",
+    },
+    {
+      key: "hard",
+      icon: FiAward,
+      number: stats.hard,
+      titleKey: "exercises.hero.stats.hard",
+    },
+  ];
+
   return (
     <>
       <Header />
       
-      {/* Hero Section */}
-      <section className={styles.heroSection}>
-        <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>Kodlaşdırma Tapşırıqları</h1>
-          <p className={styles.heroSubtitle}>
-            Algoritm və məlumat strukturları problemlərini həll edərək proqramlaşdırma bacarıqlarınızı təkmilləşdirin
-          </p>
-          
-          {/* Stats Cards */}
-          <div className={styles.statsContainer}>
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}>📊</div>
-              <div className={styles.statInfo}>
-                <div className={styles.statNumber}>{stats.total}</div>
-                <div className={styles.statLabel}>Ümumi Tapşırıq</div>
-              </div>
-            </div>
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}>🟢</div>
-              <div className={styles.statInfo}>
-                <div className={styles.statNumber}>{stats.easy}</div>
-                <div className={styles.statLabel}>Asan</div>
-              </div>
-            </div>
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}>🟡</div>
-              <div className={styles.statInfo}>
-                <div className={styles.statNumber}>{stats.medium}</div>
-                <div className={styles.statLabel}>Orta</div>
-              </div>
-            </div>
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}>🔴</div>
-              <div className={styles.statInfo}>
-                <div className={styles.statNumber}>{stats.hard}</div>
-                <div className={styles.statLabel}>Çətin</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection 
+        titleKey="exercises.hero.title"
+        subtitleKey="exercises.hero.subtitle"
+        boxes={exerciseHeroBoxes}
+      />
 
       <div>
         <div className={styles.challengeSlideContainer}>
