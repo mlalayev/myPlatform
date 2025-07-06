@@ -457,6 +457,7 @@ export default function JsTryEditor({
     <>
       <div className={styles.editorSection}>
         <MonacoEditor
+          key={language} // Force re-render when language changes
           height="300px"
           defaultLanguage={language}
           language={language}

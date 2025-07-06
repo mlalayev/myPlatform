@@ -1,12 +1,9 @@
-import { NextResponse } from "next/server";
-import path from "path";
-import { promises as fs } from "fs";
+import { NextRequest, NextResponse } from 'next/server';
+import path from 'path';
+import fs from 'fs';
 
-export async function GET(
-  req: Request,
-  { params }: { params: { language: string } }
-) {
-  const { language } = params;
+export async function GET(request: NextRequest, context: { params: { language: string } }) {
+  const { language } = context.params;
   const filePath = path.join(
     process.cwd(),
     "public",
@@ -14,10 +11,9 @@ export async function GET(
     language,
     "topics.json"
   );
-  try {
-    const file = await fs.readFile(filePath, "utf-8");
-    return NextResponse.json(JSON.parse(file));
-  } catch (e) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!fs.existsSync(filePath)) {
+    return NextResponse.json({}, { status: 404 });
   }
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  return NextResponse.json(JSON.parse(fileContent));
 } 

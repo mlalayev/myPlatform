@@ -49,10 +49,8 @@ const Header: React.FC = () => {
     }
   }, [session]);
 
-  const currentLang =
-    typeof window !== "undefined"
-      ? window.location.pathname.split("/")[1] || "en"
-      : "en";
+  // Make currentLang reactive to route changes
+  const currentLang = pathname.split("/")[1] || "en";
 
   const navItems = [
     { label: t("header.home"), href: `/${currentLang}`, icon: <FiHome /> },

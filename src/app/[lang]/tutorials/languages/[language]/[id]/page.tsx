@@ -7,6 +7,7 @@ import Header from "../../../../components/header/Header";
 import Footer from "../../../../components/footer/Footer";
 import JsTryEditor from "../../../../components/tryeditor/JsTryEditor";
 import CodeLoader from "../../../../components/loading/CodeLoader";
+import { useSession } from 'next-auth/react';
 
 interface ContentBlock {
   type: "heading" | "paragraph" | "code" | "editor";
@@ -126,9 +127,56 @@ export default function TutorialTopicPage() {
   const [loading, setLoading] = useState(true);
   const [topicContent, setTopicContent] = useState<any>(null);
   const [editorStates, setEditorStates] = useState<any>({});
-  // Remove all previous completion/scroll logic
-  // Track visited lessons in localStorage
+  const { data: session } = useSession();
   const [visitedLessons, setVisitedLessons] = useState<string[]>([]);
+
+  // Fetch visited lessons on load
+  useEffect(() => {
+    const fetchVisited = async () => {
+      if (session?.user) {
+        const res = await fetch('/api/user/lessons');
+        const data = await res.json();
+        console.log('[Sidebar] visitedLessons from backend:', data);
+        setVisitedLessons(data);
+      } else {
+        // fallback to localStorage
+        const storageKey = `visitedLessons_${language}`;
+        let visited = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        console.log('[Sidebar] visitedLessons from localStorage:', visited);
+        setVisitedLessons(visited);
+      }
+    };
+    fetchVisited();
+  }, [session, language]);
+
+  // Mark as visited on mount
+  useEffect(() => {
+    const markVisited = async () => {
+      if (session?.user) {
+        await fetch('/api/user/lessons', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lessonId: topicId }),
+        });
+        // Refetch visited lessons
+        const res = await fetch('/api/user/lessons');
+        const data = await res.json();
+        console.log('[Sidebar] After marking visited, visitedLessons:', data);
+        setVisitedLessons(data);
+      } else {
+        const storageKey = `visitedLessons_${language}`;
+        let visited = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        if (!visited.includes(topicId)) {
+          visited.push(topicId);
+          localStorage.setItem(storageKey, JSON.stringify(visited));
+        }
+        console.log('[Sidebar] After marking visited, visitedLessons:', visited);
+        setVisitedLessons(visited);
+      }
+    };
+    markVisited();
+  }, [topicId, session, language]);
+
 
   useEffect(() => {
     if (!language || !topicId || !lang) return;
@@ -184,17 +232,6 @@ export default function TutorialTopicPage() {
     setEditorStates({}); // Reset editor states when topic changes
   }, [language, topicId, lang, router]);
 
-  useEffect(() => {
-    // On mount, mark this lesson as visited
-    const storageKey = `visitedLessons_${language}`;
-    let visited = JSON.parse(localStorage.getItem(storageKey) || "[]");
-    if (!visited.includes(topicId)) {
-      visited.push(topicId);
-      localStorage.setItem(storageKey, JSON.stringify(visited));
-    }
-    setVisitedLessons(visited);
-  }, [topicId, language]);
-
   const handleSelect = (id: string) => {
     if (id !== topicId) {
       router.push(`/${lang}/tutorials/languages/${language}/${id}`);
@@ -231,6 +268,7 @@ export default function TutorialTopicPage() {
         <aside
           className={collapsed ? styles.sidebarNewCollapsed : styles.sidebarNew}
         >
+
           <div className={styles.sidebarHeaderNew}>
             <span className={styles.sidebarTitleNew}>
               {collapsed
@@ -259,6 +297,9 @@ export default function TutorialTopicPage() {
             {topics.map((topic) => {
               const Icon = (FiIcons as any)[topic.icon] || FiIcons.FiBookOpen;
               const isVisited = visitedLessons.includes(topic.id);
+              if (isVisited) {
+                console.log(`[Sidebar] Topic ${topic.id} is visited`);
+              }
               return (
                 <button
                   key={topic.id}
