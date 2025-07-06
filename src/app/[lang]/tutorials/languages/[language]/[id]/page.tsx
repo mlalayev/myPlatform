@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import styles from "../../../TutorialsPage.module.css";
 import * as FiIcons from "react-icons/fi";
@@ -7,6 +7,7 @@ import Header from "../../../../components/header/Header";
 import Footer from "../../../../components/footer/Footer";
 import JsTryEditor from "../../../../components/tryeditor/JsTryEditor";
 import CodeLoader from "../../../../components/loading/CodeLoader";
+import { useSession } from 'next-auth/react';
 
 interface ContentBlock {
   type: "heading" | "paragraph" | "code" | "editor";
@@ -126,6 +127,56 @@ export default function TutorialTopicPage() {
   const [loading, setLoading] = useState(true);
   const [topicContent, setTopicContent] = useState<any>(null);
   const [editorStates, setEditorStates] = useState<any>({});
+  const { data: session } = useSession();
+  const [visitedLessons, setVisitedLessons] = useState<string[]>([]);
+
+  // Fetch visited lessons on load
+  useEffect(() => {
+    const fetchVisited = async () => {
+      if (session?.user) {
+        const res = await fetch('/api/user/lessons');
+        const data = await res.json();
+        console.log('[Sidebar] visitedLessons from backend:', data);
+        setVisitedLessons(data);
+      } else {
+        // fallback to localStorage
+        const storageKey = `visitedLessons_${language}`;
+        let visited = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        console.log('[Sidebar] visitedLessons from localStorage:', visited);
+        setVisitedLessons(visited);
+      }
+    };
+    fetchVisited();
+  }, [session, language]);
+
+  // Mark as visited on mount
+  useEffect(() => {
+    const markVisited = async () => {
+      if (session?.user) {
+        await fetch('/api/user/lessons', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lessonId: topicId }),
+        });
+        // Refetch visited lessons
+        const res = await fetch('/api/user/lessons');
+        const data = await res.json();
+        console.log('[Sidebar] After marking visited, visitedLessons:', data);
+        setVisitedLessons(data);
+      } else {
+        const storageKey = `visitedLessons_${language}`;
+        let visited = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        if (!visited.includes(topicId)) {
+          visited.push(topicId);
+          localStorage.setItem(storageKey, JSON.stringify(visited));
+        }
+        console.log('[Sidebar] After marking visited, visitedLessons:', visited);
+        setVisitedLessons(visited);
+      }
+    };
+    markVisited();
+  }, [topicId, session, language]);
+
 
   useEffect(() => {
     if (!language || !topicId || !lang) return;
@@ -217,6 +268,7 @@ export default function TutorialTopicPage() {
         <aside
           className={collapsed ? styles.sidebarNewCollapsed : styles.sidebarNew}
         >
+
           <div className={styles.sidebarHeaderNew}>
             <span className={styles.sidebarTitleNew}>
               {collapsed
@@ -244,6 +296,10 @@ export default function TutorialTopicPage() {
           <nav className={styles.topicListNew}>
             {topics.map((topic) => {
               const Icon = (FiIcons as any)[topic.icon] || FiIcons.FiBookOpen;
+              const isVisited = visitedLessons.includes(topic.id);
+              if (isVisited) {
+                console.log(`[Sidebar] Topic ${topic.id} is visited`);
+              }
               return (
                 <button
                   key={topic.id}
@@ -257,6 +313,16 @@ export default function TutorialTopicPage() {
                 >
                   <Icon className={styles.topicIconNew} />
                   {!collapsed && <span>{topic.title}</span>}
+                  {isVisited && (
+                    <FiIcons.FiCheck
+                      style={{
+                        color: "white",
+                        fontSize: 16,
+                        marginLeft: "auto",
+                        verticalAlign: "middle",
+                      }}
+                    />
+                  )}
                 </button>
               );
             })}
@@ -264,12 +330,22 @@ export default function TutorialTopicPage() {
         </aside>
         <main className={styles.topicContentNew}>
           <div className={styles.contentHeader}>
-            <h1 className={styles.topicTitleNew}>
+            <h1 className={styles.topicTitleNew} style={{ margin: 0 }}>
               {topicContent?.title || selectedTopic?.title || "Mövzu"}
             </h1>
-            <button className={styles.backButtonNew} onClick={handleBack}>
-              <FiIcons.FiChevronLeft /> Geri
-            </button>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                marginLeft: "auto",
+              }}
+            >
+              {/* Removed completion/scroll icons */}
+              <button className={styles.backButtonNew} onClick={handleBack}>
+                <FiIcons.FiChevronLeft /> Geri
+              </button>
+            </div>
           </div>
           <div className={styles.contentBody}>
             {topics.length === 0 ? (

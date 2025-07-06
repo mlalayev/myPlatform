@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import {
   SiJavascript,
@@ -19,7 +19,8 @@ interface Language {
 }
 
 const LanguagesSection: React.FC = () => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+
 
   const languages: Language[] = [
     {
@@ -72,9 +73,7 @@ const LanguagesSection: React.FC = () => {
           <div className={styles.languageCard} key={lang.name}>
             <div className={styles.languageIcon}>{lang.icon}</div>
             <div className={styles.languageName}>{lang.name}</div>
-            <div className={styles.languageDescription}>
-              {lang.description}
-            </div>
+            <div className={styles.languageDescription}>{lang.description}</div>
           </div>
         ))}
       </div>

@@ -98,7 +98,7 @@ function renderContentBlock(block: ContentBlock, i: number, editorStates: any, s
       };
       return (
         <div key={i} style={{ margin: '18px 0' }}>
-          <JsTryEditor value={codeValue} onChange={handleEditorChange} showRunButton={true} />
+          <JsTryEditor value={codeValue} onChange={handleEditorChange} showRunButton={true} language="javascript" />
         </div>
       );
     }

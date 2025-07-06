@@ -7,7 +7,7 @@ import { FiLayers, FiRefreshCw, FiGitBranch, FiShare2 } from "react-icons/fi";
 import { useI18n } from "@/contexts/I18nContext";
 
 export default function MainPageContent() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
 
   const features = [
     {
@@ -36,7 +36,7 @@ export default function MainPageContent() {
     <main className={styles.main}>
       <HeroSection boxes={[]} />
       <LanguagesSection />
-      <MainPageTryEditor />
+      <MainPageTryEditor key={lang} />
     </main>
   );
 }

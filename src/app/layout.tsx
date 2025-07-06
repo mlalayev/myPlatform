@@ -25,7 +25,7 @@ function SessionGate({ children }: { children: React.ReactNode }) {
 }
 
 function LoginPointPopup() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const [show, setShow] = useState(false);
   const [checked, setChecked] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
@@ -60,13 +60,15 @@ function LoginPointPopup() {
       shouldShow: lastShown !== todayStr
     });
     
-    // For new users, clear any existing localStorage and show popup
-    if (isNewUser) {
-      console.log("LoginPointPopup: New user detected, clearing localStorage and showing popup");
-      localStorage.removeItem(lastPopupKey);
+    // For new users, show popup and clear the isNewUser flag
+    if (isNewUser && lastShown !== todayStr) {
+      console.log("LoginPointPopup: New user detected, showing popup and clearing flag");
       setShow(true);
       localStorage.setItem(lastPopupKey, todayStr);
       setChecked(true);
+      
+      // Clear the isNewUser flag from session to prevent showing on reload
+      update({ isNewUser: false });
       return;
     }
     
@@ -124,7 +126,7 @@ function LoginPointPopup() {
         console.error('Error fetching user data:', error);
         setChecked(true);
       });
-  }, [session, status]);
+  }, [session, status, update]);
 
   useEffect(() => {
     if (show) {

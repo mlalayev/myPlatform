@@ -6,7 +6,6 @@ import SavadliButton from "../Buttons/savadliButton/SavadliButton";
 import CopyButton from "../Buttons/copyButton/CopyButton";
 import workerCode from "../../exercises/[id]/sandboxWorkerString";
 import tryEditorWorkerCode from "./tryEditorWorkerString";
-import Interpreter from 'js-interpreter';
 import * as Babel from '@babel/standalone';
 import { useI18n } from '@/contexts/I18nContext';
 
@@ -19,10 +18,22 @@ interface JsTryEditorProps {
 }
 
 const languageSamples = {
-  javascript: `function salam() {
+  javascript: `// Modern JavaScript features including Object.assign
+const obj1 = { a: 1, b: 2 };
+const obj2 = { c: 3, d: 4 };
+
+// Using Object.assign
+const combined = Object.assign({}, obj1, obj2);
+console.log('Combined object:', combined);
+
+// Using spread operator
+const spreadCombined = { ...obj1, ...obj2 };
+console.log('Spread combined:', spreadCombined);
+
+function salam() {
   return 'Salam, Dünya!';
 }
-  
+
 console.log(salam());`,
   typescript: `function salam(): string {
   return 'Salam, Dünya!';
@@ -244,11 +255,9 @@ export default function JsTryEditor({
       const lang = (language || '').toLowerCase();
       if (lang === "javascript" || lang === "typescript" || lang === "js") {
         try {
-          let logs: string[] = [];
-          let logCount = 0;
-          const maxLogs = 5;
-          let stoppedForLogs = false;
           let transpiled = code;
+          
+          // Handle TypeScript transpilation
           if (lang === 'typescript') {
             // Check for unsupported features
             const unsupported = /(Promise|async\s+function|await\s|private |public |protected )/;
@@ -258,114 +267,117 @@ export default function JsTryEditor({
               setIsLoading(false);
               return;
             }
-            // Use TypeScript compiler if available
-            if (typeof window !== 'undefined' && (window as any).ts) {
-              try {
-                const ts = (window as any).ts;
-                const transpileResult = ts.transpileModule(code, {
-                  compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2017 },
-                  reportDiagnostics: true
-                });
-                if (transpileResult.diagnostics && transpileResult.diagnostics.length > 0) {
-                  const errorMsg = transpileResult.diagnostics.map((d: any) => d.messageText).join('\n');
-                  setError(tWithOverride('tsCompileError') + '\n' + errorMsg);
-                  setShowOutput(true);
-                  setIsLoading(false);
-                  return;
-                }
-                transpiled = transpileResult.outputText;
-              } catch (tsErr: any) {
-                setError(tWithOverride('tsCompileError') + '\n' + (tsErr.message || tsErr));
-                setShowOutput(true);
-                setIsLoading(false);
-                return;
-              }
-            } else {
-              // Try Babel TypeScript preset if available
-              let canUseBabelTs = false;
-              try {
-                if (Babel.availablePresets && Babel.availablePresets['typescript']) {
-                  canUseBabelTs = true;
-                }
-              } catch {}
-              if (canUseBabelTs) {
-                transpiled = Babel.transform(code, { presets: ['env', 'typescript'], filename: 'file.ts' }).code || code;
-              } else {
-                // Fallback: Remove interfaces, type annotations, and access modifiers
-                transpiled = code
-                  .replace(/interface [^{]+{[^}]+}/g, '') // Remove interfaces
-                  .replace(/type\s+\w+\s*=\s*[^;]+;/g, '') // Remove type aliases
-                  .replace(/: *[^,)]+(?=[,)])/g, '') // Remove all type annotations in params (including unions)
-                  .replace(/: *[^;{]+(?=[;{])/g, '') // Remove return types and property types
-                  .replace(/<[^>]*>/g, '') // Remove generics
-                  .replace(/\b(private|public|protected)\s+/g, ''); // Remove access modifiers
-              }
-            }
-          }
-          transpiled = Babel.transform(transpiled, { presets: ['env'] }).code || transpiled;
-          const myInterpreter = new Interpreter(transpiled, function(interpreter, globalObject) {
-            const wrapper = function(...args: any[]) {
-              logCount++;
-              if (logCount > maxLogs) {
-                stoppedForLogs = true;
-                throw new Error(t('tryeditor.tooManyLogs'));
-              }
-              logs.push(args.map(String).join(" "));
-            };
-            const consoleObj = interpreter.nativeToPseudo({ log: wrapper });
-            interpreter.setProperty(globalObject, 'console', consoleObj);
-          });
-
-          let steps = 0;
-          const maxSteps = 100000; // Adjust as needed
-          const stepBatch = 1000; // Steps per batch
-          let finished = false;
-          setIsLoading(true);
-
-          function stepLoop() {
-            let batchSteps = 0;
+            
+            // Use Babel TypeScript preset for transpilation
             try {
-              while (myInterpreter.step()) {
-                steps++;
-                batchSteps++;
-                if (steps > maxSteps) {
-                  setError(t('tryeditor.timeout'));
-                  setShowOutput(true);
-                  setIsLoading(false);
-                  finished = true;
-                  return;
-                }
-                if (batchSteps >= stepBatch) {
-                  setTimeout(stepLoop, 0);
-                  return;
-                }
-              }
-            } catch (err: any) {
-              if (stoppedForLogs) {
-                setOutput(logs.join("\n"));
-                setError(t('tryeditor.tooManyLogs'));
-              } else {
-                setError(t('tryeditor.jsInterpreter').replace('{{message}}', err.message));
-              }
+              transpiled = Babel.transform(code, { 
+                presets: ['env', 'typescript'], 
+                filename: 'file.ts' 
+              }).code || code;
+            } catch (tsErr: any) {
+              setError(tWithOverride('tsCompileError') + '\n' + (tsErr.message || tsErr));
               setShowOutput(true);
               setIsLoading(false);
-              finished = true;
               return;
             }
-            if (!finished) {
-              if (logs.length === 0) {
+          }
+
+          // Use Web Worker for safe JavaScript execution
+          const workerBlob = new Blob([`
+            let logs = [];
+            let logCount = 0;
+            const maxLogs = 50;
+            let logTimer = null;
+            let logDelay = 4000; // 4 seconds
+            let finished = false;
+            let globalTimeout = null;
+
+            function sendLogsAndExit() {
+              if (finished) return;
+              finished = true;
+              self.postMessage({ type: 'success', logs: logs });
+              self.close();
+            }
+
+            // Override console.log to capture output with better object formatting
+            const originalLog = console.log;
+            console.log = function(...args) {
+              logCount++;
+              if (logCount > maxLogs) {
+                throw new Error('Too many console.log calls');
+              }
+              const formattedArgs = args.map(arg => {
+                if (typeof arg === 'object' && arg !== null) {
+                  try {
+                    return JSON.stringify(arg, null, 2);
+                  } catch (e) {
+                    return '[Object]';
+                  }
+                }
+                return String(arg);
+              });
+              logs.push(formattedArgs.join(' '));
+              if (logTimer) clearTimeout(logTimer);
+              logTimer = setTimeout(sendLogsAndExit, logDelay);
+            };
+
+            // Make sure setTimeout and setInterval are available in the worker
+            self.setTimeout = setTimeout;
+            self.setInterval = setInterval;
+
+            // Execute the code
+            try {
+              ${transpiled}
+              // If no async logs, still send after a short delay
+              if (!logTimer) logTimer = setTimeout(sendLogsAndExit, logDelay);
+              // Global fallback: always terminate after 7 seconds
+              globalTimeout = setTimeout(sendLogsAndExit, 7000);
+            } catch (error) {
+              self.postMessage({ type: 'error', error: error.message });
+              self.close();
+            }
+          `], { type: 'application/javascript' });
+
+          const worker = new Worker(URL.createObjectURL(workerBlob));
+
+          let timeoutId;
+
+          worker.onmessage = function(e) {
+            clearTimeout(timeoutId);
+            if (e.data.type === 'success') {
+              if (e.data.logs.length === 0) {
                 setOutput("");
                 setError(t('tryeditor.noOutput'));
               } else {
-                setOutput(logs.join("\n"));
+                setOutput(e.data.logs.join("\n"));
                 setError("");
               }
               setShowOutput(true);
               setIsLoading(false);
+            } else if (e.data.type === 'error') {
+              setError(e.data.error);
+              setShowOutput(true);
+              setIsLoading(false);
             }
-          }
+            worker.terminate();
+          };
 
-          stepLoop();
+          worker.onerror = function(e) {
+            clearTimeout(timeoutId);
+            setError('Worker error: ' + e.message);
+            setShowOutput(true);
+            setIsLoading(false);
+            worker.terminate();
+          };
+
+          // Set a timeout for the worker
+          timeoutId = setTimeout(() => {
+            worker.terminate();
+            setError(t('tryeditor.timeout'));
+            setShowOutput(true);
+            setIsLoading(false);
+          }, 7000); // 7 second timeout for async
+          
           return;
         } catch (err: any) {
           setError(t('tryeditor.jsInterpreter').replace('{{message}}', err.message));
@@ -445,6 +457,7 @@ export default function JsTryEditor({
     <>
       <div className={styles.editorSection}>
         <MonacoEditor
+          key={language} // Force re-render when language changes
           height="300px"
           defaultLanguage={language}
           language={language}
@@ -456,6 +469,19 @@ export default function JsTryEditor({
             minimap: { enabled: false },
             scrollBeyondLastLine: false,
             wordWrap: "on",
+          }}
+          onMount={(editor, monaco) => {
+            if (language === "javascript") {
+              monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+                noSemanticValidation: true,
+                noSyntaxValidation: false,
+              });
+              monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+                allowNonTsExtensions: true,
+                checkJs: false,
+                noEmit: true,
+              });
+            }
           }}
         />
         {showRunButton && (
