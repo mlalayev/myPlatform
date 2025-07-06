@@ -1,0 +1,194 @@
+{
+  "az": {
+    "title": "JavaScript və DOM",
+    "description": "DOM – JavaScript ilə veb-səhifəni rəqəmsal rəsm lövhəsi kimi idarə etmək üçün alət!",
+    "content": [
+      {
+        "type": "heading",
+        "text": "DOM nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Təsəvvür et ki, veb-səhifə bir rəqəmsal rəsm lövhəsidir. Üzərində düymələr, mətnlər, şəkillər kimi elementlər var. **DOM (Document Object Model)** bu lövhəni təşkil edən ağac strukturudur, burada hər element (məsələn, başlıq, düymə) bir obyekt kimi təmsil olunur. JavaScript isə rəssamın fırçasıdır – DOM vasitəsilə səhifədəki elementləri seçir, dəyişdirir və ya interaktiv edir. Məsələn, bir düyməyə klikləyəndə rəngi dəyişə və ya yeni mətn əlavə edə bilərsən."
+      },
+      {
+        "type": "heading",
+        "text": "DOM necə işləyir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "DOM veb-səhifəni obyektlərə çevirir və JavaScript ilə bu obyektləri idarə etməyə imkan verir. `document` obyekti səhifənin əsas giriş nöqtəsidir. Onunla elementləri seçmək (`getElementById`, `querySelector`), məzmunu dəyişdirmək (`innerHTML`, `textContent`), atributları idarə etmək (`setAttribute`, `getAttribute`) və hadisələri dinləmək (`addEventListener`) mümkündür. Gəlin rəqəmsal rəsm lövhəsi ilə nümunələrə baxaq."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// HTML nümunəsi:\n/*\n<div id=\"canvas\">Salam, Rəssam!</div>\n<button class=\"draw-btn\">Rənglə</button>\n*/\n\n// 1. Element seçimi\nconst canvasElement = document.getElementById(\"canvas\");\nconsole.log(canvasElement); // <div id=\"canvas\">Salam, Rəssam!</div>\n\nconst drawButton = document.querySelector(\".draw-btn\");\nconsole.log(drawButton); // <button class=\"draw-btn\">Rənglə</button>\n\n// 2. Məzmun dəyişdirmə\ncanvasElement.textContent = \"Yeni rəsm əsəri!\";\n// nəticə: <div id=\"canvas\">Yeni rəsm əsəri!</div>\n\ncanvasElement.innerHTML = \"<strong>Yeni rəsm!</strong>\";\n// nəticə: <div id=\"canvas\"><strong>Yeni rəsm!</strong></div>\n\n// 3. Atribut idarəetmə\ncanvasElement.setAttribute(\"style\", \"color: blue;\");\n// nəticə: <div id=\"canvas\" style=\"color: blue;\"><strong>Yeni rəsm!</strong></div>\n\nconsole.log(canvasElement.getAttribute(\"id\")); // \"canvas\"\n\n// 4. Hadisə dinləyicisi\ndrawButton.addEventListener(\"click\", () => {\n  canvasElement.style.backgroundColor = \"yellow\";\n  canvasElement.textContent = \"Rəsm rəngləndi!\";\n});\n// nəticə: Düyməyə klikləyəndə div-in fon rəngi sarıya çevrilir\n\n// 5. Yeni element yaratma\nconst newShape = document.createElement(\"div\");\nnewShape.textContent = \"Yeni forma\";\nnewShape.setAttribute(\"class\", \"shape\");\ndocument.body.appendChild(newShape);\n// nəticə: Səhifəyə yeni <div class=\"shape\">Yeni forma</div> əlavə olunur"
+      },
+      {
+        "type": "heading",
+        "text": "DOM-un xüsusiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "DOM rəqəmsal rəsm lövhəsini idarə etmək üçün çoxsaylı imkanlar təklif edir:\n- **Element seçimi**: `getElementById`, `querySelector` və ya `getElementsByClassName` ilə elementləri tapmaq.\n- **Manipulyasiya**: `innerHTML`, `textContent` və ya `style` ilə məzmun və görünüşü dəyişmək.\n- **Hadisələr**: `addEventListener` ilə klik, yazma və ya siçan hərəkətlərinə reaksiya vermək.\n- **Dinamiklik**: `createElement` və `appendChild` ilə yeni elementlər əlavə etmək.\nMəsələn, bir düyməyə klikləyəndə lövhəyə yeni rəngli forma əlavə edə bilərsən."
+      },
+      {
+        "type": "heading",
+        "text": "DOM-un təhlükələri və üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Üstünlükləri:\n- **İnteraktivlik**: Veb-səhifələri dinamik və istifadəçi dostu edir.\n- **Çeviklik**: Elementləri asanlıqla seçmək, dəyişdirmək və ya silmək mümkündür.\n- **Hadisə idarəetmə**: İstifadəçi hərəkətlərinə tez reaksiya vermək olar.\nTəhlükələr:\n- **Performans**: Çoxsaylı DOM manipulyasiyası səhifəni yavaşlada bilər.\n- **Təhlükəsizlik**: `innerHTML` istifadəsi XSS (Cross-Site Scripting) hücumlarına yol aça bilər.\n- **Mürəkkəbliyi**: Böyük səhifələrdə DOM ağacı ilə işləmək çətinləşə bilər.\nDOM ilə işləyərkən `textContent` kimi təhlükəsiz metodlara üstünlük ver və performans üçün manipulyasiyaları minimuma endir."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Təhlükə nümunəsi: Təhlükəsiz olmayan innerHTML\nconst userInput = \"<script>alert('Hücum!');</script>\";\ncanvasElement.innerHTML = userInput;\n// Təhlükə: Zərərli kod işləyə bilər!\n\n// Təhlükəsiz alternativ\ncanvasElement.textContent = userInput;\n// nəticə: Skript işləməyəcək, sadəcə mətn kimi görünəcək\n\n// Performans nümunəsi: Səmərəli manipulyasiya\nconst fragment = document.createDocumentFragment();\nfor (let i = 0; i < 3; i++) {\n  const shape = document.createElement(\"div\");\n  shape.textContent = `Forma ${i + 1}`;\n  fragment.appendChild(shape);\n}\ndocument.body.appendChild(fragment);\n// nəticə: 3 yeni div bir dəfəyə əlavə olunur, performans yaxşılaşır\n\n// Hadisə ilə dinamik dəyişiklik\nconst colorInput = document.createElement(\"input\");\ncolorInput.type = \"color\";\ndocument.body.appendChild(colorInput);\ncolorInput.addEventListener(\"input\", () => {\n  canvasElement.style.backgroundColor = colorInput.value;\n});\n// nəticə: Rəng seçdikcə div-in fon rəngi dəyişir"
+      },
+      {
+        "type": "heading",
+        "text": "Nə vaxt DOM istifadə etməli?"
+      },
+      {
+        "type": "paragraph",
+        "text": "DOM veb-səhifədəki elementləri dinamik şəkildə dəyişdirmək, istifadəçi hərəkətlərinə reaksiya vermək və ya yeni məzmun əlavə etmək üçün istifadə olunur. Məsələn, rəqəmsal rəsm lövhəsində düyməyə klikləyəndə yeni forma əlavə etmək və ya rəng dəyişdirmək üçün idealdır. Böyük layihələrdə performans üçün `DocumentFragment` istifadə et və təhlükəsizlik üçün `innerHTML` yerinə `textContent` seç."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Öz DOM nümunəni yarat!\nconst canvasElement = document.createElement(\"div\");\ncanvasElement.textContent = \"Rəsm lövhəsi\";\ncanvasElement.setAttribute(\"style\", \"padding: 10px; border: 1px solid black;\");\ndocument.body.appendChild(canvasElement);\n\nconst drawButton = document.createElement(\"button\");\ndrawButton.textContent = \"Rənglə\";\ndocument.body.appendChild(drawButton);\n\ndrawButton.addEventListener(\"click\", () => {\n  canvasElement.style.backgroundColor = \"lightblue\";\n  canvasElement.textContent = \"Lövhə rəngləndi!\";\n});"
+      }
+    ]
+  },
+  "en": {
+    "title": "JavaScript and DOM",
+    "description": "DOM – a tool for manipulating a web page like a digital canvas with JavaScript!",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is the DOM?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Imagine a web page as a digital canvas with buttons, text, and images as its elements. The **DOM (Document Object Model)** is a tree structure that represents these elements as objects. JavaScript acts like a painter’s brush, using the DOM to select, modify, or make elements interactive. For example, you can change a button’s color or add new text when clicked."
+      },
+      {
+        "type": "heading",
+        "text": "How does the DOM work?"
+      },
+      {
+        "type": "paragraph",
+        "text": "The DOM turns a web page into objects that JavaScript can manipulate. The `document` object is the entry point. You can select elements (`getElementById`, `querySelector`), modify content (`innerHTML`, `textContent`), manage attributes (`setAttribute`, `getAttribute`), and listen for events (`addEventListener`). Let’s explore with a digital canvas example."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// HTML example:\n/*\n<div id=\"canvas\">Hello, Painter!</div>\n<button class=\"draw-btn\">Paint</button>\n*/\n\n// 1. Selecting elements\nconst canvasElement = document.getElementById(\"canvas\");\nconsole.log(canvasElement); // <div id=\"canvas\">Hello, Painter!</div>\n\nconst drawButton = document.querySelector(\".draw-btn\");\nconsole.log(drawButton); // <button class=\"draw-btn\">Paint</button>\n\n// 2. Modifying content\ncanvasElement.textContent = \"New artwork!\";\n// Output: <div id=\"canvas\">New artwork!</div>\n\ncanvasElement.innerHTML = \"<strong>New painting!</strong>\";\n// Output: <div id=\"canvas\"><strong>New painting!</strong></div>\n\n// 3. Managing attributes\ncanvasElement.setAttribute(\"style\", \"color: blue;\");\n// Output: <div id=\"canvas\" style=\"color: blue;\"><strong>New painting!</strong></div>\n\nconsole.log(canvasElement.getAttribute(\"id\")); // \"canvas\"\n\n// 4. Event listener\ndrawButton.addEventListener(\"click\", () => {\n  canvasElement.style.backgroundColor = \"yellow\";\n  canvasElement.textContent = \"Canvas painted!\";\n});\n// Output: Clicking the button changes the div’s background to yellow\n\n// 5. Creating new elements\nconst newShape = document.createElement(\"div\");\nnewShape.textContent = \"New shape\";\nnewShape.setAttribute(\"class\", \"shape\");\ndocument.body.appendChild(newShape);\n// Output: Adds <div class=\"shape\">New shape</div> to the page"
+      },
+      {
+        "type": "heading",
+        "text": "Features of the DOM"
+      },
+      {
+        "type": "paragraph",
+        "text": "The DOM offers many tools for managing a digital canvas:\n- **Element selection**: Use `getElementById`, `querySelector`, or `getElementsByClassName` to find elements.\n- **Manipulation**: Change content or appearance with `innerHTML`, `textContent`, or `style`.\n- **Events**: React to user actions like clicks or typing with `addEventListener`.\n- **Dynamic creation**: Add new elements with `createElement` and `appendChild`.\nFor example, add a new colored shape to the canvas when a button is clicked."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and benefits of the DOM"
+      },
+      {
+        "type": "paragraph",
+        "text": "Benefits:\n- **Interactivity**: Makes web pages dynamic and user-friendly.\n- **Flexibility**: Easily select, modify, or remove elements.\n- **Event handling**: Quickly respond to user interactions.\nDangers:\n- **Performance**: Excessive DOM manipulation can slow down the page.\n- **Security**: Using `innerHTML` can lead to XSS (Cross-Site Scripting) attacks.\n- **Complexity**: Large DOM trees can be hard to manage.\nWhen working with the DOM, prefer safe methods like `textContent` and minimize manipulations for better performance."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Danger example: Unsafe innerHTML\nconst userInput = \"<script>alert('Attack!');</script>\";\ncanvasElement.innerHTML = userInput;\n// Danger: Malicious code could run!\n\n// Safe alternative\ncanvasElement.textContent = userInput;\n// Output: Script won’t run, displayed as plain text\n\n// Performance example: Efficient manipulation\nconst fragment = document.createDocumentFragment();\nfor (let i = 0; i < 3; i++) {\n  const shape = document.createElement(\"div\");\n  shape.textContent = `Shape ${i + 1}`;\n  fragment.appendChild(shape);\n}\ndocument.body.appendChild(fragment);\n// Output: Adds 3 new divs at once, improving performance\n\n// Dynamic change with events\nconst colorInput = document.createElement(\"input\");\ncolorInput.type = \"color\";\ndocument.body.appendChild(colorInput);\ncolorInput.addEventListener(\"input\", () => {\n  canvasElement.style.backgroundColor = colorInput.value;\n});\n// Output: Changing the color input updates the div’s background"
+      },
+      {
+        "type": "heading",
+        "text": "When to use the DOM?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Use the DOM to dynamically change web page elements, respond to user interactions, or add new content. For example, it’s ideal for adding a new shape or changing colors on a digital canvas when a button is clicked. In large projects, use `DocumentFragment` for performance and prefer `textContent` over `innerHTML` for security."
+      },
+      {
+        "type": "heading",
+        "text": "Try it yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Create your own DOM example!\nconst canvasElement = document.createElement(\"div\");\ncanvasElement.textContent = \"Digital canvas\";\ncanvasElement.setAttribute(\"style\", \"padding: 10px; border: 1px solid black;\");\ndocument.body.appendChild(canvasElement);\n\nconst drawButton = document.createElement(\"button\");\ndrawButton.textContent = \"Paint\";\ndocument.body.appendChild(drawButton);\n\ndrawButton.addEventListener(\"click\", () => {\n  canvasElement.style.backgroundColor = \"lightblue\";\n  canvasElement.textContent = \"Canvas painted!\";\n});"
+      }
+    ]
+  },
+  "ru": {
+    "title": "JavaScript и DOM",
+    "description": "DOM – инструмент для управления веб-страницей, как цифровым холстом, с помощью JavaScript!",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое DOM?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Представь, что веб-страница – это цифровой холст с кнопками, текстом и изображениями. **DOM (Document Object Model)** – это древовидная структура, представляющая эти элементы как объекты. JavaScript – это кисть художника, которая через DOM выбирает, изменяет или делает элементы интерактивными. Например, ты можешь изменить цвет кнопки или добавить новый текст при клике."
+      },
+      {
+        "type": "heading",
+        "text": "Как работает DOM?"
+      },
+      {
+        "type": "paragraph",
+        "text": "DOM превращает веб-страницу в объекты, которыми может управлять JavaScript. Объект `document` – основная точка входа. С его помощью можно выбирать элементы (`getElementById`, `querySelector`), изменять содержимое (`innerHTML`, `textContent`), управлять атрибутами (`setAttribute`, `getAttribute`) и слушать события (`addEventListener`). Рассмотрим пример с цифровым холстом."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример HTML:\n/*\n<div id=\"canvas\">Привет, Художник!</div>\n<button class=\"draw-btn\">Раскрасить</button>\n*/\n\n// 1. Выбор элементов\nconst canvasElement = document.getElementById(\"canvas\");\nconsole.log(canvasElement); // <div id=\"canvas\">Привет, Художник!</div>\n\nconst drawButton = document.querySelector(\".draw-btn\");\nconsole.log(drawButton); // <button class=\"draw-btn\">Раскрасить</button>\n\n// 2. Изменение содержимого\ncanvasElement.textContent = \"Новое произведение!\";\n// Вывод: <div id=\"canvas\">Новое произведение!</div>\n\ncanvasElement.innerHTML = \"<strong>Новая картина!</strong>\";\n// Вывод: <div id=\"canvas\"><strong>Новая картина!</strong></div>\n\n// 3. Управление атрибутами\ncanvasElement.setAttribute(\"style\", \"color: blue;\");\n// Вывод: <div id=\"canvas\" style=\"color: blue;\"><strong>Новая картина!</strong></div>\n\nconsole.log(canvasElement.getAttribute(\"id\")); // \"canvas\"\n\n// 4. Слушатель событий\ndrawButton.addEventListener(\"click\", () => {\n  canvasElement.style.backgroundColor = \"yellow\";\n  canvasElement.textContent = \"Холст раскрашен!\";\n});\n// Вывод: При клике на кнопку фон div становится жёлтым\n\n// 5. Создание новых элементов\nconst newShape = document.createElement(\"div\");\nnewShape.textContent = \"Новая форма\";\nnewShape.setAttribute(\"class\", \"shape\");\ndocument.body.appendChild(newShape);\n// Вывод: Добавляет <div class=\"shape\">Новая форма</div> на страницу"
+      },
+      {
+        "type": "heading",
+        "text": "Особенности DOM"
+      },
+      {
+        "type": "paragraph",
+        "text": "DOM предлагает множество инструментов для управления цифровым холстом:\n- **Выбор элементов**: Используй `getElementById`, `querySelector` или `getElementsByClassName` для поиска элементов.\n- **Манипуляция**: Изменяй содержимое или внешний вид с помощью `innerHTML`, `textContent` или `style`.\n- **События**: Реагируй на действия пользователя, такие как клики или ввод, с помощью `addEventListener`.\n- **Динамичность**: Добавляй новые элементы с помощью `createElement` и `appendChild`.\nНапример, добавляй новую цветную форму на холст при клике на кнопку."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и преимущества DOM"
+      },
+      {
+        "type": "paragraph",
+        "text": "Преимущества:\n- **Интерактивность**: Делает веб-страницы динамичными и удобными для пользователя.\n- **Гибкость**: Легко выбирать, изменять или удалять элементы.\n- **Обработка событий**: Быстро реагировать на действия пользователя.\nОпасности:\n- **Производительность**: Чрезмерные манипуляции с DOM могут замедлить страницу.\n- **Безопасность**: Использование `innerHTML` может привести к XSS-атакам.\n- **Сложность**: Работа с большим DOM-деревом может быть трудной.\nПри работе с DOM предпочитай безопасные методы, такие как `textContent`, и минимизируй манипуляции для повышения производительности."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример опасности: Небезопасный innerHTML\nconst userInput = \"<script>alert('Атака!');</script>\";\ncanvasElement.innerHTML = userInput;\n// Опасность: Вредоносный код может выполниться!\n\n// Безопасная альтернатива\ncanvasElement.textContent = userInput;\n// Вывод: Скрипт не выполнится, отобразится как текст\n\n// Пример производительности: Эффективная манипуляция\nconst fragment = document.createDocumentFragment();\nfor (let i = 0; i < 3; i++) {\n  const shape = document.createElement(\"div\");\n  shape.textContent = `Форма ${i + 1}`;\n  fragment.appendChild(shape);\n}\ndocument.body.appendChild(fragment);\n// Вывод: Добавляет 3 новых div за один раз, улучшая производительность\n\n// Динамическое изменение с событиями\nconst colorInput = document.createElement(\"input\");\ncolorInput.type = \"color\";\ndocument.body.appendChild(colorInput);\ncolorInput.addEventListener(\"input\", () => {\n  canvasElement.style.backgroundColor = colorInput.value;\n});\n// Вывод: Выбор цвета изменяет фон div"
+      },
+      {
+        "type": "heading",
+        "text": "Когда использовать DOM?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Используй DOM для динамического изменения элементов веб-страницы, реакции на действия пользователя или добавления нового содержимого. Например, это идеально для добавления новой формы или изменения цвета на цифровом холсте при клике на кнопку. В крупных проектах используй `DocumentFragment` для производительности и предпочитай `textContent` вместо `innerHTML` для безопасности."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Создай свой пример с DOM!\nconst canvasElement = document.createElement(\"div\");\ncanvasElement.textContent = \"Цифровой холст\";\ncanvasElement.setAttribute(\"style\", \"padding: 10px; border: 1px solid black;\");\ndocument.body.appendChild(canvasElement);\n\nconst drawButton = document.createElement(\"button\");\ndrawButton.textContent = \"Раскрасить\";\ndocument.body.appendChild(drawButton);\n\ndrawButton.addEventListener(\"click\", () => {\n  canvasElement.style.backgroundColor = \"lightblue\";\n  canvasElement.textContent = \"Холст раскрашен!\";\n});"
+      }
+    ]
+  }
+}

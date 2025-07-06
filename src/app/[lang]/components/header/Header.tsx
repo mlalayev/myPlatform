@@ -27,15 +27,32 @@ const languages = [
 ];
 
 const Header: React.FC = () => {
-  const { t } = useI18n();
   const { data: session, status } = useSession();
-  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const profileDropdownRef = useRef<HTMLDivElement>(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const pathname = usePathname();
   const router = useRouter();
-  const currentLang = pathname.split("/")[1] || "en";
+  const pathname = usePathname();
+  const { t } = useI18n();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Debug logging for session data
+  useEffect(() => {
+    if (session?.user) {
+      console.log("Header - Session user data:", {
+        id: (session.user as any).id,
+        name: session.user.name,
+        email: session.user.email,
+        avatarUrl: (session.user as any).avatarUrl,
+        role: (session.user as any).role
+      });
+    }
+  }, [session]);
+
+  const currentLang =
+    typeof window !== "undefined"
+      ? window.location.pathname.split("/")[1] || "en"
+      : "en";
 
   const navItems = [
     { label: t("header.home"), href: `/${currentLang}`, icon: <FiHome /> },
@@ -167,19 +184,35 @@ const Header: React.FC = () => {
               onClick={() => setIsProfileDropdownOpen((v) => !v)}
               aria-label="Profil"
             >
-              {(session.user as any).avatar ? (
-                <img src={(session.user as any).avatar} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
-              ) : (
+              {(() => {
+                const avatarUrl = (session.user as any).avatarUrl;
+                
+                if (avatarUrl) {
+                  return (
+                    <img 
+                      src={avatarUrl} 
+                      alt="avatar" 
+                      className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm" 
+                    />
+                  );
+                } else {
+                  return (
                 <div className={HeaderStyle.avatar}>
                   {session.user.name?.[0]?.toUpperCase() || "👤"}
                 </div>
-              )}
+                  );
+                }
+              })()}
             </button>
             {isProfileDropdownOpen && (
               <div className={HeaderStyle.profileMenu}>
                 <div className={HeaderStyle.profileMenuUser}>
-                  {(session.user as any).avatar ? (
-                    <img src={(session.user as any).avatar} alt="avatar" className={HeaderStyle.profileMenuAvatar} />
+                  {(session.user as any).avatarUrl ? (
+                    <img 
+                      src={(session.user as any).avatarUrl} 
+                      alt="avatar" 
+                      className={HeaderStyle.profileMenuAvatar} 
+                    />
                   ) : (
                     <div className={HeaderStyle.profileMenuAvatar}>
                       {session.user.name?.[0]?.toUpperCase() || "👤"}

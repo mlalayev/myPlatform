@@ -1,0 +1,194 @@
+{
+    "az": {
+      "title": "Asinxron JavaScript",
+      "description": "Asinxron JavaScript – oyun dünyasında tapşırıqları sinxronlaşdırmaq və serverdən məlumat almaq üçün alətlər!",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Asinxron JavaScript nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Təsəvvür et ki, sən onlayn bir oyunun idarəçisisən. Oyunçular hərəkət edir, serverdən xallar və ya yeni səviyyələr yüklənir, amma bu proseslər dərhal baş vermir – vaxt tələb edir. Əgər hər şey sinxron işləsə, oyun server cavab verənə qədər donub qalar. JavaScript-də **asinxron proqramlaşdırma** bu problemi həll edir: tapşırıqlar fon rejimində işləyir, oyun isə dayanmır. Bu, oyun serverindən məlumat almaq və ya tapşırıqları ardıcıllıqla idarə etmək üçün bir oyun idarəetmə sistemi kimidir."
+        },
+        {
+          "type": "heading",
+          "text": "Asinxron JavaScript necə işləyir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "JavaScript tək saplı (single-threaded) dildir, yəni eyni anda yalnız bir tapşırıq yerinə yetirə bilər. Asinxron mexanizmlər (`setTimeout`, `Promises`, `async/await`, `fetch`) isə tapşırıqların gözləmə müddətini idarə edir, beləliklə kod digər əməliyyatları davam etdirə bilir. Gəlin oyun dünyası ilə bunu izah edək."
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "// 1. setTimeout: Tapşırığı müəyyən gecikmə ilə yerinə yetirir\nfunction loadGameLevel(level, callback) {\n  console.log(`Səviyyə ${level} yüklənir...`);\n  setTimeout(() => {\n    console.log(`Səviyyə ${level} yükləndi!`);\n    callback();\n  }, 2000);\n}\n\nloadGameLevel(1, () => {\n  console.log(\"Oyunçu səviyyəyə daxil oldu!\");\n});\n// nəticə:\n// Səviyyə 1 yüklənir...\n// (2 saniyə sonra) Səviyyə 1 yükləndi!\n// Oyunçu səviyyəyə daxil oldu!\n\n// 2. Promise: Gələcək nəticəni təmsil edir\nfunction fetchPlayerData(playerId) {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => {\n      if (Math.random() > 0.2) {\n        resolve({ id: playerId, score: 1000 });\n      } else {\n        reject(\"Oyunçu məlumatları yüklənmədi!\");\n      }\n    }, 1500);\n  });\n}\n\nfetchPlayerData(123)\n  .then(data => console.log(`Oyunçu skoru: ${data.score}`))\n  .catch(error => console.log(`Səhv: ${error}`));\n// nəticə (ehtimala görə):\n// Oyunçu skoru: 1000\n// və ya: Səhv: Oyunçu məlumatları yüklənmədi!\n\n// 3. async/await: Promise-ləri daha oxunaqlı idarə edir\nasync function startGame(playerId) {\n  try {\n    console.log(\"Oyun başlayır...\");\n    let data = await fetchPlayerData(playerId);\n    console.log(`Oyunçu ${playerId} hazırdır, skor: ${data.score}`);\n  } catch (error) {\n    console.log(`Səhv: ${error}`);\n  }\n}\n\nstartGame(123);\n// nəticə:\n// Oyun başlayır...\n// (1.5 saniyə sonra) Oyunçu 123 hazırdır, skor: 1000\n\n// 4. fetch: Serverdən məlumat almaq\nasync function getGameLeaderboard() {\n  try {\n    let response = await fetch(\"https://api.example.com/leaderboard\");\n    let data = await response.json();\n    console.log(\"Liderlər: \", data);\n  } catch (error) {\n    console.log(\"Server səhvi: \", error);\n  }\n}\n\ngetGameLeaderboard();\n// nəticə: API-dən asılı olaraq liderlər siyahısı və ya səhv"
+        },
+        {
+          "type": "heading",
+          "text": "Asinxron JavaScript-in xüsusiyyətləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Asinxron JavaScript oyun dünyasında tapşırıqları idarə etmək üçün çevik alətlər təklif edir:\n- **Gözləmə olmadan iş**: `setTimeout` və `Promises` tapşırıqları fon rejimində işlədir, oyun donmur.\n- **Oxunaqlılıq**: `async/await` Promise-ləri sinxron kod kimi oxunaqlı edir.\n- **Səhv idarəetmə**: `try/catch` ilə səhvləri asanlıqla tutmaq olar.\n- **API inteqrasiyası**: `fetch` ilə serverdən məlumat almaq asandır.\nMəsələn, oyunçunun xallarını serverdən `fetch` ilə yükləyə və `await` ilə gözləyə bilərsən."
+        },
+        {
+          "type": "heading",
+          "text": "Asinxron JavaScript-in təhlükələri və üstünlükləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Üstünlükləri:\n- **Performans**: Asinxron əməliyyatlar oyunun və ya tətbiqin dayanmasının qarşısını alır.\n- **Oxunaqlılıq**: `async/await` ilə kod daha başa düşülən olur.\n- **Səmərəlilik**: Serverdən məlumat almaq və ya uzun tapşırıqları idarə etmək asanlaşır.\nTəhlükələr:\n- **Mürəkkəbliyi**: Callback-lər çox olduqda 'Callback Hell' yaranır.\n- **Səhv idarəetmə**: Səhvləri tutmaq üçün `try/catch` və ya `.catch` istifadə edilməsə, problemlər yaranır.\n- **Asılılıq**: Server cavab verməsə, asinxron əməliyyatlar uğursuz ola bilər.\nAsinxron kod yazarkən səhvləri idarə etmək və `Promises` və ya `async/await` istifadə etmək tövsiyə olunur."
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "// Callback Hell nümunəsi\nfunction loadLevel(level, callback) {\n  setTimeout(() => {\n    console.log(`Səviyyə ${level} yükləndi`);\n    callback();\n  }, 1000);\n}\n\nloadLevel(1, () => {\n  loadLevel(2, () => {\n    loadLevel(3, () => {\n      console.log(\"Bütün səviyyələr yükləndi!\");\n    });\n  });\n});\n\n// Eyni tapşırıq async/await ilə\nasync function loadAllLevels() {\n  try {\n    await fetchPlayerData(1);\n    console.log(\"Səviyyə 1 yükləndi\");\n    await fetchPlayerData(2);\n    console.log(\"Səviyyə 2 yükləndi\");\n    await fetchPlayerData(3);\n    console.log(\"Bütün səviyyələr yükləndi!\");\n  } catch (error) {\n    console.log(\"Səhv: \", error);\n  }\n}\n\nloadAllLevels();"
+        },
+        {
+          "type": "heading",
+          "text": "Nə vaxt Asinxron JavaScript istifadə etməli?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Asinxron JavaScript serverdən məlumat almaq (`fetch`), vaxt tələb edən tapşırıqları idarə etmək (`setTimeout`) və ya tapşırıqların ardıcıllığını təmin etmək (`Promises`, `async/await`) üçün istifadə olunur. Məsələn, oyunçunun xallarını serverdən yükləmək və ya səviyyələri ardıcıllıqla açmaq üçün idealdır. Böyük layihələrdə `async/await` istifadəsi kodun oxunaqlılığını artırır, lakin səhvləri idarə etməyi unutma."
+        },
+        {
+          "type": "heading",
+          "text": "Sınaq üçün nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Öz asinxron nümunəni yarat!\nasync function startGame(playerId) {\n  try {\n    console.log(`Oyunçu ${playerId} üçün oyun başlayır...`);\n    let data = await new Promise(resolve => {\n      setTimeout(() => resolve({ id: playerId, score: 500 }), 1000);\n    });\n    console.log(`Oyunçu skoru: ${data.score}`);\n  } catch (error) {\n    console.log(\"Səhv: \", error);\n  }\n}\n\nstartGame(456);"
+        }
+      ]
+    },
+    "en": {
+      "title": "Asynchronous JavaScript",
+      "description": "Asynchronous JavaScript – tools for syncing tasks and fetching data in a gaming world!",
+      "content": [
+        {
+          "type": "heading",
+          "text": "What is Asynchronous JavaScript?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Imagine you’re managing an online game. Players move, scores or new levels load from a server, but these tasks take time. If everything ran synchronously, the game would freeze until the server responded. **Asynchronous JavaScript** solves this by running tasks in the background, keeping the game smooth. It’s like a game management system handling server requests or task sequences without halting gameplay."
+        },
+        {
+          "type": "heading",
+          "text": "How does Asynchronous JavaScript work?"
+        },
+        {
+          "type": "paragraph",
+          "text": "JavaScript is single-threaded, meaning it handles one task at a time. Asynchronous mechanisms (`setTimeout`, `Promises`, `async/await`, `fetch`) manage waiting periods, allowing other operations to continue. Let’s explore with a gaming world example."
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "// 1. setTimeout: Runs a task after a delay\nfunction loadGameLevel(level, callback) {\n  console.log(`Level ${level} loading...`);\n  setTimeout(() => {\n    console.log(`Level ${level} loaded!`);\n    callback();\n  }, 2000);\n}\n\nloadGameLevel(1, () => {\n  console.log(\"Player entered the level!\");\n});\n// Output:\n// Level 1 loading...\n// (2 seconds later) Level 1 loaded!\n// Player entered the level!\n\n// 2. Promise: Represents a future result\nfunction fetchPlayerData(playerId) {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => {\n      if (Math.random() > 0.2) {\n        resolve({ id: playerId, score: 1000 });\n      } else {\n        reject(\"Player data failed to load!\");\n      }\n    }, 1500);\n  });\n}\n\nfetchPlayerData(123)\n  .then(data => console.log(`Player score: ${data.score}`))\n  .catch(error => console.log(`Error: ${error}`));\n// Output (depending on chance):\n// Player score: 1000\n// or: Error: Player data failed to load!\n\n// 3. async/await: Makes Promises more readable\nasync function startGame(playerId) {\n  try {\n    console.log(\"Game starting...\");\n    let data = await fetchPlayerData(playerId);\n    console.log(`Player ${playerId} ready, score: ${data.score}`);\n  } catch (error) {\n    console.log(`Error: ${error}`);\n  }\n}\n\nstartGame(123);\n// Output:\n// Game starting...\n// (1.5 seconds later) Player 123 ready, score: 1000\n\n// 4. fetch: Fetches data from a server\nasync function getGameLeaderboard() {\n  try {\n    let response = await fetch(\"https://api.example.com/leaderboard\");\n    let data = await response.json();\n    console.log(\"Leaderboard: \", data);\n  } catch (error) {\n    console.log(\"Server error: \", error);\n  }\n}\n\ngetGameLeaderboard();\n// Output: Leaderboard data or error, depending on API"
+        },
+        {
+          "type": "heading",
+          "text": "Features of Asynchronous JavaScript"
+        },
+        {
+          "type": "paragraph",
+          "text": "Asynchronous JavaScript offers flexible tools for managing tasks in a gaming world:\n- **Non-blocking**: `setTimeout` and `Promises` run tasks in the background, keeping the game running.\n- **Readability**: `async/await` makes Promise-based code look synchronous and clear.\n- **Error handling**: `try/catch` simplifies catching errors.\n- **API integration**: `fetch` makes server data retrieval straightforward.\nFor example, you can load a player’s score with `fetch` and wait for it with `await`."
+        },
+        {
+          "type": "heading",
+          "text": "Dangers and benefits of Asynchronous JavaScript"
+        },
+        {
+          "type": "paragraph",
+          "text": "Benefits:\n- **Performance**: Asynchronous tasks prevent the game or app from freezing.\n- **Readability**: `async/await` makes code more intuitive.\n- **Efficiency**: Simplifies handling server requests or long tasks.\nDangers:\n- **Complexity**: Too many callbacks can lead to 'Callback Hell'.\n- **Error handling**: Without `try/catch` or `.catch`, errors can break the code.\n- **Dependencies**: If a server fails, asynchronous operations may fail.\nWhen writing async code, handle errors properly and prefer `Promises` or `async/await` over callbacks."
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "// Callback Hell example\nfunction loadLevel(level, callback) {\n  setTimeout(() => {\n    console.log(`Level ${level} loaded`);\n    callback();\n  }, 1000);\n}\n\nloadLevel(1, () => {\n  loadLevel(2, () => {\n    loadLevel(3, () => {\n      console.log(\"All levels loaded!\");\n    });\n  });\n});\n\n// Same task with async/await\nasync function loadAllLevels() {\n  try {\n    await fetchPlayerData(1);\n    console.log(\"Level 1 loaded\");\n    await fetchPlayerData(2);\n    console.log(\"Level 2 loaded\");\n    await fetchPlayerData(3);\n    console.log(\"All levels loaded!\");\n  } catch (error) {\n    console.log(\"Error: \", error);\n  }\n}\n\nloadAllLevels();"
+        },
+        {
+          "type": "heading",
+          "text": "When to use Asynchronous JavaScript?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Use Asynchronous JavaScript for fetching data from servers (`fetch`), managing time-consuming tasks (`setTimeout`), or ensuring task sequences (`Promises`, `async/await`). For example, it’s ideal for loading player scores or unlocking game levels in sequence. In larger projects, `async/await` improves readability, but always handle errors to avoid issues."
+        },
+        {
+          "type": "heading",
+          "text": "Try it yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Create your own async example!\nasync function startGame(playerId) {\n  try {\n    console.log(`Game starting for player ${playerId}...`);\n    let data = await new Promise(resolve => {\n      setTimeout(() => resolve({ id: playerId, score: 500 }), 1000);\n    });\n    console.log(`Player score: ${data.score}`);\n  } catch (error) {\n    console.log(\"Error: \", error);\n  }\n}\n\nstartGame(456);"
+        }
+      ]
+    },
+    "ru": {
+      "title": "Асинхронный JavaScript",
+      "description": "Асинхронный JavaScript – инструменты для синхронизации задач и получения данных в игровом мире!",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Что такое асинхронный JavaScript?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Представь, что ты управляешь онлайн-игрой. Игроки двигаются, очки или новые уровни загружаются с сервера, но эти процессы занимают время. Если всё работает синхронно, игра зависнет, пока сервер не ответит. **Асинхронный JavaScript** решает эту проблему, выполняя задачи в фоновом режиме, чтобы игра не останавливалась. Это как система управления игрой, которая обрабатывает запросы к серверу или последовательность задач без прерывания игрового процесса."
+        },
+        {
+          "type": "heading",
+          "text": "Как работает асинхронный JavaScript?"
+        },
+        {
+          "type": "paragraph",
+          "text": "JavaScript – однопоточный язык, то есть выполняет только одну задачу за раз. Асинхронные механизмы (`setTimeout`, `Promises`, `async/await`, `fetch`) управляют периодами ожидания, позволяя другим операциям продолжаться. Рассмотрим это на примере игрового мира."
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "// 1. setTimeout: Выполняет задачу с задержкой\nfunction loadGameLevel(level, callback) {\n  console.log(`Уровень ${level} загружается...`);\n  setTimeout(() => {\n    console.log(`Уровень ${level} загружен!`);\n    callback();\n  }, 2000);\n}\n\nloadGameLevel(1, () => {\n  console.log(\"Игрок вошёл на уровень!\");\n});\n// Вывод:\n// Уровень 1 загружается...\n// (2 секунды спустя) Уровень 1 загружен!\n// Игрок вошёл на уровень!\n\n// 2. Promise: Представляет будущий результат\nfunction fetchPlayerData(playerId) {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => {\n      if (Math.random() > 0.2) {\n        resolve({ id: playerId, score: 1000 });\n      } else {\n        reject(\"Данные игрока не загружены!\");\n      }\n    }, 1500);\n  });\n}\n\nfetchPlayerData(123)\n  .then(data => console.log(`Очки игрока: ${data.score}`))\n  .catch(error => console.log(`Ошибка: ${error}`));\n// Вывод (в зависимости от шанса):\n// Очки игрока: 1000\n// или: Ошибка: Данные игрока не загружены!\n\n// 3. async/await: Делает Promises более читаемыми\nasync function startGame(playerId) {\n  try {\n    console.log(\"Игра начинается...\");\n    let data = await fetchPlayerData(playerId);\n    console.log(`Игрок ${playerId} готов, очки: ${data.score}`);\n  } catch (error) {\n    console.log(`Ошибка: ${error}`);\n  }\n}\n\nstartGame(123);\n// Вывод:\n// Игра начинается...\n// (1.5 секунды спустя) Игрок 123 готов, очки: 1000\n\n// 4. fetch: Получает данные с сервера\nasync function getGameLeaderboard() {\n  try {\n    let response = await fetch(\"https://api.example.com/leaderboard\");\n    let data = await response.json();\n    console.log(\"Таблица лидеров: \", data);\n  } catch (error) {\n    console.log(\"Ошибка сервера: \", error);\n  }\n}\n\ngetGameLeaderboard();\n// Вывод: Данные таблицы лидеров или ошибка, в зависимости от API"
+        },
+        {
+          "type": "heading",
+          "text": "Особенности асинхронного JavaScript"
+        },
+        {
+          "type": "paragraph",
+          "text": "Асинхронный JavaScript предлагает гибкие инструменты для управления задачами в игровом мире:\n- **Неблокирующая работа**: `setTimeout` и `Promises` выполняют задачи в фоновом режиме, не останавливая игру.\n- **Читаемость**: `async/await` делает код на основе Promises похожим на синхронный и понятным.\n- **Обработка ошибок**: `try/catch` упрощает перехват ошибок.\n- **Интеграция с API**: `fetch` облегчает получение данных с сервера.\nНапример, ты можешь загрузить очки игрока с помощью `fetch` и ждать их с `await`."
+        },
+        {
+          "type": "heading",
+          "text": "Опасности и преимущества асинхронного JavaScript"
+        },
+        {
+          "type": "paragraph",
+          "text": "Преимущества:\n- **Производительность**: Асинхронные задачи предотвращают зависание игры или приложения.\n- **Читаемость**: `async/await` делает код более интуитивным.\n- **Эффективность**: Упрощает работу с запросами к серверу или длительными задачами.\nОпасности:\n- **Сложность**: Множество обратных вызовов могут привести к 'Callback Hell'.\n- **Обработка ошибок**: Без `try/catch` или `.catch` ошибки могут нарушить работу кода.\n- **Зависимости**: Если сервер не отвечает, асинхронные операции могут завершиться неудачей.\nПри написании асинхронного кода важно обрабатывать ошибки и предпочитать `Promises` или `async/await` обратным вызовам."
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "// Пример Callback Hell\nfunction loadLevel(level, callback) {\n  setTimeout(() => {\n    console.log(`Уровень ${level} загружен`);\n    callback();\n  }, 1000);\n}\n\nloadLevel(1, () => {\n  loadLevel(2, () => {\n    loadLevel(3, () => {\n      console.log(\"Все уровни загружены!\");\n    });\n  });\n});\n\n// Та же задача с async/await\nasync function loadAllLevels() {\n  try {\n    await fetchPlayerData(1);\n    console.log(\"Уровень 1 загружен\");\n    await fetchPlayerData(2);\n    console.log(\"Уровень 2 загружен\");\n    await fetchPlayerData(3);\n    console.log(\"Все уровни загружены!\");\n  } catch (error) {\n    console.log(\"Ошибка: \", error);\n  }\n}\n\nloadAllLevels();"
+        },
+        {
+          "type": "heading",
+          "text": "Когда использовать асинхронный JavaScript?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Используй асинхронный JavaScript для получения данных с серверов (`fetch`), управления длительными задачами (`setTimeout`) или обеспечения последовательности задач (`Promises`, `async/await`). Например, он идеален для загрузки очков игрока или последовательного открытия уровней. В крупных проектах `async/await` улучшает читаемость, но не забывай обрабатывать ошибки."
+        },
+        {
+          "type": "heading",
+          "text": "Попробуй сам"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Создай свой асинхронный пример!\nasync function startGame(playerId) {\n  try {\n    console.log(`Игра начинается для игрока ${playerId}...`);\n    let data = await new Promise(resolve => {\n      setTimeout(() => resolve({ id: playerId, score: 500 }), 1000);\n    });\n    console.log(`Очки игрока: ${data.score}`);\n  } catch (error) {\n    console.log(\"Ошибка: \", error);\n  }\n}\n\nstartGame(456);"
+        }
+      ]
+    }
+  }

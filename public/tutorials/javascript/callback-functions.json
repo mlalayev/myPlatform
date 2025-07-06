@@ -1,0 +1,194 @@
+{
+  "az": {
+    "title": "Geri Çağırış Funksiyaları (Callback Functions)",
+    "description": "Geri çağırış funksiyaları – JavaScript-də tapşırıqları ardıcıllıqla yerinə yetirmək üçün planlaşdırma aləti!",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Geri çağırış funksiyaları nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Təsəvvür et ki, sən musiqi konserti təşkil edirsən. Səhnəni qurmalı, musiqiçiləri çağırmalı və biletləri satmalısan. Amma bu tapşırıqlar müəyyən ardıcıllıqla yerinə yetirilməlidir: məsələn, səhnə hazır olmadan musiqiçilər səhnəyə çıxa bilməz. JavaScript-də `geri çağırış funksiyaları` (callback functions) bu ardıcıllığı təmin edir – bir funksiya digər funksiyanı parametr kimi qəbul edir və müəyyən bir tapşırıq bitdikdən sonra onu çağırır. Bu, konsert planında tapşırıqların düzgün sırayla icra olunmasına bənzəyir."
+      },
+      {
+        "type": "heading",
+        "text": "Geri çağırış funksiyaları necə işləyir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Geri çağırış funksiyası başqa bir funksiyaya arqument kimi ötürülür və müəyyən bir şərt yerinə yetirildikdə (məsələn, tapşırıq bitdikdə) çağırılır. Bu, xüsusilə asinxron əməliyyatlarda (məsələn, serverdən məlumat almaq) faydalıdır. Gəlin konsert təşkili ilə nümunələrə baxaq."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Konsert planlaşdırma funksiyası\nfunction setupConcert(task, callback) {\n  console.log(`Tapşırıq yerinə yetirilir: ${task}`);\n  setTimeout(() => {\n    console.log(`${task} tamamlandı!`);\n    callback();\n  }, 2000);\n}\n\n// Geri çağırış funksiyaları\nfunction callMusicians() {\n  console.log(\"Musiqiçilər çağırıldı.\");\n}\n\nfunction sellTickets() {\n  console.log(\"Biletlər satışa çıxarıldı.\");\n}\n\n// Geri çağırış ilə istifadə\nsetupConcert(\"Səhnə qurulur\", callMusicians);\n// nəticə:\n// Tapşırıq yerinə yetirilir: Səhnə qurulur\n// (2 saniyə sonra) Səhnə qurulur tamamlandı!\n// Musiqiçilər çağırıldı.\n\n// Zəncirlənmiş geri çağırış\nsetupConcert(\"Səhnə qurulur\", () => {\n  console.log(\"Səhnə hazırdır!\");\n  setupConcert(\"Musiqiçilər hazırlanır\", sellTickets);\n});\n// nəticə:\n// Tapşırıq yerinə yetirilir: Səhnə qurulur\n// (2 saniyə sonra) Səhnə qurulur tamamlandı!\n// Səhnə hazırdır!\n// Tapşırıq yerinə yetirilir: Musiqiçilər hazırlanır\n// (2 saniyə sonra) Musiqiçilər hazırlanır tamamlandı!\n// Biletlər satışa çıxarıldı."
+      },
+      {
+        "type": "heading",
+        "text": "Geri çağırış funksiyalarının xüsusiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Geri çağırış funksiyaları konsert planını idarə etmək üçün güclü bir alətdir:\n- **Ardıcıllıq**: Tapşırıqların düzgün sırayla icra olunmasını təmin edir.\n- **Asinxronluq**: Serverdən məlumat almaq və ya vaxt tələb edən əməliyyatlar üçün idealdır.\n- **Çeviklik**: İstənilən funksiyanı geri çağırış kimi ötürmək mümkündür.\n- **Sadəlik**: Kodun strukturunu başa düşmək asandır, xüsusən kiçik tapşırıqlarda.\nMəsələn, səhnə qurulduqdan sonra musiqiçiləri çağırmaq üçün geri çağırış istifadə edə bilərsən."
+      },
+      {
+        "type": "heading",
+        "text": "Geri çağırış funksiyalarının təhlükələri və üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Üstünlükləri:\n- **Nəzarət**: Asinxron tapşırıqların sırasını idarə etmək asandır.\n- **Sadəlik**: Kiçik layihələrdə asan və effektivdir.\n- **Universallıq**: İstənilən funksiyanı geri çağırış kimi istifadə etmək olar.\nTəhlükələr:\n- **Callback Hell**: Çoxsaylı iç-içə geri çağırışlar kodu mürəkkəbləşdirə bilər.\n- **Səhv idarəetmə**: Səhvləri tutmaq və idarə etmək çətin ola bilər.\n- **Oxunaqlılıq**: Çox geri çağırış olduqda kodun oxunması çətinləşir.\nGeri çağırışları sadə tapşırıqlarda istifadə etmək və böyük layihələrdə `Promise` və ya `async/await` kimi alternativlərə baxmaq tövsiyə olunur."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Callback Hell nümunəsi\nsetupConcert(\"Səhnə qurulur\", () => {\n  console.log(\"Səhnə hazırdır!\");\n  setupConcert(\"Musiqiçilər hazırlanır\", () => {\n    console.log(\"Musiqiçilər hazırdır!\");\n    setupConcert(\"Biletlər satılır\", () => {\n      console.log(\"Konsert başlaya bilər!\");\n    });\n  });\n});\n\n// Səhv idarəetmə ilə geri çağırış\nfunction setupConcertWithError(task, callback) {\n  console.log(`Tapşırıq: ${task}`);\n  setTimeout(() => {\n    if (task === \"Səhnə qurulur\" && Math.random() > 0.7) {\n      callback(new Error(\"Səhnə qurmaq alınmadı!\"));\n    } else {\n      callback(null, `${task} tamamlandı!`);\n    }\n  }, 2000);\n}\n\nsetupConcertWithError(\"Səhnə qurulur\", (err, result) => {\n  if (err) {\n    console.log(\"Səhv: \", err.message);\n    return;\n  }\n  console.log(result);\n});"
+      },
+      {
+        "type": "heading",
+        "text": "Nə vaxt geri çağırış funksiyalarından istifadə etməli?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Geri çağırış funksiyaları asinxron tapşırıqları (məsələn, serverdən məlumat almaq, vaxt tələb edən əməliyyatlar) idarə etmək və ya tapşırıqların ardıcıllığını təmin etmək üçün istifadə olunur. Məsələn, konsertdə səhnə qurulduqdan sonra musiqiçiləri çağırmaq üçün idealdır. Lakin çoxsaylı iç-içə geri çağırışlar olduqda `Promise` və ya `async/await` kimi alternativlərə üstünlük vermək daha yaxşıdır."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Öz geri çağırış nümunəni yarat!\nfunction setupConcert(task, callback) {\n  console.log(`Tapşırıq: ${task}`);\n  setTimeout(() => {\n    console.log(`${task} tamamlandı!`);\n    callback();\n  }, 2000);\n}\n\nsetupConcert(\"Səhnə qurulur\", () => {\n  console.log(\"Musiqiçilər çağırıldı!\");\n});"
+      }
+    ]
+  },
+  "en": {
+    "title": "Callback Functions",
+    "description": "Callback functions – a JavaScript tool for scheduling tasks in sequence!",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Callback Functions?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Imagine you’re organizing a music concert. You need to set up the stage, call the musicians, and sell tickets, but these tasks must happen in order: musicians can’t perform until the stage is ready. In JavaScript, `callback functions` ensure this sequence – a function is passed as an argument to another function and called after a task completes. It’s like a concert planner ensuring tasks happen in the right order."
+      },
+      {
+        "type": "heading",
+        "text": "How do Callback Functions work?"
+      },
+      {
+        "type": "paragraph",
+        "text": "A callback function is passed as an argument to another function and executed when a condition is met (e.g., a task finishes). This is especially useful for asynchronous operations like fetching data from a server. Let’s explore with a concert organization example."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Concert planning function\nfunction setupConcert(task, callback) {\n  console.log(`Task started: ${task}`);\n  setTimeout(() => {\n    console.log(`${task} completed!`);\n    callback();\n  }, 2000);\n}\n\n// Callback functions\nfunction callMusicians() {\n  console.log(\"Musicians called.\");\n}\n\nfunction sellTickets() {\n  console.log(\"Tickets put on sale.\");\n}\n\n// Using a callback\nsetupConcert(\"Set up stage\", callMusicians);\n// Output:\n// Task started: Set up stage\n// (2 seconds later) Set up stage completed!\n// Musicians called.\n\n// Chained callbacks\nsetupConcert(\"Set up stage\", () => {\n  console.log(\"Stage is ready!\");\n  setupConcert(\"Prepare musicians\", sellTickets);\n});\n// Output:\n// Task started: Set up stage\n// (2 seconds later) Set up stage completed!\n// Stage is ready!\n// Task started: Prepare musicians\n// (2 seconds later) Prepare musicians completed!\n// Tickets put on sale."
+      },
+      {
+        "type": "heading",
+        "text": "Features of Callback Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Callback functions are a powerful tool for managing concert plans:\n- **Sequencing**: Ensures tasks execute in the correct order.\n- **Asynchronicity**: Ideal for operations like fetching data or time-consuming tasks.\n- **Flexibility**: Any function can be passed as a callback.\n- **Simplicity**: Easy to understand in small tasks.\nFor example, use a callback to call musicians after the stage is set."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and benefits of Callback Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Benefits:\n- **Control**: Easily manages the order of asynchronous tasks.\n- **Simplicity**: Straightforward and effective for small projects.\n- **Versatility**: Any function can be used as a callback.\nDangers:\n- **Callback Hell**: Nested callbacks can make code complex and hard to read.\n- **Error handling**: Managing errors in callbacks can be tricky.\n- **Readability**: Too many callbacks reduce code clarity.\nUse callbacks for simple tasks and consider `Promises` or `async/await` for larger projects."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Callback Hell example\nsetupConcert(\"Set up stage\", () => {\n  console.log(\"Stage is ready!\");\n  setupConcert(\"Prepare musicians\", () => {\n    console.log(\"Musicians ready!\");\n    setupConcert(\"Sell tickets\", () => {\n      console.log(\"Concert can start!\");\n    });\n  });\n});\n\n// Error handling with callbacks\nfunction setupConcertWithError(task, callback) {\n  console.log(`Task: ${task}`);\n  setTimeout(() => {\n    if (task === \"Set up stage\" && Math.random() > 0.7) {\n      callback(new Error(\"Stage setup failed!\"));\n    } else {\n      callback(null, `${task} completed!`);\n    }\n  }, 2000);\n}\n\nsetupConcertWithError(\"Set up stage\", (err, result) => {\n  if (err) {\n    console.log(\"Error: \", err.message);\n    return;\n  }\n  console.log(result);\n});"
+      },
+      {
+        "type": "heading",
+        "text": "When to use Callback Functions?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Use callback functions to manage asynchronous tasks (e.g., fetching data, time-consuming operations) or ensure task sequencing. For example, they’re ideal for calling musicians after setting up a concert stage. However, for complex nested operations, consider using `Promises` or `async/await` to avoid callback hell."
+      },
+      {
+        "type": "heading",
+        "text": "Try it yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Create your own callback example!\nfunction setupConcert(task, callback) {\n  console.log(`Task: ${task}`);\n  setTimeout(() => {\n    console.log(`${task} completed!`);\n    callback();\n  }, 2000);\n}\n\nsetupConcert(\"Set up stage\", () => {\n  console.log(\"Musicians called!\");\n});"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Функции обратного вызова (Callback Functions)",
+    "description": "Функции обратного вызова – инструмент JavaScript для планирования задач в последовательности!",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое функции обратного вызова?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Представь, что ты организуешь музыкальный концерт. Нужно установить сцену, позвать музыкантов и продать билеты, но эти задачи должны выполняться в определённом порядке: музыканты не могут выступать, пока сцена не готова. В JavaScript `функции обратного вызова` (callback functions) обеспечивают эту последовательность – одна функция передаётся как аргумент в другую и вызывается после завершения задачи. Это как организатор концерта, следящий за правильным порядком действий."
+      },
+      {
+        "type": "heading",
+        "text": "Как работают функции обратного вызова?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Функция обратного вызова передаётся как аргумент в другую функцию и выполняется, когда определённое условие выполнено (например, задача завершена). Это особенно полезно для асинхронных операций, таких как получение данных с сервера. Рассмотрим пример с организацией концерта."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Функция планирования концерта\nfunction setupConcert(task, callback) {\n  console.log(`Задача начата: ${task}`);\n  setTimeout(() => {\n    console.log(`${task} завершена!`);\n    callback();\n  }, 2000);\n}\n\n// Функции обратного вызова\nfunction callMusicians() {\n  console.log(\"Музыканты вызваны.\");\n}\n\nfunction sellTickets() {\n  console.log(\"Билеты выставлены на продажу.\");\n}\n\n// Использование обратного вызова\nsetupConcert(\"Установка сцены\", callMusicians);\n// Вывод:\n// Задача начата: Установка сцены\n// (2 секунды спустя) Установка сцены завершена!\n// Музыканты вызваны.\n\n// Цепочка обратных вызовов\nsetupConcert(\"Установка сцены\", () => {\n  console.log(\"Сцена готова!\");\n  setupConcert(\"Подготовка музыкантов\", sellTickets);\n});\n// Вывод:\n// Задача начата: Установка сцены\n// (2 секунды спустя) Установка сцены завершена!\n// Сцена готова!\n// Задача начата: Подготовка музыкантов\n// (2 секунды спустя) Подготовка музыкантов завершена!\n// Билеты выставлены на продажу."
+      },
+      {
+        "type": "heading",
+        "text": "Особенности функций обратного вызова"
+      },
+      {
+        "type": "paragraph",
+        "text": "Функции обратного вызова – мощный инструмент для управления планом концерта:\n- **Последовательность**: Гарантирует выполнение задач в правильном порядке.\n- **Асинхронность**: Идеально для операций, таких как получение данных или длительные задачи.\n- **Гибкость**: Любую функцию можно передать как обратный вызов.\n- **Простота**: Легко понять в небольших задачах.\nНапример, используй обратный вызов, чтобы позвать музыкантов после установки сцены."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и преимущества функций обратного вызова"
+      },
+      {
+        "type": "paragraph",
+        "text": "Преимущества:\n- **Контроль**: Легко управляет порядком асинхронных задач.\n- **Простота**: Проста и эффективна для небольших проектов.\n- **Универсальность**: Любая функция может быть обратным вызовом.\nОпасности:\n- **Callback Hell**: Многочисленные вложенные обратные вызовы усложняют код.\n- **Обработка ошибок**: Управление ошибками может быть сложным.\n- **Читаемость**: Слишком много обратных вызовов затрудняет чтение кода.\nИспользуй обратные вызовы для простых задач и рассматривай альтернативы вроде `Promise` или `async/await` для крупных проектов."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример Callback Hell\nsetupConcert(\"Установка сцены\", () => {\n  console.log(\"Сцена готова!\");\n  setupConcert(\"Подготовка музыкантов\", () => {\n    console.log(\"Музыканты готовы!\");\n    setupConcert(\"Продажа билетов\", () => {\n      console.log(\"Концерт может начаться!\");\n    });\n  });\n});\n\n// Обработка ошибок с обратными вызовами\nfunction setupConcertWithError(task, callback) {\n  console.log(`Задача: ${task}`);\n  setTimeout(() => {\n    if (task === \"Установка сцены\" && Math.random() > 0.7) {\n      callback(new Error(\"Установка сцены не удалась!\"));\n    } else {\n      callback(null, `${task} завершена!`);\n    }\n  }, 2000);\n}\n\nsetupConcertWithError(\"Установка сцены\", (err, result) => {\n  if (err) {\n    console.log(\"Ошибка: \", err.message);\n    return;\n  }\n  console.log(result);\n});"
+      },
+      {
+        "type": "heading",
+        "text": "Когда использовать функции обратного вызова?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Используй функции обратного вызова для управления асинхронными задачами (например, получение данных с сервера, длительные операции) или обеспечения последовательности задач. Например, они идеальны для вызова музыкантов после установки сцены для концерта. Однако при сложных вложенных операциях лучше использовать `Promise` или `async/await`, чтобы избежать callback hell."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Создай свой пример с обратным вызовом!\nfunction setupConcert(task, callback) {\n  console.log(`Задача: ${task}`);\n  setTimeout(() => {\n    console.log(`${task} завершена!`);\n    callback();\n  }, 2000);\n}\n\nsetupConcert(\"Установка сцены\", () => {\n  console.log(\"Музыканты вызваны!\");\n});"
+      }
+    ]
+  }
+}

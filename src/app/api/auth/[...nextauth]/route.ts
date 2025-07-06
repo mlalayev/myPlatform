@@ -7,10 +7,7 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-// Debug logging
-console.log("Google OAuth Config Check:");
-console.log("GOOGLE_CLIENT_ID exists:", !!process.env.GOOGLE_CLIENT_ID);
-console.log("GOOGLE_CLIENT_SECRET exists:", !!process.env.GOOGLE_CLIENT_SECRET);
+
 
 type UserWithAuthFields = {
   id: number;
@@ -40,20 +37,24 @@ const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("Credentials received:", credentials);
         const user = await prisma.user.findUnique({
           where: { email: credentials?.email ?? "" },
+          select: {
+            id: true,
+            email: true,
+            username: true,
+            passwordHash: true,
+            role: true,
+            avatarUrl: true,
+            dailyLoginPoints: true,
+            lastLoginDate: true,
+          }
         });
-        console.log("User found:", user);
         if (!user || !user.passwordHash) {
-          console.log("No user or no passwordHash");
           return null;
         }
-        console.log("PasswordHash:", user.passwordHash);
         const isValid = await bcrypt.compare(credentials?.password ?? "", user.passwordHash);
-        console.log("Password valid:", isValid);
         if (!isValid) {
-          console.log("Password is not valid");
           return null;
         }
 
@@ -78,33 +79,27 @@ const authOptions = {
           }
         }
 
-        return {
+        const userData = {
           id: String(user.id),
           name: user.username || user.email,
           email: user.email,
           role: user.role,
+          avatarUrl: user.avatarUrl,
         };
+        
+        return userData;
       },
     }),
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      console.log("SignIn callback triggered:", { 
-        provider: account?.provider, 
-        userEmail: user?.email,
-        hasProfile: !!profile 
-      });
-      
       // If user signs in with Google and doesn't exist, create them
       if (account?.provider === "google" && profile) {
-        console.log("Processing Google sign-in for:", user.email);
-        
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email! },
         });
 
         if (!existingUser) {
-          console.log("Creating new user from Google profile");
           // Create new user from Google profile
           const newUser = await prisma.user.create({
             data: {
@@ -122,8 +117,9 @@ const authOptions = {
           user.id = String(newUser.id);
           // Add a flag to indicate this is a new user
           (user as any).isNewUser = true;
+          // Set the avatar URL from Google
+          user.avatarUrl = user.image || null;
         } else {
-          console.log("Updating existing user with Google info");
           // Update existing user's Google info
           await prisma.user.update({
             where: { id: existingUser.id },
@@ -135,6 +131,13 @@ const authOptions = {
           });
           // Update the user object with the database ID
           user.id = String(existingUser.id);
+          // Set the avatar URL from Google
+          user.avatarUrl = user.image || existingUser.avatarUrl;
+        }
+        
+        // Ensure avatarUrl is set from image for both new and existing users
+        if (user.image && !user.avatarUrl) {
+          user.avatarUrl = user.image;
         }
       }
       return true;
@@ -146,6 +149,8 @@ const authOptions = {
         token.email = user.email;
         token.role = user.role;
         token.isNewUser = (user as any).isNewUser || false;
+        // Use avatarUrl if available, otherwise fall back to image
+        token.avatarUrl = user.avatarUrl || user.image;
       }
       return token;
     },
@@ -156,6 +161,8 @@ const authOptions = {
         session.user.email = token.email;
         session.user.role = token.role;
         session.user.isNewUser = token.isNewUser || false;
+        // Use avatarUrl from token, or fall back to image from session
+        session.user.avatarUrl = token.avatarUrl || session.user.image;
       }
       return session;
     },

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import styles from "../../../TutorialsPage.module.css";
 import * as FiIcons from "react-icons/fi";
@@ -126,6 +126,9 @@ export default function TutorialTopicPage() {
   const [loading, setLoading] = useState(true);
   const [topicContent, setTopicContent] = useState<any>(null);
   const [editorStates, setEditorStates] = useState<any>({});
+  // Remove all previous completion/scroll logic
+  // Track visited lessons in localStorage
+  const [visitedLessons, setVisitedLessons] = useState<string[]>([]);
 
   useEffect(() => {
     if (!language || !topicId || !lang) return;
@@ -180,6 +183,17 @@ export default function TutorialTopicPage() {
   useEffect(() => {
     setEditorStates({}); // Reset editor states when topic changes
   }, [language, topicId, lang, router]);
+
+  useEffect(() => {
+    // On mount, mark this lesson as visited
+    const storageKey = `visitedLessons_${language}`;
+    let visited = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    if (!visited.includes(topicId)) {
+      visited.push(topicId);
+      localStorage.setItem(storageKey, JSON.stringify(visited));
+    }
+    setVisitedLessons(visited);
+  }, [topicId, language]);
 
   const handleSelect = (id: string) => {
     if (id !== topicId) {
@@ -244,6 +258,7 @@ export default function TutorialTopicPage() {
           <nav className={styles.topicListNew}>
             {topics.map((topic) => {
               const Icon = (FiIcons as any)[topic.icon] || FiIcons.FiBookOpen;
+              const isVisited = visitedLessons.includes(topic.id);
               return (
                 <button
                   key={topic.id}
@@ -257,6 +272,16 @@ export default function TutorialTopicPage() {
                 >
                   <Icon className={styles.topicIconNew} />
                   {!collapsed && <span>{topic.title}</span>}
+                  {isVisited && (
+                    <FiIcons.FiCheck
+                      style={{
+                        color: "white",
+                        fontSize: 16,
+                        marginLeft: "auto",
+                        verticalAlign: "middle",
+                      }}
+                    />
+                  )}
                 </button>
               );
             })}
@@ -264,12 +289,22 @@ export default function TutorialTopicPage() {
         </aside>
         <main className={styles.topicContentNew}>
           <div className={styles.contentHeader}>
-            <h1 className={styles.topicTitleNew}>
+            <h1 className={styles.topicTitleNew} style={{ margin: 0 }}>
               {topicContent?.title || selectedTopic?.title || "Mövzu"}
             </h1>
-            <button className={styles.backButtonNew} onClick={handleBack}>
-              <FiIcons.FiChevronLeft /> Geri
-            </button>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                marginLeft: "auto",
+              }}
+            >
+              {/* Removed completion/scroll icons */}
+              <button className={styles.backButtonNew} onClick={handleBack}>
+                <FiIcons.FiChevronLeft /> Geri
+              </button>
+            </div>
           </div>
           <div className={styles.contentBody}>
             {topics.length === 0 ? (
