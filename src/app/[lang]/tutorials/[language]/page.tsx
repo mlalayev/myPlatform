@@ -92,7 +92,7 @@ const languages = [
   {
     name: "Python",
     icon: <SiPython size={32} color="#3572A5" />,
-    available: false,
+    available: true,
     description: "Data science, backend.",
     progress: 0,
   },
@@ -141,7 +141,7 @@ const languages = [
   {
     name: "TypeScript",
     icon: <SiTypescript size={32} color="#3178c6" />,
-    available: false,
+    available: true,
     description: "Tipli JS.",
     progress: 0,
   },
@@ -415,14 +415,17 @@ export default function TutorialLanguagePage() {
             {loading ? (
               <CodeLoader />
             ) : (
-              languages.map((lang) => (
-                <TutorialCard
-                  key={lang.name}
-                  item={lang}
-                  isLink={lang.available}
-                  href={getFirstTopicHref(lang.name)}
-                />
-              ))
+              languages
+                .slice()
+                .sort((a, b) => (a.available === b.available) ? 0 : a.available ? -1 : 1)
+                .map((lang) => (
+                  <TutorialCard
+                    key={lang.name}
+                    item={lang}
+                    isLink={lang.available}
+                    href={getFirstTopicHref(lang.name)}
+                  />
+                ))
             )}
           </div>
           <button className={styles.backButton} onClick={handleBack}>
