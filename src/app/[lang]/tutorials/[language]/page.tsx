@@ -305,66 +305,32 @@ export default function TutorialLanguagePage() {
   }) => {
     const langName = item.name.toLowerCase();
     const progress = languageProgress[langName] || { percent: 0, visited: 0, total: 0 };
+    const unavailable = !item.available;
 
     const cardContent = (
-      <div
-        className={
-          item.available
-            ? styles.tutorialCard
-            : styles.tutorialCard + " " + styles.tutorialCardUnavailable
-        }
-      >
-        {!item.available && (
-          <div className={styles.comingSoonBadge}>Tezliklə</div>
-        )}
-        <div className={styles.tutorialCardHeader}>
+      <div className={unavailable ? `${styles.tutorialCard} ${styles.tutorialCardUnavailable}` : styles.tutorialCard}>
+        <div className={styles.availableBadge}>
+          {unavailable ? 'Tezliklə' : `${progress.visited}/${progress.total}`}
+        </div>
+        <div className={styles.cardTopRow}>
           <div className={styles.tutorialCardIcon}>{item.icon}</div>
           <div className={styles.tutorialCardInfo}>
             <div className={styles.tutorialCardTitle}>{item.name}</div>
             <div className={styles.tutorialCardDesc}>{item.description}</div>
           </div>
         </div>
-        {/* Show progress bar for all languages */}
-        <div style={{ width: "100%", marginTop: 18 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: 4,
-              padding: "0 24px",
-            }}
-          >
-            <span style={{ fontSize: 14, color: "#222", fontWeight: 500 }}>
-              Progress
-            </span>
-            <span style={{ fontSize: 15, color: "#222", fontWeight: 600 }}>
-              {progress.percent}%
-            </span>
-          </div>
-          <div
-            style={{
-              width: "90%",
-              height: 7,
-              background: "#e6eaf1",
-              borderRadius: 8,
-              margin: "0 auto",
-            }}
-          >
+        <div className={styles.progressBarSection}>
+          <div className={styles.progressBarContainer}>
             <div
-              style={{
-                width: `${progress.percent}%`,
-                height: "100%",
-                background: item.available ? "#2563eb" : "#9ca3af",
-                borderRadius: 8,
-                transition: "width 0.4s",
-              }}
+              className={unavailable ? `${styles.progressBarFill} ${styles.unavailable}` : styles.progressBarFill}
+              style={{ width: `${progress.percent}%` }}
             />
           </div>
+          <span className={styles.progressPercent}>{progress.percent}%</span>
         </div>
       </div>
     );
-    if (isLink && item.available) {
+    if (isLink) {
       return (
         <Link href={href} style={{ textDecoration: "none" }}>
           {cardContent}
@@ -454,7 +420,7 @@ export default function TutorialLanguagePage() {
                   key={lang.name}
                   item={lang}
                   isLink={lang.available}
-                  href={lang.available ? getFirstTopicHref(lang.name) : ""}
+                  href={getFirstTopicHref(lang.name)}
                 />
               ))
             )}
