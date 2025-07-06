@@ -217,6 +217,7 @@ const languages = [
   },
 ];
 
+
 export default function TutorialLanguagePage() {
   const { language, lang } = useParams();
   const router = useRouter();
@@ -431,9 +432,7 @@ export default function TutorialLanguagePage() {
     const getFirstTopicHref = (langName: string) => {
       const topics = languageTopics[langName.toLowerCase()];
       if (topics && topics.length > 0) {
-        return `/${langKey}/tutorials/languages/${langName.toLowerCase()}/${
-          topics[0].id
-        }`;
+        return `/${langKey}/tutorials/languages/${langName.toLowerCase()}/${topics[0].id}`;
       }
       return `/${langKey}/tutorials/languages/${langName.toLowerCase()}`;
     };
@@ -443,7 +442,10 @@ export default function TutorialLanguagePage() {
         <Header />
         <div className={styles.categoryListWrapper}>
           <h2 className={styles.tutorialsTitle}>Proqramlaşdırma Dilləri</h2>
-          <div className={styles.tutorialsGrid}>
+          <div
+            className={styles.tutorialsGrid}
+            style={loading ? { display: "flex", alignItems: "center", justifyContent: "center", minHeight: 300 } : {}}
+          >
             {loading ? (
               <CodeLoader />
             ) : (
