@@ -120,6 +120,7 @@ export default function TutorialTopicPage() {
   const topicId = Array.isArray(params.id) ? params.id[0] : params.id;
   const lang = Array.isArray(params.lang) ? params.lang[0] : params.lang;
   const safeLanguage = typeof language === "string" ? language : "";
+  const safeTopicId = typeof topicId === "string" ? topicId : "";
   const router = useRouter();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
@@ -136,18 +137,16 @@ export default function TutorialTopicPage() {
       if (session?.user) {
         const res = await fetch('/api/user/lessons');
         const data = await res.json();
-        console.log('[Sidebar] visitedLessons from backend:', data);
         setVisitedLessons(data);
       } else {
         // fallback to localStorage
-        const storageKey = `visitedLessons_${language}`;
-        let visited = JSON.parse(localStorage.getItem(storageKey) || '[]');
-        console.log('[Sidebar] visitedLessons from localStorage:', visited);
+        let visitedLessonsByLang = JSON.parse(localStorage.getItem("visitedLessons") || '{}');
+        let visited = safeLanguage ? (visitedLessonsByLang[safeLanguage] || []) : [];
         setVisitedLessons(visited);
       }
     };
     fetchVisited();
-  }, [session, language]);
+  }, [session, safeLanguage]);
 
   // Mark as visited on mount
   useEffect(() => {
@@ -156,26 +155,25 @@ export default function TutorialTopicPage() {
         await fetch('/api/user/lessons', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lessonId: topicId }),
+          body: JSON.stringify({ language: safeLanguage, lessonId: safeTopicId }),
         });
         // Refetch visited lessons
         const res = await fetch('/api/user/lessons');
         const data = await res.json();
-        console.log('[Sidebar] After marking visited, visitedLessons:', data);
-        setVisitedLessons(data);
+        setVisitedLessons(data[safeLanguage] || []);
       } else {
-        const storageKey = `visitedLessons_${language}`;
-        let visited = JSON.parse(localStorage.getItem(storageKey) || '[]');
-        if (!visited.includes(topicId)) {
-          visited.push(topicId);
-          localStorage.setItem(storageKey, JSON.stringify(visited));
+        let visitedLessonsByLang = JSON.parse(localStorage.getItem("visitedLessons") || '{}');
+        let visited = safeLanguage ? (visitedLessonsByLang[safeLanguage] || []) : [];
+        if (safeTopicId && !visited.includes(safeTopicId)) {
+          visited.push(safeTopicId);
+          if (safeLanguage) visitedLessonsByLang[safeLanguage] = visited;
+          localStorage.setItem("visitedLessons", JSON.stringify(visitedLessonsByLang));
         }
-        console.log('[Sidebar] After marking visited, visitedLessons:', visited);
         setVisitedLessons(visited);
       }
     };
     markVisited();
-  }, [topicId, session, language]);
+  }, [safeTopicId, session, safeLanguage]);
 
 
   useEffect(() => {
@@ -296,7 +294,8 @@ export default function TutorialTopicPage() {
           <nav className={styles.topicListNew}>
             {topics.map((topic) => {
               const Icon = (FiIcons as any)[topic.icon] || FiIcons.FiBookOpen;
-              const isVisited = visitedLessons.includes(topic.id);
+              const visitedArr = Array.isArray(visitedLessons) ? visitedLessons : [];
+              const isVisited = visitedArr.includes(topic.id);
               if (isVisited) {
                 console.log(`[Sidebar] Topic ${topic.id} is visited`);
               }

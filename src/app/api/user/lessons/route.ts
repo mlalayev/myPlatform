@@ -5,32 +5,33 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  console.log('[API] session:', session);
-  if (!session?.user?.id) return NextResponse.json([], { status: 401 });
+  if (!session?.user?.id) return NextResponse.json({}, { status: 401 });
   const user = await prisma.user.findUnique({
     where: { id: Number(session.user.id) },
     select: { visitedLessons: true }
   });
-  return NextResponse.json(user?.visitedLessons || []);
+  return NextResponse.json(user?.visitedLessons || {});
 }
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  console.log('[API] session:', session);
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const { lessonId } = await req.json();
-  if (!lessonId) return NextResponse.json({ error: 'No lessonId' }, { status: 400 });
+  const { language, lessonId } = await req.json();
+  if (!language || !lessonId) return NextResponse.json({ error: 'No language or lessonId' }, { status: 400 });
 
-  // Add lessonId to visitedLessons array (if not already present)
+  // Get current visitedLessons object
   const user = await prisma.user.findUnique({
     where: { id: Number(session.user.id) },
     select: { visitedLessons: true }
   });
-  const current = user?.visitedLessons || [];
-  if (!current.includes(lessonId)) {
+  let current = user?.visitedLessons || {};
+  if (typeof current !== 'object' || Array.isArray(current)) current = {};
+  const arr = Array.isArray(current[language]) ? current[language] : [];
+  if (!arr.includes(lessonId)) {
+    current[language] = [...arr, lessonId];
     await prisma.user.update({
       where: { id: Number(session.user.id) },
-      data: { visitedLessons: { set: [...current, lessonId] } }
+      data: { visitedLessons: current }
     });
   }
   return NextResponse.json({ success: true });
