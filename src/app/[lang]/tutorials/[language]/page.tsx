@@ -92,7 +92,7 @@ const languages = [
   {
     name: "Python",
     icon: <SiPython size={32} color="#3572A5" />,
-    available: true,
+    available: false,
     description: "Data science, backend.",
     progress: 0,
   },
@@ -231,16 +231,17 @@ export default function TutorialLanguagePage() {
       const progressData: { [key: string]: { percent: number; visited: number; total: number } } = {};
       
       // Get visited lessons from API or localStorage
-      let visitedLessons: string[] = [];
+      let visitedLessonsByLang: { [key: string]: string[] } = {};
       try {
         const res = await fetch("/api/user/lessons");
         if (res.ok) {
-          visitedLessons = await res.json();
+          const data = await res.json();
+          visitedLessonsByLang = (typeof data === 'object' && !Array.isArray(data) && data !== null) ? data : {};
         } else {
-          visitedLessons = JSON.parse(localStorage.getItem("visitedLessons") || "[]");
+          visitedLessonsByLang = JSON.parse(localStorage.getItem("visitedLessons") || "{}")
         }
       } catch (e) {
-        visitedLessons = JSON.parse(localStorage.getItem("visitedLessons") || "[]");
+        visitedLessonsByLang = JSON.parse(localStorage.getItem("visitedLessons") || "{}")
       }
 
       // Fetch topics only for available languages
@@ -276,7 +277,8 @@ export default function TutorialLanguagePage() {
 
         const total = topics.length;
         const topicIds = new Set(topics.map((t: any) => t.id));
-        const visitedCount = visitedLessons.filter((id: string) => topicIds.has(id)).length;
+        const arr = Array.isArray(visitedLessonsByLang[langName]) ? visitedLessonsByLang[langName] : [];
+        const visitedCount = arr.filter((id: string) => topicIds.has(id)).length;
         const percent = total > 0 ? Math.round((visitedCount / total) * 100) : 0;
         
         progressData[langName] = { percent, visited: visitedCount, total };
