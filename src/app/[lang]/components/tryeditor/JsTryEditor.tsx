@@ -18,19 +18,7 @@ interface JsTryEditorProps {
 }
 
 const languageSamples = {
-  javascript: `// Modern JavaScript features including Object.assign
-const obj1 = { a: 1, b: 2 };
-const obj2 = { c: 3, d: 4 };
-
-// Using Object.assign
-const combined = Object.assign({}, obj1, obj2);
-console.log('Combined object:', combined);
-
-// Using spread operator
-const spreadCombined = { ...obj1, ...obj2 };
-console.log('Spread combined:', spreadCombined);
-
-function salam() {
+  javascript: `function salam() {
   return 'Salam, Dünya!';
 }
 
@@ -412,6 +400,30 @@ export default function JsTryEditor({
         return;
       }
       if (lang === "cpp") {
+        try {
+          const response = await fetch('/api/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, language: lang }),
+          });
+          const result = await response.json();
+          if (result.error) {
+            setError(result.error);
+            setOutput(result.output || "");
+          } else {
+            setOutput(result.output || "");
+            setError(result.error || "");
+          }
+          setShowOutput(true);
+        } catch (err: any) {
+          setError("Server error: " + err.message);
+          setShowOutput(true);
+        } finally {
+          setIsLoading(false);
+        }
+        return;
+      }
+      if (lang === "java") {
         try {
           const response = await fetch('/api/execute', {
             method: 'POST',
