@@ -172,30 +172,92 @@ export async function POST(request: NextRequest) {
         exitCode = 1;
       }
     } else if (lang === "c") {
-      // C code execution using a safe runner
+      // C code execution
       const tmpDir = await fs.promises.mkdtemp(
         path.join(os.tmpdir(), "ccode-")
       );
       const filePath = path.join(tmpDir, "main.c");
-      await fs.promises.writeFile(filePath, code);
+      const exePath = path.join(tmpDir, process.platform === "win32" ? "main.exe" : "main");
+      
+      // Faylı UTF-8 ilə yaz
+      await fs.promises.writeFile(filePath, code, { encoding: "utf8" });
+    
       try {
-        // Use a safe_runner_c.py script to compile and run C code safely
-        const safeRunnerCPath = path.join(
-          process.cwd(),
-          "src/app/api/execute/safe_runner_c.py"
-        );
-        const pythonCmd = process.platform === "win32" ? "python" : "python3";
+        // GCC yollarını yoxla
+        const possibleGccPaths = [
+          "gcc",
+          "C:\\msys64\\mingw64\\bin\\gcc.exe",
+          "C:\\mingw64\\bin\\gcc.exe",
+          "C:\\TDM-GCC-64\\bin\\gcc.exe",
+          "C:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\gcc.exe"
+        ];
+        
+        let gccPath = "";
+        
+        // Windows üçün GCC tap
+        if (process.platform === "win32") {
+          for (const path of possibleGccPaths) {
+            try {
+              await execAsync(`"${path}" --version`, { timeout: 2000 });
+              gccPath = path;
+              break;
+            } catch (err) {
+              continue;
+            }
+          }
+        } else {
+          gccPath = "gcc";
+        }
+        
+        if (!gccPath) {
+          throw new Error("GCC compiler not found. Please install MinGW or TDM-GCC.");
+        }
+        
+        console.log(`Using GCC: ${gccPath}`);
+        
+        // Compile C code
+        const compileCmd = `"${gccPath}" -finput-charset=UTF-8 -fexec-charset=UTF-8 "${filePath}" -o "${exePath}"`;
+        
+        await execAsync(compileCmd, { 
+          cwd: tmpDir,
+          env: { 
+            ...process.env,
+            PATH: process.platform === "win32" 
+              ? `C:\\msys64\\mingw64\\bin;${process.env.PATH}`
+              : process.env.PATH,
+            LC_ALL: "en_US.UTF-8",
+            LANG: "en_US.UTF-8"
+          }
+        });
+    
+        console.log("Compilation successful");
+    
+        // Run compiled program
         const { stdout, stderr } = await execAsync(
-          `${pythonCmd} "${safeRunnerCPath}" "${filePath}"`
+          `"${exePath}"`,
+          {
+            cwd: tmpDir,
+            timeout: 5000,
+            env: { 
+              ...process.env,
+              LC_ALL: "en_US.UTF-8",
+              LANG: "en_US.UTF-8"
+            },
+            encoding: "utf8"
+          }
         );
+        
         output = stdout;
         error = stderr;
+        
       } catch (err: any) {
         console.log("C compile/run error:", err);
         error = err.stderr || err.message;
         output = err.stdout || "";
         exitCode = 1;
       }
+      
+      // Temp qovluğu sil
       await fs.promises.rm(tmpDir, { recursive: true, force: true });
     } else if (lang === "csharp") {
       // C# code execution
