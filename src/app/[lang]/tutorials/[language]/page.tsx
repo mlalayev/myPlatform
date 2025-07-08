@@ -36,6 +36,40 @@ import styles from "../TutorialsPage.module.css";
 import Header from "../../components/header/Header";
 import Footer from "../../components/footer/Footer";
 
+// Language name mapping for API calls and file paths
+const LANGUAGE_MAPPING = {
+  "C#": "csharp",
+  "JavaScript": "javascript",
+  "Python": "python",
+  "Java": "java",
+  "C": "c",
+  "C++": "c++",
+  "Go (Golang)": "go",
+  "Rust": "rust",
+  "TypeScript": "typescript",
+  "PHP": "php",
+  "Swift": "swift",
+  "Kotlin": "kotlin",
+  "Ruby": "ruby",
+  "R": "r",
+  "SQL": "sql",
+  "Shell/Bash": "bash",
+  "Scala": "scala",
+  "Dart": "dart",
+  "Haskell": "haskell",
+};
+
+// Helper function to get API name from display name
+const getApiLanguageName = (displayName) => {
+  return LANGUAGE_MAPPING[displayName] || displayName.toLowerCase();
+};
+
+// Helper function to get display name from API name
+const getDisplayLanguageName = (apiName) => {
+  const entry = Object.entries(LANGUAGE_MAPPING).find(([_, value]) => value === apiName);
+  return entry ? entry[0] : apiName;
+};
+
 const frameworks = [
   {
     name: "React",
@@ -217,13 +251,12 @@ const languages = [
   },
 ];
 
-
 export default function TutorialLanguagePage() {
   const { language, lang } = useParams();
   const router = useRouter();
-  const langKey = Array.isArray(lang) ? lang[0] : (lang || "az"); // always a string
+  const langKey = Array.isArray(lang) ? lang[0] : (lang || "az");
 
-  const [languageProgress, setLanguageProgress] = useState<{ [key: string]: { percent: number; visited: number; total: number } }>({});
+  const [languageProgress, setLanguageProgress] = useState({});
 
   useEffect(() => {
     if (language === "algorithms" || language === "data-structures") {
@@ -238,10 +271,10 @@ export default function TutorialLanguagePage() {
   useEffect(() => {
     // Fetch progress for available languages only
     const fetchAllProgress = async () => {
-      const progressData: { [key: string]: { percent: number; visited: number; total: number } } = {};
+      const progressData = {};
       
       // Get visited lessons from API or localStorage
-      let visitedLessonsByLang: { [key: string]: string[] } = {};
+      let visitedLessonsByLang = {};
       try {
         const res = await fetch("/api/user/lessons");
         if (res.ok) {
@@ -256,18 +289,18 @@ export default function TutorialLanguagePage() {
 
       // Fetch topics only for available languages
       for (const lang of languages) {
-        const langName = lang.name === "C#" ? "csharp" : lang.name.toLowerCase();
+        const apiLangName = getApiLanguageName(lang.name);
         
         // Skip fetching for unavailable languages
         if (!lang.available) {
-          progressData[langName] = { percent: 0, visited: 0, total: 0 };
+          progressData[apiLangName] = { percent: 0, visited: 0, total: 0 };
           continue;
         }
         
         let topics = [];
         
         try {
-          const res = await fetch(`/api/tutorials/${langName}/topics`);
+          const res = await fetch(`/api/tutorials/${apiLangName}/topics`);
           if (res.ok) {
             const data = await res.json();
             topics = data[langKey] || [];
@@ -275,7 +308,7 @@ export default function TutorialLanguagePage() {
         } catch (e) {
           // If API fails, try to get from public folder
           try {
-            const res = await fetch(`/tutorials/${langName}/topics.json`);
+            const res = await fetch(`/tutorials/${apiLangName}/topics.json`);
             if (res.ok) {
               const data = await res.json();
               topics = data[langKey] || [];
@@ -286,12 +319,12 @@ export default function TutorialLanguagePage() {
         }
 
         const total = topics.length;
-        const topicIds = new Set(topics.map((t: any) => t.id));
-        const arr = Array.isArray(visitedLessonsByLang[langName]) ? visitedLessonsByLang[langName] : [];
-        const visitedCount = arr.filter((id: string) => topicIds.has(id)).length;
+        const topicIds = new Set(topics.map((t) => t.id));
+        const arr = Array.isArray(visitedLessonsByLang[apiLangName]) ? visitedLessonsByLang[apiLangName] : [];
+        const visitedCount = arr.filter((id) => topicIds.has(id)).length;
         const percent = total > 0 ? Math.round((visitedCount / total) * 100) : 0;
         
-        progressData[langName] = { percent, visited: visitedCount, total };
+        progressData[apiLangName] = { percent, visited: visitedCount, total };
       }
 
       setLanguageProgress(progressData);
@@ -310,13 +343,9 @@ export default function TutorialLanguagePage() {
     item,
     isLink = false,
     href = "",
-  }: {
-    item: any;
-    isLink?: boolean;
-    href?: string;
   }) => {
-    const langName = item.name.toLowerCase();
-    const progress = languageProgress[langName] || { percent: 0, visited: 0, total: 0 };
+    const apiLangName = getApiLanguageName(item.name);
+    const progress = languageProgress[apiLangName] || { percent: 0, visited: 0, total: 0 };
     const unavailable = !item.available;
 
     const cardContent = (
@@ -375,9 +404,7 @@ export default function TutorialLanguagePage() {
 
   // List view for programming languages
   if (language === "languages") {
-    const [languageTopics, setLanguageTopics] = React.useState<{
-      [key: string]: any[];
-    }>({});
+    const [languageTopics, setLanguageTopics] = React.useState({});
     const [loading, setLoading] = React.useState(true);
 
     React.useEffect(() => {
@@ -385,19 +412,21 @@ export default function TutorialLanguagePage() {
 
       // Fetch topics for available languages
       const availableLanguages = languages.filter((lang) => lang.available);
-      const fetchPromises = availableLanguages.map((lang) =>
-        fetch(`/api/tutorials/${lang.name.toLowerCase()}/topics`)
+      const fetchPromises = availableLanguages.map((lang) => {
+        const apiLangName = getApiLanguageName(lang.name);
+        return fetch(`/api/tutorials/${apiLangName}/topics`)
           .then((res) => res.json())
           .then((data) => ({
-            lang: lang.name.toLowerCase(),
+            lang: apiLangName,
+            displayName: lang.name,
             topics: data[langKey] || [],
           }))
-          .catch(() => ({ lang: lang.name.toLowerCase(), topics: [] }))
-      );
+          .catch(() => ({ lang: apiLangName, displayName: lang.name, topics: [] }));
+      });
 
       Promise.all(fetchPromises)
         .then((results) => {
-          const topicsMap: { [key: string]: any[] } = {};
+          const topicsMap = {};
           results.forEach(({ lang, topics }) => {
             topicsMap[lang] = topics;
           });
@@ -407,13 +436,13 @@ export default function TutorialLanguagePage() {
         .catch(() => setLoading(false));
     }, [langKey]);
 
-    const getFirstTopicHref = (langName: string) => {
-      const urlLang = langName === "C#" ? "csharp" : langName.toLowerCase();
-      const topics = languageTopics[urlLang];
+    const getFirstTopicHref = (langName) => {
+      const apiLangName = getApiLanguageName(langName);
+      const topics = languageTopics[apiLangName];
       if (topics && topics.length > 0) {
-        return `/${langKey}/tutorials/languages/${urlLang}/${topics[0].id}`;
+        return `/${langKey}/tutorials/languages/${apiLangName}/${topics[0].id}`;
       }
-      return `/${langKey}/tutorials/languages/${urlLang}`;
+      return `/${langKey}/tutorials/languages/${apiLangName}`;
     };
 
     return (
@@ -451,7 +480,7 @@ export default function TutorialLanguagePage() {
   }
 
   // List view for algorithms/data-structures (fetch topics)
-  const [topics, setTopics] = React.useState<any[]>([]);
+  const [topics, setTopics] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   React.useEffect(() => {
     if (!language || !langKey) return;
@@ -460,7 +489,7 @@ export default function TutorialLanguagePage() {
       .then((data) => {
         const arr = data[langKey] || [];
         // Add mock progress data for topics
-        const topicsWithProgress = arr.map((topic: any) => ({
+        const topicsWithProgress = arr.map((topic) => ({
           ...topic,
           progress: Math.floor(Math.random() * 100), // Mock progress - will be replaced with real data later
           available: true,
@@ -495,7 +524,7 @@ export default function TutorialLanguagePage() {
             </div>
           ) : (
             topics.map((topic) => {
-              const Icon = (FiIcons as any)[topic.icon] || FiIcons.FiBookOpen;
+              const Icon = (FiIcons)[topic.icon] || FiIcons.FiBookOpen;
               const topicItem = {
                 name: topic.title,
                 icon: <Icon size={32} color="#007bff" />,
