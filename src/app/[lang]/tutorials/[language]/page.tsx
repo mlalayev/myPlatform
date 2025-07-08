@@ -226,6 +226,16 @@ export default function TutorialLanguagePage() {
   const [languageProgress, setLanguageProgress] = useState<{ [key: string]: { percent: number; visited: number; total: number } }>({});
 
   useEffect(() => {
+    if (language === "algorithms" || language === "data-structures") {
+      router.replace(`/${langKey}/tutorials/languages/${language}/${language}`);
+    }
+  }, [language, langKey, router]);
+
+  if (language === "algorithms" || language === "data-structures") {
+    return null;
+  }
+
+  useEffect(() => {
     // Fetch progress for available languages only
     const fetchAllProgress = async () => {
       const progressData: { [key: string]: { percent: number; visited: number; total: number } } = {};

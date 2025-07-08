@@ -1,0 +1,317 @@
+{
+  "az": {
+    "title": "TypeScript Mapped Types",
+    "description": "TypeScript-də xəritələnmiş tiplər (mapped types) mövcud tiplərin xüsusiyyətlərini dəyişdirmək və ya yeni tiplər yaratmaq üçün istifadə olunur. `[P in keyof T]` sintaksisi ilə təyin edilir və çevik tip idarəetməsini təmin edir.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Mapped Types nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də xəritələnmiş tiplər, mövcud bir tipin xüsusiyyətlərini (property) dəyişdirərək və ya yeni tiplər yaradaraq dinamik şəkildə tip təyin etmək üçün istifadə olunur. `[P in keyof T]` sintaksisi ilə işləyir, burada `P` tipin xüsusiyyətlərini təmsil edir, `keyof T` isə tipin bütün açarlarını (property names) qaytarır. Məsələn, `type Readonly<T> = { readonly [P in keyof T]: T[P] }` ilə bütün xüsusiyyətlər yalnız oxuna bilən (readonly) olur. Xəritələnmiş tiplər şərti tiplər, utility types (məsələn, `Partial`, `Readonly`), union tipləri və ya funksiyalarla birləşdirilə bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Mapped Types necə işləyir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xəritələnmiş tiplər bir tipin xüsusiyyətlərini dövr edərək (iterate) hər bir xüsusiyyət üçün yeni tip təyin edir. `keyof` açar sözü ilə tipin açarlarını alır, `[P in keyof T]` isə hər açar üçün xüsusiyyəti dəyişdirir. Məsələn, `type Optional<T> = { [P in keyof T]?: T[P] }` ilə bütün xüsusiyyətlər opsional olur. Şərti tiplərlə birləşdirildikdə (məsələn, `T[P] extends string ? string : never`), daha mürəkkəb tip transformasiyaları mümkündür. TypeScript-in statik tipləməsi sayəsində səhvlər kod yazarkən aşkar edilir, lakin xəritələnmiş tiplər runtime-da heç bir təsiri yoxdur."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// 1. Sadə Mapped Type\ntype Person = { name: string; age: number };\ntype ReadonlyPerson = { readonly [P in keyof Person]: Person[P] };\nconst person: ReadonlyPerson = { name: \"Alice\", age: 30 };\n// person.name = \"Bob\"; // Səhv: name yalnız oxuna biləndir\nconsole.log(person); // Çıxış: { name: \"Alice\", age: 30 }\n\n// 2. Mapped Type ilə Opsional Xüsusiyyətlər\ntype OptionalPerson = { [P in keyof Person]?: Person[P] };\nconst optionalPerson: OptionalPerson = { name: \"Bob\" }; // age opsionaldır\nconsole.log(optionalPerson); // Çıxış: { name: \"Bob\" }\n\n// 3. Şərti Tiplərlə Mapped Type\ntype StringOnly<T> = { [P in keyof T]: T[P] extends string ? T[P] : never };\ntype StringPerson = StringOnly<Person>;\nconst stringPerson: StringPerson = { name: \"Alice\", age: null };\nconsole.log(stringPerson); // Çıxış: { name: \"Alice\", age: null }\n\n// 4. Keyof ilə Mapped Type\ntype Keys = keyof Person; // \"name\" | \"age\"\ntype PersonValues = { [P in Keys]: Person[P] };\nconst values: PersonValues = { name: \"Alice\", age: 30 };\nconsole.log(values); // Çıxış: { name: \"Alice\", age: 30 }\n\n// 5. Utility Types ilə Mapped Type\ntype PartialPerson = Partial<Person>; // { name?: string; age?: number }\nconst partial: PartialPerson = { name: \"Alice\" };\nconsole.log(partial); // Çıxış: { name: \"Alice\" }\n\ntype ReadonlyPersonUtility = Readonly<Person>;\nconst readonlyPerson: ReadonlyPersonUtility = { name: \"Bob\", age: 25 };\n// readonlyPerson.name = \"Alice\"; // Səhv: name yalnız oxuna biləndir\nconsole.log(readonlyPerson); // Çıxış: { name: \"Bob\", age: 25 }\n\n// 6. Union Tipləri ilə Mapped Type\ntype KeysUnion = \"id\" | \"name\";\ntype UnionMapped = { [P in KeysUnion]: string };\nconst unionMapped: UnionMapped = { id: \"P001\", name: \"Laptop\" };\nconsole.log(unionMapped); // Çıxış: { id: \"P001\", name: \"Laptop\" }\n\n// 7. Mapped Type ilə Funksiya\nfunction mapProperties<T>(obj: T): { [P in keyof T]: string } {\n  const result = {} as { [P in keyof T]: string };\n  for (const key in obj) {\n    result[key] = String(obj[key]);\n  }\n  return result;\n}\nconst mapped = mapProperties({ name: \"Alice\", age: 30 });\nconsole.log(mapped); // Çıxış: { name: \"Alice\", age: \"30\" }"
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xəritələnmiş tiplər real layihələrdə tip transformasiyası və tip təhlükəsizliyi üçün geniş istifadə olunur. Məsələn, bir e-ticarət platformasında məhsul obyektlərinin xüsusiyyətlərini opsional etmək üçün `Partial<Product>` istifadə edilə bilər. API cavablarını emal etmək üçün yalnız müəyyən tipli xüsusiyyətləri seçmək (məsələn, yalnız sətir xüsusiyyətləri) üçün xəritələnmiş tiplər faydalıdır. Veb tətbiqlərində istifadəçi formalarının dinamik validasiyası üçün də istifadə edilə bilər. Aşağıda sadə bir mağaza nümunəsi var."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Sadə mağaza sistemi\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\ntype OptionalProduct = { [P in keyof Product]?: Product[P] };\nclass ProductStore {\n  products: OptionalProduct[] = [];\n  add(product: OptionalProduct): void {\n    this.products.push(product);\n  }\n  getById(id: string): OptionalProduct | undefined {\n    return this.products.find(p => p.id === id);\n  }\n}\nconst store = new ProductStore();\nstore.add({ id: \"P001\", name: \"Laptop\" }); // price opsionaldır\nstore.add({ id: \"P002\", price: 999 });\nconsole.log(store.getById(\"P001\")); // Çıxış: { id: \"P001\", name: \"Laptop\" }\n\n// Şərti mapped type ilə funksiya\ntype StringFields<T> = { [P in keyof T]: T[P] extends string ? T[P] : never };\nfunction getStringFields<T>(obj: T): StringFields<T> {\n  const result = {} as StringFields<T>;\n  for (const key in obj) {\n    result[key] = (typeof obj[key] === \"string\" ? obj[key] : null) as any;\n  }\n  return result;\n}\nconst product: Product = { id: \"P003\", name: \"Mouse\", price: 25 };\nconst stringFields = getStringFields(product);\nconsole.log(stringFields); // Çıxış: { id: \"P003\", name: \"Mouse\", price: null }"
+      },
+      {
+        "type": "heading",
+        "text": "Mapped Types-in məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xəritələnmiş tiplər TypeScript-in statik tipləmə üstünlüyünü istifadə edərək mövcud tipləri dəyişdirmək və ya yeni tiplər yaratmaq üçün çeviklik təmin edir. JavaScript-də tiplər dinamik olduğundan gözlənilməz səhvlər yarana bilər. Xəritələnmiş tiplər tip təhlükəsizliyini və oxunaqlılığı artırır, xüsusən də böyük miqyaslı layihələrdə. Microsoft, Google və Airbnb kimi şirkətlərin layihələrində kodun keyfiyyətini və baxımını asanlaşdırır."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Xəritələnmiş sintaksis",
+            "description": "Xəritələnmiş tiplər `[P in keyof T]` ilə təyin edilir."
+          },
+          {
+            "term": "Keyof istifadəsi",
+            "description": "`keyof T` tipin açarlarını qaytarır, məsələn, `keyof Person`."
+          },
+          {
+            "term": "Şərti tiplərlə",
+            "description": "Xəritələnmiş tiplər şərti tiplərlə birləşdirilə bilər, məsələn, `T[P] extends string ? T[P] : never`."
+          },
+          {
+            "term": "Utility types",
+            "description": "TypeScript-də `Partial`, `Readonly`, `Pick` kimi daxili utility types xəritələnmiş tiplərə əsaslanır."
+          },
+          {
+            "term": "Union tipləri ilə",
+            "description": "Xəritələnmiş tiplər union tipləri ilə istifadə edilə bilər, məsələn, `[P in 'id' | 'name']`."
+          },
+          {
+            "term": "Funksiyalarda istifadə",
+            "description": "Xəritələnmiş tiplər funksiyalarda dinamik tip transformasiyası üçün istifadə olunur."
+          },
+          {
+            "term": "Interfeyslərdə istifadə",
+            "description": "Xəritələnmiş tiplər interfeyslərdə xüsusiyyətləri dəyişdirmək üçün istifadə edilə bilər."
+          },
+          {
+            "term": "IDE dəstəyi",
+            "description": "VSCode kimi alətlərdə xəritələnmiş tiplər üçün avtomatik təkliflər və səhv xəbərdarlıqları."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Həddindən artıq mürəkkəb xəritələnmiş tiplər kodu oxumaq və başa düşmək üçün çətinləşdirə bilər. Yanlış xəritələmə tip səhvlərinə səbəb ola bilər. Xəritələnmiş tiplər runtime-da heç bir təsiri olmadığından dinamik tip yoxlamaları çətinləşə bilər.\n- **Tövsiyələr**: Xəritələnmiş tipləri sadə və başa düşülən saxlayın, yalnız zəruri hallarda istifadə edin, şərti tiplərlə diqqətli olun, mürəkkəb strukturlarda sənədləşdirmə əlavə edin, səhvləri tapmaq üçün VSCode kimi IDE istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sadə xəritələnmiş tip nümunəsi\ntype Person = { name: string; age: number };\ntype ReadonlyPerson = { readonly [P in keyof Person]: Person[P] };\nconst person: ReadonlyPerson = { name: \"Alice\", age: 30 };\nconsole.log(person); // Çıxış: { name: \"Alice\", age: 30 }"
+      }
+    ]
+  },
+  "en": {
+    "title": "TypeScript Mapped Types",
+    "description": "TypeScript mapped types transform or create new types from existing ones using the `[P in keyof T]` syntax, enabling flexible type management.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Mapped Types?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, mapped types create new types by transforming the properties of an existing type using the `[P in keyof T]` syntax. Here, `P` represents each property, and `keyof T` returns all property names of the type. For example, `type Readonly<T> = { readonly [P in keyof T]: T[P] }` makes all properties read-only. Mapped types can be combined with conditional types, utility types (e.g., `Partial`, `Readonly`), union types, or functions."
+      },
+      {
+        "type": "heading",
+        "text": "How do Mapped Types work?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Mapped types iterate over a type’s properties, defining new types for each property. `keyof T` retrieves the keys of a type, and `[P in keyof T]` transforms each property. For example, `type Optional<T> = { [P in keyof T]?: T[P] }` makes all properties optional. When combined with conditional types (e.g., `T[P] extends string ? string : never`), mapped types enable complex type transformations. TypeScript’s static typing catches errors during development, but mapped types have no runtime impact."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// 1. Simple Mapped Type\ntype Person = { name: string; age: number };\ntype ReadonlyPerson = { readonly [P in keyof Person]: Person[P] };\nconst person: ReadonlyPerson = { name: \"Alice\", age: 30 };\n// person.name = \"Bob\"; // Error: name is read-only\nconsole.log(person); // Output: { name: \"Alice\", age: 30 }\n\n// 2. Mapped Type with Optional Properties\ntype OptionalPerson = { [P in keyof Person]?: Person[P] };\nconst optionalPerson: OptionalPerson = { name: \"Bob\" }; // age is optional\nconsole.log(optionalPerson); // Output: { name: \"Bob\" }\n\n// 3. Mapped Type with Conditional Types\ntype StringOnly<T> = { [P in keyof T]: T[P] extends string ? T[P] : never };\ntype StringPerson = StringOnly<Person>;\nconst stringPerson: StringPerson = { name: \"Alice\", age: null };\nconsole.log(stringPerson); // Output: { name: \"Alice\", age: null }\n\n// 4. Keyof with Mapped Type\ntype Keys = keyof Person; // \"name\" | \"age\"\ntype PersonValues = { [P in Keys]: Person[P] };\nconst values: PersonValues = { name: \"Alice\", age: 30 };\nconsole.log(values); // Output: { name: \"Alice\", age: 30 }\n\n// 5. Utility Types with Mapped Type\ntype PartialPerson = Partial<Person>; // { name?: string; age?: number }\nconst partial: PartialPerson = { name: \"Alice\" };\nconsole.log(partial); // Output: { name: \"Alice\" }\n\ntype ReadonlyPersonUtility = Readonly<Person>;\nconst readonlyPerson: ReadonlyPersonUtility = { name: \"Bob\", age: 25 };\n// readonlyPerson.name = \"Alice\"; // Error: name is read-only\nconsole.log(readonlyPerson); // Output: { name: \"Bob\", age: 25 }\n\n// 6. Union Types with Mapped Type\ntype KeysUnion = \"id\" | \"name\";\ntype UnionMapped = { [P in KeysUnion]: string };\nconst unionMapped: UnionMapped = { id: \"P001\", name: \"Laptop\" };\nconsole.log(unionMapped); // Output: { id: \"P001\", name: \"Laptop\" }\n\n// 7. Mapped Type with Function\nfunction mapProperties<T>(obj: T): { [P in keyof T]: string } {\n  const result = {} as { [P in keyof T]: string };\n  for (const key in obj) {\n    result[key] = String(obj[key]);\n  }\n  return result;\n}\nconst mapped = mapProperties({ name: \"Alice\", age: 30 });\nconsole.log(mapped); // Output: { name: \"Alice\", age: \"30\" }"
+      },
+      {
+        "type": "heading",
+        "text": "Real-world use cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Mapped types are widely used in real-world projects for type transformation and type safety. For example, in an e-commerce platform, `Partial<Product>` can make product properties optional for flexible data handling. In API response processing, mapped types can select only specific property types (e.g., string properties). In web applications, they can be used for dynamic form validation. Below is a simple store example."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Simple store system\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\ntype OptionalProduct = { [P in keyof Product]?: Product[P] };\nclass ProductStore {\n  products: OptionalProduct[] = [];\n  add(product: OptionalProduct): void {\n    this.products.push(product);\n  }\n  getById(id: string): OptionalProduct | undefined {\n    return this.products.find(p => p.id === id);\n  }\n}\nconst store = new ProductStore();\nstore.add({ id: \"P001\", name: \"Laptop\" }); // price is optional\nstore.add({ id: \"P002\", price: 999 });\nconsole.log(store.getById(\"P001\")); // Output: { id: \"P001\", name: \"Laptop\" }\n\n// Conditional mapped type with function\ntype StringFields<T> = { [P in keyof T]: T[P] extends string ? T[P] : never };\nfunction getStringFields<T>(obj: T): StringFields<T> {\n  const result = {} as StringFields<T>;\n  for (const key in obj) {\n    result[key] = (typeof obj[key] === \"string\" ? obj[key] : null) as any;\n  }\n  return result;\n}\nconst product: Product = { id: \"P003\", name: \"Mouse\", price: 25 };\nconst stringFields = getStringFields(product);\nconsole.log(stringFields); // Output: { id: \"P003\", name: \"Mouse\", price: null }"
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Mapped Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Mapped types leverage TypeScript’s static typing to transform existing types or create new ones, providing flexibility and type safety. In JavaScript, dynamic types can lead to unexpected errors. Mapped types improve type safety and readability, especially in large-scale projects. They enhance code quality and maintainability in projects at companies like Microsoft, Google, and Airbnb."
+      },
+      {
+        "type": "heading",
+        "text": "Key features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Mapped syntax",
+            "description": "Mapped types are defined with `[P in keyof T]`."
+          },
+          {
+            "term": "Keyof usage",
+            "description": "`keyof T` retrieves the keys of a type, e.g., `keyof Person`."
+          },
+          {
+            "term": "With conditional types",
+            "description": "Mapped types can be combined with conditional types, e.g., `T[P] extends string ? T[P] : never`."
+          },
+          {
+            "term": "Utility types",
+            "description": "TypeScript’s built-in utility types like `Partial`, `Readonly`, and `Pick` are based on mapped types."
+          },
+          {
+            "term": "With union types",
+            "description": "Mapped types can be used with union types, e.g., `[P in 'id' | 'name']`."
+          },
+          {
+            "term": "Use in functions",
+            "description": "Mapped types are used in functions for dynamic type transformations."
+          },
+          {
+            "term": "Use in interfaces",
+            "description": "Mapped types can transform properties in interfaces."
+          },
+          {
+            "term": "IDE support",
+            "description": "Smart suggestions and error warnings for mapped types in tools like VSCode."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Overly complex mapped types can make code hard to read and understand. Incorrect mappings can lead to type errors. Mapped types have no runtime impact, which can complicate dynamic type checks.\n- **Recommendations**: Keep mapped types simple and clear, use them only when necessary, be cautious with conditional types, document complex structures, and use IDEs like VSCode to catch errors early."
+      },
+      {
+        "type": "heading",
+        "text": "Try it yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Simple mapped type example\ntype Person = { name: string; age: number };\ntype ReadonlyPerson = { readonly [P in keyof Person]: Person[P] };\nconst person: ReadonlyPerson = { name: \"Alice\", age: 30 };\nconsole.log(person); // Output: { name: \"Alice\", age: 30 }"
+      }
+    ]
+  },
+  "ru": {
+    "title": "TypeScript Mapped Types",
+    "description": "TypeScript mapped types преобразуют или создают новые типы из существующих с использованием синтаксиса `[P in keyof T]`, обеспечивая гибкое управление типами.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Mapped Types?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript mapped types создают новые типы, преобразуя свойства существующего типа с использованием синтаксиса `[P in keyof T]`. Здесь `P` представляет каждое свойство, а `keyof T` возвращает все имена свойств типа. Например, `type Readonly<T> = { readonly [P in keyof T]: T[P] }` делает все свойства доступными только для чтения. Mapped types могут комбинироваться с условными типами, utility types (например, `Partial`, `Readonly`), union типами или функциями."
+      },
+      {
+        "type": "heading",
+        "text": "Как работают Mapped Types?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Mapped types перебирают свойства типа, определяя новые типы для каждого свойства. `keyof T` возвращает ключи типа, а `[P in keyof T]` преобразует каждое свойство. Например, `type Optional<T> = { [P in keyof T]?: T[P] }` делает все свойства необязательными. При сочетании с условными типами (например, `T[P] extends string ? string : never`) mapped types позволяют выполнять сложные преобразования типов. Статическая типизация TypeScript выявляет ошибки на этапе разработки, но mapped types не влияют на выполнение."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// 1. Простой Mapped Type\ntype Person = { name: string; age: number };\ntype ReadonlyPerson = { readonly [P in keyof Person]: Person[P] };\nconst person: ReadonlyPerson = { name: \"Alice\", age: 30 };\n// person.name = \"Bob\"; // Ошибка: name доступно только для чтения\nconsole.log(person); // Вывод: { name: \"Alice\", age: 30 }\n\n// 2. Mapped Type с необязательными свойствами\ntype OptionalPerson = { [P in keyof Person]?: Person[P] };\nconst optionalPerson: OptionalPerson = { name: \"Bob\" }; // age необязательно\nconsole.log(optionalPerson); // Вывод: { name: \"Bob\" }\n\n// 3. Mapped Type с условными типами\ntype StringOnly<T> = { [P in keyof T]: T[P] extends string ? T[P] : never };\ntype StringPerson = StringOnly<Person>;\nconst stringPerson: StringPerson = { name: \"Alice\", age: null };\nconsole.log(stringPerson); // Вывод: { name: \"Alice\", age: null }\n\n// 4. Keyof с Mapped Type\ntype Keys = keyof Person; // \"name\" | \"age\"\ntype PersonValues = { [P in Keys]: Person[P] };\nconst values: PersonValues = { name: \"Alice\", age: 30 };\nconsole.log(values); // Вывод: { name: \"Alice\", age: 30 }\n\n// 5. Utility Types с Mapped Type\ntype PartialPerson = Partial<Person>; // { name?: string; age?: number }\nconst partial: PartialPerson = { name: \"Alice\" };\nconsole.log(partial); // Вывод: { name: \"Alice\" }\n\ntype ReadonlyPersonUtility = Readonly<Person>;\nconst readonlyPerson: ReadonlyPersonUtility = { name: \"Bob\", age: 25 };\n// readonlyPerson.name = \"Alice\"; // Ошибка: name доступно только для чтения\nconsole.log(readonlyPerson); // Вывод: { name: \"Bob\", age: 25 }\n\n// 6. Union типы с Mapped Type\ntype KeysUnion = \"id\" | \"name\";\ntype UnionMapped = { [P in KeysUnion]: string };\nconst unionMapped: UnionMapped = { id: \"P001\", name: \"Laptop\" };\nconsole.log(unionMapped); // Вывод: { id: \"P001\", name: \"Laptop\" }\n\n// 7. Mapped Type с функцией\nfunction mapProperties<T>(obj: T): { [P in keyof T]: string } {\n  const result = {} as { [P in keyof T]: string };\n  for (const key in obj) {\n    result[key] = String(obj[key]);\n  }\n  return result;\n}\nconst mapped = mapProperties({ name: \"Alice\", age: 30 });\nconsole.log(mapped); // Вывод: { name: \"Alice\", age: \"30\" }"
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Mapped types широко используются в реальных проектах для преобразования типов и обеспечения типобезопасности. Например, в платформе электронной коммерции `Partial<Product>` может сделать свойства продукта необязательными для гибкой обработки данных. При обработке ответов API mapped types могут выбирать только свойства определённого типа (например, строковые). В веб-приложениях они могут использоваться для динамической валидации форм. Ниже приведён простой пример магазина."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Простая система магазина\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\ntype OptionalProduct = { [P in keyof Product]?: Product[P] };\nclass ProductStore {\n  products: OptionalProduct[] = [];\n  add(product: OptionalProduct): void {\n    this.products.push(product);\n  }\n  getById(id: string): OptionalProduct | undefined {\n    return this.products.find(p => p.id === id);\n  }\n}\nconst store = new ProductStore();\nstore.add({ id: \"P001\", name: \"Laptop\" }); // price необязательно\nstore.add({ id: \"P002\", price: 999 });\nconsole.log(store.getById(\"P001\")); // Вывод: { id: \"P001\", name: \"Laptop\" }\n\n// Условный mapped type с функцией\ntype StringFields<T> = { [P in keyof T]: T[P] extends string ? T[P] : never };\nfunction getStringFields<T>(obj: T): StringFields<T> {\n  const result = {} as StringFields<T>;\n  for (const key in obj) {\n    result[key] = (typeof obj[key] === \"string\" ? obj[key] : null) as any;\n  }\n  return result;\n}\nconst product: Product = { id: \"P003\", name: \"Mouse\", price: 25 };\nconst stringFields = getStringFields(product);\nconsole.log(stringFields); // Вывод: { id: \"P003\", name: \"Mouse\", price: null }"
+      },
+      {
+        "type": "heading",
+        "text": "Цель Mapped Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Mapped types используют статическую типизацию TypeScript для преобразования существующих типов или создания новых, обеспечивая гибкость и типобезопасность. В JavaScript динамические типы могут привести к неожиданным ошибкам. Mapped types улучшают типобезопасность и читаемость, особенно в крупномасштабных проектах. Они повышают качество и удобство поддержки кода в проектах компаний, таких как Microsoft, Google и Airbnb."
+      },
+      {
+        "type": "heading",
+        "text": "Основные особенности"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Синтаксис отображения",
+            "description": "Mapped types определяются с помощью `[P in keyof T]`."
+          },
+          {
+            "term": "Использование keyof",
+            "description": "`keyof T` возвращает ключи типа, например, `keyof Person`."
+          },
+          {
+            "term": "С условными типами",
+            "description": "Mapped types могут комбинироваться с условными типами, например, `T[P] extends string ? T[P] : never`."
+          },
+          {
+            "term": "Utility types",
+            "description": "Встроенные utility types TypeScript, такие как `Partial`, `Readonly`, `Pick`, основаны на mapped types."
+          },
+          {
+            "term": "С union типами",
+            "description": "Mapped types могут использоваться с union типами, например, `[P in 'id' | 'name']`."
+          },
+          {
+            "term": "Использование в функциях",
+            "description": "Mapped types используются в функциях для динамического преобразования типов."
+          },
+          {
+            "term": "Использование в интерфейсах",
+            "description": "Mapped types могут преобразовывать свойства в интерфейсах."
+          },
+          {
+            "term": "Поддержка IDE",
+            "description": "Интеллектуальные подсказки и предупреждения об ошибках для mapped types в редакторах, таких как VSCode."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Слишком сложные mapped types могут затруднить чтение и понимание кода. Неправильные отображения могут привести к ошибкам типов. Mapped types не влияют на выполнение, что может усложнить динамические проверки типов.\n- **Рекомендации**: Сохраняйте mapped types простыми и понятными, используйте их только при необходимости, будьте осторожны с условными типами, документируйте сложные структуры, используйте IDE, такие как VSCode, для раннего обнаружения ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Простой пример mapped type\ntype Person = { name: string; age: number };\ntype ReadonlyPerson = { readonly [P in keyof Person]: Person[P] };\nconst person: ReadonlyPerson = { name: \"Alice\", age: 30 };\nconsole.log(person); // Вывод: { name: \"Alice\", age: 30 }"
+      }
+    ]
+  }
+}

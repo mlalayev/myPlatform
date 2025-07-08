@@ -1,0 +1,305 @@
+{
+    "az": {
+      "title": "TypeScript Type Assertions",
+      "description": "TypeScript-də type assertions, bir dəyişənin tipini TypeScript-ə daha dəqiq bir tip kimi təyin etmək üçün istifadə olunur. `as` və angle-bracket (`<>`) sintaksisləri ilə işləyir, lakin yalnız TypeScript-in tip sistemində təsir edir.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Type Assertions nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "TypeScript-də type assertions, bir dəyişənin tipini TypeScript-ə bildirmək üçün istifadə olunan bir mexanizmdir. Bu, TypeScript-in statik tipləmə sistemində dəyişənin daha dəqiq bir tipə malik olduğunu iddia etməyə imkan verir. Type assertions `as` sintaksisi (məsələn, `value as string`) və ya angle-bracket sintaksisi (məsələn, `<string>value`) ilə yazılır. Type assertions runtime-da heç bir təsiri yoxdur, yalnız TypeScript-in tip yoxlamasını idarə edir. Əsasən `any`, `unknown` və ya union tipləri ilə işləyərkən istifadə olunur."
+        },
+        {
+          "type": "heading",
+          "text": "Type Assertions necə işləyir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Type assertions, TypeScript-ə bir dəyişənin müəyyən bir tipdə olduğunu 'söyləyir', amma bu, dəyişənin dəyərini dəyişmir. Məsələn, bir `any` tipindəki dəyişəni `string` kimi təyin etmək üçün `as string` istifadə edilə bilər. Type assertions yalnız TypeScript-in tip sistemində təsir edir və yanlış təyin edildikdə runtime səhvlərinə səbəb ola bilər. Type assertions `type guards` ilə fərqlidir, çünki type guards tip yoxlamasını dinamik şəkildə edir, type assertions isə statik olaraq təyin edir."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// 1. as Sintaksisi ilə Type Assertion\nlet value: any = \"Hello\";\nlet strLength: number = (value as string).length;\nconsole.log(strLength); // Çıxış: 5\n\n// 2. Angle-Bracket Sintaksisi\nlet value2: any = \"World\";\nlet strLength2: number = (<string>value2).length;\nconsole.log(strLength2); // Çıxış: 5\n\n// 3. Union Tipləri ilə Type Assertion\nfunction processValue(value: string | number) {\n  let result: string = (value as string).toUpperCase(); // Ehtiyatlı olun, number olarsa səhv ola bilər\n  console.log(result);\n}\nprocessValue(\"hello\"); // Çıxış: HELLO\n// processValue(42); // Runtime səhvi: number.toUpperCase mövcud deyil\n\n// 4. unknown ilə Type Assertion\nlet data: unknown = \"Test\";\nlet str: string = data as string; // unknown-dan string-ə çevrilir\nconsole.log(str.toUpperCase()); // Çıxış: TEST\n\n// 5. Type Assertion ilə Obyekt\ninterface User {\n  name: string;\n  age: number;\n}\nlet rawData: any = { name: \"Alice\", age: 30 };\nlet user: User = rawData as User;\nconsole.log(user.name); // Çıxış: Alice\n\n// 6. Type Assertion və Type Guard ilə birlikdə\nfunction isString(value: any): value is string {\n  return typeof value === \"string\";\n}\nfunction safeProcess(value: any) {\n  if (isString(value)) {\n    console.log(value.toUpperCase());\n  } else {\n    let num: number = value as number; // Type assertion ilə number təyin edilir\n    console.log(num.toFixed(2));\n  }\n}\nsafeProcess(\"Hello\"); // Çıxış: HELLO\nsafeProcess(42.123); // Çıxış: 42.12"
+        },
+        {
+          "type": "heading",
+          "text": "Real həyatda istifadə ssenariləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Type assertions real layihələrdə xarici mənbələrdən (məsələn, API-lərdən) gələn məlumatların tipini təyin etmək üçün istifadə olunur. Məsələn, bir e-ticarət platformasında API-dən gələn məhsul məlumatlarını `any` və ya `unknown` tipindən `Product` interfeysinə çevirmək üçün type assertions faydalıdır. Lakin type assertions təhlükəsiz istifadə edilməsə, runtime səhvləri yarana bilər. Aşağıda sadə bir mağaza nümunəsi var."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Sadə mağaza sistemi\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\n\n// API-dən gələn məlumatla Type Assertion\nlet rawProduct: any = { id: \"P001\", name: \"Laptop\", price: 999 };\nlet product: Product = rawProduct as Product;\nconsole.log(product.name); // Çıxış: Laptop\n\n// Type Guard ilə təhlükəsiz Type Assertion\nfunction isProduct(data: any): data is Product {\n  return (\n    data &&\n    typeof data.id === \"string\" &&\n    typeof data.name === \"string\" &&\n    typeof data.price === \"number\"\n  );\n}\nfunction processProduct(data: any) {\n  if (isProduct(data)) {\n    console.log(`Product: ${data.name}, Price: ${data.price}`);\n  } else {\n    console.log(\"Invalid product data\");\n  }\n}\nprocessProduct(rawProduct); // Çıxış: Product: Laptop, Price: 999\nprocessProduct({ id: \"P002\" }); // Çıxış: Invalid product data"
+        },
+        {
+          "type": "heading",
+          "text": "Type Assertions-ın məqsədi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Type assertions TypeScript-in statik tipləmə sistemində dəyişənin tipini dəqiqləşdirmək üçün istifadə olunur, xüsusən `any` və ya `unknown` tipləri ilə işləyərkən. JavaScript-də dinamik tiplər səbəbindən gözlənilməz səhvlər yarana bilər. Type assertions tip təhlükəsizliyini artırmağa kömək edir, lakin diqqətli istifadə edilməlidir. Microsoft, Google və Airbnb kimi şirkətlərin layihələrində kodun keyfiyyətini və baxımını asanlaşdırır."
+        },
+        {
+          "type": "heading",
+          "text": "Əsas xüsusiyyətlər"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "as sintaksisi",
+              "description": "Tip təyini üçün: `value as string`."
+            },
+            {
+              "term": "Angle-bracket sintaksisi",
+              "description": "Alternativ tip təyini: `<string>value`."
+            },
+            {
+              "term": "any ilə işləmə",
+              "description": "`any` tipindən konkret tipə keçid."
+            },
+            {
+              "term": "unknown ilə işləmə",
+              "description": "`unknown` tipindən konkret tipə keçid."
+            },
+            {
+              "term": "Union tipləri ilə",
+              "description": "Union tiplərindən daha dəqiq tipə keçid."
+            },
+            {
+              "term": "Type guards ilə birləşmə",
+              "description": "Type assertions type guards ilə təhlükəsiz istifadə edilə bilər."
+            },
+            {
+              "term": "IDE dəstəyi",
+              "description": "VSCode kimi alətlərdə type assertions üçün avtomatik təkliflər və səhv xəbərdarlıqları."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Təhlükələr və tövsiyələr"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Təhlükələr**: Yanlış type assertion runtime səhvlərinə səbəb ola bilər, çünki TypeScript yalnız statik yoxlama aparır. Həddindən artıq type assertions kodu oxumaq və başa düşmək üçün çətinləşdirə bilər. `any` ilə həddindən artıq istifadə tip təhlükəsizliyini azaldır.\n- **Tövsiyələr**: Type assertions-ı yalnız əmin olduğunuz hallarda istifadə edin, type guards ilə birləşdirin, `unknown` tipini `any` yerinə üstün tutun, sənədləşdirmə əlavə edin, səhvləri tapmaq üçün VSCode kimi IDE istifadə edin."
+        },
+        {
+          "type": "heading",
+          "text": "Sınaq üçün nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Sadə type assertion nümunəsi\nlet value: any = \"Hello\";\nlet strLength: number = (value as string).length;\nconsole.log(strLength); // Çıxış: 5"
+        }
+      ]
+    },
+    "en": {
+      "title": "TypeScript Type Assertions",
+      "description": "TypeScript type assertions allow specifying a variable’s type more precisely using `as` or angle-bracket (`<>`) syntax, affecting only TypeScript’s type system.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "What are Type Assertions?"
+        },
+        {
+          "type": "paragraph",
+          "text": "In TypeScript, type assertions are a mechanism to tell TypeScript that a variable has a more specific type. They use the `as` syntax (e.g., `value as string`) or angle-bracket syntax (e.g., `<string>value`). Type assertions only affect TypeScript’s static type checking and have no runtime impact. They are commonly used with `any`, `unknown`, or union types when the developer knows more about the variable’s type than TypeScript can infer."
+        },
+        {
+          "type": "heading",
+          "text": "How do Type Assertions work?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Type assertions tell TypeScript to treat a variable as a specific type without changing its value. For example, an `any` type can be asserted as a `string` using `as string`. Type assertions only work within TypeScript’s type system, and incorrect assertions can lead to runtime errors. Unlike type guards, which dynamically check types, type assertions are static and assume the developer’s assertion is correct."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// 1. as Syntax Type Assertion\nlet value: any = \"Hello\";\nlet strLength: number = (value as string).length;\nconsole.log(strLength); // Output: 5\n\n// 2. Angle-Bracket Syntax\nlet value2: any = \"World\";\nlet strLength2: number = (<string>value2).length;\nconsole.log(strLength2); // Output: 5\n\n// 3. Type Assertion with Union Types\nfunction processValue(value: string | number) {\n  let result: string = (value as string).toUpperCase(); // Be cautious, may fail if value is number\n  console.log(result);\n}\nprocessValue(\"hello\"); // Output: HELLO\n// processValue(42); // Runtime error: number.toUpperCase is not a function\n\n// 4. Type Assertion with unknown\nlet data: unknown = \"Test\";\nlet str: string = data as string; // Convert unknown to string\nconsole.log(str.toUpperCase()); // Output: TEST\n\n// 5. Type Assertion with Object\ninterface User {\n  name: string;\n  age: number;\n}\nlet rawData: any = { name: \"Alice\", age: 30 };\nlet user: User = rawData as User;\nconsole.log(user.name); // Output: Alice\n\n// 6. Type Assertion with Type Guard\nfunction isString(value: any): value is string {\n  return typeof value === \"string\";\n}\nfunction safeProcess(value: any) {\n  if (isString(value)) {\n    console.log(value.toUpperCase());\n  } else {\n    let num: number = value as number; // Assert as number\n    console.log(num.toFixed(2));\n  }\n}\nsafeProcess(\"Hello\"); // Output: HELLO\nsafeProcess(42.123); // Output: 42.12"
+        },
+        {
+          "type": "heading",
+          "text": "Real-world use cases"
+        },
+        {
+          "type": "paragraph",
+          "text": "Type assertions are used in real-world projects to handle data from external sources, such as APIs, where the type is `any` or `unknown`. For example, in an e-commerce platform, type assertions can convert API product data into a `Product` interface. However, misuse can lead to runtime errors. Below is a simple store example."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Simple store system\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\n\n// Type Assertion with API data\nlet rawProduct: any = { id: \"P001\", name: \"Laptop\", price: 999 };\nlet product: Product = rawProduct as Product;\nconsole.log(product.name); // Output: Laptop\n\n// Safe Type Assertion with Type Guard\nfunction isProduct(data: any): data is Product {\n  return (\n    data &&\n    typeof data.id === \"string\" &&\n    typeof data.name === \"string\" &&\n    typeof data.price === \"number\"\n  );\n}\nfunction processProduct(data: any) {\n  if (isProduct(data)) {\n    console.log(`Product: ${data.name}, Price: ${data.price}`);\n  } else {\n    console.log(\"Invalid product data\");\n  }\n}\nprocessProduct(rawProduct); // Output: Product: Laptop, Price: 999\nprocessProduct({ id: \"P002\" }); // Output: Invalid product data"
+        },
+        {
+          "type": "heading",
+          "text": "Purpose of Type Assertions"
+        },
+        {
+          "type": "paragraph",
+          "text": "Type assertions leverage TypeScript’s static typing to specify a variable’s type, especially when working with `any` or `unknown` types. In JavaScript, dynamic types can lead to unexpected errors. Type assertions improve type safety but must be used carefully. They enhance code quality and maintainability in projects at companies like Microsoft, Google, and Airbnb."
+        },
+        {
+          "type": "heading",
+          "text": "Key features"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "as syntax",
+              "description": "For type assertion: `value as string`."
+            },
+            {
+              "term": "Angle-bracket syntax",
+              "description": "Alternative type assertion: `<string>value`."
+            },
+            {
+              "term": "Working with any",
+              "description": "Converting from `any` to a specific type."
+            },
+            {
+              "term": "Working with unknown",
+              "description": "Converting from `unknown` to a specific type."
+            },
+            {
+              "term": "With union types",
+              "description": "Narrowing union types to a specific type."
+            },
+            {
+              "term": "With type guards",
+              "description": "Type assertions can be safely used with type guards."
+            },
+            {
+              "term": "IDE support",
+              "description": "Smart suggestions and error warnings for type assertions in tools like VSCode."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Dangers and recommendations"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Dangers**: Incorrect type assertions can cause runtime errors since TypeScript only performs static checks. Overusing type assertions can make code harder to read and reduce type safety. Excessive use of `any` weakens type safety.\n- **Recommendations**: Use type assertions only when confident, combine with type guards, prefer `unknown` over `any`, document complex assertions, and use IDEs like VSCode to catch errors early."
+        },
+        {
+          "type": "heading",
+          "text": "Try it yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Simple type assertion example\nlet value: any = \"Hello\";\nlet strLength: number = (value as string).length;\nconsole.log(strLength); // Output: 5"
+        }
+      ]
+    },
+    "ru": {
+      "title": "TypeScript Type Assertions",
+      "description": "TypeScript type assertions позволяют указать более точный тип переменной с использованием синтаксиса `as` или угловых скобок (`<>`), влияя только на систему типов TypeScript.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Что такое Type Assertions?"
+        },
+        {
+          "type": "paragraph",
+          "text": "В TypeScript type assertions — это механизм, позволяющий указать TypeScript, что переменная имеет более конкретный тип. Используются синтаксис `as` (например, `value as string`) или угловые скобки (например, `<string>value`). Type assertions влияют только на статическую проверку типов TypeScript и не имеют эффекта на этапе выполнения. Они часто применяются с типами `any`, `unknown` или union типами, когда разработчик знает больше о типе переменной, чем может вывести TypeScript."
+        },
+        {
+          "type": "heading",
+          "text": "Как работают Type Assertions?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Type assertions указывают TypeScript рассматривать переменную как определённый тип без изменения её значения. Например, переменная типа `any` может быть утверждена как `string` с помощью `as string`. Type assertions работают только в системе типов TypeScript, и неправильное их использование может привести к ошибкам на этапе выполнения. В отличие от type guards, которые динамически проверяют типы, type assertions статичны и предполагают, что утверждение разработчика верно."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// 1. Синтаксис as для Type Assertion\nlet value: any = \"Hello\";\nlet strLength: number = (value as string).length;\nconsole.log(strLength); // Вывод: 5\n\n// 2. Синтаксис угловых скобок\nlet value2: any = \"World\";\nlet strLength2: number = (<string>value2).length;\nconsole.log(strLength2); // Вывод: 5\n\n// 3. Type Assertion с Union типами\nfunction processValue(value: string | number) {\n  let result: string = (value as string).toUpperCase(); // Осторожно, ошибка, если value — число\n  console.log(result);\n}\nprocessValue(\"hello\"); // Вывод: HELLO\n// processValue(42); // Ошибка выполнения: number.toUpperCase не существует\n\n// 4. Type Assertion с unknown\nlet data: unknown = \"Test\";\nlet str: string = data as string; // Преобразование unknown в string\nconsole.log(str.toUpperCase()); // Вывод: TEST\n\n// 5. Type Assertion с объектом\ninterface User {\n  name: string;\n  age: number;\n}\nlet rawData: any = { name: \"Alice\", age: 30 };\nlet user: User = rawData as User;\nconsole.log(user.name); // Вывод: Alice\n\n// 6. Type Assertion с Type Guard\nfunction isString(value: any): value is string {\n  return typeof value === \"stringeral/\"\n  if (isString(value)) {\n    console.log(value.toUpperCase());\n  } else {\n    let num: number = value as number; // Утверждение как number\n    console.log(num.toFixed(2));\n  }\n}\nsafeProcess(\"Hello\"); // Вывод: HELLO\nsafeProcess(42.123); // Вывод: 42.12"
+        },
+        {
+          "type": "heading",
+          "text": "Примеры из реальной жизни"
+        },
+        {
+          "type": "paragraph",
+          "text": "Type assertions используются в реальных проектах для обработки данных из внешних источников, таких как API, где тип данных — `any` или `unknown`. Например, в платформе электронной коммерции type assertions могут преобразовать данные о продукте из API в интерфейс `Product`. Однако неправильное использование может привести к ошибкам выполнения. Ниже приведён простой пример магазина."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Простая система магазина\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\n\n// Type Assertion с данными API\nlet rawProduct: any = { id: \"P001\", name: \"Laptop\", price: 999 };\nlet product: Product = rawProduct as Product;\nconsole.log(product.name); // Вывод: Laptop\n\n// Безопасное Type Assertion с Type Guard\nfunction isProduct(data: any): data is Product {\n  return (\n    data &&\n    typeof data.id === \"string\" &&\n    typeof data.name === \"string\" &&\n    typeof data.price === \"number\"\n  );\n}\nfunction processProduct(data: any) {\n  if (isProduct(data)) {\n    console.log(`Product: ${data.name}, Price: ${data.price}`);\n  } else {\n    console.log(\"Invalid product data\");\n  }\n}\nprocessProduct(rawProduct); // Вывод: Product: Laptop, Price: 999\nprocessProduct({ id: \"P002\" }); // Вывод: Invalid product data"
+        },
+        {
+          "type": "heading",
+          "text": "Цель Type Assertions"
+        },
+        {
+          "type": "paragraph",
+          "text": "Type assertions используют статическую типизацию TypeScript для уточнения типа переменной, особенно при работе с типами `any` или `unknown`. В JavaScript динамические типы могут привести к неожиданным ошибкам. Type assertions улучшают типобезопасность, но требуют осторожного использования. Они повышают качество и удобство поддержки кода в проектах компаний, таких как Microsoft, Google и Airbnb."
+        },
+        {
+          "type": "heading",
+          "text": "Основные особенности"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Синтаксис as",
+              "description": "Для утверждения типа: `value as string`."
+            },
+            {
+              "term": "Синтаксис угловых скобок",
+              "description": "Альтернативное утверждение типа: `<string>value`."
+            },
+            {
+              "term": "Работа с any",
+              "description": "Преобразование из `any` в конкретный тип."
+            },
+            {
+              "term": "Работа с unknown",
+              "description": "Преобразование из `unknown` в конкретный тип."
+            },
+            {
+              "term": "С union типами",
+              "description": "Уточнение union типов до конкретного типа."
+            },
+            {
+              "term": "С type guards",
+              "description": "Type assertions могут безопасно использоваться с type guards."
+            },
+            {
+              "term": "Поддержка IDE",
+              "description": "Интеллектуальные подсказки и предупреждения об ошибках для type assertions в редакторах, таких как VSCode."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Опасности и рекомендации"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Опасности**: Неправильные type assertions могут привести к ошибкам выполнения, так как TypeScript выполняет только статическую проверку. Чрезмерное использование type assertions может затруднить чтение кода и снизить типобезопасность. Чрезмерное использование `any` ослабляет типобезопасность.\n- **Рекомендации**: Используйте type assertions только при уверенности, комбинируйте с type guards, предпочитайте `unknown` вместо `any`, документируйте сложные утверждения, используйте IDE, такие как VSCode, для раннего обнаружения ошибок."
+        },
+        {
+          "type": "heading",
+          "text": "Попробуй сам"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Простой пример type assertion\nlet value: any = \"Hello\";\nlet strLength: number = (value as string).length;\nconsole.log(strLength); // Вывод: 5"
+        }
+      ]
+    }
+  }

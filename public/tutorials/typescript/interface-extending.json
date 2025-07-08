@@ -1,0 +1,305 @@
+{
+    "az": {
+      "title": "TypeScript Interface Extending",
+      "description": "TypeScript-də interface extending `extends` açar sözü ilə bir interfeysin digər interfeysdən xüsusiyyətləri miras almasını təmin edir. Bu, kodun təkrar istifadəsini asanlaşdırır və strukturları daha mütəşəkkil edir.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Interface Extending nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "TypeScript-də interface extending bir interfeysin başqa bir interfeysdən xüsusiyyətləri və ya metodları miras almasını təmin edən mexanizmdir. `extends` açar sözü ilə təyin edilir. Məsələn, `interface Person { name: string; }` və `interface Employee extends Person { role: string; }` təyin etsək, `Employee` avtomatik olaraq `name` xüsusiyyətini miras alacaq və öz `role` xüsusiyyətini əlavə edəcək. Bu, kodun təkrar yazılmasının qarşısını alır və obyekt strukturlarını daha mütəşəkkil edir. Interfaces çoxlu miras almağı da dəstəkləyir, yəni bir interface birdən çox interfeysdən miras ala bilər."
+        },
+        {
+          "type": "heading",
+          "text": "Interface Extending necə işləyir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Interface extending `extends` açar sözü ilə işləyir və miras alınan interfeysin bütün xüsusiyyətlərini və metodlarını yeni interfeysə köçürür. Tək bir interfeysdən miras almaqla yanaşı, birdən çox interfeysdən də miras almaq mümkündür (məsələn, `interface Manager extends Person, Role { ... }`). Optional (`?`) və readonly (`readonly`) xüsusiyyətlər miras alınarkən saxlanılır, lakin yeni interfeysdə əlavə xüsusiyyətlər və ya məhdudiyyətlər əlavə edilə bilər. Interfaces siniflərdə (`class`) də istifadə oluna bilər (`implements` ilə). Type aliases ilə fərqli olaraq, interfaces yalnız obyekt strukturları üçün nəzərdə tutulub və primitiv və ya union tipləri birbaşa dəstəkləmir."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// 1. Sadə interface extending\ninterface Person {\n  name: string;\n  age: number;\n}\ninterface Employee extends Person {\n  role: string;\n}\nconst employee: Employee = {\n  name: \"Murad\",\n  age: 25,\n  role: \"Developer\"\n};\nconsole.log(employee); // Çıxış: { name: \"Murad\", age: 25, role: \"Developer\" }\n\n// 2. Çoxlu miras alma\ninterface Contact {\n  email: string;\n}\ninterface Manager extends Person, Contact {\n  department: string;\n}\nconst manager: Manager = {\n  name: \"Alice\",\n  age: 30,\n  email: \"alice@example.com\",\n  department: \"IT\"\n};\nconsole.log(manager); // Çıxış: { name: \"Alice\", age: 30, email: \"alice@example.com\", department: \"IT\" }\n\n// 3. Optional və readonly xüsusiyyətlərlə\ninterface Vehicle {\n  readonly brand: string;\n  model?: string;\n}\ninterface Car extends Vehicle {\n  year: number;\n}\nconst car: Car = {\n  brand: \"Toyota\",\n  year: 2020\n};\nconsole.log(car); // Çıxış: { brand: \"Toyota\", year: 2020 }\n// car.brand = \"Honda\"; // Xəta: readonly xüsusiyyət dəyişdirilə bilməz\n\n// 4. Siniflərdə interface extending\ninterface Animal {\n  name: string;\n  makeSound(): string;\n}\ninterface Dog extends Animal {\n  breed: string;\n}\nclass Puppy implements Dog {\n  name: string;\n  breed: string;\n  constructor(name: string, breed: string) {\n    this.name = name;\n    this.breed = breed;\n  }\n  makeSound(): string {\n    return \"Woof!\";\n  }\n}\nconst puppy = new Puppy(\"Buddy\", \"Labrador\");\nconsole.log(puppy); // Çıxış: Puppy { name: \"Buddy\", breed: \"Labrador\" }\nconsole.log(puppy.makeSound()); // Çıxış: Woof!\n\n// 5. Union tipləri ilə interface extending\ninterface Book {\n  type: \"book\";\n  title: string;\n  pages: number;\n}\ninterface ExtendedBook extends Book {\n  author: string;\n}\ninterface Movie {\n  type: \"movie\";\n  title: string;\n  duration: number;\n}\ntype Media = ExtendedBook | Movie;\nfunction describeMedia(media: Media): string {\n  if (media.type === \"book\") {\n    return `${media.title} by ${media.author}: ${media.pages} pages`;\n  }\n  return `${media.title}: ${media.duration} minutes`;\n}\nconst book: ExtendedBook = { type: \"book\", title: \"TypeScript Guide\", pages: 200, author: \"John\" };\nconst movie: Movie = { type: \"movie\", title: \"Inception\", duration: 148 };\nconsole.log(describeMedia(book)); // Çıxış: TypeScript Guide by John: 200 pages\nconsole.log(describeMedia(movie)); // Çıxış: Inception: 148 minutes"
+        },
+        {
+          "type": "heading",
+          "text": "Real həyatda istifadə ssenariləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Interface extending real layihələrdə kodun təkrar istifadəsini asanlaşdırmaq və strukturları mütəşəkkil etmək üçün çox faydalıdır. Məsələn, bir onlayn mağazada `Product` interfeysi (`id`, `name`) təyin edilə bilər və `StockProduct` bu interfeysi miras alaraq `stockCount` əlavə edə bilər. İstifadəçi idarəetmə sistemində `User` interfeysindən `Admin` və ya `Customer` kimi yeni interfeyslər miras alına bilər. API cavablarının strukturlarını təyin edərkən və ya siniflərlə işləyərkən də istifadə olunur. Aşağıda sadə bir mağaza nümunəsi var."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Sadə mağaza sistemi\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\ninterface StockProduct extends Product {\n  stockCount: number;\n  inStock?: boolean;\n}\n\nfunction displayProduct(product: StockProduct): string {\n  return `${product.name} (ID: ${product.id}): $${product.price}, ${product.inStock ? \"mövcuddur\" : \"mövcud deyil\"}, ${product.stockCount} ədəd`;\n}\n\nconst laptop: StockProduct = {\n  id: \"P001\",\n  name: \"Laptop\",\n  price: 1200,\n  inStock: true,\n  stockCount: 10\n};\nconsole.log(displayProduct(laptop)); // Çıxış: Laptop (ID: P001): $1200, mövcuddur, 10 ədəd\n\n// Çoxlu miras alma ilə\ninterface Discount {\n  discount: number;\n}\ninterface DiscountedStockProduct extends StockProduct, Discount {\n  discountEndDate?: string;\n}\nconst discountedLaptop: DiscountedStockProduct = {\n  id: \"P001\",\n  name: \"Laptop\",\n  price: 1200,\n  inStock: true,\n  stockCount: 10,\n  discount: 15,\n  discountEndDate: \"2025-12-31\"\n};\nconsole.log(`${discountedLaptop.name}: ${discountedLaptop.discount}% endirim`); // Çıxış: Laptop: 15% endirim"
+        },
+        {
+          "type": "heading",
+          "text": "Interface Extending-in məqsədi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Interface extending TypeScript-in statik tipləmə üstünlüyünü tətbiq edərək obyekt strukturlarını təkrar istifadə edilə bilən və mütəşəkkil şəkildə təyin etməyə imkan verir. JavaScript-də obyektlərə istənilən xüsusiyyət əlavə etmək asandır, lakin bu səhvlərə səbəb ola bilər. Interface extending ilə TypeScript kod yazarkən səhvləri aşkar edir və miras alma vasitəsilə kodun təkrar yazılmasının qarşısını alır. Microsoft, Google və Airbnb kimi şirkətlərin layihələrində, xüsusilə böyük və mürəkkəb layihələrdə kodun keyfiyyətini və oxunaqlığını artırır."
+        },
+        {
+          "type": "heading",
+          "text": "Əsas xüsusiyyətlər"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Tək miras alma",
+              "description": "Bir interfeysdən xüsusiyyətləri miras alma, məsələn, `interface Employee extends Person`."
+            },
+            {
+              "term": "Çoxlu miras alma",
+              "description": "Birdən çox interfeysdən xüsusiyyətləri birləşdirmə, məsələn, `interface Manager extends Person, Contact`."
+            },
+            {
+              "term": "Optional xüsusiyyətlər",
+              "description": "Miras alınan və ya yeni əlavə edilmiş optional xüsusiyyətlər (`?`)."
+            },
+            {
+              "term": "Readonly xüsusiyyətlər",
+              "description": "Miras alınan readonly xüsusiyyətlər saxlanılır (`readonly`)."
+            },
+            {
+              "term": "Siniflərdə istifadə",
+              "description": "Interfeyslər siniflər tərəfindən `implements` ilə istifadə oluna bilər."
+            },
+            {
+              "term": "Union tipləri ilə",
+              "description": "Miras alınmış interfeyslər union tipləri ilə type narrowing-də istifadə edilə bilər."
+            },
+            {
+              "term": "IDE dəstəyi",
+              "description": "VSCode kimi alətlərdə extending interfeyslər üçün avtomatik təkliflər və səhv xəbərdarlıqları."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Təhlükələr və tövsiyələr"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Təhlükələr**: Çoxlu miras alma həddindən artıq istifadə edildikdə kod mürəkkəbləşə bilər. Miras alınan xüsusiyyətlər arasında ziddiyyətlər (məsələn, eyni adlı fərqli tipli xüsusiyyətlər) səhvlərə səbəb ola bilər. Interfaces-in type aliases ilə qarışdırılması yanlış istifadəyə yol aça bilər.\n- **Tövsiyələr**: Sadə və mütəşəkkil interfeyslər təyin et, miras almanı yalnız lazım olduqda istifadə et, ziddiyyətli xüsusiyyətlərdən qaçın, primitiv və ya union tipləri üçün type aliases istifadə et, səhvləri tapmaq üçün VSCode kimi IDE istifadə et."
+        },
+        {
+          "type": "heading",
+          "text": "Sınaq üçün nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Sadə interface extending nümunəsi\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\ninterface StockProduct extends Product {\n  stockCount: number;\n  inStock?: boolean;\n}\n\nfunction displayProduct(product: StockProduct): string {\n  return `${product.name} (ID: ${product.id}): $${product.price}, ${product.inStock ? \"mövcuddur\" : \"mövcud deyil\"}, ${product.stockCount} ədəd`;\n}\n\nconst product: StockProduct = {\n  id: \"P001\",\n  name: \"Mouse\",\n  price: 25,\n  inStock: true,\n  stockCount: 50\n};\nconsole.log(displayProduct(product)); // Çıxış: Mouse (ID: P001): $25, mövcuddur, 50 ədəd"
+        }
+      ]
+    },
+    "en": {
+      "title": "TypeScript Interface Extending",
+      "description": "Interface extending in TypeScript, using the `extends` keyword, allows one interface to inherit properties from another, promoting code reuse and structured organization.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "What is Interface Extending?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Interface extending in TypeScript is a mechanism where one interface inherits properties or methods from another using the `extends` keyword. For example, `interface Person { name: string; }` and `interface Employee extends Person { role: string; }` means `Employee` inherits the `name` property and adds its own `role` property. This reduces code duplication and organizes object structures. Interfaces also support multiple inheritance, allowing one interface to extend multiple interfaces."
+        },
+        {
+          "type": "heading",
+          "text": "How does Interface Extending work?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Interface extending uses the `extends` keyword to copy all properties and methods from a parent interface to a new one. It supports single inheritance and multiple inheritance (e.g., `interface Manager extends Person, Contact { ... }`). Optional (`?`) and readonly (`readonly`) properties are preserved during inheritance, but new properties or constraints can be added. Interfaces can be used with classes (`implements`) and combined with union types for type narrowing. Unlike type aliases, interfaces are designed for object structures and do not directly support primitive or union types."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// 1. Simple interface extending\ninterface Person {\n  name: string;\n  age: number;\n}\ninterface Employee extends Person {\n  role: string;\n}\nconst employee: Employee = {\n  name: \"Murad\",\n  age: 25,\n  role: \"Developer\"\n};\nconsole.log(employee); // Output: { name: \"Murad\", age: 25, role: \"Developer\" }\n\n// 2. Multiple inheritance\ninterface Contact {\n  email: string;\n}\ninterface Manager extends Person, Contact {\n  department: string;\n}\nconst manager: Manager = {\n  name: \"Alice\",\n  age: 30,\n  email: \"alice@example.com\",\n  department: \"IT\"\n};\nconsole.log(manager); // Output: { name: \"Alice\", age: 30, email: \"alice@example.com\", department: \"IT\" }\n\n// 3. Optional and readonly properties\ninterface Vehicle {\n  readonly brand: string;\n  model?: string;\n}\ninterface Car extends Vehicle {\n  year: number;\n}\nconst car: Car = {\n  brand: \"Toyota\",\n  year: 2020\n};\nconsole.log(car); // Output: { brand: \"Toyota\", year: 2020 }\n// car.brand = \"Honda\"; // Error: readonly property cannot be modified\n\n// 4. Interfaces with classes\ninterface Animal {\n  name: string;\n  makeSound(): string;\n}\ninterface Dog extends Animal {\n  breed: string;\n}\nclass Puppy implements Dog {\n  name: string;\n  breed: string;\n  constructor(name: string, breed: string) {\n    this.name = name;\n    this.breed = breed;\n  }\n  makeSound(): string {\n    return \"Woof!\";\n  }\n}\nconst puppy = new Puppy(\"Buddy\", \"Labrador\");\nconsole.log(puppy); // Output: Puppy { name: \"Buddy\", breed: \"Labrador\" }\nconsole.log(puppy.makeSound()); // Output: Woof!\n\n// 5. Interface extending with union types\ninterface Book {\n  type: \"book\";\n  title: string;\n  pages: number;\n}\ninterface ExtendedBook extends Book {\n  author: string;\n}\ninterface Movie {\n  type: \"movie\";\n  title: string;\n  duration: number;\n}\ntype Media = ExtendedBook | Movie;\nfunction describeMedia(media: Media): string {\n  if (media.type === \"book\") {\n    return `${media.title} by ${media.author}: ${media.pages} pages`;\n  }\n  return `${media.title}: ${media.duration} minutes`;\n}\nconst book: ExtendedBook = { type: \"book\", title: \"TypeScript Guide\", pages: 200, author: \"John\" };\nconst movie: Movie = { type: \"movie\", title: \"Inception\", duration: 148 };\nconsole.log(describeMedia(book)); // Output: TypeScript Guide by John: 200 pages\nconsole.log(describeMedia(movie)); // Output: Inception: 148 minutes"
+        },
+        {
+          "type": "heading",
+          "text": "Real-world use cases"
+        },
+        {
+          "type": "paragraph",
+          "text": "Interface extending is highly useful in real projects for promoting code reuse and organizing structures. For example, in an online store, a `Product` interface (`id`, `name`) can be extended by `StockProduct` to add `stockCount`. In user management systems, a `User` interface can be extended by `Admin` or `Customer` interfaces. It’s also used for API response structures or when working with classes. Below is a simple store example."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Simple store system\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\ninterface StockProduct extends Product {\n  stockCount: number;\n  inStock?: boolean;\n}\n\nfunction displayProduct(product: StockProduct): string {\n  return `${product.name} (ID: ${product.id}): $${product.price}, ${product.inStock ? \"in stock\" : \"out of stock\"}, ${product.stockCount} units`;\n}\n\nconst laptop: StockProduct = {\n  id: \"P001\",\n  name: \"Laptop\",\n  price: 1200,\n  inStock: true,\n  stockCount: 10\n};\nconsole.log(displayProduct(laptop)); // Output: Laptop (ID: P001): $1200, in stock, 10 units\n\n// Multiple inheritance\ninterface Discount {\n  discount: number;\n}\ninterface DiscountedStockProduct extends StockProduct, Discount {\n  discountEndDate?: string;\n}\nconst discountedLaptop: DiscountedStockProduct = {\n  id: \"P001\",\n  name: \"Laptop\",\n  price: 1200,\n  inStock: true,\n  stockCount: 10,\n  discount: 15,\n  discountEndDate: \"2025-12-31\"\n};\nconsole.log(`${discountedLaptop.name}: ${discountedLaptop.discount}% discount`); // Output: Laptop: 15% discount"
+        },
+        {
+          "type": "heading",
+          "text": "Purpose of Interface Extending"
+        },
+        {
+          "type": "paragraph",
+          "text": "Interface extending applies TypeScript’s static typing to enable reusable and organized object structures, preventing errors common in JavaScript where objects can have arbitrary properties. It ensures objects adhere to inherited structures and reduces code duplication through inheritance. This improves code quality and readability in large projects at companies like Microsoft, Google, and Airbnb, especially in complex applications."
+        },
+        {
+          "type": "heading",
+          "text": "Key features"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Single inheritance",
+              "description": "Inherit properties from one interface, e.g., `interface Employee extends Person`."
+            },
+            {
+              "term": "Multiple inheritance",
+              "description": "Combine properties from multiple interfaces, e.g., `interface Manager extends Person, Contact`."
+            },
+            {
+              "term": "Optional properties",
+              "description": "Inherited or newly added optional properties (`?`)."
+            },
+            {
+              "term": "Readonly properties",
+              "description": "Inherited readonly properties are preserved (`readonly`)."
+            },
+            {
+              "term": "Use with classes",
+              "description": "Interfaces can be implemented by classes using `implements`."
+            },
+            {
+              "term": "With union types",
+              "description": "Extended interfaces can be used with union types for type narrowing."
+            },
+            {
+              "term": "IDE support",
+              "description": "Smart suggestions and error warnings for extending interfaces in tools like VSCode."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Dangers and recommendations"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Dangers**: Overusing multiple inheritance can complicate code. Conflicting properties (e.g., same property with different types) may cause errors. Confusing interfaces with type aliases can lead to incorrect usage.\n- **Recommendations**: Define simple and organized interfaces, use inheritance only when necessary, avoid conflicting properties, use type aliases for primitive or union types, and use IDEs like VSCode to catch errors early."
+        },
+        {
+          "type": "heading",
+          "text": "Try it yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Simple interface extending example\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\ninterface StockProduct extends Product {\n  stockCount: number;\n  inStock?: boolean;\n}\n\nfunction displayProduct(product: StockProduct): string {\n  return `${product.name} (ID: ${product.id}): $${product.price}, ${product.inStock ? \"in stock\" : \"out of stock\"}, ${product.stockCount} units`;\n}\n\nconst product: StockProduct = {\n  id: \"P001\",\n  name: \"Mouse\",\n  price: 25,\n  inStock: true,\n  stockCount: 50\n};\nconsole.log(displayProduct(product)); // Output: Mouse (ID: P001): $25, in stock, 50 units"
+        }
+      ]
+    },
+    "ru": {
+      "title": "TypeScript Interface Extending",
+      "description": "Наследование интерфейсов в TypeScript с помощью ключевого слова `extends` позволяет одному интерфейсу наследовать свойства другого, способствуя повторному использованию кода и организованности структуры.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Что такое Interface Extending?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Наследование интерфейсов в TypeScript — это механизм, при котором один интерфейс наследует свойства или методы другого с помощью ключевого слова `extends`. Например, `interface Person { name: string; }` и `interface Employee extends Person { role: string; }` означают, что `Employee` наследует свойство `name` и добавляет своё свойство `role`. Это уменьшает дублирование кода и упорядочивает структуры объектов. Интерфейсы также поддерживают множественное наследование, позволяя одному интерфейсу наследовать от нескольких других."
+        },
+        {
+          "type": "heading",
+          "text": "Как работает Interface Extending?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Наследование интерфейсов использует ключевое слово `extends` для копирования всех свойств и методов из родительского интерфейса в новый. Поддерживается как одиночное, так и множественное наследование (например, `interface Manager extends Person, Contact { ... }`). Опциональные (`?`) и свойства только для чтения (`readonly`) сохраняются при наследовании, но в новом интерфейсе можно добавить дополнительные свойства или ограничения. Интерфейсы могут использоваться с классами (`implements`) и комбинироваться с union типами для сужения типов. В отличие от type aliases, интерфейсы предназначены для структур объектов и не поддерживают напрямую примитивные или union типы."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// 1. Простое наследование интерфейса\ninterface Person {\n  name: string;\n  age: number;\n}\ninterface Employee extends Person {\n  role: string;\n}\nconst employee: Employee = {\n  name: \"Murad\",\n  age: 25,\n  role: \"Developer\"\n};\nconsole.log(employee); // Вывод: { name: \"Murad\", age: 25, role: \"Developer\" }\n\n// 2. Множественное наследование\ninterface Contact {\n  email: string;\n}\ninterface Manager extends Person, Contact {\n  department: string;\n}\nconst manager: Manager = {\n  name: \"Alice\",\n  age: 30,\n  email: \"alice@example.com\",\n  department: \"IT\"\n};\nconsole.log(manager); // Вывод: { name: \"Alice\", age: 30, email: \"alice@example.com\", department: \"IT\" }\n\n// 3. Опциональные и readonly свойства\ninterface Vehicle {\n  readonly brand: string;\n  model?: string;\n}\ninterface Car extends Vehicle {\n  year: number;\n}\nconst car: Car = {\n  brand: \"Toyota\",\n  year: 2020\n};\nconsole.log(car); // Вывод: { brand: \"Toyota\", year: 2020 }\n// car.brand = \"Honda\"; // Ошибка: свойство readonly не может быть изменено\n\n// 4. Интерфейсы с классами\ninterface Animal {\n  name: string;\n  makeSound(): string;\n}\ninterface Dog extends Animal {\n  breed: string;\n}\nclass Puppy implements Dog {\n  name: string;\n  breed: string;\n  constructor(name: string, breed: string) {\n    this.name = name;\n    this.breed = breed;\n  }\n  makeSound(): string {\n    return \"Woof!\";\n  }\n}\nconst puppy = new Puppy(\"Buddy\", \"Labrador\");\nconsole.log(puppy); // Вывод: Puppy { name: \"Buddy\", breed: \"Labrador\" }\nconsole.log(puppy.makeSound()); // Вывод: Woof!\n\n// 5. Наследование интерфейса с union типами\ninterface Book {\n  type: \"book\";\n  title: string;\n  pages: number;\n}\ninterface ExtendedBook extends Book {\n  author: string;\n}\ninterface Movie {\n  type: \"movie\";\n  title: string;\n  duration: number;\n}\ntype Media = ExtendedBook | Movie;\nfunction describeMedia(media: Media): string {\n  if (media.type === \"book\") {\n    return `${media.title} by ${media.author}: ${media.pages} pages`;\n  }\n  return `${media.title}: ${media.duration} minutes`;\n}\nconst book: ExtendedBook = { type: \"book\", title: \"TypeScript Guide\", pages: 200, author: \"John\" };\nconst movie: Movie = { type: \"movie\", title: \"Inception\", duration: 148 };\nconsole.log(describeMedia(book)); // Вывод: TypeScript Guide by John: 200 pages\nconsole.log(describeMedia(movie)); // Вывод: Inception: 148 minutes"
+        },
+        {
+          "type": "heading",
+          "text": "Примеры из реальной жизни"
+        },
+        {
+          "type": "paragraph",
+          "text": "Наследование интерфейсов очень полезно в реальных проектах для упрощения повторного использования кода и организации структур. Например, в интернет-магазине интерфейс `Product` (`id`, `name`) может быть расширен интерфейсом `StockProduct`, добавляющим `stockCount`. В системах управления пользователями интерфейс `User` может быть расширен для создания `Admin` или `Customer`. Оно также используется для структур ответов API или работы с классами. Ниже приведён простой пример магазина."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Простая система магазина\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\ninterface StockProduct extends Product {\n  stockCount: number;\n  inStock?: boolean;\n}\n\nfunction displayProduct(product: StockProduct): string {\n  return `${product.name} (ID: ${product.id}): $${product.price}, ${product.inStock ? \"в наличии\" : \"нет в наличии\"}, ${product.stockCount} единиц`;\n}\n\nconst laptop: StockProduct = {\n  id: \"P001\",\n  name: \"Laptop\",\n  price: 1200,\n  inStock: true,\n  stockCount: 10\n};\nconsole.log(displayProduct(laptop)); // Вывод: Laptop (ID: P001): $1200, в наличии, 10 единиц\n\n// Множественное наследование\ninterface Discount {\n  discount: number;\n}\ninterface DiscountedStockProduct extends StockProduct, Discount {\n  discountEndDate?: string;\n}\nconst discountedLaptop: DiscountedStockProduct = {\n  id: \"P001\",\n  name: \"Laptop\",\n  price: 1200,\n  inStock: true,\n  stockCount: 10,\n  discount: 15,\n  discountEndDate: \"2025-12-31\"\n};\nconsole.log(`${discountedLaptop.name}: ${discountedLaptop.discount}% скидка`); // Вывод: Laptop: 15% скидка"
+        },
+        {
+          "type": "heading",
+          "text": "Цель Interface Extending"
+        },
+        {
+          "type": "paragraph",
+          "text": "Наследование интерфейсов применяет статическую типизацию TypeScript для создания повторно используемых и организованных структур объектов, предотвращая ошибки, распространённые в JavaScript, где объекты могут иметь произвольные свойства. Оно гарантирует соответствие объектов унаследованным структурам и уменьшает дублирование кода за счёт наследования. Это улучшает качество и читаемость кода в крупных проектах компаний, таких как Microsoft, Google и Airbnb, особенно в сложных приложениях."
+        },
+        {
+          "type": "heading",
+          "text": "Основные особенности"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Одиночное наследование",
+              "description": "Наследование свойств от одного интерфейса, например, `interface Employee extends Person`."
+            },
+            {
+              "term": "Множественное наследование",
+              "description": "Объединение свойств от нескольких интерфейсов, например, `interface Manager extends Person, Contact`."
+            },
+            {
+              "term": "Опциональные свойства",
+              "description": "Унаследованные или вновь добавленные опциональные свойства (`?`)."
+            },
+            {
+              "term": "Свойства только для чтения",
+              "description": "Унаследованные свойства readonly сохраняются (`readonly`)."
+            },
+            {
+              "term": "Использование с классами",
+              "description": "Интерфейсы могут реализоваться классами с помощью `implements`."
+            },
+            {
+              "term": "С union типами",
+              "description": "Расширенные интерфейсы могут использоваться с union типами для сужения типов."
+            },
+            {
+              "term": "Поддержка IDE",
+              "description": "Интеллектуальные подсказки и предупреждения об ошибках для расширяемых интерфейсов в редакторах, таких как VSCode."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Опасности и рекомендации"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Опасности**: Чрезмерное использование множественного наследования может усложнить код. Конфликтующие свойства (например, одинаковые свойства с разными типами) могут вызвать ошибки. Путаница между интерфейсами и type aliases может привести к неправильному использованию.\n- **Рекомендации**: Определяйте простые и организованные интерфейсы, используйте наследование только при необходимости, избегайте конфликтующих свойств, используйте type aliases для примитивных или union типов, используйте IDE, такие как VSCode, для раннего обнаружения ошибок."
+        },
+        {
+          "type": "heading",
+          "text": "Попробуй сам"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Простой пример наследования интерфейса\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\ninterface StockProduct extends Product {\n  stockCount: number;\n  inStock?: boolean;\n}\n\nfunction displayProduct(product: StockProduct): string {\n  return `${product.name} (ID: ${product.id}): $${product.price}, ${product.inStock ? \"в наличии\" : \"нет в наличии\"}, ${product.stockCount} единиц`;\n}\n\nconst product: StockProduct = {\n  id: \"P001\",\n  name: \"Mouse\",\n  price: 25,\n  inStock: true,\n  stockCount: 50\n};\nconsole.log(displayProduct(product)); // Вывод: Mouse (ID: P001): $25, в наличии, 50 единиц"
+        }
+      ]
+    }
+  }

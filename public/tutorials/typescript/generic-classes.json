@@ -1,0 +1,317 @@
+{
+    "az": {
+      "title": "TypeScript Generic Classes",
+      "description": "TypeScript-də generic siniflər müxtəlif tiplərlə işləyə bilən, təkrar istifadə edilə bilən və tip təhlükəsizliyini təmin edən siniflərdir. Generics ilə siniflər çevik və oxunaqlı olur.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Generic Classes nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "TypeScript-də generic siniflər, müxtəlif tiplərlə (məsələn, `string`, `number`, obyekt) işləyə bilən siniflərdir və tip parametri (`<T>`) ilə təyin edilir. Bu, eyni sinfi fərqli tiplər üçün təkrar yazmağa ehtiyac olmadan istifadə etməyə imkan verir. Məsələn, `class Store<T> { items: T[] }` hər hansı bir tipdə məlumat saxlaya bilər. Generic siniflər statik tipləmə ilə səhvləri kod yazarkən aşkar edir və kodu təkrar istifadəyə yararlı edir. Generic siniflər interfeyslərdə, funksiyalarda və ya digər siniflərlə birləşdirilə bilər."
+        },
+        {
+          "type": "heading",
+          "text": "Generic Classes necə işləyir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic siniflər `<T>` kimi tip parametri ilə təyin edilir və bu parametr sinfin hansı tipdə işləyəcəyini müəyyənləşdirir. Məsələn, `class Pair<K, V> { key: K; value: V }` iki fərqli tipdə (`K` və `V`) dəyərlər saxlaya bilər. Generic siniflər məhdudiyyətlər (`extends`) ilə məhdudlaşdırıla bilər, məsələn, `T extends string` yalnız sətir tiplərini qəbul edir. Çoxsaylı tip parametrləri (`<T, U>`) və default tiplər (`<T = string>`) dəstəklənir. Generic siniflər union tipləri və ya interfeyslərlə birləşdirilə bilər. TypeScript-də tip təhlükəsizliyini təmin edir, lakin runtime-da heç bir təsiri yoxdur."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// 1. Sadə Generic Sinif\nclass Store<T> {\n  items: T[] = [];\n  add(item: T): void {\n    this.items.push(item);\n  }\n  getAll(): T[] {\n    return this.items;\n  }\n}\nconst numberStore = new Store<number>();\nnumberStore.add(1);\nnumberStore.add(2);\nconsole.log(numberStore.getAll()); // Çıxış: [1, 2]\nconst stringStore = new Store<string>();\nstringStore.add(\"Apple\");\nconsole.log(stringStore.getAll()); // Çıxış: [\"Apple\"]\n\n// 2. Generic ilə məhdudiyyətlər\nclass LengthStore<T extends { length: number }> {\n  item: T;\n  constructor(item: T) {\n    this.item = item;\n  }\n  getLength(): number {\n    return this.item.length;\n  }\n}\nconst stringLengthStore = new LengthStore<string>(\"Test\");\nconsole.log(stringLengthStore.getLength()); // Çıxış: 4\n// const numberLengthStore = new LengthStore<number>(42); // Səhv: number-ın length xüsusiyyəti yoxdur\n\n// 3. Çoxsaylı Generic tiplər\nclass Pair<K, V> {\n  key: K;\n  value: V;\n  constructor(key: K, value: V) {\n    this.key = key;\n    this.value = value;\n  }\n  getPair(): [K, V] {\n    return [this.key, this.value];\n  }\n}\nconst pair = new Pair<string, number>(\"Age\", 25);\nconsole.log(pair.getPair()); // Çıxış: [\"Age\", 25]\n\n// 4. Default Generic tiplər\nclass Wrapper<T = string> {\n  value: T;\n  constructor(value: T) {\n    this.value = value;\n  }\n  getValue(): T {\n    return this.value;\n  }\n}\nconst stringWrapper = new Wrapper(\"Test\"); // T avtomatik string olur\nconst numberWrapper = new Wrapper<number>(42);\nconsole.log(stringWrapper.getValue()); // Çıxış: Test\nconsole.log(numberWrapper.getValue()); // Çıxış: 42\n\n// 5. Generic ilə union tipləri\ntype AllowedType = string | number;\nclass RestrictedStore<T extends AllowedType> {\n  data: T;\n  constructor(data: T) {\n    this.data = data;\n  }\n  getData(): T {\n    return this.data;\n  }\n}\nconst stringData = new RestrictedStore<string>(\"Hello\");\nconst numberData = new RestrictedStore<number>(123);\nconsole.log(stringData.getData()); // Çıxış: Hello\nconsole.log(numberData.getData()); // Çıxış: 123\n// const boolData = new RestrictedStore<boolean>(true); // Səhv: boolean AllowedType-a uyğun deyil\n\n// 6. Generic Sinif ilə interfeyslər\ninterface Item<T> {\n  id: string;\n  data: T;\n}\nclass Product<T> implements Item<T> {\n  id: string;\n  data: T;\n  constructor(id: string, data: T) {\n    this.id = id;\n    this.data = data;\n  }\n  getDetails(): string {\n    return `ID: ${this.id}, Data: ${this.data}`;\n  }\n}\nconst laptop = new Product<string>(\"P001\", \"Laptop\");\nconsole.log(laptop.getDetails()); // Çıxış: ID: P001, Data: Laptop\n\n// 7. Generic Sinif ilə funksiyalar\nfunction processItem<T>(item: Item<T>): string {\n  return `Item ID: ${item.id}, Data: ${item.data}`;\n}\nconst item: Item<number> = new Product<number>(\"I001\", 999);\nconsole.log(processItem(item)); // Çıxış: Item ID: I001, Data: 999"
+        },
+        {
+          "type": "heading",
+          "text": "Real həyatda istifadə ssenariləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic siniflər real layihələrdə kodun təkrar istifadəsini və tip təhlükəsizliyini təmin etmək üçün geniş istifadə olunur. Məsələn, bir e-ticarət platformasında məhsulları idarə etmək üçün `class ProductStore<T>` müxtəlif tiplərdə məhsullar (məsələn, `string` adlar və ya `number` qiymətlər) ilə işləyə bilər. API cavablarını idarə etmək üçün `class ResponseHandler<T>` müxtəlif məlumat tipləri ilə işləyə bilər. Veb tətbiqlərində istifadəçi məlumatlarını saxlamaq üçün də istifadə edilə bilər. Aşağıda sadə bir mağaza nümunəsi var."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Sadə mağaza sistemi\ninterface Product<T> {\n  id: string;\n  data: T;\n}\nclass ProductStore<T> {\n  products: Product<T>[] = [];\n  add(id: string, data: T): void {\n    this.products.push({ id, data });\n  }\n  getById(id: string): Product<T> | undefined {\n    return this.products.find(p => p.id === id);\n  }\n}\nconst store = new ProductStore<string>();\nstore.add(\"P001\", \"Laptop\");\nstore.add(\"P002\", \"Mouse\");\nconsole.log(store.getById(\"P001\")); // Çıxış: { id: \"P001\", data: \"Laptop\" }\n\nconst numberStore = new ProductStore<number>();\nnumberStore.add(\"P003\", 999);\nconsole.log(numberStore.getById(\"P003\")); // Çıxış: { id: \"P003\", data: 999 }\n\n// Generic sinif ilə funksiya\nfunction checkProduct<T>(product: Product<T>): string {\n  return `Product ID: ${product.id}, Data: ${product.data}`;\n}\nconst laptop: Product<string> = { id: \"P001\", data: \"Laptop\" };\nconsole.log(checkProduct(laptop)); // Çıxış: Product ID: P001, Data: Laptop"
+        },
+        {
+          "type": "heading",
+          "text": "Generic Classes-in məqsədi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic siniflər TypeScript-in statik tipləmə üstünlüyünü istifadə edərək kodun təkrar istifadəsini və çevikliyini artırır. JavaScript-də müxtəlif tiplər üçün ayrı siniflər yazmaq lazımdır, bu da kodun həcmini artırır və səhvlərə səbəb ola bilər. Generic siniflər bir sinfi müxtəlif tiplərlə işləməyə imkan verir, eyni zamanda tip təhlükəsizliyini qoruyur. Microsoft, Google və Airbnb kimi şirkətlərin layihələrində, xüsusilə böyük miqyaslı tətbiqlərdə kodun keyfiyyətini və baxımını asanlaşdırır."
+        },
+        {
+          "type": "heading",
+          "text": "Əsas xüsusiyyətlər"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Tip parametri",
+              "description": "Generic siniflər `<T>` kimi tip parametrləri ilə təyin edilir, məsələn, `class Store<T>`."
+            },
+            {
+              "term": "Məhdudiyyətlər",
+              "description": "`extends` ilə tip məhdudiyyətləri təyin edilə bilər, məsələn, `T extends { length: number }`."
+            },
+            {
+              "term": "Çoxsaylı tiplər",
+              "description": "Bir neçə tip parametri istifadə edilə bilər, məsələn, `<K, V>`."
+            },
+            {
+              "term": "Default tiplər",
+              "description": "Generic siniflər default tiplər təyin edə bilər, məsələn, `<T = string>`."
+            },
+            {
+              "term": "Union tipləri ilə",
+              "description": "Generic siniflər union tipləri ilə birləşdirilə bilər, məsələn, `T extends string | number`."
+            },
+            {
+              "term": "Interfeyslərdə istifadə",
+              "description": "Generic siniflər interfeysləri tətbiq edə bilər, məsələn, `class Product<T> implements Item<T>`."
+            },
+            {
+              "term": "Funksiyalarda istifadə",
+              "description": "Generic siniflər funksiya parametrlərində istifadə oluna bilər, məsələn, `function processItem<T>(item: Item<T>)`."
+            },
+            {
+              "term": "IDE dəstəyi",
+              "description": "VSCode kimi alətlərdə generic siniflər üçün avtomatik təkliflər və səhv xəbərdarlıqları."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Təhlükələr və tövsiyələr"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Təhlükələr**: Generic siniflər həddindən artıq mürəkkəb istifadə edildikdə kodu oxumaq çətinləşə bilər. Yanlış məhdudiyyətlər təyin edildikdə tip səhvləri yarana bilər. Generic siniflər runtime-da heç bir təsiri olmadığından dinamik tip yoxlamaları çətinləşə bilər.\n- **Tövsiyələr**: Generic sinifləri yalnız təkrar istifadə və tip təhlükəsizliyi üçün istifadə edin, sadə və başa düşülən tip parametrləri seçin, məhdudiyyətlərdən düzgün istifadə edin, mürəkkəb generic strukturlarında sənədləşdirmə əlavə edin, səhvləri tapmaq üçün VSCode kimi IDE istifadə edin."
+        },
+        {
+          "type": "heading",
+          "text": "Sınaq üçün nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Sadə generic sinif nümunəsi\nclass Store<T> {\n  items: T[] = [];\n  add(item: T): void {\n    this.items.push(item);\n  }\n  getAll(): T[] {\n    return this.items;\n  }\n}\nconst store = new Store<string>();\nstore.add(\"Mouse\");\nconsole.log(store.getAll()); // Çıxış: [\"Mouse\"]"
+        }
+      ]
+    },
+    "en": {
+      "title": "TypeScript Generic Classes",
+      "description": "TypeScript generic classes are reusable, type-safe classes that can work with various types, making code flexible and maintainable.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "What are Generic Classes?"
+        },
+        {
+          "type": "paragraph",
+          "text": "In TypeScript, generic classes are classes that can work with multiple types (e.g., `string`, `number`, objects) using a type parameter (`<T>`). This allows you to use the same class for different types without rewriting it. For example, `class Store<T> { items: T[] }` can store data of any type. Generic classes ensure type safety by catching errors during development and make code reusable. They can be used with interfaces, functions, or other classes."
+        },
+        {
+          "type": "heading",
+          "text": "How do Generic Classes work?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic classes are defined with a type parameter (`<T>`) that specifies the type the class works with. For example, `class Pair<K, V> { key: K; value: V }` can hold two different types (`K` and `V`). Generic classes can be constrained with `extends`, e.g., `T extends string` restricts to strings. They support multiple type parameters (`<T, U>`) and default types (`<T = string>`). Generic classes can be combined with union types or interfaces. They ensure type safety in TypeScript but have no runtime impact."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// 1. Simple Generic Class\nclass Store<T> {\n  items: T[] = [];\n  add(item: T): void {\n    this.items.push(item);\n  }\n  getAll(): T[] {\n    return this.items;\n  }\n}\nconst numberStore = new Store<number>();\nnumberStore.add(1);\nnumberStore.add(2);\nconsole.log(numberStore.getAll()); // Output: [1, 2]\nconst stringStore = new Store<string>();\nstringStore.add(\"Apple\");\nconsole.log(stringStore.getAll()); // Output: [\"Apple\"]\n\n// 2. Generic with constraints\nclass LengthStore<T extends { length: number }> {\n  item: T;\n  constructor(item: T) {\n    this.item = item;\n  }\n  getLength(): number {\n    return this.item.length;\n  }\n}\nconst stringLengthStore = new LengthStore<string>(\"Test\");\nconsole.log(stringLengthStore.getLength()); // Output: 4\n// const numberLengthStore = new LengthStore<number>(42); // Error: number has no length property\n\n// 3. Multiple Generic types\nclass Pair<K, V> {\n  key: K;\n  value: V;\n  constructor(key: K, value: V) {\n    this.key = key;\n    this.value = value;\n  }\n  getPair(): [K, V] {\n    return [this.key, this.value];\n  }\n}\nconst pair = new Pair<string, number>(\"Age\", 25);\nconsole.log(pair.getPair()); // Output: [\"Age\", 25]\n\n// 4. Default Generic types\nclass Wrapper<T = string> {\n  value: T;\n  constructor(value: T) {\n    this.value = value;\n  }\n  getValue(): T {\n    return this.value;\n  }\n}\nconst stringWrapper = new Wrapper(\"Test\"); // T defaults to string\nconst numberWrapper = new Wrapper<number>(42);\nconsole.log(stringWrapper.getValue()); // Output: Test\nconsole.log(numberWrapper.getValue()); // Output: 42\n\n// 5. Generic with union types\ntype AllowedType = string | number;\nclass RestrictedStore<T extends AllowedType> {\n  data: T;\n  constructor(data: T) {\n    this.data = data;\n  }\n  getData(): T {\n    return this.data;\n  }\n}\nconst stringData = new RestrictedStore<string>(\"Hello\");\nconst numberData = new RestrictedStore<number>(123);\nconsole.log(stringData.getData()); // Output: Hello\nconsole.log(numberData.getData()); // Output: 123\n// const boolData = new RestrictedStore<boolean>(true); // Error: boolean is not an AllowedType\n\n// 6. Generic Class with interfaces\ninterface Item<T> {\n  id: string;\n  data: T;\n}\nclass Product<T> implements Item<T> {\n  id: string;\n  data: T;\n  constructor(id: string, data: T) {\n    this.id = id;\n    this.data = data;\n  }\n  getDetails(): string {\n    return `ID: ${this.id}, Data: ${this.data}`;\n  }\n}\nconst laptop = new Product<string>(\"P001\", \"Laptop\");\nconsole.log(laptop.getDetails()); // Output: ID: P001, Data: Laptop\n\n// 7. Generic Class with functions\nfunction processItem<T>(item: Item<T>): string {\n  return `Item ID: ${item.id}, Data: ${item.data}`;\n}\nconst item: Item<number> = new Product<number>(\"I001\", 999);\nconsole.log(processItem(item)); // Output: Item ID: I001, Data: 999"
+        },
+        {
+          "type": "heading",
+          "text": "Real-world use cases"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic classes are widely used in real-world projects for code reuse and type safety. For example, in an e-commerce platform, a `class ProductStore<T>` can manage different types of products (e.g., `string` names or `number` prices). An API response handler like `class ResponseHandler<T>` can work with various data types. In web applications, generic classes can manage user data. Below is a simple store example."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Simple store system\ninterface Product<T> {\n  id: string;\n  data: T;\n}\nclass ProductStore<T> {\n  products: Product<T>[] = [];\n  add(id: string, data: T): void {\n    this.products.push({ id, data });\n  }\n  getById(id: string): Product<T> | undefined {\n    return this.products.find(p => p.id === id);\n  }\n}\nconst store = new ProductStore<string>();\nstore.add(\"P001\", \"Laptop\");\nstore.add(\"P002\", \"Mouse\");\nconsole.log(store.getById(\"P001\")); // Output: { id: \"P001\", data: \"Laptop\" }\n\nconst numberStore = new ProductStore<number>();\nnumberStore.add(\"P003\", 999);\nconsole.log(numberStore.getById(\"P003\")); // Output: { id: \"P003\", data: 999 }\n\n// Generic class with function\nfunction checkProduct<T>(product: Product<T>): string {\n  return `Product ID: ${product.id}, Data: ${product.data}`;\n}\nconst laptop: Product<string> = { id: \"P001\", data: \"Laptop\" };\nconsole.log(checkProduct(laptop)); // Output: Product ID: P001, Data: Laptop"
+        },
+        {
+          "type": "heading",
+          "text": "Purpose of Generic Classes"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic classes leverage TypeScript’s static typing to enable reusable and flexible code while maintaining type safety. In JavaScript, separate classes for different types increase code size and error risks. Generic classes allow a single class to work with multiple types, ensuring type safety. They improve code quality and maintainability in projects at companies like Microsoft, Google, and Airbnb, especially in large-scale applications."
+        },
+        {
+          "type": "heading",
+          "text": "Key features"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Type parameter",
+              "description": "Generic classes are defined with type parameters like `<T>`, e.g., `class Store<T>`."
+            },
+            {
+              "term": "Constraints",
+              "description": "Use `extends` to constrain types, e.g., `T extends { length: number }`."
+            },
+            {
+              "term": "Multiple types",
+              "description": "Support multiple type parameters, e.g., `<K, V>`."
+            },
+            {
+              "term": "Default types",
+              "description": "Generic classes can have default types, e.g., `<T = string>`."
+            },
+            {
+              "term": "With union types",
+              "description": "Generic classes can be combined with union types, e.g., `T extends string | number`."
+            },
+            {
+              "term": "Use in interfaces",
+              "description": "Generic classes can implement interfaces, e.g., `class Product<T> implements Item<T>`."
+            },
+            {
+              "term": "Use in functions",
+              "description": "Generic classes can be used in function parameters, e.g., `function processItem<T>(item: Item<T>)`."
+            },
+            {
+              "term": "IDE support",
+              "description": "Smart suggestions and error warnings for generic classes in tools like VSCode."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Dangers and recommendations"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Dangers**: Overly complex generic classes can make code hard to read. Incorrect constraints can lead to type errors. Generic classes have no runtime impact, which can complicate dynamic type checks.\n- **Recommendations**: Use generic classes for code reuse and type safety, choose simple and clear type parameters, use constraints correctly, document complex generic structures, and use IDEs like VSCode to catch errors early."
+        },
+        {
+          "type": "heading",
+          "text": "Try it yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Simple generic class example\nclass Store<T> {\n  items: T[] = [];\n  add(item: T): void {\n    this.items.push(item);\n  }\n  getAll(): T[] {\n    return this.items;\n  }\n}\nconst store = new Store<string>();\nstore.add(\"Mouse\");\nconsole.log(store.getAll()); // Output: [\"Mouse\"]"
+        }
+      ]
+    },
+    "ru": {
+      "title": "TypeScript Generic Classes",
+      "description": "TypeScript generic classes — это повторно используемые и типобезопасные классы, которые могут работать с различными типами, делая код гибким и поддерживаемым.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Что такое Generic Classes?"
+        },
+        {
+          "type": "paragraph",
+          "text": "В TypeScript generic классы — это классы, которые могут работать с разными типами (например, `string`, `number`, объекты) с использованием параметра типа (`<T>`). Это позволяет использовать один и тот же класс для разных типов без необходимости его переписывания. Например, `class Store<T> { items: T[] }` может хранить данные любого типа. Generic классы обеспечивают типобезопасность, выявляя ошибки на этапе разработки, и делают код повторно используемым. Они могут использоваться с интерфейсами, функциями или другими классами."
+        },
+        {
+          "type": "heading",
+          "text": "Как работают Generic Classes?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic классы определяются с помощью параметра типа (`<T>`), который указывает, с каким типом работает класс. Например, `class Pair<K, V> { key: K; value: V }` может содержать два разных типа (`K` и `V`). Generic классы могут быть ограничены с помощью `extends`, например, `T extends string` ограничивает типы строками. Они поддерживают несколько параметров типа (`<T, U>`) и типы по умолчанию (`<T = string>`). Generic классы могут комбинироваться с union типами или интерфейсами. Они обеспечивают типобезопасность в TypeScript, но не имеют влияния на этапе выполнения."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// 1. Простой Generic класс\nclass Store<T> {\n  items: T[] = [];\n  add(item: T): void {\n    this.items.push(item);\n  }\n  getAll(): T[] {\n    return this.items;\n  }\n}\nconst numberStore = new Store<number>();\nnumberStore.add(1);\nnumberStore.add(2);\nconsole.log(numberStore.getAll()); // Вывод: [1, 2]\nconst stringStore = new Store<string>();\nstringStore.add(\"Apple\");\nconsole.log(stringStore.getAll()); // Вывод: [\"Apple\"]\n\n// 2. Generic с ограничениями\nclass LengthStore<T extends { length: number }> {\n  item: T;\n  constructor(item: T) {\n    this.item = item;\n  }\n  getLength(): number {\n    return this.item.length;\n  }\n}\nconst stringLengthStore = new LengthStore<string>(\"Test\");\nconsole.log(stringLengthStore.getLength()); // Вывод: 4\n// const numberLengthStore = new LengthStore<number>(42); // Ошибка: у number нет свойства length\n\n// 3. Множественные Generic типы\nclass Pair<K, V> {\n  key: K;\n  value: V;\n  constructor(key: K, value: V) {\n    this.key = key;\n    this.value = value;\n  }\n  getPair(): [K, V] {\n    return [this.key, this.value];\n  }\n}\nconst pair = new Pair<string, number>(\"Age\", 25);\nconsole.log(pair.getPair()); // Вывод: [\"Age\", 25]\n\n// 4. Типы по умолчанию для Generic\nclass Wrapper<T = string> {\n  value: T;\n  constructor(value: T) {\n    this.value = value;\n  }\n  getValue(): T {\n    return this.value;\n  }\n}\nconst stringWrapper = new Wrapper(\"Test\"); // T по умолчанию string\nconst numberWrapper = new Wrapper<number>(42);\nconsole.log(stringWrapper.getValue()); // Вывод: Test\nconsole.log(numberWrapper.getValue()); // Вывод: 42\n\n// 5. Generic с union типами\ntype AllowedType = string | number;\nclass RestrictedStore<T extends AllowedType> {\n  data: T;\n  constructor(data: T) {\n    this.data = data;\n  }\n  getData(): T {\n    return this.data;\n  }\n}\nconst stringData = new RestrictedStore<string>(\"Hello\");\nconst numberData = new RestrictedStore<number>(123);\nconsole.log(stringData.getData()); // Вывод: Hello\nconsole.log(numberData.getData()); // Вывод: 123\n// const boolData = new RestrictedStore<boolean>(true); // Ошибка: boolean не соответствует AllowedType\n\n// 6. Generic класс с интерфейсами\ninterface Item<T> {\n  id: string;\n  data: T;\n}\nclass Product<T> implements Item<T> {\n  id: string;\n  data: T;\n  constructor(id: string, data: T) {\n    this.id = id;\n    this.data = data;\n  }\n  getDetails(): string {\n    return `ID: ${this.id}, Data: ${this.data}`;\n  }\n}\nconst laptop = new Product<string>(\"P001\", \"Laptop\");\nconsole.log(laptop.getDetails()); // Вывод: ID: P001, Data: Laptop\n\n// 7. Generic класс с функциями\nfunction processItem<T>(item: Item<T>): string {\n  return `Item ID: ${item.id}, Data: ${item.data}`;\n}\nconst item: Item<number> = new Product<number>(\"I001\", 999);\nconsole.log(processItem(item)); // Вывод: Item ID: I001, Data: 999"
+        },
+        {
+          "type": "heading",
+          "text": "Примеры из реальной жизни"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic классы широко используются в реальных проектах для повторного использования кода и обеспечения типобезопасности. Например, в платформе электронной коммерции `class ProductStore<T>` может управлять разными типами продуктов (например, `string` для названий или `number` для цен). Обработчик ответов API, такой как `class ResponseHandler<T>`, может работать с различными типами данных. В веб-приложениях generic классы могут управлять данными пользователей. Ниже приведён простой пример магазина."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Простая система магазина\ninterface Product<T> {\n  id: string;\n  data: T;\n}\nclass ProductStore<T> {\n  products: Product<T>[] = [];\n  add(id: string, data: T): void {\n    this.products.push({ id, data });\n  }\n  getById(id: string): Product<T> | undefined {\n    return this.products.find(p => p.id === id);\n  }\n}\nconst store = new ProductStore<string>();\nstore.add(\"P001\", \"Laptop\");\nstore.add(\"P002\", \"Mouse\");\nconsole.log(store.getById(\"P001\")); // Вывод: { id: \"P001\", data: \"Laptop\" }\n\nconst numberStore = new ProductStore<number>();\nnumberStore.add(\"P003\", 999);\nconsole.log(numberStore.getById(\"P003\")); // Вывод: { id: \"P003\", data: 999 }\n\n// Generic класс с функцией\nfunction checkProduct<T>(product: Product<T>): string {\n  return `Product ID: ${product.id}, Data: ${product.data}`;\n}\nconst laptop: Product<string> = { id: \"P001\", data: \"Laptop\" };\nconsole.log(checkProduct(laptop)); // Вывод: Product ID: P001, Data: Laptop"
+        },
+        {
+          "type": "heading",
+          "text": "Цель Generic Classes"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic классы используют статическую типизацию TypeScript для создания повторно используемого и гибкого кода, сохраняя при этом типобезопасность. В JavaScript для работы с разными типами пришлось бы писать отдельные классы, что увеличивает объём кода и риск ошибок. Generic классы позволяют одному классу работать с несколькими типами, обеспечивая типобезопасность. Они улучшают качество и удобство поддержки кода в проектах компаний, таких как Microsoft, Google и Airbnb, особенно в крупномасштабных приложениях."
+        },
+        {
+          "type": "heading",
+          "text": "Основные особенности"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Параметр типа",
+              "description": "Generic классы определяются с параметрами типа, такими как `<T>`, например, `class Store<T>`."
+            },
+            {
+              "term": "Ограничения",
+              "description": "Ограничения задаются с помощью `extends`, например, `T extends { length: number }`."
+            },
+            {
+              "term": "Множественные типы",
+              "description": "Поддержка нескольких параметров типа, например, `<K, V>`."
+            },
+            {
+              "term": "Типы по умолчанию",
+              "description": "Generic классы могут иметь типы по умолчанию, например, `<T = string>`."
+            },
+            {
+              "term": "С union типами",
+              "description": "Generic классы могут комбинироваться с union типами, например, `T extends string | number`."
+            },
+            {
+              "term": "Использование в интерфейсах",
+              "description": "Generic классы могут реализовывать интерфейсы, например, `class Product<T> implements Item<T>`."
+            },
+            {
+              "term": "Использование в функциях",
+              "description": "Generic классы могут использоваться в параметрах функций, например, `function processItem<T>(item: Item<T>)`."
+            },
+            {
+              "term": "Поддержка IDE",
+              "description": "Интеллектуальные подсказки и предупреждения об ошибках для generic классов в редакторах, таких как VSCode."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Опасности и рекомендации"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Опасности**: Слишком сложные generic классы могут затруднить чтение кода. Неправильные ограничения могут привести к ошибкам типов. Generic классы не имеют влияния на этапе выполнения, что может усложнить динамические проверки типов.\n- **Рекомендации**: Используйте generic классы для повторного использования и типобезопасности, выбирайте простые и понятные параметры типов, правильно используйте ограничения, документируйте сложные generic структуры, используйте IDE, такие как VSCode, для раннего обнаружения ошибок."
+        },
+        {
+          "type": "heading",
+          "text": "Попробуй сам"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Простой пример generic класса\nclass Store<T> {\n  items: T[] = [];\n  add(item: T): void {\n    this.items.push(item);\n  }\n  getAll(): T[] {\n    return this.items;\n  }\n}\nconst store = new Store<string>();\nstore.add(\"Mouse\");\nconsole.log(store.getAll()); // Вывод: [\"Mouse\"]"
+        }
+      ]
+    }
+  }

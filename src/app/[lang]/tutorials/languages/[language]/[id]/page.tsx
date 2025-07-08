@@ -145,14 +145,24 @@ export default function TutorialTopicPage() {
   // Fetch visited lessons on load
   useEffect(() => {
     const fetchVisited = async () => {
-      if (session?.user) {
-        const res = await fetch('/api/user/lessons');
-        const data = await res.json();
-        setVisitedLessons(data);
+      let visitedLessonsByLang = JSON.parse(localStorage.getItem("visitedLessons") || '{}');
+      let visited = safeLanguage ? (visitedLessonsByLang[safeLanguage] || []) : [];
+      if (visited.length > 0) {
+        setVisitedLessons(visited);
+      } else if (session?.user) {
+        // fallback to server if localStorage is empty
+        try {
+          const res = await fetch('/api/user/lessons');
+          const data = await res.json();
+          const serverVisited = data[safeLanguage] || [];
+          setVisitedLessons(serverVisited);
+          // save to localStorage for next time
+          visitedLessonsByLang[safeLanguage] = serverVisited;
+          localStorage.setItem("visitedLessons", JSON.stringify(visitedLessonsByLang));
+        } catch (e) {
+          setVisitedLessons([]);
+        }
       } else {
-        // fallback to localStorage
-        let visitedLessonsByLang = JSON.parse(localStorage.getItem("visitedLessons") || '{}');
-        let visited = safeLanguage ? (visitedLessonsByLang[safeLanguage] || []) : [];
         setVisitedLessons(visited);
       }
     };
@@ -162,25 +172,25 @@ export default function TutorialTopicPage() {
   // Mark as visited on mount
   useEffect(() => {
     const markVisited = async () => {
-      if (session?.user) {
-        await fetch('/api/user/lessons', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ language: safeLanguage, lessonId: safeTopicId }),
-        });
-        // Refetch visited lessons
-        const res = await fetch('/api/user/lessons');
-        const data = await res.json();
-        setVisitedLessons(data[safeLanguage] || []);
-      } else {
-        let visitedLessonsByLang = JSON.parse(localStorage.getItem("visitedLessons") || '{}');
-        let visited = safeLanguage ? (visitedLessonsByLang[safeLanguage] || []) : [];
-        if (safeTopicId && !visited.includes(safeTopicId)) {
-          visited.push(safeTopicId);
-          if (safeLanguage) visitedLessonsByLang[safeLanguage] = visited;
-          localStorage.setItem("visitedLessons", JSON.stringify(visitedLessonsByLang));
-        }
+      let visitedLessonsByLang = JSON.parse(localStorage.getItem("visitedLessons") || '{}');
+      let visited = safeLanguage ? (visitedLessonsByLang[safeLanguage] || []) : [];
+      if (safeTopicId && !visited.includes(safeTopicId)) {
+        visited.push(safeTopicId);
+        if (safeLanguage) visitedLessonsByLang[safeLanguage] = visited;
+        localStorage.setItem("visitedLessons", JSON.stringify(visitedLessonsByLang));
         setVisitedLessons(visited);
+      } else {
+        setVisitedLessons(visited);
+      }
+      // Sync to server in background if logged in
+      if (session?.user && safeTopicId) {
+        try {
+          await fetch('/api/user/lessons', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ language: safeLanguage, lessonId: safeTopicId }),
+          });
+        } catch (e) {}
       }
     };
     markVisited();
@@ -250,7 +260,7 @@ export default function TutorialTopicPage() {
   const toggleSidebar = () => setCollapsed((c) => !c);
 
   const handleBack = () => {
-    router.push(`/${lang}/tutorials/languages`);
+    router.push(`/${lang}/tutorials`);
   };
 
   if (loading) {

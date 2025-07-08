@@ -1,0 +1,317 @@
+{
+  "az": {
+    "title": "TypeScript Generics",
+    "description": "TypeScript-də generics kodun təkrar istifadəsini asanlaşdıran və tip təhlükəsizliyini təmin edən ümumiləşdirilmiş tiplərdir. Generics ilə funksiyalar, siniflər və interfeyslər müxtəlif tiplərlə işləyə bilər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Generics nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də generics, kodun müxtəlif tiplərlə işləməsini təmin edən bir mexanizmdir. Məsələn, bir funksiyanın müxtəlif tipdə dəyərlər (məsələn, `string`, `number` və ya obyekt) ilə işləməsini istəyirsinizsə, hər tip üçün ayrı funksiya yazmaq əvəzinə generics istifadə edə bilərsiniz. Generics `<T>` kimi tip parametri ilə təyin olunur, burada `T` istənilən tipi təmsil edir. Bu, kodu daha çevik, oxunaqlı və təhlükəsiz edir, çünki TypeScript statik tipləmə ilə səhvləri kod yazarkən aşkar edir. Generics funksiyalarda, interfeyslərdə, siniflərdə və type aliases-də istifadə oluna bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Generics necə işləyir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics tip parametri (`<T>`) ilə təyin edilir və bu parametr funksiya, sinif və ya interfeysin hansı tipdə işləyəcəyini müəyyənləşdirir. Məsələn, `function identity<T>(value: T): T` funksiyası istənilən tipdə dəyər qəbul edir və eyni tipdə dəyər qaytarır. Generics məhdudiyyətlər (`extends`) ilə təyin edilə bilər, məsələn, `T extends string` yalnız sətir tiplərini qəbul edir. Generics çoxsaylı tip parametrləri (`<T, U>`) dəstəkləyir və default tiplər təyin edilə bilər (məsələn, `<T = string>`). Generics TypeScript-də tip təhlükəsizliyini təmin edir və JavaScript-də heç bir əlavə kod əlavə etmədən kompilyasiya olunur."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// 1. Sadə Generics ilə funksiya\nfunction identity<T>(value: T): T {\n  return value;\n}\nconst num = identity<number>(42); // T = number\nconsole.log(num); // Çıxış: 42\nconst str = identity<string>(\"Hello\"); // T = string\nconsole.log(str); // Çıxış: Hello\n\n// 2. Generics ilə məhdudiyyətlər\nfunction printLength<T extends { length: number }>(item: T): number {\n  return item.length;\n}\nconsole.log(printLength<string>(\"Test\")); // Çıxış: 4\nconsole.log(printLength<string[]>([\"a\", \"b\"])); // Çıxış: 2\n// console.log(printLength<number>(42)); // Səhv: number-ın length xüsusiyyəti yoxdur\n\n// 3. Generics ilə interfeyslər\ninterface Box<T> {\n  content: T;\n  id: string;\n}\nconst stringBox: Box<string> = { content: \"Book\", id: \"B001\" };\nconst numberBox: Box<number> = { content: 100, id: \"B002\" };\nconsole.log(stringBox); // Çıxış: { content: \"Book\", id: \"B001\" }\nconsole.log(numberBox); // Çıxış: { content: 100, id: \"B002\" }\n\n// 4. Generics ilə siniflər\nclass Store<T> {\n  items: T[] = [];\n  add(item: T): void {\n    this.items.push(item);\n  }\n  getAll(): T[] {\n    return this.items;\n  }\n}\nconst numberStore = new Store<number>();\nnumberStore.add(1);\nnumberStore.add(2);\nconsole.log(numberStore.getAll()); // Çıxış: [1, 2]\nconst stringStore = new Store<string>();\nstringStore.add(\"Apple\");\nconsole.log(stringStore.getAll()); // Çıxış: [\"Apple\"]\n\n// 5. Çoxsaylı Generic tiplər\nfunction pair<T, U>(first: T, second: U): [T, U] {\n  return [first, second];\n}\nconst myPair = pair<string, number>(\"Age\", 25);\nconsole.log(myPair); // Çıxış: [\"Age\", 25]\n\n// 6. Default Generic tiplər\nfunction wrap<T = string>(value: T): { value: T } {\n  return { value };\n}\nconst wrappedString = wrap(\"Test\"); // T avtomatik string olur\nconst wrappedNumber = wrap<number>(42);\nconsole.log(wrappedString); // Çıxış: { value: \"Test\" }\nconsole.log(wrappedNumber); // Çıxış: { value: 42 }\n\n// 7. Generics ilə union tipləri\ntype AllowedType = string | number;\nfunction restrict<T extends AllowedType>(value: T): T {\n  return value;\n}\nconsole.log(restrict(\"Hello\")); // Çıxış: Hello\nconsole.log(restrict(123)); // Çıxış: 123\n// console.log(restrict(true)); // Səhv: boolean AllowedType-a uyğun deyil"
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics real layihələrdə kodun təkrar istifadəsini və tip təhlükəsizliyini təmin etmək üçün geniş istifadə olunur. Məsələn, bir e-ticarət platformasında məhsulları idarə etmək üçün `Store<T>` sinfi müxtəlif tiplərdə məhsullar (məsələn, `string` adlar və ya `number` qiymətlər) ilə işləyə bilər. API cavablarını idarə etmək üçün `Response<T>` interfeysi müxtəlif məlumat tipləri ilə işləyə bilər. Veb tətbiqlərində istifadəçi məlumatlarını saxlamaq üçün generics istifadə edilə bilər. Aşağıda sadə bir mağaza nümunəsi var."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Sadə mağaza sistemi\ninterface Product<T> {\n  id: string;\n  data: T;\n}\nclass ProductStore<T> {\n  products: Product<T>[] = [];\n  add(id: string, data: T): void {\n    this.products.push({ id, data });\n  }\n  getById(id: string): Product<T> | undefined {\n    return this.products.find(p => p.id === id);\n  }\n}\nconst store = new ProductStore<string>();\nstore.add(\"P001\", \"Laptop\");\nstore.add(\"P002\", \"Mouse\");\nconsole.log(store.getById(\"P001\")); // Çıxış: { id: \"P001\", data: \"Laptop\" }\n\nconst numberStore = new ProductStore<number>();\nnumberStore.add(\"P003\", 999);\nconsole.log(numberStore.getById(\"P003\")); // Çıxış: { id: \"P003\", data: 999 }\n\n// Generic funksiya ilə məhsul yoxlaması\nfunction checkProduct<T>(product: Product<T>): string {\n  return `Product ID: ${product.id}, Data: ${product.data}`;\n}\nconst laptopProduct: Product<string> = { id: \"P001\", data: \"Laptop\" };\nconsole.log(checkProduct(laptopProduct)); // Çıxış: Product ID: P001, Data: Laptop"
+      },
+      {
+        "type": "heading",
+        "text": "Generics-in məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics TypeScript-in statik tipləmə üstünlüyünü istifadə edərək kodun təkrar istifadəsini və çevikliyini artırır. JavaScript-də eyni funksiyanı müxtəlif tiplər üçün təkrar yazmaq lazımdır, bu da kodun həcmini artırır və səhvlərə səbəb ola bilər. Generics ilə bir funksiya və ya sinif müxtəlif tiplərlə işləyə bilər, eyni zamanda tip təhlükəsizliyini qoruyur. Microsoft, Google və Airbnb kimi şirkətlərin layihələrində, xüsusilə böyük miqyaslı tətbiqlərdə generics kodun keyfiyyətini və baxımını asanlaşdırır."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Tip parametri",
+            "description": "Generics `<T>` kimi tip parametrləri ilə təyin edilir, məsələn, `function identity<T>(value: T): T`."
+          },
+          {
+            "term": "Məhdudiyyətlər",
+            "description": "`extends` ilə tip məhdudiyyətləri təyin edilə bilər, məsələn, `T extends { length: number }`."
+          },
+          {
+            "term": "Interfeyslərdə istifadə",
+            "description": "Generics interfeyslərdə istifadə oluna bilər, məsələn, `interface Box<T>`."
+          },
+          {
+            "term": "Siniflərdə istifadə",
+            "description": "Generics siniflərdə istifadə oluna bilər, məsələn, `class Store<T>`."
+          },
+          {
+            "term": "Çoxsaylı tiplər",
+            "description": "Bir neçə tip parametri istifadə edilə bilər, məsələn, `<T, U>`."
+          },
+          {
+            "term": "Default tiplər",
+            "description": "Generics default tiplər təyin edə bilər, məsələn, `<T = string>`."
+          },
+          {
+            "term": "Union tipləri ilə",
+            "description": "Generics union tipləri ilə birləşdirilə bilər, məsələn, `T extends string | number`."
+          },
+          {
+            "term": "IDE dəstəyi",
+            "description": "VSCode kimi alətlərdə generics üçün avtomatik təkliflər və səhv xəbərdarlıqları."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Generics həddindən artıq mürəkkəb istifadə edildikdə kodu oxumaq çətinləşə bilər. Yanlış məhdudiyyətlər təyin edildikdə tip səhvləri yarana bilər. Generics-in runtime-da heç bir təsiri yoxdur, bu da dinamik tip yoxlamalarını çətinləşdirə bilər.\n- **Tövsiyələr**: Generics-i yalnız təkrar istifadə və tip təhlükəsizliyi üçün istifadə edin, sadə və başa düşülən tip parametrləri seçin, məhdudiyyətlərdən düzgün istifadə edin, mürəkkəb generics strukturlarında sənədləşdirmə əlavə edin, səhvləri tapmaq üçün VSCode kimi IDE istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sadə generics nümunəsi\nfunction wrap<T>(value: T): { value: T } {\n  return { value };\n}\ninterface Product<T> {\n  id: string;\n  data: T;\n}\nconst product: Product<string> = { id: \"P001\", data: \"Mouse\" };\nconst wrapped = wrap<Product<string>>(product);\nconsole.log(wrapped); // Çıxış: { value: { id: \"P001\", data: \"Mouse\" } }"
+      }
+    ]
+  },
+  "en": {
+    "title": "TypeScript Generics",
+    "description": "TypeScript generics enable reusable and type-safe code by allowing functions, classes, and interfaces to work with various types.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Generics?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, generics provide a way to create reusable components that work with different types. For example, if you want a function to handle multiple types (e.g., `string`, `number`, or objects), instead of writing separate functions for each type, you can use generics. Generics are defined with a type parameter like `<T>`, where `T` represents any type. This makes code flexible, readable, and type-safe, as TypeScript’s static typing catches errors during development. Generics can be used in functions, interfaces, classes, and type aliases."
+      },
+      {
+        "type": "heading",
+        "text": "How do Generics work?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics are defined with a type parameter (`<T>`) that specifies the type a function, class, or interface works with. For example, `function identity<T>(value: T): T` accepts and returns a value of any type. Generics can have constraints (`extends`) to limit allowed types, e.g., `T extends string` restricts to strings. Generics support multiple type parameters (`<T, U>`) and default types (e.g., `<T = string>`). They ensure type safety in TypeScript and compile to plain JavaScript without adding runtime overhead."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// 1. Simple Generics with function\nfunction identity<T>(value: T): T {\n  return value;\n}\nconst num = identity<number>(42); // T = number\nconsole.log(num); // Output: 42\nconst str = identity<string>(\"Hello\"); // T = string\nconsole.log(str); // Output: Hello\n\n// 2. Generics with constraints\nfunction printLength<T extends { length: number }>(item: T): number {\n  return item.length;\n}\nconsole.log(printLength<string>(\"Test\")); // Output: 4\nconsole.log(printLength<string[]>([\"a\", \"b\"])); // Output: 2\n// console.log(printLength<number>(42)); // Error: number has no length property\n\n// 3. Generics with interfaces\ninterface Box<T> {\n  content: T;\n  id: string;\n}\nconst stringBox: Box<string> = { content: \"Book\", id: \"B001\" };\nconst numberBox: Box<number> = { content: 100, id: \"B002\" };\nconsole.log(stringBox); // Output: { content: \"Book\", id: \"B001\" }\nconsole.log(numberBox); // Output: { content: 100, id: \"B002\" }\n\n// 4. Generics with classes\nclass Store<T> {\n  items: T[] = [];\n  add(item: T): void {\n    this.items.push(item);\n  }\n  getAll(): T[] {\n    return this.items;\n  }\n}\nconst numberStore = new Store<number>();\nnumberStore.add(1);\nnumberStore.add(2);\nconsole.log(numberStore.getAll()); // Output: [1, 2]\nconst stringStore = new Store<string>();\nstringStore.add(\"Apple\");\nconsole.log(stringStore.getAll()); // Output: [\"Apple\"]\n\n// 5. Multiple Generic types\nfunction pair<T, U>(first: T, second: U): [T, U] {\n  return [first, second];\n}\nconst myPair = pair<string, number>(\"Age\", 25);\nconsole.log(myPair); // Output: [\"Age\", 25]\n\n// 6. Default Generic types\nfunction wrap<T = string>(value: T): { value: T } {\n  return { value };\n}\nconst wrappedString = wrap(\"Test\"); // T defaults to string\nconst wrappedNumber = wrap<number>(42);\nconsole.log(wrappedString); // Output: { value: \"Test\" }\nconsole.log(wrappedNumber); // Output: { value: 42 }\n\n// 7. Generics with union types\ntype AllowedType = string | number;\nfunction restrict<T extends AllowedType>(value: T): T {\n  return value;\n}\nconsole.log(restrict(\"Hello\")); // Output: Hello\nconsole.log(restrict(123)); // Output: 123\n// console.log(restrict(true)); // Error: boolean is not an AllowedType"
+      },
+      {
+        "type": "heading",
+        "text": "Real-world use cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics are widely used in real-world projects to enable code reuse and type safety. For example, in an e-commerce platform, a `Store<T>` class can manage different types of products (e.g., `string` names or `number` prices). An API response handler like `Response<T>` can work with various data types. In web applications, generics can manage user data. Below is a simple store example."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Simple store system\ninterface Product<T> {\n  id: string;\n  data: T;\n}\nclass ProductStore<T> {\n  products: Product<T>[] = [];\n  add(id: string, data: T): void {\n    this.products.push({ id, data });\n  }\n  getById(id: string): Product<T> | undefined {\n    return this.products.find(p => p.id === id);\n  }\n}\nconst store = new ProductStore<string>();\nstore.add(\"P001\", \"Laptop\");\nstore.add(\"P002\", \"Mouse\");\nconsole.log(store.getById(\"P001\")); // Output: { id: \"P001\", data: \"Laptop\" }\n\nconst numberStore = new ProductStore<number>();\nnumberStore.add(\"P003\", 999);\nconsole.log(numberStore.getById(\"P003\")); // Output: { id: \"P003\", data: 999 }\n\n// Generic function for product check\nfunction checkProduct<T>(product: Product<T>): string {\n  return `Product ID: ${product.id}, Data: ${product.data}`;\n}\nconst laptopProduct: Product<string> = { id: \"P001\", data: \"Laptop\" };\nconsole.log(checkProduct(laptopProduct)); // Output: Product ID: P001, Data: Laptop"
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Generics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics leverage TypeScript’s static typing to enable reusable and flexible code while maintaining type safety. In JavaScript, you might need to write separate functions for different types, increasing code size and error risks. Generics allow a single function or class to work with multiple types, ensuring type safety. They improve code quality and maintainability in projects at companies like Microsoft, Google, and Airbnb, especially in large-scale applications."
+      },
+      {
+        "type": "heading",
+        "text": "Key features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Type parameter",
+            "description": "Generics are defined with type parameters like `<T>`, e.g., `function identity<T>(value: T): T`."
+          },
+          {
+            "term": "Constraints",
+            "description": "Use `extends` to constrain types, e.g., `T extends { length: number }`."
+          },
+          {
+            "term": "Use in interfaces",
+            "description": "Generics can be used in interfaces, e.g., `interface Box<T>`."
+          },
+          {
+            "term": "Use in classes",
+            "description": "Generics can be used in classes, e.g., `class Store<T>`."
+          },
+          {
+            "term": "Multiple types",
+            "description": "Support multiple type parameters, e.g., `<T, U>`."
+          },
+          {
+            "term": "Default types",
+            "description": "Generics can have default types, e.g., `<T = string>`."
+          },
+          {
+            "term": "With union types",
+            "description": "Generics can be combined with union types, e.g., `T extends string | number`."
+          },
+          {
+            "term": "IDE support",
+            "description": "Smart suggestions and error warnings for generics in tools like VSCode."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Overly complex generics can make code hard to read. Incorrect constraints can lead to type errors. Generics have no runtime impact, which can complicate dynamic type checks.\n- **Recommendations**: Use generics for code reuse and type safety, choose simple and clear type parameters, use constraints correctly, document complex generic structures, and use IDEs like VSCode to catch errors early."
+      },
+      {
+        "type": "heading",
+        "text": "Try it yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Simple generics example\nfunction wrap<T>(value: T): { value: T } {\n  return { value };\n}\ninterface Product<T> {\n  id: string;\n  data: T;\n}\nconst product: Product<string> = { id: \"P001\", data: \"Mouse\" };\nconst wrapped = wrap<Product<string>>(product);\nconsole.log(wrapped); // Output: { value: { id: \"P001\", data: \"Mouse\" } }"
+      }
+    ]
+  },
+  "ru": {
+    "title": "TypeScript Generics",
+    "description": "TypeScript generics позволяют создавать повторно используемый и типобезопасный код, работая с различными типами в функциях, классах и интерфейсах.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Generics?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript generics предоставляют способ создания повторно используемых компонентов, которые могут работать с разными типами. Например, если вы хотите, чтобы функция работала с разными типами (например, `string`, `number` или объектами), вместо написания отдельных функций для каждого типа можно использовать generics. Generics определяются с помощью параметра типа, такого как `<T>`, где `T` представляет любой тип. Это делает код гибким, читаемым и типобезопасным, так как статическая типизация TypeScript выявляет ошибки на этапе разработки. Generics могут использоваться в функциях, интерфейсах, классах и type aliases."
+      },
+      {
+        "type": "heading",
+        "text": "Как работают Generics?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics определяются с помощью параметра типа (`<T>`), который указывает, с каким типом работает функция, класс или интерфейс. Например, `function identity<T>(value: T): T` принимает и возвращает значение любого типа. Generics могут иметь ограничения (`extends`) для ограничения допустимых типов, например, `T extends string` ограничивает типы строками. Generics поддерживают несколько параметров типа (`<T, U>`) и типы по умолчанию (например, `<T = string>`). Они обеспечивают типобезопасность в TypeScript и компилируются в обычный JavaScript без дополнительного кода на этапе выполнения."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// 1. Простые Generics с функцией\nfunction identity<T>(value: T): T {\n  return value;\n}\nconst num = identity<number>(42); // T = number\nconsole.log(num); // Вывод: 42\nconst str = identity<string>(\"Hello\"); // T = string\nconsole.log(str); // Вывод: Hello\n\n// 2. Generics с ограничениями\nfunction printLength<T extends { length: number }>(item: T): number {\n  return item.length;\n}\nconsole.log(printLength<string>(\"Test\")); // Вывод: 4\nconsole.log(printLength<string[]>([\"a\", \"b\"])); // Вывод: 2\n// console.log(printLength<number>(42)); // Ошибка: у number нет свойства length\n\n// 3. Generics с интерфейсами\ninterface Box<T> {\n  content: T;\n  id: string;\n}\nconst stringBox: Box<string> = { content: \"Book\", id: \"B001\" };\nconst numberBox: Box<number> = { content: 100, id: \"B002\" };\nconsole.log(stringBox); // Вывод: { content: \"Book\", id: \"B001\" }\nconsole.log(numberBox); // Вывод: { content: 100, id: \"B002\" }\n\n// 4. Generics с классами\nclass Store<T> {\n  items: T[] = [];\n  add(item: T): void {\n    this.items.push(item);\n  }\n  getAll(): T[] {\n    return this.items;\n  }\n}\nconst numberStore = new Store<number>();\nnumberStore.add(1);\nnumberStore.add(2);\nconsole.log(numberStore.getAll()); // Вывод: [1, 2]\nconst stringStore = new Store<string>();\nstringStore.add(\"Apple\");\nconsole.log(stringStore.getAll()); // Вывод: [\"Apple\"]\n\n// 5. Множественные Generic типы\nfunction pair<T, U>(first: T, second: U): [T, U] {\n  return [first, second];\n}\nconst myPair = pair<string, number>(\"Age\", 25);\nconsole.log(myPair); // Вывод: [\"Age\", 25]\n\n// 6. Типы по умолчанию для Generics\nfunction wrap<T = string>(value: T): { value: T } {\n  return { value };\n}\nconst wrappedString = wrap(\"Test\"); // T по умолчанию string\nconst wrappedNumber = wrap<number>(42);\nconsole.log(wrappedString); // Вывод: { value: \"Test\" }\nconsole.log(wrappedNumber); // Вывод: { value: 42 }\n\n// 7. Generics с union типами\ntype AllowedType = string | number;\nfunction restrict<T extends AllowedType>(value: T): T {\n  return value;\n}\nconsole.log(restrict(\"Hello\")); // Вывод: Hello\nconsole.log(restrict(123)); // Вывод: 123\n// console.log(restrict(true)); // Ошибка: boolean не соответствует AllowedType"
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics широко используются в реальных проектах для повторного использования кода и обеспечения типобезопасности. Например, в платформе электронной коммерции класс `Store<T>` может управлять разными типами продуктов (например, `string` для названий или `number` для цен). Обработчик ответов API, такой как `Response<T>`, может работать с разными типами данных. В веб-приложениях generics могут использоваться для управления данными пользователей. Ниже приведён простой пример магазина."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Простая система магазина\ninterface Product<T> {\n  id: string;\n  data: T;\n}\nclass ProductStore<T> {\n  products: Product<T>[] = [];\n  add(id: string, data: T): void {\n    this.products.push({ id, data });\n  }\n  getById(id: string): Product<T> | undefined {\n    return this.products.find(p => p.id === id);\n  }\n}\nconst store = new ProductStore<string>();\nstore.add(\"P001\", \"Laptop\");\nstore.add(\"P002\", \"Mouse\");\nconsole.log(store.getById(\"P001\")); // Вывод: { id: \"P001\", data: \"Laptop\" }\n\nconst numberStore = new ProductStore<number>();\nnumberStore.add(\"P003\", 999);\nconsole.log(numberStore.getById(\"P003\")); // Вывод: { id: \"P003\", data: 999 }\n\n// Generic функция для проверки продукта\nfunction checkProduct<T>(product: Product<T>): string {\n  return `Product ID: ${product.id}, Data: ${product.data}`;\n}\nconst laptopProduct: Product<string> = { id: \"P001\", data: \"Laptop\" };\nconsole.log(checkProduct(laptopProduct)); // Вывод: Product ID: P001, Data: Laptop"
+      },
+      {
+        "type": "heading",
+        "text": "Цель Generics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics используют статическую типизацию TypeScript для создания повторно используемого и гибкого кода, сохраняя при этом типобезопасность. В JavaScript для работы с разными типами пришлось бы писать отдельные функции, что увеличивает объём кода и риск ошибок. Generics позволяют одной функции или классу работать с несколькими типами, обеспечивая типобезопасность. Они улучшают качество и удобство поддержки кода в проектах компаний, таких как Microsoft, Google и Airbnb, особенно в крупномасштабных приложениях."
+      },
+      {
+        "type": "heading",
+        "text": "Основные особенности"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Параметр типа",
+            "description": "Generics определяются с параметрами типа, такими как `<T>`, например, `function identity<T>(value: T): T`."
+          },
+          {
+            "term": "Ограничения",
+            "description": "Ограничения задаются с помощью `extends`, например, `T extends { length: number }`."
+          },
+          {
+            "term": "Использование в интерфейсах",
+            "description": "Generics могут использоваться в интерфейсах, например, `interface Box<T>`."
+          },
+          {
+            "term": "Использование в классах",
+            "description": "Generics могут использоваться в классах, например, `class Store<T>`."
+          },
+          {
+            "term": "Множественные типы",
+            "description": "Поддержка нескольких параметров типа, например, `<T, U>`."
+          },
+          {
+            "term": "Типы по умолчанию",
+            "description": "Generics могут иметь типы по умолчанию, например, `<T = string>`."
+          },
+          {
+            "term": "С union типами",
+            "description": "Generics могут комбинироваться с union типами, например, `T extends string | number`."
+          },
+          {
+            "term": "Поддержка IDE",
+            "description": "Интеллектуальные подсказки и предупреждения об ошибках для generics в редакторах, таких как VSCode."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Слишком сложные generics могут затруднить чтение кода. Неправильные ограничения могут привести к ошибкам типов. Generics не имеют влияния на этапе выполнения, что может усложнить динамические проверки типов.\n- **Рекомендации**: Используйте generics для повторного использования и типобезопасности, выбирайте простые и понятные параметры типов, правильно используйте ограничения, документируйте сложные структуры generics, используйте IDE, такие как VSCode, для раннего обнаружения ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Простой пример generics\nfunction wrap<T>(value: T): { value: T } {\n  return { value };\n}\ninterface Product<T> {\n  id: string;\n  data: T;\n}\nconst product: Product<string> = { id: \"P001\", data: \"Mouse\" };\nconst wrapped = wrap<Product<string>>(product);\nconsole.log(wrapped); // Вывод: { value: { id: \"P001\", data: \"Mouse\" } }"
+      }
+    ]
+  }
+}

@@ -1,0 +1,305 @@
+{
+    "az": {
+      "title": "TypeScript String Enums",
+      "description": "TypeScript-də string enums sabit sətir dəyərlər toplusunu təyin etmək üçün istifadə olunur. Bu, kodu daha oxunaqlı və təhlükəsiz edir, çünki yalnız müəyyən sətir dəyərlərinə icazə verilir.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "String Enums nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "TypeScript-də `enum` açar sözü ilə təyin olunan string enums sabit sətir dəyərlər toplusunu təmsil edir. Məsələn, rəngləri təyin etmək üçün `enum Color { Red = \"RED\", Green = \"GREEN\", Blue = \"BLUE\" }` istifadə edilə bilər. String enums numeric enums-dan fərqli olaraq rəqəmlər əvəzinə sətir dəyərləri istifadə edir, bu da onları daha oxunaqlı və başa düşülən edir. TypeScript-in statik tipləməsi ilə enum dəyərləri yoxlanılır və səhv dəyərlər (məsələn, səhv yazılmış sətirlər) kod yazarkən aşkar edilir. String enums reverse mapping dəstəkləmir, lakin daha aydın və təhlükəsizdir."
+        },
+        {
+          "type": "heading",
+          "text": "String Enums necə işləyir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "String enums `enum` açar sözü ilə təyin edilir və hər bir üzvə (member) sətir dəyəri təyin olunur. Məsələn, `enum Direction { Up = \"UP\", Down = \"DOWN\" }` hər bir üzvə xüsusi sətir dəyəri bağlayır. String enums funksiyalarda, interfeyslərdə, type aliases-də və union tipləri ilə istifadə oluna bilər. `const enum` olaraq təyin edilərsə, kompilyasiya zamanı kodda silinir və yaddaş qənaət edilir. String enums JavaScript-də sadə obyektlərə çevrilir, lakin TypeScript-də tip təhlükəsizliyini təmin edir. Numeric enums-dan fərqli olaraq, string enums-un dəyərləri birbaşa sətir olduğundan, səhvən rəqəm kimi istifadə oluna bilməz."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// 1. Sadə String Enums\nenum Color {\n  Red = \"RED\",\n  Green = \"GREEN\",\n  Blue = \"BLUE\"\n}\nconst favoriteColor: Color = Color.Green;\nconsole.log(favoriteColor); // Çıxış: GREEN\n\n// 2. String Enums funksiyalarda\nenum Direction {\n  Up = \"UP\",\n  Down = \"DOWN\",\n  Left = \"LEFT\",\n  Right = \"RIGHT\"\n}\nfunction move(direction: Direction): string {\n  switch (direction) {\n    case Direction.Up: return \"Yuxarı hərəkət\";\n    case Direction.Down: return \"Aşağı hərəkət\";\n    default: return \"Hərəkət yoxdur\";\n  }\n}\nconsole.log(move(Direction.Up)); // Çıxış: Yuxarı hərəkət\n\n// 3. String Enums ilə interfeyslər\ninterface User {\n  id: number;\n  favoriteColor: Color;\n}\nconst user: User = { id: 1, favoriteColor: Color.Blue };\nconsole.log(user); // Çıxış: { id: 1, favoriteColor: \"BLUE\" }\n\n// 4. String Enums ilə union tipləri\ntype Action = Direction | \"STOP\";\nfunction handleAction(action: Action): string {\n  if (action === \"STOP\") return \"Dayan\";\n  return move(action);\n}\nconsole.log(handleAction(\"STOP\")); // Çıxış: Dayan\nconsole.log(handleAction(Direction.Left)); // Çıxış: Hərəkət yoxdur\n\n// 5. Const String Enums\nconst enum Role {\n  Admin = \"ADMIN\",\n  User = \"USER\",\n  Guest = \"GUEST\"\n}\nconst userRole: Role = Role.Admin;\nconsole.log(userRole); // Çıxış: ADMIN\n\n// 6. String Enums ilə type aliases\ntype Status = \"PENDING\" | \"APPROVED\" | \"REJECTED\";\ninterface Application {\n  id: string;\n  status: Status;\n}\nconst app: Application = { id: \"A001\", status: \"PENDING\" };\nconsole.log(app); // Çıxış: { id: \"A001\", status: \"PENDING\" }"
+        },
+        {
+          "type": "heading",
+          "text": "Real həyatda istifadə ssenariləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "String enums real layihələrdə sabit sətir dəyərləri ilə işləyərkən çox faydalıdır. Məsələn, bir onlayn mağazada məhsul statuslarını təyin etmək üçün `enum ProductStatus { InStock = \"STOCK\", OutOfStock = \"OUT\", Discontinued = \"DISCONTINUED\" }` istifadə oluna bilər. İstifadəçi idarəetmə sistemində `enum Role { Admin = \"ADMIN\", User = \"USER\" }` ilə rollar təyin edilə bilər. API cavablarında status kodlarını idarə etmək üçün də string enums istifadə olunur, çünki sətir dəyərləri daha oxunaqlıdır. Aşağıda sadə bir mağaza nümunəsi var."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Sadə mağaza sistemi\nenum ProductStatus {\n  InStock = \"STOCK\",\n  OutOfStock = \"OUT\",\n  Discontinued = \"DISCONTINUED\"\n}\ninterface Product {\n  id: string;\n  name: string;\n  status: ProductStatus;\n}\nclass ProductItem implements Product {\n  id: string;\n  name: string;\n  status: ProductStatus;\n  constructor(id: string, name: string, status: ProductStatus) {\n    this.id = id;\n    this.name = name;\n    this.status = status;\n  }\n  getDetails(): string {\n    return `${this.name} (ID: ${this.id}, Status: ${this.status})`;\n  }\n}\nconst laptop = new ProductItem(\"P001\", \"Laptop\", ProductStatus.InStock);\nconsole.log(laptop.getDetails()); // Çıxış: Laptop (ID: P001, Status: STOCK)\n\n// Enum ilə funksiya\nfunction checkAvailability(status: ProductStatus): string {\n  switch (status) {\n    case ProductStatus.InStock: return \"Mövcuddur\";\n    case ProductStatus.OutOfStock: return \"Mövcud deyil\";\n    case ProductStatus.Discontinued: return \"İstehsal dayandırılıb\";\n    default: return \"Bilinməyən status\";\n  }\n}\nconsole.log(checkAvailability(ProductStatus.OutOfStock)); // Çıxış: Mövcud deyil"
+        },
+        {
+          "type": "heading",
+          "text": "String Enums-un məqsədi"
+        },
+        {
+          "type": "paragraph",
+          "text": "String enums TypeScript-in statik tipləmə üstünlüyünü istifadə edərək sabit sətir dəyərlər toplusunu təyin etməyə imkan verir. JavaScript-də sabit dəyərlər adətən sətirlərlə təyin olunur, lakin səhv yazılmış sətirlər səhvlərə səbəb ola bilər (məsələn, \"RED\" əvəzinə \"red\" yazmaq). String enums dəyərləri məhdudlaşdıraraq kodun təhlükəsizliyini və oxunaqlılığını artırır. Microsoft, Google və Airbnb kimi şirkətlərin layihələrində, xüsusilə statuslar, rollar və ya kateqoriyalar kimi sətir əsaslı dəyərlərlə işləyərkən kodun keyfiyyətini artırır."
+        },
+        {
+          "type": "heading",
+          "text": "Əsas xüsusiyyətlər"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Sətir dəyərləri",
+              "description": "String enums sətir dəyərləri təyin edir, məsələn, `enum Color { Red = \"RED\" }`."
+            },
+            {
+              "term": "Funksiyalarda istifadə",
+              "description": "String enums funksiya parametrlərində istifadə oluna bilər, məsələn, `function move(direction: Direction)`."
+            },
+            {
+              "term": "Interfeyslərdə və type aliases ilə",
+              "description": "String enums xüsusiyyət tipi kimi istifadə oluna bilər, məsələn, `interface User { favoriteColor: Color }`."
+            },
+            {
+              "term": "Union tipləri ilə",
+              "description": "String enums union tipləri ilə birləşdirilə bilər, məsələn, `type Action = Direction | \"STOP\"`."
+            },
+            {
+              "term": "Const String Enums",
+              "description": "Kompilyasiya zamanı silinir, yaddaş qənaət edir, məsələn, `const enum Role { Admin = \"ADMIN\" }`."
+            },
+            {
+              "term": "Oxunaqlılıq",
+              "description": "Sətir dəyərləri sayəsində numeric enums-dan daha başa düşüləndir."
+            },
+            {
+              "term": "IDE dəstəyi",
+              "description": "VSCode kimi alətlərdə string enums üçün avtomatik təkliflər və səhv xəbərdarlıqları."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Təhlükələr və tövsiyələr"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Təhlükələr**: String enums reverse mapping dəstəkləmir, bu da bəzi ssenarilərdə məhdudiyyət yarada bilər. Həddindən artıq istifadə kodu mürəkkəbləşdirə bilər. `const enum` istifadə edərkən dəyərlər kompilyasiya sonrası silinir, bu da runtime yoxlamalarında problem yarada bilər.\n- **Tövsiyələr**: String enums-u sabit sətir dəyərləri üçün istifadə edin, numeric enums əvəzinə string enums-a üstünlük verin, çünki daha oxunaqlıdır, `const enum` ilə performansı optimallaşdırın, union tipləri ilə alternativləri nəzərdən keçirin, səhvləri tapmaq üçün VSCode kimi IDE istifadə edin."
+        },
+        {
+          "type": "heading",
+          "text": "Sınaq üçün nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Sadə string enum nümunəsi\nenum ProductStatus {\n  InStock = \"STOCK\",\n  OutOfStock = \"OUT\"\n}\ninterface Product {\n  id: string;\n  name: string;\n  status: ProductStatus;\n}\nconst product: Product = {\n  id: \"P001\",\n  name: \"Mouse\",\n  status: ProductStatus.InStock\n};\nconsole.log(product); // Çıxış: { id: \"P001\", name: \"Mouse\", status: \"STOCK\" }"
+        }
+      ]
+    },
+    "en": {
+      "title": "TypeScript String Enums",
+      "description": "TypeScript string enums define a set of fixed string values, making code more readable and type-safe by restricting variables to specific strings.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "What are String Enums?"
+        },
+        {
+          "type": "paragraph",
+          "text": "In TypeScript, string enums, defined with the `enum` keyword, represent a set of fixed string values. For example, `enum Color { Red = \"RED\", Green = \"GREEN\", Blue = \"BLUE\" }` defines colors as strings. Unlike numeric enums, string enums use string values, making them more readable and explicit. TypeScript’s static typing ensures only valid enum values are used, catching errors (e.g., misspelled strings) during development. String enums do not support reverse mapping but are clearer and safer."
+        },
+        {
+          "type": "heading",
+          "text": "How do String Enums work?"
+        },
+        {
+          "type": "paragraph",
+          "text": "String enums are defined using the `enum` keyword, with each member assigned a string value. For example, `enum Direction { Up = \"UP\", Down = \"DOWN\" }` assigns specific string values to each member. String enums can be used in functions, interfaces, type aliases, and with union types. When defined as `const enum`, they are removed during compilation for memory efficiency. String enums compile to plain JavaScript objects, but TypeScript ensures type safety. Unlike numeric enums, string enum values are strings, preventing misuse as numbers."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// 1. Simple String Enums\nenum Color {\n  Red = \"RED\",\n  Green = \"GREEN\",\n  Blue = \"BLUE\"\n}\nconst favoriteColor: Color = Color.Green;\nconsole.log(favoriteColor); // Output: GREEN\n\n// 2. String Enums in functions\nenum Direction {\n  Up = \"UP\",\n  Down = \"DOWN\",\n  Left = \"LEFT\",\n  Right = \"RIGHT\"\n}\nfunction move(direction: Direction): string {\n  switch (direction) {\n    case Direction.Up: return \"Move up\";\n    case Direction.Down: return \"Move down\";\n    default: return \"No movement\";\n  }\n}\nconsole.log(move(Direction.Up)); // Output: Move up\n\n// 3. String Enums with interfaces\ninterface User {\n  id: number;\n  favoriteColor: Color;\n}\nconst user: User = { id: 1, favoriteColor: Color.Blue };\nconsole.log(user); // Output: { id: 1, favoriteColor: \"BLUE\" }\n\n// 4. String Enums with union types\ntype Action = Direction | \"STOP\";\nfunction handleAction(action: Action): string {\n  if (action === \"STOP\") return \"Stop\";\n  return move(action);\n}\nconsole.log(handleAction(\"STOP\")); // Output: Stop\nconsole.log(handleAction(Direction.Left)); // Output: No movement\n\n// 5. Const String Enums\nconst enum Role {\n  Admin = \"ADMIN\",\n  User = \"USER\",\n  Guest = \"GUEST\"\n}\nconst userRole: Role = Role.Admin;\nconsole.log(userRole); // Output: ADMIN\n\n// 6. String Enums with type aliases\ntype Status = \"PENDING\" | \"APPROVED\" | \"REJECTED\";\ninterface Application {\n  id: string;\n  status: Status;\n}\nconst app: Application = { id: \"A001\", status: \"PENDING\" };\nconsole.log(app); // Output: { id: \"A001\", status: \"PENDING\" }"
+        },
+        {
+          "type": "heading",
+          "text": "Real-world use cases"
+        },
+        {
+          "type": "paragraph",
+          "text": "String enums are highly useful in real-world projects for managing fixed sets of string values. For example, in an online store, `enum ProductStatus { InStock = \"STOCK\", OutOfStock = \"OUT\", Discontinued = \"DISCONTINUED\" }` can represent product statuses. In a user management system, `enum Role { Admin = \"ADMIN\", User = \"USER\" }` can define user roles. String enums are also used in API responses for status codes due to their readability. Below is a simple store example."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Simple store system\nenum ProductStatus {\n  InStock = \"STOCK\",\n  OutOfStock = \"OUT\",\n  Discontinued = \"DISCONTINUED\"\n}\ninterface Product {\n  id: string;\n  name: string;\n  status: ProductStatus;\n}\nclass ProductItem implements Product {\n  id: string;\n  name: string;\n  status: ProductStatus;\n  constructor(id: string, name: string, status: ProductStatus) {\n    this.id = id;\n    this.name = name;\n    this.status = status;\n  }\n  getDetails(): string {\n    return `${this.name} (ID: ${this.id}, Status: ${this.status})`;\n  }\n}\nconst laptop = new ProductItem(\"P001\", \"Laptop\", ProductStatus.InStock);\nconsole.log(laptop.getDetails()); // Output: Laptop (ID: P001, Status: STOCK)\n\n// Enum with function\nfunction checkAvailability(status: ProductStatus): string {\n  switch (status) {\n    case ProductStatus.InStock: return \"In stock\";\n    case ProductStatus.OutOfStock: return \"Out of stock\";\n    case ProductStatus.Discontinued: return \"Discontinued\";\n    default: return \"Unknown status\";\n  }\n}\nconsole.log(checkAvailability(ProductStatus.OutOfStock)); // Output: Out of stock"
+        },
+        {
+          "type": "heading",
+          "text": "Purpose of String Enums"
+        },
+        {
+          "type": "paragraph",
+          "text": "String enums leverage TypeScript’s static typing to define a set of fixed string values, ensuring type safety and improving code readability. In JavaScript, fixed values are often represented as strings, which can lead to errors (e.g., typos like \"red\" instead of \"RED\"). String enums restrict values to a predefined set, enhancing code reliability. They improve code quality in projects at companies like Microsoft, Google, and Airbnb, especially for managing statuses, roles, or categories with string-based values."
+        },
+        {
+          "type": "heading",
+          "text": "Key features"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "String values",
+              "description": "String enums define string values, e.g., `enum Color { Red = \"RED\" }`."
+            },
+            {
+              "term": "Use in functions",
+              "description": "String enums can be used in function parameters, e.g., `function move(direction: Direction)`."
+            },
+            {
+              "term": "With interfaces and type aliases",
+              "description": "String enums can be used as property types, e.g., `interface User { favoriteColor: Color }`."
+            },
+            {
+              "term": "With union types",
+              "description": "String enums can be combined with union types, e.g., `type Action = Direction | \"STOP\"`."
+            },
+            {
+              "term": "Const String Enums",
+              "description": "Removed during compilation for memory efficiency, e.g., `const enum Role { Admin = \"ADMIN\" }`."
+            },
+            {
+              "term": "Readability",
+              "description": "String values make enums more explicit and easier to understand than numeric enums."
+            },
+            {
+              "term": "IDE support",
+              "description": "Smart suggestions and error warnings for string enums in tools like VSCode."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Dangers and recommendations"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Dangers**: String enums do not support reverse mapping, which can be a limitation in some scenarios. Overusing string enums can complicate code. `const enum` values are inlined during compilation, which may cause issues in runtime checks.\n- **Recommendations**: Use string enums for fixed string values, prefer them over numeric enums for better readability, optimize performance with `const enum`, consider union types as alternatives, and use IDEs like VSCode to catch errors early."
+        },
+        {
+          "type": "heading",
+          "text": "Try it yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Simple string enum example\nenum ProductStatus {\n  InStock = \"STOCK\",\n  OutOfStock = \"OUT\"\n}\ninterface Product {\n  id: string;\n  name: string;\n  status: ProductStatus;\n}\nconst product: Product = {\n  id: \"P001\",\n  name: \"Mouse\",\n  status: ProductStatus.InStock\n};\nconsole.log(product); // Output: { id: \"P001\", name: \"Mouse\", status: \"STOCK\" }"
+        }
+      ]
+    },
+    "ru": {
+      "title": "TypeScript String Enums",
+      "description": "Строковые перечисления (string enums) в TypeScript определяют набор фиксированных строковых значений, делая код более читаемым и безопасным за счёт ограничения переменных определёнными строками.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Что такое String Enums?"
+        },
+        {
+          "type": "paragraph",
+          "text": "В TypeScript строковые перечисления, определяемые с помощью ключевого слова `enum`, представляют набор фиксированных строковых значений. Например, `enum Color { Red = \"RED\", Green = \"GREEN\", Blue = \"BLUE\" }` определяет цвета как строки. В отличие от числовых enums, строковые enums используют строковые значения, что делает их более читаемыми и понятными. Статическая типизация TypeScript гарантирует использование только допустимых значений enum, выявляя ошибки (например, опечатки в строках) на этапе разработки. Строковые enums не поддерживают обратное отображение, но являются более ясными и безопасными."
+        },
+        {
+          "type": "heading",
+          "text": "Как работают String Enums?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Строковые enums определяются с помощью ключевого слова `enum`, при этом каждому члену присваивается строковое значение. Например, `enum Direction { Up = \"UP\", Down = \"DOWN\" }` привязывает к каждому члену конкретное строковое значение. Строковые enums могут использоваться в функциях, интерфейсах, type aliases и с union типами. При определении как `const enum` они удаляются во время компиляции для экономии памяти. Строковые enums компилируются в простые объекты JavaScript, но TypeScript обеспечивает безопасность типов. В отличие от числовых enums, значения строковых enums являются строками, что предотвращает их ошибочное использование как чисел."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// 1. Простые String Enums\nenum Color {\n  Red = \"RED\",\n  Green = \"GREEN\",\n  Blue = \"BLUE\"\n}\nconst favoriteColor: Color = Color.Green;\nconsole.log(favoriteColor); // Вывод: GREEN\n\n// 2. String Enums в функциях\nenum Direction {\n  Up = \"UP\",\n  Down = \"DOWN\",\n  Left = \"LEFT\",\n  Right = \"RIGHT\"\n}\nfunction move(direction: Direction): string {\n  switch (direction) {\n    case Direction.Up: return \"Двигаться вверх\";\n    case Direction.Down: return \"Двигаться вниз\";\n    default: return \"Нет движения\";\n  }\n}\nconsole.log(move(Direction.Up)); // Вывод: Двигаться вверх\n\n// 3. String Enums с интерфейсами\ninterface User {\n  id: number;\n  favoriteColor: Color;\n}\nconst user: User = { id: 1, favoriteColor: Color.Blue };\nconsole.log(user); // Вывод: { id: 1, favoriteColor: \"BLUE\" }\n\n// 4. String Enums с union типами\ntype Action = Direction | \"STOP\";\nfunction handleAction(action: Action): string {\n  if (action === \"STOP\") return \"Остановиться\";\n  return move(action);\n}\nconsole.log(handleAction(\"STOP\")); // Вывод: Остановиться\nconsole.log(handleAction(Direction.Left)); // Вывод: Нет движения\n\n// 5. Const String Enums\nconst enum Role {\n  Admin = \"ADMIN\",\n  User = \"USER\",\n  Guest = \"GUEST\"\n}\nconst userRole: Role = Role.Admin;\nconsole.log(userRole); // Вывод: ADMIN\n\n// 6. String Enums с type aliases\ntype Status = \"PENDING\" | \"APPROVED\" | \"REJECTED\";\ninterface Application {\n  id: string;\n  status: Status;\n}\nconst app: Application = { id: \"A001\", status: \"PENDING\" };\nconsole.log(app); // Вывод: { id: \"A001\", status: \"PENDING\" }"
+        },
+        {
+          "type": "heading",
+          "text": "Примеры из реальной жизни"
+        },
+        {
+          "type": "paragraph",
+          "text": "Строковые enums очень полезны в реальных проектах для управления наборами фиксированных строковых значений. Например, в интернет-магазине `enum ProductStatus { InStock = \"STOCK\", OutOfStock = \"OUT\", Discontinued = \"DISCONTINUED\" }` может представлять статусы продуктов. В системе управления пользователями `enum Role { Admin = \"ADMIN\", User = \"USER\" }` может определять роли пользователей. Строковые enums также используются в ответах API для обработки кодов статусов благодаря их читаемости. Ниже приведён простой пример магазина."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Простая система магазина\nenum ProductStatus {\n  InStock = \"STOCK\",\n  OutOfStock = \"OUT\",\n  Discontinued = \"DISCONTINUED\"\n}\ninterface Product {\n  id: string;\n  name: string;\n  status: ProductStatus;\n}\nclass ProductItem implements Product {\n  id: string;\n  name: string;\n  status: ProductStatus;\n  constructor(id: string, name: string, status: ProductStatus) {\n    this.id = id;\n    this.name = name;\n    this.status = status;\n  }\n  getDetails(): string {\n    return `${this.name} (ID: ${this.id}, Status: ${this.status})`;\n  }\n}\nconst laptop = new ProductItem(\"P001\", \"Laptop\", ProductStatus.InStock);\nconsole.log(laptop.getDetails()); // Вывод: Laptop (ID: P001, Status: STOCK)\n\n// Enum с функцией\nfunction checkAvailability(status: ProductStatus): string {\n  switch (status) {\n    case ProductStatus.InStock: return \"В наличии\";\n    case ProductStatus.OutOfStock: return \"Нет в наличии\";\n    case ProductStatus.Discontinued: return \"Снят с производства\";\n    default: return \"Неизвестный статус\";\n  }\n}\nconsole.log(checkAvailability(ProductStatus.OutOfStock)); // Вывод: Нет в наличии"
+        },
+        {
+          "type": "heading",
+          "text": "Цель String Enums"
+        },
+        {
+          "type": "paragraph",
+          "text": "Строковые enums используют статическую типизацию TypeScript для определения набора фиксированных строковых значений, обеспечивая безопасность типов и улучшая читаемость кода. В JavaScript фиксированные значения часто представляются строками, что может привести к ошибкам (например, опечатки вроде \"red\" вместо \"RED\"). Строковые enums ограничивают значения заранее заданным набором, повышая надёжность кода. Они улучшают качество кода в проектах компаний, таких как Microsoft, Google и Airbnb, особенно при управлении статусами, ролями или категориями на основе строк."
+        },
+        {
+          "type": "heading",
+          "text": "Основные особенности"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Строковые значения",
+              "description": "Строковые enums определяют строковые значения, например, `enum Color { Red = \"RED\" }`."
+            },
+            {
+              "term": "Использование в функциях",
+              "description": "Строковые enums могут использоваться в параметрах функций, например, `function move(direction: Direction)`."
+            },
+            {
+              "term": "С интерфейсами и type aliases",
+              "description": "Строковые enums могут использоваться как типы свойств, например, `interface User { favoriteColor: Color }`."
+            },
+            {
+              "term": "С union типами",
+              "description": "Строковые enums могут комбинироваться с union типами, например, `type Action = Direction | \"STOP\"`."
+            },
+            {
+              "term": "Const String Enums",
+              "description": "Удаляются во время компиляции для экономии памяти, например, `const enum Role { Admin = \"ADMIN\" }`."
+            },
+            {
+              "term": "Читаемость",
+              "description": "Строковые значения делают enums более явными и понятными, чем числовые enums."
+            },
+            {
+              "term": "Поддержка IDE",
+              "description": "Интеллектуальные подсказки и предупреждения об ошибках для строковых enums в редакторах, таких как VSCode."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Опасности и рекомендации"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Опасности**: Строковые enums не поддерживают обратное отображение, что может быть ограничением в некоторых сценариях. Чрезмерное использование строковых enums может усложнить код. Значения `const enum` встраиваются во время компиляции, что может вызвать проблемы при проверках во время выполнения.\n- **Рекомендации**: Используйте строковые enums для фиксированных строковых значений, предпочитайте их числовым enums для лучшей читаемости, оптимизируйте производительность с помощью `const enum`, рассматривайте union типы как альтернативу, используйте IDE, такие как VSCode, для раннего обнаружения ошибок."
+        },
+        {
+          "type": "heading",
+          "text": "Попробуй сам"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Простой пример строкового enum\nenum ProductStatus {\n  InStock = \"STOCK\",\n  OutOfStock = \"OUT\"\n}\ninterface Product {\n  id: string;\n  name: string;\n  status: ProductStatus;\n}\nconst product: Product = {\n  id: \"P001\",\n  name: \"Mouse\",\n  status: ProductStatus.InStock\n};\nconsole.log(product); // Вывод: { id: \"P001\", name: \"Mouse\", status: \"STOCK\" }"
+        }
+      ]
+    }
+  }

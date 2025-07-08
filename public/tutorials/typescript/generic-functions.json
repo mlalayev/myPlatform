@@ -1,0 +1,305 @@
+{
+    "az": {
+      "title": "TypeScript Generic Functions",
+      "description": "TypeScript-də generic funksiyalar müxtəlif tiplərlə işləyə bilən, təkrar istifadə edilə bilən və tip təhlükəsizliyini təmin edən funksiyalardır. Generics ilə funksiyalar çevik və oxunaqlı olur.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Generic Functions nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "TypeScript-də generic funksiyalar, müxtəlif tiplərlə (məsələn, `string`, `number`, obyekt) işləyə bilən funksiyalardır və tip parametri (`<T>`) ilə təyin edilir. Məsələn, eyni funksiyanı həm sətirlər, həm də rəqəmlər üçün yazmaq əvəzinə, generic funksiya istifadə edərək bir dəfə yazmaq kifayətdir. Generics statik tipləmə ilə səhvləri kod yazarkən aşkar edir və kodu təkrar istifadəyə yararlı edir. Məsələn, `function identity<T>(value: T): T` hər hansı bir tipdə dəyər qəbul edir və eyni tipdə qaytarır. Generic funksiyalar JavaScript-də əlavə kod əlavə etmədən kompilyasiya olunur."
+        },
+        {
+          "type": "heading",
+          "text": "Generic Functions necə işləyir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic funksiyalar `<T>` kimi tip parametri ilə təyin edilir. Bu parametr funksiyanın hansı tipdə işləyəcəyini müəyyənləşdirir. Məsələn, `function getFirst<T>(arr: T[]): T` massivin ilk elementini qaytarır və `T` massivin elementlərinin tipini təmsil edir. Generic funksiyalar məhdudiyyətlər (`extends`) ilə məhdudlaşdırıla bilər, məsələn, `T extends string` yalnız sətir tiplərini qəbul edir. Çoxsaylı tip parametrləri (`<T, U>`) və default tiplər (`<T = string>`) dəstəklənir. Generic funksiyalar union tipləri və ya funksiya overload-ları ilə də istifadə oluna bilər. TypeScript-də tip təhlükəsizliyini təmin edir, lakin runtime-da heç bir təsiri yoxdur."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// 1. Sadə Generic Funksiya\nfunction identity<T>(value: T): T {\n  return value;\n}\nconst num = identity<number>(42); // T = number\nconsole.log(num); // Çıxış: 42\nconst str = identity<string>(\"Hello\"); // T = string\nconsole.log(str); // Çıxış: Hello\n\n// 2. Generic ilə massiv funksiyası\nfunction getFirst<T>(arr: T[]): T {\n  return arr[0];\n}\nconst firstNum = getFirst<number>([1, 2, 3]); // T = number\nconsole.log(firstNum); // Çıxış: 1\nconst firstStr = getFirst<string>([\"a\", \"b\", \"c\"]); // T = string\nconsole.log(firstStr); // Çıxış: a\n\n// 3. Generic ilə məhdudiyyətlər\nfunction printLength<T extends { length: number }>(item: T): number {\n  return item.length;\n}\nconsole.log(printLength<string>(\"Test\")); // Çıxış: 4\nconsole.log(printLength<string[]>([\"a\", \"b\"])); // Çıxış: 2\n// console.log(printLength<number>(42)); // Səhv: number-ın length xüsusiyyəti yoxdur\n\n// 4. Çoxsaylı Generic tiplər\nfunction pair<T, U>(first: T, second: U): [T, U] {\n  return [first, second];\n}\nconst myPair = pair<string, number>(\"Age\", 25);\nconsole.log(myPair); // Çıxış: [\"Age\", 25]\n\n// 5. Default Generic tiplər\nfunction wrap<T = string>(value: T): { value: T } {\n  return { value };\n}\nconst wrappedString = wrap(\"Test\"); // T avtomatik string olur\nconst wrappedNumber = wrap<number>(42);\nconsole.log(wrappedString); // Çıxış: { value: \"Test\" }\nconsole.log(wrappedNumber); // Çıxış: { value: 42 }\n\n// 6. Generic ilə union tipləri\ntype AllowedType = string | number;\nfunction restrict<T extends AllowedType>(value: T): T {\n  return value;\n}\nconsole.log(restrict(\"Hello\")); // Çıxış: Hello\nconsole.log(restrict(123)); // Çıxış: 123\n// console.log(restrict(true)); // Səhv: boolean AllowedType-a uyğun deyil\n\n// 7. Generic ilə funksiya overload-ları\nfunction processValue<T extends string | number>(value: T): T;\nfunction processValue(value: boolean): string;\nfunction processValue<T>(value: T): T | string {\n  if (typeof value === \"boolean\") {\n    return value ? \"True\" : \"False\";\n  }\n  return value;\n}\nconsole.log(processValue<string>(\"Test\")); // Çıxış: Test\nconsole.log(processValue<number>(123)); // Çıxış: 123\nconsole.log(processValue(true)); // Çıxış: True"
+        },
+        {
+          "type": "heading",
+          "text": "Real həyatda istifadə ssenariləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic funksiyalar real layihələrdə kodun təkrar istifadəsini və tip təhlükəsizliyini təmin etmək üçün geniş istifadə olunur. Məsələn, bir e-ticarət platformasında məhsul məlumatlarını emal etmək üçün generic funksiya müxtəlif tiplərdə məlumatlarla (məsələn, məhsul adları `string` və ya qiymətlər `number`) işləyə bilər. API cavablarını idarə etmək üçün generic funksiyalar müxtəlif məlumat tipləri ilə işləyə bilər. Veb tətbiqlərində istifadəçi girişlərini yoxlamaq üçün də istifadə edilə bilər. Aşağıda sadə bir mağaza nümunəsi var."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Sadə mağaza sistemi\ninterface Product<T> {\n  id: string;\n  data: T;\n}\nfunction createProduct<T>(id: string, data: T): Product<T> {\n  return { id, data };\n}\nconst laptop = createProduct<string>(\"P001\", \"Laptop\");\nconsole.log(laptop); // Çıxış: { id: \"P001\", data: \"Laptop\" }\nconst price = createProduct<number>(\"P002\", 999);\nconsole.log(price); // Çıxış: { id: \"P002\", data: 999 }\n\n// Generic funksiya ilə məhsul yoxlaması\nfunction checkProduct<T>(product: Product<T>): string {\n  return `Product ID: ${product.id}, Data: ${product.data}`;\n}\nconsole.log(checkProduct(laptop)); // Çıxış: Product ID: P001, Data: Laptop\n\n// Generic ilə məhdudiyyətli funksiya\nfunction filterByData<T extends string | number>(products: Product<T>[], value: T): Product<T>[] {\n  return products.filter(p => p.data === value);\n}\nconst products: Product<string>[] = [laptop, createProduct(\"P003\", \"Mouse\")];\nconsole.log(filterByData(products, \"Laptop\")); // Çıxış: [{ id: \"P001\", data: \"Laptop\" }]"
+        },
+        {
+          "type": "heading",
+          "text": "Generic Functions-un məqsədi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic funksiyalar TypeScript-in statik tipləmə üstünlüyünü istifadə edərək kodun təkrar istifadəsini və çevikliyini artırır. JavaScript-də müxtəlif tiplər üçün ayrı funksiyalar yazmaq lazımdır, bu da kodun həcmini artırır və səhvlərə səbəb ola bilər. Generic funksiyalar bir funksiyanı müxtəlif tiplərlə işləməyə imkan verir, eyni zamanda tip təhlükəsizliyini qoruyur. Microsoft, Google və Airbnb kimi şirkətlərin layihələrində, xüsusilə böyük miqyaslı tətbiqlərdə kodun keyfiyyətini və baxımını asanlaşdırır."
+        },
+        {
+          "type": "heading",
+          "text": "Əsas xüsusiyyətlər"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Tip parametri",
+              "description": "Generic funksiyalar `<T>` kimi tip parametrləri ilə təyin edilir, məsələn, `function identity<T>(value: T): T`."
+            },
+            {
+              "term": "Məhdudiyyətlər",
+              "description": "`extends` ilə tip məhdudiyyətləri təyin edilə bilər, məsələn, `T extends { length: number }`."
+            },
+            {
+              "term": "Çoxsaylı tiplər",
+              "description": "Bir neçə tip parametri istifadə edilə bilər, məsələn, `<T, U>`."
+            },
+            {
+              "term": "Default tiplər",
+              "description": "Generic funksiyalar default tiplər təyin edə bilər, məsələn, `<T = string>`."
+            },
+            {
+              "term": "Union tipləri ilə",
+              "description": "Generic funksiyalar union tipləri ilə birləşdirilə bilər, məsələn, `T extends string | number`."
+            },
+            {
+              "term": "Funksiya overload-ları",
+              "description": "Generic funksiyalar funksiya overload-ları ilə birləşdirilə bilər, məsələn, fərqli tiplər üçün fərqli qaytarma tipləri."
+            },
+            {
+              "term": "IDE dəstəyi",
+              "description": "VSCode kimi alətlərdə generic funksiyalar üçün avtomatik təkliflər və səhv xəbərdarlıqları."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Təhlükələr və tövsiyələr"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Təhlükələr**: Generic funksiyalar həddindən artıq mürəkkəb istifadə edildikdə kodu oxumaq çətinləşə bilər. Yanlış məhdudiyyətlər təyin edildikdə tip səhvləri yarana bilər. Generic funksiyalar runtime-da heç bir təsiri olmadığından dinamik tip yoxlamaları çətinləşə bilər.\n- **Tövsiyələr**: Generic funksiyaları yalnız təkrar istifadə və tip təhlükəsizliyi üçün istifadə edin, sadə və başa düşülən tip parametrləri seçin, məhdudiyyətlərdən düzgün istifadə edin, mürəkkəb generic funksiyalarda sənədləşdirmə əlavə edin, səhvləri tapmaq üçün VSCode kimi IDE istifadə edin."
+        },
+        {
+          "type": "heading",
+          "text": "Sınaq üçün nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Sadə generic funksiya nümunəsi\nfunction wrap<T>(value: T): { value: T } {\n  return { value };\n}\ninterface Product<T> {\n  id: string;\n  data: T;\n}\nconst product: Product<string> = { id: \"P001\", data: \"Mouse\" };\nconst wrapped = wrap<Product<string>>(product);\nconsole.log(wrapped); // Çıxış: { value: { id: \"P001\", data: \"Mouse\" } }"
+        }
+      ]
+    },
+    "en": {
+      "title": "TypeScript Generic Functions",
+      "description": "TypeScript generic functions are reusable, type-safe functions that can work with various types, making code flexible and maintainable.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "What are Generic Functions?"
+        },
+        {
+          "type": "paragraph",
+          "text": "In TypeScript, generic functions are functions that can work with multiple types (e.g., `string`, `number`, objects) using a type parameter (`<T>`). Instead of writing separate functions for each type, a single generic function can handle different types. Generics ensure type safety by catching errors during development and make code reusable. For example, `function identity<T>(value: T): T` accepts and returns a value of any type. Generic functions compile to plain JavaScript without adding runtime overhead."
+        },
+        {
+          "type": "heading",
+          "text": "How do Generic Functions work?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic functions are defined with a type parameter (`<T>`) that specifies the type the function works with. For example, `function getFirst<T>(arr: T[]): T` returns the first element of an array, with `T` representing the array’s element type. Generic functions can be constrained with `extends`, e.g., `T extends string` restricts to strings. They support multiple type parameters (`<T, U>`) and default types (`<T = string>`). Generic functions can also be used with union types or function overloads. They ensure type safety in TypeScript but have no runtime impact."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// 1. Simple Generic Function\nfunction identity<T>(value: T): T {\n  return value;\n}\nconst num = identity<number>(42); // T = number\nconsole.log(num); // Output: 46\nconst str = identity<string>(\"Hello\"); // T = string\nconsole.log(str); // Output: Hello\n\n// 2. Generic with array function\nfunction getFirst<T>(arr: T[]): T {\n  return arr[0];\n}\nconst firstNum = getFirst<number>([1, 2, 3]); // T = number\nconsole.log(firstNum); // Output: 1\nconst firstStr = getFirst<string>([\"a\", \"b\", \"c\"]); // T = string\nconsole.log(firstStr); // Output: a\n\n// 3. Generic with constraints\nfunction printLength<T extends { length: number }>(item: T): number {\n  return item.length;\n}\nconsole.log(printLength<string>(\"Test\")); // Output: 4\nconsole.log(printLength<string[]>([\"a\", \"b\"])); // Output: 2\n// console.log(printLength<number>(42)); // Error: number has no length property\n\n// 4. Multiple Generic types\nfunction pair<T, U>(first: T, second: U): [T, U] {\n  return [first, second];\n}\nconst myPair = pair<string, number>(\"Age\", 25);\nconsole.log(myPair); // Output: [\"Age\", 25]\n\n// 5. Default Generic types\nfunction wrap<T = string>(value: T): { value: T } {\n  return { value };\n}\nconst wrappedString = wrap(\"Test\"); // T defaults to string\nconst wrappedNumber = wrap<number>(42);\nconsole.log(wrappedString); // Output: { value: \"Test\" }\nconsole.log(wrappedNumber); // Output: { value: 42 }\n\n// 6. Generic with union types\ntype AllowedType = string | number;\nfunction restrict<T extends AllowedType>(value: T): T {\n  return value;\n}\nconsole.log(restrict(\"Hello\")); // Output: Hello\nconsole.log(restrict(123)); // Output: 123\n// console.log(restrict(true)); // Error: boolean is not an AllowedType\n\n// 7. Generic with function overloads\nfunction processValue<T extends string | number>(value: T): T;\nfunction processValue(value: boolean): string;\nfunction processValue<T>(value: T): T | string {\n  if (typeof value === \"boolean\") {\n    return value ? \"True\" : \"False\";\n  }\n  return value;\n}\nconsole.log(processValue<string>(\"Test\")); // Output: Test\nconsole.log(processValue<number>(123)); // Output: 123\nconsole.log(processValue(true)); // Output: True"
+        },
+        {
+          "type": "heading",
+          "text": "Real-world use cases"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic functions are widely used in real-world projects for code reuse and type safety. For example, in an e-commerce platform, a generic function can process product data of different types (e.g., product names as `string` or prices as `number`). They can handle API responses with varying data types or validate user inputs in web applications. Below is a simple store example."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Simple store system\ninterface Product<T> {\n  id: string;\n  data: T;\n}\nfunction createProduct<T>(id: string, data: T): Product<T> {\n  return { id, data };\n}\nconst laptop = createProduct<string>(\"P001\", \"Laptop\");\nconsole.log(laptop); // Output: { id: \"P001\", data: \"Laptop\" }\nconst price = createProduct<number>(\"P002\", 999);\nconsole.log(price); // Output: { id: \"P002\", data: 999 }\n\n// Generic function for product check\nfunction checkProduct<T>(product: Product<T>): string {\n  return `Product ID: ${product.id}, Data: ${product.data}`;\n}\nconsole.log(checkProduct(laptop)); // Output: Product ID: P001, Data: Laptop\n\n// Generic with constrained function\nfunction filterByData<T extends string | number>(products: Product<T>[], value: T): Product<T>[] {\n  return products.filter(p => p.data === value);\n}\nconst products: Product<string>[] = [laptop, createProduct(\"P003\", \"Mouse\")];\nconsole.log(filterByData(products, \"Laptop\")); // Output: [{ id: \"P001\", data: \"Laptop\" }]"
+        },
+        {
+          "type": "heading",
+          "text": "Purpose of Generic Functions"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic functions leverage TypeScript’s static typing to enable reusable and flexible code while maintaining type safety. In JavaScript, separate functions for different types increase code size and error risks. Generic functions allow a single function to work with multiple types, ensuring type safety. They improve code quality and maintainability in projects at companies like Microsoft, Google, and Airbnb, especially in large-scale applications."
+        },
+        {
+          "type": "heading",
+          "text": "Key features"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Type parameter",
+              "description": "Generic functions are defined with type parameters like `<T>`, e.g., `function identity<T>(value: T): T`."
+            },
+            {
+              "term": "Constraints",
+              "description": "Use `extends` to constrain types, e.g., `T extends { length: number }`."
+            },
+            {
+              "term": "Multiple types",
+              "description": "Support multiple type parameters, e.g., `<T, U>`."
+            },
+            {
+              "term": "Default types",
+              "description": "Generic functions can have default types, e.g., `<T = string>`."
+            },
+            {
+              "term": "With union types",
+              "description": "Generic functions can be combined with union types, e.g., `T extends string | number`."
+            },
+            {
+              "term": "Function overloads",
+              "description": "Generic functions can be combined with function overloads for different return types."
+            },
+            {
+              "term": "IDE support",
+              "description": "Smart suggestions and error warnings for generic functions in tools like VSCode."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Dangers and recommendations"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Dangers**: Overly complex generic functions can make code hard to read. Incorrect constraints can lead to type errors. Generic functions have no runtime impact, which can complicate dynamic type checks.\n- **Recommendations**: Use generic functions for code reuse and type safety, choose simple and clear type parameters, use constraints correctly, document complex generic functions, and use IDEs like VSCode to catch errors early."
+        },
+        {
+          "type": "heading",
+          "text": "Try it yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Simple generic function example\nfunction wrap<T>(value: T): { value: T } {\n  return { value };\n}\ninterface Product<T> {\n  id: string;\n  data: T;\n}\nconst product: Product<string> = { id: \"P001\", data: \"Mouse\" };\nconst wrapped = wrap<Product<string>>(product);\nconsole.log(wrapped); // Output: { value: { id: \"P001\", data: \"Mouse\" } }"
+        }
+      ]
+    },
+    "ru": {
+      "title": "TypeScript Generic Functions",
+      "description": "TypeScript generic functions — это повторно используемые и типобезопасные функции, которые могут работать с различными типами, делая код гибким и поддерживаемым.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Что такое Generic Functions?"
+        },
+        {
+          "type": "paragraph",
+          "text": "В TypeScript generic функции — это функции, которые могут работать с разными типами (например, `string`, `number`, объекты) с использованием параметра типа (`<T>`). Вместо написания отдельных функций для каждого типа можно использовать одну generic функцию. Generics обеспечивают типобезопасность, выявляя ошибки на этапе разработки, и делают код повторно используемым. Например, `function identity<T>(value: T): T` принимает и возвращает значение любого типа. Generic функции компилируются в обычный JavaScript без дополнительного кода на этапе выполнения."
+        },
+        {
+          "type": "heading",
+          "text": "Как работают Generic Functions?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic функции определяются с помощью параметра типа (`<T>`), который указывает, с каким типом работает функция. Например, `function getFirst<T>(arr: T[]): T` возвращает первый элемент массива, где `T` представляет тип элементов массива. Generic функции могут быть ограничены с помощью `extends`, например, `T extends string` ограничивает типы строками. Они поддерживают несколько параметров типа (`<T, U>`) и типы по умолчанию (`<T = string>`). Generic функции также могут использоваться с union типами или перегрузками функций. Они обеспечивают типобезопасность в TypeScript, но не имеют влияния на этапе выполнения."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// 1. Простая Generic функция\nfunction identity<T>(value: T): T {\n  return value;\n}\nconst num = identity<number>(42); // T = number\nconsole.log(num); // Вывод: 42\nconst str = identity<string>(\"Hello\"); // T = string\nconsole.log(str); // Вывод: Hello\n\n// 2. Generic с функцией для массива\nfunction getFirst<T>(arr: T[]): T {\n  return arr[0];\n}\nconst firstNum = getFirst<number>([1, 2, 3]); // T = number\nconsole.log(firstNum); // Вывод: 1\nconst firstStr = getFirst<string>([\"a\", \"b\", \"c\"]); // T = string\nconsole.log(firstStr); // Вывод: a\n\n// 3. Generic с ограничениями\nfunction printLength<T extends { length: number }>(item: T): number {\n  return item.length;\n}\nconsole.log(printLength<string>(\"Test\")); // Вывод: 4\nconsole.log(printLength<string[]>([\"a\", \"b\"])); // Вывод: 2\n// console.log(printLength<number>(42)); // Ошибка: у number нет свойства length\n\n// 4. Множественные Generic типы\nfunction pair<T, U>(first: T, second: U): [T, U] {\n  return [first, second];\n}\nconst myPair = pair<string, number>(\"Age\", 25);\nconsole.log(myPair); // Вывод: [\"Age\", 25]\n\n// 5. Типы по умолчанию для Generic\nfunction wrap<T = string>(value: T): { value: T } {\n  return { value };\n}\nconst wrappedString = wrap(\"Test\"); // T по умолчанию string\nconst wrappedNumber = wrap<number>(42);\nconsole.log(wrappedString); // Вывод: { value: \"Test\" }\nconsole.log(wrappedNumber); // Вывод: { value: 42 }\n\n// 6. Generic с union типами\ntype AllowedType = string | number;\nfunction restrict<T extends AllowedType>(value: T): T {\n  return value;\n}\nconsole.log(restrict(\"Hello\")); // Вывод: Hello\nconsole.log(restrict(123)); // Вывод: 123\n// console.log(restrict(true)); // Ошибка: boolean не соответствует AllowedType\n\n// 7. Generic с перегрузками функций\nfunction processValue<T extends string | number>(value: T): T;\nfunction processValue(value: boolean): string;\nfunction processValue<T>(value: T): T | string {\n  if (typeof value === \"boolean\") {\n    return value ? \"True\" : \"False\";\n  }\n  return value;\n}\nconsole.log(processValue<string>(\"Test\")); // Вывод: Test\nconsole.log(processValue<number>(123)); // Вывод: 123\nconsole.log(processValue(true)); // Вывод: True"
+        },
+        {
+          "type": "heading",
+          "text": "Примеры из реальной жизни"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic функции широко используются в реальных проектах для повторного использования кода и обеспечения типобезопасности. Например, в платформе электронной коммерции generic функция может обрабатывать данные продуктов разных типов (например, названия продуктов как `string` или цены как `number`). Они могут обрабатывать ответы API с различными типами данных или проверять пользовательские вводы в веб-приложениях. Ниже приведён простой пример магазина."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Простая система магазина\ninterface Product<T> {\n  id: string;\n  data: T;\n}\nfunction createProduct<T>(id: string, data: T): Product<T> {\n  return { id, data };\n}\nconst laptop = createProduct<string>(\"P001\", \"Laptop\");\nconsole.log(laptop); // Вывод: { id: \"P001\", data: \"Laptop\" }\nconst price = createProduct<number>(\"P002\", 999);\nconsole.log(price); // Вывод: { id: \"P002\", data: 999 }\n\n// Generic функция для проверки продукта\nfunction checkProduct<T>(product: Product<T>): string {\n  return `Product ID: ${product.id}, Data: ${product.data}`;\n}\nconsole.log(checkProduct(laptop)); // Вывод: Product ID: P001, Data: Laptop\n\n// Generic с ограниченной функцией\nfunction filterByData<T extends string | number>(products: Product<T>[], value: T): Product<T>[] {\n  return products.filter(p => p.data === value);\n}\nconst products: Product<string>[] = [laptop, createProduct(\"P003\", \"Mouse\")];\nconsole.log(filterByData(products, \"Laptop\")); // Вывод: [{ id: \"P001\", data: \"Laptop\" }]"
+        },
+        {
+          "type": "heading",
+          "text": "Цель Generic Functions"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic функции используют статическую типизацию TypeScript для создания повторно используемого и гибкого кода, сохраняя при этом типобезопасность. В JavaScript для работы с разными типами пришлось бы писать отдельные функции, что увеличивает объём кода и риск ошибок. Generic функции позволяют одной функции работать с несколькими типами, обеспечивая типобезопасность. Они улучшают качество и удобство поддержки кода в проектах компаний, таких как Microsoft, Google и Airbnb, особенно в крупномасштабных приложениях."
+        },
+        {
+          "type": "heading",
+          "text": "Основные особенности"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Параметр типа",
+              "description": "Generic функции определяются с параметрами типа, такими как `<T>`, например, `function identity<T>(value: T): T`."
+            },
+            {
+              "term": "Ограничения",
+              "description": "Ограничения задаются с помощью `extends`, например, `T extends { length: number }`."
+            },
+            {
+              "term": "Множественные типы",
+              "description": "Поддержка нескольких параметров типа, например, `<T, U>`."
+            },
+            {
+              "term": "Типы по умолчанию",
+              "description": "Generic функции могут иметь типы по умолчанию, например, `<T = string>`."
+            },
+            {
+              "term": "С union типами",
+              "description": "Generic функции могут комбинироваться с union типами, например, `T extends string | number`."
+            },
+            {
+              "term": "Перегрузки функций",
+              "description": "Generic функции могут комбинироваться с перегрузками функций для разных возвращаемых типов."
+            },
+            {
+              "term": "Поддержка IDE",
+              "description": "Интеллектуальные подсказки и предупреждения об ошибках для generic функций в редакторах, таких как VSCode."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Опасности и рекомендации"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Опасности**: Слишком сложные generic функции могут затруднить чтение кода. Неправильные ограничения могут привести к ошибкам типов. Generic функции не имеют влияния на этапе выполнения, что может усложнить динамические проверки типов.\n- **Рекомендации**: Используйте generic функции для повторного использования и типобезопасности, выбирайте простые и понятные параметры типов, правильно используйте ограничения, документируйте сложные generic функции, используйте IDE, такие как VSCode, для раннего обнаружения ошибок."
+        },
+        {
+          "type": "heading",
+          "text": "Попробуй сам"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Простой пример generic функции\nfunction wrap<T>(value: T): { value: T } {\n  return { value };\n}\ninterface Product<T> {\n  id: string;\n  data: T;\n}\nconst product: Product<string> = { id: \"P001\", data: \"Mouse\" };\nconst wrapped = wrap<Product<string>>(product);\nconsole.log(wrapped); // Вывод: { value: { id: \"P001\", data: \"Mouse\" } }"
+        }
+      ]
+    }
+  }
