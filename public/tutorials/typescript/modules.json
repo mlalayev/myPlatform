@@ -1,0 +1,332 @@
+{
+    "az": {
+      "title": "TypeScript Modulları",
+      "description": "TypeScript-də modullar, kodu fayllar arasında təşkil etmək və təkrar istifadəni asanlaşdırmaq üçün istifadə olunan strukturlardır. ES modulları (`import`/`export`) ilə işləyir və TypeScript-in statik tipləməsi ilə tam inteqrasiya edir.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Modullar nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "TypeScript-də modullar, əlaqəli kodları (funksiyalar, siniflər, interfeyslər, dəyişənlər) ayrı fayllarda təşkil etmək və ad çakışmalarını önləmək üçün istifadə olunur. Modullar JavaScript-in ES modulları üzərində qurulub və `import` və `export` sintaksisi ilə işləyir. TypeScript modulları statik tipləmə ilə dəstəkləyir, bu da kodun təhlükəsizliyini və oxunaqlılığını artırır. Modullar namespaces-dən fərqli olaraq fayl sistemi ilə daha yaxşı inteqrasiya edir və müasir layihələrdə üstünlük təşkil edir."
+        },
+        {
+          "type": "heading",
+          "text": "Modullar necə işləyir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "TypeScript modulları, ES modulları (`import`/`export`) və ya CommonJS kimi modul sistemləri ilə işləyir. `export` açar sözü ilə funksiyalar, siniflər və ya dəyişənlər xaricə açıla bilər, `import` ilə isə digər fayllardan istifadə edilir. Modullar `default` və `named` export növlərini dəstəkləyir. TypeScript-in statik tipləməsi sayəsində modullarda tip səhvləri kod yazarkən aşkar edilir. Modullar fayl sistemindən asılıdır, yəni hər fayl öz-özünə bir modul hesab olunur."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// mathUtils.ts\n// 1. Named Exports\nexport function add(a: number, b: number): number {\n  return a + b;\n}\nexport function subtract(a: number, b: number): number {\n  return a - b;\n}\n\n// 2. Default Export\nexport default function multiply(a: number, b: number): number {\n  return a * b;\n}\n\n// main.ts\n// 3. Named və Default Import\nimport { add, subtract } from \"./mathUtils\";\nimport multiply from \"./mathUtils\";\nconsole.log(add(5, 3)); // Çıxış: 8\nconsole.log(subtract(5, 3)); // Çıxış: 2\nconsole.log(multiply(5, 3)); // Çıxış: 15\n\n// 4. Modul ilə Interfeys və Sinif\nexport interface User {\n  name: string;\n  age: number;\n}\nexport class UserProfile {\n  constructor(public user: User) {}\n  display(): string {\n    return `Name: ${this.user.name}, Age: ${this.user.age}`;\n  }\n}\n\n// main.ts (davamı)\nimport { User, UserProfile } from \"./mathUtils\";\nconst user: User = { name: \"Alice\", age: 30 };\nconst profile = new UserProfile(user);\nconsole.log(profile.display()); // Çıxış: Name: Alice, Age: 30\n\n// 5. Modul Alias və Hamısını Import\n// import * as Math from \"./mathUtils\";\nconsole.log(Math.add(10, 5)); // Çıxış: 15"
+        },
+        {
+          "type": "heading",
+          "text": "Real həyatda istifadə ssenariləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Modullar müasir veb tətbiqlərində və böyük layihələrdə kodu təşkil etmək üçün geniş istifadə olunur. Məsələn, bir e-ticarət platformasında məhsul idarəetməsi, istifadəçi autentifikasiyası və ödəniş sistemləri ayrı modullarda saxlanıla bilər. Bu, kodun təkrar istifadəsini və baxımını asanlaşdırır. API-dən gələn məlumatların tiplərini təyin etmək üçün interfeyslər modullarla asanlıqla paylaşıla bilər. Aşağıda sadə bir mağaza nümunəsi var."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// product.ts\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\nexport function addProduct(products: Product[], product: Product): Product[] {\n  return [...products, product];\n}\nexport function getTotalPrice(products: Product[]): number {\n  return products.reduce((total, p) => total + p.price, 0);\n}\n\n// main.ts\nimport { addProduct, getTotalPrice, Product } from \"./product\";\nconst products: Product[] = [];\nconst laptop: Product = { id: \"P001\", name: \"Laptop\", price: 999 };\nconst updatedProducts = addProduct(products, laptop);\nconsole.log(getTotalPrice(updatedProducts)); // Çıxış: 999\n\n// user.ts\nexport function greet(name: string): string {\n  return `Welcome, ${name}!`;\n}\n\n// main.ts (davamı)\nimport { greet } from \"./user\";\nconsole.log(greet(\"Alice\")); // Çıxış: Welcome, Alice!"
+        },
+        {
+          "type": "heading",
+          "text": "Modullar və Namespaces-in müqayisəsi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Modullar və namespaces kodu təşkil etmək üçün istifadə olunur, lakin modullar ES modulları üzərində qurulub və fayl sistemi ilə daha yaxşı inteqrasiya edir. Namespaces TypeScript-ə xasdır və JavaScript obyektlərinə çevrilir, modullar isə JavaScript-in doğma xüsusiyyətidir. Modullar `import`/`export` sintaksisi ilə daha çevikdir və müasir layihələrdə üstünlük təşkil edir. Namespaces isə köhnə layihələrdə və ya kiçik tətbiqlərdə istifadə olunur."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Modul nümunəsi\n// math.ts\nexport function log(message: string): void {\n  console.log(message);\n}\n\n// main.ts\nimport { log } from \"./math\";\nlog(\"Module log\"); // Çıxış: Module log\n\n// Eyni funksionallıq namespace ilə\nnamespace Logger {\n  export function log(message: string): void {\n    console.log(message);\n  }\n}\nLogger.log(\"Namespace log\"); // Çıxış: Namespace log"
+        },
+        {
+          "type": "heading",
+          "text": "Modulların məqsədi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Modullar TypeScript-in statik tipləmə üstünlüyünü istifadə edərək kodu fayllar arasında təşkil etmək və təkrar istifadəni asanlaşdırmaq üçün istifadə olunur. JavaScript-də ad çakışmaları və kodun qarışıqlığı böyük layihələrdə problem yarada bilər. Modullar kodu məntiqi qruplara bölərək oxunaqlılığı və baxımı asanlaşdırır. Microsoft, Google və Airbnb kimi şirkətlərin layihələrində modullar standart olaraq istifadə olunur."
+        },
+        {
+          "type": "heading",
+          "text": "Əsas xüsusiyyətlər"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "import/export",
+              "description": "Modulları idxal və ixrac etmək üçün: `import { x } from './file'`."
+            },
+            {
+              "term": "Default export",
+              "description": "Bir moduldan tək dəyər ixrac: `export default function`."
+            },
+            {
+              "term": "Named export",
+              "description": "Bir neçə dəyəri ixrac etmək: `export function`."
+            },
+            {
+              "term": "Fayl əsaslı",
+              "description": "Hər fayl öz-özünə bir modul hesab olunur."
+            },
+            {
+              "term": "Tip təhlükəsizliyi",
+              "description": "TypeScript-in statik tipləməsi ilə tam uyğunluq."
+            },
+            {
+              "term": "IDE dəstəyi",
+              "description": "VSCode kimi alətlərdə modullar üçün avtomatik təkliflər və səhv xəbərdarlıqları."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Təhlükələr və tövsiyələr"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Təhlükələr**: Mürəkkəb modul strukturları kodu başa düşməyi çətinləşdirə bilər. Yanlış import/export konfiqurasiyaları səhvlərə səbəb ola bilər. Modulların həddindən artıq parçalanması layihəni idarəetməni çətinləşdirə bilər.\n- **Tövsiyələr**: Modul strukturunu sadə və məntiqi saxlayın, `default` və `named` exportları düzgün istifadə edin, sənədləşdirmə əlavə edin, modulların tip təhlükəsizliyini yoxlamaq üçün VSCode kimi IDE istifadə edin."
+        },
+        {
+          "type": "heading",
+          "text": "Sınaq üçün nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// math.ts\nexport function add(a: number, b: number): number {\n  return a + b;\n}\n\n// main.ts\nimport { add } from './math';\nconsole.log(add(5, 3)); // Çıxış: 8"
+        }
+      ]
+    },
+    "en": {
+      "title": "TypeScript Modules",
+      "description": "TypeScript modules are structures used to organize code across files and facilitate reuse. Built on ES modules (`import`/`export`), they fully integrate with TypeScript’s static typing.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "What are Modules?"
+        },
+        {
+          "type": "paragraph",
+          "text": "In TypeScript, modules are used to organize related code (functions, classes, interfaces, variables) into separate files, preventing name collisions. Built on JavaScript’s ES modules, they use `import` and `export` syntax. TypeScript modules leverage static typing to enhance code safety and readability. Unlike namespaces, modules integrate better with the file system and are preferred in modern projects."
+        },
+        {
+          "type": "heading",
+          "text": "How do Modules work?"
+        },
+        {
+          "type": "paragraph",
+          "text": "TypeScript modules work with ES modules or CommonJS systems. The `export` keyword makes functions, classes, or variables accessible, while `import` brings them into other files. Modules support `default` and `named` exports. TypeScript’s static typing catches type errors during development. Each file is treated as a module by default, relying on the file system for organization."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// mathUtils.ts\n// 1. Named Exports\nexport function add(a: number, b: number): number {\n  return a + b;\n}\nexport function subtract(a: number, b: number): number {\n  return a - b;\n}\n\n// 2. Default Export\nexport default function multiply(a: number, b: number): number {\n  return a * b;\n}\n\n// main.ts\n// 3. Named and Default Import\nimport { add, subtract } from './mathUtils';\nimport multiply from './mathUtils';\nconsole.log(add(5, 3)); // Output: 8\nconsole.log(subtract(5, 3)); // Output: 2\nconsole.log(multiply(5, 3)); // Output: 15\n\n// 4. Module with Interface and Class\nexport interface User {\n  name: string;\n  age: number;\n}\nexport class UserProfile {\n  constructor(public user: User) {}\n  display(): string {\n    return `Name: ${this.user.name}, Age: ${this.user.age}`;\n  }\n}\n\n// main.ts (continued)\nimport { User, UserProfile } from './mathUtils';\nconst user: User = { name: \"Alice\", age: 30 };\nconst profile = new UserProfile(user);\nconsole.log(profile.display()); // Output: Name: Alice, Age: 30\n\n// 5. Module Alias and Import All\n// import * as Math from './mathUtils';\nconsole.log(Math.add(10, 5)); // Output: 15"
+        },
+        {
+          "type": "heading",
+          "text": "Real-world use cases"
+        },
+        {
+          "type": "paragraph",
+          "text": "Modules are widely used in modern web applications and large projects to organize code. For example, in an e-commerce platform, product management, user authentication, and payment systems can be separated into modules. This improves code reuse and maintainability. Interfaces for API data can be easily shared across modules. Below is a simple store example."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// product.ts\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\nexport function addProduct(products: Product[], product: Product): Product[] {\n  return [...products, product];\n}\nexport function getTotalPrice(products: Product[]): number {\n  return products.reduce((total, p) => total + p.price, 0);\n}\n\n// main.ts\nimport { addProduct, getTotalPrice, Product } from './product';\nconst products: Product[] = [];\nconst laptop: Product = { id: \"P001\", name: \"Laptop\", price: 999 };\nconst updatedProducts = addProduct(products, laptop);\nconsole.log(getTotalPrice(updatedProducts)); // Output: 999\n\n// user.ts\nexport function greet(name: string): string {\n  return `Welcome, ${name}!`;\n}\n\n// main.ts (continued)\nimport { greet } from './user';\nconsole.log(greet(\"Alice\")); // Output: Welcome, Alice!"
+        },
+        {
+          "type": "heading",
+          "text": "Modules vs. Namespaces"
+        },
+        {
+          "type": "paragraph",
+          "text": "Modules and namespaces both organize code, but modules are built on ES modules and integrate better with the file system. Namespaces are TypeScript-specific and compile to JavaScript objects. Modules use `import`/`export` syntax, making them more flexible and preferred in modern projects. Namespaces are useful in legacy or small applications."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Module example\n// math.ts\nexport function log(message: string): void {\n  console.log(message);\n}\n\n// main.ts\nimport { log } from './math';\nlog(\"Module log\"); // Output: Module log\n\n// Same functionality with namespace\nnamespace Logger {\n  export function log(message: string): void {\n    console.log(message);\n  }\n}\nLogger.log(\"Namespace log\"); // Output: Namespace log"
+        },
+        {
+          "type": "heading",
+          "text": "Purpose of Modules"
+        },
+        {
+          "type": "paragraph",
+          "text": "Modules leverage TypeScript’s static typing to organize code across files and facilitate reuse. In JavaScript, name collisions and code clutter can cause issues in large projects. Modules group code logically, improving readability and maintainability. They are the standard in projects at companies like Microsoft, Google, and Airbnb."
+        },
+        {
+          "type": "heading",
+          "text": "Key features"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "import/export",
+              "description": "For importing and exporting modules: `import { x } from './file'`."
+            },
+            {
+              "term": "Default export",
+              "description": "Export a single value from a module: `export default function`."
+            },
+            {
+              "term": "Named export",
+              "description": "Export multiple values: `export function`."
+            },
+            {
+              "term": "File-based",
+              "description": "Each file is treated as a module by default."
+            },
+            {
+              "term": "Type safety",
+              "description": "Full compatibility with TypeScript’s static typing."
+            },
+            {
+              "term": "IDE support",
+              "description": "Smart suggestions and error warnings for modules in tools like VSCode."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Dangers and recommendations"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Dangers**: Complex module structures can make code harder to understand. Incorrect import/export configurations may cause errors. Over-splitting modules can complicate project management.\n- **Recommendations**: Keep module structures simple and logical, use `default` and `named` exports appropriately, add documentation, and use IDEs like VSCode to ensure type safety."
+        },
+        {
+          "type": "heading",
+          "text": "Try it yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// math.ts\nexport function add(a: number, b: number): number {\n  return a + b;\n}\n\n// main.ts\nimport { add } from './math';\nconsole.log(add(5, 3)); // Output: 8"
+        }
+      ]
+    },
+    "ru": {
+      "title": "TypeScript Модули",
+      "description": "TypeScript модули — это структуры, используемые для организации кода по файлам и упрощения повторного использования. Основаны на ES модулях (`import`/`export`) и полностью интегрируются со статической типизацией TypeScript.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Что такое модули?"
+        },
+        {
+          "type": "paragraph",
+          "text": "В TypeScript модули используются для организации связанного кода (функций, классов, интерфейсов, переменных) в отдельных файлах, предотвращая конфликты имён. Они основаны на ES модулях JavaScript и используют синтаксис `import` и `export`. Модули TypeScript поддерживают статическую типизацию, что повышает безопасность и читаемость кода. В отличие от namespaces, модули лучше интегрируются с файловой системой и предпочтительны в современных проектах."
+        },
+        {
+          "type": "heading",
+          "text": "Как работают модули?"
+        },
+        {
+          "type": "paragraph",
+          "text": "TypeScript модули работают с ES модулями или системами CommonJS. Ключевое слово `export` делает функции, классы или переменные доступными, а `import` позволяет использовать их в других файлах. Модули поддерживают `default` и `named` экспорты. Статическая типизация TypeScript выявляет ошибки типов на этапе разработки. Каждый файл по умолчанию считается модулем, зависящим от файловой системы."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// mathUtils.ts\n// 1. Именованные экспорты\nexport function add(a: number, b: number): number {\n  return a + b;\n}\nexport function subtract(a: number, b: number): number {\n  return a - b;\n}\n\n// 2. Экспорт по умолчанию\nexport default function multiply(a: number, b: number): number {\n  return a * b;\n}\n\n// main.ts\n// 3. Именованный и экспорт по умолчанию\nimport { add, subtract } from './mathUtils';\nimport multiply from './mathUtils';\nconsole.log(add(5, 3)); // Вывод: 8\nconsole.log(subtract(5, 3)); // Вывод: 2\nconsole.log(multiply(5, 3)); // Вывод: 15\n\n// 4. Модуль с интерфейсом и классом\nexport interface User {\n  name: string;\n  age: number;\n}\nexport class UserProfile {\n  constructor(public user: User) {}\n  display(): string {\n    return `Name: ${this.user.name}, Age: ${this.user.age}`;\n  }\n}\n\n// main.ts (продолжение)\nimport { User, UserProfile } from './mathUtils';\nconst user: User = { name: \"Alice\", age: 30 };\nconst profile = new UserProfile(user);\nconsole.log(profile.display()); // Вывод: Name: Alice, Age: 30\n\n// 5. Псевдоним модуля и импорт всего\n// import * as Math from './mathUtils';\nconsole.log(Math.add(10, 5)); // Вывод: 15"
+        },
+        {
+          "type": "heading",
+          "text": "Примеры из реальной жизни"
+        },
+        {
+          "type": "paragraph",
+          "text": "Модули широко используются в современных веб-приложениях и крупных проектах для организации кода. Например, в платформе электронной коммерции управление продуктами, аутентификация пользователей и платёжные системы могут быть разделены на модули. Это упрощает повторное использование и обслуживание кода. Интерфейсы для данных API легко распространяются между модулями. Ниже приведён простой пример магазина."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// product.ts\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\nexport function addProduct(products: Product[], product: Product): Product[] {\n  return [...products, product];\n}\nexport function getTotalPrice(products: Product[]): number {\n  return products.reduce((total, p) => total + p.price, 0);\n}\n\n// main.ts\nimport { addProduct, getTotalPrice, Product } from './product';\nconst products: Product[] = [];\nconst laptop: Product = { id: \"P001\", name: \"Laptop\", price: 999 };\nconst updatedProducts = addProduct(products, laptop);\nconsole.log(getTotalPrice(updatedProducts)); // Вывод: 999\n\n// user.ts\nexport function greet(name: string): string {\n  return `Welcome, ${name}!`;\n}\n\n// main.ts (продолжение)\nimport { greet } from './user';\nconsole.log(greet(\"Alice\")); // Вывод: Welcome, Alice!"
+        },
+        {
+          "type": "heading",
+          "text": "Модули против Namespaces"
+        },
+        {
+          "type": "paragraph",
+          "text": "Модули и namespaces решают схожие задачи по организации кода, но модули основаны на ES модулях и лучше интегрируются с файловой системой. Namespaces специфичны для TypeScript и компилируются в JavaScript-объекты. Модули используют синтаксис `import`/`export`, что делает их более гибкими и предпочтительными в современных проектах. Namespaces полезны в устаревших или небольших приложениях."
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Пример модуля\n// math.ts\nexport function log(message: string): void {\n  console.log(message);\n}\n\n// main.ts\nimport { log } from './math';\nlog(\"Module log\"); // Вывод: Module log\n\n// Такая же функциональность с namespace\nnamespace Logger {\n  export function log(message: string): void {\n    console.log(message);\n  }\n}\nLogger.log(\"Namespace log\"); // Вывод: Namespace log"
+        },
+        {
+          "type": "heading",
+          "text": "Цель модулей"
+        },
+        {
+          "type": "paragraph",
+          "text": "Модули используют статическую типизацию TypeScript для организации кода по файлам и упрощения повторного использования. В JavaScript конфликты имён и беспорядок в коде могут создавать проблемы в крупных проектах. Модули группируют код логически, улучшая читаемость и обслуживание. Они являются стандартом в проектах компаний, таких как Microsoft, Google и Airbnb."
+        },
+        {
+          "type": "heading",
+          "text": "Основные особенности"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "import/export",
+              "description": "Для импорта и экспорта модулей: `import { x } from './file'`."
+            },
+            {
+              "term": "Экспорт по умолчанию",
+              "description": "Экспорт одного значения из модуля: `export default function`."
+            },
+            {
+              "term": "Именованный экспорт",
+              "description": "Экспорт нескольких значений: `export function`."
+            },
+            {
+              "term": "Файловая основа",
+              "description": "Каждый файл по умолчанию считается модулем."
+            },
+            {
+              "term": "Типобезопасность",
+              "description": "Полная совместимость со статической типизацией TypeScript."
+            },
+            {
+              "term": "Поддержка IDE",
+              "description": "Интеллектуальные подсказки и предупреждения об ошибках для модулей в редакторах, таких как VSCode."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Опасности и рекомендации"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Опасности**: Сложные структуры модулей могут затруднить понимание кода. Неправильные конфигурации import/export могут привести к ошибкам. Чрезмерное разделение модулей может усложнить управление проектом.\n- **Рекомендации**: Сохраняйте структуру модулей простой и логичной, используйте `default` и `named` экспорты корректно, добавляйте документацию, используйте IDE, такие как VSCode, для проверки типобезопасности."
+        },
+        {
+          "type": "heading",
+          "text": "Попробуй сам"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// math.ts\nexport function add(a: number, b: number): number {\n  return a + b;\n}\n\n// main.ts\nimport { add } from './math';\nconsole.log(add(5, 3)); // Вывод: 8"
+        }
+      ]
+    }
+  }

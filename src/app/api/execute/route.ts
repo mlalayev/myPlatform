@@ -34,8 +34,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Code and language are required' }, { status: 400 });
     }
     const lang = language.toLowerCase();
-    if (lang !== 'python' && lang !== 'python3' && lang !== 'cpp') {
-      return NextResponse.json({ error: 'Only Python and C++ are supported in this runner.' }, { status: 400 });
+    if (lang !== 'python' && lang !== 'python3' && lang !== 'cpp' && lang !== 'c' && lang !== 'csharp') {
+      return NextResponse.json({ error: 'Only Python, C, C++, and C# are supported in this runner.' }, { status: 400 });
     }
 
     // Auto-detect user language from referer URL
@@ -147,6 +147,57 @@ export async function POST(request: NextRequest) {
         error = 'Server error: ' + err.message;
         exitCode = 1;
       }
+    } else if (lang === 'c') {
+      // C code execution
+      const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'ccode-'));
+      const filePath = path.join(tmpDir, 'main.c');
+      // Use .exe for Windows, .out for others
+      const exeExt = process.platform === 'win32' ? 'exe' : 'out';
+      const exePath = path.join(tmpDir, `main.${exeExt}`);
+      await fs.promises.writeFile(filePath, code);
+      // Debug: print env PATH
+      console.log('C DEBUG: process.env.PATH =', process.env.PATH);
+      // Debug: print file and exe paths
+      console.log('C DEBUG: filePath =', filePath);
+      console.log('C DEBUG: exePath =', exePath);
+      // Debug: check file existence
+      console.log('C DEBUG: file exists before compile =', fs.existsSync(filePath));
+      try {
+        // Debug logging
+        console.log('Compiling:', `gcc "${filePath}" -o "${exePath}"`);
+        // Compile
+        await execAsync(`gcc "${filePath}" -o "${exePath}"`);
+        // Debug logging
+        console.log('Running:', exePath);
+        // Run
+        const { stdout, stderr } = await execAsync(`"${exePath}"`);
+        output = stdout;
+        error = stderr;
+      } catch (err: any) {
+        console.log('C compile/run error:', err);
+        error = err.stderr || err.message;
+        output = err.stdout || '';
+        exitCode = 1;
+      }
+      await fs.promises.rm(tmpDir, { recursive: true, force: true });
+    } else if (lang === 'csharp') {
+      // C# code execution
+      const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'cscode-'));
+      const filePath = path.join(tmpDir, 'Program.cs');
+      await fs.promises.writeFile(filePath, code);
+      try {
+        // Compile and run using dotnet CLI
+        await execAsync(`dotnet new console -o "${tmpDir}" --force`);
+        await fs.promises.writeFile(path.join(tmpDir, 'Program.cs'), code);
+        const { stdout, stderr } = await execAsync(`dotnet run --project "${tmpDir}"`);
+        output = stdout;
+        error = stderr;
+      } catch (err: any) {
+        error = err.stderr || err.message;
+        output = err.stdout || '';
+        exitCode = 1;
+      }
+      await fs.promises.rm(tmpDir, { recursive: true, force: true });
     }
 
     return NextResponse.json({

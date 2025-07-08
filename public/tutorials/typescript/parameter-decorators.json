@@ -1,0 +1,293 @@
+{
+  "az": {
+    "title": "TypeScript Parametr Dekoratorları",
+    "description": "TypeScript-də parametr dekoratorları, sinif metodlarının parametrləri ilə işləmək üçün istifadə olunan xüsusi funksiyalardır. `@` simvolu ilə təyin edilir və eksperimental xüsusiyyətdir, buna görə `tsconfig.json`-da `\"experimentalDecorators\": true` və metadata üçün `\"emitDecoratorMetadata\": true` aktiv edilməlidir.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Parametr Dekoratorları nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də parametr dekoratorları, sinif metodlarının parametrlərinə tətbiq olunan funksiyalardır ki, bu funksiyalar parametrin davranışını izləmək və ya əlavə funksionallıq əlavə etmək üçün istifadə olunur. `@decorator` sintaksisi ilə metod parametrində istifadə edilir və üç arqument qəbul edir: metodun bağlı olduğu obyekt (target), metodun adı (propertyKey) və parametrin indeksi (parameterIndex). Parametr dekoratorları meta-proqramlaşdırma üçün istifadə edilir, yəni metod parametrinin necə istifadə olunduğunu dinamik şəkildə idarə edir. Məsələn, parametrin dəyərini loglamaq və ya validasiya etmək üçün istifadə edilə bilər. TypeScript-in statik tipləməsi ilə uyğundur və böyük layihələrdə parametrləri idarə etməyi asanlaşdırır."
+      },
+      {
+        "type": "heading",
+        "text": "Parametr Dekoratorları necə işləyir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Parametr dekoratorları üç arqument qəbul edir: metodun bağlı olduğu obyekt (target), metodun adı (propertyKey) və parametrin indeksi (parameterIndex). Onlar birbaşa metodun davranışını dəyişdirmir, lakin metodun parametrləri haqqında məlumat toplamaq və ya meta-məlumatları saxlamaq üçün istifadə olunur. Dekoratorlar runtime-da işləyir və JavaScript-ə çevrilərkən adi funksiyalara çevrilir. Dekorator fabrikləri parametrlər qəbul edərək dekoratorun davranışını fərdiləşdirməyə imkan verir. Parametr dekoratorları adətən sinif və ya metod dekoratorları ilə birləşdirilərək istifadə olunur, çünki özbaşına metodun icrasına təsir göstərə bilməzlər."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json üçün qeyd: {\"experimentalDecorators\": true, \"emitDecoratorMetadata\": true}\n\n// 1. Sadə Parametr Dekoratoru\nfunction logParameter(target: any, propertyKey: string, parameterIndex: number) {\n  console.log(`Parameter at index ${parameterIndex} in method ${propertyKey}`);\n}\nclass Greeter {\n  greet(@logParameter name: string): string {\n    return \"Hello, \" + name;\n  }\n}\nconst greeter = new Greeter();\nconsole.log(greeter.greet(\"Alice\")); // Çıxış: Parameter at index 0 in method greet\n// Çıxış: Hello, Alice\n\n// 2. Dekorator Fabriki\nfunction validateParameter(required: boolean) {\n  return function (target: any, propertyKey: string, parameterIndex: number) {\n    const metadataKey = `__validate_${propertyKey}_${parameterIndex}`;\n    target[metadataKey] = required;\n  };\n}\nclass UserService {\n  addUser(@validateParameter(true) name: string, age: number): string {\n    if (!name) throw new Error(\"Name is required\");\n    return `User ${name} with age ${age} added`;\n  }\n}\nconst userService = new UserService();\nconsole.log(userService.addUser(\"Bob\", 30)); // Çıxış: User Bob with age 30 added\n// console.log(userService.addUser(\"\", 30)); // Səhv: Name is required\n\n// 3. Metod Dekoratoru ilə Birləşmə\nfunction validateMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    args.forEach((arg, index) => {\n      const metadataKey = `__validate_${propertyKey}_${index}`;\n      if (target[metadataKey] && !arg) {\n        throw new Error(`Parameter ${index} in ${propertyKey} is required`);\n      }\n    });\n    return originalMethod.apply(this, args);\n  };\n}\nclass Profile {\n  @validateMethod\n  updateProfile(@validateParameter(true) name: string, @validateParameter(false) bio: string): string {\n    return `Profile updated with name ${name} and bio ${bio || \"N/A\"}`;\n  }\n}\nconst profile = new Profile();\nconsole.log(profile.updateProfile(\"Alice\", \"Developer\")); // Çıxış: Profile updated with name Alice and bio Developer\n// console.log(profile.updateProfile(\"\", \"Developer\")); // Səhv: Parameter 0 in updateProfile is required\n\n// 4. Sinif Dekoratoru ilə Birləşmə\nfunction logClass(prefix: string) {\n  return function (constructor: Function) {\n    console.log(prefix + \" class created: \" + constructor.name);\n  };\n}\n@logClass(\"INFO\")\nclass Store {\n  @validateMethod\n  addProduct(@validateParameter(true) id: string, name: string): string {\n    return `Product ${id}: ${name} added`;\n  }\n}\nconst store = new Store();\nconsole.log(store.addProduct(\"P001\", \"Laptop\")); // Çıxış: INFO class created: Store\n// Çıxış: Product P001: Laptop added\n// console.log(store.addProduct(\"\", \"Laptop\")); // Səhv: Parameter 0 in addProduct is required"
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Parametr dekoratorları böyük layihələrdə, xüsusən veb tətbiqlərində metod parametrlərini izləmək və ya validasiya etmək üçün istifadə olunur. Məsələn, bir e-ticarət platformasında parametr dekoratorları ilə metod parametrlərinin tələb olunan dəyərlərə malik olmasını təmin etmək, parametrləri loglamaq və ya meta-məlumatlar saxlamaq olar. Angular kimi çərçivələrdə parametr dekoratorları dependency injection və ya API parametrlərinin idarə edilməsi üçün geniş istifadə olunur. Aşağıda sadə bir mağaza nümunəsi var."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Mağaza sistemi\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\n\nfunction validateId(target: any, propertyKey: string, parameterIndex: number) {\n  const metadataKey = `__validate_${propertyKey}_${parameterIndex}`;\n  target[metadataKey] = true;\n}\n\nfunction validateMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    args.forEach((arg, index) => {\n      const metadataKey = `__validate_${propertyKey}_${index}`;\n      if (target[metadataKey] && !arg) {\n        throw new Error(`Parameter ${index} in ${propertyKey} is required`);\n      }\n    });\n    return originalMethod.apply(this, args);\n  };\n}\n\nclass Store {\n  products: Product[] = [];\n\n  @validateMethod\n  addProduct(@validateId id: string, name: string, price: number): Product[] {\n    const product: Product = { id, name, price };\n    this.products = [...this.products, product];\n    return this.products;\n  }\n}\n\nconst store = new Store();\nconsole.log(store.addProduct(\"P001\", \"Laptop\", 999)); // Çıxış: [{ id: \"P001\", name: \"Laptop\", price: 999 }]\n// console.log(store.addProduct(\"\", \"Laptop\", 999)); // Səhv: Parameter 0 in addProduct is required"
+      },
+      {
+        "type": "heading",
+        "text": "Parametr Dekoratorlarının məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Parametr dekoratorları TypeScript-in statik tipləmə üstünlüyünü istifadə edərək metod parametrləri haqqında məlumat toplamaq və ya validasiya etmək üçün istifadə olunur. Onlar kodu təkrar istifadə edilə bilən və oxunaqlı edir, xüsusən böyük layihələrdə. Dekoratorlar parametr validasiyası, loglama və ya meta-məlumatların idarə edilməsi kimi tapşırıqlar üçün idealdır. Angular kimi çərçivələrdə və Microsoft, Google kimi şirkətlərin layihələrində geniş istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Parametr dekoratorları",
+            "description": "Metod parametrləri ilə işləyir: `method(@decorator param)`."
+          },
+          {
+            "term": "Dekorator fabrikləri",
+            "description": "Fərdiləşdirilə bilən dekoratorlar: `@decorator(arg)`."
+          },
+          {
+            "term": "Digər dekoratorlarla birləşmə",
+            "description": "Sinif və metod dekoratorları ilə birlikdə istifadə edilə bilər."
+          },
+          {
+            "term": "Runtime təsiri",
+            "description": "Dekoratorlar runtime-da JavaScript funksiyaları kimi işləyir."
+          },
+          {
+            "term": "Tip təhlükəsizliyi",
+            "description": "TypeScript-in statik tipləməsi ilə tam uyğunluq."
+          },
+          {
+            "term": "IDE dəstəyi",
+            "description": "VSCode kimi alətlərdə dekoratorlar üçün avtomatik təkliflər və səhv xəbərdarlıqları."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Parametr dekoratorları eksperimental xüsusiyyətdir və gələcəkdə dəyişə bilər. Həddindən artıq istifadə kodu mürəkkəbləşdirə bilər. Yanlış dekorator tətbiqi runtime səhvlərinə səbəb ola bilər.\n- **Tövsiyələr**: Dekoratorları yalnız zəruri hallarda istifadə edin, sadə saxlayın, sənədləşdirmə əlavə edin, `tsconfig.json`-da eksperimental xüsusiyyətləri və metadata dəstəyini aktiv edin, səhvləri tapmaq üçün VSCode kimi IDE istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sadə parametr dekoratoru nümunəsi\nfunction logParameter(target: any, propertyKey: string, parameterIndex: number) {\n  console.log(`Parameter at index ${parameterIndex} in method ${propertyKey}`);\n}\nclass Example {\n  greet(@logParameter name: string): string {\n    return \"Hello, \" + name;\n  }\n}\nconst ex = new Example();\nconsole.log(ex.greet(\"Test\")); // Çıxış: Parameter at index 0 in method greet\n// Çıxış: Hello, Test"
+      }
+    ]
+  },
+  "en": {
+    "title": "TypeScript Parameter Decorators",
+    "description": "TypeScript parameter decorators are special functions applied to method parameters in a class to track or add functionality. Defined with the `@` symbol, they are experimental and require `\"experimentalDecorators\": true` and `\"emitDecoratorMetadata\": true` in `tsconfig.json` for metadata support.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Parameter Decorators?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, parameter decorators are functions applied to method parameters in a class to monitor or add functionality. They use the `@decorator` syntax and take three arguments: the target object the method belongs to, the method name (propertyKey), and the parameter’s index (parameterIndex). Parameter decorators enable meta-programming, dynamically managing how a method parameter is used. For example, they can log parameter values or validate them. They integrate with TypeScript’s static typing, making it easier to manage parameters in large projects."
+      },
+      {
+        "type": "heading",
+        "text": "How do Parameter Decorators work?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Parameter decorators take three arguments: the target object, the method name (propertyKey), and the parameter’s index (parameterIndex). They do not directly modify method behavior but are used to collect information or store metadata about parameters. Decorators execute at runtime and compile to JavaScript functions. Decorator factories accept parameters to customize decorator behavior. Parameter decorators are typically used with class or method decorators, as they cannot directly affect method execution."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Note for tsconfig.json: {\"experimentalDecorators\": true, \"emitDecoratorMetadata\": true}\n\n// 1. Simple Parameter Decorator\nfunction logParameter(target: any, propertyKey: string, parameterIndex: number) {\n  console.log(`Parameter at index ${parameterIndex} in method ${propertyKey}`);\n}\nclass Greeter {\n  greet(@logParameter name: string): string {\n    return \"Hello, \" + name;\n  }\n}\nconst greeter = new Greeter();\nconsole.log(greeter.greet(\"Alice\")); // Output: Parameter at index 0 in method greet\n// Output: Hello, Alice\n\n// 2. Decorator Factory\nfunction validateParameter(required: boolean) {\n  return function (target: any, propertyKey: string, parameterIndex: number) {\n    const metadataKey = `__validate_${propertyKey}_${parameterIndex}`;\n    target[metadataKey] = required;\n  };\n}\nclass UserService {\n  addUser(@validateParameter(true) name: string, age: number): string {\n    if (!name) throw new Error(\"Name is required\");\n    return `User ${name} with age ${age} added`;\n  }\n}\nconst userService = new UserService();\nconsole.log(userService.addUser(\"Bob\", 30)); // Output: User Bob with age 30 added\n// console.log(userService.addUser(\"\", 30)); // Error: Name is required\n\n// 3. Combining with Method Decorator\nfunction validateMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    args.forEach((arg, index) => {\n      const metadataKey = `__validate_${propertyKey}_${index}`;\n      if (target[metadataKey] && !arg) {\n        throw new Error(`Parameter ${index} in ${propertyKey} is required`);\n      }\n    });\n    return originalMethod.apply(this, args);\n  };\n}\nclass Profile {\n  @validateMethod\n  updateProfile(@validateParameter(true) name: string, @validateParameter(false) bio: string): string {\n    return `Profile updated with name ${name} and bio ${bio || \"N/A\"}`;\n  }\n}\nconst profile = new Profile();\nconsole.log(profile.updateProfile(\"Alice\", \"Developer\")); // Output: Profile updated with name Alice and bio Developer\n// console.log(profile.updateProfile(\"\", \"Developer\")); // Error: Parameter 0 in updateProfile is required\n\n// 4. Combining with Class Decorator\nfunction logClass(prefix: string) {\n  return function (constructor: Function) {\n    console.log(prefix + \" class created: \" + constructor.name);\n  };\n}\n@logClass(\"INFO\")\nclass Store {\n  @validateMethod\n  addProduct(@validateParameter(true) id: string, name: string): string {\n    return `Product ${id}: ${name} added`;\n  }\n}\nconst store = new Store();\nconsole.log(store.addProduct(\"P001\", \"Laptop\")); // Output: INFO class created: Store\n// Output: Product P001: Laptop added\n// console.log(store.addProduct(\"\", \"Laptop\")); // Error: Parameter 0 in addProduct is required"
+      },
+      {
+        "type": "heading",
+        "text": "Real-world use cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Parameter decorators are used in large projects, especially web applications, to track or validate method parameters. For example, in an e-commerce platform, parameter decorators can ensure that method parameters have required values, log parameters, or store metadata. They are widely used in frameworks like Angular for dependency injection or managing API parameters. Below is a simple store example."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Store system\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\n\nfunction validateId(target: any, propertyKey: string, parameterIndex: number) {\n  const metadataKey = `__validate_${propertyKey}_${parameterIndex}`;\n  target[metadataKey] = true;\n}\n\nfunction validateMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    args.forEach((arg, index) => {\n      const metadataKey = `__validate_${propertyKey}_${index}`;\n      if (target[metadataKey] && !arg) {\n        throw new Error(`Parameter ${index} in ${propertyKey} is required`);\n      }\n    });\n    return originalMethod.apply(this, args);\n  };\n}\n\nclass Store {\n  products: Product[] = [];\n\n  @validateMethod\n  addProduct(@validateId id: string, name: string, price: number): Product[] {\n    const product: Product = { id, name, price };\n    this.products = [...this.products, product];\n    return this.products;\n  }\n}\n\nconst store = new Store();\nconsole.log(store.addProduct(\"P001\", \"Laptop\", 999)); // Output: [{ id: \"P001\", name: \"Laptop\", price: 999 }]\n// console.log(store.addProduct(\"\", \"Laptop\", 999)); // Error: Parameter 0 in addProduct is required"
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Parameter Decorators"
+      },
+      {
+        "type": "paragraph",
+        "text": "Parameter decorators leverage TypeScript’s static typing to collect information or validate method parameters. They make code reusable and readable, especially in large projects. Decorators are ideal for tasks like parameter validation, logging, or metadata management. They are widely used in frameworks like Angular and in projects at companies like Microsoft and Google."
+      },
+      {
+        "type": "heading",
+        "text": "Key features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Parameter decorators",
+            "description": "Work with method parameters: `method(@decorator param)`."
+          },
+          {
+            "term": "Decorator factories",
+            "description": "Customizable decorators: `@decorator(arg)`."
+          },
+          {
+            "term": "Combination with other decorators",
+            "description": "Can be used with class and method decorators."
+          },
+          {
+            "term": "Runtime impact",
+            "description": "Decorators execute as JavaScript functions at runtime."
+          },
+          {
+            "term": "Type safety",
+            "description": "Full compatibility with TypeScript’s static typing."
+          },
+          {
+            "term": "IDE support",
+            "description": "Smart suggestions and error warnings for decorators in tools like VSCode."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Parameter decorators are experimental and may change in the future. Overuse can complicate code. Incorrect decorator application may cause runtime errors.\n- **Recommendations**: Use decorators only when necessary, keep them simple, add documentation, enable experimental features and metadata support in `tsconfig.json`, and use IDEs like VSCode to catch errors."
+      },
+      {
+        "type": "heading",
+        "text": "Try it yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Simple parameter decorator example\nfunction logParameter(target: any, propertyKey: string, parameterIndex: number) {\n  console.log(`Parameter at index ${parameterIndex} in method ${propertyKey}`);\n}\nclass Example {\n  greet(@logParameter name: string): string {\n    return \"Hello, \" + name;\n  }\n}\nconst ex = new Example();\nconsole.log(ex.greet(\"Test\")); // Output: Parameter at index 0 in method greet\n// Output: Hello, Test"
+      }
+    ]
+  },
+  "ru": {
+    "title": "TypeScript Декораторы Параметров",
+    "description": "TypeScript декораторы параметров — это специальные функции, применяемые к параметрам методов класса для отслеживания или добавления функциональности. Определяются с помощью символа `@` и являются экспериментальной функцией, требующей включения `\"experimentalDecorators\": true` и `\"emitDecoratorMetadata\": true` в `tsconfig.json` для поддержки метаданных.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое декораторы параметров?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript декораторы параметров — это функции, применяемые к параметрам методов класса для мониторинга или добавления функциональности. Они используют синтаксис `@decorator` и принимают три аргумента: объект, к которому относится метод (target), имя метода (propertyKey) и индекс параметра (parameterIndex). Декораторы параметров позволяют выполнять мета-программирование, динамически управляя использованием параметра метода. Например, они могут логировать значения параметров или валидировать их. Они интегрируются со статической типизацией TypeScript, упрощая управление параметрами в крупных проектах."
+      },
+      {
+        "type": "heading",
+        "text": "Как работают декораторы параметров?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы параметров принимают три аргумента: объект, к которому относится метод (target), имя метода (propertyKey) и индекс параметра (parameterIndex). Они не изменяют поведение метода напрямую, но используются для сбора информации или хранения метаданных о параметрах. Декораторы выполняются во время выполнения и компилируются в JavaScript-функции. Фабрики декораторов принимают параметры для настройки поведения декоратора. Декораторы параметров обычно используются вместе с декораторами классов или методов, так как сами по себе не могут влиять на выполнение метода."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Примечание для tsconfig.json: {\"experimentalDecorators\": true, \"emitDecoratorMetadata\": true}\n\n// 1. Простой декоратор параметра\nfunction logParameter(target: any, propertyKey: string, parameterIndex: number) {\n  console.log(`Parameter at index ${parameterIndex} in method ${propertyKey}`);\n}\nclass Greeter {\n  greet(@logParameter name: string): string {\n    return \"Hello, \" + name;\n  }\n}\nconst greeter = new Greeter();\nconsole.log(greeter.greet(\"Alice\")); // Вывод: Parameter at index 0 in method greet\n// Вывод: Hello, Alice\n\n// 2. Фабрика декораторов\nfunction validateParameter(required: boolean) {\n  return function (target: any, propertyKey: string, parameterIndex: number) {\n    const metadataKey = `__validate_${propertyKey}_${parameterIndex}`;\n    target[metadataKey] = required;\n  };\n}\nclass UserService {\n  addUser(@validateParameter(true) name: string, age: number): string {\n    if (!name) throw new Error(\"Name is required\");\n    return `User ${name} with age ${age} added`;\n  }\n}\nconst userService = new UserService();\nconsole.log(userService.addUser(\"Bob\", 30)); // Вывод: User Bob with age 30 added\n// console.log(userService.addUser(\"\", 30)); // Ошибка: Name is required\n\n// 3. Комбинация с декоратором метода\nfunction validateMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    args.forEach((arg, index) => {\n      const metadataKey = `__validate_${propertyKey}_${index}`;\n      if (target[metadataKey] && !arg) {\n        throw new Error(`Parameter ${index} in ${propertyKey} is required`);\n      }\n    });\n    return originalMethod.apply(this, args);\n  };\n}\nclass Profile {\n  @validateMethod\n  updateProfile(@validateParameter(true) name: string, @validateParameter(false) bio: string): string {\n    return `Profile updated with name ${name} and bio ${bio || \"N/A\"}`;\n  }\n}\nconst profile = new Profile();\nconsole.log(profile.updateProfile(\"Alice\", \"Developer\")); // Вывод: Profile updated with name Alice and bio Developer\n// console.log(profile.updateProfile(\"\", \"Developer\")); // Ошибка: Parameter 0 in updateProfile is required\n\n// 4. Комбинация с декоратором класса\nfunction logClass(prefix: string) {\n  return function (constructor: Function) {\n    console.log(prefix + \" class created: \" + constructor.name);\n  };\n}\n@logClass(\"INFO\")\nclass Store {\n  @validateMethod\n  addProduct(@validateParameter(true) id: string, name: string): string {\n    return `Product ${id}: ${name} added`;\n  }\n}\nconst store = new Store();\nconsole.log(store.addProduct(\"P001\", \"Laptop\")); // Вывод: INFO class created: Store\n// Вывод: Product P001: Laptop added\n// console.log(store.addProduct(\"\", \"Laptop\")); // Ошибка: Parameter 0 in addProduct is required"
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы параметров используются в крупных проектах, особенно в веб-приложениях, для отслеживания или валидации параметров методов. Например, в платформе электронной коммерции декораторы параметров могут обеспечивать наличие обязательных значений параметров, логировать параметры или сохранять метаданные. Они широко применяются в фреймворках, таких как Angular, для внедрения зависимостей или управления параметрами API. Ниже приведён простой пример магазина."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Система магазина\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\n\nfunction validateId(target: any, propertyKey: string, parameterIndex: number) {\n  const metadataKey = `__validate_${propertyKey}_${parameterIndex}`;\n  target[metadataKey] = true;\n}\n\nfunction validateMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    args.forEach((arg, index) => {\n      const metadataKey = `__validate_${propertyKey}_${index}`;\n      if (target[metadataKey] && !arg) {\n        throw new Error(`Parameter ${index} in ${propertyKey} is required`);\n      }\n    });\n    return originalMethod.apply(this, args);\n  };\n}\n\nclass Store {\n  products: Product[] = [];\n\n  @validateMethod\n  addProduct(@validateId id: string, name: string, price: number): Product[] {\n    const product: Product = { id, name, price };\n    this.products = [...this.products, product];\n    return this.products;\n  }\n}\n\nconst store = new Store();\nconsole.log(store.addProduct(\"P001\", \"Laptop\", 999)); // Вывод: [{ id: \"P001\", name: \"Laptop\", price: 999 }]\n// console.log(store.addProduct(\"\", \"Laptop\", 999)); // Ошибка: Parameter 0 in addProduct is required"
+      },
+      {
+        "type": "heading",
+        "text": "Цель декораторов параметров"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы параметров используют статическую типизацию TypeScript для сбора информации или валидации параметров методов. Они делают код повторно используемым и читаемым, особенно в крупных проектах. Декораторы идеальны для задач, таких как валидация параметров, логирование или управление метаданными. Они широко применяются в фреймворках, таких как Angular, и в проектах компаний, таких как Microsoft и Google."
+      },
+      {
+        "type": "heading",
+        "text": "Основные особенности"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Декораторы параметров",
+            "description": "Работают с параметрами методов: `method(@decorator param)`."
+          },
+          {
+            "term": "Фабрики декораторов",
+            "description": "Настраиваемые декораторы: `@decorator(arg)`."
+          },
+          {
+            "term": "Комбинация с другими декораторами",
+            "description": "Могут использоваться с декораторами классов и методов."
+          },
+          {
+            "term": "Влияние на выполнение",
+            "description": "Декораторы выполняются как JavaScript-функции во время выполнения."
+          },
+          {
+            "term": "Типобезопасность",
+            "description": "Полная совместимость со статической типизацией TypeScript."
+          },
+          {
+            "term": "Поддержка IDE",
+            "description": "Интеллектуальные подсказки и предупреждения об ошибках для декораторов в редакторах, таких как VSCode."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Декораторы параметров являются экспериментальной функцией и могут измениться в будущем. Чрезмерное использование может усложнить код. Неправильное применение декораторов может привести к ошибкам выполнения.\n- **Рекомендации**: Используйте декораторы только при необходимости, сохраняйте их простыми, добавляйте документацию, включайте экспериментальные функции и поддержку метаданных в `tsconfig.json`, используйте IDE, такие как VSCode, для обнаружения ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Простой пример декоратора параметра\nfunction logParameter(target: any, propertyKey: string, parameterIndex: number) {\n  console.log(`Parameter at index ${parameterIndex} in method ${propertyKey}`);\n}\nclass Example {\n  greet(@logParameter name: string): string {\n    return \"Hello, \" + name;\n  }\n}\nconst ex = new Example();\nconsole.log(ex.greet(\"Test\")); // Вывод: Parameter at index 0 in method greet\n// Вывод: Hello, Test"
+      }
+    ]
+  }
+}

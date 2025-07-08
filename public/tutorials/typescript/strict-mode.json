@@ -1,0 +1,416 @@
+{
+  "az": {
+    "title": "TypeScript Strict Mode",
+    "description": "TypeScript-də Strict Mode, kodun daha təhlükəsiz və proqnozlaşdırıla bilən olmasını təmin etmək üçün bir sıra tip yoxlama qaydalarını aktivləşdirən konfiqurasiya rejimidir. `tsconfig.json`-da `\"strict\": true` ilə aktivləşdirilir və bir neçə alt rejimi əhatə edir: `strictNullChecks`, `noImplicitAny`, `strictBindCallApply`, `noImplicitThis`, `alwaysStrict`, `strictFunctionTypes`, `strictPropertyInitialization`.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Strict Mode nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də Strict Mode, kod yazarkən daha ciddi tip yoxlamalarını tətbiq edən bir konfiqurasiya rejimidir. Bu rejim, proqramçıların potensial səhvləri erkən aşkar etməsinə kömək edir, kodun keyfiyyətini artırır və böyük layihələrdə səhvləri minimuma endirir. `tsconfig.json` faylında `\"strict\": true` qoyularaq aktivləşdirilir və bütün alt rejimləri (məsələn, `strictNullChecks`, `noImplicitAny`) avtomatik aktiv edir. Strict Mode TypeScript-in statik tipləmə üstünlüklərini maksimuma çatdırır, lakin bəzən yeni başlayanlar üçün öyrənmə çətinliyi yarada bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Strict Mode necə işləyir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Strict Mode `tsconfig.json`-da `\"strict\": true` ilə aktivləşdirildikdə, aşağıdakı alt rejimləri avtomatik olaraq aktiv edir: `strictNullChecks`, `noImplicitAny`, `strictBindCallApply`, `noImplicitThis`, `alwaysStrict`, `strictFunctionTypes`, `strictPropertyInitialization`. Hər bir alt rejim kodun müəyyən bir aspektini yoxlayır və potensial səhvləri aşkar edir. Məsələn, `strictNullChecks` null və undefined dəyərlərinin açıq şəkildə idarə olunmasını tələb edir. Bu rejimlər TypeScript-in statik tipləməsini daha da gücləndirir və runtime səhvlərinin qarşısını alır."
+      },
+      {
+        "type": "heading",
+        "text": "Strict Mode-un alt rejimləri"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "strictNullChecks",
+            "description": "null və undefined dəyərlərinin açıq şəkildə idarə olunmasını tələb edir. Dəyişənlər null və ya undefined ola bilərsə, bunu tipdə açıq şəkildə bildirmək lazımdır."
+          },
+          {
+            "term": "noImplicitAny",
+            "description": "Tipi açıq şəkildə müəyyən edilməmiş dəyişənlər və ya parametrlər üçün avtomatik `any` tipinin istifadəsini qadağan edir."
+          },
+          {
+            "term": "strictBindCallApply",
+            "description": "`bind`, `call` və `apply` metodlarının düzgün tipli arqumentlərlə çağırılmasını təmin edir."
+          },
+          {
+            "term": "noImplicitThis",
+            "description": "`this` ifadəsinin tipi açıq şəkildə müəyyən edilmədikdə səhv verir."
+          },
+          {
+            "term": "alwaysStrict",
+            "description": "JavaScript kodunda avtomatik olaraq `\"use strict\";` əlavə edir."
+          },
+          {
+            "term": "strictFunctionTypes",
+            "description": "Funksiya tiplərinin daha ciddi şəkildə yoxlanmasını təmin edir, xüsusilə bivariant və contravariant tiplər üçün."
+          },
+          {
+            "term": "strictPropertyInitialization",
+            "description": "Sinif xüsusiyyətlərinin konstruktor və ya başlanğıc dəyərlə ilkinləşdirilməsini tələb edir."
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json üçün nümunə: {\"strict\": true}\n\n// 1. strictNullChecks\n// strictNullChecks aktiv olduqda null və undefined açıq şəkildə idarə olunmalıdır\nlet username: string | null = \"Alice\";\n// let invalid: string = null; // Səhv: null string tipinə uyğun deyil\nif (username !== null) {\n  console.log(username.toUpperCase()); // Çıxış: ALICE\n}\n\n// 2. noImplicitAny\n// noImplicitAny aktiv olduqda tipi açıq şəkildə müəyyən edilməlidir\nfunction greet(name: string) {\n  return \"Hello, \" + name;\n}\n// function badGreet(name) { // Səhv: name parametri any tipindədir\n//   return \"Hello, \" + name;\n// }\nconsole.log(greet(\"Bob\")); // Çıxış: Hello, Bob\n\n// 3. strictBindCallApply\n// strictBindCallApply aktiv olduqda bind/call/apply düzgün tiplərlə çağırılır\nfunction add(a: number, b: number): number {\n  return a + b;\n}\nconst boundAdd = add.bind(null, 5);\nconsole.log(boundAdd(3)); // Çıxış: 8\n// console.log(add.call(null, \"5\", 3)); // Səhv: string tipi number gözlənilir\n\n// 4. noImplicitThis\n// noImplicitThis aktiv olduqda this tipi açıq şəkildə müəyyən edilməlidir\nclass User {\n  name: string = \"Alice\";\n  greet(this: User) {\n    return \"Hello, \" + this.name;\n  }\n}\nconst user = new User();\nconsole.log(user.greet()); // Çıxış: Hello, Alice\n// function badThis() { // Səhv: this tipi müəyyən edilməyib\n//   console.log(this.name);\n// }\n\n// 5. alwaysStrict\n// alwaysStrict aktiv olduqda JavaScript-ə `\"use strict\";` əlavə edilir\n// Bu, JavaScript-də ciddi rejimi tətbiq edir\nconsole.log(\"Strict mode enabled by alwaysStrict\");\n\n// 6. strictFunctionTypes\n// strictFunctionTypes funksiya tiplərinin ciddi yoxlanmasını təmin edir\ninterface Animal { kind: string; }\ninterface Dog extends Animal { bark(): void; }\nfunction makeSound(animal: Animal) {\n  console.log(\"Animal sound\");\n}\n// let dogFn: (dog: Dog) => void = makeSound; // Səhv: Dog Animal-a uyğun deyil\nlet animalFn: (animal: Animal) => void = makeSound;\nanimalFn({ kind: \"dog\" }); // Çıxış: Animal sound\n\n// 7. strictPropertyInitialization\n// strictPropertyInitialization xüsusiyyətlərin ilkinləşdirilməsini tələb edir\nclass Profile {\n  name!: string; // ! ilə ilkinləşdirmə tələbi aradan qaldırılır\n  constructor() {\n    this.name = \"Alice\"; // İlkinləşdirmə burada edilir\n  }\n}\n// class BadProfile { // Səhv: name ilkinləşdirilməyib\n//   name: string;\n// }\nconst profile = new Profile();\nconsole.log(profile.name); // Çıxış: Alice"
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Strict Mode böyük layihələrdə, xüsusən veb tətbiqlərində kodun təhlükəsizliyini və keyfiyyətini artırmaq üçün istifadə olunur. Məsələn, bir e-ticarət platformasında `strictNullChecks` ilə null dəyərlərinin səhvən istifadəsi qarşısını alır, `noImplicitAny` ilə tip təhlükəsizliyi təmin edilir. Angular, React və ya Vue kimi çərçivələrdə Strict Mode səhvləri erkən aşkar etməyə kömək edir. Aşağıda sadə bir mağaza nümunəsi var."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Mağaza sistemi\ninterface Product {\n  id: string;\n  name: string;\n  price: number | null;\n}\n\nclass Store {\n  products: Product[] = [];\n\n  addProduct(id: string, name: string, price: number | null): Product[] {\n    if (price === null) {\n      console.log(\"Warning: Price is null\");\n      return this.products;\n    }\n    const product: Product = { id, name, price };\n    this.products = [...this.products, product];\n    return this.products;\n  }\n}\n\nconst store = new Store();\nconsole.log(store.addProduct(\"P001\", \"Laptop\", 999)); // Çıxış: [{ id: \"P001\", name: \"Laptop\", price: 999 }]\nconsole.log(store.addProduct(\"P002\", \"Phone\", null)); // Çıxış: Warning: Price is null\n// Çıxış: [{ id: \"P001\", name: \"Laptop\", price: 999 }]"
+      },
+      {
+        "type": "heading",
+        "text": "Strict Mode-un məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Strict Mode TypeScript-in statik tipləmə üstünlüklərini maksimuma çatdırır, kodun daha təhlükəsiz və proqnozlaşdırıla bilən olmasını təmin edir. O, potensial səhvləri erkən aşkar etməyə imkan verir, kod keyfiyyətini artırır və böyük layihələrdə səhvləri minimuma endirir. Microsoft, Google kimi şirkətlərin layihələrində və Angular kimi çərçivələrdə geniş istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "strictNullChecks",
+            "description": "null və undefined dəyərlərinin açıq idarə olunmasını tələb edir."
+          },
+          {
+            "term": "noImplicitAny",
+            "description": "Avtomatik `any` tipini qadağan edir."
+          },
+          {
+            "term": "strictBindCallApply",
+            "description": "`bind`, `call`, `apply` metodlarının düzgün tiplərlə çağırılmasını təmin edir."
+          },
+          {
+            "term": "noImplicitThis",
+            "description": "`this` tipinin açıq müəyyən edilməsini tələb edir."
+          },
+          {
+            "term": "alwaysStrict",
+            "description": "JavaScript-də `\"use strict\";` əlavə edir."
+          },
+          {
+            "term": "strictFunctionTypes",
+            "description": "Funksiya tiplərinin ciddi yoxlanmasını təmin edir."
+          },
+          {
+            "term": "strictPropertyInitialization",
+            "description": "Xüsusiyyətlərin ilkinləşdirilməsini tələb edir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Strict Mode yeni başlayanlar üçün öyrənmə çətinliyi yarada bilər, çünki daha çox tip təyini tələb edir. Mövcud layihələrdə aktivləşdirmə köhnə kodu poza bilər.\n- **Tövsiyələr**: Strict Mode-u yeni layihələrdə istifadə edin, mövcud layihələrdə tədricən tətbiq edin, alt rejimləri ayrı-ayrılıqda aktivləşdirərək sınaqdan keçirin, VSCode kimi IDE-lərdən istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sadə Strict Mode nümunəsi\n// tsconfig.json: {\"strict\": true}\n\nlet username: string | null = \"Alice\";\nif (username !== null) {\n  console.log(username.toUpperCase()); // Çıxış: ALICE\n}\n// let invalid: string = null; // Səhv: null string tipinə uyğun deyil"
+      }
+    ]
+  },
+  "en": {
+    "title": "TypeScript Strict Mode",
+    "description": "TypeScript Strict Mode is a configuration mode that enables a set of strict type-checking rules to make code safer and more predictable. It is activated in `tsconfig.json` with `\"strict\": true` and includes sub-modes like `strictNullChecks`, `noImplicitAny`, `strictBindCallApply`, `noImplicitThis`, `alwaysStrict`, `strictFunctionTypes`, and `strictPropertyInitialization`.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Strict Mode?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, Strict Mode is a configuration mode that enforces stricter type-checking rules. It helps developers catch potential errors early, improves code quality, and reduces bugs in large projects. Activated in `tsconfig.json` with `\"strict\": true`, it automatically enables all related sub-modes (e.g., `strictNullChecks`, `noImplicitAny`). Strict Mode maximizes TypeScript’s static typing benefits but can create a learning curve for beginners."
+      },
+      {
+        "type": "heading",
+        "text": "How does Strict Mode work?"
+      },
+      {
+        "type": "paragraph",
+        "text": "When Strict Mode is enabled with `\"strict\": true` in `tsconfig.json`, it activates sub-modes like `strictNullChecks`, `noImplicitAny`, `strictBindCallApply`, `noImplicitThis`, `alwaysStrict`, `strictFunctionTypes`, and `strictPropertyInitialization`. Each sub-mode checks specific aspects of the code to catch potential errors. For example, `strictNullChecks` requires explicit handling of `null` and `undefined`. These modes enhance TypeScript’s static typing and prevent runtime errors."
+      },
+      {
+        "type": "heading",
+        "text": "Strict Mode sub-modes"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "strictNullChecks",
+            "description": "Requires explicit handling of `null` and `undefined` values. Variables must explicitly include these types if they can be null or undefined."
+          },
+          {
+            "term": "noImplicitAny",
+            "description": "Prohibits implicit `any` types for variables or parameters without explicit type annotations."
+          },
+          {
+            "term": "strictBindCallApply",
+            "description": "Ensures `bind`, `call`, and `apply` methods are called with correct type arguments."
+          },
+          {
+            "term": "noImplicitThis",
+            "description": "Requires explicit type annotation for `this` when used in functions."
+          },
+          {
+            "term": "alwaysStrict",
+            "description": "Automatically adds `\"use strict\";` to JavaScript output."
+          },
+          {
+            "term": "strictFunctionTypes",
+            "description": "Enforces stricter checking of function types, especially for bivariant and contravariant types."
+          },
+          {
+            "term": "strictPropertyInitialization",
+            "description": "Requires class properties to be initialized in the constructor or with an initial value."
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Example for tsconfig.json: {\"strict\": true}\n\n// 1. strictNullChecks\n// When strictNullChecks is enabled, null and undefined must be explicitly handled\nlet username: string | null = \"Alice\";\n// let invalid: string = null; // Error: null is not assignable to string\nif (username !== null) {\n  console.log(username.toUpperCase()); // Output: ALICE\n}\n\n// 2. noImplicitAny\n// noImplicitAny prevents implicit any types\nfunction greet(name: string) {\n  return \"Hello, \" + name;\n}\n// function badGreet(name) { // Error: name implicitly has an any type\n//   return \"Hello, \" + name;\n// }\nconsole.log(greet(\"Bob\")); // Output: Hello, Bob\n\n// 3. strictBindCallApply\n// strictBindCallApply ensures correct type usage for bind/call/apply\nfunction add(a: number, b: number): number {\n  return a + b;\n}\nconst boundAdd = add.bind(null, 5);\nconsole.log(boundAdd(3)); // Output: 8\n// console.log(add.call(null, \"5\", 3)); // Error: string is not assignable to number\n\n// 4. noImplicitThis\n// noImplicitThis requires explicit this type annotation\nclass User {\n  name: string = \"Alice\";\n  greet(this: User) {\n    return \"Hello, \" + this.name;\n  }\n}\nconst user = new User();\nconsole.log(user.greet()); // Output: Hello, Alice\n// function badThis() { // Error: this implicitly has any type\n//   console.log(this.name);\n// }\n\n// 5. alwaysStrict\n// alwaysStrict adds \"use strict\"; to JavaScript output\nconsole.log(\"Strict mode enabled by alwaysStrict\");\n\n// 6. strictFunctionTypes\n// strictFunctionTypes enforces stricter function type checking\ninterface Animal { kind: string; }\ninterface Dog extends Animal { bark(): void; }\nfunction makeSound(animal: Animal) {\n  console.log(\"Animal sound\");\n}\n// let dogFn: (dog: Dog) => void = makeSound; // Error: Dog is not assignable to Animal\nlet animalFn: (animal: Animal) => void = makeSound;\nanimalFn({ kind: \"dog\" }); // Output: Animal sound\n\n// 7. strictPropertyInitialization\n// strictPropertyInitialization requires property initialization\nclass Profile {\n  name!: string; // ! bypasses initialization check\n  constructor() {\n    this.name = \"Alice\"; // Initialized here\n  }\n}\n// class BadProfile { // Error: name not initialized\n//   name: string;\n// }\nconst profile = new Profile();\nconsole.log(profile.name); // Output: Alice"
+      },
+      {
+        "type": "heading",
+        "text": "Real-world use cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Strict Mode is used in large projects, especially web applications, to improve code safety and quality. For example, in an e-commerce platform, `strictNullChecks` prevents accidental use of null values, and `noImplicitAny` ensures type safety. Frameworks like Angular, React, or Vue benefit from Strict Mode to catch errors early. Below is a simple store example."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Store system\ninterface Product {\n  id: string;\n  name: string;\n  price: number | null;\n}\n\nclass Store {\n  products: Product[] = [];\n\n  addProduct(id: string, name: string, price: number | null): Product[] {\n    if (price === null) {\n      console.log(\"Warning: Price is null\");\n      return this.products;\n    }\n    const product: Product = { id, name, price };\n    this.products = [...this.products, product];\n    return this.products;\n  }\n}\n\nconst store = new Store();\nconsole.log(store.addProduct(\"P001\", \"Laptop\", 999)); // Output: [{ id: \"P001\", name: \"Laptop\", price: 999 }]\nconsole.log(store.addProduct(\"P002\", \"Phone\", null)); // Output: Warning: Price is null\n// Output: [{ id: \"P001\", name: \"Laptop\", price: 999 }]"
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Strict Mode"
+      },
+      {
+        "type": "paragraph",
+        "text": "Strict Mode maximizes TypeScript’s static typing benefits, ensuring safer and more predictable code. It catches potential errors early, improves code quality, and reduces bugs in large projects. It is widely used in frameworks like Angular and in projects at companies like Microsoft and Google."
+      },
+      {
+        "type": "heading",
+        "text": "Key features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "strictNullChecks",
+            "description": "Requires explicit handling of `null` and `undefined`."
+          },
+          {
+            "term": "noImplicitAny",
+            "description": "Prohibits implicit `any` types."
+          },
+          {
+            "term": "strictBindCallApply",
+            "description": "Ensures correct type usage for `bind`, `call`, and `apply`."
+          },
+          {
+            "term": "noImplicitThis",
+            "description": "Requires explicit `this` type annotation."
+          },
+          {
+            "term": "alwaysStrict",
+            "description": "Adds `\"use strict\";` to JavaScript output."
+          },
+          {
+            "term": "strictFunctionTypes",
+            "description": "Enforces stricter function type checking."
+          },
+          {
+            "term": "strictPropertyInitialization",
+            "description": "Requires property initialization."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Strict Mode can create a learning curve for beginners due to stricter type requirements. Enabling it in existing projects may break legacy(mask: older code.\n- **Recommendations**: Use Strict Mode in new projects, gradually enable it in existing projects, test sub-modes individually, and use IDEs like VSCode to catch errors."
+      },
+      {
+        "type": "heading",
+        "text": "Try it yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Simple Strict Mode example\n// tsconfig.json: {\"strict\": true}\n\nlet username: string | null = \"Alice\";\nif (username !== null) {\n  console.log(username.toUpperCase()); // Output: ALICE\n}\n// let invalid: string = null; // Error: null is not assignable to string"
+      }
+    ]
+  },
+  "ru": {
+    "title": "TypeScript Строгий Режим",
+    "description": "TypeScript Строгий Режим — это режим конфигурации, который включает набор строгих правил проверки типов для повышения безопасности и предсказуемости кода. Активируется в `tsconfig.json` с помощью `\"strict\": true` и включает подрежимы, такие как `strictNullChecks`, `noImplicitAny`, `strictBindCallApply`, `noImplicitThis`, `alwaysStrict`, `strictFunctionTypes`, `strictPropertyInitialization`.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Строгий Режим?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript Строгий Режим — это режим конфигурации, который применяет более строгие правила проверки типов. Он помогает разработчикам выявлять потенциальные ошибки на ранних этапах, улучшает качество кода и сокращает количество ошибок в крупных проектах. Активируется в `tsconfig.json` с помощью `\"strict\": true`, что автоматически включает все связанные подрежимы (например, `strictNullChecks`, `noImplicitAny`). Строгий Режим максимизирует преимущества статической типизации TypeScript, но может создавать трудности в обучении для новичков."
+      },
+      {
+        "type": "heading",
+        "text": "Как работает Строгий Режим?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Когда Строгий Режим активируется с помощью `\"strict\": true` в `tsconfig.json`, он включает подрежимы, такие как `strictNullChecks`, `noImplicitAny`, `strictBindCallApply`, `noImplicitThis`, `alwaysStrict`, `strictFunctionTypes` и `strictPropertyInitialization`. Каждый подрежим проверяет определённые аспекты кода для выявления потенциальных ошибок. Например, `strictNullChecks` требует явной обработки значений `null` и `undefined`. Эти режимы усиливают статическую типизацию TypeScript и предотвращают ошибки во время выполнения."
+      },
+      {
+        "type": "heading",
+        "text": "Подрежимы Строгого Режима"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "strictNullChecks",
+            "description": "Требует явной обработки значений `null` и `undefined`. Переменные должны явно включать эти типы, если они могут быть null или undefined."
+          },
+          {
+            "term": "noImplicitAny",
+            "description": "Запрещает неявное использование типа `any` для переменных или параметров без явных аннотаций типа."
+          },
+          {
+            "term": "strictBindCallApply",
+            "description": "Гарантирует, что методы `bind`, `call` и `apply` вызываются с правильными типами аргументов."
+          },
+          {
+            "term": "noImplicitThis",
+            "description": "Требует явной аннотации типа для `this` в функциях."
+          },
+          {
+            "term": "alwaysStrict",
+            "description": "Автоматически добавляет `\"use strict\";` в выходной JavaScript-код."
+          },
+          {
+            "term": "strictFunctionTypes",
+            "description": "Обеспечивает более строгую проверку типов функций, особенно для бивариантных и контравариантных типов."
+          },
+          {
+            "term": "strictPropertyInitialization",
+            "description": "Требует инициализации свойств класса в конструкторе или с начальным значением."
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример для tsconfig.json: {\"strict\": true}\n\n// 1. strictNullChecks\n// При включённом strictNullChecks null и undefined должны явно обрабатываться\nlet username: string | null = \"Alice\";\n// let invalid: string = null; // Ошибка: null не присваивается к string\nif (username !== null) {\n  console.log(username.toUpperCase()); // Вывод: ALICE\n}\n\n// 2. noImplicitAny\n// noImplicitAny запрещает неявные типы any\nfunction greet(name: string) {\n  return \"Hello, \" + name;\n}\n// function badGreet(name) { // Ошибка: name неявно имеет тип any\n//   return \"Hello, \" + name;\n// }\nconsole.log(greet(\"Bob\")); // Вывод: Hello, Bob\n\n// 3. strictBindCallApply\n// strictBindCallApply обеспечивает правильные типы для bind/call/apply\nfunction add(a: number, b: number): number {\n  return a + b;\n}\nconst boundAdd = add.bind(null, 5);\nconsole.log(boundAdd(3)); // Вывод: 8\n// console.log(add.call(null, \"5\", 3)); // Ошибка: string не присваивается к number\n\n// 4. noImplicitThis\n// noImplicitThis требует явной аннотации типа this\nclass User {\n  name: string = \"Alice\";\n  greet(this: User) {\n    return \"Hello, \" + this.name;\n  }\n}\nconst user = new User();\nconsole.log(user.greet()); // Вывод: Hello, Alice\n// function badThis() { // Ошибка: this неявно имеет тип any\n//   console.log(this.name);\n// }\n\n// 5. alwaysStrict\n// alwaysStrict добавляет \"use strict\"; в выходной JavaScript-код\nconsole.log(\"Strict mode enabled by alwaysStrict\");\n\n// 6. strictFunctionTypes\n// strictFunctionTypes обеспечивает более строгую проверку типов функций\ninterface Animal { kind: string; }\ninterface Dog extends Animal { bark(): void; }\nfunction makeSound(animal: Animal) {\n  console.log(\"Animal sound\");\n}\n// let dogFn: (dog: Dog) => void = makeSound; // Ошибка: Dog не присваивается к Animal\nlet animalFn: (animal: Animal) => void = makeSound;\nanimalFn({ kind: \"dog\" }); // Вывод: Animal sound\n\n// 7. strictPropertyInitialization\n// strictPropertyInitialization требует инициализации свойств\nclass Profile {\n  name!: string; // ! обходит проверку инициализации\n  constructor() {\n    this.name = \"Alice\"; // Инициализация здесь\n  }\n}\n// class BadProfile { // Ошибка: name не инициализировано\n//   name: string;\n// }\nconst profile = new Profile();\nconsole.log(profile.name); // Вывод: Alice"
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Строгий Режим используется в крупных проектах, особенно в веб-приложениях, для повышения безопасности и качества кода. Например, в платформе электронной коммерции `strictNullChecks` предотвращает случайное использование null-значений, а `noImplicitAny` обеспечивает безопасность типов. Фреймворки, такие как Angular, React или Vue, выигрывают от Строгого Режима, позволяя выявлять ошибки на ранних этапах. Ниже приведён простой пример магазина."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Система магазина\ninterface Product {\n  id: string;\n  name: string;\n  price: number | null;\n}\n\nclass Store {\n  products: Product[] = [];\n\n  addProduct(id: string, name: string, price: number | null): Product[] {\n    if (price === null) {\n      console.log(\"Warning: Price is null\");\n      return this.products;\n    }\n    const product: Product = { id, name, price };\n    this.products = [...this.products, product];\n    return this.products;\n  }\n}\n\nconst store = new Store();\nconsole.log(store.addProduct(\"P001\", \"Laptop\", 999)); // Вывод: [{ id: \"P001\", name: \"Laptop\", price: 999 }]\nconsole.log(store.addProduct(\"P002\", \"Phone\", null)); // Вывод: Warning: Price is null\n// Вывод: [{ id: \"P001\", name: \"Laptop\", price: 999 }]"
+      },
+      {
+        "type": "heading",
+        "text": "Цель Строгого Режима"
+      },
+      {
+        "type": "paragraph",
+        "text": "Строгий Режим максимизирует преимущества статической типизации TypeScript, обеспечивая более безопасный и предсказуемый код. Он позволяет выявлять потенциальные ошибки на ранних этапах, улучшает качество кода и сокращает количество ошибок в крупных проектах. Широко используется во фреймворках, таких как Angular, и в проектах компаний, таких как Microsoft и Google."
+      },
+      {
+        "type": "heading",
+        "text": "Основные особенности"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "strictNullChecks",
+            "description": "Требует явной обработки `null` и `undefined`."
+          },
+          {
+            "term": "noImplicitAny",
+            "description": "Запрещает неявные типы `any`."
+          },
+          {
+            "term": "strictBindCallApply",
+            "description": "Обеспечивает правильные типы для `bind`, `call`, `apply`."
+          },
+          {
+            "term": "noImplicitThis",
+            "description": "Требует явной аннотации типа `this`."
+          },
+          {
+            "term": "alwaysStrict",
+            "description": "Добавляет `\"use strict\";` в выходной JavaScript-код."
+          },
+          {
+            "term": "strictFunctionTypes",
+            "description": "Обеспечивает более строгую проверку типов функций."
+          },
+          {
+            "term": "strictPropertyInitialization",
+            "description": "Требует инициализации свойств."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Строгий Режим может создавать трудности в обучении для новичков из-за строгих требований к типам. Активация в существующих проектах может нарушить старый код.\n- **Рекомендации**: Используйте Строгий Режим в новых проектах, постепенно внедряйте в существующие, тестируйте подрежимы по отдельности, используйте IDE, такие как VSCode, для выявления ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Простой пример Строгого Режима\n// tsconfig.json: {\"strict\": true}\n\nlet username: string | null = \"Alice\";\nif (username !== null) {\n  console.log(username.toUpperCase()); // Вывод: ALICE\n}\n// let invalid: string = null; // Ошибка: null не присваивается к string"
+      }
+    ]
+  }
+}

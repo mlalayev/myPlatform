@@ -195,7 +195,8 @@ const loadCppWasm = async () => {
   return cppWasmModule;
 };
 
-const tryeditorErrorOverrides = {
+// Fix: add index signature for string keys
+const tryeditorErrorOverrides: { [key: string]: { [key: string]: string } } = {
   az: {
     tsFilenameError: 'TypeScript transpilyasiya xətası: Bu kodun bəzi hissələri dəstəklənmir və ya sintaksis səhvidir. Zəhmət olmasa, kodunuzu yoxlayın və yalnız əsas TypeScript sintaksisindən istifadə edin.',
     tsCompileError: 'TypeScript transpilyasiya xətası: Kodunuzda sintaksis və ya tip xətası var. Zəhmət olmasa, kodunuzu yoxlayın.'
@@ -340,7 +341,7 @@ export default function JsTryEditor({
 
           const worker = new Worker(URL.createObjectURL(workerBlob));
 
-          let timeoutId;
+          let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
           worker.onmessage = function(e) {
             clearTimeout(timeoutId);
@@ -411,6 +412,54 @@ export default function JsTryEditor({
         return;
       }
       if (lang === "cpp") {
+        try {
+          const response = await fetch('/api/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, language: lang }),
+          });
+          const result = await response.json();
+          if (result.error) {
+            setError(result.error);
+            setOutput(result.output || "");
+          } else {
+            setOutput(result.output || "");
+            setError(result.error || "");
+          }
+          setShowOutput(true);
+        } catch (err: any) {
+          setError("Server error: " + err.message);
+          setShowOutput(true);
+        } finally {
+          setIsLoading(false);
+        }
+        return;
+      }
+      if (lang === "c") {
+        try {
+          const response = await fetch('/api/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, language: lang }),
+          });
+          const result = await response.json();
+          if (result.error) {
+            setError(result.error);
+            setOutput(result.output || "");
+          } else {
+            setOutput(result.output || "");
+            setError(result.error || "");
+          }
+          setShowOutput(true);
+        } catch (err: any) {
+          setError("Server error: " + err.message);
+          setShowOutput(true);
+        } finally {
+          setIsLoading(false);
+        }
+        return;
+      }
+      if (lang === "csharp") {
         try {
           const response = await fetch('/api/execute', {
             method: 'POST',

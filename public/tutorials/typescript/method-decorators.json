@@ -1,0 +1,293 @@
+{
+  "az": {
+    "title": "TypeScript Metod Dekoratorları",
+    "description": "TypeScript-də metod dekoratorları, sinif metodlarının davranışını dəyişdirmək və ya əlavə funksionallıq əlavə etmək üçün istifadə olunan xüsusi funksiyalardır. `@` simvolu ilə təyin edilir və eksperimental xüsusiyyətdir, buna görə `tsconfig.json`-da `\"experimentalDecorators\": true` aktiv edilməlidir.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Metod Dekoratorları nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də metod dekoratorları, sinif metodlarına tətbiq olunan funksiyalardır ki, bu funksiyalar metodun davranışını dəyişdirir və ya əlavə funksionallıq əlavə edir. `@decorator` sintaksisi ilə istifadə olunur və metodun təsvirçisi (PropertyDescriptor) üzərində işləyir. Metod dekoratorları meta-proqramlaşdırma üçün istifadə edilir, yəni metodun necə işləyəcəyini dinamik şəkildə idarə edir. Məsələn, metodun çağırışlarını loglamaq, metodun nəticəsini dəyişdirmək və ya icrasını məhdudlaşdırmaq üçün istifadə edilə bilər. TypeScript-in statik tipləməsi ilə uyğundur və böyük layihələrdə metodlara avtomatik funksionallıq əlavə etməyi asanlaşdırır."
+      },
+      {
+        "type": "heading",
+        "text": "Metod Dekoratorları necə işləyir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metod dekoratorları üç arqument qəbul edir: metodun bağlı olduğu obyekt (target), metodun adı (propertyKey) və metodun təsvirçisi (PropertyDescriptor). Təsvirçi vasitəsilə metodun orijinal davranışını dəyişdirmək və ya əlavə etmək olar. Dekoratorlar runtime-da işləyir və JavaScript-ə çevrilərkən adi funksiyalara çevrilir. Dekorator fabrikləri (decorator factories) parametrlər qəbul edərək dekoratorun davranışını fərdiləşdirməyə imkan verir. Metod dekoratorları sinif və ya xüsusiyyət dekoratorları ilə birləşdirilə bilər."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json üçün qeyd: {\"experimentalDecorators\": true}\n\n// 1. Sadə Metod Dekoratoru\nfunction logMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    console.log(\"Method \" + propertyKey + \" called with args: \" + args);\n    return originalMethod.apply(this, args);\n  };\n}\nclass Calculator {\n  @logMethod\n  add(a: number, b: number): number {\n    return a + b;\n  }\n}\nconst calc = new Calculator();\nconsole.log(calc.add(5, 3)); // Çıxış: Method add called with args: 5,3\n// Çıxış: 8\n\n// 2. Dekorator Fabriki\nfunction logWithPrefix(prefix: string) {\n  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n    const originalMethod = descriptor.value;\n    descriptor.value = function (...args: any[]) {\n      console.log(prefix + \" \" + propertyKey + \" called with: \" + args);\n      return originalMethod.apply(this, args);\n    };\n  };\n}\nclass Greeter {\n  @logWithPrefix(\"INFO\")\n  greet(name: string): string {\n    return \"Hello, \" + name;\n  }\n}\nconst greeter = new Greeter();\nconsole.log(greeter.greet(\"Alice\")); // Çıxış: INFO greet called with: Alice\n// Çıxış: Hello, Alice\n\n// 3. Metodun Nəticəsini Dəyişdirən Dekorator\nfunction doubleResult(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    const result = originalMethod.apply(this, args);\n    return result * 2;\n  };\n}\nclass MathUtils {\n  @doubleResult\n  multiply(a: number, b: number): number {\n    return a * b;\n  }\n}\nconst math = new MathUtils();\nconsole.log(math.multiply(4, 5)); // Çıxış: 40 (4 * 5 * 2)\n\n// 4. Digər Dekoratorlarla Birləşmə\nfunction logClass(prefix: string) {\n  return function (constructor: Function) {\n    console.log(prefix + \" class created: \" + constructor.name);\n  };\n}\n@logClass(\"Store\")\nclass Store {\n  @logMethod\n  addItem(item: string): string {\n    return \"Added \" + item;\n  }\n}\nconst store = new Store();\nconsole.log(store.addItem(\"Book\")); // Çıxış: Store class created: Store\n// Çıxış: Method addItem called with args: Book\n// Çıxış: Added Book"
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metod dekoratorları böyük layihələrdə, xüsusən veb tətbiqlərində metodlara avtomatik funksionallıq əlavə etmək üçün istifadə olunur. Məsələn, bir e-ticarət platformasında metod dekoratorları ilə API çağırışlarını loglamaq, metodun icra müddətini ölçmək və ya metodun nəticəsini validasiya etmək olar. Angular kimi çərçivələrdə metod dekoratorları servislərdə və komponentlərdə geniş istifadə olunur. Aşağıda sadə bir mağaza nümunəsi var."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Mağaza sistemi\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\n\nfunction logAccess(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    console.log(`Accessing ${propertyKey} with args: ${JSON.stringify(args)}`);\n    return originalMethod.apply(this, args);\n  };\n}\n\nclass Store {\n  products: Product[] = [];\n\n  @logAccess\n  addProduct(product: Product): Product[] {\n    this.products = [...this.products, product];\n    return this.products;\n  }\n}\n\nconst store = new Store();\nconst laptop: Product = { id: \"P001\", name: \"Laptop\", price: 999 };\nstore.addProduct(laptop);\n// Çıxış: Accessing addProduct with args: [{\"id\":\"P001\",\"name\":\"Laptop\",\"price\":999}]\nconsole.log(store.products); // Çıxış: [{ id: \"P001\", name: \"Laptop\", price: 999 }]"
+      },
+      {
+        "type": "heading",
+        "text": "Metod Dekoratorlarının məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metod dekoratorları TypeScript-in statik tipləmə üstünlüyünü istifadə edərək metodların davranışını dəyişdirmək və ya əlavə funksionallıq əlavə etmək üçün istifadə olunur. Onlar kodu təkrar istifadə edilə bilən və oxunaqlı edir, xüsusən böyük layihələrdə. Dekoratorlar loglama, performans ölçülməsi, validasiya və ya metod icrasını məhdudlaşdırma kimi tapşırıqlar üçün idealdır. Angular kimi çərçivələrdə və Microsoft, Google kimi şirkətlərin layihələrində geniş istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Metod dekoratorları",
+            "description": "Metodların davranışını dəyişir: `@decorator method()`."
+          },
+          {
+            "term": "Dekorator fabrikləri",
+            "description": "Fərdiləşdirilə bilən dekoratorlar: `@decorator(arg)`."
+          },
+          {
+            "term": "Digər dekoratorlarla birləşmə",
+            "description": "Sinif və xüsusiyyət dekoratorları ilə birlikdə istifadə edilə bilər."
+          },
+          {
+            "term": "Runtime təsiri",
+            "description": "Dekoratorlar runtime-da JavaScript funksiyaları kimi işləyir."
+          },
+          {
+            "term": "Tip təhlükəsizliyi",
+            "description": "TypeScript-in statik tipləməsi ilə tam uyğunluq."
+          },
+          {
+            "term": "IDE dəstəyi",
+            "description": "VSCode kimi alətlərdə dekoratorlar üçün avtomatik təkliflər və səhv xəbərdarlıqları."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Metod dekoratorları eksperimental xüsusiyyətdir və gələcəkdə dəyişə bilər. Həddindən artıq istifadə kodu mürəkkəbləşdirə bilər. Yanlış dekorator tətbiqi runtime səhvlərinə səbəb ola bilər.\n- **Tövsiyələr**: Dekoratorları yalnız zəruri hallarda istifadə edin, sadə saxlayın, sənədləşdirmə əlavə edin, `tsconfig.json`-da eksperimental xüsusiyyətləri aktiv edin, səhvləri tapmaq üçün VSCode kimi IDE istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sadə metod dekoratoru nümunəsi\nfunction logMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    console.log(\"Method \" + propertyKey + \" called with args: \" + args);\n    return originalMethod.apply(this, args);\n  };\n}\nclass Example {\n  @logMethod\n  sayHello(name: string): string {\n    return \"Hello, \" + name;\n  }\n}\nconst ex = new Example();\nconsole.log(ex.sayHello(\"Test\")); // Çıxış: Method sayHello called with args: Test\n// Çıxış: Hello, Test"
+      }
+    ]
+  },
+  "en": {
+    "title": "TypeScript Method Decorators",
+    "description": "TypeScript method decorators are special functions applied to class methods to modify their behavior or add functionality. Defined with the `@` symbol, they are experimental and require `\"experimentalDecorators\": true` in `tsconfig.json`.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Method Decorators?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, method decorators are functions applied to class methods to modify their behavior or add functionality. They use the `@decorator` syntax and operate on the method’s PropertyDescriptor. Method decorators enable meta-programming, dynamically controlling how a method works. For example, they can log method calls, modify results, or restrict execution. They integrate with TypeScript’s static typing, making it easier to add functionality to methods in large projects."
+      },
+      {
+        "type": "heading",
+        "text": "How do Method Decorators work?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Method decorators take three arguments: the target object the method belongs to, the method’s name (propertyKey), and the method’s PropertyDescriptor. The descriptor allows modifying or extending the method’s original behavior. Decorators execute at runtime and compile to JavaScript functions. Decorator factories accept parameters to customize decorator behavior. Method decorators can be combined with class or property decorators."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Note for tsconfig.json: {\"experimentalDecorators\": true}\n\n// 1. Simple Method Decorator\nfunction logMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    console.log(\"Method \" + propertyKey + \" called with args: \" + args);\n    return originalMethod.apply(this, args);\n  };\n}\nclass Calculator {\n  @logMethod\n  add(a: number, b: number): number {\n    return a + b;\n  }\n}\nconst calc = new Calculator();\nconsole.log(calc.add(5, 3)); // Output: Method add called with args: 5,3\n// Output: 8\n\n// 2. Decorator Factory\nfunction logWithPrefix(prefix: string) {\n  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n    const originalMethod = descriptor.value;\n    descriptor.value = function (...args: any[]) {\n      console.log(prefix + \" \" + propertyKey + \" called with: \" + args);\n      return originalMethod.apply(this, args);\n    };\n  };\n}\nclass Greeter {\n  @logWithPrefix(\"INFO\")\n  greet(name: string): string {\n    return \"Hello, \" + name;\n  }\n}\nconst greeter = new Greeter();\nconsole.log(greeter.greet(\"Alice\")); // Output: INFO greet called with: Alice\n// Output: Hello, Alice\n\n// 3. Decorator Modifying Result\nfunction doubleResult(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    const result = originalMethod.apply(this, args);\n    return result * 2;\n  };\n}\nclass MathUtils {\n  @doubleResult\n  multiply(a: number, b: number): number {\n    return a * b;\n  }\n}\nconst math = new MathUtils();\nconsole.log(math.multiply(4, 5)); // Output: 40 (4 * 5 * 2)\n\n// 4. Combining with Other Decorators\nfunction logClass(prefix: string) {\n  return function (constructor: Function) {\n    console.log(prefix + \" class created: \" + constructor.name);\n  };\n}\n@logClass(\"Store\")\nclass Store {\n  @logMethod\n  addItem(item: string): string {\n    return \"Added \" + item;\n  }\n}\nconst store = new Store();\nconsole.log(store.addItem(\"Book\")); // Output: Store class created: Store\n// Output: Method addItem called with args: Book\n// Output: Added Book"
+      },
+      {
+        "type": "heading",
+        "text": "Real-world use cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Method decorators are used in large projects, especially web applications, to automatically add functionality to methods. For example, in an e-commerce platform, method decorators can log API calls, measure execution time, or validate results. They are widely used in frameworks like Angular for services and components. Below is a simple store example."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Store system\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\n\nfunction logAccess(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    console.log(`Accessing ${propertyKey} with args: ${JSON.stringify(args)}`);\n    return originalMethod.apply(this, args);\n  };\n}\n\nclass Store {\n  products: Product[] = [];\n\n  @logAccess\n  addProduct(product: Product): Product[] {\n    this.products = [...this.products, product];\n    return this.products;\n  }\n}\n\nconst store = new Store();\nconst laptop: Product = { id: \"P001\", name: \"Laptop\", price: 999 };\nstore.addProduct(laptop);\n// Output: Accessing addProduct with args: [{\"id\":\"P001\",\"name\":\"Laptop\",\"price\":999}]\nconsole.log(store.products); // Output: [{ id: \"P001\", name: \"Laptop\", price: 999 }]"
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Method Decorators"
+      },
+      {
+        "type": "paragraph",
+        "text": "Method decorators leverage TypeScript’s static typing to modify or extend method behavior. They make code reusable and readable, especially in large projects. Decorators are ideal for tasks like logging, performance measurement, validation, or restricting method execution. They are widely used in frameworks like Angular and in projects at companies like Microsoft and Google."
+      },
+      {
+        "type": "heading",
+        "text": "Key features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Method decorators",
+            "description": "Modify method behavior: `@decorator method()`."
+          },
+          {
+            "term": "Decorator factories",
+            "description": "Customizable decorators: `@decorator(arg)`."
+          },
+          {
+            "term": "Combination with other decorators",
+            "description": "Can be used with class and property decorators."
+          },
+          {
+            "term": "Runtime impact",
+            "description": "Decorators execute as JavaScript functions at runtime."
+          },
+          {
+            "term": "Type safety",
+            "description": "Full compatibility with TypeScript’s static typing."
+          },
+          {
+            "term": "IDE support",
+            "description": "Smart suggestions and error warnings for decorators in tools like VSCode."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Method decorators are experimental and may change in the future. Overuse can complicate code. Incorrect decorator application may cause runtime errors.\n- **Recommendations**: Use decorators only when necessary, keep them simple, add documentation, enable experimental features in `tsconfig.json`, and use IDEs like VSCode to catch errors."
+      },
+      {
+        "type": "heading",
+        "text": "Try it yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Simple method decorator example\nfunction logMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    console.log(\"Method \" + propertyKey + \" called with args: \" + args);\n    return originalMethod.apply(this, args);\n  };\n}\nclass Example {\n  @logMethod\n  sayHello(name: string): string {\n    return \"Hello, \" + name;\n  }\n}\nconst ex = new Example();\nconsole.log(ex.sayHello(\"Test\")); // Output: Method sayHello called with args: Test\n// Output: Hello, Test"
+      }
+    ]
+  },
+  "ru": {
+    "title": "TypeScript Декораторы Методов",
+    "description": "TypeScript декораторы методов — это специальные функции, применяемые к методам класса для изменения их поведения или добавления функциональности. Определяются с помощью символа `@` и являются экспериментальной функцией, требующей включения `\"experimentalDecorators\": true` в `tsconfig.json`.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое декораторы методов?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript декораторы методов — это функции, применяемые к методам класса для изменения их поведения или добавления функциональности. Они используют синтаксис `@decorator` и работают с дескриптором метода (PropertyDescriptor). Декораторы методов позволяют выполнять мета-программирование, динамически управляя работой метода. Например, они могут логировать вызовы методов, изменять результаты или ограничивать выполнение. Они интегрируются со статической типизацией TypeScript, упрощая добавление функциональности к методам в крупных проектах."
+      },
+      {
+        "type": "heading",
+        "text": "Как работают декораторы методов?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы методов принимают три аргумента: объект, к которому относится метод (target), имя метода (propertyKey) и дескриптор метода (PropertyDescriptor). Дескриптор позволяет изменять или расширять исходное поведение метода. Декораторы выполняются во время выполнения и компилируются в JavaScript-функции. Фабрики декораторов принимают параметры для настройки поведения декоратора. Декораторы методов могут комбинироваться с декораторами классов или свойств."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Примечание для tsconfig.json: {\"experimentalDecorators\": true}\n\n// 1. Простой декоратор метода\nfunction logMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    console.log(\"Method \" + propertyKey + \" called with args: \" + args);\n    return originalMethod.apply(this, args);\n  };\n}\nclass Calculator {\n  @logMethod\n  add(a: number, b: number): number {\n    return a + b;\n  }\n}\nconst calc = new Calculator();\nconsole.log(calc.add(5, 3)); // Вывод: Method add called with args: 5,3\n// Вывод: 8\n\n// 2. Фабрика декораторов\nfunction logWithPrefix(prefix: string) {\n  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n    const originalMethod = descriptor.value;\n    descriptor.value = function (...args: any[]) {\n      console.log(prefix + \" \" + propertyKey + \" called with: \" + args);\n      return originalMethod.apply(this, args);\n    };\n  };\n}\nclass Greeter {\n  @logWithPrefix(\"INFO\")\n  greet(name: string): string {\n    return \"Hello, \" + name;\n  }\n}\nconst greeter = new Greeter();\nconsole.log(greeter.greet(\"Alice\")); // Вывод: INFO greet called with: Alice\n// Вывод: Hello, Alice\n\n// 3. Декоратор, изменяющий результат\nfunction doubleResult(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    const result = originalMethod.apply(this, args);\n    return result * 2;\n  };\n}\nclass MathUtils {\n  @doubleResult\n  multiply(a: number, b: number): number {\n    return a * b;\n  }\n}\nconst math = new MathUtils();\nconsole.log(math.multiply(4, 5)); // Вывод: 40 (4 * 5 * 2)\n\n// 4. Комбинация с другими декораторами\nfunction logClass(prefix: string) {\n  return function (constructor: Function) {\n    console.log(prefix + \" class created: \" + constructor.name);\n  };\n}\n@logClass(\"Store\")\nclass Store {\n  @logMethod\n  addItem(item: string): string {\n    return \"Added \" + item;\n  }\n}\nconst store = new Store();\nconsole.log(store.addItem(\"Book\")); // Вывод: Store class created: Store\n// Вывод: Method addItem called with args: Book\n// Вывод: Added Book"
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы методов используются в крупных проектах, особенно в веб-приложениях, для автоматического добавления функциональности к методам. Например, в платформе электронной коммерции декораторы методов могут логировать вызовы API, измерять время выполнения или валидировать результаты. Они широко применяются в фреймворках, таких как Angular, для сервисов и компонентов. Ниже приведён простой пример магазина."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Система магазина\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n}\n\nfunction logAccess(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    console.log(`Accessing ${propertyKey} with args: ${JSON.stringify(args)}`);\n    return originalMethod.apply(this, args);\n  };\n}\n\nclass Store {\n  products: Product[] = [];\n\n  @logAccess\n  addProduct(product: Product): Product[] {\n    this.products = [...this.products, product];\n    return this.products;\n  }\n}\n\nconst store = new Store();\nconst laptop: Product = { id: \"P001\", name: \"Laptop\", price: 999 };\nstore.addProduct(laptop);\n// Вывод: Accessing addProduct with args: [{\"id\":\"P001\",\"name\":\"Laptop\",\"price\":999}]\nconsole.log(store.products); // Вывод: [{ id: \"P001\", name: \"Laptop\", price: 999 }]"
+      },
+      {
+        "type": "heading",
+        "text": "Цель декораторов методов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы методов используют статическую типизацию TypeScript для изменения или расширения поведения методов. Они делают код повторно используемым и читаемым, особенно в крупных проектах. Декораторы идеальны для задач, таких как логирование, измерение производительности, валидация или ограничение выполнения методов. Они широко применяются в фреймворках, таких как Angular, и в проектах компаний, таких как Microsoft и Google."
+      },
+      {
+        "type": "heading",
+        "text": "Основные особенности"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Декораторы методов",
+            "description": "Изменяют поведение методов: `@decorator method()`."
+          },
+          {
+            "term": "Фабрики декораторов",
+            "description": "Настраиваемые декораторы: `@decorator(arg)`."
+          },
+          {
+            "term": "Комбинация с другими декораторами",
+            "description": "Могут использоваться с декораторами классов и свойств."
+          },
+          {
+            "term": "Влияние на выполнение",
+            "description": "Декораторы выполняются как JavaScript-функции во время выполнения."
+          },
+          {
+            "term": "Типобезопасность",
+            "description": "Полная совместимость со статической типизацией TypeScript."
+          },
+          {
+            "term": "Поддержка IDE",
+            "description": "Интеллектуальные подсказки и предупреждения об ошибках для декораторов в редакторах, таких как VSCode."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Декораторы методов являются экспериментальной функцией и могут измениться в будущем. Чрезмерное использование может усложнить код. Неправильное применение декораторов может привести к ошибкам выполнения.\n- **Рекомендации**: Используйте декораторы только при необходимости, сохраняйте их простыми, добавляйте документацию, включайте экспериментальные функции в `tsconfig.json`, используйте IDE, такие как VSCode, для обнаружения ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Простой пример декоратора метода\nfunction logMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  descriptor.value = function (...args: any[]) {\n    console.log(\"Method \" + propertyKey + \" called with args: \" + args);\n    return originalMethod.apply(this, args);\n  };\n}\nclass Example {\n  @logMethod\n  sayHello(name: string): string {\n    return \"Hello, \" + name;\n  }\n}\nconst ex = new Example();\nconsole.log(ex.sayHello(\"Test\")); // Вывод: Method sayHello called with args: Test\n// Вывод: Hello, Test"
+      }
+    ]
+  }
+}

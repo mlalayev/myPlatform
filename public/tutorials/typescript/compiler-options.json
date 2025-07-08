@@ -1,0 +1,440 @@
+{
+  "az": {
+    "title": "TypeScript Kompilyator Seçimləri",
+    "description": "TypeScript-də kompilyator seçimləri, TypeScript kodunun JavaScript-ə çevrilməsini idarə etmək üçün `tsconfig.json` faylında müəyyən edilən konfiqurasiya parametrləridir. Bu seçimlər kodun necə yoxlanılacağını, hansı JavaScript versiyasına çevriləcəyini və layihə strukturunu idarə edir.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Kompilyator Seçimləri nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript kompilyator seçimləri, TypeScript kodunun JavaScript-ə çevrilməsini və yoxlanılmasını idarə edən parametrlərdir. Bu seçimlər `tsconfig.json` faylında JSON formatında müəyyən edilir. Məsələn, hansı JavaScript versiyasına (`target`) çevriləcəyi, modulların necə idarə olunacağı (`module`) və ya tip yoxlamasının nə qədər ciddi olacağı (`strict`) kimi detallar bu faylda təyin olunur. Bu seçimlər TypeScript-in statik tipləmə üstünlüklərini fərdiləşdirməyə imkan verir və böyük layihələrdə kod keyfiyyətini artırır."
+      },
+      {
+        "type": "heading",
+        "text": "Kompilyator Seçimləri necə işləyir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kompilyator seçimləri `tsconfig.json` faylında `\"compilerOptions\"` bölməsində müəyyən edilir. TypeScript kompilyatoru (tsc) bu faylı oxuyaraq kodu necə təhlil edəcəyini və hansı JavaScript kodunu çıxaracağını müəyyənləşdirir. Seçimlər layihənin ehtiyaclarına uyğunlaşdırıla bilər, məsələn, köhnə brauzerlər üçün `ES5` hədəfi seçilə bilər və ya müasir modullardan istifadə etmək üçün `ESNext` təyin oluna bilər. Bəzi seçimlər kodun təhlükəsizliyini artırır, bəziləri isə inkişaf prosesini asanlaşdırır."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas Kompilyator Seçimləri"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "target",
+            "description": "Kompilyasiya olunan JavaScript-in versiyasını müəyyən edir (məsələn, `ES5`, `ES6`, `ESNext`)."
+          },
+          {
+            "term": "module",
+            "description": "Modulların idarə edilmə üsulunu təyin edir (məsələn, `CommonJS`, `ESNext`, `AMD`)."
+          },
+          {
+            "term": "outDir",
+            "description": "Kompilyasiya olunmuş JavaScript fayllarının saxlanacağı qovluğu müəyyən edir."
+          },
+          {
+            "term": "rootDir",
+            "description": "Layihədəki TypeScript fayllarının əsas qovluğunu təyin edir."
+          },
+          {
+            "term": "strict",
+            "description": "Bütün ciddi tip yoxlama rejimlərini aktivləşdirir (məsələn, `strictNullChecks`, `noImplicitAny`)."
+          },
+          {
+            "term": "esModuleInterop",
+            "description": "CommonJS və ES modulları arasında uyğunluğu təmin edir."
+          },
+          {
+            "term": "skipLibCheck",
+            "description": "Tip tərif fayllarının (*.d.ts) yoxlanılmasını keçir, performans artırır."
+          },
+          {
+            "term": "experimentalDecorators",
+            "description": "Eksperimental dekorator dəstəyini aktivləşdirir."
+          },
+          {
+            "term": "emitDecoratorMetadata",
+            "description": "Dekoratorlar üçün metadata yaradılmasını aktivləşdirir."
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "json",
+        "code": "// tsconfig.json nümunəsi\n{\n  \"compilerOptions\": {\n    \"target\": \"ES6\",\n    \"module\": \"CommonJS\",\n    \"outDir\": \"./dist\",\n    \"rootDir\": \"./src\",\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true\n  }\n}\n\n// 1. target və module\n// target: ES6, module: CommonJS\ninterface User {\n  name: string;\n}\nfunction greet(user: User): string {\n  return \"Hello, \" + user.name;\n}\nconst user: User = { name: \"Alice\" };\nconsole.log(greet(user)); // Çıxış: Hello, Alice\n\n// 2. strict rejimi\n// strict: true ilə null yoxlaması tələb olunur\nlet username: string | null = \"Bob\";\n// let invalid: string = null; // Səhv: null string tipinə uyğun deyil\nif (username !== null) {\n  console.log(username.toUpperCase()); // Çıxış: BOB\n}\n\n// 3. esModuleInterop\n// esModuleInterop ilə CommonJS modulları ilə işləmək asanlaşır\nimport * as fs from \"fs\"; // CommonJS modulu kimi idxal\n// esModuleInterop olmadan: const fs = require(\"fs\");\n\n// 4. outDir və rootDir\n// src qovluğundakı TypeScript faylları dist qovluğuna kompilyasiya olunur\nclass Product {\n  name: string;\n  constructor(name: string) {\n    this.name = name;\n  }\n}\nconst product = new Product(\"Laptop\");\nconsole.log(product.name); // Çıxış: Laptop"
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kompilyator seçimləri böyük layihələrdə, xüsusən veb tətbiqlərində layihə strukturunu və kod keyfiyyətini idarə etmək üçün istifadə olunur. Məsələn, bir e-ticarət platformasında `target: ES5` köhnə brauzerlərlə uyğunluğu təmin edir, `strict: true` isə kodun təhlükəsizliyini artırır. `outDir` və `rootDir` ilə layihə faylları səliqəli saxlanılır. Angular və ya React kimi çərçivələrdə kompilyator seçimləri layihənin performansını və inkişaf prosesini optimallaşdırır. Aşağıda sadə bir mağaza nümunəsi var."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json: {\"compilerOptions\": {\"target\": \"ES6\", \"module\": \"CommonJS\", \"outDir\": \"./dist\", \"rootDir\": \"./src\", \"strict\": true}}\n\ninterface Product {\n  id: string;\n  name: string;\n  price: number | null;\n}\n\nclass Store {\n  products: Product[] = [];\n\n  addProduct(id: string, name: string, price: number | null): Product[] {\n    if (price === null) {\n      console.log(\"Warning: Price is null\");\n      return this.products;\n    }\n    const product: Product = { id, name, price };\n    this.products = [...this.products, product];\n    return this.products;\n  }\n}\n\nconst store = new Store();\nconsole.log(store.addProduct(\"P001\", \"Laptop\", 999)); // Çıxış: [{ id: \"P001\", name: \"Laptop\", price: 999 }]\nconsole.log(store.addProduct(\"P002\", \"Phone\", null)); // Çıxış: Warning: Price is null\n// Çıxış: [{ id: \"P001\", name: \"Laptop\", price: 999 }]"
+      },
+      {
+        "type": "heading",
+        "text": "Kompilyator Seçimlərinin məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kompilyator seçimləri TypeScript-in statik tipləmə üstünlüklərini fərdiləşdirməyə imkan verir, kodun keyfiyyətini artırır və layihənin ehtiyaclarına uyğunlaşdırır. Onlar kodun necə kompilyasiya olunacağını, hansı mühitlərdə işləyəcəyini və tip yoxlamalarının səviyyəsini müəyyənləşdirir. Microsoft, Google kimi şirkətlərin layihələrində və Angular, React kimi çərçivələrdə geniş istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "target",
+            "description": "JavaScript versiyasını müəyyən edir (məsələn, `ES5`, `ES6`)."
+          },
+          {
+            "term": "module",
+            "description": "Modul sistemini təyin edir (məsələn, `CommonJS`, `ESNext`)."
+          },
+          {
+            "term": "outDir",
+            "description": "Kompilyasiya olunmuş faylların saxlanacağı qovluğu müəyyən edir."
+          },
+          {
+            "term": "rootDir",
+            "description": "TypeScript fayllarının əsas qovluğunu təyin edir."
+          },
+          {
+            "term": "strict",
+            "description": "Ciddi tip yoxlamalarını aktivləşdirir."
+          },
+          {
+            "term": "esModuleInterop",
+            "description": "Modul uyğunluğunu asanlaşdırır."
+          },
+          {
+            "term": "skipLibCheck",
+            "description": "Tip tərif fayllarının yoxlanılmasını keçir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Yanlış kompilyator seçimləri layihəni poza bilər (məsələn, köhnə `target` dəyəri müasir xüsusiyyətləri dəstəkləməyə bilər). `strict` rejimi yeni başlayanlar üçün çətinlik yarada bilər.\n- **Tövsiyələr**: Layihə ehtiyaclarına uyğun seçimlər seçin, `strict` rejimini tədricən aktivləşdirin, `tsconfig.json` faylını sənədləşdirin, VSCode kimi IDE-lərdən istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// tsconfig.json: {\"compilerOptions\": {\"target\": \"ES6\", \"module\": \"CommonJS\", \"strict\": true}}\n\ninterface User {\n  name: string;\n}\n\nfunction greet(user: User): string {\n  return \"Hello, \" + user.name;\n}\n\nconst user: User = { name: \"Alice\" };\nconsole.log(greet(user)); // Çıxış: Hello, Alice"
+      }
+    ]
+  },
+  "en": {
+    "title": "TypeScript Compiler Options",
+    "description": "TypeScript compiler options are configuration parameters defined in `tsconfig.json` to control how TypeScript code is compiled into JavaScript. These options manage how code is checked, which JavaScript version is targeted, and the project structure.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Compiler Options?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript compiler options are parameters defined in the `tsconfig.json` file to control how TypeScript code is compiled into JavaScript. For example, they determine the target JavaScript version (`target`), how modules are handled (`module`), or how strict type checking is (`strict`). These options allow customization of TypeScript’s static typing benefits and improve code quality in large projects."
+      },
+      {
+        "type": "heading",
+        "text": "How do Compiler Options work?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Compiler options are specified in the `\"compilerOptions\"` section of `tsconfig.json`. The TypeScript compiler (tsc) reads this file to determine how to analyze and compile code into JavaScript. Options can be tailored to project needs, such as targeting `ES5` for older browsers or `ESNext` for modern modules. Some options enhance code safety, while others streamline the development process."
+      },
+      {
+        "type": "heading",
+        "text": "Key Compiler Options"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "target",
+            "description": "Specifies the JavaScript version for compiled output (e.g., `ES5`, `ES6`, `ESNext`)."
+          },
+          {
+            "term": "module",
+            "description": "Defines the module system (e.g., `CommonJS`, `ESNext`, `AMD`)."
+          },
+          {
+            "term": "outDir",
+            "description": "Sets the output directory for compiled JavaScript files."
+          },
+          {
+            "term": "rootDir",
+            "description": "Specifies the root directory of TypeScript source files."
+          },
+          {
+            "term": "strict",
+            "description": "Enables all strict type-checking modes (e.g., `strictNullChecks`, `noImplicitAny`)."
+          },
+          {
+            "term": "esModuleInterop",
+            "description": "Enables compatibility between CommonJS and ES modules."
+          },
+          {
+            "term": "skipLibCheck",
+            "description": "Skips type checking of declaration files (*.d.ts) for better performance."
+          },
+          {
+            "term": "experimentalDecorators",
+            "description": "Enables support for experimental decorators."
+          },
+          {
+            "term": "emitDecoratorMetadata",
+            "description": "Enables metadata emission for decorators."
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "json",
+        "code": "// Example tsconfig.json\n{\n  \"compilerOptions\": {\n    \"target\": \"ES6\",\n    \"module\": \"CommonJS\",\n    \"outDir\": \"./dist\",\n    \"rootDir\": \"./src\",\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true\n  }\n}\n\n// 1. target and module\n// target: ES6, module: CommonJS\ninterface User {\n  name: string;\n}\nfunction greet(user: User): string {\n  return \"Hello, \" + user.name;\n}\nconst user: User = { name: \"Alice\" };\nconsole.log(greet(user)); // Output: Hello, Alice\n\n// 2. strict mode\n// strict: true requires null checks\nlet username: string | null = \"Bob\";\n// let invalid: string = null; // Error: null is not assignable to string\nif (username !== null) {\n  console.log(username.toUpperCase()); // Output: BOB\n}\n\n// 3. esModuleInterop\n// esModuleInterop simplifies CommonJS module imports\nimport * as fs from \"fs\"; // Imported as CommonJS module\n// Without esModuleInterop: const fs = require(\"fs\");\n\n// 4. outDir and rootDir\n// TypeScript files in src are compiled to dist\nclass Product {\n  name: string;\n  constructor(name: string) {\n    this.name = name;\n  }\n}\nconst product = new Product(\"Laptop\");\nconsole.log(product.name); // Output: Laptop"
+      },
+      {
+        "type": "heading",
+        "text": "Real-world use cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Compiler options are used in large projects, especially web applications, to manage project structure and code quality. For example, in an e-commerce platform, `target: ES5` ensures compatibility with older browsers, and `strict: true` improves code safety. `outDir` and `rootDir` keep project files organized. Frameworks like Angular or React use compiler options to optimize performance and development. Below is a simple store example."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json: {\"compilerOptions\": {\"target\": \"ES6\", \"module\": \"CommonJS\", \"outDir\": \"./dist\", \"rootDir\": \"./src\", \"strict\": true}}\n\ninterface Product {\n  id: string;\n  name: string;\n  price: number | null;\n}\n\nclass Store {\n  products: Product[] = [];\n\n  addProduct(id: string, name: string, price: number | null): Product[] {\n    if (price === null) {\n      console.log(\"Warning: Price is null\");\n      return this.products;\n    }\n    const product: Product = { id, name, price };\n    this.products = [...this.products, product];\n    return this.products;\n  }\n}\n\nconst store = new Store();\nconsole.log(store.addProduct(\"P001\", \"Laptop\", 999)); // Output: [{ id: \"P001\", name: \"Laptop\", price: 999 }]\nconsole.log(store.addProduct(\"P002\", \"Phone\", null)); // Output: Warning: Price is null\n// Output: [{ id: \"P001\", name: \"Laptop\", price: 999 }]"
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Compiler Options"
+      },
+      {
+        "type": "paragraph",
+        "text": "Compiler options allow customization of TypeScript’s static typing benefits, improving code quality and tailoring it to project needs. They control how code is compiled, which environments it runs in, and the level of type checking. They are widely used in frameworks like Angular and React and in projects at companies like Microsoft and Google."
+      },
+      {
+        "type": "heading",
+        "text": "Key features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "target",
+            "description": "Specifies the JavaScript version (e.g., `ES5`, `ES6`)."
+          },
+          {
+            "term": "module",
+            "description": "Defines the module system (e.g., `CommonJS`, `ESNext`)."
+          },
+          {
+            "term": "outDir",
+            "description": "Sets the output directory for compiled files."
+          },
+          {
+            "term": "rootDir",
+            "description": "Specifies the root directory of TypeScript files."
+          },
+          {
+            "term": "strict",
+            "description": "Enables strict type checking."
+          },
+          {
+            "term": "esModuleInterop",
+            "description": "Simplifies module compatibility."
+          },
+          {
+            "term": "skipLibCheck",
+            "description": "Skips checking of declaration files."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Incorrect compiler options can break a project (e.g., an outdated `target` may not support modern features). `strict` mode can be challenging for beginners.\n- **Recommendations**: Choose options based on project needs, gradually enable `strict` mode, document `tsconfig.json`, and use IDEs like VSCode."
+      },
+      {
+        "type": "heading",
+        "text": "Try it yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// tsconfig.json: {\"compilerOptions\": {\"target\": \"ES6\", \"module\": \"CommonJS\", \"strict\": true}}\n\ninterface User {\n  name: string;\n}\n\nfunction greet(user: User): string {\n  return \"Hello, \" + user.name;\n}\n\nconst user: User = { name: \"Alice\" };\nconsole.log(greet(user)); // Output: Hello, Alice"
+      }
+    ]
+  },
+  "ru": {
+    "title": "TypeScript Опции Компилатора",
+    "description": "TypeScript опции компилатора — это параметры конфигурации, определённые в файле `tsconfig.json` для управления компиляцией TypeScript-кода в JavaScript. Эти опции управляют проверкой кода, целевой версией JavaScript и структурой проекта.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Опции Компилатора?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Опции компилатора TypeScript — это параметры, определённые в файле `tsconfig.json`, которые управляют процессом компиляции TypeScript-кода в JavaScript. Например, они определяют целевую версию JavaScript (`target`), способ управления модулями (`module`) или уровень строгости проверки типов (`strict`). Эти опции позволяют настраивать преимущества статической типизации TypeScript и улучшают качество кода в крупных проектах."
+      },
+      {
+        "type": "heading",
+        "text": "Как работают Опции Компилатора?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Опции компилатора указываются в разделе `\"compilerOptions\"` файла `tsconfig.json`. Компилятор TypeScript (tsc) читает этот файл, чтобы определить, как анализировать и компилировать код в JavaScript. Опции можно адаптировать под нужды проекта, например, использовать `ES5` для старых браузеров или `ESNext` для современных модулей. Некоторые опции повышают безопасность кода, другие упрощают процесс разработки."
+      },
+      {
+        "type": "heading",
+        "text": "Основные Опции Компилатора"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "target",
+            "description": "Указывает версию JavaScript для компилированного вывода (например, `ES5`, `ES6`, `ESNext`)."
+          },
+          {
+            "term": "module",
+            "description": "Определяет систему модулей (например, `CommonJS`, `ESNext`, `AMD`)."
+          },
+          {
+            "term": "outDir",
+            "description": "Указывает папку для сохранения скомпилированных JavaScript-файлов."
+          },
+          {
+            "term": "rootDir",
+            "description": "Определяет корневую папку исходных TypeScript-файлов."
+          },
+          {
+            "term": "strict",
+            "description": "Включает все строгие режимы проверки типов (например, `strictNullChecks`, `noImplicitAny`)."
+          },
+          {
+            "term": "esModuleInterop",
+            "description": "Обеспечивает совместимость между модулями CommonJS и ES."
+          },
+          {
+            "term": "skipLibCheck",
+            "description": "Пропускает проверку типов в файлах объявлений (*.d.ts) для повышения производительности."
+          },
+          {
+            "term": "experimentalDecorators",
+            "description": "Включает поддержку экспериментальных декораторов."
+          },
+          {
+            "term": "emitDecoratorMetadata",
+            "description": "Включает генерацию метаданных для декораторов."
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "json",
+        "code": "// Пример tsconfig.json\n{\n  \"compilerOptions\": {\n    \"target\": \"ES6\",\n    \"module\": \"CommonJS\",\n    \"outDir\": \"./dist\",\n    \"rootDir\": \"./src\",\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true\n  }\n}\n\n// 1. target и module\n// target: ES6, module: CommonJS\ninterface User {\n  name: string;\n}\nfunction greet(user: User): string {\n  return \"Hello, \" + user.name;\n}\nconst user: User = { name: \"Alice\" };\nconsole.log(greet(user)); // Вывод: Hello, Alice\n\n// 2. strict режим\n// strict: true требует проверки null\nlet username: string | null = \"Bob\";\n// let invalid: string = null; // Ошибка: null не присваивается к string\nif (username !== null) {\n  console.log(username.toUpperCase()); // Вывод: BOB\n}\n\n// 3. esModuleInterop\n// esModuleInterop упрощает импорт модулей CommonJS\nimport * as fs from \"fs\"; // Импортируется как модуль CommonJS\n// Без esModuleInterop: const fs = require(\"fs\");\n\n// 4. outDir и rootDir\n// Файлы TypeScript из src компилируются в dist\nclass Product {\n  name: string;\n  constructor(name: string) {\n    this.name = name;\n  }\n}\nconst product = new Product(\"Laptop\");\nconsole.log(product.name); // Вывод: Laptop"
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Опции компилатора используются в крупных проектах, особенно в веб-приложениях, для управления структурой проекта и качеством кода. Например, в платформе электронной коммерции `target: ES5` обеспечивает совместимость со старыми браузерами, а `strict: true` повышает безопасность кода. `outDir` и `rootDir` помогают организовать файлы проекта. Фреймворки, такие как Angular или React, используют опции компилатора для оптимизации производительности и разработки. Ниже приведён простой пример магазина."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json: {\"compilerOptions\": {\"target\": \"ES6\", \"module\": \"CommonJS\", \"outDir\": \"./dist\", \"rootDir\": \"./src\", \"strict\": true}}\n\ninterface Product {\n  id: string;\n  name: string;\n  price: number | null;\n}\n\nclass Store {\n  products: Product[] = [];\n\n  addProduct(id: string, name: string, price: number | null): Product[] {\n    if (price === null) {\n      console.log(\"Warning: Price is null\");\n      return this.products;\n    }\n    const product: Product = { id, name, price };\n    this.products = [...this.products, product];\n    return this.products;\n  }\n}\n\nconst store = new Store();\nconsole.log(store.addProduct(\"P001\", \"Laptop\", 999)); // Вывод: [{ id: \"P001\", name: \"Laptop\", price: 999 }]\nconsole.log(store.addProduct(\"P002\", \"Phone\", null)); // Вывод: Warning: Price is null\n// Вывод: [{ id: \"P001\", name: \"Laptop\", price: 999 }]"
+      },
+      {
+        "type": "heading",
+        "text": "Цель Опций Компилатора"
+      },
+      {
+        "type": "paragraph",
+        "text": "Опции компилатора позволяют настраивать преимущества статической типизации TypeScript, улучшая качество кода и адаптируя его к потребностям проекта. Они определяют, как код компилируется, в каких средах он будет работать и уровень проверки типов. Широко используются во фреймворках, таких как Angular и React, и в проектах компаний, таких как Microsoft и Google."
+      },
+      {
+        "type": "heading",
+        "text": "Основные особенности"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "target",
+            "description": "Указывает версию JavaScript (например, `ES5`, `ES6`)."
+          },
+          {
+            "term": "module",
+            "description": "Определяет систему модулей (например, `CommonJS`, `ESNext`)."
+          },
+          {
+            "term": "outDir",
+            "description": "Указывает папку для скомпилированных файлов."
+          },
+          {
+            "term": "rootDir",
+            "description": "Определяет корневую папку исходных файлов TypeScript."
+          },
+          {
+            "term": "strict",
+            "description": "Включает строгую проверку типов."
+          },
+          {
+            "term": "esModuleInterop",
+            "description": "Упрощает совместимость модулей."
+          },
+          {
+            "term": "skipLibCheck",
+            "description": "Пропускает проверку файлов объявлений."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильные опции компилатора могут нарушить работу проекта (например, устаревший `target` может не поддерживать современные функции). `strict` режим может быть сложным для новичков.\n- **Рекомендации**: Выбирайте опции в соответствии с потребностями проекта, постепенно включайте `strict` режим, документируйте `tsconfig.json`, используйте IDE, такие как VSCode."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// tsconfig.json: {\"compilerOptions\": {\"target\": \"ES6\", \"module\": \"CommonJS\", \"strict\": true}}\n\ninterface User {\n  name: string;\n}\n\nfunction greet(user: User): string {\n  return \"Hello, \" + user.name;\n}\n\nconst user: User = { name: \"Alice\" };\nconsole.log(greet(user)); // Вывод: Hello, Alice"
+      }
+    ]
+  }
+}
