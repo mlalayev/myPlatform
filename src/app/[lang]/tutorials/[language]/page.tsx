@@ -92,35 +92,35 @@ const languages = [
   {
     name: "Python",
     icon: <SiPython size={32} color="#3572A5" />,
-    available: false,
+    available: true,
     description: "Data science, backend.",
     progress: 0,
   },
   {
     name: "Java",
     icon: <SiOpenjdk size={32} color="#b07219" />,
-    available: false,
+    available: true,
     description: "Android, enterprise.",
     progress: 0,
   },
   {
     name: "C",
     icon: <SiC size={32} color="#00599C" />,
-    available: false,
+    available: true,
     description: "Sistem proqramları.",
     progress: 0,
   },
   {
     name: "C++",
     icon: <SiCplusplus size={32} color="#00599C" />,
-    available: false,
+    available: true,
     description: "Oyunlar, performans.",
     progress: 0,
   },
   {
     name: "C#",
     icon: <FiIcons.FiHash size={32} color="#178600" />,
-    available: false,
+    available: true,
     description: ".NET, Unity.",
     progress: 0,
   },
@@ -256,7 +256,7 @@ export default function TutorialLanguagePage() {
 
       // Fetch topics only for available languages
       for (const lang of languages) {
-        const langName = lang.name.toLowerCase();
+        const langName = lang.name === "C#" ? "csharp" : lang.name.toLowerCase();
         
         // Skip fetching for unavailable languages
         if (!lang.available) {
@@ -408,11 +408,12 @@ export default function TutorialLanguagePage() {
     }, [langKey]);
 
     const getFirstTopicHref = (langName: string) => {
-      const topics = languageTopics[langName.toLowerCase()];
+      const urlLang = langName === "C#" ? "csharp" : langName.toLowerCase();
+      const topics = languageTopics[urlLang];
       if (topics && topics.length > 0) {
-        return `/${langKey}/tutorials/languages/${langName.toLowerCase()}/${topics[0].id}`;
+        return `/${langKey}/tutorials/languages/${urlLang}/${topics[0].id}`;
       }
-      return `/${langKey}/tutorials/languages/${langName.toLowerCase()}`;
+      return `/${langKey}/tutorials/languages/${urlLang}`;
     };
 
     return (
