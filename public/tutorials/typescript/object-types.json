@@ -1,7 +1,7 @@
 {
   "az": {
     "title": "TypeScript Object Types",
-    "description": "TypeScript-də object types obyektlərin strukturunu təyin edir və onların düzgün istifadəsini təmin edir.",
+    "description": "TypeScript-də object types obyektlərin strukturunu təyin etmək üçün istifadə olunur. `interface` və ya `type` ilə obyektlərin xüsusiyyətləri və onların tipləri dəqiqləşdirilir, bu da kodun təhlükəsizliyini və oxunaqlığını artırır.",
     "content": [
       {
         "type": "heading",
@@ -9,7 +9,7 @@
       },
       {
         "type": "paragraph",
-        "text": "TypeScript-də object types obyektlərin hansı xüsusiyyətlərə (məsələn, ad və ya qiymət) və onların tiplərinə (string, number və s.) malik olacağını təyin edir. Bu, `interface` və ya `type` ilə edilir və kodun səhvsiz olmasını təmin edir."
+        "text": "TypeScript-də object types obyektlərin strukturunu və xüsusiyyətlərinin tiplərini təyin etmək üçün istifadə olunur. Obyektlər JavaScript-də məlumatları açar-dəyər cütləri şəklində saxlayır, lakin TypeScript-də bu xüsusiyyətlərin tiplərini əvvəlcədən təyin edə bilərsən. Bu, `interface` və ya `type` açar sözləri ilə edilir. Məsələn, `interface Product { name: string; price: number; }` bir məhsul obyektinin adının sətir, qiymətinin isə rəqəm olmasını təmin edir. TypeScript səhv tipli dəyərlər istifadə edildikdə xəbərdarlıq verir."
       },
       {
         "type": "heading",
@@ -17,12 +17,33 @@
       },
       {
         "type": "paragraph",
-        "text": "Object types `interface` və ya `type` ilə təyin edilir. Məsələn, `interface Item { name: string; price: number; }` obyektin yalnız `name` (string) və `price` (number) xüsusiyyətlərinə malik olmasını tələb edir. Səhv xüsusiyyət və ya tip istifadə etsən, TypeScript xəbərdarlıq verər. Aşağıda kod nümunələri ilə baxaq."
+        "text": "Object types `interface` və ya `type` ilə təyin edilir və obyektin hansı xüsusiyyətlərə (properties) malik olduğunu və onların tiplərini göstərir. Xüsusiyyətlər opsiyonel (`?`) və ya readonly (`readonly`) ola bilər. Object types funksiyalarda parametr və ya qaytarma dəyəri kimi istifadə edilə bilər. TypeScript obyektin strukturuna uyğun olmayan dəyərləri və ya əskik xüsusiyyətləri aşkar edərək səhvləri kod yazarkən tapır. Bu, böyük layihələrdə səhvləri azaltmaq və kodu daha anlaşıqlı etmək üçün çox faydalıdır."
       },
       {
         "type": "code",
         "language": "typescript",
-        "code": "// 1. Interface ilə object type\ninterface Item {\n  name: string;\n  price: number;\n}\nconst item: Item = { name: \"Shirt\", price: 50 };\n// item.price = \"50\"; // Xəta: string number tipinə uyğun deyil\n\n// 2. Type ilə object type\ntype Product = {\n  id: number;\n  inStock: boolean;\n};\nconst product: Product = { id: 1, inStock: true };\n\n// 3. Object type ilə funksiya\nfunction printItem(item: Item): string {\n  return `${item.name}: $${item.price}`;\n}\n\n// 4. Nested object type\ninterface Order {\n  orderId: number;\n  items: Item[];\n}\nconst order: Order = {\n  orderId: 101,\n  items: [{ name: \"Jacket\", price: 100 }, { name: \"Hat\", price: 25 }]\n};\n\n// 5. Opsiyonel xüsusiyyətlər\ninterface User {\n  name: string;\n  email?: string; // ? opsiyonel olduğunu göstərir\n}\nconst user: User = { name: \"Alice\" }; // email olmadan da düzgündür"
+        "code": "// 1. Interface ilə sadə object type\ninterface Product {\n  name: string;\n  price: number;\n}\nconst laptop: Product = { name: \"Laptop\", price: 1200 };\n// laptop.price = \"1000\"; // Xəta: string number tipinə uyğun deyil\n\n// 2. Type ilə object type\ntype User = {\n  name: string;\n  age: number;\n  isActive?: boolean; // Opsiyonel xüsusiyyət\n};\nconst user1: User = { name: \"Murad\", age: 23 }; // isActive olmadan işləyir\nconst user2: User = { name: \"Alice\", age: 25, isActive: true };\n\n// 3. Readonly xüsusiyyətlər\ninterface Book {\n  readonly title: string;\n  pages: number;\n}\nconst book: Book = { title: \"TypeScript Guide\", pages: 200 };\n// book.title = \"New Title\"; // Xəta: readonly xüsusiyyət dəyişdirilə bilməz\n\n// 4. Funksiyalarda object types\nfunction showProduct(product: Product): string {\n  return `${product.name}: $${product.price}`;\n}\nconsole.log(showProduct(laptop)); // Çıxış: Laptop: $1200\n\n// 5. Opsiyonel xüsusiyyətlər ilə mürəkkəb obyekt\ntype Order = {\n  id: string;\n  total: number;\n  status?: \"pending\" | \"shipped\"; // Opsiyonel və literal type\n};\nconst order: Order = { id: \"A123\", total: 50 }; // status olmadan işləyir\n\n// 6. İç-içə obyektlər\ninterface Address {\n  city: string;\n  postalCode: string;\n}\ninterface Customer {\n  name: string;\n  address: Address;\n}\nconst customer: Customer = {\n  name: \"Murad\",\n  address: { city: \"Baku\", postalCode: \"AZ1000\" }\n};\nconsole.log(`${customer.name}, ${customer.address.city}`); // Çıxış: Murad, Baku"
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Object types real layihələrdə çox geniş istifadə olunur. Məsələn, bir onlayn mağazada məhsulun adını, qiymətini və mövcudluğunu təyin etmək üçün `interface Product` istifadə edə bilərsən. Bir istifadəçi profilində ad, yaş və ünvan kimi məlumatları saxlamaq üçün iç-içə obyektlərdən istifadə olunur. Readonly xüsusiyyətlər sabit məlumatları (məsələn, məhsulun ID-si) qorumaq üçün idealdır. Aşağıda sadə bir mağaza nümunəsi var."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Sadə mağaza sistemi\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n  inStock?: boolean; // Opsiyonel\n}\n\nfunction displayProduct(product: Product): string {\n  const stockStatus = product.inStock !== undefined ? (product.inStock ? \"mövcuddur\" : \"mövcud deyil\") : \"məlumat yoxdur\";\n  return `${product.name} (ID: ${product.id}): $${product.price}, ${stockStatus}`;\n}\n\nconst laptop: Product = { id: \"P001\", name: \"Laptop\", price: 1200, inStock: true };\nconst mouse: Product = { id: \"P002\", name: \"Mouse\", price: 25 };\n\nconsole.log(displayProduct(laptop)); // Çıxış: Laptop (ID: P001): $1200, mövcuddur\nconsole.log(displayProduct(mouse)); // Çıxış: Mouse (ID: P002): $25, məlumat yoxdur\n\n// Readonly ilə sabit məlumat\ninterface Category {\n  readonly name: string;\n  description: string;\n}\nconst category: Category = { name: \"Electronics\", description: \"Tech products\" };\n// category.name = \"Books\"; // Xəta: readonly xüsusiyyət dəyişdirilə bilməz"
+      },
+      {
+        "type": "heading",
+        "text": "Object Types-in məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Object types TypeScript-in statik tipləmə üstünlüyünü obyektlərə tətbiq edir. JavaScript-də obyektlərə səhv tipli dəyərlər və ya əskik xüsusiyyətlər əlavə etmək asandır, lakin TypeScript-də object types bu səhvləri kod yazarkən tapır. Bu, Microsoft, Google və Airbnb kimi şirkətlərin böyük layihələrində kodun keyfiyyətini və oxunaqlığını artırır, xüsusilə mürəkkəb məlumat strukturları ilə işləyərkən."
       },
       {
         "type": "heading",
@@ -33,19 +54,27 @@
         "items": [
           {
             "term": "Interface və Type",
-            "description": "Obyektin strukturunu təyin etmək üçün istifadə olunur."
-          },
-          {
-            "term": "Tip təhlükəsizliyi",
-            "description": "Yalnız təyin edilmiş xüsusiyyətlər və tiplərə icazə verilir."
-          },
-          {
-            "term": "Nested object types",
-            "description": "Obyektlər içərisində başqa obyektlər və ya siyahılar ola bilər."
+            "description": "Obyektlərin strukturunu təyin etmək üçün `interface` və ya `type` istifadə olunur."
           },
           {
             "term": "Opsiyonel xüsusiyyətlər",
-            "description": "`?` ilə bəzi xüsusiyyətlər isteğe bağlı edilə bilər."
+            "description": "Xüsusiyyətlər `?` ilə isteğe bağlı edilə bilər, məsələn, `isActive?: boolean`."
+          },
+          {
+            "term": "Readonly xüsusiyyətlər",
+            "description": "Dəyişdirilməz xüsusiyyətlər, məsələn, `readonly id: string`."
+          },
+          {
+            "term": "İç-içə obyektlər",
+            "description": "Obyektlər digər obyektləri xüsusiyyət kimi saxlaya bilər."
+          },
+          {
+            "term": "Funksiyalarda istifadə",
+            "description": "Object types funksiya parametrləri və ya qaytarma dəyərləri kimi istifadə olunur."
+          },
+          {
+            "term": "IDE dəstəyi",
+            "description": "VSCode kimi alətlərdə avtomatik təkliflər və səhv xəbərdarlıqları."
           }
         ]
       },
@@ -55,7 +84,7 @@
       },
       {
         "type": "paragraph",
-        "text": "- **Təhlükələr**: Çox mürəkkəb object types kodu oxumağı çətinləşdirir. `any` tipli xüsusiyyətlər TypeScript-in faydasını azaldır.\n- **Tövsiyələr**: Sadə və dəqiq interfeyslər istifadə et, `any` tipli xüsusiyyətlərdən qaçın, opsiyonel xüsusiyyətləri ehtiyac olduqda tətbiq et."
+        "text": "- **Təhlükələr**: `any` tipli xüsusiyyətlər TypeScript-in tipləmə faydasını azaldır. Çox mürəkkəb və ya iç-içə obyektlər kodu oxumağı çətinləşdirə bilər. Yanlış xüsusiyyət adları və ya tipləri səhvlərə səbəb ola bilər.\n- **Tövsiyələr**: Dəqiq tiplər istifadə et, `any` tipindən qaçın, sadə və anlaşıqlı strukturlardan istifadə et, readonly xüsusiyyətlərdən sabit məlumatlar üçün faydalan, səhvləri tapmaq üçün VSCode kimi IDE istifadə et."
       },
       {
         "type": "heading",
@@ -63,13 +92,13 @@
       },
       {
         "type": "editor",
-        "initialCode": "// Öz object types nümunəni yarat!\ninterface Item {\n  name: string;\n  price: number;\n  category?: string;\n}\n\nconst item: Item = { name: \"Shirt\", price: 50 };\n\nfunction printItem(item: Item): void {\n  console.log(`${item.name}: $${item.price}${item.category ? ` (${item.category})` : \"\"}`);\n}\n\nprintItem(item);"
+        "initialCode": "// Sadə object types nümunəsi\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n  inStock?: boolean;\n}\n\nfunction displayProduct(product: Product): string {\n  const stockStatus = product.inStock !== undefined ? (product.inStock ? \"mövcuddur\" : \"mövcud deyil\") : \"məlumat yoxdur\";\n  return `${product.name} (ID: ${product.id}): $${product.price}, ${stockStatus}`;\n}\n\nconst product: Product = { id: \"P001\", name: \"Mouse\", price: 25, inStock: true };\nconsole.log(displayProduct(product)); // Çıxış: Mouse (ID: P001): $25, mövcuddur"
       }
     ]
   },
   "en": {
     "title": "TypeScript Object Types",
-    "description": "Object Types in TypeScript define the structure of objects and ensure their correct usage.",
+    "description": "Object Types in TypeScript define the structure of objects using `interface` or `type`, specifying properties and their types to enhance code safety and readability.",
     "content": [
       {
         "type": "heading",
@@ -77,7 +106,7 @@
       },
       {
         "type": "paragraph",
-        "text": "Object Types in TypeScript specify the properties an object should have (e.g., name or price) and their types (string, number, etc.). They are defined using `interface` or `type`, ensuring error-free code."
+        "text": "Object Types in TypeScript are used to define the structure and types of an object’s properties. Objects in JavaScript store data as key-value pairs, but TypeScript allows you to specify the types of these values in advance. This is done using `interface` or `type`. For example, `interface Product { name: string; price: number; }` ensures a product object has a string name and a number price. TypeScript warns if incorrect types are used."
       },
       {
         "type": "heading",
@@ -85,12 +114,33 @@
       },
       {
         "type": "paragraph",
-        "text": "Object Types are defined with `interface` or `type`. For example, `interface Item { name: string; price: number; }` requires an object to have only `name` (string) and `price` (number) properties. Using incorrect properties or types triggers a TypeScript warning. See code examples below."
+        "text": "Object Types are defined using `interface` or `type`, specifying which properties an object must have and their types. Properties can be optional (`?`) or readonly (`readonly`). Object types can be used as function parameters or return values. TypeScript catches errors when objects have incorrect or missing properties, making it invaluable for large projects where code clarity and reliability are critical."
       },
       {
         "type": "code",
         "language": "typescript",
-        "code": "// 1. Interface for object type\ninterface Item {\n  name: string;\n  price: number;\n}\nconst item: Item = { name: \"Shirt\", price: 50 };\n// item.price = \"50\"; // Error: string is not a number\n\n// 2. Type for object type\ntype Product = {\n  id: number;\n  inStock: boolean;\n};\nconst product: Product = { id: 1, inStock: true };\n\n// 3. Object type with function\nfunction printItem(item: Item): string {\n  return `${item.name}: $${item.price}`;\n}\n\n// 4. Nested object type\ninterface Order {\n  orderId: number;\n  items: Item[];\n}\nconst order: Order = {\n  orderId: 101,\n  items: [{ name: \"Jacket\", price: 100 }, { name: \"Hat\", price: 25 }]\n};\n\n// 5. Optional properties\ninterface User {\n  name: string;\n  email?: string; // ? makes it optional\n}\nconst user: User = { name: \"Alice\" }; // Valid without email"
+        "code": "// 1. Simple object type with interface\ninterface Product {\n  name: string;\n  price: number;\n}\nconst laptop: Product = { name: \"Laptop\", price: 1200 };\n// laptop.price = \"1000\"; // Error: string is not number type\n\n// 2. Object type with type\ntype User = {\n  name: string;\n  age: number;\n  isActive?: boolean; // Optional property\n};\nconst user1: User = { name: \"Murad\", age: 23 }; // Works without isActive\nconst user2: User = { name: \"Alice\", age: 25, isActive: true };\n\n// 3. Readonly properties\ninterface Book {\n  readonly title: string;\n  pages: number;\n}\nconst book: Book = { title: \"TypeScript Guide\", pages: 200 };\n// book.title = \"New Title\"; // Error: readonly property cannot be modified\n\n// 4. Object types in functions\nfunction showProduct(product: Product): string {\n  return `${product.name}: $${product.price}`;\n}\nconsole.log(showProduct(laptop)); // Output: Laptop: $1200\n\n// 5. Optional properties with complex object\ntype Order = {\n  id: string;\n  total: number;\n  status?: \"pending\" | \"shipped\"; // Optional and literal type\n};\nconst order: Order = { id: \"A123\", total: 50 }; // Works without status\n\n// 6. Nested objects\ninterface Address {\n  city: string;\n  postalCode: string;\n}\ninterface Customer {\n  name: string;\n  address: Address;\n}\nconst customer: Customer = {\n  name: \"Murad\",\n  address: { city: \"Baku\", postalCode: \"AZ1000\" }\n};\nconsole.log(`${customer.name}, ${customer.address.city}`); // Output: Murad, Baku"
+      },
+      {
+        "type": "heading",
+        "text": "Real-world use cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Object types are widely used in real projects. For example, in an online store, you can use `interface Product` to define a product’s name, price, and availability. In a user management system, nested objects can store a user’s name, age, and address. Readonly properties are ideal for protecting fixed data, like a product’s ID. Below is a simple store example."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Simple store system\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n  inStock?: boolean; // Optional\n}\n\nfunction displayProduct(product: Product): string {\n  const stockStatus = product.inStock !== undefined ? (product.inStock ? \"in stock\" : \"out of stock\") : \"no info\";\n  return `${product.name} (ID: ${product.id}): $${product.price}, ${stockStatus}`;\n}\n\nconst laptop: Product = { id: \"P001\", name: \"Laptop\", price: 1200, inStock: true };\nconst mouse: Product = { id: \"P002\", name: \"Mouse\", price: 25 };\n\nconsole.log(displayProduct(laptop)); // Output: Laptop (ID: P001): $1200, in stock\nconsole.log(displayProduct(mouse)); // Output: Mouse (ID: P002): $25, no info\n\n// Readonly for fixed data\ninterface Category {\n  readonly name: string;\n  description: string;\n}\nconst category: Category = { name: \"Electronics\", description: \"Tech products\" };\n// category.name = \"Books\"; // Error: readonly property cannot be modified"
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Object Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Object types apply TypeScript’s static typing to objects, preventing errors common in JavaScript, such as assigning incorrect types or missing properties. They ensure objects follow the correct structure during development, improving code quality in large projects at companies like Microsoft, Google, and Airbnb, especially when working with complex data structures."
       },
       {
         "type": "heading",
@@ -101,19 +151,27 @@
         "items": [
           {
             "term": "Interface and Type",
-            "description": "Used to define the structure of objects."
-          },
-          {
-            "term": "Type safety",
-            "description": "Only allows specified properties and types."
-          },
-          {
-            "term": "Nested object types",
-            "description": "Objects can contain other objects or arrays."
+            "description": "Define object structures using `interface` or `type`."
           },
           {
             "term": "Optional properties",
-            "description": "`?` makes some properties optional."
+            "description": "Properties can be optional with `?`, e.g., `isActive?: boolean`."
+          },
+          {
+            "term": "Readonly properties",
+            "description": "Immutable properties, e.g., `readonly id: string`."
+          },
+          {
+            "term": "Nested objects",
+            "description": "Objects can contain other objects as properties."
+          },
+          {
+            "term": "Use in functions",
+            "description": "Object types can be used as function parameters or return values."
+          },
+          {
+            "term": "IDE support",
+            "description": "Smart suggestions and error warnings in tools like VSCode."
           }
         ]
       },
@@ -123,7 +181,7 @@
       },
       {
         "type": "paragraph",
-        "text": "- **Dangers**: Overly complex object types can make code hard to read. Using `any` for properties reduces TypeScript’s benefits.\n- **Recommendations**: Use simple and precise interfaces, avoid `any` properties, and apply optional properties when needed."
+        "text": "- **Dangers**: Using `any` for properties reduces TypeScript’s type-checking benefits. Overly complex or nested objects can make code harder to read. Incorrect property names or types can cause errors.\n- **Recommendations**: Use precise types, avoid `any`, keep object structures simple and clear, use readonly properties for fixed data, and leverage IDEs like VSCode to catch errors early."
       },
       {
         "type": "heading",
@@ -131,13 +189,13 @@
       },
       {
         "type": "editor",
-        "initialCode": "// Create your own object types example!\ninterface Item {\n  name: string;\n  price: number;\n  category?: string;\n}\n\nconst item: Item = { name: \"Shirt\", price: 50 };\n\nfunction printItem(item: Item): void {\n  console.log(`${item.name}: $${item.price}${item.category ? ` (${item.category})` : \"\"}`);\n}\n\nprintItem(item);"
+        "initialCode": "// Simple object types example\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n  inStock?: boolean;\n}\n\nfunction displayProduct(product: Product): string {\n  const stockStatus = product.inStock !== undefined ? (product.inStock ? \"in stock\" : \"out of stock\") : \"no info\";\n  return `${product.name} (ID: ${product.id}): $${product.price}, ${stockStatus}`;\n}\n\nconst product: Product = { id: \"P001\", name: \"Mouse\", price: 25, inStock: true };\nconsole.log(displayProduct(product)); // Output: Mouse (ID: P001): $25, in stock"
       }
     ]
   },
   "ru": {
     "title": "TypeScript Object Types",
-    "description": "Object Types в TypeScript определяют структуру объектов и обеспечивают их правильное использование.",
+    "description": "Object Types в TypeScript определяют структуру объектов с помощью `interface` или `type`, задавая свойства и их типы для повышения безопасности и читаемости кода.",
     "content": [
       {
         "type": "heading",
@@ -145,7 +203,7 @@
       },
       {
         "type": "paragraph",
-        "text": "Object Types в TypeScript указывают, какие свойства должен иметь объект (например, имя или цена) и их типы (string, number и т.д.). Они определяются с помощью `interface` или `type`, что помогает избежать ошибок в коде."
+        "text": "Object Types в TypeScript используются для определения структуры и типов свойств объекта. Объекты в JavaScript хранят данные в виде пар ключ-значение, но TypeScript позволяет заранее указать типы этих значений. Это делается с помощью `interface` или `type`. Например, `interface Product { name: string; price: number; }` гарантирует, что объект продукта имеет строковое имя и числовую цену. TypeScript предупреждает, если используются неверные типы."
       },
       {
         "type": "heading",
@@ -153,12 +211,33 @@
       },
       {
         "type": "paragraph",
-        "text": "Object Types задаются с помощью `interface` или `type`. Например, `interface Item { name: string; price: number; }` требует, чтобы объект имел только свойства `name` (string) и `price` (number). Неправильные свойства или типы вызывают предупреждение TypeScript. Рассмотрим примеры кода."
+        "text": "Object Types определяются с помощью `interface` или `type`, указывая, какие свойства должен иметь объект и их типы. Свойства могут быть опциональными (`?`) или неизменяемыми (`readonly`). Object types можно использовать как параметры или возвращаемые значения функций. TypeScript обнаруживает ошибки, если объект имеет неверные или отсутствующие свойства, что делает его незаменимым для крупных проектов."
       },
       {
         "type": "code",
         "language": "typescript",
-        "code": "// 1. Interface для object type\ninterface Item {\n  name: string;\n  price: number;\n}\nconst item: Item = { name: \"Shirt\", price: 50 };\n// item.price = \"50\"; // Ошибка: строка не является числом\n\n// 2. Type для object type\ntype Product = {\n  id: number;\n  inStock: boolean;\n};\nconst product: Product = { id: 1, inStock: true };\n\n// 3. Object type с функцией\nfunction printItem(item: Item): string {\n  return `${item.name}: $${item.price}`;\n}\n\n// 4. Вложенный object type\ninterface Order {\n  orderId: number;\n  items: Item[];\n}\nconst order: Order = {\n  orderId: 101,\n  items: [{ name: \"Jacket\", price: 100 }, { name: \"Hat\", price: 25 }]\n};\n\n// 5. Опциональные свойства\ninterface User {\n  name: string;\n  email?: string; // ? делает свойство опциональным\n}\nconst user: User = { name: \"Alice\" }; // Корректно без email"
+        "code": "// 1. Простой object type с interface\ninterface Product {\n  name: string;\n  price: number;\n}\nconst laptop: Product = { name: \"Laptop\", price: 1200 };\n// laptop.price = \"1000\"; // Ошибка: строка не соответствует типу number\n\n// 2. Object type с type\ntype User = {\n  name: string;\n  age: number;\n  isActive?: boolean; // Опциональное свойство\n};\nconst user1: User = { name: \"Murad\", age: 23 }; // Работает без isActive\nconst user2: User = { name: \"Alice\", age: 25, isActive: true };\n\n// 3. Readonly свойства\ninterface Book {\n  readonly title: string;\n  pages: number;\n}\nconst book: Book = { title: \"TypeScript Guide\", pages: 200 };\n// book.title = \"New Title\"; // Ошибка: readonly свойство не может быть изменено\n\n// 4. Object types в функциях\nfunction showProduct(product: Product): string {\n  return `${product.name}: $${product.price}`;\n}\nconsole.log(showProduct(laptop)); // Вывод: Laptop: $1200\n\n// 5. Опциональные свойства с сложным объектом\ntype Order = {\n  id: string;\n  total: number;\n  status?: \"pending\" | \"shipped\"; // Опциональное и literal type\n};\nconst order: Order = { id: \"A123\", total: 50 }; // Работает без status\n\n// 6. Вложенные объекты\ninterface Address {\n  city: string;\n  postalCode: string;\n}\ninterface Customer {\n  name: string;\n  address: Address;\n}\nconst customer: Customer = {\n  name: \"Murad\",\n  address: { city: \"Baku\", postalCode: \"AZ1000\" }\n};\nconsole.log(`${customer.name}, ${customer.address.city}`); // Вывод: Murad, Baku"
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Object types широко применяются в реальных проектах. Например, в интернет-магазине можно использовать `interface Product` для определения имени, цены и наличия товара. В системе управления пользователями вложенные объекты могут хранить имя, возраст и адрес пользователя. Readonly свойства идеальны для защиты фиксированных данных, таких как ID продукта. Ниже приведён простой пример магазина."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Простая система магазина\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n  inStock?: boolean; // Опционально\n}\n\nfunction displayProduct(product: Product): string {\n  const stockStatus = product.inStock !== undefined ? (product.inStock ? \"в наличии\" : \"нет в наличии\") : \"нет информации\";\n  return `${product.name} (ID: ${product.id}): $${product.price}, ${stockStatus}`;\n}\n\nconst laptop: Product = { id: \"P001\", name: \"Laptop\", price: 1200, inStock: true };\nconst mouse: Product = { id: \"P002\", name: \"Mouse\", price: 25 };\n\nconsole.log(displayProduct(laptop)); // Вывод: Laptop (ID: P001): $1200, в наличии\nconsole.log(displayProduct(mouse)); // Вывод: Mouse (ID: P002): $25, нет информации\n\n// Readonly для фиксированных данных\ninterface Category {\n  readonly name: string;\n  description: string;\n}\nconst category: Category = { name: \"Electronics\", description: \"Tech products\" };\n// category.name = \"Books\"; // Ошибка: readonly свойство не может быть изменено"
+      },
+      {
+        "type": "heading",
+        "text": "Цель Object Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Object types применяют статическую типизацию TypeScript к объектам, предотвращая ошибки, распространённые в JavaScript, такие как присваивание неверных типов или отсутствие свойств. Они обеспечивают правильную структуру объектов на этапе разработки, улучшая качество кода в крупных проектах компаний, таких как Microsoft, Google и Airbnb, особенно при работе со сложными структурами данных."
       },
       {
         "type": "heading",
@@ -169,19 +248,27 @@
         "items": [
           {
             "term": "Interface и Type",
-            "description": "Используются для определения структуры объектов."
-          },
-          {
-            "term": "Типобезопасность",
-            "description": "Разрешены только указанные свойства и типы."
-          },
-          {
-            "term": "Вложенные object types",
-            "description": "Объекты могут содержать другие объекты или массивы."
+            "description": "Определяют структуру объектов с помощью `interface` или `type`."
           },
           {
             "term": "Опциональные свойства",
-            "description": "`?` делает некоторые свойства необязательными."
+            "description": "Свойства могут быть опциональными с помощью `?`, например, `isActive?: boolean`."
+          },
+          {
+            "term": "Readonly свойства",
+            "description": "Неизменяемые свойства, например, `readonly id: string`."
+          },
+          {
+            "term": "Вложенные объекты",
+            "description": "Объекты могут содержать другие объекты как свойства."
+          },
+          {
+            "term": "Использование в функциях",
+            "description": "Object types используются как параметры или возвращаемые значения функций."
+          },
+          {
+            "term": "Поддержка IDE",
+            "description": "Интеллектуальные подсказки и предупреждения об ошибках в редакторах, таких как VSCode."
           }
         ]
       },
@@ -191,7 +278,7 @@
       },
       {
         "type": "paragraph",
-        "text": "- **Опасности**: Слишком сложные object types затрудняют чтение кода. Использование `any` для свойств снижает пользу TypeScript.\n- **Рекомендации**: Используй простые и точные интерфейсы, избегай свойств с `any`, применяй опциональные свойства при необходимости."
+        "text": "- **Опасности**: Использование `any` для свойств снижает преимущества проверки типов в TypeScript. Слишком сложные или вложенные объекты могут затруднить чтение кода. Неправильные имена или типы свойств могут привести к ошибкам.\n- **Рекомендации**: Используйте точные типы, избегайте `any`, держите структуры объектов простыми и понятными, используйте readonly свойства для фиксированных данных, применяйте IDE, такие как VSCode, для раннего обнаружения ошибок."
       },
       {
         "type": "heading",
@@ -199,7 +286,7 @@
       },
       {
         "type": "editor",
-        "initialCode": "// Создай свой пример с object types!\ninterface Item {\n  name: string;\n  price: number;\n  category?: string;\n}\n\nconst item: Item = { name: \"Shirt\", price: 50 };\n\nfunction printItem(item: Item): void {\n  console.log(`${item.name}: $${item.price}${item.category ? ` (${item.category})` : \"\"}`);\n}\n\nprintItem(item);"
+        "initialCode": "// Простой пример object types\ninterface Product {\n  id: string;\n  name: string;\n  price: number;\n  inStock?: boolean;\n}\n\nfunction displayProduct(product: Product): string {\n  const stockStatus = product.inStock !== undefined ? (product.inStock ? \"в наличии\" : \"нет в наличии\") : \"нет информации\";\n  return `${product.name} (ID: ${product.id}): $${product.price}, ${stockStatus}`;\n}\n\nconst product: Product = { id: \"P001\", name: \"Mouse\", price: 25, inStock: true };\nconsole.log(displayProduct(product)); // Вывод: Mouse (ID: P001): $25, в наличии"
       }
     ]
   }

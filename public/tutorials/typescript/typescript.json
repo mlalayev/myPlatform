@@ -1,7 +1,7 @@
 {
   "az": {
-    "title": "TypeScript: Sadə İzah",
-    "description": "TypeScript JavaScript-ə tiplər əlavə edərək kodun səhvsiz və anlaşıqlı olmasını təmin edir.",
+    "title": "TypeScript",
+    "description": "TypeScript JavaScript-ə statik tipləmə əlavə edərək kodun daha təhlükəsiz, oxunaqlı və səhvsiz olmasını təmin edən proqramlaşdırma dilidir. Böyük layihələrdə səhvləri azaltmaq və komanda işini asanlaşdırmaq üçün istifadə olunur.",
     "content": [
       {
         "type": "heading",
@@ -9,7 +9,7 @@
       },
       {
         "type": "paragraph",
-        "text": "TypeScript JavaScript-in üzərinə qurulmuş bir proqramlaşdırma dilidir. O, dəyişənlərə və funksiyalara tiplər təyin edərək kodun səhvlərini əvvəlcədən tapmağa kömək edir. TypeScript kod brauzerdə işləmək üçün JavaScript-ə çevrilir."
+        "text": "TypeScript, JavaScript-in üzərinə qurulmuş bir proqramlaşdırma dilidir. JavaScript-də olmayan statik tipləmə xüsusiyyətini əlavə edir. Yəni, dəyişənlərin və funksiyaların hansı tipdə olacağını əvvəlcədən təyin edə bilərsən. Məsələn, bir dəyişənin yalnız sətir və ya rəqəm olacağını bildirə bilərsən. TypeScript brauzerdə birbaşa işləməz, buna görə də `tsc` (TypeScript Compiler) ilə JavaScript-ə çevrilir. Bu, veb saytlar, server tətbiqləri və ya mobil tətbiqlər üçün istifadə edilə bilər."
       },
       {
         "type": "heading",
@@ -17,12 +17,33 @@
       },
       {
         "type": "paragraph",
-        "text": "TypeScript-də tiplər `:` simvolu ilə təyin edilir. Bu, dəyişənlərin və funksiyaların düzgün işləməsini təmin edir. Məsələn, `let name: string = \"Shirt\";` yalnız sətir qəbul edir. Kod TypeScript kompilyatoru (tsc) ilə JavaScript-ə çevrilir."
+        "text": "TypeScript-də tiplər `:` simvolu ilə təyin edilir. Bu, kodun düzgün işləməsini təmin edir. Məsələn, `let name: string = \"Murad\";` yalnız sətir dəyərləri qəbul edir. Əgər səhvən `name = 23;` yazsan, TypeScript səni xəbərdar edər. TypeScript Compiler (tsc) kodu JavaScript-ə çevirir ki, brauzer onu başa düşsün. Məsələn, `tsc index.ts` əmri ilə `index.js` faylı yaranır. Aşağıda sadə nümunələrlə TypeScript-in əsas xüsusiyyətlərini görəcəksən."
       },
       {
         "type": "code",
         "language": "typescript",
-        "code": "// 1. Əsas tiplər\nlet name: string = \"Shirt\"; // Sətir\nlet price: number = 50; // Rəqəm\n\n// 2. Interfeys\ninterface Item {\n  name: string;\n  price: number;\n}\n\nconst item: Item = {\n  name: \"Jacket\",\n  price: 100\n};\n\n// 3. Sinif\nclass Store {\n  items: Item[] = [];\n\n  addItem(item: Item): void {\n    this.items.push(item);\n  }\n\n  getItems(): Item[] {\n    return this.items;\n  }\n}\n\n// 4. Funksiya\nfunction getItemInfo(item: Item): string {\n  return `${item.name}: $${item.price}`;\n}\n\n// 5. Generics\nfunction getFirst<T>(items: T[]): T | undefined {\n  return items.length > 0 ? items[0] : undefined;\n}\n\n// 6. fetch ilə sorğu\nasync function fetchItem(): Promise<Item | null> {\n  try {\n    const response = await fetch(\"https://api.example.com/item\");\n    if (!response.ok) throw new Error(\"Şəbəkə xətası\");\n    const data: Item = await response.json();\n    return data;\n  } catch (error) {\n    console.error(\"Xəta:\", error);\n    return null;\n  }\n}\n\n// 7. DOM manipulyasiyası\nconst output = document.getElementById(\"output\") as HTMLElement;\nconst loadBtn = document.getElementById(\"loadBtn\") as HTMLButtonElement;\n\nloadBtn.addEventListener(\"click\", async () => {\n  output.textContent = \"Yüklənir...\";\n  const item = await fetchItem();\n  output.textContent = item ? getItemInfo(item) : \"Məhsul tapılmadı\";\n});"
+        "code": "// 1. Əsas tiplər\nlet userName: string = \"Murad\"; // Yalnız sətir\nlet userAge: number = 23; // Yalnız rəqəm\nlet isActive: boolean = true; // Yalnız true/false\n// userName = 23; // Xəta: number string tipinə uyğun deyil\n\n// 2. Tuple type: Sabit uzunluqlu siyahı\ntype UserInfo = [string, number];\nconst user: UserInfo = [\"Alice\", 25]; // Ad və yaş\n\n// 3. Object type ilə interface\ninterface Product {\n  name: string;\n  price: number;\n  inStock?: boolean; // Opsiyonel xüsusiyyət\n}\nconst product: Product = { name: \"Laptop\", price: 1200 }; // inStock olmadan da işləyir\n\n// 4. Function type: Funksiyanın tipi\ntype GreetUser = (name: string) => string;\nconst greet: GreetUser = (name) => `Salam, ${name}!`;\n\n// 5. Union type: Birdən çox tip\ntype ID = string | number;\nlet orderId: ID = \"A123\"; // Və ya rəqəm: 123\n\n// 6. Intersection type: Tiplərin birləşməsi\ninterface Details {\n  category: string;\n}\ntype FullProduct = Product & Details;\nconst fullProduct: FullProduct = { name: \"Mouse\", price: 25, category: \"Electronics\" };\n\n// 7. Literal type: Dəqiq dəyərlər\ntype OrderStatus = \"pending\" | \"shipped\";\nlet status: OrderStatus = \"pending\"; // Yalnız bu dəyərlər\n\n// 8. Type alias: Tipə ad vermə\ntype Item = {\n  name: string;\n  price: number;\n};\nconst item: Item = { name: \"Keyboard\", price: 50 };"
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript e-ticarət saytlarında, sosial media platformalarında və böyük layihələrdə istifadə olunur. Məsələn, bir onlayn mağazada məhsulların siyahısını idarə etmək və ya sifariş statuslarını izləmək üçün TypeScript-dən istifadə edə bilərsən. Aşağıda sadə bir mağaza nümunəsi var: məhsulları və onların statuslarını idarə etmək."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Sadə mağaza sistemi\ntype Status = \"pending\" | \"shipped\" | \"delivered\";\ninterface Product {\n  name: string;\n  price: number;\n}\ninterface Order {\n  orderId: number;\n  status: Status;\n  products: Product[];\n}\n\ntype ShowOrder = (order: Order) => string;\nconst showOrder: ShowOrder = (order) => {\n  return `Sifariş ${order.orderId} (${order.status}): ${order.products.length} məhsul`;\n};\n\nconst order: Order = {\n  orderId: 101,\n  status: \"pending\",\n  products: [{ name: \"Laptop\", price: 1200 }, { name: \"Mouse\", price: 25 }]\n};\nconsole.log(showOrder(order)); // Çıxış: Sifariş 101 (pending): 2 məhsul"
+      },
+      {
+        "type": "heading",
+        "text": "TypeScript-in məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript böyük JavaScript layihələrində yaranan problemləri həll etmək üçün yaradılıb. JavaScript-də səhvlər yalnız kod işləyəndə aşkarlanır, bu da böyük layihələrdə problem yaradır. TypeScript isə kod yazarkən səhvləri tapır, komanda işini asanlaşdırır və kodun keyfiyyətini artırır. Məşhur şirkətlər kimi Microsoft, Google, Airbnb və Slack TypeScript istifadə edir."
       },
       {
         "type": "heading",
@@ -32,24 +53,40 @@
         "type": "list",
         "items": [
           {
-            "term": "Tiplər",
-            "description": "`string`, `number`, `boolean` kimi tiplər dəyişənlərə təyin edilir."
+            "term": "Statik tipləmə",
+            "description": "Dəyişənlərə `string`, `number`, `boolean` kimi tiplər təyin edilir."
           },
           {
-            "term": "Interfeyslər",
-            "description": "`interface` ilə obyektlərin strukturu təyin edilir."
+            "term": "Tuple types",
+            "description": "Sabit uzunluqlu siyahılar, məsələn, `[string, number]`."
           },
           {
-            "term": "Siniflər",
-            "description": "`class` ilə obyekt-əsaslı kod yazılır."
+            "term": "Object types",
+            "description": "`interface` və ya `type` ilə obyektlərin strukturu təyin edilir."
           },
           {
-            "term": "Generics",
-            "description": "Fərqli tiplərlə işləyən çevik funksiyalar."
+            "term": "Function types",
+            "description": "Funksiyaların parametrləri və qaytarma tipləri dəqiqləşdirilir."
           },
           {
-            "term": "Modullar",
-            "description": "`import` və `export` ilə kod modullara bölünür."
+            "term": "Union types",
+            "description": "Dəyişənin birdən çox tipdən biri olmasını təmin edir, məsələn, `string | number`."
+          },
+          {
+            "term": "Intersection types",
+            "description": "`&` ilə tiplərin xüsusiyyətləri birləşdirilir."
+          },
+          {
+            "term": "Literal types",
+            "description": "Dəyişənləri dəqiq dəyərlərə məhdudlaşdırır, məsələn, `\"pending\" | \"shipped\"`."
+          },
+          {
+            "term": "Type aliases",
+            "description": "Tiplərə ad verərək təkrar istifadəni asanlaşdırır."
+          },
+          {
+            "term": "IDE dəstəyi",
+            "description": "VSCode kimi alətlərdə avtomatik təkliflər və səhv xəbərdarlıqları."
           }
         ]
       },
@@ -59,7 +96,7 @@
       },
       {
         "type": "paragraph",
-        "text": "- **Təhlükələr**: `any` tipinin çox istifadəsi TypeScript-in faydasını azaldır. Mürəkkəb tiplər kodu çətinləşdirə bilər.\n- **Tövsiyələr**: Sadə tiplərdən başla, `any` istifadəsini minimuma endir, interfeyslər və generics-dən düzgün istifadə et."
+        "text": "- **Təhlükələr**: `any` tipinin çox istifadəsi TypeScript-in faydasını azaldır. Çox mürəkkəb tiplər kodu oxumağı çətinləşdirə bilər. Öyrənmək üçün əlavə vaxt tələb olunur.\n- **Tövsiyələr**: Sadə tiplərdən başla, `any` istifadəsini minimuma endir, interfeyslər və type aliases-dən düzgün istifadə et, səhvləri vaxtında yoxlamaq üçün IDE-dən faydalan."
       },
       {
         "type": "heading",
@@ -67,13 +104,13 @@
       },
       {
         "type": "editor",
-        "initialCode": "// Öz TypeScript nümunəni yarat!\ninterface Item {\n  name: string;\n  price: number;\n}\n\nconst output = document.createElement(\"div\") as HTMLElement;\noutput.textContent = \"Yüklənir...\";\ndocument.body.appendChild(output);\n\nconst loadBtn = document.createElement(\"button\") as HTMLButtonElement;\nloadBtn.textContent = \"Məhsulu yüklə\";\ndocument.body.appendChild(loadBtn);\n\nasync function loadItem(): Promise<Item | null> {\n  try {\n    const response = await fetch(\"https://api.example.com/item\");\n    if (!response.ok) throw new Error(\"Şəbəkə xətası\");\n    const data: Item = await response.json();\n    return data;\n  } catch (error) {\n    output.textContent = \"Xəta!\";\n    return null;\n  }\n}\n\nloadBtn.addEventListener(\"click\", async () => {\n  const item = await loadItem();\n  output.textContent = item ? item.name : \"Məhsul tapılmadı\";\n});"
+        "initialCode": "// Sadə TypeScript nümunəsi\ninterface Product {\n  name: string;\n  price: number;\n}\n\ntype ShowProduct = (product: Product) => string;\nconst showProduct: ShowProduct = (product) => {\n  return `${product.name}: $${product.price}`;\n};\n\nconst product: Product = { name: \"Laptop\", price: 1200 };\nconsole.log(showProduct(product)); // Çıxış: Laptop: $1200"
       }
     ]
   },
   "en": {
-    "title": "TypeScript: Simple Overview",
-    "description": "TypeScript adds types to JavaScript, ensuring error-free and clear code.",
+    "title": "TypeScript",
+    "description": "TypeScript is a programming language that adds static typing to JavaScript, making code safer, more readable, and less error-prone. It’s widely used in large projects to reduce errors and improve team collaboration.",
     "content": [
       {
         "type": "heading",
@@ -81,7 +118,7 @@
       },
       {
         "type": "paragraph",
-        "text": "TypeScript is a programming language built on top of JavaScript. It adds types to variables and functions to catch errors early. TypeScript code is compiled to JavaScript to run in browsers."
+        "text": "TypeScript is a superset of JavaScript, meaning it includes all JavaScript features plus static typing. You can specify the type of a variable or function, like string or number, to prevent errors. For example, you can ensure a variable only holds a string. TypeScript doesn’t run directly in browsers, so it’s compiled to JavaScript using the TypeScript Compiler (tsc). It’s used for web apps, server-side apps, and even mobile apps."
       },
       {
         "type": "heading",
@@ -89,12 +126,33 @@
       },
       {
         "type": "paragraph",
-        "text": "TypeScript uses the `:` symbol to assign types. For example, `let name: string = \"Shirt\";` ensures `name` is a string. If you use the wrong type, TypeScript warns you. The code is compiled to JavaScript using the TypeScript compiler (tsc)."
+        "text": "TypeScript uses the `:` symbol to define types, ensuring variables and functions behave as expected. For example, `let name: string = \"Murad\";` only accepts strings. If you try `name = 23;`, TypeScript will warn you. The TypeScript Compiler (tsc) converts TypeScript code to JavaScript. Running `tsc index.ts` creates an `index.js` file. Below are simple examples showing TypeScript’s core features."
       },
       {
         "type": "code",
         "language": "typescript",
-        "code": "// 1. Basic types\nlet name: string = \"Shirt\"; // String\nlet price: number = 50; // Number\n\n// 2. Interface\ninterface Item {\n  name: string;\n  price: number;\n}\n\nconst item: Item = {\n  name: \"Jacket\",\n  price: 100\n};\n\n// 3. Class\nclass Store {\n  items: Item[] = [];\n\n  addItem(item: Item): void {\n    this.items.push(item);\n  }\n\n  getItems(): Item[] {\n    return this.items;\n  }\n}\n\n// 4. Function\nfunction getItemInfo(item: Item): string {\n  return `${item.name}: $${item.price}`;\n}\n\n// 5. Generics\nfunction getFirst<T>(items: T[]): T | undefined {\n  return items.length > 0 ? items[0] : undefined;\n}\n\n// 6. fetch with request\nasync function fetchItem(): Promise<Item | null> {\n  try {\n    const response = await fetch(\"https://api.example.com/item\");\n    if (!response.ok) throw new Error(\"Network error\");\n    const data: Item = await response.json();\n    return data;\n  } catch (error) {\n    console.error(\"Error:\", error);\n    return null;\n  }\n}\n\n// 7. DOM manipulation\nconst output = document.getElementById(\"output\") as HTMLElement;\nconst loadBtn = document.getElementById(\"loadBtn\") as HTMLButtonElement;\n\nloadBtn.addEventListener(\"click\", async () => {\n  output.textContent = \"Loading...\";\n  const item = await fetchItem();\n  output.textContent = item ? getItemInfo(item) : \"Item not found\";\n});"
+        "code": "// 1. Basic types\nlet userName: string = \"Murad\"; // Only string\nlet userAge: number = 23; // Only number\nlet isActive: boolean = true; // Only true/false\n// userName = 23; // Error: number is not string type\n\n// 2. Tuple type: Fixed-length array\ntype UserInfo = [string, number];\nconst user: UserInfo = [\"Alice\", 25]; // Name and age\n\n// 3. Object type with interface\ninterface Product {\n  name: string;\n  price: number;\n  inStock?: boolean; // Optional property\n}\nconst product: Product = { name: \"Laptop\", price: 1200 }; // inStock is optional\n\n// 4. Function type: Function signature\ntype GreetUser = (name: string) => string;\nconst greet: GreetUser = (name) => `Hello, ${name}!`;\n\n// 5. Union type: Multiple types\ntype ID = string | number;\nlet orderId: ID = \"A123\"; // Or number: 123\n\n// 6. Intersection type: Combining types\ninterface Details {\n  category: string;\n}\ntype FullProduct = Product & Details;\nconst fullProduct: FullProduct = { name: \"Mouse\", price: 25, category: \"Electronics\" };\n\n// 7. Literal type: Specific values\ntype OrderStatus = \"pending\" | \"shipped\";\nlet status: OrderStatus = \"pending\"; // Only these values\n\n// 8. Type alias: Naming types\ntype Item = {\n  name: string;\n  price: number;\n};\nconst item: Item = { name: \"Keyboard\", price: 50 };"
+      },
+      {
+        "type": "heading",
+        "text": "Real-world use cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript is used in e-commerce platforms, social media apps, and large-scale projects. For example, in an online store, you can use TypeScript to manage product lists or track order statuses. Below is a simple example of a store system handling products and their statuses."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Simple store system\ntype Status = \"pending\" | \"shipped\" | \"delivered\";\ninterface Product {\n  name: string;\n  price: number;\n}\ninterface Order {\n  orderId: number;\n  status: Status;\n  products: Product[];\n}\n\ntype ShowOrder = (order: Order) => string;\nconst showOrder: ShowOrder = (order) => {\n  return `Order ${order.orderId} (${order.status}): ${order.products.length} items`;\n};\n\nconst order: Order = {\n  orderId: 101,\n  status: \"pending\",\n  products: [{ name: \"Laptop\", price: 1200 }, { name: \"Mouse\", price: 25 }]\n};\nconsole.log(showOrder(order)); // Output: Order 101 (pending): 2 items"
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of TypeScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript was created to address issues in large JavaScript projects, where errors often go unnoticed until runtime. TypeScript catches errors during development, making code safer and easier to manage. Companies like Microsoft, Google, Airbnb, and Slack use TypeScript for its reliability and scalability."
       },
       {
         "type": "heading",
@@ -104,24 +162,40 @@
         "type": "list",
         "items": [
           {
-            "term": "Types",
-            "description": "Types like `string`, `number`, `boolean` are assigned to variables."
+            "term": "Static typing",
+            "description": "Assigns types like `string`, `number`, `boolean` to variables."
           },
           {
-            "term": "Interfaces",
-            "description": "`interface` defines the structure of objects."
+            "term": "Tuple types",
+            "description": "Fixed-length arrays, e.g., `[string, number]`."
           },
           {
-            "term": "Classes",
-            "description": "`class` enables object-oriented coding."
+            "term": "Object types",
+            "description": "`interface` or `type` defines object structures."
           },
           {
-            "term": "Generics",
-            "description": "Flexible functions that work with different types."
+            "term": "Function types",
+            "description": "Specifies parameter and return types for functions."
           },
           {
-            "term": "Modules",
-            "description": "`import` and `export` split code into modules."
+            "term": "Union types",
+            "description": "Allows a variable to be one of multiple types, e.g., `string | number`."
+          },
+          {
+            "term": "Intersection types",
+            "description": "Combines multiple types with `&`."
+          },
+          {
+            "term": "Literal types",
+            "description": "Restricts variables to specific values, e.g., `\"pending\" | \"shipped\"`."
+          },
+          {
+            "term": "Type aliases",
+            "description": "Names types for reuse."
+          },
+          {
+            "term": "IDE support",
+            "description": "Smart suggestions and error warnings in tools like VSCode."
           }
         ]
       },
@@ -131,7 +205,7 @@
       },
       {
         "type": "paragraph",
-        "text": "- **Dangers**: Overusing `any` reduces TypeScript’s benefits. Complex types can make code harder to read.\n- **Recommendations**: Start with simple types, minimize `any` usage, and use interfaces and generics effectively."
+        "text": "- **Dangers**: Overusing `any` reduces TypeScript’s benefits. Complex types can make code harder to read. Learning TypeScript requires extra time.\n- **Recommendations**: Start with simple types, minimize `any` usage, use interfaces and type aliases effectively, and leverage IDEs to catch errors early."
       },
       {
         "type": "heading",
@@ -139,13 +213,13 @@
       },
       {
         "type": "editor",
-        "initialCode": "// Create your own TypeScript example!\ninterface Item {\n  name: string;\n  price: number;\n}\n\nconst output = document.createElement(\"div\") as HTMLElement;\noutput.textContent = \"Loading...\";\ndocument.body.appendChild(output);\n\nconst loadBtn = document.createElement(\"button\") as HTMLButtonElement;\nloadBtn.textContent = \"Load item\";\ndocument.body.appendChild(loadBtn);\n\nasync function loadItem(): Promise<Item | null> {\n  try {\n    const response = await fetch(\"https://api.example.com/item\");\n    if (!response.ok) throw new Error(\"Network error\");\n    const data: Item = await response.json();\n    return data;\n  } catch (error) {\n    output.textContent = \"Error!\";\n    return null;\n  }\n}\n\nloadBtn.addEventListener(\"click\", async () => {\n  const item = await loadItem();\n  output.textContent = item ? item.name : \"Item not found\";\n});"
+        "initialCode": "// Simple TypeScript example\ninterface Product {\n  name: string;\n  price: number;\n}\n\ntype ShowProduct = (product: Product) => string;\nconst showProduct: ShowProduct = (product) => {\n  return `${product.name}: $${product.price}`;\n};\n\nconst product: Product = { name: \"Laptop\", price: 1200 };\nconsole.log(showProduct(product)); // Output: Laptop: $1200"
       }
     ]
   },
   "ru": {
-    "title": "TypeScript: Простой обзор",
-    "description": "TypeScript добавляет типы к JavaScript, обеспечивая безошибочный и понятный код.",
+    "title": "TypeScript",
+    "description": "TypeScript — это язык программирования, добавляющий статическую типизацию к JavaScript, что делает код более безопасным, читаемым и менее подверженным ошибкам. Он широко используется в крупных проектах для уменьшения ошибок и упрощения командной работы.",
     "content": [
       {
         "type": "heading",
@@ -153,7 +227,7 @@
       },
       {
         "type": "paragraph",
-        "text": "TypeScript — это язык программирования, построенный на JavaScript. Он добавляет типы к переменным и функциям, чтобы находить ошибки на этапе разработки. Код TypeScript компилируется в JavaScript для работы в браузере."
+        "text": "TypeScript — это надстройка над JavaScript, включающая все его возможности плюс статическую типизацию. Вы можете указать тип переменной или функции, например, строка или число, чтобы избежать ошибок. Например, можно гарантировать, что переменная принимает только строки. TypeScript не работает напрямую в браузерах, поэтому компилируется в JavaScript с помощью TypeScript Compiler (tsc). Используется для веб-приложений, серверных приложений и даже мобильных приложений."
       },
       {
         "type": "heading",
@@ -161,12 +235,33 @@
       },
       {
         "type": "paragraph",
-        "text": "TypeScript использует символ `:` для задания типов. Например, `let name: string = \"Shirt\";` гарантирует, что `name` — строка. Если использовать неверный тип, TypeScript предупреждает. Код компилируется в JavaScript с помощью компилятора TypeScript (tsc)."
+        "text": "TypeScript использует символ `:` для указания типов, что обеспечивает правильную работу кода. Например, `let name: string = \"Murad\";` принимает только строки. Если вы напишете `name = 23;`, TypeScript выдаст предупреждение. Компилятор TypeScript (tsc) преобразует код в JavaScript. Команда `tsc index.ts` создаёт файл `index.js`. Ниже приведены простые примеры основных возможностей TypeScript."
       },
       {
         "type": "code",
         "language": "typescript",
-        "code": "// 1. Базовые типы\nlet name: string = \"Shirt\"; // Строка\nlet price: number = 50; // Число\n\n// 2. Интерфейс\ninterface Item {\n  name: string;\n  price: number;\n}\n\nconst item: Item = {\n  name: \"Jacket\",\n  price: 100\n};\n\n// 3. Класс\nclass Store {\n  items: Item[] = [];\n\n  addItem(item: Item): void {\n    this.items.push(item);\n  }\n\n  getItems(): Item[] {\n    return this.items;\n  }\n}\n\n// 4. Функция\nfunction getItemInfo(item: Item): string {\n  return `${item.name}: $${item.price}`;\n}\n\n// 5. Обобщения\nfunction getFirst<T>(items: T[]): T | undefined {\n  return items.length > 0 ? items[0] : undefined;\n}\n\n// 6. fetch с запросом\nasync function fetchItem(): Promise<Item | null> {\n  try {\n    const response = await fetch(\"https://api.example.com/item\");\n    if (!response.ok) throw new Error(\"Ошибка сети\");\n    const data: Item = await response.json();\n    return data;\n  } catch (error) {\n    console.error(\"Ошибка:\", error);\n    return null;\n  }\n}\n\n// 7. Манипуляция DOM\nconst output = document.getElementById(\"output\") as HTMLElement;\nconst loadBtn = document.getElementById(\"loadBtn\") as HTMLButtonElement;\n\nloadBtn.addEventListener(\"click\", async () => {\n  output.textContent = \"Загрузка...\";\n  const item = await fetchItem();\n  output.textContent = item ? getItemInfo(item) : \"Товар не найден\";\n});"
+        "code": "// 1. Базовые типы\nlet userName: string = \"Murad\"; // Только строка\nlet userAge: number = 23; // Только число\nlet isActive: boolean = true; // Только true/false\n// userName = 23; // Ошибка: число не соответствует типу string\n\n// 2. Tuple type: Массив фиксированной длины\ntype UserInfo = [string, number];\nconst user: UserInfo = [\"Alice\", 25]; // Имя и возраст\n\n// 3. Object type с интерфейсом\ninterface Product {\n  name: string;\n  price: number;\n  inStock?: boolean; // Опциональное свойство\n}\nconst product: Product = { name: \"Laptop\", price: 1200 }; // inStock необязателен\n\n// 4. Function type: Сигнатура функции\ntype GreetUser = (name: string) => string;\nconst greet: GreetUser = (name) => `Привет, ${name}!`;\n\n// 5. Union type: Несколько типов\ntype ID = string | number;\nlet orderId: ID = \"A123\"; // Или число: 123\n\n// 6. Intersection type: Объединение типов\ninterface Details {\n  category: string;\n}\ntype FullProduct = Product & Details;\nconst fullProduct: FullProduct = { name: \"Mouse\", price: 25, category: \"Electronics\" };\n\n// 7. Literal type: Конкретные значения\ntype OrderStatus = \"pending\" | \"shipped\";\nlet status: OrderStatus = \"pending\"; // Только эти значения\n\n// 8. Type alias: Именование типов\ntype Item = {\n  name: string;\n  price: number;\n};\nconst item: Item = { name: \"Keyboard\", price: 50 };"
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript используется в интернет-магазинах, социальных сетях и крупных проектах. Например, в онлайн-магазине TypeScript помогает управлять списком товаров или отслеживать статусы заказов. Ниже приведён простой пример системы магазина для управления товарами и их статусами."
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Простая система магазина\ntype Status = \"pending\" | \"shipped\" | \"delivered\";\ninterface Product {\n  name: string;\n  price: number;\n}\ninterface Order {\n  orderId: number;\n  status: Status;\n  products: Product[];\n}\n\ntype ShowOrder = (order: Order) => string;\nconst showOrder: ShowOrder = (order) => {\n  return `Заказ ${order.orderId} (${order.status}): ${order.products.length} товаров`;\n};\n\nconst order: Order = {\n  orderId: 101,\n  status: \"pending\",\n  products: [{ name: \"Laptop\", price: 1200 }, { name: \"Mouse\", price: 25 }]\n};\nconsole.log(showOrder(order)); // Вывод: Заказ 101 (pending): 2 товаров"
+      },
+      {
+        "type": "heading",
+        "text": "Цель TypeScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript был создан для решения проблем в крупных JavaScript-проектах, где ошибки часто остаются незамеченными до запуска. TypeScript обнаруживает ошибки на этапе разработки, упрощает командную работу и повышает качество кода. Компании, такие как Microsoft, Google, Airbnb и Slack, используют TypeScript за его надёжность и масштабируемость."
       },
       {
         "type": "heading",
@@ -176,24 +271,40 @@
         "type": "list",
         "items": [
           {
-            "term": "Типы",
-            "description": "Типы вроде `string`, `number`, `boolean` задаются переменным."
+            "term": "Статическая типизация",
+            "description": "Назначение типов, таких как `string`, `number`, `boolean` для переменных."
           },
           {
-            "term": "Интерфейсы",
-            "description": "`interface` определяет структуру объектов."
+            "term": "Tuple types",
+            "description": "Массивы фиксированной длины, например, `[string, number]`."
           },
           {
-            "term": "Классы",
-            "description": "`class` позволяет писать объектно-ориентированный код."
+            "term": "Object types",
+            "description": "`interface` или `type` определяют структуру объектов."
           },
           {
-            "term": "Обобщения",
-            "description": "Гибкие функции, работающие с разными типами."
+            "term": "Function types",
+            "description": "Указание типов параметров и возвращаемых значений функций."
           },
           {
-            "term": "Модули",
-            "description": "`import` и `export` разделяют код на модули."
+            "term": "Union types",
+            "description": "Позволяет переменной быть одним из нескольких типов, например, `string | number`."
+          },
+          {
+            "term": "Intersection types",
+            "description": "Объединяет свойства нескольких типов с помощью `&`."
+          },
+          {
+            "term": "Literal types",
+            "description": "Ограничивает переменные конкретными значениями, например, `\"pending\" | \"shipped\"`."
+          },
+          {
+            "term": "Type aliases",
+            "description": "Именование типов для повторного использования."
+          },
+          {
+            "term": "Поддержка IDE",
+            "description": "Интеллектуальные подсказки и предупреждения об ошибках в редакторах, таких как VSCode."
           }
         ]
       },
@@ -203,7 +314,7 @@
       },
       {
         "type": "paragraph",
-        "text": "- **Опасности**: Чрезмерное использование `any` снижает пользу TypeScript. Сложные типы могут усложнить код.\n- **Рекомендации**: Начинай с простых типов, минимизируй использование `any`, эффективно применяй интерфейсы и обобщения."
+        "text": "- **Опасности**: Чрезмерное использование `any` снижает пользу TypeScript. Сложные типы могут затруднить чтение кода. Изучение TypeScript требует дополнительного времени.\n- **Рекомендации**: Начинайте с простых типов, минимизируйте использование `any`, эффективно используйте интерфейсы и type aliases, пользуйтесь IDE для раннего обнаружения ошибок."
       },
       {
         "type": "heading",
@@ -211,7 +322,7 @@
       },
       {
         "type": "editor",
-        "initialCode": "// Создай свой пример на TypeScript!\ninterface Item {\n  name: string;\n  price: number;\n}\n\nconst output = document.createElement(\"div\") as HTMLElement;\noutput.textContent = \"Загрузка...\";\ndocument.body.appendChild(output);\n\nconst loadBtn = document.createElement(\"button\") as HTMLButtonElement;\nloadBtn.textContent = \"Загрузить товар\";\ndocument.body.appendChild(loadBtn);\n\nasync function loadItem(): Promise<Item | null> {\n  try {\n    const response = await fetch(\"https://api.example.com/item\");\n    if (!response.ok) throw new Error(\"Ошибка сети\");\n    const data: Item = await response.json();\n    return data;\n  } catch (error) {\n    output.textContent = \"Ошибка!\";\n    return null;\n  }\n}\n\nloadBtn.addEventListener(\"click\", async () => {\n  const item = await loadItem();\n  output.textContent = item ? item.name : \"Товар не найден\";\n});"
+        "initialCode": "// Простой пример на TypeScript\ninterface Product {\n  name: string;\n  price: number;\n}\n\ntype ShowProduct = (product: Product) => string;\nconst showProduct: ShowProduct = (product) => {\n  return `${product.name}: $${product.price}`;\n};\n\nconst product: Product = { name: \"Laptop\", price: 1200 };\nconsole.log(showProduct(product)); // Вывод: Laptop: $1200"
       }
     ]
   }

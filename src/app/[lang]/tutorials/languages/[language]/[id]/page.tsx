@@ -10,11 +10,12 @@ import CodeLoader from "../../../../components/loading/CodeLoader";
 import { useSession } from 'next-auth/react';
 
 interface ContentBlock {
-  type: "heading" | "paragraph" | "code" | "editor";
+  type: "heading" | "paragraph" | "code" | "editor" | "list";
   text?: string;
   language?: string;
   code?: string;
   initialCode?: string;
+  items?: { term: string; description: string }[];
 }
 
 interface Topic {
@@ -107,6 +108,16 @@ function renderContentBlock(
         </div>
       );
     }
+    case "list":
+      return (
+        <ul key={i} style={{ marginBottom: 16, paddingLeft: 24 }}>
+          {block.items?.map((item, idx) => (
+            <li key={idx} style={{ marginBottom: 8 }}>
+              <strong>{item.term}:</strong> {item.description}
+            </li>
+          ))}
+        </ul>
+      );
     default:
       return null;
   }
