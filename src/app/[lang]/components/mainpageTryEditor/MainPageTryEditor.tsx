@@ -22,7 +22,7 @@ const MainPageTryEditor: React.FC = () => {
     { label: "C++", value: "cpp" },
     // { label: "Python3", value: "python3" },
     // Languages that require external execution (commented out)
-    // { label: "PHP", value: "php" },
+    { label: "PHP", value: "php" },
     { label: "Java", value: "java" },
     { label: "C", value: "c" },
     { label: "C#", value: "csharp" },

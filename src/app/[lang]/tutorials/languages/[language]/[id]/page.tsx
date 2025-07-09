@@ -99,8 +99,8 @@ function renderContentBlock(
       const handleEditorChange = (val: string) => {
         setEditorStates((prev: any) => ({ ...prev, [editorKey]: val }));
       };
-      // Use block.language if present, otherwise fallback to safeLanguage
-      const editorLanguage = block.language || safeLanguage;
+      // Always lowercase the language prop
+      const editorLanguage = (block.language || safeLanguage || '').toLowerCase();
       
 
       return (

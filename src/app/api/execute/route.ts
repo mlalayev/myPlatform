@@ -43,12 +43,13 @@ export async function POST(request: NextRequest) {
       lang !== "cpp" &&
       lang !== "c" &&
       lang !== "csharp" &&
-      lang !== "java"
+      lang !== "java" &&
+      lang !== "php"
     ) {
       return NextResponse.json(
         {
           error:
-            "Only Python, C, C++, C#, and Java are supported in this runner.",
+            "Only Python, C, C++, C#, Java, and PHP are supported in this runner.",
         },
         { status: 400 }
       );
@@ -177,11 +178,14 @@ export async function POST(request: NextRequest) {
         path.join(os.tmpdir(), "ccode-")
       );
       const filePath = path.join(tmpDir, "main.c");
-      const exePath = path.join(tmpDir, process.platform === "win32" ? "main.exe" : "main");
-      
+      const exePath = path.join(
+        tmpDir,
+        process.platform === "win32" ? "main.exe" : "main"
+      );
+
       // Faylı UTF-8 ilə yaz
       await fs.promises.writeFile(filePath, code, { encoding: "utf8" });
-    
+
       try {
         // GCC yollarını yoxla
         const possibleGccPaths = [
@@ -189,11 +193,11 @@ export async function POST(request: NextRequest) {
           "C:\\msys64\\mingw64\\bin\\gcc.exe",
           "C:\\mingw64\\bin\\gcc.exe",
           "C:\\TDM-GCC-64\\bin\\gcc.exe",
-          "C:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\gcc.exe"
+          "C:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\gcc.exe",
         ];
-        
+
         let gccPath = "";
-        
+
         // Windows üçün GCC tap
         if (process.platform === "win32") {
           for (const path of possibleGccPaths) {
@@ -208,55 +212,54 @@ export async function POST(request: NextRequest) {
         } else {
           gccPath = "gcc";
         }
-        
+
         if (!gccPath) {
-          throw new Error("GCC compiler not found. Please install MinGW or TDM-GCC.");
+          throw new Error(
+            "GCC compiler not found. Please install MinGW or TDM-GCC."
+          );
         }
-        
+
         console.log(`Using GCC: ${gccPath}`);
-        
+
         // Compile C code
         const compileCmd = `"${gccPath}" -finput-charset=UTF-8 -fexec-charset=UTF-8 "${filePath}" -o "${exePath}"`;
-        
-        await execAsync(compileCmd, { 
+
+        await execAsync(compileCmd, {
           cwd: tmpDir,
-          env: { 
+          env: {
             ...process.env,
-            PATH: process.platform === "win32" 
-              ? `C:\\msys64\\mingw64\\bin;${process.env.PATH}`
-              : process.env.PATH,
+            PATH:
+              process.platform === "win32"
+                ? `C:\\msys64\\mingw64\\bin;${process.env.PATH}`
+                : process.env.PATH,
             LC_ALL: "en_US.UTF-8",
-            LANG: "en_US.UTF-8"
-          }
+            LANG: "en_US.UTF-8",
+          },
         });
-    
+
         console.log("Compilation successful");
-    
+
         // Run compiled program
-        const { stdout, stderr } = await execAsync(
-          `"${exePath}"`,
-          {
-            cwd: tmpDir,
-            timeout: 5000,
-            env: { 
-              ...process.env,
-              LC_ALL: "en_US.UTF-8",
-              LANG: "en_US.UTF-8"
-            },
-            encoding: "utf8"
-          }
-        );
-        
+        const { stdout, stderr } = await execAsync(`"${exePath}"`, {
+          cwd: tmpDir,
+          timeout: 5000,
+          env: {
+            ...process.env,
+            LC_ALL: "en_US.UTF-8",
+            LANG: "en_US.UTF-8",
+          },
+          encoding: "utf8",
+        });
+
         output = stdout;
         error = stderr;
-        
       } catch (err: any) {
         console.log("C compile/run error:", err);
         error = err.stderr || err.message;
         output = err.stdout || "";
         exitCode = 1;
       }
-      
+
       // Temp qovluğu sil
       await fs.promises.rm(tmpDir, { recursive: true, force: true });
     } else if (lang === "csharp") {
@@ -333,6 +336,94 @@ export async function POST(request: NextRequest) {
 
       // Temp qovluğu sil
       await fs.promises.rm(tmpDir, { recursive: true, force: true });
+    } else if (lang === "php") {
+      // PHP yolu
+      const phpPath = "C:\\php\\php.exe";
+      
+      // PHP mövcudluğunu yoxla
+      try {
+        await execAsync(`"${phpPath}" --version`, { timeout: 3000 });
+      } catch (error) {
+        return NextResponse.json(
+          { error: `PHP not found at ${phpPath}. Please check if PHP is installed correctly.` },
+          { status: 500 }
+        );
+      }
+    
+      // PHP code execution
+      const tmpDir = await fs.promises.mkdtemp(
+        path.join(os.tmpdir(), "phpcode-")
+      );
+      const filePath = path.join(tmpDir, "main.php");
+      
+      try {
+        await fs.promises.writeFile(filePath, code, { encoding: "utf8" });
+        
+        // Run the PHP code with specific PHP path
+        const phpProcess = spawn(phpPath, [filePath], {
+          env: { 
+            ...process.env,
+            LC_ALL: "en_US.UTF-8",
+            LANG: "en_US.UTF-8"
+          },
+        });
+    
+        let stdout = "";
+        let stderr = "";
+        let isTimedOut = false;
+        let processExited = false;
+    
+        phpProcess.stdout.on("data", (data) => {
+          stdout += data.toString();
+        });
+        
+        phpProcess.stderr.on("data", (data) => {
+          stderr += data.toString();
+        });
+    
+        // Handle timeout
+        const timeout = setTimeout(() => {
+          if (!processExited) {
+            isTimedOut = true;
+            error = "Execution timed out.";
+            phpProcess.kill("SIGKILL");
+          }
+        }, 3000);
+    
+        await new Promise<void>((resolve) => {
+          phpProcess.on("close", (code) => {
+            processExited = true;
+            clearTimeout(timeout);
+            
+            if (!isTimedOut) {
+              output = stdout;
+              error = error || stderr;
+              exitCode = code || 0;
+            }
+            resolve();
+          });
+          
+          phpProcess.on("error", (err) => {
+            processExited = true;
+            clearTimeout(timeout);
+            error = `Process error: ${err.message}`;
+            exitCode = 1;
+            resolve();
+          });
+        });
+        
+      } catch (err: any) {
+        error = err.stderr || err.message || "Unknown error occurred";
+        output = err.stdout || "";
+        exitCode = 1;
+      } finally {
+        // Clean up
+        try {
+          await fs.promises.rm(tmpDir, { recursive: true, force: true });
+        } catch (cleanupErr) {
+          console.warn("Failed to cleanup temp directory:", cleanupErr);
+        }
+      }
     }
 
     return NextResponse.json({

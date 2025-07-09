@@ -239,6 +239,18 @@ export default function JsTryEditor({
     }
   }, [language, value]);
 
+  // Update editor language and code sample when dropdown changes
+  // const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const newLang = e.target.value;
+  //   setSelectedLanguage(newLang);
+  //   if (languageSamples[newLang as keyof typeof languageSamples]) {
+  //     setInternalCode(languageSamples[newLang as keyof typeof languageSamples]);
+  //   }
+  //   setError("");
+  //   setOutput("");
+  //   setShowOutput(false);
+  // };
+
   const handleChange = (val: string | undefined) => {
     if (onChange) onChange(val ?? "");
     else setInternalCode(val ?? "");
@@ -451,8 +463,11 @@ export default function JsTryEditor({
       }
       if (lang === "java") {
         try {
-          // Replace any public class <Name> with public class Main
-          const mainClassCode = code.replace(/public\s+class\s+\w+/, "public class Main");
+          // Replace any public class <Name> with public class Main (robust, global)
+          console.log("Java code before patch:", code);
+          const mainClassCode = code.replace(/public\s+class\s+[A-Za-z_][A-Za-z0-9_]*/g, "public class Main");
+          console.log("Java code after patch:", mainClassCode);
+          console.log("Language prop:", language);
           const response = await fetch("/api/execute", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -500,6 +515,30 @@ export default function JsTryEditor({
         return;
       }
       if (lang === "csharp") {
+        try {
+          const response = await fetch("/api/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code, language: lang }),
+          });
+          const result = await response.json();
+          if (result.error) {
+            setError(result.error);
+            setOutput(result.output || "");
+          } else {
+            setOutput(result.output || "");
+            setError(result.error || "");
+          }
+          setShowOutput(true);
+        } catch (err: any) {
+          setError("Server error: " + err.message);
+          setShowOutput(true);
+        } finally {
+          setIsLoading(false);
+        }
+        return;
+      }
+      if (lang === "php") {
         try {
           const response = await fetch("/api/execute", {
             method: "POST",
