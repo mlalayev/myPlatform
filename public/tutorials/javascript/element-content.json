@@ -1,227 +1,305 @@
 {
-    "az": {
-      "title": "innerHTML, innerText və textContent",
-      "description": "innerHTML, innerText və textContent – JavaScript-də rəqəmsal qeyd dəftərinin məzmununu idarə etmək üçün alətlər!",
-      "content": [
-        {
-          "type": "heading",
-          "text": "innerHTML, innerText və textContent nədir?"
-        },
-        {
-          "type": "paragraph",
-          "text": "Təsəvvür et ki, sən rəqəmsal qeyd dəftərində qeydləri redaktə edirsən. Bu dəftərdə mətn, başlıqlar və ya formatlaşdırılmış elementlər (məsələn, qalın şrift) ola bilər. JavaScript-də `innerHTML`, `innerText` və `textContent` DOM elementlərinin məzmununu oxumaq və ya dəyişdirmək üçün istifadə olunur. Hər biri fərqli bir redaktə aləti kimidir: biri HTML formatını dəstəkləyir, digəri yalnız görünən mətni, bir digəri isə bütün mətni idarə edir. Gəlin bu fərqləri anlayaq."
-        },
-        {
-          "type": "heading",
-          "text": "Bu xüsusiyyətlər necə işləyir və fərqləri nədir?"
-        },
-        {
-          "type": "paragraph",
-          "text": "`innerHTML`, `innerText` və `textContent` elementin məzmununu oxumaq və ya dəyişdirmək üçün istifadə olunur, lakin onların davranışı fərqlidir:\n- **innerHTML**: Elementin daxilindəki HTML məzmununu oxuyur və ya dəyişdirir, o cümlədən etiketləri (məsələn, `<strong>`, `<div>`). Bu, qeyd dəftərinə formatlaşdırılmış mətn və struktur əlavə etmək kimidir.\n- **innerText**: Yalnız görünən mətni oxuyur və ya dəyişdirir, CSS üslublarını (məsələn, `display: none`) nəzərə alır. Bu, dəftərdə yalnız gözə görünən qeydləri redaktə etmək kimidir.\n- **textContent**: Elementin bütün mətn məzmununu oxuyur və ya dəyişdirir, HTML etiketlərini nəzərə almır və gizli mətnləri də əhatə edir. Bu, dəftərdəki bütün xam məlumatları idarə etmək kimidir.\nGəlin nümunələrlə fərqləri görək."
-        },
-        {
-          "type": "code",
-          "language": "javascript",
-          "code": "// HTML nümunəsi:\n/*\n<div id=\"noteElement\">\n  Salam, <strong>Dəftər!</strong>\n  <span style=\"display: none;\">Gizli qeyd</span>\n</div>\n<button class=\"update-btn\">Məzmunu yenilə</button>\n*/\n\n// 1. innerHTML ilə işləmə\nconst noteElement = document.getElementById(\"noteElement\");\nconsole.log(noteElement.innerHTML);\n// nəticə: \"Salam, <strong>Dəftər!</strong>\\n  <span style=\\\"display: none;\\\">Gizli qeyd</span>\"\n\nnoteElement.innerHTML = \"Yeni <em>qeyd</em>!\";\n// nəticə: <div id=\"noteElement\">Yeni <em>qeyd</em>!</div>\n\n// 2. innerText ilə işləmə\nconsole.log(noteElement.innerText);\n// nəticə: \"Yeni qeyd!\" (yalnız görünən mətn, HTML etiketləri yoxdur, gizli mətn nəzərə alınmır)\n\nnoteElement.innerText = \"Sadə qeyd\";\n// nəticə: <div id=\"noteElement\">Sadə qeyd</div> (HTML etiketləri silinir)\n\n// 3. textContent ilə işləmə\nconsole.log(noteElement.textContent);\n// nəticə: \"Sadə qeyd\" (bütün mətn, HTML etiketləri və gizli mətn daxil olsa belə)\n\nnoteElement.textContent = \"Xam mətn <strong>qeyd</strong>\";\n// nəticə: <div id=\"noteElement\">Xam mətn &lt;strong&gt;qeyd&lt;/strong&gt;</div> (etiketlər mətn kimi görünür)\n\n// 4. Hadisə ilə dinamik yeniləmə\nconst updateButton = document.querySelector(\".update-btn\");\nupdateButton.addEventListener(\"click\", () => {\n  noteElement.innerHTML = \"<strong>Yenilənmiş</strong> qeyd!\"; // HTML dəstəklənir\n  // noteElement.innerText = \"Yenilənmiş qeyd!\"; // yalnız mətn\n  // noteElement.textContent = \"Yenilənmiş qeyd!\"; // xam mətn\n});\n// nəticə: Düyməyə klikləyəndə məzmun yenilənir"
-        },
-        {
-          "type": "heading",
-          "text": "Əsas fərqlər cədvəldə"
-        },
-        {
-          "type": "paragraph",
-          "text": "Fərqləri daha yaxşı başa düşmək üçün cədvələ baxaq:"
-        },
-        {
-          "type": "table",
-          "headers": ["Xüsusiyyət", "innerHTML", "innerText", "textContent"],
-          "rows": [
-            ["Məzmun növü", "HTML etiketləri və mətn", "Yalnız görünən mətn", "Bütün xam mətn"],
-            ["CSS-ə həssaslıq", "CSS-ə bağlı deyil", "Gizli elementləri (display: none) nəzərə alır", "CSS-ə bağlı deyil, gizli mətn daxildir"],
-            ["Təhlükəsizlik", "XSS riski var", "Təhlükəsiz, HTML-i mətnə çevirir", "Təhlükəsiz, HTML-i mətnə çevirir"],
-            ["Performans", "Daha yavaş (HTML parsing)", "Yavaş (CSS hesablamaları)", "Ən sürətli (xam mətn)"],
-            ["İstifadə nümunəsi", "Formatlaşdırılmış məzmun əlavə etmək", "Görünən mətni dəyişdirmək", "Xam mətn və ya gizli mətnlə işləmək"]
+  "az": {
+    "title": "innerHTML, innerText və textContent",
+    "language": "javascript",
+    "description": "innerHTML, innerText və textContent – JavaScript-də rəqəmsal qeyd dəftərinin məzmununu idarə etmək üçün alətlər!",
+    "content": [
+      {
+        "type": "heading",
+        "text": "innerHTML, innerText və textContent nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Təsəvvür et ki, sən rəqəmsal qeyd dəftərində qeydləri redaktə edirsən. Bu dəftərdə mətn, başlıqlar və ya formatlaşdırılmış elementlər (məsələn, qalın şrift) ola bilər. JavaScript-də `innerHTML`, `innerText` və `textContent` DOM elementlərinin məzmununu oxumaq və ya dəyişdirmək üçün istifadə olunur. Hər biri fərqli bir redaktə aləti kimidir: biri HTML formatını dəstəkləyir, digəri yalnız görünən mətni, bir digəri isə bütün mətni idarə edir. Gəlin bu fərqləri anlayaq."
+      },
+      {
+        "type": "heading",
+        "text": "Bu xüsusiyyətlər necə işləyir və fərqləri nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "`innerHTML`, `innerText` və `textContent` elementin məzmununu oxumaq və ya dəyişdirmək üçün istifadə olunur, lakin onların davranışı fərqlidir:\n- **innerHTML**: Elementin daxilindəki HTML məzmununu oxuyur və ya dəyişdirir, o cümlədən etiketləri (məsələn, `<strong>`, `<div>`). Bu, qeyd dəftərinə formatlaşdırılmış mətn və struktur əlavə etmək kimidir.\n- **innerText**: Yalnız görünən mətni oxuyur və ya dəyişdirir, CSS üslublarını (məsələn, `display: none`) nəzərə alır. Bu, dəftərdə yalnız gözə görünən qeydləri redaktə etmək kimidir.\n- **textContent**: Elementin bütün mətn məzmununu oxuyur və ya dəyişdirir, HTML etiketlərini nəzərə almır və gizli mətnləri də əhatə edir. Bu, dəftərdəki bütün xam məlumatları idarə etmək kimidir.\nGəlin nümunələrlə fərqləri görək."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// HTML nümunəsi:\n/*\n<div id=\"noteElement\">\n  Salam, <strong>Dəftər!</strong>\n  <span style=\"display: none;\">Gizli qeyd</span>\n</div>\n<button class=\"update-btn\">Məzmunu yenilə</button>\n*/\n\n// 1. innerHTML ilə işləmə\nconst noteElement = document.getElementById(\"noteElement\");\nconsole.log(noteElement.innerHTML);\n// nəticə: \"Salam, <strong>Dəftər!</strong>\\n  <span style=\\\"display: none;\\\">Gizli qeyd</span>\"\n\nnoteElement.innerHTML = \"Yeni <em>qeyd</em>!\";\n// nəticə: <div id=\"noteElement\">Yeni <em>qeyd</em>!</div>\n\n// 2. innerText ilə işləmə\nconsole.log(noteElement.innerText);\n// nəticə: \"Yeni qeyd!\" (yalnız görünən mətn, HTML etiketləri yoxdur, gizli mətn nəzərə alınmır)\n\nnoteElement.innerText = \"Sadə qeyd\";\n// nəticə: <div id=\"noteElement\">Sadə qeyd</div> (HTML etiketləri silinir)\n\n// 3. textContent ilə işləmə\nconsole.log(noteElement.textContent);\n// nəticə: \"Sadə qeyd\" (bütün mətn, HTML etiketləri və gizli mətn daxil olsa belə)\n\nnoteElement.textContent = \"Xam mətn <strong>qeyd</strong>\";\n// nəticə: <div id=\"noteElement\">Xam mətn &lt;strong&gt;qeyd&lt;/strong&gt;</div> (etiketlər mətn kimi görünür)\n\n// 4. Hadisə ilə dinamik yeniləmə\nconst updateButton = document.querySelector(\".update-btn\");\nupdateButton.addEventListener(\"click\", () => {\n  noteElement.innerHTML = \"<strong>Yenilənmiş</strong> qeyd!\"; // HTML dəstəklənir\n  // noteElement.innerText = \"Yenilənmiş qeyd!\"; // yalnız mətn\n  // noteElement.textContent = \"Yenilənmiş qeyd!\"; // xam mətn\n});\n// nəticə: Düyməyə klikləyəndə məzmun yenilənir"
+      },
+      {
+        "type": "heading",
+        "text": "Əsas fərqlər cədvəldə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fərqləri daha yaxşı başa düşmək üçün cədvələ baxaq:"
+      },
+      {
+        "type": "table",
+        "headers": ["Xüsusiyyət", "innerHTML", "innerText", "textContent"],
+        "rows": [
+          [
+            "Məzmun növü",
+            "HTML etiketləri və mətn",
+            "Yalnız görünən mətn",
+            "Bütün xam mətn"
+          ],
+          [
+            "CSS-ə həssaslıq",
+            "CSS-ə bağlı deyil",
+            "Gizli elementləri (display: none) nəzərə alır",
+            "CSS-ə bağlı deyil, gizli mətn daxildir"
+          ],
+          [
+            "Təhlükəsizlik",
+            "XSS riski var",
+            "Təhlükəsiz, HTML-i mətnə çevirir",
+            "Təhlükəsiz, HTML-i mətnə çevirir"
+          ],
+          [
+            "Performans",
+            "Daha yavaş (HTML parsing)",
+            "Yavaş (CSS hesablamaları)",
+            "Ən sürətli (xam mətn)"
+          ],
+          [
+            "İstifadə nümunəsi",
+            "Formatlaşdırılmış məzmun əlavə etmək",
+            "Görünən mətni dəyişdirmək",
+            "Xam mətn və ya gizli mətnlə işləmək"
           ]
-        },
-        {
-          "type": "heading",
-          "text": "Təhlükələr və üstünlüklər"
-        },
-        {
-          "type": "paragraph",
-          "text": "Üstünlüklər:\n- **innerHTML**: Formatlaşdırılmış məzmun (məsələn, qalın şrift, linklər) əlavə etmək üçün idealdır.\n- **innerText**: İstifadəçiyə görünən mətni asanlıqla oxumaq və ya dəyişdirmək üçün faydalıdır.\n- **textContent**: Gizli mətnləri də əhatə etdiyi üçün tam mətn məlumatı ilə işləmək üçün ən təhlükəsiz və sürətlidir.\nTəhlükələr:\n- **innerHTML**: İstifadəçi daxil etdiyi məlumatlarla istifadə edilərsə, XSS (Cross-Site Scripting) hücumlarına səbəb ola bilər.\n- **innerText**: CSS hesablamalarına görə yavaş ola bilər və gizli mətnləri nəzərə almır.\n- **textContent**: HTML etiketlərini dəstəkləmədiyi üçün formatlaşdırma tələb olunan hallarda məhdudiyyət yaradır.\nTəhlükəsizlik üçün `innerHTML` yerinə `textContent` və ya `innerText` istifadə etməyə üstünlük ver, xüsusən istifadəçi daxil etdiyi məlumatlarla işləyərkən."
-        },
-        {
-          "type": "code",
-          "language": "javascript",
-          "code": "// Təhlükə nümunəsi: innerHTML ilə XSS\nconst userInput = \"<script>alert('Hücum!');</script>\";\nnoteElement.innerHTML = userInput;\n// Təhlükə: Zərərli skript işləyə bilər!\n\n// Təhlükəsiz alternativ\nnoteElement.textContent = userInput;\n// nəticə: <div id=\"noteElement\">&lt;script&gt;alert('Hücum!');&lt;/script&gt;</div>\n\n// innerText ilə görünən mətn\nnoteElement.innerHTML = \"Görünən <span style=\\\"display: none;\\\">gizli</span> mətn\";\nconsole.log(noteElement.innerText); // \"Görünən mətn\"\nconsole.log(noteElement.textContent); // \"Görünən gizli mətn\"\n\n// Dinamik yeniləmə\nconst updateNote = () => {\n  noteElement.textContent = \"Təhlükəsiz yeniləmə\";\n  console.log(\"innerText: \", noteElement.innerText); // \"Təhlükəsiz yeniləmə\"\n  console.log(\"textContent: \", noteElement.textContent); // \"Təhlükəsiz yeniləmə\"\n};\nupdateButton.addEventListener(\"click\", updateNote);\n// nəticə: Düyməyə klikləyəndə məzmun təhlükəsiz yenilənir"
-        },
-        {
-          "type": "heading",
-          "text": "Nə vaxt hansını istifadə etməli?"
-        },
-        {
-          "type": "paragraph",
-          "text": "- **innerHTML**: HTML formatlaşdırması (etiketlər, üslublar) əlavə etmək lazım olduqda, lakin təhlükəsizlik risklərinə diqqət et.\n- **innerText**: Yalnız görünən mətni oxumaq və ya dəyişdirmək üçün, xüsusən istifadəçi interfeysi ilə işləyərkən.\n- **textContent**: Gizli mətnlər daxil olmaqla bütün mətn məlumatlarını oxumaq və ya təhlükəsiz şəkildə dəyişdirmək üçün.\nRəqəmsal qeyd dəftərində sadə mətn yeniləmələri üçün `textContent`, formatlaşdırılmış qeydlər üçün `innerHTML`, yalnız görünən mətn üçün isə `innerText` istifadə et."
-        },
-        {
-          "type": "heading",
-          "text": "Sınaq üçün nümunə"
-        },
-        {
-          "type": "editor",
-          "initialCode": "// Öz məzmun nümunəni yarat!\nconst noteElement = document.createElement(\"div\");\nnoteElement.textContent = \"Rəqəmsal qeyd dəftəri\";\ndocument.body.appendChild(noteElement);\n\nconst updateButton = document.createElement(\"button\");\nupdateButton.textContent = \"Yenilə\";\ndocument.body.appendChild(updateButton);\n\nupdateButton.addEventListener(\"click\", () => {\n  noteElement.textContent = \"Təhlükəsiz qeyd\";\n  // Alternativ: noteElement.innerHTML = \"<strong>Formatlı qeyd</strong>\";\n});"
-        }
-      ]
-    },
-    "en": {
-      "title": "innerHTML, innerText, and textContent",
-      "description": "innerHTML, innerText, and textContent – JavaScript tools for managing content in a digital notepad!",
-      "content": [
-        {
-          "type": "heading",
-          "text": "What are innerHTML, innerText, and textContent?"
-        },
-        {
-          "type": "paragraph",
-          "text": "Imagine you’re editing notes in a digital notepad. The notepad may contain text, headings, or formatted elements (e.g., bold text). In JavaScript, `innerHTML`, `innerText`, and `textContent` are used to read or modify a DOM element’s content. Each acts like a different editing tool: one handles HTML formatting, another focuses on visible text, and the third manages all raw text. Let’s explore their differences."
-        },
-        {
-          "type": "heading",
-          "text": "How do they work and what are the differences?"
-        },
-        {
-          "type": "paragraph",
-          "text": "`innerHTML`, `innerText`, and `textContent` are used to read or modify an element’s content, but they behave differently:\n- **innerHTML**: Reads or sets the HTML content, including tags (e.g., `<strong>`, `<div>`). It’s like adding formatted text and structure to the notepad.\n- **innerText**: Reads or sets only the visible text, respecting CSS styles (e.g., `display: none`). It’s like editing only the notes visible in the notepad.\n- **textContent**: Reads or sets all text content, ignoring HTML tags and including hidden text. It’s like managing all raw data in the notepad.\nLet’s see the differences with examples."
-        },
-        {
-          "type": "code",
-          "language": "javascript",
-          "code": "// HTML example:\n/*\n<div id=\"noteElement\">\n  Hello, <strong>Notepad!</strong>\n  <span style=\"display: none;\">Hidden note</span>\n</div>\n<button class=\"update-btn\">Update Content</button>\n*/\n\n// 1. Working with innerHTML\nconst noteElement = document.getElementById(\"noteElement\");\nconsole.log(noteElement.innerHTML);\n// Output: \"Hello, <strong>Notepad!</strong>\\n  <span style=\\\"display: none;\\\">Hidden note</span>\"\n\nnoteElement.innerHTML = \"New <em>note</em>!\";\n// Output: <div id=\"noteElement\">New <em>note</em>!</div>\n\n// 2. Working with innerText\nconsole.log(noteElement.innerText);\n// Output: \"New note!\" (only visible text, no HTML tags, hidden text ignored)\n\nnoteElement.innerText = \"Simple note\";\n// Output: <div id=\"noteElement\">Simple note</div> (HTML tags removed)\n\n// 3. Working with textContent\nconsole.log(noteElement.textContent);\n// Output: \"Simple note\" (all text, even if HTML tags or hidden text were present)\n\nnoteElement.textContent = \"Raw text <strong>note</strong>\";\n// Output: <div id=\"noteElement\">Raw text &lt;strong&gt;note&lt;/strong&gt;</div> (tags rendered as text)\n\n// 4. Dynamic update with event\nconst updateButton = document.querySelector(\".update-btn\");\nupdateButton.addEventListener(\"click\", () => {\n  noteElement.innerHTML = \"<strong>Updated</strong> note!\"; // Supports HTML\n  // noteElement.innerText = \"Updated note!\"; // Only text\n  // noteElement.textContent = \"Updated note!\"; // Raw text\n});\n// Output: Clicking the button updates the content"
-        },
-        {
-          "type": "heading",
-          "text": "Key differences in a table"
-        },
-        {
-          "type": "paragraph",
-          "text": "To better understand the differences, here’s a comparison table:"
-        },
-        {
-          "type": "table",
-          "headers": ["Feature", "innerHTML", "innerText", "textContent"],
-          "rows": [
-            ["Content type", "HTML tags and text", "Only visible text", "All raw text"],
-            ["CSS sensitivity", "Not affected by CSS", "Respects hidden elements (display: none)", "Not affected by CSS, includes hidden text"],
-            ["Security", "XSS risk", "Safe, converts HTML to text", "Safe, converts HTML to text"],
-            ["Performance", "Slower (HTML parsing)", "Slow (CSS calculations)", "Fastest (raw text)"],
-            ["Use case", "Add formatted content", "Change visible text", "Work with raw or hidden text"]
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və üstünlüklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Üstünlüklər:\n- **innerHTML**: Formatlaşdırılmış məzmun (məsələn, qalın şrift, linklər) əlavə etmək üçün idealdır.\n- **innerText**: İstifadəçiyə görünən mətni asanlıqla oxumaq və ya dəyişdirmək üçün faydalıdır.\n- **textContent**: Gizli mətnləri də əhatə etdiyi üçün tam mətn məlumatı ilə işləmək üçün ən təhlükəsiz və sürətlidir.\nTəhlükələr:\n- **innerHTML**: İstifadəçi daxil etdiyi məlumatlarla istifadə edilərsə, XSS (Cross-Site Scripting) hücumlarına səbəb ola bilər.\n- **innerText**: CSS hesablamalarına görə yavaş ola bilər və gizli mətnləri nəzərə almır.\n- **textContent**: HTML etiketlərini dəstəkləmədiyi üçün formatlaşdırma tələb olunan hallarda məhdudiyyət yaradır.\nTəhlükəsizlik üçün `innerHTML` yerinə `textContent` və ya `innerText` istifadə etməyə üstünlük ver, xüsusən istifadəçi daxil etdiyi məlumatlarla işləyərkən."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Təhlükə nümunəsi: innerHTML ilə XSS\nconst userInput = \"<script>alert('Hücum!');</script>\";\nnoteElement.innerHTML = userInput;\n// Təhlükə: Zərərli skript işləyə bilər!\n\n// Təhlükəsiz alternativ\nnoteElement.textContent = userInput;\n// nəticə: <div id=\"noteElement\">&lt;script&gt;alert('Hücum!');&lt;/script&gt;</div>\n\n// innerText ilə görünən mətn\nnoteElement.innerHTML = \"Görünən <span style=\\\"display: none;\\\">gizli</span> mətn\";\nconsole.log(noteElement.innerText); // \"Görünən mətn\"\nconsole.log(noteElement.textContent); // \"Görünən gizli mətn\"\n\n// Dinamik yeniləmə\nconst updateNote = () => {\n  noteElement.textContent = \"Təhlükəsiz yeniləmə\";\n  console.log(\"innerText: \", noteElement.innerText); // \"Təhlükəsiz yeniləmə\"\n  console.log(\"textContent: \", noteElement.textContent); // \"Təhlükəsiz yeniləmə\"\n};\nupdateButton.addEventListener(\"click\", updateNote);\n// nəticə: Düyməyə klikləyəndə məzmun təhlükəsiz yenilənir"
+      },
+      {
+        "type": "heading",
+        "text": "Nə vaxt hansını istifadə etməli?"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **innerHTML**: HTML formatlaşdırması (etiketlər, üslublar) əlavə etmək lazım olduqda, lakin təhlükəsizlik risklərinə diqqət et.\n- **innerText**: Yalnız görünən mətni oxumaq və ya dəyişdirmək üçün, xüsusən istifadəçi interfeysi ilə işləyərkən.\n- **textContent**: Gizli mətnlər daxil olmaqla bütün mətn məlumatlarını oxumaq və ya təhlükəsiz şəkildə dəyişdirmək üçün.\nRəqəmsal qeyd dəftərində sadə mətn yeniləmələri üçün `textContent`, formatlaşdırılmış qeydlər üçün `innerHTML`, yalnız görünən mətn üçün isə `innerText` istifadə et."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Öz məzmun nümunəni yarat!\nconst noteElement = document.createElement(\"div\");\nnoteElement.textContent = \"Rəqəmsal qeyd dəftəri\";\ndocument.body.appendChild(noteElement);\n\nconst updateButton = document.createElement(\"button\");\nupdateButton.textContent = \"Yenilə\";\ndocument.body.appendChild(updateButton);\n\nupdateButton.addEventListener(\"click\", () => {\n  noteElement.textContent = \"Təhlükəsiz qeyd\";\n  // Alternativ: noteElement.innerHTML = \"<strong>Formatlı qeyd</strong>\";\n});"
+      }
+    ]
+  },
+  "en": {
+    "title": "innerHTML, innerText, and textContent",
+    "language": "javascript",
+    "description": "innerHTML, innerText, and textContent – JavaScript tools for managing content in a digital notepad!",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are innerHTML, innerText, and textContent?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Imagine you’re editing notes in a digital notepad. The notepad may contain text, headings, or formatted elements (e.g., bold text). In JavaScript, `innerHTML`, `innerText`, and `textContent` are used to read or modify a DOM element’s content. Each acts like a different editing tool: one handles HTML formatting, another focuses on visible text, and the third manages all raw text. Let’s explore their differences."
+      },
+      {
+        "type": "heading",
+        "text": "How do they work and what are the differences?"
+      },
+      {
+        "type": "paragraph",
+        "text": "`innerHTML`, `innerText`, and `textContent` are used to read or modify an element’s content, but they behave differently:\n- **innerHTML**: Reads or sets the HTML content, including tags (e.g., `<strong>`, `<div>`). It’s like adding formatted text and structure to the notepad.\n- **innerText**: Reads or sets only the visible text, respecting CSS styles (e.g., `display: none`). It’s like editing only the notes visible in the notepad.\n- **textContent**: Reads or sets all text content, ignoring HTML tags and including hidden text. It’s like managing all raw data in the notepad.\nLet’s see the differences with examples."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// HTML example:\n/*\n<div id=\"noteElement\">\n  Hello, <strong>Notepad!</strong>\n  <span style=\"display: none;\">Hidden note</span>\n</div>\n<button class=\"update-btn\">Update Content</button>\n*/\n\n// 1. Working with innerHTML\nconst noteElement = document.getElementById(\"noteElement\");\nconsole.log(noteElement.innerHTML);\n// Output: \"Hello, <strong>Notepad!</strong>\\n  <span style=\\\"display: none;\\\">Hidden note</span>\"\n\nnoteElement.innerHTML = \"New <em>note</em>!\";\n// Output: <div id=\"noteElement\">New <em>note</em>!</div>\n\n// 2. Working with innerText\nconsole.log(noteElement.innerText);\n// Output: \"New note!\" (only visible text, no HTML tags, hidden text ignored)\n\nnoteElement.innerText = \"Simple note\";\n// Output: <div id=\"noteElement\">Simple note</div> (HTML tags removed)\n\n// 3. Working with textContent\nconsole.log(noteElement.textContent);\n// Output: \"Simple note\" (all text, even if HTML tags or hidden text were present)\n\nnoteElement.textContent = \"Raw text <strong>note</strong>\";\n// Output: <div id=\"noteElement\">Raw text &lt;strong&gt;note&lt;/strong&gt;</div> (tags rendered as text)\n\n// 4. Dynamic update with event\nconst updateButton = document.querySelector(\".update-btn\");\nupdateButton.addEventListener(\"click\", () => {\n  noteElement.innerHTML = \"<strong>Updated</strong> note!\"; // Supports HTML\n  // noteElement.innerText = \"Updated note!\"; // Only text\n  // noteElement.textContent = \"Updated note!\"; // Raw text\n});\n// Output: Clicking the button updates the content"
+      },
+      {
+        "type": "heading",
+        "text": "Key differences in a table"
+      },
+      {
+        "type": "paragraph",
+        "text": "To better understand the differences, here’s a comparison table:"
+      },
+      {
+        "type": "table",
+        "headers": ["Feature", "innerHTML", "innerText", "textContent"],
+        "rows": [
+          [
+            "Content type",
+            "HTML tags and text",
+            "Only visible text",
+            "All raw text"
+          ],
+          [
+            "CSS sensitivity",
+            "Not affected by CSS",
+            "Respects hidden elements (display: none)",
+            "Not affected by CSS, includes hidden text"
+          ],
+          [
+            "Security",
+            "XSS risk",
+            "Safe, converts HTML to text",
+            "Safe, converts HTML to text"
+          ],
+          [
+            "Performance",
+            "Slower (HTML parsing)",
+            "Slow (CSS calculations)",
+            "Fastest (raw text)"
+          ],
+          [
+            "Use case",
+            "Add formatted content",
+            "Change visible text",
+            "Work with raw or hidden text"
           ]
-        },
-        {
-          "type": "heading",
-          "text": "Dangers and benefits"
-        },
-        {
-          "type": "paragraph",
-          "text": "Benefits:\n- **innerHTML**: Ideal for adding formatted content (e.g., bold text, links).\n- **innerText**: Useful for reading or changing only visible text, especially for user interfaces.\n- **textContent**: Safest and fastest for handling all text, including hidden content.\nDangers:\n- **innerHTML**: Using user input can lead to XSS (Cross-Site Scripting) attacks.\n- **innerText**: Slower due to CSS calculations and ignores hidden text.\n- **textContent**: Doesn’t support HTML formatting, limiting its use for styled content.\nFor security, prefer `textContent` or `innerText` over `innerHTML`, especially with user input."
-        },
-        {
-          "type": "code",
-          "language": "javascript",
-          "code": "// Danger example: XSS with innerHTML\nconst userInput = \"<script>alert('Attack!');</script>\";\nnoteElement.innerHTML = userInput;\n// Danger: Malicious script could run!\n\n// Safe alternative\nnoteElement.textContent = userInput;\n// Output: <div id=\"noteElement\">&lt;script&gt;alert('Attack!');&lt;/script&gt;</div>\n\n// innerText vs textContent\nnoteElement.innerHTML = \"Visible <span style=\\\"display: none;\\\">hidden</span> text\";\nconsole.log(noteElement.innerText); // \"Visible text\"\nconsole.log(noteElement.textContent); // \"Visible hidden text\"\n\n// Dynamic update\nconst updateNote = () => {\n  noteElement.textContent = \"Safe update\";\n  console.log(\"innerText: \", noteElement.innerText); // \"Safe update\"\n  console.log(\"textContent: \", noteElement.textContent); // \"Safe update\"\n};\nupdateButton.addEventListener(\"click\", updateNote);\n// Output: Clicking the button safely updates the content"
-        },
-        {
-          "type": "heading",
-          "text": "When to use which?"
-        },
-        {
-          "type": "paragraph",
-          "text": "- **innerHTML**: Use when you need to add HTML formatting (tags, styles), but be cautious of security risks.\n- **innerText**: Use for reading or changing visible text, especially in user-facing interfaces.\n- **textContent**: Use for safely reading or modifying all text, including hidden content.\nIn a digital notepad, use `textContent` for simple text updates, `innerHTML` for formatted notes, and `innerText` for visible text only."
-        },
-        {
-          "type": "heading",
-          "text": "Try it yourself"
-        },
-        {
-          "type": "editor",
-          "initialCode": "// Create your own content example!\nconst noteElement = document.createElement(\"div\");\nnoteElement.textContent = \"Digital notepad\";\ndocument.body.appendChild(noteElement);\n\nconst updateButton = document.createElement(\"button\");\nupdateButton.textContent = \"Update\";\ndocument.body.appendChild(updateButton);\n\nupdateButton.addEventListener(\"click\", () => {\n  noteElement.textContent = \"Safe note\";\n  // Alternative: noteElement.innerHTML = \"<strong>Formatted note</strong>\";\n});"
-        }
-      ]
-    },
-    "ru": {
-      "title": "innerHTML, innerText и textContent",
-      "description": "innerHTML, innerText и textContent – инструменты JavaScript для управления содержимым цифрового блокнота!",
-      "content": [
-        {
-          "type": "heading",
-          "text": "Что такое innerHTML, innerText и textContent?"
-        },
-        {
-          "type": "paragraph",
-          "text": "Представь, что ты редактируешь заметки в цифровом блокноте. В блокноте могут быть текст, заголовки или форматированные элементы (например, жирный шрифт). В JavaScript `innerHTML`, `innerText` и `textContent` используются для чтения или изменения содержимого DOM-элемента. Каждый из них – как отдельный инструмент редактирования: один работает с HTML-форматированием, другой – с видимым текстом, третий – со всем сырым текстом. Давай разберём их различия."
-        },
-        {
-          "type": "heading",
-          "text": "Как они работают и в чём различия?"
-        },
-        {
-          "type": "paragraph",
-          "text": "`innerHTML`, `innerText` и `textContent` используются для чтения или изменения содержимого элемента, но ведут себя по-разному:\n- **innerHTML**: Читает или устанавливает HTML-содержимое, включая теги (например, `<strong>`, `<div>`). Это как добавление форматированного текста и структуры в блокнот.\n- **innerText**: Читает или устанавливает только видимый текст, учитывая CSS-стили (например, `display: none`). Это как редактирование только видимых заметок в блокноте.\n- **textContent**: Читает или устанавливает весь текстовый контент, игнорируя HTML-теги и включая скрытый текст. Это как управление всеми сырыми данными в блокноте.\nПосмотрим различия на примерах."
-        },
-        {
-          "type": "code",
-          "language": "javascript",
-          "code": "// Пример HTML:\n/*\n<div id=\"noteElement\">\n  Привет, <strong>Блокнот!</strong>\n  <span style=\"display: none;\">Скрытая заметка</span>\n</div>\n<button class=\"update-btn\">Обновить содержимое</button>\n*/\n\n// 1. Работа с innerHTML\nconst noteElement = document.getElementById(\"noteElement\");\nconsole.log(noteElement.innerHTML);\n// Вывод: \"Привет, <strong>Блокнот!</strong>\\n  <span style=\\\"display: none;\\\">Скрытая заметка</span>\"\n\nnoteElement.innerHTML = \"Новая <em>заметка</em>!\";\n// Вывод: <div id=\"noteElement\">Новая <em>заметка</em>!</div>\n\n// 2. Работа с innerText\nconsole.log(noteElement.innerText);\n// Вывод: \"Новая заметка!\" (только видимый текст, без HTML-тегов, скрытый текст игнорируется)\n\nnoteElement.innerText = \"Простая заметка\";\n// Вывод: <div id=\"noteElement\">Простая заметка</div> (HTML-теги удаляются)\n\n// 3. Работа с textContent\nconsole.log(noteElement.textContent);\n// Вывод: \"Простая заметка\" (весь текст, даже если были HTML-теги или скрытый текст)\n\nnoteElement.textContent = \"Сырой текст <strong>заметка</strong>\";\n// Вывод: <div id=\"noteElement\">Сырой текст &lt;strong&gt;заметка&lt;/strong&gt;</div> (теги отображаются как текст)\n\n// 4. Динамическое обновление с событием\nconst updateButton = document.querySelector(\".update-btn\");\nupdateButton.addEventListener(\"click\", () => {\n  noteElement.innerHTML = \"<strong>Обновлённая</strong> заметка!\"; // Поддерживает HTML\n  // noteElement.innerText = \"Обновлённая заметка!\"; // Только текст\n  // noteElement.textContent = \"Обновлённая заметка!\"; // Сырой текст\n});\n// Вывод: При клике на кнопку содержимое обновляется"
-        },
-        {
-          "type": "heading",
-          "text": "Основные различия в таблице"
-        },
-        {
-          "type": "paragraph",
-          "text": "Для лучшего понимания различий вот сравнительная таблица:"
-        },
-        {
-          "type": "table",
-          "headers": ["Характеристика", "innerHTML", "innerText", "textContent"],
-          "rows": [
-            ["Тип содержимого", "HTML-теги и текст", "Только видимый текст", "Весь сырой текст"],
-            ["Чувствительность к CSS", "Не зависит от CSS", "Учитывает скрытые элементы (display: none)", "Не зависит от CSS, включает скрытый текст"],
-            ["Безопасность", "Риск XSS", "Безопасно, преобразует HTML в текст", "Безопасно, преобразует HTML в текст"],
-            ["Производительность", "Медленнее (разбор HTML)", "Медленно (расчёты CSS)", "Быстрее всего (сырой текст)"],
-            ["Пример использования", "Добавление форматированного контента", "Изменение видимого текста", "Работа с сырым или скрытым текстом"]
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and benefits"
+      },
+      {
+        "type": "paragraph",
+        "text": "Benefits:\n- **innerHTML**: Ideal for adding formatted content (e.g., bold text, links).\n- **innerText**: Useful for reading or changing only visible text, especially for user interfaces.\n- **textContent**: Safest and fastest for handling all text, including hidden content.\nDangers:\n- **innerHTML**: Using user input can lead to XSS (Cross-Site Scripting) attacks.\n- **innerText**: Slower due to CSS calculations and ignores hidden text.\n- **textContent**: Doesn’t support HTML formatting, limiting its use for styled content.\nFor security, prefer `textContent` or `innerText` over `innerHTML`, especially with user input."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Danger example: XSS with innerHTML\nconst userInput = \"<script>alert('Attack!');</script>\";\nnoteElement.innerHTML = userInput;\n// Danger: Malicious script could run!\n\n// Safe alternative\nnoteElement.textContent = userInput;\n// Output: <div id=\"noteElement\">&lt;script&gt;alert('Attack!');&lt;/script&gt;</div>\n\n// innerText vs textContent\nnoteElement.innerHTML = \"Visible <span style=\\\"display: none;\\\">hidden</span> text\";\nconsole.log(noteElement.innerText); // \"Visible text\"\nconsole.log(noteElement.textContent); // \"Visible hidden text\"\n\n// Dynamic update\nconst updateNote = () => {\n  noteElement.textContent = \"Safe update\";\n  console.log(\"innerText: \", noteElement.innerText); // \"Safe update\"\n  console.log(\"textContent: \", noteElement.textContent); // \"Safe update\"\n};\nupdateButton.addEventListener(\"click\", updateNote);\n// Output: Clicking the button safely updates the content"
+      },
+      {
+        "type": "heading",
+        "text": "When to use which?"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **innerHTML**: Use when you need to add HTML formatting (tags, styles), but be cautious of security risks.\n- **innerText**: Use for reading or changing visible text, especially in user-facing interfaces.\n- **textContent**: Use for safely reading or modifying all text, including hidden content.\nIn a digital notepad, use `textContent` for simple text updates, `innerHTML` for formatted notes, and `innerText` for visible text only."
+      },
+      {
+        "type": "heading",
+        "text": "Try it yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Create your own content example!\nconst noteElement = document.createElement(\"div\");\nnoteElement.textContent = \"Digital notepad\";\ndocument.body.appendChild(noteElement);\n\nconst updateButton = document.createElement(\"button\");\nupdateButton.textContent = \"Update\";\ndocument.body.appendChild(updateButton);\n\nupdateButton.addEventListener(\"click\", () => {\n  noteElement.textContent = \"Safe note\";\n  // Alternative: noteElement.innerHTML = \"<strong>Formatted note</strong>\";\n});"
+      }
+    ]
+  },
+  "ru": {
+    "title": "innerHTML, innerText и textContent",
+    "language": "javascript",
+    "description": "innerHTML, innerText и textContent – инструменты JavaScript для управления содержимым цифрового блокнота!",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое innerHTML, innerText и textContent?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Представь, что ты редактируешь заметки в цифровом блокноте. В блокноте могут быть текст, заголовки или форматированные элементы (например, жирный шрифт). В JavaScript `innerHTML`, `innerText` и `textContent` используются для чтения или изменения содержимого DOM-элемента. Каждый из них – как отдельный инструмент редактирования: один работает с HTML-форматированием, другой – с видимым текстом, третий – со всем сырым текстом. Давай разберём их различия."
+      },
+      {
+        "type": "heading",
+        "text": "Как они работают и в чём различия?"
+      },
+      {
+        "type": "paragraph",
+        "text": "`innerHTML`, `innerText` и `textContent` используются для чтения или изменения содержимого элемента, но ведут себя по-разному:\n- **innerHTML**: Читает или устанавливает HTML-содержимое, включая теги (например, `<strong>`, `<div>`). Это как добавление форматированного текста и структуры в блокнот.\n- **innerText**: Читает или устанавливает только видимый текст, учитывая CSS-стили (например, `display: none`). Это как редактирование только видимых заметок в блокноте.\n- **textContent**: Читает или устанавливает весь текстовый контент, игнорируя HTML-теги и включая скрытый текст. Это как управление всеми сырыми данными в блокноте.\nПосмотрим различия на примерах."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример HTML:\n/*\n<div id=\"noteElement\">\n  Привет, <strong>Блокнот!</strong>\n  <span style=\"display: none;\">Скрытая заметка</span>\n</div>\n<button class=\"update-btn\">Обновить содержимое</button>\n*/\n\n// 1. Работа с innerHTML\nconst noteElement = document.getElementById(\"noteElement\");\nconsole.log(noteElement.innerHTML);\n// Вывод: \"Привет, <strong>Блокнот!</strong>\\n  <span style=\\\"display: none;\\\">Скрытая заметка</span>\"\n\nnoteElement.innerHTML = \"Новая <em>заметка</em>!\";\n// Вывод: <div id=\"noteElement\">Новая <em>заметка</em>!</div>\n\n// 2. Работа с innerText\nconsole.log(noteElement.innerText);\n// Вывод: \"Новая заметка!\" (только видимый текст, без HTML-тегов, скрытый текст игнорируется)\n\nnoteElement.innerText = \"Простая заметка\";\n// Вывод: <div id=\"noteElement\">Простая заметка</div> (HTML-теги удаляются)\n\n// 3. Работа с textContent\nconsole.log(noteElement.textContent);\n// Вывод: \"Простая заметка\" (весь текст, даже если были HTML-теги или скрытый текст)\n\nnoteElement.textContent = \"Сырой текст <strong>заметка</strong>\";\n// Вывод: <div id=\"noteElement\">Сырой текст &lt;strong&gt;заметка&lt;/strong&gt;</div> (теги отображаются как текст)\n\n// 4. Динамическое обновление с событием\nconst updateButton = document.querySelector(\".update-btn\");\nupdateButton.addEventListener(\"click\", () => {\n  noteElement.innerHTML = \"<strong>Обновлённая</strong> заметка!\"; // Поддерживает HTML\n  // noteElement.innerText = \"Обновлённая заметка!\"; // Только текст\n  // noteElement.textContent = \"Обновлённая заметка!\"; // Сырой текст\n});\n// Вывод: При клике на кнопку содержимое обновляется"
+      },
+      {
+        "type": "heading",
+        "text": "Основные различия в таблице"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для лучшего понимания различий вот сравнительная таблица:"
+      },
+      {
+        "type": "table",
+        "headers": ["Характеристика", "innerHTML", "innerText", "textContent"],
+        "rows": [
+          [
+            "Тип содержимого",
+            "HTML-теги и текст",
+            "Только видимый текст",
+            "Весь сырой текст"
+          ],
+          [
+            "Чувствительность к CSS",
+            "Не зависит от CSS",
+            "Учитывает скрытые элементы (display: none)",
+            "Не зависит от CSS, включает скрытый текст"
+          ],
+          [
+            "Безопасность",
+            "Риск XSS",
+            "Безопасно, преобразует HTML в текст",
+            "Безопасно, преобразует HTML в текст"
+          ],
+          [
+            "Производительность",
+            "Медленнее (разбор HTML)",
+            "Медленно (расчёты CSS)",
+            "Быстрее всего (сырой текст)"
+          ],
+          [
+            "Пример использования",
+            "Добавление форматированного контента",
+            "Изменение видимого текста",
+            "Работа с сырым или скрытым текстом"
           ]
-        },
-        {
-          "type": "heading",
-          "text": "Опасности и преимущества"
-        },
-        {
-          "type": "paragraph",
-          "text": "Преимущества:\n- **innerHTML**: Идеально для добавления форматированного контента (например, жирный текст, ссылки).\n- **innerText**: Удобно для чтения или изменения только видимого текста, особенно в интерфейсах.\n- **textContent**: Самый безопасный и быстрый для работы со всем текстом, включая скрытый.\nОпасности:\n- **innerHTML**: Использование пользовательского ввода может привести к XSS-атакам.\n- **innerText**: Медленнее из-за расчётов CSS и игнорирует скрытый текст.\n- **textContent**: Не поддерживает HTML-форматирование, что ограничивает его для стилизованного контента.\nДля безопасности предпочитай `textContent` или `innerText` вместо `innerHTML`, особенно при работе с пользовательским вводом."
-        },
-        {
-          "type": "code",
-          "language": "javascript",
-          "code": "// Пример опасности: XSS с innerHTML\nconst userInput = \"<script>alert('Атака!');</script>\";\nnoteElement.innerHTML = userInput;\n// Опасность: Вредоносный скрипт может выполниться!\n\n// Безопасная альтернатива\nnoteElement.textContent = userInput;\n// Вывод: <div id=\"noteElement\">&lt;script&gt;alert('Атака!');&lt;/script&gt;</div>\n\n// innerText против textContent\nnoteElement.innerHTML = \"Видимый <span style=\\\"display: none;\\\">скрытый</span> текст\";\nconsole.log(noteElement.innerText); // \"Видимый текст\"\nconsole.log(noteElement.textContent); // \"Видимый скрытый текст\"\n\n// Динамическое обновление\nconst updateNote = () => {\n  noteElement.textContent = \"Безопасное обновление\";\n  console.log(\"innerText: \", noteElement.innerText); // \"Безопасное обновление\"\n  console.log(\"textContent: \", noteElement.textContent); // \"Безопасное обновление\"\n};\nupdateButton.addEventListener(\"click\", updateNote);\n// Вывод: При клике на кнопку содержимое безопасно обновляется"
-        },
-        {
-          "type": "heading",
-          "text": "Когда использовать что?"
-        },
-        {
-          "type": "paragraph",
-          "text": "- **innerHTML**: Используй, когда нужно добавить HTML-форматирование (теги, стили), но будь осторожен с безопасностью.\n- **innerText**: Используй для чтения или изменения видимого текста, особенно в пользовательских интерфейсах.\n- **textContent**: Используй для безопасного чтения или изменения всего текста, включая скрытый.\nВ цифровом блокноте используй `textContent` для простых текстовых обновлений, `innerHTML` для форматированных заметок, а `innerText` для работы только с видимым текстом."
-        },
-        {
-          "type": "heading",
-          "text": "Попробуй сам"
-        },
-        {
-          "type": "editor",
-          "initialCode": "// Создай свой пример с содержимым!\nconst noteElement = document.createElement(\"div\");\nnoteElement.textContent = \"Цифровой блокнот\";\ndocument.body.appendChild(noteElement);\n\nconst updateButton = document.createElement(\"button\");\nupdateButton.textContent = \"Обновить\";\ndocument.body.appendChild(updateButton);\n\nupdateButton.addEventListener(\"click\", () => {\n  noteElement.textContent = \"Безопасная заметка\";\n  // Альтернатива: noteElement.innerHTML = \"<strong>Форматированная заметка</strong>\";\n});"
-        }
-      ]
-    }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и преимущества"
+      },
+      {
+        "type": "paragraph",
+        "text": "Преимущества:\n- **innerHTML**: Идеально для добавления форматированного контента (например, жирный текст, ссылки).\n- **innerText**: Удобно для чтения или изменения только видимого текста, особенно в интерфейсах.\n- **textContent**: Самый безопасный и быстрый для работы со всем текстом, включая скрытый.\nОпасности:\n- **innerHTML**: Использование пользовательского ввода может привести к XSS-атакам.\n- **innerText**: Медленнее из-за расчётов CSS и игнорирует скрытый текст.\n- **textContent**: Не поддерживает HTML-форматирование, что ограничивает его для стилизованного контента.\nДля безопасности предпочитай `textContent` или `innerText` вместо `innerHTML`, особенно при работе с пользовательским вводом."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример опасности: XSS с innerHTML\nconst userInput = \"<script>alert('Атака!');</script>\";\nnoteElement.innerHTML = userInput;\n// Опасность: Вредоносный скрипт может выполниться!\n\n// Безопасная альтернатива\nnoteElement.textContent = userInput;\n// Вывод: <div id=\"noteElement\">&lt;script&gt;alert('Атака!');&lt;/script&gt;</div>\n\n// innerText против textContent\nnoteElement.innerHTML = \"Видимый <span style=\\\"display: none;\\\">скрытый</span> текст\";\nconsole.log(noteElement.innerText); // \"Видимый текст\"\nconsole.log(noteElement.textContent); // \"Видимый скрытый текст\"\n\n// Динамическое обновление\nconst updateNote = () => {\n  noteElement.textContent = \"Безопасное обновление\";\n  console.log(\"innerText: \", noteElement.innerText); // \"Безопасное обновление\"\n  console.log(\"textContent: \", noteElement.textContent); // \"Безопасное обновление\"\n};\nupdateButton.addEventListener(\"click\", updateNote);\n// Вывод: При клике на кнопку содержимое безопасно обновляется"
+      },
+      {
+        "type": "heading",
+        "text": "Когда использовать что?"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **innerHTML**: Используй, когда нужно добавить HTML-форматирование (теги, стили), но будь осторожен с безопасностью.\n- **innerText**: Используй для чтения или изменения видимого текста, особенно в пользовательских интерфейсах.\n- **textContent**: Используй для безопасного чтения или изменения всего текста, включая скрытый.\nВ цифровом блокноте используй `textContent` для простых текстовых обновлений, `innerHTML` для форматированных заметок, а `innerText` для работы только с видимым текстом."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Создай свой пример с содержимым!\nconst noteElement = document.createElement(\"div\");\nnoteElement.textContent = \"Цифровой блокнот\";\ndocument.body.appendChild(noteElement);\n\nconst updateButton = document.createElement(\"button\");\nupdateButton.textContent = \"Обновить\";\ndocument.body.appendChild(updateButton);\n\nupdateButton.addEventListener(\"click\", () => {\n  noteElement.textContent = \"Безопасная заметка\";\n  // Альтернатива: noteElement.innerHTML = \"<strong>Форматированная заметка</strong>\";\n});"
+      }
+    ]
   }
+}
