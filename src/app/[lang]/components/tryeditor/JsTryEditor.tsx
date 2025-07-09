@@ -451,10 +451,12 @@ export default function JsTryEditor({
       }
       if (lang === "java") {
         try {
+          // Replace any public class <Name> with public class Main
+          const mainClassCode = code.replace(/public\s+class\s+\w+/, "public class Main");
           const response = await fetch("/api/execute", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code, language: lang }),
+            body: JSON.stringify({ code: mainClassCode, language: lang }),
           });
           const result = await response.json();
           if (result.error) {
