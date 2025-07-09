@@ -101,6 +101,8 @@ function renderContentBlock(
       };
       // Use block.language if present, otherwise fallback to safeLanguage
       const editorLanguage = block.language || safeLanguage;
+      
+
       return (
         <div key={i} className={styles.editorContainer}>
           <JsTryEditor
@@ -128,6 +130,8 @@ function renderContentBlock(
 }
 
 export default function TutorialTopicPage() {
+
+
   const params = useParams();
   const language = Array.isArray(params.language)
     ? params.language[0]
