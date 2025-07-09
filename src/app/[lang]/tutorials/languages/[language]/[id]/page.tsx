@@ -52,7 +52,8 @@ function renderContentBlock(
   block: ContentBlock,
   i: number,
   editorStates: any,
-  setEditorStates: any
+  setEditorStates: any,
+  safeLanguage: string
 ) {
   switch (block.type) {
     case "heading":
@@ -98,9 +99,12 @@ function renderContentBlock(
       const handleEditorChange = (val: string) => {
         setEditorStates((prev: any) => ({ ...prev, [editorKey]: val }));
       };
+      // Use block.language if present, otherwise fallback to safeLanguage
+      const editorLanguage = block.language || safeLanguage;
       return (
         <div key={i} className={styles.editorContainer}>
           <JsTryEditor
+            language={editorLanguage}
             value={codeValue}
             onChange={handleEditorChange}
             showRunButton={true}
@@ -380,12 +384,7 @@ export default function TutorialTopicPage() {
                 <div className={styles.contentBlocks}>
                   {topicContent.content &&
                     topicContent.content.map((block: any, i: number) =>
-                      renderContentBlock(
-                        block,
-                        i,
-                        editorStates,
-                        setEditorStates
-                      )
+                      renderContentBlock(block, i, editorStates, setEditorStates, safeLanguage)
                     )}
                 </div>
               </>
