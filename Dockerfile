@@ -50,9 +50,9 @@ RUN bash -c "source /root/.sdkman/bin/sdkman-init.sh && sdk install scala"
 
 # Install Dart
 RUN apt-get update && apt-get install -y apt-transport-https
-RUN wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list
-RUN wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.key | apt-key add -
-RUN apt-get update && apt-get install -y dart
+RUN curl -fsSL https://storage.googleapis.com/dart-archive/channels/stable/release/3.8.1/linux_packages/dart_3.8.1-1_amd64.deb -o dart.deb \
+ && dpkg -i dart.deb || apt-get install -f -y
+
 
 # Install Swift (if available for Ubuntu)
 RUN apt-get update && apt-get install -y \

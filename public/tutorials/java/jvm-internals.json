@@ -1,0 +1,368 @@
+{
+  "az": {
+    "title": "Java Virtual Maşının Daxili Strukturu: Giriş",
+    "language": "java",
+    "description": "Java Virtual Maşını (JVM) Java kodunu platformadan asılı olmayaraq icra edir. Yaddaş idarəetməsi, zibil yığıcı, JIT kompilyatoru və sinif yükləmə mexanizmi kimi komponentlər performansı optimallaşdırır.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "JVM nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java Virtual Maşını (JVM) Java proqramlarını işə salmaq üçün platformadan asılı olmayan mühit təmin edən virtual maşındır. Java kodu `.java` fayllarında yazılır, `javac` ilə bayt koda (`.class` faylları) kompilyasiya edilir və JVM bu bayt kodu icra edir. JVM-in əsas üstünlüyü platformadan asılılığın aradan qaldırılmasıdır: eyni Java kodu Windows, Linux və ya macOS-da işləyə bilər. JVM bir neçə əsas komponentdən ibarətdir: sinif yükləyicisi (Class Loader), icra mühərriki (Execution Engine), yaddaş idarəetmə sistemi və zibil yığıcı (Garbage Collector). Bu komponentlər Java proqramlarının səmərəli və təhlükəsiz işləməsini təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Sinif Yükləmə Mexanizmi"
+      },
+      {
+        "type": "paragraph",
+        "text": "JVM-in sinif yükləyicisi (Class Loader) `.class` fayllarını yaddaşa yükləyir və proqramın icrası üçün hazır vəziyyətə gətirir. Bu proses üç mərhələdən ibarətdir:\n1. **Yükləmə (Loading)**: `.class` faylı yaddaşa yüklənir.\n2. **Bağlama (Linking)**: Sinifdəki dəyişənlər və metodların düzgünlüyü yoxlanılır, yaddaş yerləri ayrılır.\n3. **İlkinləşdirmə (Initialization)**: Statik dəyişənlərə ilkin dəyərlər verilir.\nMəsələn, `System.out.println()` istifadə etdikdə, JVM `System` sinfini yükləyir. Sinif yükləyicisi həmçinin təhlükəsizliyi təmin edir, çünki zərərli kodun yüklənməsinin qarşısını alır. Bootstrap, Extension və Application Class Loader kimi alt sistemlər bu prosesi idarə edir."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Main {\n  public static void main(String[] args) {\n    String message = \"Salam, JVM!\";\n    System.out.println(message);\n  }\n}\n// Çıxış: Salam, JVM!"
+      },
+      {
+        "type": "heading",
+        "text": "Yaddaş İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "JVM yaddaşı bir neçə bölməyə ayırır:\n- **Heap**: Obyektlər və onların instans dəyişənləri burada saxlanılır. Heap özü də bölünür: Young Generation (yeni obyektlər) və Old Generation (uzun müddətli obyektlər).\n- **Stack**: Hər ip üçün metod çağırışları və lokal dəyişənlər saxlanılır.\n- **Method Area**: Sinif strukturları, metod bayt kodları və statik dəyişənlər burada yerləşir.\n- **PC Register**: Hər ipin hazırda icra etdiyi təlimatın ünvanını saxlayır.\n- **Native Method Stack**: Yerli (native) metodlar üçün istifadə olunur.\nMəsələn, `new String(\"Salam\")` yazdıqda, `String` obyekti Heap-də yaradılır, lakin metod çağırışları Stack-də idarə olunur. Yaddaş idarəetməsi JVM-in performansı və sabitliyi üçün vacibdir."
+      },
+      {
+        "type": "heading",
+        "text": "Zibil Yığıcı (Garbage Collector)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Zibil yığıcı (Garbage Collector) artıq istifadə olunmayan obyektləri Heap-dən təmizləyərək yaddaşı boşaldır. Bu, yaddaş sızması (memory leak) problemlərinin qarşısını alır. Zibil yığıcı Young və Old Generation-da fərqli işləyir:\n- **Minor GC**: Young Generation-da kiçik təmizləmələr aparır, qısamüddətli obyektləri silir.\n- **Major GC**: Old Generation-da böyük təmizləmələr edir, uzunmüddətli obyektləri təmizləyir.\nMəsələn, bir metodda müvəqqəti obyekt yaradılanda və artıq istifadə olunmayanda, zibil yığıcı onu avtomatik silir. JVM-də fərqli zibil yığıcılar var (Serial, Parallel, G1), hər biri müxtəlif performans tələbləri üçün optimallaşdırılıb."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Main {\n  public static void main(String[] args) {\n    for (int i = 0; i < 1000; i++) {\n      String temp = new String(\"Müvəqqəti obyekt \" + i);\n    }\n    System.out.println(\"Obyektlər yaradıldı, zibil yığıcı işləyəcək.\");\n  }\n}\n// Çıxış: Obyektlər yaradıldı, zibil yığıcı işləyəcək."
+      },
+      {
+        "type": "heading",
+        "text": "JIT Kompilyatoru"
+      },
+      {
+        "type": "paragraph",
+        "text": "Just-In-Time (JIT) kompilyatoru bayt kodu maşın koduna çevirərək performansı artırır. JVM əvvəlcə bayt kodu interpretasiya edir, lakin tez-tez icra olunan kodları (hot spots) aşkar edərək onları maşın koduna kompilyasiya edir. Bu, proqramın daha sürətli işləməsini təmin edir. Məsələn, bir dövr içində təkrarlanan metod çağırışları JIT tərəfindən optimallaşdırılır. JIT kompilyatoru dinamik optimizasiyalar (məsələn, inline metodlar) tətbiq edir, bu da JVM-in yerli tətbiqlərə yaxın performans göstərməsinə imkan verir."
+      },
+      {
+        "type": "heading",
+        "text": "İcra Mühərriki (Execution Engine)"
+      },
+      {
+        "type": "paragraph",
+        "text": "İcra mühərriki bayt kodu maşın təlimatlarına çevirərək proqramı icra edir. O, üç əsas komponentdən ibarətdir:\n- **İnterpretator**: Bayt kodu sətir-sətir icra edir, lakin yavaşdır.\n- **JIT Kompilyatoru**: Tez-tez icra olunan kodları maşın koduna çevirir.\n- **Zibil Yığıcı**: Yaddaşı idarə edir.\nİcra mühərriki JVM-in ürəyidir, çünki bütün icra prosesini idarə edir. Məsələn, `System.out.println()` çağırışını icra edərkən mühərrik bayt kodu interpretasiya edir və ya JIT ilə optimallaşdırır."
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "JVM-in daxili strukturu real dünyada geniş istifadə olunur:\n- **Veb tətbiqləri**: Veb serverlər (məsələn, Apache Tomcat) JVM-də işləyir, çoxsaylı sorğuları idarə edir.\n- **Böyük məlumat emalı**: Hadoop və ya Spark kimi platformalar JVM-dən istifadə edir.\n- **Mobil tətbiqlər**: Android-in Dalvik/ART virtual maşınları JVM-dən ilhamlanıb.\n- **Maliyyə sistemləri**: Real vaxt tranzaksiya emalı üçün JVM-in performansı vacibdir.\n- **Oyun serverləri**: Minecraft kimi oyun serverləri JVM-də işləyir.\nMəsələn, bir e-ticarət platforması JVM-in zibil yığıcısından istifadə edərək yaddaş səmərəliliyini təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "JVM-in Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "JVM Java proqramlarını platformadan asılı olmayaraq icra etmək, performansı optimallaşdırmaq və təhlükəsizliyi təmin etmək məqsədi daşıyır. Yaddaş idarəetməsi, JIT kompilyasiyası və zibil yığımı kimi xüsusiyyətlər proqramların səmərəli işləməsini təmin edir. JVM olmadan Java-nın portativliyi və performansı mümkün olmazdı."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Sinif Yükləyicisi",
+            "description": "Sinifləri yaddaşa yükləyir və təhlükəsizliyi təmin edir."
+          },
+          {
+            "term": "Yaddaş İdarəetməsi",
+            "description": "Heap, Stack və Method Area ilə resursları idarə edir."
+          },
+          {
+            "term": "Zibil Yığıcı",
+            "description": "Artıq istifadə olunmayan obyektləri təmizləyir."
+          },
+          {
+            "term": "JIT Kompilyatoru",
+            "description": "Bayt kodu maşın koduna çevirərək performansı artırır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Yaddaşın düzgün idarə edilməməsi sızmalara səbəb ola bilər, zibil yığıcı performansı aşağı sala bilər, səhv sinif yüklənməsi təhlükəsizlik problemləri yaradar.\n- **Tövsiyələr**: Yaddaş istifadəsini optimallaşdırın (məsələn, böyük obyektlərdən qaçın), zibil yığıcı parametrlərini tənzimləyin (`-Xms`, `-Xmx`), təhlükəsiz sinif yükləyicilərindən istifadə edin, IntelliJ IDEA kimi IDE-lərdən istifadə edin ki, səhvlər asan aşkarlansın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "public class Main {\n  public static void main(String[] args) {\n    String message = \"JVM testi\";\n    for (int i = 0; i < 100; i++) {\n      String temp = new String(\"Test \" + i);\n    }\n    System.out.println(message);\n  }\n}\n// Çıxış: JVM testi"
+      }
+    ]
+  },
+  "en": {
+    "title": "Java Virtual Machine Internals: Introduction",
+    "language": "java",
+    "description": "The Java Virtual Machine (JVM) executes Java code independently of the platform. Components like memory management, garbage collector, JIT compiler, and class loading optimize performance.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is the JVM?"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Java Virtual Machine (JVM) is a virtual machine that provides a platform-independent environment for running Java programs. Java code is written in `.java` files, compiled into bytecode (`.class` files) by `javac`, and executed by the JVM. The JVM’s key advantage is platform independence: the same Java code runs on Windows, Linux, or macOS. The JVM consists of several components: the Class Loader, Execution Engine, memory management system, and Garbage Collector. These components ensure efficient and secure execution of Java programs."
+      },
+      {
+        "type": "heading",
+        "text": "Class Loading Mechanism"
+      },
+      {
+        "type": "paragraph",
+        "text": "The JVM’s Class Loader loads `.class` files into memory and prepares them for execution. This process has three stages:\n1. **Loading**: The `.class` file is loaded into memory.\n2. **Linking**: The class’s variables and methods are verified, and memory is allocated.\n3. **Initialization**: Static variables are assigned initial values.\nFor example, when using `System.out.println()`, the JVM loads the `System` class. The Class Loader also ensures security by preventing malicious code from being loaded. Subsystems like Bootstrap, Extension, and Application Class Loaders manage this process."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Main {\n  public static void main(String[] args) {\n    String message = \"Hello, JVM!\";\n    System.out.println(message);\n  }\n}\n// Output: Hello, JVM!"
+      },
+      {
+        "type": "heading",
+        "text": "Memory Management"
+      },
+      {
+        "type": "paragraph",
+        "text": "The JVM divides memory into several areas:\n- **Heap**: Stores objects and their instance variables. The Heap is divided into Young Generation (new objects) and Old Generation (long-lived objects).\n- **Stack**: Stores method calls and local variables for each thread.\n- **Method Area**: Holds class structures, method bytecode, and static variables.\n- **PC Register**: Stores the address of the current instruction for each thread.\n- **Native Method Stack**: Used for native methods.\nFor example, creating `new String(\"Hello\")` allocates the `String` object in the Heap, while method calls are managed in the Stack. Memory management is critical for JVM performance and stability."
+      },
+      {
+        "type": "heading",
+        "text": "Garbage Collector"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Garbage Collector (GC) reclaims memory by removing unused objects from the Heap, preventing memory leaks. It operates differently in the Young and Old Generations:\n- **Minor GC**: Cleans short-lived objects in the Young Generation.\n- **Major GC**: Cleans long-lived objects in the Old Generation.\nFor example, a temporary object created in a method is automatically removed by the GC when no longer needed. The JVM offers various GC implementations (Serial, Parallel, G1), each optimized for different performance needs."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Main {\n  public static void main(String[] args) {\n    for (int i = 0; i < 1000; i++) {\n      String temp = new String(\"Temporary object \" + i);\n    }\n    System.out.println(\"Objects created, GC will run.\");\n  }\n}\n// Output: Objects created, GC will run."
+      },
+      {
+        "type": "heading",
+        "text": "JIT Compiler"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Just-In-Time (JIT) Compiler improves performance by converting bytecode into machine code. The JVM initially interprets bytecode, but the JIT identifies frequently executed code (hot spots) and compiles it into machine code. This makes programs run faster. For example, a method called repeatedly in a loop is optimized by the JIT. The JIT applies dynamic optimizations, such as inlining methods, enabling the JVM to achieve near-native performance."
+      },
+      {
+        "type": "heading",
+        "text": "Execution Engine"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Execution Engine executes bytecode by translating it into machine instructions. It consists of three main components:\n- **Interpreter**: Executes bytecode line by line, but is slower.\n- **JIT Compiler**: Compiles frequently executed code into machine code.\n- **Garbage Collector**: Manages memory.\nThe Execution Engine is the core of the JVM, managing the entire execution process. For example, when calling `System.out.println()`, the engine interprets or JIT-compiles the bytecode."
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "The JVM’s internals are critical in real-world applications:\n- **Web Applications**: Web servers like Apache Tomcat run on the JVM, handling multiple requests.\n- **Big Data Processing**: Platforms like Hadoop and Spark rely on the JVM.\n- **Mobile Applications**: Android’s Dalvik/ART VMs are inspired by the JVM.\n- **Financial Systems**: Real-time transaction processing depends on JVM performance.\n- **Game Servers**: Servers like Minecraft run on the JVM.\nFor example, an e-commerce platform uses the JVM’s Garbage Collector to ensure memory efficiency."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of the JVM"
+      },
+      {
+        "type": "paragraph",
+        "text": "The JVM aims to execute Java programs platform-independently, optimize performance, and ensure security. Features like memory management, JIT compilation, and garbage collection make programs efficient. Without the JVM, Java’s portability and performance would not be possible."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Class Loader",
+            "description": "Loads classes into memory and ensures security."
+          },
+          {
+            "term": "Memory Management",
+            "description": "Manages resources with Heap, Stack, and Method Area."
+          },
+          {
+            "term": "Garbage Collector",
+            "description": "Removes unused objects to free memory."
+          },
+          {
+            "term": "JIT Compiler",
+            "description": "Converts bytecode to machine code for better performance."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Improper memory management can cause leaks, inefficient garbage collection may degrade performance, and incorrect class loading can pose security risks.\n- **Recommendations**: Optimize memory usage (e.g., avoid large objects), tune GC parameters (`-Xms`, `-Xmx`), use secure class loaders, and leverage IDEs like IntelliJ IDEA to detect errors."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "public class Main {\n  public static void main(String[] args) {\n    String message = \"JVM test\";\n    for (int i = 0; i < 100; i++) {\n      String temp = new String(\"Test \" + i);\n    }\n    System.out.println(message);\n  }\n}\n// Output: JVM test"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Внутренности Java Virtual Machine: Введение",
+    "language": "java",
+    "description": "Виртуальная машина Java (JVM) выполняет Java-код независимо от платформы. Компоненты, такие как управление памятью, сборщик мусора, JIT-компилятор и загрузка классов, оптимизируют производительность.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое JVM?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Виртуальная машина Java (JVM) — это виртуальная машина, обеспечивающая независимую от платформы среду для выполнения Java-программ. Java-код пишется в файлах `.java`, компилируется в байт-код (файлы `.class`) с помощью `javac` и выполняется JVM. Главное преимущество JVM — независимость от платформы: один и тот же Java-код работает на Windows, Linux или macOS. JVM состоит из нескольких компонентов: загрузчик классов (Class Loader), исполнительный движок (Execution Engine), система управления памятью и сборщик мусора (Garbage Collector). Эти компоненты обеспечивают эффективное и безопасное выполнение Java-программ."
+      },
+      {
+        "type": "heading",
+        "text": "Механизм загрузки классов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Загрузчик классов JVM (Class Loader) загружает файлы `.class` в память и подготавливает их к выполнению. Этот процесс состоит из трёх этапов:\n1. **Загрузка (Loading)**: Файл `.class` загружается в память.\n2. **Связывание (Linking)**: Проверяется корректность переменных и методов класса, выделяется память.\n3. **Инициализация (Initialization)**: Статическим переменным присваиваются начальные значения.\nНапример, при использовании `System.out.println()` JVM загружает класс `System`. Загрузчик классов также обеспечивает безопасность, предотвращая загрузку вредоносного кода. Подсистемы, такие как Bootstrap, Extension и Application Class Loaders, управляют этим процессом."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Main {\n  public static void main(String[] args) {\n    String message = \"Привет, JVM!\";\n    System.out.println(message);\n  }\n}\n// Вывод: Привет, JVM!"
+      },
+      {
+        "type": "heading",
+        "text": "Управление памятью"
+      },
+      {
+        "type": "paragraph",
+        "text": "JVM разделяет память на несколько областей:\n- **Куча (Heap)**: Хранит объекты и их переменные экземпляра. Куча делится на Young Generation (новые объекты) и Old Generation (долгоживущие объекты).\n- **Стек (Stack)**: Хранит вызовы методов и локальные переменные для каждого потока.\n- **Область методов (Method Area)**: Хранит структуры классов, байт-код методов и статические переменные.\n- **PC Register**: Сохраняет адрес текущей инструкции для каждого потока.\n- **Стек нативных методов (Native Method Stack)**: Используется для нативных методов.\nНапример, создание `new String(\"Привет\")` выделяет объект `String` в куче, а вызовы методов управляются в стеке. Управление памятью критически важно для производительности и стабильности JVM."
+      },
+      {
+        "type": "heading",
+        "text": "Сборщик мусора"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сборщик мусора (Garbage Collector) освобождает память, удаляя неиспользуемые объекты из кучи, предотвращая утечки памяти. Он работает по-разному в Young и Old Generation:\n- **Minor GC**: Очищает краткосрочные объекты в Young Generation.\n- **Major GC**: Очищает долгоживущие объекты в Old Generation.\nНапример, временный объект, созданный в методе, автоматически удаляется сборщиком мусора, когда он больше не нужен. JVM предлагает различные реализации сборщика мусора (Serial, Parallel, G1), каждая из которых оптимизирована для разных потребностей производительности."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Main {\n  public static void main(String[] args) {\n    for (int i = 0; i < 1000; i++) {\n      String temp = new String(\"Временный объект \" + i);\n    }\n    System.out.println(\"Объекты созданы, сборщик мусора запустится.\");\n  }\n}\n// Вывод: Объекты созданы, сборщик мусора запустится."
+      },
+      {
+        "type": "heading",
+        "text": "JIT-компилятор"
+      },
+      {
+        "type": "paragraph",
+        "text": "Компилятор Just-In-Time (JIT) повышает производительность, преобразуя байт-код в машинный код. JVM сначала интерпретирует байт-код, но JIT определяет часто выполняемый код (hot spots) и компилирует его в машинный код. Это ускоряет выполнение программы. Например, метод, вызываемый многократно в цикле, оптимизируется JIT. JIT применяет динамические оптимизации, такие как встраивание методов, что позволяет JVM достигать производительности, близкой к нативным приложениям."
+      },
+      {
+        "type": "heading",
+        "text": "Исполнительный движок"
+      },
+      {
+        "type": "paragraph",
+        "text": "Исполнительный движок выполняет байт-код, преобразуя его в машинные инструкции. Он состоит из трёх основных компонентов:\n- **Интерпретатор**: Выполняет байт-код построчно, но работает медленнее.\n- **JIT-компилятор**: Компилирует часто выполняемый код в машинный код.\n- **Сборщик мусора**: Управляет памятью.\nИсполнительный движок — это сердце JVM, управляющее всем процессом выполнения. Например, вызов `System.out.println()` интерпретируется или компилируется JIT."
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Внутренности JVM имеют решающее значение в реальных приложениях:\n- **Веб-приложения**: Веб-серверы, такие как Apache Tomcat, работают на JVM, обрабатывая множество запросов.\n- **Обработка больших данных**: Платформы, такие как Hadoop и Spark, используют JVM.\n- **Мобильные приложения**: Dalvik/ART в Android вдохновлены JVM.\n- **Финансовые системы**: Обработка транзакций в реальном времени зависит от производительности JVM.\n- **Игровые серверы**: Серверы, такие как Minecraft, работают на JVM.\nНапример, платформа электронной коммерции использует сборщик мусора JVM для обеспечения эффективности памяти."
+      },
+      {
+        "type": "heading",
+        "text": "Цель JVM"
+      },
+      {
+        "type": "paragraph",
+        "text": "JVM предназначена для выполнения Java-программ независимо от платформы, оптимизации производительности и обеспечения безопасности. Функции, такие как управление памятью, JIT-компиляция и сборка мусора, обеспечивают эффективную работу программ. Без JVM портативность и производительность Java были бы невозможны."
+      },
+      {
+        "type": "heading",
+        "text": "Основные характеристики"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Загрузчик классов",
+            "description": "Загружает классы в память и обеспечивает безопасность."
+          },
+          {
+            "term": "Управление памятью",
+            "description": "Управляет ресурсами с помощью кучи, стека и области методов."
+          },
+          {
+            "term": "Сборщик мусора",
+            "description": "Удаляет неиспользуемые объекты, освобождая память."
+          },
+          {
+            "term": "JIT-компилятор",
+            "description": "Преобразует байт-код в машинный код для повышения производительности."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильное управление памятью может вызвать утечки, неэффективная сборка мусора может снизить производительность, а неверная загрузка классов может создать угрозы безопасности.\n- **Рекомендации**: Оптимизируйте использование памяти (например, избегайте больших объектов), настраивайте параметры сборщика мусора (`-Xms`, `-Xmx`), используйте безопасные загрузчики классов, применяйте IDE, такие как IntelliJ IDEA, для обнаружения ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "public class Main {\n  public static void main(String[] args) {\n    String message = \"Тест JVM\";\n    for (int i = 0; i < 100; i++) {\n      String temp = new String(\"Тест \" + i);\n    }\n    System.out.println(message);\n  }\n}\n// Вывод: Тест JVM"
+      }
+    ]
+  }
+}

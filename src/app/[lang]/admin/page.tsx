@@ -99,7 +99,7 @@ export default function AdminPanelPage() {
     setError("");
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const updated: any = {
+    const updated: { name: string; email: string; role: string; password?: string } = {
       name: formData.get("name") as string,
       email: formData.get("email") as string,
       role: formData.get("role") as string,
@@ -111,7 +111,7 @@ export default function AdminPanelPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updated),
     });
-    let updatedUser;
+    let updatedUser: User;
     try {
       updatedUser = await res.json();
     } catch {
@@ -120,7 +120,7 @@ export default function AdminPanelPage() {
       return;
     }
     if (!res.ok) {
-      setError(updatedUser.error || "Failed to update user");
+      setError((updatedUser as any)?.error || "Failed to update user");
       setLoading(false);
       return;
     }
@@ -228,8 +228,8 @@ export default function AdminPanelPage() {
                   <li>
                     New user registered: <b>Jane Doe</b>
                   </li>
-                  <li>Feedback received: "Great platform!"</li>
-                  <li>Error report: "Lesson not loading"</li>
+                  <li>Feedback received: &quot;Great platform!&quot;</li>
+                  <li>Error report: &quot;Lesson not loading&quot;</li>
                 </ul>
               </div>
             </div>

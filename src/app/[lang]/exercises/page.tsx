@@ -6,7 +6,7 @@ import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
 import HeroSection from "../components/heroSection/HeroSection";
 import Link from "next/link";
-import { FiSearch, FiFilter, FiTrendingUp, FiCalendar, FiCode, FiUsers, FiClock, FiBarChart2, FiSmile, FiMeh, FiFrown, FiCheckCircle, FiXCircle, FiMinusCircle, FiDatabase, FiTarget, FiZap, FiAward } from "react-icons/fi";
+import { FiSearch, FiFilter, FiTrendingUp, FiCalendar, FiCode, FiUsers, FiClock, FiMinusCircle, FiDatabase, FiTarget, FiZap, FiAward, FiCheckCircle, FiXCircle } from "react-icons/fi";
 import { usePathname } from "next/navigation";
 import {
   SiJavascript,
@@ -14,11 +14,6 @@ import {
   SiCplusplus,
   SiGo,
   SiOpenjdk,
-  SiTypescript,
-  SiPhp,
-  SiSwift,
-  SiKotlin,
-  SiRuby,
 } from "react-icons/si";
 
 const difficultyColor = (diff: string) =>
@@ -45,7 +40,6 @@ export default function ExercisesPage() {
   const [search, setSearch] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("Bütün");
   const [statuses, setStatuses] = useState<{ [id: number]: "not_submitted" | "wrong" | "correct" }>({});
-  const [globalLanguage, setGlobalLanguage] = useState('javascript');
   
   const pathname = usePathname();
   const currentLang = pathname.split("/")[1] || "en";
@@ -64,11 +58,6 @@ export default function ExercisesPage() {
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, []);
-
-  const handleLanguageChange = (lang: string) => {
-    setGlobalLanguage(lang);
-    localStorage.setItem('quiz_global_lang', lang);
-  };
 
   // Fetch latest submission status for each exercise
   React.useEffect(() => {
@@ -236,14 +225,14 @@ export default function ExercisesPage() {
               </span>
               {search && (
                 <span className={styles.searchTerm}>
-                  "{search}" üçün nəticələr
+                  &quot;{search}&quot; üçün nəticələr
                 </span>
               )}
             </div>
 
             {/* Exercises List */}
             <div className={styles.list}>
-              {filtered.map((ex, i) => (
+              {filtered.map((ex) => (
                 <Link
                   href={`/${currentLang}/exercises/${ex.id}`}
                   key={ex.id}

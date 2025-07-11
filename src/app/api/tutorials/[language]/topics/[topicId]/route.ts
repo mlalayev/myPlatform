@@ -16,11 +16,8 @@ type Topic = {
   content: ContentBlock[];
 };
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { language: string; topicId: string } }
-) {
-  const { language, topicId } = params;
+export async function GET(req, context) {
+  const { language, topicId } = context.params;
 
   try {
     // Check if language has a folder structure
@@ -42,7 +39,7 @@ export async function GET(
       const topicList = JSON.parse(indexContents);
 
       // Find the specific topic
-      const topicInfo = topicList.find((topic: any) => topic.id === topicId);
+      const topicInfo = topicList.find((topic: Topic) => topic.id === topicId);
 
       if (!topicInfo) {
         return NextResponse.json({ error: "Topic not found" }, { status: 404 });
@@ -54,7 +51,7 @@ export async function GET(
       const topic = JSON.parse(topicContents);
 
       return NextResponse.json(topic);
-    } catch (folderError) {
+    } catch (e) {
       // Fallback to old single file structure
       const filePath = path.join(
         process.cwd(),

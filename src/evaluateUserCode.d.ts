@@ -1,12 +1,12 @@
 declare module 'evaluateUserCode' {
   export interface TestCase {
-    input: any[];
+    input: unknown[];
     expectedOutput: string;
   }
   export interface EvaluationResult {
-    input: any[];
+    input: unknown[];
     expected: string;
-    output: any;
+    output: unknown;
     passed: boolean;
     time: number;
     memory: number;

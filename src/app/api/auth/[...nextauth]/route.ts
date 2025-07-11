@@ -1,26 +1,16 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { Account, Profile, User } from "next-auth";
+import { AdapterUser } from "next-auth/adapters";
 
 const prisma = new PrismaClient();
 
-
-
-type UserWithAuthFields = {
-  id: number;
-  name: string;
-  email: string;
-  password: string;
-  role: string;
-  avatar: string | null;
-};
+// Removed unused UserWithAuthFields type
 
 const authOptions = {
-  // Remove the problematic adapter for now - we'll handle OAuth manually
-  // adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt" as const,
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -92,7 +82,7 @@ const authOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account, profile }: { user: User | AdapterUser; account: Account | null; profile?: Profile | undefined }) {
       // If user signs in with Google and doesn't exist, create them
       if (account?.provider === "google" && profile) {
         const existingUser = await prisma.user.findUnique({
@@ -116,9 +106,9 @@ const authOptions = {
           // Update the user object with the database ID
           user.id = String(newUser.id);
           // Add a flag to indicate this is a new user
-          (user as any).isNewUser = true;
+          (user as unknown as { isNewUser: boolean }).isNewUser = true;
           // Set the avatar URL from Google
-          user.avatarUrl = user.image || null;
+          (user as any).avatarUrl = user.image || null;
         } else {
           // Update existing user's Google info
           await prisma.user.update({
@@ -132,12 +122,11 @@ const authOptions = {
           // Update the user object with the database ID
           user.id = String(existingUser.id);
           // Set the avatar URL from Google
-          user.avatarUrl = user.image || existingUser.avatarUrl;
+          (user as any).avatarUrl = user.image || existingUser.avatarUrl;
         }
-        
         // Ensure avatarUrl is set from image for both new and existing users
-        if (user.image && !user.avatarUrl) {
-          user.avatarUrl = user.image;
+        if (user.image && !(user as any).avatarUrl) {
+          (user as any).avatarUrl = user.image;
         }
       }
       return true;
@@ -148,7 +137,7 @@ const authOptions = {
         token.name = user.name;
         token.email = user.email;
         token.role = user.role;
-        token.isNewUser = (user as any).isNewUser || false;
+        token.isNewUser = (user as unknown as { isNewUser: boolean })?.isNewUser || false;
         // Use avatarUrl if available, otherwise fall back to image
         token.avatarUrl = user.avatarUrl || user.image;
       }
@@ -175,4 +164,4 @@ const authOptions = {
 
 const handler = NextAuth(authOptions);
 
-export { handler as GET, handler as POST, authOptions };
+export { handler as GET, handler as POST };

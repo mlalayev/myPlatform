@@ -8,7 +8,6 @@ import {
   FiBookOpen,
   FiEdit,
   FiStar,
-  FiArrowUpRight,
   FiLogIn,
   FiUser,
   FiSettings,
@@ -40,11 +39,11 @@ const Header: React.FC = () => {
   useEffect(() => {
     if (session?.user) {
       console.log("Header - Session user data:", {
-        id: (session.user as any).id,
+        id: (session.user as unknown as { id: string }).id,
         name: session.user.name,
         email: session.user.email,
-        avatarUrl: (session.user as any).avatarUrl,
-        role: (session.user as any).role
+        avatarUrl: (session.user as unknown as { avatarUrl: string }).avatarUrl,
+        role: (session.user as unknown as { role: string }).role
       });
     }
   }, [session]);
@@ -183,11 +182,11 @@ const Header: React.FC = () => {
               aria-label="Profil"
             >
               {(() => {
-                const avatarUrl = (session.user as any).avatarUrl;
+                const avatarUrl = (session.user as unknown as { avatarUrl: string }).avatarUrl;
                 
                 if (avatarUrl) {
                   return (
-                    <img 
+                    <Image 
                       src={avatarUrl} 
                       alt="avatar" 
                       className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm" 
@@ -205,9 +204,9 @@ const Header: React.FC = () => {
             {isProfileDropdownOpen && (
               <div className={HeaderStyle.profileMenu}>
                 <div className={HeaderStyle.profileMenuUser}>
-                  {(session.user as any).avatarUrl ? (
-                    <img 
-                      src={(session.user as any).avatarUrl} 
+                  {(session.user as unknown as { avatarUrl: string }) ? (
+                    <Image 
+                      src={(session.user as unknown as { avatarUrl: string }).avatarUrl} 
                       alt="avatar" 
                       className={HeaderStyle.profileMenuAvatar} 
                     />
@@ -218,7 +217,7 @@ const Header: React.FC = () => {
                   )}
                   <div>
                     <div className={HeaderStyle.profileMenuName}>{session.user.name}</div>
-                    <div className={HeaderStyle.profileMenuEmail}>{(session.user as any).username || session.user.email}</div>
+                    <div className={HeaderStyle.profileMenuEmail}>{(session.user as unknown as { username: string }).username || session.user.email}</div>
                   </div>
                 </div>
                 <hr className={HeaderStyle.profileMenuDivider} />

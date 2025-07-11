@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import CodeLoader from "./[lang]/components/loading/CodeLoader";
 import { useRouter } from "next/navigation";
 
 export default function ClientRedirect() {

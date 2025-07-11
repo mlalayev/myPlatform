@@ -1,0 +1,344 @@
+{
+  "az": {
+    "title": "Java Çoxyollu Proqramlaşdırma: Giriş",
+    "language": "java",
+    "description": "Çoxyollu proqramlaşdırma (threading) Java-da bir neçə tapşırığın eyni anda icra edilməsinə imkan verən mexanizmdir. Java `Thread` sinfi, `Runnable` interfeysi və `java.util.concurrent` paketi ilə çoxyolluluğu dəstəkləyir.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Çoxyollu proqramlaşdırma nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Çoxyollu proqramlaşdırma (threading) bir proqramın eyni anda bir neçə tapşırığı yerinə yetirməsinə imkan verir. Hər bir tapşırıq ayrı bir 'yol' (thread) kimi işləyir. Məsələn, bir proqram eyni anda istifadəçi interfeysini idarə edə, məlumatları yükləyə və hesablama apara bilər. Java-da hər bir proqram ən azı bir yol ilə başlayır (əsas yol, yəni `main` thread). Çoxyollu proqramlaşdırma proqramın performansını artırır, çünki tapşırıqlar paralel olaraq icra olunur, xüsusilə çoxnüvəli prosessorlarda. Lakin çoxyollu proqramlaşdırma mürəkkəbdir, çünki yollar eyni məlumatlara daxil olduqda sinxronizasiya problemləri yarana bilər. Java bu əməliyyatları `java.lang.Thread` sinfi və `java.util.concurrent` paketi ilə dəstəkləyir."
+      },
+      {
+        "type": "heading",
+        "text": "Çoxyollu proqramlaşdırmanın əsas komponentləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java-da çoxyollu proqramlaşdırma üçün bir neçə əsas komponent istifadə olunur:\n1. **`Thread` sinfi**: Yeni bir yol yaratmaq üçün istifadə olunur. `Thread` sinfini birbaşa genişləndirmək (extend) və ya `start()` metodu ilə başlatmaq mümkündür.\n2. **`Runnable` interfeysi**: Yolu təyin etmək üçün daha çevik bir üsuldur. `Runnable` yalnız `run()` metodunu tələb edir və `Thread` sinfinə ötürülür.\n3. **`synchronized` açar sözü**: Yolların eyni məlumatlara eyni anda daxil olmasının qarşısını alır, sinxronizasiyanı təmin edir.\n4. **`ExecutorService`**: `java.util.concurrent` paketində yerləşir və yolların idarə edilməsini asanlaşdırır, məsələn, yol hovuzları (thread pools) vasitəsilə.\nBu komponentlər müxtəlif ssenarilər üçün uyğundur: sadə tapşırıqlar üçün `Thread` və ya `Runnable`, mürəkkəb proqramlar üçün isə `ExecutorService` tövsiyə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Yolların yaradılması və istifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java-da yolları iki əsas yolla yaratmaq olar:\n1. **Thread sinfini genişləndirmək**: Yeni sinif `Thread` sinfini miras alır və `run()` metodunu təyin edir. Bu metod yolun icra edəcəyi tapşırığı müəyyənləşdirir. `start()` metodu ilə yol işə salınır.\n2. **Runnable interfeysini tətbiq etmək**: `Runnable` interfeysini tətbiq edən sinif yaradılır və `run()` metodu təyin edilir. Sonra bu sinif `Thread` obyektinə ötürülür. Bu üsul daha çevikdir, çünki Java-da yalnız bir sinfi miras almaq olar, lakin bir neçə interfeysi tətbiq etmək mümkündür.\nYolların işə salınması `start()` metodu ilə aparılır, bu metod `run()` metodunu avtomatik çağırır. Birbaşa `run()` metodunu çağırmaq yol yaratmır, sadəcə adi metod kimi işləyir. Yollar eyni anda icra olunsa da, onların icra sırası proqramçı tərəfindən tam idarə edilmir, çünki bu, əməliyyat sisteminin planlaşdırma mexanizmindən asılıdır."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "class MyThread extends Thread {\n  public void run() {\n    for (int i = 0; i < 3; i++) {\n      System.out.println(\"Yol işləyir: \" + i);\n    }\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    MyThread thread = new MyThread();\n    thread.start();\n    System.out.println(\"Əsas yol işləyir.\");\n  }\n}\n// Çıxış (sıra dəyişə bilər):\n// Əsas yol işləyir.\n// Yol işləyir: 0\n// Yol işləyir: 1\n// Yol işləyir: 2"
+      },
+      {
+        "type": "heading",
+        "text": "Sinxronizasiya"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sinxronizasiya çoxyollu proqramlaşdırmada ən vacib anlayışlardan biridir. Bir neçə yol eyni məlumatlara (məsələn, bir dəyişənə) daxil olduqda, 'data race' və ya uyğunsuzluq problemləri yarana bilər. Java-da `synchronized` açar sözü bu problemi həll edir. `synchronized` bloku və ya metodu təmin edir ki, eyni anda yalnız bir yol müəyyən bir məlumatla işləyə bilsin. Məsələn, bir bank hesabının balansını yeniləyən iki yol eyni anda balans dəyişənə daxil olarsa, səhv nəticələr əldə oluna bilər. `synchronized` ilə bu əməliyyatlar ardıcıl şəkildə icra olunur. Digər sinxronizasiya alətləri `Lock` interfeysi və `java.util.concurrent` paketindəki `ConcurrentHashMap` kimi strukturlardır. Sinxronizasiya performans xərcləri yarada bilər, ona görə də yalnız zəruri hallarda istifadə edilməlidir."
+      },
+      {
+        "type": "heading",
+        "text": "ExecutorService və yol hovuzları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Çoxyollu proqramlaşdırmada hər tapşırıq üçün yeni yol yaratmaq resurs baxımından baha başa gələ bilər. `ExecutorService` `java.util.concurrent` paketində yerləşir və yolların idarə edilməsini asanlaşdırır. `ExecutorService` yol hovuzları (thread pools) yaradır, burada məhdud sayda yol təkrar-təkrar istifadə olunur. Bu, resurs istehlakını azaldır və proqramın səmərəliliyini artırır. Məsələn, `Executors.newFixedThreadPool(2)` iki yollu hovuz yaradır və tapşırıqlar bu yollar arasında bölüşdürülür. `ExecutorService` ilə tapşırıqlar `submit()` və ya `execute()` metodları ilə hovuza əlavə edilir. Bu yanaşma müasir proqramlarda daha çox istifadə olunur, çünki yolların əl ilə idarə edilməsindən daha sadə və təhlükəsizdir."
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Çoxyollu proqramlaşdırma real dünyada geniş istifadə olunur:\n- **Veb serverlər**: Eyni anda çoxlu istifadəçi sorğusunu idarə etmək üçün (məsələn, veb səhifə yükləmələri).\n- **İstifadəçi interfeysləri**: UI-nin cavabdehliyini qorumaq üçün uzun müddətli tapşırıqları (məsələn, fayl yükləmə) ayrı yolda icra etmək.\n- **Məlumat emalı**: Böyük həcmdə məlumatların paralel emalı, məsələn, şəkillərin emalı və ya verilənlər bazası sorğuları.\n- **Oyunlar**: Fərqli oyun elementlərinin (məsələn, personaj hərəkətləri, səs effektləri) eyni anda idarə edilməsi.\nMəsələn, bir çox istifadəçinin sorğularını idarə edən veb tətbiqetmə hər sorğunu ayrı yolda işlədə bilər ki, proqram daha sürətli cavab versin."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "class MyRunnable implements Runnable {\n  public void run() {\n    for (int i = 0; i < 3; i++) {\n      System.out.println(\"Runnable işləyir: \" + i);\n    }\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Thread thread = new Thread(new MyRunnable());\n    thread.start();\n    System.out.println(\"Əsas yol işləyir.\");\n  }\n}\n// Çıxış (sıra dəyişə bilər):\n// Əsas yol işləyir.\n// Runnable işləyir: 0\n// Runnable işləyir: 1\n// Runnable işləyir: 2"
+      },
+      {
+        "type": "heading",
+        "text": "Çoxyollu Proqramlaşdırmanın Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Çoxyollu proqramlaşdırma proqramların performansını artırır, çünki tapşırıqlar paralel olaraq icra olunur. Bu, xüsusilə çoxnüvəli sistemlərdə faydalıdır. Çoxyollu proqramlaşdırma istifadəçi təcrübəsini yaxşılaşdırır, məsələn, interfeysin donmasının qarşısını alır və resursların səmərəli istifadəsinə imkan verir. Lakin düzgün sinxronizasiya olmadan bu, mürəkkəb problemlərə səbəb ola bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Yolların yaradılması",
+            "description": "`Thread` sinfi və ya `Runnable` interfeysi ilə yollar yaradılır."
+          },
+          {
+            "term": "Sinxronizasiya",
+            "description": "`synchronized` və digər alətlərlə məlumat uyğunsuzluqlarının qarşısı alınır."
+          },
+          {
+            "term": "ExecutorService",
+            "description": "Yol hovuzları ilə resursları səmərəli idarə edir."
+          },
+          {
+            "term": "Paralel icra",
+            "description": "Tapşırıqların eyni anda icrasını təmin edir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Sinxronizasiya problemləri (data race, deadlock), həddindən artıq yol yaradılması performansın azalmasına səbəb ola bilər, yolların düzgün idarə edilməməsi resurs sızmasına yol açar.\n- **Tövsiyələr**: `ExecutorService` kimi müasir alətlərdən istifadə edin, sinxronizasiyanı yalnız zəruri hallarda tətbiq edin, yolların sayını məhdudlaşdırın, IntelliJ IDEA kimi IDE-lərdən istifadə edin ki, səhvlər asan aşkarlansın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "class Counter {\n  private int count = 0;\n\n  public synchronized void increment() {\n    count++;\n    System.out.println(\"Sayğac: \" + count);\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Counter counter = new Counter();\n    Thread thread1 = new Thread(() -> {\n      for (int i = 0; i < 2; i++) counter.increment();\n    });\n    Thread thread2 = new Thread(() -> {\n      for (int i = 0; i < 2; i++) counter.increment();\n    });\n    thread1.start();\n    thread2.start();\n  }\n}\n// Çıxış (sıra dəyişə bilər):\n// Sayğac: 1\n// Sayğac: 2\n// Sayğac: 3\n// Sayğac: 4"
+      }
+    ]
+  },
+  "en": {
+    "title": "Java Threading: Introduction",
+    "language": "java",
+    "description": "Threading in Java enables multiple tasks to run concurrently within a program. Java supports threading with the `Thread` class, `Runnable` interface, and the `java.util.concurrent` package.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Threading?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Threading allows a program to execute multiple tasks simultaneously. Each task runs in a separate 'thread,' which is a lightweight unit of execution. For example, a program can manage a user interface, download data, and perform calculations at the same time. Every Java program starts with at least one thread (the main thread, i.e., `main`). Threading improves performance by allowing tasks to run in parallel, especially on multi-core processors. However, threading is complex because multiple threads accessing shared data can cause synchronization issues. Java supports threading with the `java.lang.Thread` class and the `java.util.concurrent` package, providing tools to manage threads efficiently."
+      },
+      {
+        "type": "heading",
+        "text": "Key Components of Threading"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java provides several key components for threading:\n1. **`Thread` Class**: Used to create a new thread by extending the class and defining the `run()` method, which specifies the task. The thread is started with the `start()` method.\n2. **`Runnable` Interface**: A more flexible way to define a thread’s task by implementing the `run()` method and passing it to a `Thread` object.\n3. **`synchronized` Keyword**: Ensures that only one thread can access shared data at a time, preventing conflicts.\n4. **`ExecutorService`**: Part of the `java.util.concurrent` package, it simplifies thread management with thread pools, reducing resource overhead.\nThese components suit different scenarios: `Thread` or `Runnable` for simple tasks, and `ExecutorService` for complex, high-performance applications."
+      },
+      {
+        "type": "heading",
+        "text": "Creating and Using Threads"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java offers two main ways to create threads:\n1. **Extending the `Thread` Class**: A new class extends `Thread` and overrides the `run()` method to define the task. The thread is started with `start()`.\n2. **Implementing the `Runnable` Interface**: A class implements `Runnable`, defines the `run()` method, and is passed to a `Thread` object. This approach is more flexible since a class can implement multiple interfaces but only extend one class.\nThe `start()` method initiates the thread, which automatically calls `run()`. Calling `run()` directly does not create a new thread; it executes as a regular method. Threads run concurrently, but their execution order is not guaranteed, as it depends on the operating system’s scheduler."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "class MyThread extends Thread {\n  public void run() {\n    for (int i = 0; i < 3; i++) {\n      System.out.println(\"Thread running: \" + i);\n    }\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    MyThread thread = new MyThread();\n    thread.start();\n    System.out.println(\"Main thread running.\");\n  }\n}\n// Output (order may vary):\n// Main thread running.\n// Thread running: 0\n// Thread running: 1\n// Thread running: 2"
+      },
+      {
+        "type": "heading",
+        "text": "Synchronization"
+      },
+      {
+        "type": "paragraph",
+        "text": "Synchronization is critical in threading to prevent issues when multiple threads access shared data, which can lead to data races or inconsistencies. The `synchronized` keyword ensures that only one thread can execute a block of code or method at a time. For example, if two threads update a bank account balance simultaneously, incorrect results may occur without synchronization. Using `synchronized` ensures sequential access to shared resources. Other synchronization tools include the `Lock` interface and concurrent data structures like `ConcurrentHashMap` from the `java.util.concurrent` package. Synchronization can introduce performance overhead, so it should be used judiciously."
+      },
+      {
+        "type": "heading",
+        "text": "ExecutorService and Thread Pools"
+      },
+      {
+        "type": "paragraph",
+        "text": "Creating a new thread for each task can be resource-intensive. `ExecutorService`, part of the `java.util.concurrent` package, simplifies thread management by using thread pools, where a fixed number of threads are reused for multiple tasks. This reduces resource consumption and improves efficiency. For example, `Executors.newFixedThreadPool(2)` creates a pool with two threads, and tasks are assigned to these threads via `submit()` or `execute()` methods. `ExecutorService` is preferred in modern applications for its simplicity and robustness compared to manual thread management."
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Threading is widely used in real-world applications:\n- **Web Servers**: Handling multiple user requests simultaneously (e.g., loading web pages).\n- **User Interfaces**: Keeping the UI responsive while performing long-running tasks (e.g., file downloads) in separate threads.\n- **Data Processing**: Parallel processing of large datasets, such as image processing or database queries.\n- **Games**: Managing different game elements (e.g., character movements, sound effects) concurrently.\nFor example, a web application might use threads to process user requests in parallel, ensuring faster response times."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "class MyRunnable implements Runnable {\n  public void run() {\n    for (int i = 0; i < 3; i++) {\n      System.out.println(\"Runnable running: \" + i);\n    }\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Thread thread = new Thread(new MyRunnable());\n    thread.start();\n    System.out.println(\"Main thread running.\");\n  }\n}\n// Output (order may vary):\n// Main thread running.\n// Runnable running: 0\n// Runnable running: 1\n// Runnable running: 2"
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Threading"
+      },
+      {
+        "type": "paragraph",
+        "text": "Threading enhances program performance by enabling parallel execution of tasks, particularly on multi-core systems. It improves user experience by preventing UI freezes and optimizes resource usage. However, without proper synchronization, threading can lead to complex issues like data races or deadlocks."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Thread Creation",
+            "description": "Uses `Thread` class or `Runnable` interface to create threads."
+          },
+          {
+            "term": "Synchronization",
+            "description": "Uses `synchronized` and other tools to prevent data inconsistencies."
+          },
+          {
+            "term": "ExecutorService",
+            "description": "Manages threads efficiently with thread pools."
+          },
+          {
+            "term": "Parallel Execution",
+            "description": "Enables simultaneous task execution."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Synchronization issues (data races, deadlocks), creating too many threads can degrade performance, and improper thread management can cause resource leaks.\n- **Recommendations**: Use `ExecutorService` for modern thread management, apply synchronization only when necessary, limit the number of threads, and use IDEs like IntelliJ IDEA to detect threading issues."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "class Counter {\n  private int count = 0;\n\n  public synchronized void increment() {\n    count++;\n    System.out.println(\"Counter: \" + count);\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Counter counter = new Counter();\n    Thread thread1 = new Thread(() -> {\n      for (int i = 0; i < 2; i++) counter.increment();\n    });\n    Thread thread2 = new Thread(() -> {\n      for (int i = 0; i < 2; i++) counter.increment();\n    });\n    thread1.start();\n    thread2.start();\n  }\n}\n// Output (order may vary):\n// Counter: 1\n// Counter: 2\n// Counter: 3\n// Counter: 4"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Многопоточность в Java: Введение",
+    "language": "java",
+    "description": "Многопоточность (threading) в Java позволяет выполнять несколько задач одновременно в рамках одной программы. Java поддерживает многопоточность с помощью класса `Thread`, интерфейса `Runnable` и пакета `java.util.concurrent`.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое многопоточность?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Многопоточность позволяет программе выполнять несколько задач одновременно. Каждая задача выполняется в отдельном 'потоке' (thread), который является лёгкой единицей выполнения. Например, программа может одновременно управлять пользовательским интерфейсом, загружать данные и выполнять вычисления. Каждая Java-программа начинается с как минимум одного потока (основной поток, т.е. `main`). Многопоточность повышает производительность, позволяя задачам выполняться параллельно, особенно на многоядерных процессорах. Однако многопоточность сложна, так как несколько потоков, обращающихся к общим данным, могут вызывать проблемы синхронизации. Java поддерживает многопоточность с помощью класса `java.lang.Thread` и пакета `java.util.concurrent`."
+      },
+      {
+        "type": "heading",
+        "text": "Основные компоненты многопоточности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java предоставляет несколько ключевых компонентов для многопоточности:\n1. **Класс `Thread`**: Используется для создания нового потока путём наследования и определения метода `run()`, который задаёт задачу. Поток запускается методом `start()`.\n2. **Интерфейс `Runnable`**: Более гибкий способ определения задачи потока путём реализации метода `run()` и передачи его объекту `Thread`.\n3. **Ключевое слово `synchronized`**: Обеспечивает, что только один поток может обращаться к общим данным одновременно, предотвращая конфликты.\n4. **Класс `ExecutorService`**: Находится в пакете `java.util.concurrent` и упрощает управление потоками с помощью пулов потоков.\nЭти компоненты подходят для разных сценариев: `Thread` или `Runnable` для простых задач, а `ExecutorService` для сложных приложений с высокой производительностью."
+      },
+      {
+        "type": "heading",
+        "text": "Создание и использование потоков"
+      },
+      {
+        "type": "paragraph",
+        "text": "В Java потоки можно создать двумя основными способами:\n1. **Наследование от класса `Thread`**: Новый класс наследует `Thread` и переопределяет метод `run()` для задания задачи. Поток запускается методом `start()`.\n2. **Реализация интерфейса `Runnable`**: Создаётся класс, реализующий `Runnable`, с определением метода `run()`, который затем передаётся объекту `Thread`. Этот подход более гибкий, так как класс может реализовывать несколько интерфейсов, но наследовать только один класс.\nМетод `start()` запускает поток, автоматически вызывая `run()`. Прямой вызов `run()` не создаёт новый поток, а выполняет метод как обычную функцию. Потоки выполняются одновременно, но их порядок выполнения не гарантируется, так как зависит от планировщика операционной системы."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "class MyThread extends Thread {\n  public void run() {\n    for (int i = 0; i < 3; i++) {\n      System.out.println(\"Поток работает: \" + i);\n    }\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    MyThread thread = new MyThread();\n    thread.start();\n    System.out.println(\"Основной поток работает.\");\n  }\n}\n// Вывод (порядок может варьироваться):\n// Основной поток работает.\n// Поток работает: 0\n// Поток работает: 1\n// Поток работает: 2"
+      },
+      {
+        "type": "heading",
+        "text": "Синхронизация"
+      },
+      {
+        "type": "paragraph",
+        "text": "Синхронизация — один из ключевых аспектов многопоточности. Когда несколько потоков обращаются к общим данным (например, переменной), могут возникнуть проблемы, такие как гонки данных (data race) или несогласованность. Ключевое слово `synchronized` решает эту проблему, обеспечивая, что только один поток может выполнять определённый блок кода или метод в данный момент. Например, если два потока одновременно обновляют баланс банковского счёта, без синхронизации могут возникнуть ошибки. `synchronized` обеспечивает последовательный доступ к ресурсам. Другие инструменты синхронизации включают интерфейс `Lock` и структуры данных, такие как `ConcurrentHashMap` из пакета `java.util.concurrent`. Синхронизация может снижать производительность, поэтому её следует использовать только при необходимости."
+      },
+      {
+        "type": "heading",
+        "text": "ExecutorService и пулы потоков"
+      },
+      {
+        "type": "paragraph",
+        "text": "Создание нового потока для каждой задачи может быть ресурсоёмким. `ExecutorService` из пакета `java.util.concurrent` упрощает управление потоками с помощью пулов потоков, где ограниченное количество потоков используется повторно для выполнения задач. Это снижает потребление ресурсов и повышает эффективность. Например, `Executors.newFixedThreadPool(2)` создаёт пул из двух потоков, и задачи распределяются между ними с помощью методов `submit()` или `execute()`. `ExecutorService` предпочтителен в современных приложениях, так как он проще и безопаснее, чем ручное управление потоками."
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Многопоточность широко используется в реальных приложениях:\n- **Веб-серверы**: Обработка множества пользовательских запросов одновременно (например, загрузка веб-страниц).\n- **Пользовательские интерфейсы**: Сохранение отзывчивости интерфейса при выполнении длительных задач (например, загрузка файлов) в отдельных потоках.\n- **Обработка данных**: Параллельная обработка больших объёмов данных, таких как обработка изображений или запросы к базам данных.\n- **Игры**: Одновременное управление различными игровыми элементами (например, движения персонажей, звуковые эффекты).\nНапример, веб-приложение может использовать потоки для параллельной обработки запросов пользователей, обеспечивая более быстрое время отклика."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "class MyRunnable implements Runnable {\n  public void run() {\n    for (int i = 0; i < 3; i++) {\n      System.out.println(\"Runnable работает: \" + i);\n    }\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Thread thread = new Thread(new MyRunnable());\n    thread.start();\n    System.out.println(\"Основной поток работает.\");\n  }\n}\n// Вывод (порядок может варьироваться):\n// Основной поток работает.\n// Runnable работает: 0\n// Runnable работает: 1\n// Runnable работает: 2"
+      },
+      {
+        "type": "heading",
+        "text": "Цель многопоточности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Многопоточность повышает производительность программ за счёт параллельного выполнения задач, особенно на многоядерных системах. Она улучшает пользовательский опыт, предотвращая зависания интерфейса, и оптимизирует использование ресурсов. Однако без правильной синхронизации многопоточность может привести к сложным проблемам, таким как гонки данных или взаимоблокировки."
+      },
+      {
+        "type": "heading",
+        "text": "Основные характеристики"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Создание потоков",
+            "description": "Использует класс `Thread` или интерфейс `Runnable` для создания потоков."
+          },
+          {
+            "term": "Синхронизация",
+            "description": "Использует `synchronized` и другие инструменты для предотвращения несогласованности данных."
+          },
+          {
+            "term": "ExecutorService",
+            "description": "Эффективно управляет потоками с помощью пулов потоков."
+          },
+          {
+            "term": "Параллельное выполнение",
+            "description": "Обеспечивает одновременное выполнение задач."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Проблемы синхронизации (гонки данных, взаимоблокировки), создание слишком большого количества потоков может снизить производительность, неправильное управление потоками может привести к утечкам ресурсов.\n- **Рекомендации**: Используйте `ExecutorService` для современного управления потоками, применяйте синхронизацию только при необходимости, ограничивайте количество потоков, используйте IDE, такие как IntelliJ IDEA, для обнаружения проблем с потоками."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "class Counter {\n  private int count = 0;\n\n  public synchronized void increment() {\n    count++;\n    System.out.println(\"Счётчик: \" + count);\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Counter counter = new Counter();\n    Thread thread1 = new Thread(() -> {\n      for (int i = 0; i < 2; i++) counter.increment();\n    });\n    Thread thread2 = new Thread(() -> {\n      for (int i = 0; i < 2; i++) counter.increment();\n    });\n    thread1.start();\n    thread2.start();\n  }\n}\n// Вывод (порядок может варьироваться):\n// Счётчик: 1\n// Счётчик: 2\n// Счётчик: 3\n// Счётчик: 4"
+      }
+    ]
+  }
+}

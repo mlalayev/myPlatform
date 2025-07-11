@@ -1,40 +1,98 @@
-import builtins
+#!/usr/bin/env python3
 import sys
+import io
+import traceback
+import signal
+import os
+import platform
 
-# Remove dangerous built-ins (but keep 'exec', '__import__', 'globals', and others needed by the runner)
-for name in [
-    'open', 'compile', 'input', 'exit', 'quit', 'help', 'dir', 'locals', 'vars'
-]:
-    if hasattr(builtins, name):
-        delattr(builtins, name)
+# Set UTF-8 encoding for stdout/stderr
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
+else:
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
-# Remove only the most dangerous modules (allow math, random, datetime, json)
-for mod in [
-    'os', 'subprocess', 'shutil', 'requests', 'http', 'urllib'
-]:
-    if mod in sys.modules:
-        sys.modules[mod] = None
+def timeout_handler(signum, frame):
+    print("Error: Code execution timed out", file=sys.stderr)
+    sys.exit(1)
 
-# Limit print calls
-MAX_PRINT_CALLS = 5
-_print_count = 0
-_real_print = print
+def safe_exec(code):
+    """Safely execute Python code with restrictions"""
+    try:
+        # Timeout yalnız Unix sistemlər üçün (Windows-də signal.SIGALRM yoxdur)
+        if platform.system() != "Windows":
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(5)  # 5 second timeout
+        
+        # Create restricted globals
+        restricted_globals = {
+            '__builtins__': {
+                'print': print,
+                'len': len,
+                'str': str,
+                'int': int,
+                'float': float,
+                'bool': bool,
+                'list': list,
+                'dict': dict,
+                'tuple': tuple,
+                'set': set,
+                'range': range,
+                'enumerate': enumerate,
+                'zip': zip,
+                'map': map,
+                'filter': filter,
+                'sorted': sorted,
+                'sum': sum,
+                'max': max,
+                'min': min,
+                'abs': abs,
+                'round': round,
+                'type': type,
+                'isinstance': isinstance,
+                'hasattr': hasattr,
+                'getattr': getattr,
+                'setattr': setattr,
+                'dir': dir,
+                'help': help,
+                'ValueError': ValueError,
+                'TypeError': TypeError,
+                'IndexError': IndexError,
+                'KeyError': KeyError,
+                'AttributeError': AttributeError,
+                'Exception': Exception,
+                'input': lambda prompt='': input(prompt),
+                'open': open,  # Məhdud fayl əməliyyatları üçün
+                '__import__': __import__,  # Allow imports again
+            }
+        }
+        
+        # Execute the code
+        exec(code, restricted_globals)
+        
+        # Cancel timeout
+        if platform.system() != "Windows":
+            signal.alarm(0)
+            
+    except Exception as e:
+        print(f"Error: {str(e)}", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
+        sys.exit(1)
 
-def limited_print(*args, **kwargs):
-    global _print_count
-    if _print_count < MAX_PRINT_CALLS:
-        _real_print(*args, **kwargs)
-        _print_count += 1
-    elif _print_count == MAX_PRINT_CALLS:
-        print("[output truncated: too many print calls]", file=sys.stderr)
-        _print_count += 1
-
-builtins.print = limited_print
-
-# Read user code from stdin
-user_code = sys.stdin.read()
-
-try:
-    exec(user_code, {'__builtins__': builtins.__dict__})
-except Exception as e:
-    _real_print(f"Error: {e}\nXəta: {e}\nОшибка: {e}", file=sys.stderr) 
+if __name__ == "__main__":
+    try:
+        # Read code from stdin
+        code = sys.stdin.read()
+        if code.strip():
+            safe_exec(code)
+        else:
+            print("No code provided", file=sys.stderr)
+            sys.exit(1)
+    except KeyboardInterrupt:
+        print("Execution interrupted", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error reading input: {str(e)}", file=sys.stderr)
+        sys.exit(1)

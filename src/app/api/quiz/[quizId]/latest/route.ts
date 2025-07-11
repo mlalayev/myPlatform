@@ -33,14 +33,6 @@ export async function GET(req: Request, context: { params: Promise<{ quizId: str
     orderBy: { timestamp: "desc" },
   });
 
-  // Calculate total test cases from latest submission if available
-  let totalTestCases = 0;
-  if (latest) {
-    totalTestCases = latest.answers?.failedCases
-      ? latest.score + latest.answers.failedCases.length
-      : latest.score;
-  }
-
   // Check if user has ever passed this quiz
   const hasPassed = await prisma.quizSubmission.findFirst({
     where: {

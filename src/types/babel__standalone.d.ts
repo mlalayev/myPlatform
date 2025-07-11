@@ -1,3 +1,3 @@
 declare module '@babel/standalone' {
-  export function transform(code: string, options?: any): { code: string };
+  export function transform(code: string, options?: unknown): { code: string };
 } 

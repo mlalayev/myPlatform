@@ -1,3 +1,6 @@
-import Header from "../components/header/Header";
-import Footer from "../../components/footer/Footer";
-import PageStyle from "../../Page.module.css"; 
+"use client";
+import React from "react";
+
+export default function UsersPage() {
+  return <div>Users page placeholder</div>;
+} 

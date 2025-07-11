@@ -4,75 +4,19 @@ import React from "react";
 import styles from "./TutorialsPage.module.css";
 import {
   FiCode,
-  FiCoffee,
-  FiTerminal,
-  FiFeather,
-  FiDatabase,
   FiSettings,
-  FiBarChart2,
   FiLayers,
-  FiZap,
-  FiGrid,
-  FiPieChart,
-  FiCpu,
-  FiBookOpen,
-  FiGitBranch,
-  FiPlay,
-  FiHash,
   FiChevronRight,
   FiBook,
   FiCpu as FiCpuIcon,
   FiBox,
   FiPackage,
 } from "react-icons/fi";
-import {
-  SiJavascript,
-  SiPython,
-  SiC,
-  SiCplusplus,
-  SiGo,
-  SiRust,
-  SiTypescript,
-  SiPhp,
-  SiSwift,
-  SiKotlin,
-  SiRuby,
-  SiR,
-  SiMysql,
-  SiGnubash,
-  SiScala,
-  SiDart,
-  SiHaskell,
-  SiOpenjdk,
-  SiReact,
-  SiVuedotjs,
-  SiAngular,
-  SiSvelte,
-  SiNextdotjs,
-  SiNodedotjs,
-} from "react-icons/si";
 import Link from "next/link";
 import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
 import HeroSection from "../components/heroSection/HeroSection";
-import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-
-// Type for language cards
-interface LanguageAvailable {
-  name: string;
-  icon: React.ReactElement;
-  available: true;
-  href: string;
-  description: string;
-}
-interface LanguageUnavailable {
-  name: string;
-  icon: React.ReactElement;
-  available: false;
-  description: string;
-}
-type Language = LanguageAvailable | LanguageUnavailable;
 
 const mainCategories = [
   {
@@ -90,7 +34,7 @@ const mainCategories = [
   {
     key: "frameworks",
     name: "Frameworklər",
-    icon: <SiReact size={44} color="#61dafb" />,
+    icon: <FiCode size={44} color="#61dafb" />,
     description: "React, Vue, Angular, Svelte və s.",
   },
   {

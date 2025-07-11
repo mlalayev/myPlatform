@@ -1,0 +1,368 @@
+{
+  "az": {
+    "title": "Java NIO: Giriş",
+    "language": "java",
+    "description": "Java NIO (New Input/Output) yüksək performanslı giriş-çıxış əməliyyatları üçün istifadə olunur. Kanallar, buferlər, seçicilər və fayl əməliyyatları kimi komponentlər ənənəvi IO-dan daha səmərəlidir.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Java NIO nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java NIO (New Input/Output) Java-da giriş-çıxış əməliyyatlarını (fayl oxuma/yazma, şəbəkə əlaqələri) daha səmərəli idarə etmək üçün nəzərdə tutulmuş kitabxanadır. Ənənəvi Java IO (məsələn, `InputStream`, `OutputStream`) ilə müqayisədə NIO daha yüksək performans və miqyaslana bilənlik təmin edir. NIO-nun əsas komponentləri kanallar (`Channel`), buferlər (`Buffer`) və seçicilərdir (`Selector`). NIO bloklama və qeyri-bloklama rejimlərini dəstəkləyir, bu da çoxsaylı əlaqələrin idarə edilməsini asanlaşdırır. Məsələn, bir veb server NIO ilə eyni anda minlərlə istifadəçi sorğusunu emal edə bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Kanallar (Channel)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kanallar NIO-nun əsas komponentlərindən biridir və məlumatın mənbədən (fayl, şəbəkə) bufere və ya əksinə ötürülməsini təmin edir. Ənənəvi IO-dan fərqli olaraq, kanallar iki istiqamətli ola bilər (həm oxuma, həm yazma). Əsas kanal növləri:\n- **`FileChannel`**: Fayllarla işləmək üçün.\n- **`SocketChannel`**: TCP şəbəkə əlaqələri üçün.\n- **`ServerSocketChannel`**: Server tərəfində şəbəkə əlaqələri üçün.\n- **`DatagramChannel`**: UDP protokolu üçün.\nMəsələn, bir faylı oxumaq üçün `FileChannel` istifadə edilərək məlumat birbaşa bufere ötürülür."
+      },
+      {
+        "type": "heading",
+        "text": "Buferlər (Buffer)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Buferlər NIO-da məlumatın saxlandığı və işləndiyi yerdir. `ByteBuffer` ən çox istifadə olunan bufedir, lakin `CharBuffer`, `IntBuffer` kimi digər növlər də var. Buferlər sabit ölçülü yaddaş bölgəsidir və məlumatı oxumaq və ya yazmaq üçün istifadə olunur. Əsas xüsusiyyətləri:\n- **Capacity**: Buferin ümumi tutumu.\n- **Position**: Hazırki oxuma/yazma mövqeyi.\n- **Limit**: Oxuma/yazma üçün mövcud məlumatın həddi.\nMəsələn, bir fayldan məlumat oxuyarkən `ByteBuffer` məlumatı saxlayır və kanala ötürməyə hazırlaşır."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.nio.ByteBuffer;\nimport java.nio.channels.FileChannel;\nimport java.nio.file.Paths;\nimport java.nio.file.StandardOpenOption;\n\npublic class Main {\n  public static void main(String[] args) throws Exception {\n    String message = \"Salam, NIO!\";\n    ByteBuffer buffer = ByteBuffer.allocate(1024);\n    buffer.put(message.getBytes());\n    buffer.flip();\n    try (FileChannel channel = FileChannel.open(Paths.get(\"output.txt\"), StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {\n      channel.write(buffer);\n    }\n    System.out.println(\"Fayla yazıldı: \" + message);\n  }\n}\n// Çıxış: Fayla yazıldı: Salam, NIO!"
+      },
+      {
+        "type": "heading",
+        "text": "Seçicilər (Selector)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Seçicilər (`Selector`) NIO-nun qeyri-bloklama rejimində çoxsaylı kanalları idarə etmək üçün istifadə olunur. Bir seçici bir neçə kanalın vəziyyətini (oxumağa hazır, yazmağa hazır və s.) izləyir. Bu, xüsusilə şəbəkə tətbiqlərində (məsələn, serverlər) faydalıdır, çünki bir ip çoxsaylı əlaqələri idarə edə bilər. Seçicilər `SelectableChannel` sinfi ilə işləyir (məsələn, `SocketChannel`, `ServerSocketChannel`). Məsələn, bir chat serveri seçicidən istifadə edərək eyni anda birdən çox müştərinin mesajlarını qəbul edə bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Fayl Əməliyyatları"
+      },
+      {
+        "type": "paragraph",
+        "text": "NIO-nun `java.nio.file` paketi fayl əməliyyatlarını asanlaşdırır. `Path` və `Files` sinifləri fayl və qovluqlarla işləmək üçün istifadə olunur. Məsələn:\n- **`Path`**: Fayl sistemindəki fayl və ya qovluğun ünvanını təmsil edir.\n- **`Files`**: Fayl oxuma, yazma, silmə və ya atribut dəyişdirmə kimi əməliyyatlar üçün metodlar təmin edir.\nMəsələn, `Files.write()` ilə bir fayla məlumat yazmaq olar. NIO fayl əməliyyatları ənənəvi `File` sinfindən daha çevik və səmərəlidir."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class Main {\n  public static void main(String[] args) throws Exception {\n    String message = \"NIO fayl əməliyyatı\";\n    Files.writeString(Paths.get(\"test.txt\"), message);\n    String content = Files.readString(Paths.get(\"test.txt\"));\n    System.out.println(\"Fayldan oxundu: \" + content);\n  }\n}\n// Çıxış: Fayldan oxundu: NIO fayl əməliyyatı"
+      },
+      {
+        "type": "heading",
+        "text": "NIO vs Ənənəvi IO"
+      },
+      {
+        "type": "paragraph",
+        "text": "NIO ənənəvi Java IO ilə müqayisədə bir sıra üstünlüklərə malikdir:\n- **Qeyri-bloklama rejimi**: NIO kanalları qeyri-bloklama rejimində işləyə bilər, bu da çoxsaylı əlaqələrin səmərəli idarə olunmasını təmin edir.\n- **Bufer yönümlü**: Məlumat buferlərdə saxlanılır, bu da daha effektiv yaddaş istifadəsi deməkdir.\n- **Seçicilər**: Bir ip çoxsaylı kanalları idarə edə bilər.\n- **Fayl əməliyyatları**: `java.nio.file` daha çevik və müasir metodlar təklif edir.\nƏnənəvi IO isə bloklama rejimində işləyir və hər əlaqə üçün ayrı ip tələb edir, bu da böyük sistemlərdə resurs istehlakını artırır."
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "NIO real dünyada geniş istifadə olunur:\n- **Veb serverlər**: Apache Tomcat kimi serverlər NIO-dan istifadə edərək çoxsaylı istifadəçi sorğularını emal edir.\n- **Chat tətbiqləri**: NIO seçiciləri ilə çoxsaylı müştəri əlaqələri idarə olunur.\n- **Fayl emalı**: Böyük faylların oxunması/yazılması (məsələn, log faylları).\n- **Oyun serverləri**: Real vaxt rejimində oyunçu əlaqələrini idarə etmək.\n- **Verilənlər bazası sistemləri**: Yüksək performanslı məlumat ötürülməsi.\nMəsələn, bir e-ticarət platforması NIO ilə böyük faylları (məsələn, məhsul şəkillərini) sürətlə emal edə bilər."
+      },
+      {
+        "type": "heading",
+        "text": "NIO-nun Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "NIO yüksək performanslı və miqyaslana bilən giriş-çıxış əməliyyatlarını təmin etmək məqsədi daşıyır. Kanallar, buferlər və seçicilər çoxsaylı əlaqələri və böyük məlumat həcmlərini səmərəli idarə etməyə imkan verir. NIO olmadan böyük sistemlərdə performans və resurs idarəetməsi çətinləşərdi."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Kanallar",
+            "description": "Məlumat ötürülməsini təmin edir."
+          },
+          {
+            "term": "Buferlər",
+            "description": "Məlumatın saxlanması və emalı üçün istifadə olunur."
+          },
+          {
+            "term": "Seçicilər",
+            "description": "Çoxsaylı kanalları qeyri-bloklama rejimində idarə edir."
+          },
+          {
+            "term": "Fayl əməliyyatları",
+            "description": "Fayl və qovluqlarla səmərəli işləməyə imkan verir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Buferlərin səhv idarə edilməsi yaddaş problemlərinə səbəb ola bilər, qeyri-bloklama rejimi mürəkkəb kod yazmağı tələb edir, seçicilərin düzgün konfiqurasiya edilməməsi performans itkilərinə yol açır.\n- **Tövsiyələr**: Bufer ölçülərini diqqətlə seçin, qeyri-bloklama rejimindən yalnız zəruri hallarda istifadə edin, fayl əməliyyatları üçün `try-with-resources` istifadə edin, IntelliJ IDEA kimi IDE-lərdən istifadə edin ki, səhvlər asan aşkarlansın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class Main {\n  public static void main(String[] args) throws Exception {\n    String message = \"NIO testi\";\n    Files.writeString(Paths.get(\"test.txt\"), message);\n    String content = Files.readString(Paths.get(\"test.txt\"));\n    System.out.println(\"Fayldan oxundu: \" + content);\n  }\n}\n// Çıxış: Fayldan oxundu: NIO testi"
+      }
+    ]
+  },
+  "en": {
+    "title": "Java NIO: Introduction",
+    "language": "java",
+    "description": "Java NIO (New Input/Output) is designed for high-performance I/O operations. Components like channels, buffers, selectors, and file operations offer better efficiency than traditional IO.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Java NIO?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java NIO (New Input/Output) is a library for handling input/output operations (file reading/writing, network communication) more efficiently than traditional Java IO (e.g., `InputStream`, `OutputStream`). NIO provides better performance and scalability, supporting both blocking and non-blocking modes. Its core components are channels (`Channel`), buffers (`Buffer`), and selectors (`Selector`). NIO is ideal for managing multiple connections, such as a web server handling thousands of user requests simultaneously."
+      },
+      {
+        "type": "heading",
+        "text": "Channels"
+      },
+      {
+        "type": "paragraph",
+        "text": "Channels are a core NIO component, facilitating data transfer between a source (e.g., file, network) and a buffer, or vice versa. Unlike traditional IO, channels can be bidirectional (supporting both reading and writing). Key channel types include:\n- **`FileChannel`**: For file operations.\n- **`SocketChannel`**: For TCP network connections.\n- **`ServerSocketChannel`**: For server-side network connections.\n- **`DatagramChannel`**: For UDP protocol.\nFor example, a `FileChannel` can read data from a file directly into a buffer."
+      },
+      {
+        "type": "heading",
+        "text": "Buffers"
+      },
+      {
+        "type": "paragraph",
+        "text": "Buffers are used to store and process data in NIO. `ByteBuffer` is the most commonly used buffer, though others like `CharBuffer` and `IntBuffer` exist. Buffers are fixed-size memory blocks for reading or writing data. Key properties include:\n- **Capacity**: Total size of the buffer.\n- **Position**: Current read/write position.\n- **Limit**: Boundary of accessible data.\nFor example, when reading from a file, a `ByteBuffer` stores the data before transferring it to a channel."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.nio.ByteBuffer;\nimport java.nio.channels.FileChannel;\nimport java.nio.file.Paths;\nimport java.nio.file.StandardOpenOption;\n\npublic class Main {\n  public static void main(String[] args) throws Exception {\n    String message = \"Hello, NIO!\";\n    ByteBuffer buffer = ByteBuffer.allocate(1024);\n    buffer.put(message.getBytes());\n    buffer.flip();\n    try (FileChannel channel = FileChannel.open(Paths.get(\"output.txt\"), StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {\n      channel.write(buffer);\n    }\n    System.out.println(\"Written to file: \" + message);\n  }\n}\n// Output: Written to file: Hello, NIO!"
+      },
+      {
+        "type": "heading",
+        "text": "Selectors"
+      },
+      {
+        "type": "paragraph",
+        "text": "Selectors (`Selector`) manage multiple channels in non-blocking mode, monitoring their states (e.g., ready to read, write). This is particularly useful for network applications, as a single thread can handle multiple connections. Selectors work with `SelectableChannel` classes like `SocketChannel` and `ServerSocketChannel`. For example, a chat server can use a selector to handle messages from multiple clients simultaneously."
+      },
+      {
+        "type": "heading",
+        "text": "File Operations"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `java.nio.file` package simplifies file operations. The `Path` and `Files` classes are used for file and directory manipulation. For example:\n- **`Path`**: Represents a file or directory path in the file system.\n- **`Files`**: Provides methods for reading, writing, deleting, or modifying file attributes.\nFor instance, `Files.write()` can write data to a file. NIO file operations are more flexible and efficient than the traditional `File` class."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class Main {\n  public static void main(String[] args) throws Exception {\n    String message = \"NIO file operation\";\n    Files.writeString(Paths.get(\"test.txt\"), message);\n    String content = Files.readString(Paths.get(\"test.txt\"));\n    System.out.println(\"Read from file: \" + content);\n  }\n}\n// Output: Read from file: NIO file operation"
+      },
+      {
+        "type": "heading",
+        "text": "NIO vs Traditional IO"
+      },
+      {
+        "type": "paragraph",
+        "text": "NIO offers several advantages over traditional Java IO:\n- **Non-blocking Mode**: NIO channels can operate in non-blocking mode, enabling efficient management of multiple connections.\n- **Buffer-oriented**: Data is stored in buffers, allowing more efficient memory usage.\n- **Selectors**: A single thread can manage multiple channels.\n- **File Operations**: `java.nio.file` provides modern and flexible methods.\nTraditional IO operates in blocking mode and requires a separate thread per connection, increasing resource consumption in large systems."
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "NIO is widely used in real-world applications:\n- **Web Servers**: Servers like Apache Tomcat use NIO to handle multiple user requests.\n- **Chat Applications**: NIO selectors manage multiple client connections.\n- **File Processing**: Reading/writing large files (e.g., log files).\n- **Game Servers**: Managing real-time player interactions.\n- **Database Systems**: High-performance data transfer.\nFor example, an e-commerce platform can use NIO to process large files (e.g., product images) efficiently."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of NIO"
+      },
+      {
+        "type": "paragraph",
+        "text": "NIO aims to provide high-performance and scalable I/O operations. Channels, buffers, and selectors enable efficient management of multiple connections and large data volumes. Without NIO, performance and resource management in large systems would be challenging."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Channels",
+            "description": "Facilitate data transfer."
+          },
+          {
+            "term": "Buffers",
+            "description": "Store and process data."
+          },
+          {
+            "term": "Selectors",
+            "description": "Manage multiple channels in non-blocking mode."
+          },
+          {
+            "term": "File Operations",
+            "description": "Enable efficient file and directory manipulation."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Improper buffer management can cause memory issues, non-blocking mode requires complex code, and misconfigured selectors can lead to performance losses.\n- **Recommendations**: Choose buffer sizes carefully, use non-blocking mode only when necessary, use `try-with-resources` for file operations, and leverage IDEs like IntelliJ IDEA to detect errors."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class Main {\n  public static void main(String[] args) throws Exception {\n    String message = \"NIO test\";\n    Files.writeString(Paths.get(\"test.txt\"), message);\n    String content = Files.readString(Paths.get(\"test.txt\"));\n    System.out.println(\"Read from file: \" + content);\n  }\n}\n// Output: Read from file: NIO test"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Java NIO: Введение",
+    "language": "java",
+    "description": "Java NIO (New Input/Output) предназначена для высокопроизводительных операций ввода-вывода. Компоненты, такие как каналы, буферы, селекторы и операции с файлами, обеспечивают большую эффективность по сравнению с традиционным IO.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Java NIO?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java NIO (New Input/Output) — это библиотека для более эффективного управления операциями ввода-вывода (чтение/запись файлов, сетевое взаимодействие) по сравнению с традиционным Java IO (например, `InputStream`, `OutputStream`). NIO обеспечивает лучшую производительность и масштабируемость, поддерживая как блокирующий, так и неблокирующий режимы. Основные компоненты — это каналы (`Channel`), буферы (`Buffer`) и селекторы (`Selector`). NIO идеально подходит для управления множеством соединений, например, веб-сервером, обрабатывающим тысячи пользовательских запросов одновременно."
+      },
+      {
+        "type": "heading",
+        "text": "Каналы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Каналы — ключевой компонент NIO, обеспечивающий передачу данных между источником (например, файлом, сетью) и буфером или наоборот. В отличие от традиционного IO, каналы могут быть двунаправленными (поддерживают чтение и запись). Основные типы каналов:\n- **`FileChannel`**: Для работы с файлами.\n- **`SocketChannel`**: Для TCP-сетевых соединений.\n- **`ServerSocketChannel`**: Для серверных сетевых соединений.\n- **`DatagramChannel`**: Для протокола UDP.\nНапример, `FileChannel` может читать данные из файла непосредственно в буфер."
+      },
+      {
+        "type": "heading",
+        "text": "Буферы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Буферы используются для хранения и обработки данных в NIO. `ByteBuffer` — наиболее распространённый буфер, хотя существуют и другие, такие как `CharBuffer` и `IntBuffer`. Буферы — это блоки памяти фиксированного размера для чтения или записи данных. Основные характеристики:\n- **Capacity**: Общий размер буфера.\n- **Position**: Текущая позиция чтения/записи.\n- **Limit**: Граница доступных данных.\nНапример, при чтении из файла `ByteBuffer` сохраняет данные перед передачей в канал."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.nio.ByteBuffer;\nimport java.nio.channels.FileChannel;\nimport java.nio.file.Paths;\nimport java.nio.file.StandardOpenOption;\n\npublic class Main {\n  public static void main(String[] args) throws Exception {\n    String message = \"Привет, NIO!\";\n    ByteBuffer buffer = ByteBuffer.allocate(1024);\n    buffer.put(message.getBytes());\n    buffer.flip();\n    try (FileChannel channel = FileChannel.open(Paths.get(\"output.txt\"), StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {\n      channel.write(buffer);\n    }\n    System.out.println(\"Записано в файл: \" + message);\n  }\n}\n// Вывод: Записано в файл: Привет, NIO!"
+      },
+      {
+        "type": "heading",
+        "text": "Селекторы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Селекторы (`Selector`) используются для управления несколькими каналами в неблокирующем режиме, отслеживая их состояние (например, готовность к чтению или записи). Это особенно полезно для сетевых приложений, так как один поток может обрабатывать множество соединений. Селекторы работают с классами `SelectableChannel`, такими как `SocketChannel` и `ServerSocketChannel`. Например, чат-сервер может использовать селектор для обработки сообщений от нескольких клиентов одновременно."
+      },
+      {
+        "type": "heading",
+        "text": "Операции с файлами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Пакет `java.nio.file` упрощает операции с файлами. Классы `Path` и `Files` используются для работы с файлами и директориями. Например:\n- **`Path`**: Представляет путь к файлу или директории в файловой системе.\n- **`Files`**: Предоставляет методы для чтения, записи, удаления или изменения атрибутов файлов.\nНапример, `Files.write()` позволяет записать данные в файл. Операции с файлами в NIO более гибкие и эффективные, чем в традиционном классе `File`."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class Main {\n  public static void main(String[] args) throws Exception {\n    String message = \"Операция с файлом NIO\";\n    Files.writeString(Paths.get(\"test.txt\"), message);\n    String content = Files.readString(Paths.get(\"test.txt\"));\n    System.out.println(\"Прочитано из файла: \" + content);\n  }\n}\n// Вывод: Прочитано из файла: Операция с файлом NIO"
+      },
+      {
+        "type": "heading",
+        "text": "NIO против традиционного IO"
+      },
+      {
+        "type": "paragraph",
+        "text": "NIO имеет ряд преимуществ по сравнению с традиционным Java IO:\n- **Неблокирующий режим**: Каналы NIO могут работать в неблокирующем режиме, что обеспечивает эффективное управление множеством соединений.\n- **Ориентация на буферы**: Данные хранятся в буферах, что позволяет эффективно использовать память.\n- **Селекторы**: Один поток может управлять несколькими каналами.\n- **Операции с файлами**: `java.nio.file` предлагает современные и гибкие методы.\nТрадиционное IO работает в блокирующем режиме и требует отдельного потока для каждого соединения, что увеличивает потребление ресурсов в больших системах."
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "NIO широко используется в реальных приложениях:\n- **Веб-серверы**: Серверы, такие как Apache Tomcat, используют NIO для обработки множества пользовательских запросов.\n- **Чат-приложения**: Селекторы NIO управляют множеством клиентских соединений.\n- **Обработка файлов**: Чтение/запись больших файлов (например, логов).\n- **Игровые серверы**: Управление взаимодействиями игроков в реальном времени.\n- **Системы баз данных**: Высокопроизводительная передача данных.\nНапример, платформа электронной коммерции может использовать NIO для быстрой обработки больших файлов (например, изображений товаров)."
+      },
+      {
+        "type": "heading",
+        "text": "Цель NIO"
+      },
+      {
+        "type": "paragraph",
+        "text": "NIO предназначена для обеспечения высокопроизводительных и масштабируемых операций ввода-вывода. Каналы, буферы и селекторы позволяют эффективно управлять множеством соединений и большими объёмами данных. Без NIO производительность и управление ресурсами в больших системах были бы затруднены."
+      },
+      {
+        "type": "heading",
+        "text": "Основные характеристики"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Каналы",
+            "description": "Обеспечивают передачу данных."
+          },
+          {
+            "term": "Буферы",
+            "description": "Используются для хранения и обработки данных."
+          },
+          {
+            "term": "Селекторы",
+            "description": "Управляют несколькими каналами в неблокирующем режиме."
+          },
+          {
+            "term": "Операции с файлами",
+            "description": "Обеспечивают эффективную работу с файлами и директориями."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильное управление буферами может вызвать проблемы с памятью, неблокирующий режим требует сложного кода, некорректная настройка селекторов может привести к потерям производительности.\n- **Рекомендации**: Тщательно выбирайте размеры буферов, используйте неблокирующий режим только при необходимости, применяйте `try-with-resources` для операций с файлами, используйте IDE, такие как IntelliJ IDEA, для обнаружения ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class Main {\n  public static void main(String[] args) throws Exception {\n    String message = \"Тест NIO\";\n    Files.writeString(Paths.get(\"test.txt\"), message);\n    String content = Files.readString(Paths.get(\"test.txt\"));\n    System.out.println(\"Прочитано из файла: \" + content);\n  }\n}\n// Вывод: Прочитано из файла: Тест NIO"
+      }
+    ]
+  }
+}

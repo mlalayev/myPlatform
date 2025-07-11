@@ -1,7 +1,7 @@
 "use client";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import styles from "./LoginPage.module.css";
 import { FiLogIn } from "react-icons/fi";
 import { useI18n } from "@/contexts/I18nContext";
@@ -13,7 +13,6 @@ export default function LoginPage() {
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { t, lang } = useI18n();
 
   const handleSubmit = async (e: React.FormEvent) => {

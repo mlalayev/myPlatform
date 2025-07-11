@@ -1,0 +1,344 @@
+{
+  "az": {
+    "title": "Java İnterfeysləri: Giriş",
+    "language": "java",
+    "description": "Java-da interfeyslər siniflər üçün müqavilə rolunu oynayır, onların hansı metodları tətbiq etməli olduğunu müəyyənləşdirir. `implements`, `default` metodlar və statik metodlar kodun çevikliyini artırır.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "İnterfeyslər nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java-da interfeyslər siniflər üçün bir növ müqavilədir. Onlar siniflərin hansı metodları tətbiq etməli olduğunu müəyyənləşdirir, lakin bu metodların necə işləyəcəyini təyin etmir. İnterfeyslər kodun çevikliyini, təkrar istifadəsini və strukturunu yaxşılaşdırır. Məsələn, bir avtomobil tətbiqində bütün nəqliyyat vasitələrinin `sür()` metoduna sahib olmasını təmin etmək üçün interfeys istifadə edilə bilər. İnterfeyslər `interface` açar sözü ilə təyin olunur və siniflər `implements` açar sözü ilə bu interfeysləri tətbiq edir."
+      },
+      {
+        "type": "heading",
+        "text": "İnterfeyslərin Tərifi"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeys adətən metod imzalarını (ad, parametrlər və qaytarma tipi) ehtiva edir, lakin metodların gövdəsi (necə işlədiyi) olmur. Java 8-dən başlayaraq interfeyslər `default` metodlar (gövdəsi olan metodlar) və statik metodlar da daxil edə bilər. İnterfeyslər siniflərə çoxsaylı miras (multiple inheritance) imkanı verir, çünki bir sinif birdən çox interfeysi tətbiq edə bilər. Məsələn, bir sinif həm `Drivable`, həm də `Chargeable` interfeyslərini tətbiq edə bilər."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "interface Drivable {\n  void drive();\n}\n\npublic class Car implements Drivable {\n  public void drive() {\n    String message = \"Maşın sürülür\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car();\n    car.drive();\n  }\n}\n// Çıxış: Maşın sürülür"
+      },
+      {
+        "type": "heading",
+        "text": "default Metodlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java 8-dən etibarən interfeyslər `default` metodlar dəstəkləyir. Bu metodlar gövdəyə malikdir və tətbiq edən siniflər tərəfindən yenidən təyin edilməsə, standart davranış təmin edir. Bu, interfeyslərin çevikliyini artırır, çünki yeni metodlar əlavə edildikdə mövcud sinifləri dəyişdirməyə ehtiyac qalmır. Məsələn, bir `stop()` metodu `default` olaraq təyin edilə bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Statik Metodlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeyslər həmçinin statik metodlar dəstəkləyir. Bu metodlar interfeysin özünə aiddir və sinif tərəfindən tətbiq edilməsinə ehtiyac yoxdur. Məsələn, bir interfeysdə ümumi köməkçi funksiyalar statik metod kimi təyin edilə bilər."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "interface Drivable {\n  void drive();\n  default void stop() {\n    System.out.println(\"Nəqliyyat dayandırılır\");\n  }\n  static void info() {\n    System.out.println(\"Bu Drivable interfeysidir\");\n  }\n}\n\npublic class Car implements Drivable {\n  public void drive() {\n    String message = \"Maşın sürülür\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car();\n    car.drive();\n    car.stop();\n    Drivable.info();\n  }\n}\n// Çıxış:\n// Maşın sürülür\n// Nəqliyyat dayandırılır\n// Bu Drivable interfeysidir"
+      },
+      {
+        "type": "heading",
+        "text": "İnterfeyslər və Abstrakt Siniflər"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeyslər və abstrakt siniflər oxşar görünə bilər, lakin fərqləri var:\n- **İnterfeyslər**: Yalnız metod imzalarını və ya `default`/statik metodları ehtiva edir, dəyişənlər isə `public static final` olur. Bir sinif birdən çox interfeysi tətbiq edə bilər.\n- **Abstrakt Siniflər**: Həm metod gövdələrini, həm də dəyişənləri ehtiva edə bilər, lakin bir sinif yalnız bir abstrakt sinifdən miras ala bilər.\nMəsələn, interfeyslər çoxsaylı miras üçün, abstrakt siniflər isə ümumi funksionallığı paylaşmaq üçün istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeyslər real dünyada geniş istifadə olunur:\n- **Çərçivələr**: Spring və ya Hibernate kimi çərçivələr interfeyslərdən istifadə edərək çeviklik təmin edir.\n- **API dizaynı**: API-lər interfeyslər vasitəsilə müəyyən edilir ki, müxtəlif tətbiqlər eyni metodları istifadə edə bilsin.\n- **Oyun inkişafı**: Oyun personajlarının hərəkətləri (məsələn, `jump`, `run`) interfeyslərlə təyin olunur.\n- **E-ticarət**: Ödəniş sistemləri `Payment` interfeysi ilə müxtəlif ödəniş metodlarını (kredit kartı, PayPal) dəstəkləyir.\nMəsələn, bir e-ticarət platformasında ödəniş metodları `Payable` interfeysi ilə standartlaşdırıla bilər."
+      },
+      {
+        "type": "heading",
+        "text": "İnterfeyslərin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeyslər kodun çevikliyini, təkrar istifadəsini və strukturunu artırır. Onlar siniflərə müqavilə təqdim edir, kodun modulluğunu gücləndirir və çoxsaylı mirası dəstəkləyir. İnterfeyslər olmadan kodun yenidən istifadəsi və saxlanması çətinləşərdi."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "interface",
+            "description": "Metod imzalarını təyin edir."
+          },
+          {
+            "term": "implements",
+            "description": "Sinifləri interfeyslərlə əlaqələndirir."
+          },
+          {
+            "term": "default metodlar",
+            "description": "Standart davranış təmin edir."
+          },
+          {
+            "term": "Statik metodlar",
+            "description": "İnterfeysin özünə aid köməkçi funksiyalar."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Həddindən artıq interfeys istifadəsi kodu mürəkkəbləşdirə bilər, `default` metodların yanlış istifadəsi siniflərdə konfliktlər yarada bilər, interfeyslərin düzgün təyin edilməməsi kodun oxunaqlığını azalda bilər.\n- **Tövsiyələr**: İnterfeysləri yalnız zəruri hallarda istifadə edin, `default` metodları ehtiyatla təyin edin, interfeysləri kiçik və məqsədyönlü saxlayın, IntelliJ IDEA kimi IDE-lərdən istifadə edin ki, səhvlər asan aşkarlansın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "interface Drivable {\n  void drive();\n}\n\npublic class Car implements Drivable {\n  public void drive() {\n    String message = \"Maşın sürülür\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car();\n    car.drive();\n  }\n}\n// Çıxış: Maşın sürülür"
+      }
+    ]
+  },
+  "en": {
+    "title": "Java Interfaces: Introduction",
+    "language": "java",
+    "description": "Interfaces in Java act as contracts for classes, defining methods they must implement. `implements`, `default` methods, and static methods enhance code flexibility.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Interfaces?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces in Java are like contracts for classes, specifying which methods a class must implement without defining how they work. They improve code flexibility, reusability, and structure. For example, in a car application, an interface can ensure all vehicles have a `drive()` method. Interfaces are defined using the `interface` keyword, and classes implement them using `implements`."
+      },
+      {
+        "type": "heading",
+        "text": "Defining Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "An interface typically contains method signatures (name, parameters, and return type) without method bodies. Since Java 8, interfaces can include `default` methods (with bodies) and static methods. Interfaces allow multiple inheritance, as a class can implement multiple interfaces. For example, a class can implement both `Drivable` and `Chargeable` interfaces."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "interface Drivable {\n  void drive();\n}\n\npublic class Car implements Drivable {\n  public void drive() {\n    String message = \"Car is being driven\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car();\n    car.drive();\n  }\n}\n// Output: Car is being driven"
+      },
+      {
+        "type": "heading",
+        "text": "Default Methods"
+      },
+      {
+        "type": "paragraph",
+        "text": "Since Java 8, interfaces support `default` methods, which have bodies and provide default behavior if not overridden by implementing classes. This increases flexibility, as new methods can be added without modifying existing classes. For example, a `stop()` method can be defined as `default`."
+      },
+      {
+        "type": "heading",
+        "text": "Static Methods"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces also support static methods, which belong to the interface itself and don’t require implementation by classes. For example, utility functions can be defined as static methods in an interface."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "interface Drivable {\n  void drive();\n  default void stop() {\n    System.out.println(\"Vehicle is stopping\");\n  }\n  static void info() {\n    System.out.println(\"This is the Drivable interface\");\n  }\n}\n\npublic class Car implements Drivable {\n  public void drive() {\n    String message = \"Car is being driven\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car();\n    car.drive();\n    car.stop();\n    Drivable.info();\n  }\n}\n// Output:\n// Car is being driven\n// Vehicle is stopping\n// This is the Drivable interface"
+      },
+      {
+        "type": "heading",
+        "text": "Interfaces vs. Abstract Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces and abstract classes may seem similar but have key differences:\n- **Interfaces**: Contain only method signatures or `default`/static methods, and variables are `public static final`. A class can implement multiple interfaces.\n- **Abstract Classes**: Can include method bodies and instance variables, but a class can extend only one abstract class.\nFor example, interfaces are used for multiple inheritance, while abstract classes share common functionality."
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces are widely used in real-world applications:\n- **Frameworks**: Frameworks like Spring or Hibernate use interfaces for flexibility.\n- **API Design**: APIs use interfaces to ensure consistent method usage across implementations.\n- **Game Development**: Game character actions (e.g., `jump`, `run`) are defined via interfaces.\n- **E-commerce**: Payment systems use a `Payment` interface to support various methods (credit card, PayPal).\nFor example, an e-commerce platform can standardize payment methods with a `Payable` interface."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces enhance code flexibility, reusability, and structure. They provide contracts for classes, promote modularity, and support multiple inheritance. Without interfaces, code reuse and maintenance would be more challenging."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "interface",
+            "description": "Defines method signatures."
+          },
+          {
+            "term": "implements",
+            "description": "Links classes to interfaces."
+          },
+          {
+            "term": "default methods",
+            "description": "Provide default behavior."
+          },
+          {
+            "term": "Static methods",
+            "description": "Utility functions tied to the interface."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Overusing interfaces can complicate code, improper use of `default` methods may cause conflicts, and poorly designed interfaces can reduce code readability.\n- **Recommendations**: Use interfaces only when necessary, define `default` methods carefully, keep interfaces small and focused, and use IDEs like IntelliJ IDEA to detect errors."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "interface Drivable {\n  void drive();\n}\n\npublic class Car implements Drivable {\n  public void drive() {\n    String message = \"Car is being driven\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car();\n    car.drive();\n  }\n}\n// Output: Car is being driven"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Интерфейсы в Java: Введение",
+    "language": "java",
+    "description": "Интерфейсы в Java играют роль контрактов для классов, определяя методы, которые они должны реализовать. `implements`, `default`-методы и статические методы повышают гибкость кода.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое интерфейсы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы в Java — это своего рода контракты для классов, которые определяют, какие методы класс должен реализовать, но не указывают, как они работают. Они улучшают гибкость, повторное использование и структуру кода. Например, в приложении для автомобилей интерфейс может гарантировать, что все транспортные средства имеют метод `drive()`. Интерфейсы определяются с помощью ключевого слова `interface`, а классы реализуют их с помощью `implements`."
+      },
+      {
+        "type": "heading",
+        "text": "Определение интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейс обычно содержит сигнатуры методов (имя, параметры и тип возврата) без тел методов. С Java 8 интерфейсы могут включать `default`-методы (с телами) и статические методы. Интерфейсы позволяют множественное наследование, так как класс может реализовать несколько интерфейсов. Например, класс может реализовать интерфейсы `Drivable` и `Chargeable`."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "interface Drivable {\n  void drive();\n}\n\npublic class Car implements Drivable {\n  public void drive() {\n    String message = \"Машина едет\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car();\n    car.drive();\n  }\n}\n// Вывод: Машина едет"
+      },
+      {
+        "type": "heading",
+        "text": "Методы по умолчанию"
+      },
+      {
+        "type": "paragraph",
+        "text": "С Java 8 интерфейсы поддерживают `default`-методы, которые имеют тело и предоставляют поведение по умолчанию, если классы их не переопределяют. Это повышает гибкость, так как новые методы можно добавлять без изменения существующих классов. Например, метод `stop()` может быть определён как `default`."
+      },
+      {
+        "type": "heading",
+        "text": "Статические методы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы также поддерживают статические методы, которые принадлежат самому интерфейсу и не требуют реализации классами. Например, вспомогательные функции могут быть определены как статические методы в интерфейсе."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "interface Drivable {\n  void drive();\n  default void stop() {\n    System.out.println(\"Транспорт останавливается\");\n  }\n  static void info() {\n    System.out.println(\"Это интерфейс Drivable\");\n  }\n}\n\npublic class Car implements Drivable {\n  public void drive() {\n    String message = \"Машина едет\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car();\n    car.drive();\n    car.stop();\n    Drivable.info();\n  }\n}\n// Вывод:\n// Машина едет\n// Транспорт останавливается\n// Это интерфейс Drivable"
+      },
+      {
+        "type": "heading",
+        "text": "Интерфейсы и абстрактные классы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы и абстрактные классы могут казаться похожими, но имеют различия:\n- **Интерфейсы**: Содержат только сигнатуры методов или `default`/статические методы, переменные являются `public static final`. Класс может реализовать несколько интерфейсов.\n- **Абстрактные классы**: Могут содержать тела методов и переменные экземпляра, но класс может наследовать только один абстрактный класс.\nНапример, интерфейсы используются для множественного наследования, а абстрактные классы — для разделения общей функциональности."
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы широко используются в реальных приложениях:\n- **Фреймворки**: Фреймворки, такие как Spring или Hibernate, используют интерфейсы для гибкости.\n- **Дизайн API**: API используют интерфейсы для обеспечения единообразия методов в разных реализациях.\n- **Разработка игр**: Действия игровых персонажей (например, `jump`, `run`) определяются через интерфейсы.\n- **Электронная коммерция**: Платёжные системы используют интерфейс `Payment` для поддержки различных методов (кредитная карта, PayPal).\nНапример, платформа электронной коммерции может стандартизировать методы оплаты с помощью интерфейса `Payable`."
+      },
+      {
+        "type": "heading",
+        "text": "Цель интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы повышают гибкость, повторное использование и структуру кода. Они предоставляют контракт для классов, усиливают модульность и поддерживают множественное наследование. Без интерфейсов повторное использование и поддержка кода были бы сложнее."
+      },
+      {
+        "type": "heading",
+        "text": "Основные характеристики"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "interface",
+            "description": "Определяет сигнатуры методов."
+          },
+          {
+            "term": "implements",
+            "description": "Связывает классы с интерфейсами."
+          },
+          {
+            "term": "default-методы",
+            "description": "Предоставляют поведение по умолчанию."
+          },
+          {
+            "term": "Статические методы",
+            "description": "Вспомогательные функции, связанные с интерфейсом."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Чрезмерное использование интерфейсов может усложнить код, неправильное использование `default`-методов может вызвать конфликты, плохо спроектированные интерфейсы снижают читаемость кода.\n- **Рекомендации**: Используйте интерфейсы только при необходимости, осторожно определяйте `default`-методы, делайте интерфейсы небольшими и целенаправленными, используйте IDE, такие как IntelliJ IDEA, для обнаружения ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "interface Drivable {\n  void drive();\n}\n\npublic class Car implements Drivable {\n  public void drive() {\n    String message = \"Машина едет\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car();\n    car.drive();\n  }\n}\n// Вывод: Машина едет"
+      }
+    ]
+  }
+}

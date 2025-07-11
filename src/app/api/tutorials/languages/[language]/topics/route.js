@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
-import fs from 'fs';
+import fs from 'fs/promises';
 
-export async function GET(request: NextRequest, context: { params: { language: string } }) {
+export async function GET(req, context) {
   const { language } = context.params;
   const filePath = path.join(
     process.cwd(),
@@ -11,9 +11,11 @@ export async function GET(request: NextRequest, context: { params: { language: s
     language,
     "topics.json"
   );
-  if (!fs.existsSync(filePath)) {
+  try {
+    await fs.access(filePath);
+  } catch (err) {
     return NextResponse.json({}, { status: 404 });
   }
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  const fileContent = await fs.readFile(filePath, 'utf-8');
   return NextResponse.json(JSON.parse(fileContent));
 } 

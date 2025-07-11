@@ -1,0 +1,419 @@
+{
+  "az": {
+    "title": "Java Stream API: Qabaqcıl Xüsusiyyətlər",
+    "language": "java",
+    "description": "Java Stream API-nin qabaqcıl xüsusiyyətləri mürəkkəb məlumat emalını asanlaşdırır, funksional proqramlaşdırmanı dəstəkləyir və performans optimallaşdırması təmin edir. Əsas xüsusiyyətlərə qruplaşdırma, bölmə və paralel axınlar daxildir.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Stream API nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java Stream API, Java 8-də tətbiq edilən bir funksional proqramlaşdırma alətidir ki, kolleksiyalar (məsələn, `List`, `Set`) üzərində kütləvi əməliyyatları (filtr etmə, çevirmə, sıralama) asanlaşdırır. Qabaqcıl xüsusiyyətlərə `Collectors` sinfi ilə qruplaşdırma, bölmə, xüsusi kollektorlar, paralel axınların optimallaşdırılması və `Optional` ilə işləmə daxildir. Bu xüsusiyyətlər böyük məlumat dəstləri ilə işləyərkən, məsələn, verilənlər bazası sorğularını emal etmək və ya hesabatlar yaratmaq üçün çox faydalıdır. Stream API-nin əsas üstünlüyü deklarativ yanaşmadır: siz nə etmək istədiyinizi təsvir edirsiniz, Java isə bunun necə icra olunacağını idarə edir. Lambda ifadələri ilə sıx bağlı olan Stream API, kodun oxunaqlığını artırır və mürəkkəb tapşırıqları sadələşdirir."
+      },
+      {
+        "type": "heading",
+        "text": "Collectors sinfi ilə işləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java-da `Collectors` sinfi Stream API-nin nəticələrini toplamaq və müxtəlif strukturlara çevirmək üçün istifadə olunur. Ən çox istifadə olunan kollektorlar `toList()`, `toSet()` və `toMap()`-dir. Məsələn, `Collectors.toList()` axının nəticəsini `List`-ə yığır, `Collectors.toSet()` isə təkrarlanan elementləri aradan qaldıraraq `Set`-ə çevirir. Daha qabaqcıl metodlara aşağıdakılar daxildir:\n- **joining()**: Sətirləri birləşdirir, məsələn, adları vergüllə ayıraraq tək sətirə çevirir.\n- **counting()**: Elementlərin sayını hesablayır.\n- **summingInt()** və ya **averagingInt()**: Ədədi dəyərlərin cəmini və ya orta dəyərini hesablayır.\nBu kollektorlar xüsusilə böyük məlumat dəstləri ilə işləyərkən faydalıdır, çünki nəticələri səmərəli şəkildə strukturlaşdırır."
+      },
+      {
+        "type": "heading",
+        "text": "Qruplaşdırma (groupingBy)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API-nin `Collectors.groupingBy()` metodu məlumatları müəyyən bir xüsusiyyətə görə qruplara ayırmaq üçün istifadə olunur. Məsələn, bir siyahıdakı adları onların ilk hərfinə görə qruplaşdırmaq olar. Bu metod bir `Map` qaytarır, burada açar qruplaşdırma meyarına uyğun dəyərdir (məsələn, ilk hərf), dəyər isə həmin qrupa aid elementlərin siyahısıdır. Qruplaşdırma bir neçə səviyyədə də ola bilər (məsələn, kateqoriyaya və sonra qiymətə görə qruplaşdırma). Bu, xüsusilə hesabatlar yaratmaq və ya məlumatları analiz etmək üçün faydalıdır. Məsələn, bir e-ticarət platformasında məhsulları kateqoriyalarına görə qruplaşdırmaq `groupingBy` ilə asanlaşır."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<String> names = Arrays.asList(\"Ali\", \"Ayşe\", \"Bahar\", \"Berk\", \"Cem\");\n    Map<Character, List<String>> groupedByFirstLetter = names.stream()\n                                                            .collect(Collectors.groupingBy(name -> name.charAt(0)));\n    System.out.println(\"İlk hərfə görə qruplaşdırma: \" + groupedByFirstLetter);\n  }\n}\n// Çıxış: İlk hərfə görə qruplaşdırma: {A=[Ali, Ayşe], B=[Bahar, Berk], C=[Cem]}"
+      },
+      {
+        "type": "heading",
+        "text": "Bölmə (partitioningBy)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API-nin `Collectors.partitioningBy()` metodu məlumatları iki qrupa ayırır: bir şərtə uyğun olanlar (`true`) və uyğun olmayanlar (`false`). Bu, `groupingBy`-dan fərqlidir, çünki yalnız iki qrup yaradır. Məsələn, bir siyahıdakı ədədləri cüt və tək olaraq ayırmaq üçün `partitioningBy` istifadə edilə bilər. Nəticə bir `Map<Boolean, List<T>>` olur, burada açar `true` və ya `false` olur. Bu metod, məsələn, məhsulları qiymət həddinə görə ayırmaq kimi ssenarilərdə faydalıdır. `partitioningBy` həm də digər kollektorlarla birləşdirilə bilər, məsələn, hər qrupun sayını hesablamaq üçün."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);\n    Map<Boolean, List<Integer>> partitioned = numbers.stream()\n                                                    .collect(Collectors.partitioningBy(n -> n % 2 == 0));\n    System.out.println(\"Cüt və tək: \" + partitioned);\n  }\n}\n// Çıxış: Cüt və tək: {false=[1, 3, 5], true=[2, 4]}"
+      },
+      {
+        "type": "heading",
+        "text": "Xüsusi kollektorlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Standart kollektorlara əlavə olaraq, Stream API istifadəçilərə öz xüsusi kollektorlarını yaratmağa imkan verir. `Collector.of()` metodu ilə xüsusi toplama strategiyaları müəyyənləşdirilə bilər. Məsələn, xüsusi bir kollektorla yalnız müəyyən şərtlərə uyğun elementləri toplamaq olar. Bu, çox spesifik məlumat emalı tələb olunan layihələrdə faydalıdır. Xüsusi kollektorlar adətən üç komponent tələb edir: tədarükçü (supplier), akkumulyator (accumulator) və birləşdirici (combiner). Bu, mürəkkəb ola bilər, lakin böyük çeviklik təmin edir. Məsələn, xüsusi bir kollektorla yalnız ən böyük dəyərləri toplamaq mümkündür."
+      },
+      {
+        "type": "heading",
+        "text": "Paralel axınların optimallaşdırılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "Paralel axınlar (`parallelStream()` və ya `stream().parallel()`) böyük məlumat dəstləri ilə işləyərkən performansı artırmaq üçün istifadə olunur. Çoxnüvəli prosessorlarda əməliyyatları paralel şəkildə icra edir, məsələn, böyük siyahını filtr etmək və ya çevirmək daha sürətli olur. Lakin paralel axınlar diqqətlə istifadə edilməlidir, çünki sinxronizasiya problemləri və ya yanlış nəticələr yarana bilər. Optimallaşdırma üçün:\n- Yalnız böyük məlumat dəstləri ilə paralel axınlardan istifadə edin.\n- Dəyişən (mutable) vəziyyətlərdən qaçın, məsələn, paylaşılan obyektləri dəyişdirməyin.\n- `ConcurrentHashMap` kimi sinxronizasiya edilmiş strukturlardan istifadə edin, əgər qruplaşdırma aparılırsa.\nMəsələn, böyük bir məlumat dəstində statistik hesablama apararkən paralel axınlar vaxta qənaət edə bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Optional ilə işləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API tez-tez `Optional` sinfi ilə işləyir, bu sinif null dəyərlərlə bağlı səhvləri (NullPointerException) azaltmaq üçün istifadə olunur. Stream metodları (`findFirst()`, `findAny()`, `min()`, `max()`) `Optional` obyektləri qaytarır, çünki nəticə olmaya bilər. `Optional` ilə işləyərkən `orElse()`, `orElseGet()` və ya `ifPresent()` kimi metodlar istifadə olunur. Məsələn, bir siyahıdan ən böyük ədədi tapmaq üçün `stream().max()` istifadə edilə bilər, nəticə isə `Optional` olaraq qayıdır. Bu, kodun təhlükəsizliyini artırır və null yoxlamalarını asanlaşdırır."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.Optional;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);\n    Optional<Integer> max = numbers.stream().max(Integer::compareTo);\n    max.ifPresent(value -> System.out.println(\"Maksimum: \" + value));\n  }\n}\n// Çıxış: Maksimum: 5"
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Qabaqcıl Stream API xüsusiyyətləri real dünyada geniş istifadə olunur:\n- **Məlumat analitikası**: Verilənlər bazasındakı məlumatları qruplaşdırmaq və ya statistik hesabatlar yaratmaq, məsələn, satış məlumatlarını kateqoriyaya görə təhlil etmək.\n- **Verilənlər bazası sorğuları**: Böyük həcmdə məlumatları emal etmək, məsələn, istifadəçi qeydlərini filtr etmək.\n- **Hesabat sistemləri**: Müştəri məlumatlarını qruplaşdırmaq və ya bölmək, məsələn, premium və standart müştəriləri ayırmaq.\n- **Paralel emal**: Böyük məlumat dəstlərini paralel şəkildə emal etmək, məsələn, şəkil və ya video emalı.\n- **API dizaynı**: API-lərdə məlumatların çevik şəkildə emalı və strukturlandırılması.\nMəsələn, bir e-ticarət platforması məhsulları qiymət aralığına görə qruplaşdırmaq və ya endirimli məhsulları ayırmaq üçün Stream API-dən istifadə edə bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Stream API-nin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Qabaqcıl Stream API xüsusiyyətləri mürəkkəb məlumat emalını sadələşdirir, funksional proqramlaşdırmanı dəstəkləyir və performans optimallaşdırması təmin edir. Orijinal məlumatları dəyişdirmədən çevik nəticələr yaradır, paralel emalı asanlaşdırır və böyük layihələrdə səmərəli hesabatlar və analizlər üçün imkanlar yaradır. Bu xüsusiyyətlər olmadan məlumat emalı daha uzun və mürəkkəb kod tələb edərdi."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Qruplaşdırma",
+            "description": "Məlumatları xüsusiyyətlərə görə qruplara ayırır."
+          },
+          {
+            "term": "Bölmə",
+            "description": "Məlumatları iki qrupa (true/false) ayırır."
+          },
+          {
+            "term": "Xüsusi kollektorlar",
+            "description": "Xüsusi toplama strategiyalarını dəstəkləyir."
+          },
+          {
+            "term": "Paralel axınlar",
+            "description": "Böyük məlumat dəstləri üçün performansı artırır."
+          },
+          {
+            "term": "Optional",
+            "description": "Null dəyərlərlə bağlı səhvləri azaldır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Paralel axınların yanlış istifadəsi sinxronizasiya problemlərinə səbəb ola bilər, mürəkkəb axınlar və ya kollektorlar kodun oxunaqlığını azalda bilər, eyni axının təkrar istifadəsi səhvə səbəb olur.\n- **Tövsiyələr**: Paralel axınları yalnız böyük məlumat dəstləri üçün istifadə edin, lambda ifadələrini və kollektorları sadə saxlayın, `Optional` ilə işləyərkən null yoxlamalarını unutmayın, IntelliJ IDEA kimi IDE-lərdən istifadə edin ki, səhvlər asan aşkarlansın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<String> names = Arrays.asList(\"Ali\", \"Ayşe\", \"Bahar\", \"Berk\", \"Cem\", \"Can\");\n    Map<Integer, List<String>> groupedByLength = names.stream()\n                                                     .collect(Collectors.groupingBy(String::length));\n    System.out.println(\"Uzunluğa görə qruplaşdırma: \" + groupedByLength);\n  }\n}\n// Çıxış: Uzunluğa görə qruplaşdırma: {3=[Ali, Cem, Can], 4=[Ayşe, Berk], 5=[Bahar]}"
+      }
+    ]
+  },
+  "en": {
+    "title": "Java Stream API: Advanced Features",
+    "language": "java",
+    "description": "Advanced features of the Java Stream API simplify complex data processing, support functional programming, and optimize performance. Key features include grouping, partitioning, and parallel streams.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Advanced Stream API?"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Java Stream API, introduced in Java 8, is a functional programming tool that simplifies bulk operations (filtering, mapping, sorting) on collections like `List` or `Set`. Advanced features include the `Collectors` class for grouping and partitioning, custom collectors, optimized parallel streams, and integration with `Optional`. These features are particularly useful for processing large datasets, such as database queries or report generation. The Stream API’s strength lies in its declarative approach: you describe what you want to achieve, and Java handles the implementation. Tightly integrated with lambda expressions, it enhances code readability and simplifies complex tasks."
+      },
+      {
+        "type": "heading",
+        "text": "Working with the Collectors Class"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `Collectors` class in Java is used to collect stream results into various structures. Common collectors include `toList()`, `toSet()`, and `toMap()`. For example, `Collectors.toList()` gathers results into a `List`, while `Collectors.toSet()` removes duplicates to form a `Set`. Advanced collectors include:\n- **joining()**: Concatenates strings, e.g., combining names with commas.\n- **counting()**: Counts the number of elements.\n- **summingInt()** or **averagingInt()**: Calculates the sum or average of numeric values.\nThese collectors are highly effective for structuring large datasets efficiently, making them essential for data processing tasks."
+      },
+      {
+        "type": "heading",
+        "text": "Grouping (groupingBy)"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `Collectors.groupingBy()` method groups data based on a specified property. For example, you can group a list of names by their first letter. It returns a `Map` where the key is the grouping criterion (e.g., first letter) and the value is a list of elements in that group. Multi-level grouping is also possible, such as grouping by category and then by price. This is particularly useful for generating reports or analyzing data, such as grouping products by category in an e-commerce platform."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<String> names = Arrays.asList(\"Ali\", \"Ayşe\", \"Bahar\", \"Berk\", \"Cem\");\n    Map<Character, List<String>> groupedByFirstLetter = names.stream()\n                                                            .collect(Collectors.groupingBy(name -> name.charAt(0)));\n    System.out.println(\"Grouped by first letter: \" + groupedByFirstLetter);\n  }\n}\n// Output: Grouped by first letter: {A=[Ali, Ayşe], B=[Bahar, Berk], C=[Cem]}"
+      },
+      {
+        "type": "heading",
+        "text": "Partitioning (partitioningBy)"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `Collectors.partitioningBy()` method splits data into two groups based on a condition: those that satisfy it (`true`) and those that don’t (`false`). Unlike `groupingBy`, it creates only two groups. For example, it can separate numbers into even and odd. The result is a `Map<Boolean, List<T>>`, with `true` and `false` as keys. This is useful for scenarios like separating products by a price threshold. `partitioningBy` can also be combined with other collectors, such as counting elements in each group."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);\n    Map<Boolean, List<Integer>> partitioned = numbers.stream()\n                                                    .collect(Collectors.partitioningBy(n -> n % 2 == 0));\n    System.out.println(\"Even and odd: \" + partitioned);\n  }\n}\n// Output: Even and odd: {false=[1, 3, 5], true=[2, 4]}"
+      },
+      {
+        "type": "heading",
+        "text": "Custom Collectors"
+      },
+      {
+        "type": "paragraph",
+        "text": "Beyond standard collectors, the Stream API allows creating custom collectors using `Collector.of()`. This enables tailored collection strategies, such as collecting only elements that meet specific criteria. Custom collectors require three components: a supplier (to create the result container), an accumulator (to add elements), and a combiner (to merge results in parallel processing). While complex, custom collectors offer great flexibility for specialized data processing tasks, such as collecting only the largest values."
+      },
+      {
+        "type": "heading",
+        "text": "Optimizing Parallel Streams"
+      },
+      {
+        "type": "paragraph",
+        "text": "Parallel streams (`parallelStream()` or `stream().parallel()`) enhance performance for large datasets by executing operations concurrently on multi-core processors. For example, filtering or mapping a large list can be faster with parallel streams. However, they must be used carefully to avoid synchronization issues or incorrect results. Optimization tips include:\n- Use parallel streams only for large datasets.\n- Avoid mutable state, such as modifying shared objects.\n- Use thread-safe structures like `ConcurrentHashMap` for grouping.\nFor instance, parallel streams can save time when performing statistical computations on large datasets."
+      },
+      {
+        "type": "heading",
+        "text": "Working with Optional"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Stream API often works with the `Optional` class to handle cases where a result might be absent, reducing `NullPointerException` risks. Stream methods like `findFirst()`, `findAny()`, `min()`, and `max()` return `Optional` objects. Methods like `orElse()`, `orElseGet()`, and `ifPresent()` are used to handle `Optional` results. For example, finding the largest number in a list with `stream().max()` returns an `Optional`. This improves code safety and simplifies null checks."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.Optional;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);\n    Optional<Integer> max = numbers.stream().max(Integer::compareTo);\n    max.ifPresent(value -> System.out.println(\"Maximum: \" + value));\n  }\n}\n// Output: Maximum: 5"
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advanced Stream API features are widely used in real-world applications:\n- **Data Analytics**: Grouping or analyzing database records, such as categorizing sales data.\n- **Database Queries**: Processing large datasets, e.g., filtering user records.\n- **Reporting Systems**: Grouping or partitioning customer data, such as separating premium and standard customers.\n- **Parallel Processing**: Handling large datasets in parallel, such as image or video processing.\n- **API Design**: Enabling flexible data processing and structuring in APIs.\nFor example, an e-commerce platform might use the Stream API to group products by price range or partition discounted products."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Advanced Stream API"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advanced Stream API features simplify complex data processing, support functional programming, and optimize performance. They generate flexible results without modifying original data, facilitate parallel processing, and enable efficient reporting and analysis in large projects. Without these features, data processing would require lengthy, complex code."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Grouping",
+            "description": "Groups data based on properties."
+          },
+          {
+            "term": "Partitioning",
+            "description": "Splits data into two groups (true/false)."
+          },
+          {
+            "term": "Custom Collectors",
+            "description": "Supports tailored collection strategies."
+          },
+          {
+            "term": "Parallel Streams",
+            "description": "Improves performance for large datasets."
+          },
+          {
+            "term": "Optional",
+            "description": "Reduces errors related to null values."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Misusing parallel streams can cause synchronization issues, complex streams or collectors can reduce code readability, and reusing a stream causes errors.\n- **Recommendations**: Use parallel streams only for large datasets, keep lambda expressions and collectors simple, handle `Optional` to avoid null issues, and use IDEs like IntelliJ IDEA to detect errors."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<String> names = Arrays.asList(\"Ali\", \"Ayşe\", \"Bahar\", \"Berk\", \"Cem\", \"Can\");\n    Map<Integer, List<String>> groupedByLength = names.stream()\n                                                     .collect(Collectors.groupingBy(String::length));\n    System.out.println(\"Grouped by length: \" + groupedByLength);\n  }\n}\n// Output: Grouped by length: {3=[Ali, Cem, Can], 4=[Ayşe, Berk], 5=[Bahar]}"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Java Stream API: Продвинутые возможности",
+    "language": "java",
+    "description": "Продвинутые возможности Java Stream API упрощают сложную обработку данных, поддерживают функциональное программирование и оптимизируют производительность. Ключевые функции включают группировку, разделение и параллельные потоки.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое продвинутый Stream API?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java Stream API, представленный в Java 8, — это инструмент функционального программирования, упрощающий массовые операции (фильтрация, преобразование, сортировка) над коллекциями, такими как `List` или `Set`. Продвинутые возможности включают класс `Collectors` для группировки и разделения, пользовательские коллекторы, оптимизацию параллельных потоков и работу с `Optional`. Эти функции особенно полезны для обработки больших наборов данных, таких как запросы к базам данных или создание отчётов. Сила Stream API заключается в декларативном подходе: вы описываете, что хотите сделать, а Java решает, как это выполнить. Тесно интегрированный с лямбда-выражениями, он повышает читаемость кода и упрощает сложные задачи."
+      },
+      {
+        "type": "heading",
+        "text": "Работа с классом Collectors"
+      },
+      {
+        "type": "paragraph",
+        "text": "Класс `Collectors` в Java используется для сбора результатов потоков в различные структуры. Наиболее распространённые коллекторы — это `toList()`, `toSet()` и `toMap()`. Например, `Collectors.toList()` собирает результаты в `List`, а `Collectors.toSet()` удаляет дубликаты, формируя `Set`. Продвинутые коллекторы включают:\n- **joining()**: Объединяет строки, например, имена через запятую.\n- **counting()**: Подсчитывает количество элементов.\n- **summingInt()** или **averagingInt()**: Вычисляет сумму или среднее значение чисел.\nЭти коллекторы особенно эффективны для структурирования больших наборов данных, что делает их незаменимыми для задач обработки данных."
+      },
+      {
+        "type": "heading",
+        "text": "Группировка (groupingBy)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Метод `Collectors.groupingBy()` группирует данные по определённому признаку. Например, можно сгруппировать список имён по первой букве. Он возвращает `Map`, где ключ — критерий группировки (например, первая буква), а значение — список элементов этой группы. Возможна многоуровневая группировка, например, по категории и затем по цене. Это особенно полезно для создания отчётов или анализа данных, например, группировки продуктов по категориям в платформе электронной коммерции."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<String> names = Arrays.asList(\"Ali\", \"Ayşe\", \"Bahar\", \"Berk\", \"Cem\");\n    Map<Character, List<String>> groupedByFirstLetter = names.stream()\n                                                            .collect(Collectors.groupingBy(name -> name.charAt(0)));\n    System.out.println(\"Сгруппировано по первой букве: \" + groupedByFirstLetter);\n  }\n}\n// Вывод: Сгруппировано по первой букве: {A=[Ali, Ayşe], B=[Bahar, Berk], C=[Cem]}"
+      },
+      {
+        "type": "heading",
+        "text": "Разделение (partitioningBy)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Метод `Collectors.partitioningBy()` разделяет данные на две группы по условию: те, что удовлетворяют условию (`true`), и те, что не удовлетворяют (`false`). В отличие от `groupingBy`, он создаёт только две группы. Например, можно разделить числа на чётные и нечётные. Результат — `Map<Boolean, List<T>>`, где ключи — `true` и `false`. Это полезно для таких сценариев, как разделение продуктов по ценовому порогу. `partitioningBy` также можно комбинировать с другими коллекторами, например, для подсчёта элементов в каждой группе."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);\n    Map<Boolean, List<Integer>> partitioned = numbers.stream()\n                                                    .collect(Collectors.partitioningBy(n -> n % 2 == 0));\n    System.out.println(\"Чётные и нечётные: \" + partitioned);\n  }\n}\n// Вывод: Чётные и нечётные: {false=[1, 3, 5], true=[2, 4]}"
+      },
+      {
+        "type": "heading",
+        "text": "Пользовательские коллекторы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Помимо стандартных коллекторов, Stream API позволяет создавать пользовательские коллекторы с помощью `Collector.of()`. Это позволяет определять индивидуальные стратегии сбора, например, собирать только элементы, соответствующие определённым критериям. Пользовательские коллекторы требуют трёх компонентов: поставщика (supplier), аккумулятора (accumulator) и объединителя (combiner). Хотя это может быть сложно, пользовательские коллекторы обеспечивают большую гибкость для специализированных задач обработки данных, таких как сбор только наибольших значений."
+      },
+      {
+        "type": "heading",
+        "text": "Оптимизация параллельных потоков"
+      },
+      {
+        "type": "paragraph",
+        "text": "Параллельные потоки (`parallelStream()` или `stream().parallel()`) повышают производительность при работе с большими наборами данных, выполняя операции одновременно на многоядерных процессорах. Например, фильтрация или преобразование большого списка может быть быстрее с параллельными потоками. Однако их нужно использовать осторожно, чтобы избежать проблем синхронизации или неверных результатов. Советы по оптимизации:\n- Используйте параллельные потоки только для больших наборов данных.\n- Избегайте изменяемого состояния, например, модификации общих объектов.\n- Используйте потокобезопасные структуры, такие как `ConcurrentHashMap`, для группировки.\nНапример, параллельные потоки могут сэкономить время при выполнении статистических вычислений на больших наборах данных."
+      },
+      {
+        "type": "heading",
+        "text": "Работа с Optional"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API часто работает с классом `Optional`, который помогает избежать ошибок, связанных с `NullPointerException`. Методы потока, такие как `findFirst()`, `findAny()`, `min()` и `max()`, возвращают объекты `Optional`, так как результат может отсутствовать. Для работы с `Optional` используются методы `orElse()`, `orElseGet()` или `ifPresent()`. Например, нахождение наибольшего числа в списке с помощью `stream().max()` возвращает `Optional`. Это повышает безопасность кода и упрощает проверки на null."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.Optional;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);\n    Optional<Integer> max = numbers.stream().max(Integer::compareTo);\n    max.ifPresent(value -> System.out.println(\"Максимум: \" + value));\n  }\n}\n// Вывод: Максимум: 5"
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Продвинутые функции Stream API широко используются в реальных приложениях:\n- **Аналитика данных**: Группировка или анализ записей базы данных, например, категоризация данных о продажах.\n- **Запросы к базам данных**: Обработка больших наборов данных, например, фильтрация записей пользователей.\n- **Системы отчётов**: Группировка или разделение данных о клиентах, например, разделение премиум- и стандартных клиентов.\n- **Параллельная обработка**: Обработка больших наборов данных параллельно, например, обработка изображений или видео.\n- **Дизайн API**: Гибкая обработка и структурирование данных в API.\nНапример, платформа электронной коммерции может использовать Stream API для группировки продуктов по ценовому диапазону или разделения продуктов со скидкой."
+      },
+      {
+        "type": "heading",
+        "text": "Цель продвинутого Stream API"
+      },
+      {
+        "type": "paragraph",
+        "text": "Продвинутые функции Stream API упрощают сложную обработку данных, поддерживают функциональное программирование и оптимизируют производительность. Они создают гибкие результаты, не изменяя исходные данные, облегчают параллельную обработку и предоставляют возможности для эффективных отчётов и анализа в крупных проектах. Без этих функций обработка данных потребовала бы длинного и сложного кода."
+      },
+      {
+        "type": "heading",
+        "text": "Основные характеристики"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Группировка",
+            "description": "Группирует данные по признакам."
+          },
+          {
+            "term": "Разделение",
+            "description": "Разделяет данные на две группы (true/false)."
+          },
+          {
+            "term": "Пользовательские коллекторы",
+            "description": "Поддерживает индивидуальные стратегии сбора."
+          },
+          {
+            "term": "Параллельные потоки",
+            "description": "Повышает производительность для больших наборов данных."
+          },
+          {
+            "term": "Optional",
+            "description": "Уменьшает ошибки, связанные с null."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильное использование параллельных потоков может вызвать проблемы синхронизации, сложные потоки или коллекторы могут снизить читаемость кода, повторное использование потока приводит к ошибкам.\n- **Рекомендации**: Используйте параллельные потоки только для больших наборов данных, держите лямбда-выражения и коллекторы простыми, обрабатывайте `Optional`, чтобы избежать проблем с null, используйте IDE, такие как IntelliJ IDEA, для обнаружения ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<String> names = Arrays.asList(\"Ali\", \"Ayşe\", \"Bahar\", \"Berk\", \"Cem\", \"Can\");\n    Map<Integer, List<String>> groupedByLength = names.stream()\n                                                     .collect(Collectors.groupingBy(String::length));\n    System.out.println(\"Сгруппировано по длине: \" + groupedByLength);\n  }\n}\n// Вывод: Сгруппировано по длине: {3=[Ali, Cem, Can], 4=[Ayşe, Berk], 5=[Bahar]}"
+      }
+    ]
+  }
+}

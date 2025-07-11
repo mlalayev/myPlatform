@@ -1,0 +1,359 @@
+{
+  "az": {
+    "title": "Java Konkurrentlik: Giriş",
+    "language": "java",
+    "description": "Java-da konkurrentlik (paralel proqramlaşdırma) bir neçə tapşırığın eyni anda icra olunmasını təmin edir. İplər (Threads), sinxronizasiya və ExecutorService kimi alətlər performansı artırır, lakin diqqətli idarəetmə tələb edir.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Konkurrentlik nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konkurrentlik, bir proqramın eyni anda birdən çox tapşırığı icra etməsi deməkdir. Java-da bu, çoxnüvəli prosessorlardan istifadə edərək performansı artırmaq üçün iplər (`Thread`) vasitəsilə həyata keçirilir. Məsələn, bir veb server eyni anda bir neçə istifadəçi sorğusunu emal edə bilər. Konkurrentlik iki formada olur: **paralel icra** (tapşırıqlar fiziki olaraq eyni anda icra olunur) və **konkurrent icra** (tapşırıqlar növbələşir, lakin eyni anda işləyirmiş kimi görünür). Java-da konkurrentlik `Thread` sinfi, `Runnable` interfeysi, sinxronizasiya mexanizmləri və `java.util.concurrent` paketi ilə dəstəklənir. Bu, mürəkkəb ola bilər, çünki iplər arasında resurs paylaşımı sinxronizasiya problemlərinə səbəb ola bilər."
+      },
+      {
+        "type": "heading",
+        "text": "İplər (Threads) və onların yaradılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java-da iplər proqramın müstəqil icra axınlarıdır. Hər bir ip öz tapşırığını yerinə yetirir. İplər iki yolla yaradılır:\n1. **Thread sinfini genişləndirmək**: Yeni sinif `Thread` sinfindən miras alır və `run()` metodu yenidən yazılır.\n2. **Runnable interfeysini tətbiq etmək**: `Runnable` interfeysi tətbiq edilir və `run()` metodu müəyyənləşdirilir, sonra bu `Thread` obyektinə ötürülür.\nMəsələn, bir ip bir sayğacı artırarkən, digər ip məlumatı çap edə bilər. İplər `start()` metodu ilə işə salınır, bu da `run()` metodunu çağırır. İplər çoxnüvəli sistemlərdə performansı artırsa da, resurs paylaşımı (məsələn, paylaşılan sayğac) sinxronizasiya tələb edir."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Main {\n  public static void main(String[] args) {\n    Runnable task = () -> {\n      for (int i = 0; i < 3; i++) {\n        System.out.println(\"Task işləyir: \" + i);\n      }\n    };\n    Thread thread = new Thread(task);\n    thread.start();\n    System.out.println(\"Əsas ip işləyir.\");\n  }\n}\n// Çıxış (sıra dəyişə bilər):\n// Əsas ip işləyir.\n// Task işləyir: 0\n// Task işləyir: 1\n// Task işləyir: 2"
+      },
+      {
+        "type": "heading",
+        "text": "Sinxronizasiya və kilidlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "İplər paylaşılan resurslara (məsələn, dəyişənə) eyni anda daxil olduqda, **data race** və ya **race condition** kimi problemlər yaranır. Bunun qarşısını almaq üçün Java-da sinxronizasiya mexanizmləri istifadə olunur:\n- **`synchronized` açar sözü**: Metod və ya blok yalnız bir ip tərəfindən istifadə edilə bilər. Məsələn, bir sayğacı artırarkən `synchronized` bloku digər iplərin müdaxiləsini bloklayır.\n- **`Lock` interfeysi**: `java.util.concurrent.locks` paketindəki `ReentrantLock` kimi kilidlər daha çevik sinxronizasiya təmin edir. Kilid `lock()` və `unlock()` metodları ilə idarə olunur.\nMəsələn, bir bank hesabında balansın dəyişdirilməsi sinxronizasiya tələb edir ki, iplər eyni anda balansdan çıxış etməsin."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Main {\n  private static int counter = 0;\n\n  public static synchronized void increment() {\n    counter++;\n  }\n\n  public static void main(String[] args) {\n    Runnable task = () -> {\n      for (int i = 0; i < 1000; i++) {\n        increment();\n      }\n    };\n    Thread thread1 = new Thread(task);\n    Thread thread2 = new Thread(task);\n    thread1.start();\n    thread2.start();\n    try {\n      thread1.join();\n      thread2.join();\n    } catch (InterruptedException e) {\n      e.printStackTrace();\n    }\n    System.out.println(\"Sayğac: \" + counter);\n  }\n}\n// Çıxış: Sayğac: 2000"
+      },
+      {
+        "type": "heading",
+        "text": "ExecutorService və ip hovuzları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java-da `ExecutorService` iplərin idarə edilməsini asanlaşdırır. Birbaşa `Thread` obyektləri yaratmaq əvəzinə, ip hovuzları (`thread pool`) istifadə olunur. Bu, iplərin təkrar istifadəsini təmin edir və resurs istehlakını azaldır. `ExecutorService` ilə müxtəlif hovuzlar yaradıla bilər:\n- **FixedThreadPool**: Sabit sayda iplərdən ibarət hovuz.\n- **CachedThreadPool**: Ehtiyaca görə iplər yaradır və təkrar istifadə edir.\n- **SingleThreadExecutor**: Tək ipdə tapşırıqları ardıcıl icra edir.\nMəsələn, bir veb server çoxsaylı istifadəçi sorğularını emal etmək üçün `FixedThreadPool` istifadə edə bilər. `ExecutorService` tapşırıqları `submit()` və ya `execute()` ilə icra edir və `shutdown()` ilə bağlanır."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\n\npublic class Main {\n  public static void main(String[] args) {\n    ExecutorService executor = Executors.newFixedThreadPool(2);\n    Runnable task = () -> {\n      for (int i = 0; i < 3; i++) {\n        System.out.println(\"Task işləyir: \" + Thread.currentThread().getName());\n      }\n    };\n    executor.submit(task);\n    executor.submit(task);\n    executor.shutdown();\n  }\n}\n// Çıxış (sıra dəyişə bilər):\n// Task işləyir: pool-1-thread-1\n// Task işləyir: pool-1-thread-2\n// Task işləyir: pool-1-thread-1\n// ..."
+      },
+      {
+        "type": "heading",
+        "text": "Paralel emalın çətinlikləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konkurrentlik bir çox üstünlüklər təmin etsə də, çətinlikləri də var:\n- **Data Race**: Bir neçə ip eyni resursa eyni anda daxil olduqda yanlış nəticələr yaranır.\n- **Deadlock**: İki ip bir-birinin resursunu gözləyərək kilidlənir.\n- **Starvation**: Bəzi iplər resurslara daxil ola bilmir.\n- **Thread Interference**: İplər paylaşılan dəyişəni eyni anda dəyişdirərək səhvə səbəb olur.\nBu problemləri həll etmək üçün sinxronizasiya, kilidlər və ya `ConcurrentHashMap` kimi sinxronizasiya edilmiş strukturlar istifadə olunur. Məsələn, `synchronized` bloku və ya `Lock` istifadə edilərək data race qarşısı alına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konkurrentlik real dünyada geniş istifadə olunur:\n- **Veb serverlər**: Eyni anda çoxsaylı istifadəçi sorğularını emal etmək (məsələn, Apache Tomcat).\n- **Verilənlər bazası emalı**: Böyük məlumat dəstlərini paralel şəkildə emal etmək.\n- **Oyunlar**: Oyun personajlarının hərəkətləri və ya fizika hesablamaları üçün iplər.\n- **Şəkil emalı**: Şəkilləri paralel şəkildə emal etmək, məsələn, filtr tətbiq etmək.\n- **Finans sistemləri**: Real vaxtda tranzaksiyaların emalı.\nMəsələn, bir e-ticarət platforması istifadəçi sifarişlərini və ödənişləri paralel şəkildə emal etmək üçün `ExecutorService` istifadə edə bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Konkurrentliyin məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java-da konkurrentlik çoxnüvəli sistemlərdən maksimum istifadə etmək, performansı artırmaq və tapşırıqları səmərəli şəkildə icra etmək məqsədi daşıyır. Bu, böyük məlumat dəstləri ilə işləyən və ya çoxsaylı istifadəçi sorğularını idarə edən tətbiqlər üçün vacibdir. Lakin sinxronizasiya və resurs idarəetməsi diqqət tələb edir, çünki səhvlər ciddi problemlərə səbəb ola bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "İplər",
+            "description": "Müstəqil icra axınları yaradır."
+          },
+          {
+            "term": "Sinxronizasiya",
+            "description": "Paylaşılan resurslara təhlükəsiz daxil olmağı təmin edir."
+          },
+          {
+            "term": "ExecutorService",
+            "description": "İplərin idarə edilməsini asanlaşdırır."
+          },
+          {
+            "term": "Paralel emal",
+            "description": "Çoxnüvəli sistemlərdə performansı artırır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Sinxronizasiya edilməmiş resurslar data race və ya thread interference səbəb ola bilər, deadlock və starvation performansı aşağı salır.\n- **Tövsiyələr**: Sinxronizasiyanı diqqətlə tətbiq edin, `ExecutorService` kimi yüksək səviyyəli alətlərdən istifadə edin, paylaşılan resursları minimuma endirin, IntelliJ IDEA kimi IDE-lərdən istifadə edin ki, səhvlər asan aşkarlansın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\n\npublic class Main {\n  public static void main(String[] args) {\n    ExecutorService executor = Executors.newFixedThreadPool(2);\n    Runnable task = () -> {\n      System.out.println(\"Task işləyir: \" + Thread.currentThread().getName());\n    };\n    for (int i = 0; i < 4; i++) {\n      executor.submit(task);\n    }\n    executor.shutdown();\n  }\n}\n// Çıxış (sıra dəyişə bilər):\n// Task işləyir: pool-1-thread-1\n// Task işləyir: pool-1-thread-2\n// Task işləyir: pool-1-thread-1\n// Task işləyir: pool-1-thread-2"
+      }
+    ]
+  },
+  "en": {
+    "title": "Java Concurrency: Introduction",
+    "language": "java",
+    "description": "Concurrency in Java enables multiple tasks to run simultaneously. Threads, synchronization, and ExecutorService improve performance but require careful management.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Concurrency?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Concurrency refers to a program’s ability to execute multiple tasks simultaneously. In Java, this is achieved through threads, leveraging multi-core processors to enhance performance. For example, a web server can handle multiple user requests at once. Concurrency comes in two forms: **parallel execution** (tasks run simultaneously on different cores) and **concurrent execution** (tasks take turns, appearing to run simultaneously). Java supports concurrency with the `Thread` class, `Runnable` interface, synchronization mechanisms, and the `java.util.concurrent` package. However, concurrency can be complex, as resource sharing between threads can lead to synchronization issues."
+      },
+      {
+        "type": "heading",
+        "text": "Threads and Their Creation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Threads in Java are independent execution flows within a program. Each thread performs its own task. Threads can be created in two ways:\n1. **Extending the Thread class**: A new class inherits from `Thread` and overrides the `run()` method.\n2. **Implementing the Runnable interface**: A class implements `Runnable`, defines the `run()` method, and is passed to a `Thread` object.\nFor example, one thread might increment a counter while another prints data. Threads are started with the `start()` method, which invokes `run()`. While threads improve performance in multi-core systems, shared resources (e.g., a counter) require synchronization."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Main {\n  public static void main(String[] args) {\n    Runnable task = () -> {\n      for (int i = 0; i < 3; i++) {\n        System.out.println(\"Task running: \" + i);\n      }\n    };\n    Thread thread = new Thread(task);\n    thread.start();\n    System.out.println(\"Main thread running.\");\n  }\n}\n// Output (order may vary):\n// Main thread running.\n// Task running: 0\n// Task running: 1\n// Task running: 2"
+      },
+      {
+        "type": "heading",
+        "text": "Synchronization and Locks"
+      },
+      {
+        "type": "paragraph",
+        "text": "When multiple threads access shared resources (e.g., a variable), issues like **data race** or **race condition** can occur. Java provides synchronization mechanisms to prevent this:\n- **`synchronized` keyword**: Ensures a method or block is accessed by only one thread at a time. For example, incrementing a counter in a `synchronized` block prevents other threads from interfering.\n- **`Lock` interface**: The `java.util.concurrent.locks` package, such as `ReentrantLock`, offers more flexible synchronization. Locks are managed with `lock()` and `unlock()` methods.\nFor instance, synchronizing a bank account balance update ensures threads don’t modify it simultaneously."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Main {\n  private static int counter = 0;\n\n  public static synchronized void increment() {\n    counter++;\n  }\n\n  public static void main(String[] args) {\n    Runnable task = () -> {\n      for (int i = 0; i < 1000; i++) {\n        increment();\n      }\n    };\n    Thread thread1 = new Thread(task);\n    Thread thread2 = new Thread(task);\n    thread1.start();\n    thread2.start();\n    try {\n      thread1.join();\n      thread2.join();\n    } catch (InterruptedException e) {\n      e.printStackTrace();\n    }\n    System.out.println(\"Counter: \" + counter);\n  }\n}\n// Output: Counter: 2000"
+      },
+      {
+        "type": "heading",
+        "text": "ExecutorService and Thread Pools"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `ExecutorService` in Java simplifies thread management. Instead of creating `Thread` objects directly, thread pools are used to reuse threads and reduce resource consumption. `ExecutorService` supports various pool types:\n- **FixedThreadPool**: A pool with a fixed number of threads.\n- **CachedThreadPool**: Creates threads as needed and reuses them.\n- **SingleThreadExecutor**: Executes tasks sequentially in a single thread.\nFor example, a web server might use a `FixedThreadPool` to handle multiple user requests. Tasks are submitted with `submit()` or `execute()`, and the service is closed with `shutdown()`."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\n\npublic class Main {\n  public static void main(String[] args) {\n    ExecutorService executor = Executors.newFixedThreadPool(2);\n    Runnable task = () -> {\n      for (int i = 0; i < 3; i++) {\n        System.out.println(\"Task running: \" + Thread.currentThread().getName());\n      }\n    };\n    executor.submit(task);\n    executor.submit(task);\n    executor.shutdown();\n  }\n}\n// Output (order may vary):\n// Task running: pool-1-thread-1\n// Task running: pool-1-thread-2\n// Task running: pool-1-thread-1\n// ..."
+      },
+      {
+        "type": "heading",
+        "text": "Challenges of Parallel Processing"
+      },
+      {
+        "type": "paragraph",
+        "text": "Concurrency offers many benefits but comes with challenges:\n- **Data Race**: Multiple threads accessing a shared resource simultaneously can produce incorrect results.\n- **Deadlock**: Two threads block each other while waiting for resources.\n- **Starvation**: Some threads are unable to access resources.\n- **Thread Interference**: Threads modifying a shared variable concurrently cause errors.\nThese issues can be mitigated using synchronization, locks, or thread-safe structures like `ConcurrentHashMap`. For example, a `synchronized` block or `Lock` can prevent data races."
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Concurrency is widely used in real-world applications:\n- **Web Servers**: Handling multiple user requests simultaneously (e.g., Apache Tomcat).\n- **Database Processing**: Processing large datasets in parallel.\n- **Games**: Managing character movements or physics calculations with threads.\n- **Image Processing**: Processing images in parallel, such as applying filters.\n- **Financial Systems**: Real-time transaction processing.\nFor example, an e-commerce platform might use `ExecutorService` to process user orders and payments concurrently."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Concurrency"
+      },
+      {
+        "type": "paragraph",
+        "text": "Concurrency in Java aims to maximize multi-core system utilization, improve performance, and execute tasks efficiently. It is critical for applications handling large datasets or multiple user requests. However, synchronization and resource management require careful handling to avoid errors."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Threads",
+            "description": "Create independent execution flows."
+          },
+          {
+            "term": "Synchronization",
+            "description": "Ensures safe access to shared resources."
+          },
+          {
+            "term": "ExecutorService",
+            "description": "Simplifies thread management."
+          },
+          {
+            "term": "Parallel Processing",
+            "description": "Enhances performance in multi-core systems."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Unsynchronized resources can cause data races or thread interference, deadlocks and starvation degrade performance.\n- **Recommendations**: Apply synchronization carefully, use high-level tools like `ExecutorService`, minimize shared resources, and use IDEs like IntelliJ IDEA to detect errors."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\n\npublic class Main {\n  public static void main(String[] args) {\n    ExecutorService executor = Executors.newFixedThreadPool(2);\n    Runnable task = () -> {\n      System.out.println(\"Task running: \" + Thread.currentThread().getName());\n    };\n    for (int i = 0; i < 4; i++) {\n      executor.submit(task);\n    }\n    executor.shutdown();\n  }\n}\n// Output (order may vary):\n// Task running: pool-1-thread-1\n// Task running: pool-1-thread-2\n// Task running: pool-1-thread-1\n// Task running: pool-1-thread-2"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Конкурентность в Java: Введение",
+    "language": "java",
+    "description": "Конкурентность в Java позволяет выполнять несколько задач одновременно. Потоки, синхронизация и ExecutorService повышают производительность, но требуют тщательного управления.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое конкурентность?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конкурентность — это способность программы выполнять несколько задач одновременно. В Java это достигается с помощью потоков (threads), использующих многоядерные процессоры для повышения производительности. Например, веб-сервер может обрабатывать несколько пользовательских запросов одновременно. Конкурентность бывает двух видов: **параллельное выполнение** (задачи выполняются одновременно на разных ядрах) и **конкурентное выполнение** (задачи чередуются, создавая видимость одновременной работы). Java поддерживает конкурентность с помощью класса `Thread`, интерфейса `Runnable`, механизмов синхронизации и пакета `java.util.concurrent`. Однако конкурентность может быть сложной, так как совместное использование ресурсов между потоками может привести к проблемам синхронизации."
+      },
+      {
+        "type": "heading",
+        "text": "Потоки и их создание"
+      },
+      {
+        "type": "paragraph",
+        "text": "Потоки в Java — это независимые потоки выполнения в программе. Каждый поток выполняет свою задачу. Потоки создаются двумя способами:\n1. **Наследование от класса Thread**: Новый класс наследуется от `Thread` и переопределяет метод `run()`.\n2. **Реализация интерфейса Runnable**: Класс реализует `Runnable`, определяет метод `run()` и передаётся объекту `Thread`.\nНапример, один поток может увеличивать счётчик, а другой — выводить данные. Потоки запускаются методом `start()`, который вызывает `run()`. Хотя потоки повышают производительность в многоядерных системах, общие ресурсы (например, счётчик) требуют синхронизации."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Main {\n  public static void main(String[] args) {\n    Runnable task = () -> {\n      for (int i = 0; i < 3; i++) {\n        System.out.println(\"Задача выполняется: \" + i);\n      }\n    };\n    Thread thread = new Thread(task);\n    thread.start();\n    System.out.println(\"Основной поток выполняется.\");\n  }\n}\n// Вывод (порядок может варьироваться):\n// Основной поток выполняется.\n// Задача выполняется: 0\n// Задача выполняется: 1\n// Задача выполняется: 2"
+      },
+      {
+        "type": "heading",
+        "text": "Синхронизация и блокировки"
+      },
+      {
+        "type": "paragraph",
+        "text": "Когда несколько потоков одновременно обращаются к общим ресурсам (например, переменной), могут возникнуть проблемы, такие как **гонка данных** или **состояние гонки**. Для их предотвращения в Java используются механизмы синхронизации:\n- **Ключевое слово `synchronized`**: Гарантирует, что метод или блок доступен только одному потоку одновременно. Например, при увеличении счётчика `synchronized` блок предотвращает вмешательство других потоков.\n- **Интерфейс `Lock`**: Пакет `java.util.concurrent.locks`, например `ReentrantLock`, обеспечивает более гибкую синхронизацию. Блокировки управляются методами `lock()` и `unlock()`.\nНапример, синхронизация обновления баланса банковского счёта предотвращает одновременное изменение несколькими потоками."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Main {\n  private static int counter = 0;\n\n  public static synchronized void increment() {\n    counter++;\n  }\n\n  public static void main(String[] args) {\n    Runnable task = () -> {\n      for (int i = 0; i < 1000; i++) {\n        increment();\n      }\n    };\n    Thread thread1 = new Thread(task);\n    Thread thread2 = new Thread(task);\n    thread1.start();\n    thread2.start();\n    try {\n      thread1.join();\n      thread2.join();\n    } catch (InterruptedException e) {\n      e.printStackTrace();\n    }\n    System.out.println(\"Счётчик: \" + counter);\n  }\n}\n// Вывод: Счётчик: 2000"
+      },
+      {
+        "type": "heading",
+        "text": "ExecutorService и пулы потоков"
+      },
+      {
+        "type": "paragraph",
+        "text": "В Java `ExecutorService` упрощает управление потоками. Вместо создания объектов `Thread` напрямую используются пулы потоков (`thread pool`), которые позволяют повторно использовать потоки и снижать потребление ресурсов. `ExecutorService` поддерживает различные типы пулов:\n- **FixedThreadPool**: Пул с фиксированным количеством потоков.\n- **CachedThreadPool**: Создаёт потоки по необходимости и повторно использует их.\n- **SingleThreadExecutor**: Выполняет задачи последовательно в одном потоке.\nНапример, веб-сервер может использовать `FixedThreadPool` для обработки множества пользовательских запросов. Задачи отправляются с помощью `submit()` или `execute()`, а сервис закрывается с помощью `shutdown()`."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\n\npublic class Main {\n  public static void main(String[] args) {\n    ExecutorService executor = Executors.newFixedThreadPool(2);\n    Runnable task = () -> {\n      for (int i = 0; i < 3; i++) {\n        System.out.println(\"Задача выполняется: \" + Thread.currentThread().getName());\n      }\n    };\n    executor.submit(task);\n    executor.submit(task);\n    executor.shutdown();\n  }\n}\n// Вывод (порядок может варьироваться):\n// Задача выполняется: pool-1-thread-1\n// Задача выполняется: pool-1-thread-2\n// Задача выполняется: pool-1-thread-1\n// ..."
+      },
+      {
+        "type": "heading",
+        "text": "Проблемы параллельной обработки"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конкурентность имеет множество преимуществ, но также сопряжена с проблемами:\n- **Гонка данных**: Несколько потоков, одновременно обращающихся к общему ресурсу, могут привести к неверным результатам.\n- **Взаимная блокировка (Deadlock)**: Два потока блокируют друг друга, ожидая ресурсы.\n- **Голодание (Starvation)**: Некоторые потоки не могут получить доступ к ресурсам.\n- **Интерференция потоков**: Потоки, одновременно изменяющие общую переменную, вызывают ошибки.\nЭти проблемы можно решить с помощью синхронизации, блокировок или потокобезопасных структур, таких как `ConcurrentHashMap`. Например, блок `synchronized` или `Lock` предотвращает гонки данных."
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конкурентность широко используется в реальных приложениях:\n- **Веб-серверы**: Одновременная обработка множества пользовательских запросов (например, Apache Tomcat).\n- **Обработка баз данных**: Параллельная обработка больших наборов данных.\n- **Игры**: Управление движением персонажей или физическими расчётами с помощью потоков.\n- **Обработка изображений**: Параллельная обработка изображений, например, применение фильтров.\n- **Финансовые системы**: Обработка транзакций в реальном времени.\nНапример, платформа электронной коммерции может использовать `ExecutorService` для параллельной обработки заказов и платежей пользователей."
+      },
+      {
+        "type": "heading",
+        "text": "Цель конкурентности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конкурентность в Java направлена на максимальное использование многоядерных систем, повышение производительности и эффективное выполнение задач. Это критически важно для приложений, обрабатывающих большие наборы данных или множество пользовательских запросов. Однако синхронизация и управление ресурсами требуют осторожности, чтобы избежать ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Основные характеристики"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Потоки",
+            "description": "Создают независимые потоки выполнения."
+          },
+          {
+            "term": "Синхронизация",
+            "description": "Обеспечивает безопасный доступ к общим ресурсам."
+          },
+          {
+            "term": "ExecutorService",
+            "description": "Упрощает управление потоками."
+          },
+          {
+            "term": "Параллельная обработка",
+            "description": "Повышает производительность в многоядерных системах."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Несинхронизированные ресурсы могут вызвать гонки данных или интерференцию потоков, взаимные блокировки и голодание снижают производительность.\n- **Рекомендации**: Тщательно применяйте синхронизацию, используйте высокоуровневые инструменты, такие как `ExecutorService`, минимизируйте общие ресурсы, используйте IDE, такие как IntelliJ IDEA, для обнаружения ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\n\npublic class Main {\n  public static void main(String[] args) {\n    ExecutorService executor = Executors.newFixedThreadPool(2);\n    Runnable task = () -> {\n      System.out.println(\"Задача выполняется: \" + Thread.currentThread().getName());\n    };\n    for (int i = 0; i < 4; i++) {\n      executor.submit(task);\n    }\n    executor.shutdown();\n  }\n}\n// Вывод (порядок может варьироваться):\n// Задача выполняется: pool-1-thread-1\n// Задача выполняется: pool-1-thread-2\n// Задача выполняется: pool-1-thread-1\n// Задача выполняется: pool-1-thread-2"
+      }
+    ]
+  }
+}

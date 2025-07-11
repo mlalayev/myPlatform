@@ -5,16 +5,12 @@ interface ComplexityModalProps {
   isOpen: boolean;
   onClose: () => void;
   timeComplexity: string | null;
-  spaceComplexity: string | null;
-  userCode: string;
 }
 
 const ComplexityModal: React.FC<ComplexityModalProps> = ({
   isOpen,
   onClose,
   timeComplexity,
-  spaceComplexity,
-  userCode,
 }) => {
   if (!isOpen) return null;
 

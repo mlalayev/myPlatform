@@ -4,8 +4,6 @@ import MonacoEditor from "@monaco-editor/react";
 import styles from "./JsTryEditor.module.css";
 import SavadliButton from "../Buttons/savadliButton/SavadliButton";
 import CopyButton from "../Buttons/copyButton/CopyButton";
-import workerCode from "../../exercises/[id]/sandboxWorkerString";
-import tryEditorWorkerCode from "./tryEditorWorkerString";
 import * as Babel from "@babel/standalone";
 import { useI18n } from "@/contexts/I18nContext";
 
@@ -135,54 +133,6 @@ fn main() {
 
 const defaultCode = languageSamples.javascript;
 
-// WebAssembly runtimes
-let pyodide: any = null;
-let cppWasmModule: any = null;
-
-const loadPyodide = async () => {
-  if (!(window as any).loadPyodide) {
-    // Dynamically load the script if not already loaded
-    await new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js";
-      script.onload = resolve;
-      script.onerror = reject;
-      document.body.appendChild(script);
-    });
-  }
-  if (!pyodide) {
-    pyodide = await (window as any).loadPyodide();
-  }
-  return pyodide;
-};
-
-const loadCppWasm = async () => {
-  if (!cppWasmModule) {
-    // Load a pre-compiled C++ runtime using Emscripten
-    const response = await fetch("/api/cpp-wasm-runtime");
-    const wasmBuffer = await response.arrayBuffer();
-    cppWasmModule = await WebAssembly.instantiate(wasmBuffer, {
-      env: {
-        memory: new WebAssembly.Memory({ initial: 256 }),
-        // C++ standard library functions
-        printf: (ptr: number) => {
-          // Implementation for printf
-          return 0;
-        },
-        malloc: (size: number) => {
-          // Implementation for malloc
-          return 0;
-        },
-        free: (ptr: number) => {
-          // Implementation for free
-        },
-        // Add more C++ standard library functions as needed
-      },
-    });
-  }
-  return cppWasmModule;
-};
-
 // Fix: add index signature for string keys
 const tryeditorErrorOverrides: { [key: string]: { [key: string]: string } } = {
   az: {
@@ -221,7 +171,7 @@ export default function JsTryEditor({
   const [isLoading, setIsLoading] = useState(false);
   const workerRef = useRef<Worker | null>(null);
 
-  console.log(language)
+  console.log(language);
 
   function tWithOverride(key: string) {
     return (
@@ -290,11 +240,11 @@ export default function JsTryEditor({
                   presets: ["env", "typescript"],
                   filename: "file.ts",
                 }).code || code;
-            } catch (tsErr: any) {
+            } catch (tsErr: unknown) {
               setError(
                 tWithOverride("tsCompileError") +
                   "\n" +
-                  (tsErr.message || tsErr)
+                  (tsErr instanceof Error ? tsErr.message : String(tsErr))
               );
               setShowOutput(true);
               setIsLoading(false);
@@ -354,8 +304,8 @@ export default function JsTryEditor({
               if (!logTimer) logTimer = setTimeout(sendLogsAndExit, logDelay);
               // Global fallback: always terminate after 7 seconds
               globalTimeout = setTimeout(sendLogsAndExit, 7000);
-            } catch (error) {
-              self.postMessage({ type: 'error', error: error.message });
+            } catch (error: unknown) {
+              self.postMessage({ type: 'error', error: error instanceof Error ? error.message : String(error) });
               self.close();
             }
           `,
@@ -364,8 +314,12 @@ export default function JsTryEditor({
           );
 
           const worker = new Worker(URL.createObjectURL(workerBlob));
-
-          let timeoutId: ReturnType<typeof setTimeout> | undefined;
+          const timeoutId: ReturnType<typeof setTimeout> = setTimeout(() => {
+            worker.terminate();
+            setError(t("tryeditor.timeout"));
+            setShowOutput(true);
+            setIsLoading(false);
+          }, 7000); // 7 second timeout for async
 
           worker.onmessage = function (e) {
             clearTimeout(timeoutId);
@@ -395,18 +349,10 @@ export default function JsTryEditor({
             worker.terminate();
           };
 
-          // Set a timeout for the worker
-          timeoutId = setTimeout(() => {
-            worker.terminate();
-            setError(t("tryeditor.timeout"));
-            setShowOutput(true);
-            setIsLoading(false);
-          }, 7000); // 7 second timeout for async
-
           return;
-        } catch (err: any) {
+        } catch (err: unknown) {
           setError(
-            t("tryeditor.jsInterpreter").replace("{{message}}", err.message)
+            t("tryeditor.jsInterpreter").replace("{{message}}", err instanceof Error ? err.message : String(err))
           );
           setShowOutput(true);
           setIsLoading(false);
@@ -429,8 +375,8 @@ export default function JsTryEditor({
             setError(result.error || "");
           }
           setShowOutput(true);
-        } catch (err: any) {
-          setError("Server error: " + err.message);
+        } catch (err: unknown) {
+          setError("Server error: " + (err instanceof Error ? err.message : String(err)));
           setShowOutput(true);
         } finally {
           setIsLoading(false);
@@ -453,8 +399,8 @@ export default function JsTryEditor({
             setError(result.error || "");
           }
           setShowOutput(true);
-        } catch (err: any) {
-          setError("Server error: " + err.message);
+        } catch (err: unknown) {
+          setError("Server error: " + (err instanceof Error ? err.message : String(err)));
           setShowOutput(true);
         } finally {
           setIsLoading(false);
@@ -463,16 +409,62 @@ export default function JsTryEditor({
       }
       if (lang === "java") {
         try {
-          // Replace any public class <Name> with public class Main (robust, global)
           console.log("Java code before patch:", code);
-          const mainClassCode = code.replace(/public\s+class\s+[A-Za-z_][A-Za-z0-9_]*/g, "public class Main");
+
+          // Əvvəlcə class adını tapaq
+          const classMatch = code.match(
+            /public\s+class\s+([A-Za-z_][A-Za-z0-9_]*)/
+          );
+          const originalClassName = classMatch ? classMatch[1] : null;
+
+          // Class adını Main-ə dəyişdir
+          let mainClassCode = code.replace(
+            /public\s+class\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/g,
+            "public class Main {"
+          );
+
+          // Əgər orijinal class adı varsa, constructor adını da dəyişdir
+          if (originalClassName && originalClassName !== "Main") {
+            // Constructor pattern: className(parameters) {
+            const constructorPattern = new RegExp(
+              `\\b${originalClassName}\\s*\\(`,
+              "g"
+            );
+            mainClassCode = mainClassCode.replace(constructorPattern, "Main(");
+
+            // Object yaradılması pattern: new className(
+            const newObjectPattern = new RegExp(
+              `new\\s+${originalClassName}\\s*\\(`,
+              "g"
+            );
+            mainClassCode = mainClassCode.replace(
+              newObjectPattern,
+              "new Main("
+            );
+
+            // Variable type pattern: ClassName variableName =
+            const variablePattern = new RegExp(
+              `\\b${originalClassName}\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*=`,
+              "g"
+            );
+            mainClassCode = mainClassCode.replace(variablePattern, "Main $1 =");
+
+            // Method parameter və return type pattern
+            const methodParamPattern = new RegExp(
+              `\\b${originalClassName}\\b`,
+              "g"
+            );
+            mainClassCode = mainClassCode.replace(methodParamPattern, "Main");
+          }
+
           console.log("Java code after patch:", mainClassCode);
-          console.log("Language prop:", language);
+
           const response = await fetch("/api/execute", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code: mainClassCode, language: lang }),
           });
+
           const result = await response.json();
           if (result.error) {
             setError(result.error);
@@ -482,8 +474,12 @@ export default function JsTryEditor({
             setError(result.error || "");
           }
           setShowOutput(true);
-        } catch (err: any) {
-          setError("Server error: " + err.message);
+        } catch (err: unknown) {
+          let errorMessage = "Server error";
+          if (err instanceof Error) {
+            errorMessage += ": " + err.message;
+          }
+          setError(errorMessage);
           setShowOutput(true);
         } finally {
           setIsLoading(false);
@@ -506,8 +502,8 @@ export default function JsTryEditor({
             setError(result.error || "");
           }
           setShowOutput(true);
-        } catch (err: any) {
-          setError("Server error: " + err.message);
+        } catch (err: unknown) {
+          setError("Server error: " + (err instanceof Error ? err.message : String(err)));
           setShowOutput(true);
         } finally {
           setIsLoading(false);
@@ -530,8 +526,8 @@ export default function JsTryEditor({
             setError(result.error || "");
           }
           setShowOutput(true);
-        } catch (err: any) {
-          setError("Server error: " + err.message);
+        } catch (err: unknown) {
+          setError("Server error: " + (err instanceof Error ? err.message : String(err)));
           setShowOutput(true);
         } finally {
           setIsLoading(false);
@@ -554,8 +550,8 @@ export default function JsTryEditor({
             setError(result.error || "");
           }
           setShowOutput(true);
-        } catch (err: any) {
-          setError("Server error: " + err.message);
+        } catch (err: unknown) {
+          setError("Server error: " + (err instanceof Error ? err.message : String(err)));
           setShowOutput(true);
         } finally {
           setIsLoading(false);
@@ -565,8 +561,8 @@ export default function JsTryEditor({
       setError(t("tryeditor.unsupported"));
       setShowOutput(true);
       setIsLoading(false);
-    } catch (err: any) {
-      setError(t("tryeditor.general").replace("{{message}}", err.message));
+    } catch (err: unknown) {
+      setError(t("tryeditor.general").replace("{{message}}", err instanceof Error ? err.message : String(err)));
       setShowOutput(true);
       setIsLoading(false);
     }
@@ -574,9 +570,10 @@ export default function JsTryEditor({
 
   // Cleanup worker on unmount
   useEffect(() => {
+    const worker = workerRef.current;
     return () => {
-      if (workerRef.current) {
-        workerRef.current.terminate();
+      if (worker) {
+        worker.terminate();
       }
     };
   }, []);

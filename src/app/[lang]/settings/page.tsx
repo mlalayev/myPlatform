@@ -16,12 +16,12 @@ import {
   FiAlertCircle,
   FiShield,
   FiBell,
-  FiGlobe,
   FiLock,
   FiEye,
   FiEyeOff,
 } from "react-icons/fi";
 import styles from "./SettingsPage.module.css";
+import Image from 'next/image';
 
 interface UserData {
   name: string;
@@ -68,12 +68,12 @@ export default function SettingsPage() {
 
     // Initialize form data with current user data
     setFormData({
-      name: (session.user as any).name || session.user.name?.split(" ")[0] || "",
-      surname: (session.user as any).surname || session.user.name?.split(" ").slice(1).join(" ") || "",
-      username: (session.user as any).username || "",
+      name: (session.user as UserData).name || session.user.name?.split(" ")[0] || "",
+      surname: (session.user as UserData).surname || session.user.name?.split(" ").slice(1).join(" ") || "",
+      username: (session.user as UserData).username || "",
       email: session.user.email || "",
-      phone: (session.user as any).phone || "",
-      avatarUrl: (session.user as any).avatarUrl || "",
+      phone: (session.user as UserData).phone || "",
+      avatarUrl: (session.user as UserData).avatarUrl || "",
     });
   }, [session, status, router]);
 
@@ -263,9 +263,11 @@ export default function SettingsPage() {
               <form onSubmit={handleSubmit} className={styles.form}>
                 <div className={styles.avatarSection}>
                   <div className={styles.avatarContainer}>
-                    <img
-                      src={avatarPreview || formData.avatarUrl || (session.user as any).avatarUrl || `https://ui-avatars.com/api/?name=${session.user.name}&background=6c3fc5&color=fff`}
+                    <Image
+                      src={avatarPreview || formData.avatarUrl || (session.user as UserData).avatarUrl || `https://ui-avatars.com/api/?name=${session.user.name}&background=6c3fc5&color=fff`}
                       alt="Profile"
+                      width={100}
+                      height={100}
                       className={styles.avatar}
                     />
                     <label className={styles.avatarUpload}>
