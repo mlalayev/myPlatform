@@ -44,20 +44,7 @@ export default function ExercisesPage() {
   const pathname = usePathname();
   const currentLang = pathname.split("/")[1] || "en";
 
-  useEffect(() => {
-    const savedGlobalLang = localStorage.getItem('quiz_global_lang');
-    if (savedGlobalLang) setGlobalLanguage(savedGlobalLang);
-  }, []);
-
-  useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === 'quiz_global_lang' && e.newValue) {
-        setGlobalLanguage(e.newValue);
-      }
-    };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, []);
+  // Removed setGlobalLanguage logic as it is not defined or used
 
   // Fetch latest submission status for each exercise
   React.useEffect(() => {

@@ -2,19 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { promises as fs } from "fs";
 
-type ContentBlock =
-  | { type: "heading"; text: string }
-  | { type: "paragraph"; text: string }
-  | { type: "code"; language: string; code: string }
-  | { type: "editor"; initialCode: string };
-
-type Topic = {
-  id: string;
-  title: string;
-  icon: string;
-  description: string;
-  content: ContentBlock[];
-};
 
 export async function GET(req, context) {
   const { language, topicId } = context.params;
@@ -39,7 +26,7 @@ export async function GET(req, context) {
       const topicList = JSON.parse(indexContents);
 
       // Find the specific topic
-      const topicInfo = topicList.find((topic: Topic) => topic.id === topicId);
+      const topicInfo = topicList.find((topic) => topic.id === topicId);
 
       if (!topicInfo) {
         return NextResponse.json({ error: "Topic not found" }, { status: 404 });
@@ -66,7 +53,7 @@ export async function GET(req, context) {
       const fileContents = await fs.readFile(filePath, "utf-8");
       const topics = JSON.parse(fileContents);
 
-      const topic = topics.find((t: Topic) => t.id === topicId);
+      const topic = topics.find((t) => t.id === topicId);
 
       if (!topic) {
         return NextResponse.json({ error: "Topic not found" }, { status: 404 });

@@ -1,81 +1,74 @@
 {
   "az": {
-    "title": "Java Vərəsəlik: Giriş",
+    "title": "Java Mirası: Giriş",
     "language": "java",
-    "description": "Java-da vərəsəlik obyekt-əsaslı proqramlaşdırmanın əsas prinsipidir. Bir sinif başqa sinfin xüsusiyyətlərini və metodlarını miras ala bilər. Sintaksis: `class AltSinf extends AnaSinf { ... }`. Vərəsəlik kodu təkrar istifadə etməyə və iyerarxik struktur yaratmağa imkan verir.",
+    "description": "Java-da miras bir sinfin digər sinfin xüsusiyyətlərini və metodlarını miras almasını təmin edir. `extends` açar sözü ilə kodun təkrar istifadəsi və strukturu yaxşılaşdırılır.",
     "content": [
       {
         "type": "heading",
-        "text": "Vərəsəlik nədir?"
+        "text": "Miras nədir?"
       },
       {
         "type": "paragraph",
-        "text": "Vərəsəlik Java-da bir sinfin başqa sinfin dəyişənlərini və metodlarını miras almasıdır. Ana sinif (superclass) ümumi xüsusiyyətləri təyin edir, alt sinif (subclass) isə xüsusi xüsusiyyətlər əlavə edir. `extends` açar sözü ilə təyin edilir."
+        "text": "Java-da miras (inheritance) obyekt-orientasiyalı proqramlaşdırmanın (OOP) əsas prinsiplərindən biridir. Miras bir sinfin (alt sinif və ya törəmə sinif) başqa bir sinfin (üst sinif və ya ana sinif) xüsusiyyətlərini və metodlarını miras almasına imkan verir. Bu, kodun təkrar istifadəsini təmin edir və eyni funksionallığı dəfələrlə yazmağa ehtiyacı azaldır. Məsələn, bir `Animal` sinfi ümumi xüsusiyyətləri (məsələn, `eat` metodu) təyin edə bilər, və `Dog` və `Cat` sinifləri bu xüsusiyyətləri miras alaraq öz xüsusi metodlarını əlavə edə bilər. Java-da miras `extends` açar sözü ilə tətbiq edilir."
       },
       {
         "type": "heading",
-        "text": "Sadə Vərəsəlik Nümunəsi"
+        "text": "Sinif Mirası"
       },
       {
         "type": "paragraph",
-        "text": "Ana sinifdən miras alan alt sinif ana sinfin `public` və `protected` üzvlərinə giriş əldə edir."
+        "text": "Sinif mirası bir sinfin başqa bir sinfdən xüsusiyyətləri və metodları miras almasını nəzərdə tutur. Üst sinif ümumi funksionallığı təmin edir, alt sinif isə bu funksionallığı genişləndirir və ya dəyişdirir. Java-da bir sinif yalnız bir sinfdən miras ala bilər (tək miras), lakin interfeyslər vasitəsilə çoxsaylı miras simulyasiya edilə bilər. Məsələn, `Vehicle` sinfi ümumi xüsusiyyətləri (məsələn, `move` metodu) təyin edir, `Car` isə bu sinfi miras alaraq özünəməxsus xüsusiyyətlər əlavə edir."
       },
       {
         "type": "code",
         "language": "java",
-        "code": "class Vehicle {\n  String brand = \"Naməlum\";\n\n  void move() {\n    System.out.println(brand + \" hərəkət edir.\");\n  }\n}\n\nclass Car extends Vehicle {\n  String model = \"Sedan\";\n\n  void display() {\n    System.out.println(\"Marka: \" + brand + \", Model: \" + model);\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Car car = new Car();\n    car.move();\n    car.display();\n  }\n}\n// Çıxış:\n// Naməlum hərəkət edir.\n// Marka: Naməlum, Model: Sedan"
+        "code": "public class Vehicle {\n  protected String brand;\n\n  public Vehicle(String brand) {\n    this.brand = brand;\n  }\n\n  public void move() {\n    String message = brand + \" hərəkət edir\";\n    System.out.println(message);\n  }\n}\n\npublic class Car extends Vehicle {\n  public Car(String brand) {\n    super(brand);\n  }\n\n  @Override\n  public void move() {\n    String message = brand + \" maşını sürətlə hərəkət edir\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car(\"Toyota\");\n    car.move();\n  }\n}\n// Çıxış: Toyota maşını sürətlə hərəkət edir"
       },
       {
         "type": "heading",
-        "text": "`protected` Giriş Səviyyəsi"
+        "text": "Metodların Override Edilməsi"
       },
       {
         "type": "paragraph",
-        "text": "`protected` giriş səviyyəsi ana sinfin üzvlərinin alt siniflər tərəfindən miras alınmasını təmin edir, lakin xarici siniflərdən qorunur."
+        "text": "Miras zamanı alt sinif üst sinfin metodlarını yenidən təyin edə bilər, buna **metod override** deyilir. Bu, polimorfizmin əsas mexanizmlərindən biridir. Override edilən metod eyni ada, parametr siyahısına və qaytarma tipinə malik olmalıdır. `@Override` annotasiyası səhvləri azaltmaq və kodun oxunaqlığını artırmaq üçün istifadə olunur. Məsələn, yuxarıdakı nümunədə `Car` sinfi `Vehicle` sinfinin `move` metodunu override edir."
+      },
+      {
+        "type": "heading",
+        "text": "super Açar Sözü"
+      },
+      {
+        "type": "paragraph",
+        "text": "`super` açar sözü alt sinfdən üst sinfin konstruktoruna və ya metodlarına müraciət etmək üçün istifadə olunur. Məsələn, konstruktor çağırışında `super(brand)` üst sinfin konstruktorunu çağırır. Bu, miras alınan xüsusiyyətlərin düzgün işləməsini təmin edir. `super` həmçinin üst sinfin metodlarını çağırarkən istifadə edilə bilər."
       },
       {
         "type": "code",
         "language": "java",
-        "code": "class Animal {\n  protected String name = \"Bilinmir\";\n\n  protected void makeSound() {\n    System.out.println(name + \" səs çıxarır.\");\n  }\n}\n\nclass Dog extends Animal {\n  void setName(String name) {\n    this.name = name;\n  }\n\n  void bark() {\n    System.out.println(name + \" havlayır.\");\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Dog dog = new Dog();\n    dog.setName(\"Rex\");\n    dog.makeSound();\n    dog.bark();\n  }\n}\n// Çıxış:\n// Rex səs çıxarır.\n// Rex havlayır."
+        "code": "public class Vehicle {\n  protected String brand;\n\n  public Vehicle(String brand) {\n    this.brand = brand;\n  }\n\n  public void move() {\n    String message = brand + \" hərəkət edir\";\n    System.out.println(message);\n  }\n}\n\npublic class Car extends Vehicle {\n  public Car(String brand) {\n    super(brand);\n  }\n\n  @Override\n  public void move() {\n    super.move();\n    String message = brand + \" maşını sürətlə hərəkət edir\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car(\"Toyota\");\n    car.move();\n  }\n}\n// Çıxış:\n// Toyota hərəkət edir\n// Toyota maşını sürətlə hərəkət edir"
       },
       {
         "type": "heading",
-        "text": "Metodların Üzərinə Yazılma (Method Overriding)"
+        "text": "Miras və Abstrakt Siniflər"
       },
       {
         "type": "paragraph",
-        "text": "Alt sinif ana sinfin metodunu öz xüsusi tətbiqi ilə əvəz edə bilər. Bunun üçün `@Override` annotasiyası istifadə olunur."
-      },
-      {
-        "type": "code",
-        "language": "java",
-        "code": "class Animal {\n  void makeSound() {\n    System.out.println(\"Ümumi səs\");\n  }\n}\n\nclass Cat extends Animal {\n  @Override\n  void makeSound() {\n    System.out.println(\"Miyav!\");\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Cat cat = new Cat();\n    cat.makeSound();\n  }\n}\n// Çıxış: Miyav!"
+        "text": "Abstrakt siniflər mirasın xüsusi bir formasıdır. Onlar `abstract` açar sözü ilə təyin edilir və birbaşa obyektləri yaradıla bilməz. Abstrakt siniflər ümumi funksionallığı təmin edir və alt siniflərə metodları tətbiq etməyi məcbur edir. Məsələn, `Animal` abstrakt sinfi `makeSound` metodunu təyin edə bilər, və `Dog` və `Cat` sinifləri bu metodu tətbiq edir."
       },
       {
         "type": "heading",
-        "text": "`super` Açar Sözü"
+        "text": "Miras və İnterfeyslər"
       },
       {
         "type": "paragraph",
-        "text": "`super` açar sözü ana sinfin konstruktoruna və ya metodlarına müraciət etmək üçün istifadə olunur."
-      },
-      {
-        "type": "code",
-        "language": "java",
-        "code": "class Person {\n  String name;\n\n  Person(String name) {\n    this.name = name;\n  }\n\n  void introduce() {\n    System.out.println(\"Adım: \" + name);\n  }\n}\n\nclass Student extends Person {\n  int grade;\n\n  Student(String name, int grade) {\n    super(name);\n    this.grade = grade;\n  }\n\n  @Override\n  void introduce() {\n    super.introduce();\n    System.out.println(\"Sinf: \" + grade);\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Student student = new Student(\"Aysel\", 10);\n    student.introduce();\n  }\n}\n// Çıxış:\n// Adım: Aysel\n// Sinf: 10"
+        "text": "Java-da sinif mirası tək mirası dəstəkləsə də, interfeyslər vasitəsilə çoxsaylı miras simulyasiya edilə bilər. İnterfeyslər `implements` açar sözü ilə tətbiq edilir və sinifə müxtəlif davranışlar əlavə edir. Məsələn, bir `Car` sinfi `Vehicle` sinfini miras ala bilər və eyni zamanda `Drivable` interfeysini tətbiq edə bilər."
       },
       {
         "type": "heading",
-        "text": "Sinf İyerarxiyası"
+        "text": "Miras və Polimorfizm"
       },
       {
         "type": "paragraph",
-        "text": "Vərəsəlik sinifləri iyerarxik şəkildə təşkil etməyə imkan verir. Bir sinif birbaşa yalnız bir ana sinfdən miras ala bilər (tək vərəsəlik)."
-      },
-      {
-        "type": "code",
-        "language": "java",
-        "code": "class Vehicle {\n  String type = \"Nəqliyyat vasitəsi\";\n}\n\nclass Car extends Vehicle {\n  String brand = \"Toyota\";\n}\n\nclass ElectricCar extends Car {\n  int batteryCapacity = 60;\n\n  void display() {\n    System.out.println(\"Tip: \" + type + \", Marka: \" + brand + \", Batareya: \" + batteryCapacity + \" kVt/s\");\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    ElectricCar tesla = new ElectricCar();\n    tesla.display();\n  }\n}\n// Çıxış: Tip: Nəqliyyat vasitəsi, Marka: Toyota, Batareya: 60 kVt/s"
+        "text": "Miras polimorfizmlə sıx bağlıdır, çünki alt siniflər üst sinfin metodlarını override edərək fərqli davranışlar təmin edə bilər. Üst sinif referansı ilə alt sinif obyektlərinə müraciət etmək polimorfik davranış yaradır. Məsələn, `Vehicle` referansı ilə `Car` və ya `Bicycle` obyektləri idarə oluna bilər."
       },
       {
         "type": "heading",
@@ -83,20 +76,15 @@
       },
       {
         "type": "paragraph",
-        "text": "Vərəsəlik real dünyada ümumi və xüsusi obyektləri təmsil etmək üçün istifadə olunur, məsələn, bir e-ticarət platformasında məhsul kateqoriyalarını və ya işçi iyerarxiyasını təşkil etmək."
-      },
-      {
-        "type": "code",
-        "language": "java",
-        "code": "class Product {\n  String name;\n  double price;\n\n  Product(String name, double price) {\n    this.name = name;\n    this.price = price;\n  }\n\n  void display() {\n    System.out.println(\"Məhsul: \" + name + \", Qiymət: \" + price + \" AZN\");\n  }\n}\n\nclass Electronics extends Product {\n  String warranty;\n\n  Electronics(String name, double price, String warranty) {\n    super(name, price);\n    this.warranty = warranty;\n  }\n\n  @Override\n  void display() {\n    super.display();\n    System.out.println(\"Zəmanət: \" + warranty);\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Electronics phone = new Electronics(\"Telefon\", 599.99, \"2 il\");\n    phone.display();\n  }\n}\n// Çıxış:\n// Məhsul: Telefon, Qiymət: 599.99 AZN\n// Zəmanət: 2 il"
+        "text": "Miras real dünyada geniş istifadə olunur:\n- **Oyun inkişafı**: Oyun personajları ümumi xüsusiyyətləri (`Character` sinfi) miras alır.\n- **E-ticarət**: Ödəniş sistemləri (`Payment` sinfi) fərqli ödəniş növlərini miras alır.\n- **Verilənlər bazası**: Verilənlər bazası bağlantıları (`Database` sinfi) müxtəlif növləri miras alır.\n- **Avtomobil sistemləri**: Nəqliyyat vasitələri (`Vehicle` sinfi) maşın və motosiklet kimi alt siniflərə malikdir.\n- **Çərçivələr**: Spring və Hibernate kimi çərçivələr mirasdan istifadə edir.\nMəsələn, bir e-ticarət platformasında `Product` sinfi ümumi xüsusiyyətləri təyin edir, `Electronics` və `Clothing` sinifləri isə xüsusi xüsusiyyətlər əlavə edir."
       },
       {
         "type": "heading",
-        "text": "Vərəsəliyin Məqsədi"
+        "text": "Mirasın Məqsədi"
       },
       {
         "type": "paragraph",
-        "text": "Java-da vərəsəlik kodu təkrar istifadə etməyə, sinifləri iyerarxik şəkildə təşkil etməyə və obyekt-əsaslı proqramlaşdırmanın prinsiplərini tətbiq etməyə imkan verir."
+        "text": "Miras kodun təkrar istifadəsini təmin edir, eyni funksionallığı dəfələrlə yazmağa ehtiyacı azaldır və siniflər arasında iyerarxik əlaqə yaradır. O, kodun strukturlaşdırılmasını və saxlanmasını asanlaşdırır. Miras olmadan böyük layihələrdə kodun idarə edilməsi çətinləşərdi."
       },
       {
         "type": "heading",
@@ -106,20 +94,20 @@
         "type": "list",
         "items": [
           {
-            "term": "Kodun təkrar istifadəsi",
-            "description": "Ana sinfin üzvləri alt sinflərə miras qalır."
+            "term": "extends Açar Sözü",
+            "description": "Sinif mirasını təmin edir."
           },
           {
-            "term": "Metodların üzərinə yazılma",
-            "description": "Alt sinif ana sinfin metodlarını özəlləşdirə bilər."
+            "term": "super Açar Sözü",
+            "description": "Üst sinfin konstruktorlarına və metodlarına müraciət edir."
           },
           {
-            "term": "`super` istifadəsi",
-            "description": "Ana sinfin konstruktorlarına və metodlarına müraciət edir."
+            "term": "Metod Override",
+            "description": "Alt siniflərdə metodların yenidən təyin edilməsi."
           },
           {
-            "term": "İyerarxiya",
-            "description": "Sinifləri ümumidən xüsusiyə doğru təşkil edir."
+            "term": "Polimorfizm",
+            "description": "Miras vasitəsilə çevik davranışlar təmin edir."
           }
         ]
       },
@@ -129,7 +117,7 @@
       },
       {
         "type": "paragraph",
-        "text": "- **Təhlükələr**: Çox dərin iyerarxiyalar kodun mürəkkəbləşməsinə səbəb ola bilər, `super` çağırışlarının yanlış istifadəsi, metodların düzgün üzərinə yazılmaması.\n- **Tövsiyələr**: Sadə iyerarxiyalar dizayn edin, `super` və `@Override` istifadəsinə diqqət yetirin, inkapsulyasiyanı pozmamaq üçün `protected` və `private` istifadə edin, IntelliJ IDEA kimi IDE-lərdən istifadə edin."
+        "text": "- **Təhlükələr**: Həddindən artıq miras iyerarxiyası kodun mürəkkəbliyini artıra bilər, yanlış dizayn edilmiş miras oxunaqlılığı azalda bilər, mirasın çox istifadəsi performans təsir edə bilər.\n- **Tövsiyələr**: Mirası yalnız zəruri hallarda istifadə edin, sinif iyerarxiyasını sadə saxlayın, `@Override` annotasiyasından istifadə edin, IntelliJ IDEA kimi IDE-lərdən istifadə edin ki, səhvlər asan aşkarlansın."
       },
       {
         "type": "heading",
@@ -137,14 +125,14 @@
       },
       {
         "type": "editor",
-        "initialCode": "class Animal {\n  String name = \"Bilinmir\";\n\n  void makeSound() {\n    System.out.println(name + \" səs çıxarır.\");\n  }\n}\n\nclass Dog extends Animal {\n  @Override\n  void makeSound() {\n    System.out.println(name + \" havlayır.\");\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Dog dog = new Dog();\n    dog.name = \"Rex\";\n    dog.makeSound();\n  }\n}\n// Çıxış: Rex havlayır."
+        "initialCode": "public class Vehicle {\n  protected String brand;\n\n  public Vehicle(String brand) {\n    this.brand = brand;\n  }\n\n  public void move() {\n    String message = brand + \" hərəkət edir\";\n    System.out.println(message);\n  }\n}\n\npublic class Car extends Vehicle {\n  public Car(String brand) {\n    super(brand);\n  }\n\n  @Override\n  public void move() {\n    String message = brand + \" maşını sürətlə hərəkət edir\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car(\"Toyota\");\n    car.move();\n  }\n}\n// Çıxış: Toyota maşını sürətlə hərəkət edir"
       }
     ]
   },
   "en": {
     "title": "Java Inheritance: Introduction",
     "language": "java",
-    "description": "Inheritance in Java is a core principle of object-oriented programming. It allows a class to inherit properties and methods from another class. Syntax: `class Subclass extends Superclass { ... }`. Inheritance promotes code reuse and hierarchical organization.",
+    "description": "Inheritance in Java allows a class to inherit properties and methods from another class. The `extends` keyword enables code reuse and better structure.",
     "content": [
       {
         "type": "heading",
@@ -152,33 +140,20 @@
       },
       {
         "type": "paragraph",
-        "text": "Inheritance in Java allows one class to inherit the variables and methods of another class. The superclass defines common properties, while the subclass adds specific features. It is defined using the `extends` keyword."
+        "text": "Inheritance is a fundamental principle of object-oriented programming (OOP) in Java. It allows a class (subclass or derived class) to inherit properties and methods from another class (superclass or parent class). This promotes code reuse and eliminates the need to rewrite common functionality. For example, an `Animal` class can define general behaviors like `eat`, and `Dog` and `Cat` classes can inherit these while adding their own specific behaviors. In Java, inheritance is implemented using the `extends` keyword."
       },
       {
         "type": "heading",
-        "text": "Simple Inheritance Example"
+        "text": "Class Inheritance"
       },
       {
         "type": "paragraph",
-        "text": "A subclass inherits `public` and `protected` members from its superclass."
+        "text": "Class inheritance allows a subclass to inherit the properties and methods of a superclass. The superclass provides common functionality, while the subclass extends or modifies it. Java supports single inheritance, meaning a class can inherit from only one superclass, but multiple inheritance can be simulated using interfaces. For example, a `Vehicle` class defines general features like a `move` method, and a `Car` class inherits it while adding specific features."
       },
       {
         "type": "code",
         "language": "java",
-        "code": "class Vehicle {\n  String brand = \"Unknown\";\n\n  void move() {\n    System.out.println(brand + \" is moving.\");\n  }\n}\n\nclass Car extends Vehicle {\n  String model = \"Sedan\";\n\n  void display() {\n    System.out.println(\"Brand: \" + brand + \", Model: \" + model);\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Car car = new Car();\n    car.move();\n    car.display();\n  }\n}\n// Output:\n// Unknown is moving.\n// Brand: Unknown, Model: Sedan"
-      },
-      {
-        "type": "heading",
-        "text": "`protected` Access Modifier"
-      },
-      {
-        "type": "paragraph",
-        "text": "The `protected` access modifier allows superclass members to be accessed by subclasses while remaining hidden from external classes."
-      },
-      {
-        "type": "code",
-        "language": "java",
-        "code": "class Animal {\n  protected String name = \"Unknown\";\n\n  protected void makeSound() {\n    System.out.println(name + \" makes a sound.\");\n  }\n}\n\nclass Dog extends Animal {\n  void setName(String name) {\n    this.name = name;\n  }\n\n  void bark() {\n    System.out.println(name + \" barks.\");\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Dog dog = new Dog();\n    dog.setName(\"Rex\");\n    dog.makeSound();\n    dog.bark();\n  }\n}\n// Output:\n// Rex makes a sound.\n// Rex barks."
+        "code": "public class Vehicle {\n  protected String brand;\n\n  public Vehicle(String brand) {\n    this.brand = brand;\n  }\n\n  public void move() {\n    String message = brand + \" is moving\";\n    System.out.println(message);\n  }\n}\n\npublic class Car extends Vehicle {\n  public Car(String brand) {\n    super(brand);\n  }\n\n  @Override\n  public void move() {\n    String message = brand + \" car is moving fast\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car(\"Toyota\");\n    car.move();\n  }\n}\n// Output: Toyota car is moving fast"
       },
       {
         "type": "heading",
@@ -186,51 +161,52 @@
       },
       {
         "type": "paragraph",
-        "text": "A subclass can override a superclass method with its own implementation using the `@Override` annotation."
-      },
-      {
-        "type": "code",
-        "language": "java",
-        "code": "class Animal {\n  void makeSound() {\n    System.out.println(\"Generic sound\");\n  }\n}\n\nclass Cat extends Animal {\n  @Override\n  void makeSound() {\n    System.out.println(\"Meow!\");\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Cat cat = new Cat();\n    cat.makeSound();\n  }\n}\n// Output: Meow!"
+        "text": "Inheritance allows a subclass to redefine a superclass’s methods, known as **method overriding**. This is a key mechanism for polymorphism. The overridden method must have the same name, parameter list, and return type. The `@Override` annotation ensures clarity and reduces errors. For example, in the above code, the `Car` class overrides the `Vehicle` class’s `move` method."
       },
       {
         "type": "heading",
-        "text": "`super` Keyword"
+        "text": "super Keyword"
       },
       {
         "type": "paragraph",
-        "text": "The `super` keyword is used to call the superclass's constructor or methods."
+        "text": "The `super` keyword is used in a subclass to access the superclass’s constructors or methods. For example, `super(brand)` calls the superclass’s constructor. It can also invoke superclass methods, ensuring inherited functionality is utilized correctly."
       },
       {
         "type": "code",
         "language": "java",
-        "code": "class Person {\n  String name;\n\n  Person(String name) {\n    this.name = name;\n  }\n\n  void introduce() {\n    System.out.println(\"My name is: \" + name);\n  }\n}\n\nclass Student extends Person {\n  int grade;\n\n  Student(String name, int grade) {\n    super(name);\n    this.grade = grade;\n  }\n\n  @Override\n  void introduce() {\n    super.introduce();\n    System.out.println(\"Grade: \" + grade);\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Student student = new Student(\"Alice\", 10);\n    student.introduce();\n  }\n}\n// Output:\n// My name is: Alice\n// Grade: 10"
+        "code": "public class Vehicle {\n  protected String brand;\n\n  public Vehicle(String brand) {\n    this.brand = brand;\n  }\n\n  public void move() {\n    String message = brand + \" is moving\";\n    System.out.println(message);\n  }\n}\n\npublic class Car extends Vehicle {\n  public Car(String brand) {\n    super(brand);\n  }\n\n  @Override\n  public void move() {\n    super.move();\n    String message = brand + \" car is moving fast\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car(\"Toyota\");\n    car.move();\n  }\n}\n// Output:\n// Toyota is moving\n// Toyota car is moving fast"
       },
       {
         "type": "heading",
-        "text": "Class Hierarchy"
+        "text": "Inheritance and Abstract Classes"
       },
       {
         "type": "paragraph",
-        "text": "Inheritance enables organizing classes hierarchically. A class can directly inherit from only one superclass (single inheritance)."
-      },
-      {
-        "type": "code",
-        "language": "java",
-        "code": "class Vehicle {\n  String type = \"Vehicle\";\n}\n\nclass Car extends Vehicle {\n  String brand = \"Toyota\";\n}\n\nclass ElectricCar extends Car {\n  int batteryCapacity = 60;\n\n  void display() {\n    System.out.println(\"Type: \" + type + \", Brand: \" + brand + \", Battery: \" + batteryCapacity + \" kWh\");\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    ElectricCar tesla = new ElectricCar();\n    tesla.display();\n  }\n}\n// Output: Type: Vehicle, Brand: Toyota, Battery: 60 kWh"
+        "text": "Abstract classes are a special form of inheritance. Defined with the `abstract` keyword, they cannot be instantiated directly. Abstract classes provide common functionality and require subclasses to implement specific methods. For example, an `Animal` abstract class can define a `makeSound` method, which `Dog` and `Cat` classes implement."
       },
       {
         "type": "heading",
-        "text": "Real-world use cases"
+        "text": "Inheritance and Interfaces"
       },
       {
         "type": "paragraph",
-        "text": "Inheritance is used to represent general and specific entities, such as product categories in an e-commerce platform or employee hierarchies."
+        "text": "While Java supports single class inheritance, multiple inheritance can be simulated using interfaces. Interfaces are implemented with the `implements` keyword, allowing a class to adopt multiple behaviors. For example, a `Car` class can inherit from `Vehicle` and implement a `Drivable` interface."
       },
       {
-        "type": "code",
-        "language": "java",
-        "code": "class Product {\n  String name;\n  double price;\n\n  Product(String name, double price) {\n    this.name = name;\n    this.price = price;\n  }\n\n  void display() {\n    System.out.println(\"Product: \" + name + \", Price: \" + price + \" USD\");\n  }\n}\n\nclass Electronics extends Product {\n  String warranty;\n\n  Electronics(String name, double price, String warranty) {\n    super(name, price);\n    this.warranty = warranty;\n  }\n\n  @Override\n  void display() {\n    super.display();\n    System.out.println(\"Warranty: \" + warranty);\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Electronics phone = new Electronics(\"Phone\", 599.99, \"2 years\");\n    phone.display();\n  }\n}\n// Output:\n// Product: Phone, Price: 599.99 USD\n// Warranty: 2 years"
+        "type": "heading",
+        "text": "Inheritance and Polymorphism"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inheritance is closely tied to polymorphism, as subclasses can override superclass methods to provide different behaviors. Using a superclass reference to access subclass objects enables polymorphic behavior. For example, a `Vehicle` reference can manage `Car` or `Bicycle` objects."
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inheritance is widely used in real-world applications:\n- **Game Development**: Game characters inherit common traits from a `Character` class.\n- **E-commerce**: Payment systems inherit from a `Payment` class for different payment types.\n- **Database Systems**: Database connections inherit from a `Database` class for various types.\n- **Vehicle Systems**: Vehicles inherit from a `Vehicle` class for cars and motorcycles.\n- **Frameworks**: Frameworks like Spring and Hibernate use inheritance for structure.\nFor example, an e-commerce platform’s `Product` class defines general attributes, while `Electronics` and `Clothing` classes add specific features."
       },
       {
         "type": "heading",
@@ -238,55 +214,55 @@
       },
       {
         "type": "paragraph",
-        "text": "Inheritance in Java promotes code reuse, organizes classes hierarchically, and supports object-oriented programming principles."
+        "text": "Inheritance promotes code reuse, reduces redundant coding, and establishes a hierarchical relationship between classes. It enhances code structure and maintainability. Without inheritance, managing large projects would be challenging."
       },
       {
         "type": "heading",
-        "text": "Key features"
+        "text": "Key Features"
       },
       {
         "type": "list",
         "items": [
           {
-            "term": "Code reuse",
-            "description": "Subclasses inherit members from the superclass."
+            "term": "extends Keyword",
+            "description": "Enables class inheritance."
           },
           {
-            "term": "Method overriding",
-            "description": "Subclasses can customize superclass methods."
-          },
-          {
-            "term": "`super` usage",
+            "term": "super Keyword",
             "description": "Accesses superclass constructors and methods."
           },
           {
-            "term": "Hierarchy",
-            "description": "Organizes classes from general to specific."
+            "term": "Method Overriding",
+            "description": "Redefines methods in subclasses."
+          },
+          {
+            "term": "Polymorphism",
+            "description": "Enables flexible behaviors through inheritance."
           }
         ]
       },
       {
         "type": "heading",
-        "text": "Dangers and recommendations"
+        "text": "Dangers and Recommendations"
       },
       {
         "type": "paragraph",
-        "text": "- **Dangers**: Deep hierarchies can complicate code, incorrect use of `super`, improper method overriding.\n- **Recommendations**: Design simple hierarchies, use `super` and `@Override` carefully, maintain encapsulation with `protected` and `private`, and use IDEs like IntelliJ IDEA."
+        "text": "- **Dangers**: Overly complex inheritance hierarchies can complicate code, poorly designed inheritance may reduce readability, and excessive inheritance can impact performance.\n- **Recommendations**: Use inheritance only when necessary, keep class hierarchies simple, use the `@Override` annotation, and leverage IDEs like IntelliJ IDEA to detect errors."
       },
       {
         "type": "heading",
-        "text": "Try it yourself"
+        "text": "Try it Yourself"
       },
       {
         "type": "editor",
-        "initialCode": "class Animal {\n  String name = \"Unknown\";\n\n  void makeSound() {\n    System.out.println(name + \" makes a sound.\");\n  }\n}\n\nclass Dog extends Animal {\n  @Override\n  void makeSound() {\n    System.out.println(name + \" barks.\");\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Dog dog = new Dog();\n    dog.name = \"Rex\";\n    dog.makeSound();\n  }\n}\n// Output: Rex barks."
+        "initialCode": "public class Vehicle {\n  protected String brand;\n\n  public Vehicle(String brand) {\n    this.brand = brand;\n  }\n\n  public void move() {\n    String message = brand + \" is moving\";\n    System.out.println(message);\n  }\n}\n\npublic class Car extends Vehicle {\n  public Car(String brand) {\n    super(brand);\n  }\n\n  @Override\n  public void move() {\n    String message = brand + \" car is moving fast\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car(\"Toyota\");\n    car.move();\n  }\n}\n// Output: Toyota car is moving fast"
       }
     ]
   },
   "ru": {
     "title": "Наследование в Java: Введение",
     "language": "java",
-    "description": "Наследование в Java — это ключевой принцип объектно-ориентированного программирования. Оно позволяет одному классу наследовать свойства и методы другого класса. Синтаксис: `class Подкласс extends Суперкласс { ... }`. Наследование способствует повторному использованию кода и иерархической организации.",
+    "description": "Наследование в Java позволяет классу унаследовать свойства и методы другого класса. Ключевое слово `extends` обеспечивает повторное использование кода и улучшает структуру.",
     "content": [
       {
         "type": "heading",
@@ -294,33 +270,20 @@
       },
       {
         "type": "paragraph",
-        "text": "Наследование в Java позволяет одному классу наследовать переменные и методы другого класса. Суперкласс определяет общие свойства, а подкласс добавляет специфические особенности. Определяется с помощью ключевого слова `extends`."
+        "text": "Наследование — один из ключевых принципов объектно-ориентированного программирования (ООП) в Java. Оно позволяет классу (подклассу или производному классу) унаследовать свойства и методы другого класса (суперкласса или родительского класса). Это способствует повторному использованию кода и устраняет необходимость многократного написания общей функциональности. Например, класс `Animal` может определять общие поведения, такие как метод `eat`, а классы `Dog` и `Cat` наследуют их, добавляя свои специфические поведения. В Java наследование реализуется с помощью ключевого слова `extends`."
       },
       {
         "type": "heading",
-        "text": "Простой пример наследования"
+        "text": "Классовое наследование"
       },
       {
         "type": "paragraph",
-        "text": "Подкласс наследует члены суперкласса с модификаторами `public` и `protected`."
+        "text": "Классовое наследование позволяет подклассу унаследовать свойства и методы суперкласса. Суперкласс предоставляет общую функциональность, а подкласс расширяет или изменяет её. Java поддерживает одиночное наследование, то есть класс может наследовать только один суперкласс, но множественное наследование можно симулировать с помощью интерфейсов. Например, класс `Vehicle` определяет общие характеристики, такие как метод `move`, а класс `Car` наследует его, добавляя свои особенности."
       },
       {
         "type": "code",
         "language": "java",
-        "code": "class Vehicle {\n  String brand = \"Неизвестно\";\n\n  void move() {\n    System.out.println(brand + \" движется.\");\n  }\n}\n\nclass Car extends Vehicle {\n  String model = \"Седан\";\n\n  void display() {\n    System.out.println(\"Бренд: \" + brand + \", Модель: \" + model);\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Car car = new Car();\n    car.move();\n    car.display();\n  }\n}\n// Вывод:\n// Неизвестно движется.\n// Бренд: Неизвестно, Модель: Седан"
-      },
-      {
-        "type": "heading",
-        "text": "Модификатор доступа `protected`"
-      },
-      {
-        "type": "paragraph",
-        "text": "Модификатор `protected` позволяет членам суперкласса быть доступными для подклассов, но скрывает их от внешних классов."
-      },
-      {
-        "type": "code",
-        "language": "java",
-        "code": "class Animal {\n  protected String name = \"Неизвестно\";\n\n  protected void makeSound() {\n    System.out.println(name + \" издаёт звук.\");\n  }\n}\n\nclass Dog extends Animal {\n  void setName(String name) {\n    this.name = name;\n  }\n\n  void bark() {\n    System.out.println(name + \" лает.\");\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Dog dog = new Dog();\n    dog.setName(\"Рекс\");\n    dog.makeSound();\n    dog.bark();\n  }\n}\n// Вывод:\n// Рекс издаёт звук.\n// Рекс лает."
+        "code": "public class Vehicle {\n  protected String brand;\n\n  public Vehicle(String brand) {\n    this.brand = brand;\n  }\n\n  public void move() {\n    String message = brand + \" движется\";\n    System.out.println(message);\n  }\n}\n\npublic class Car extends Vehicle {\n  public Car(String brand) {\n    super(brand);\n  }\n\n  @Override\n  public void move() {\n    String message = brand + \" машина движется быстро\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car(\"Toyota\");\n    car.move();\n  }\n}\n// Вывод: Toyota машина движется быстро"
       },
       {
         "type": "heading",
@@ -328,38 +291,44 @@
       },
       {
         "type": "paragraph",
-        "text": "Подкласс может переопределить метод суперкласса с собственной реализацией, используя аннотацию `@Override`."
-      },
-      {
-        "type": "code",
-        "language": "java",
-        "code": "class Animal {\n  void makeSound() {\n    System.out.println(\"Общий звук\");\n  }\n}\n\nclass Cat extends Animal {\n  @Override\n  void makeSound() {\n    System.out.println(\"Мяу!\");\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Cat cat = new Cat();\n    cat.makeSound();\n  }\n}\n// Вывод: Мяу!"
+        "text": "Наследование позволяет подклассу переопределять методы суперкласса, что называется **переопределением методов**. Это ключевой механизм полиморфизма. Переопределённый метод должен иметь то же имя, список параметров и возвращаемый тип. Аннотация `@Override` обеспечивает ясность и уменьшает ошибки. Например, в приведённом выше коде класс `Car` переопределяет метод `move` класса `Vehicle`."
       },
       {
         "type": "heading",
-        "text": "Ключевое слово `super`"
+        "text": "Ключевое слово super"
       },
       {
         "type": "paragraph",
-        "text": "Ключевое слово `super` используется для вызова конструктора или методов суперкласса."
+        "text": "Ключевое слово `super` используется в подклассе для обращения к конструкторам или методам суперкласса. Например, `super(brand)` вызывает конструктор суперкласса. Оно также может вызывать методы суперкласса, обеспечивая правильное использование унаследованной функциональности."
       },
       {
         "type": "code",
         "language": "java",
-        "code": "class Person {\n  String name;\n\n  Person(String name) {\n    this.name = name;\n  }\n\n  void introduce() {\n    System.out.println(\"Моё имя: \" + name);\n  }\n}\n\nclass Student extends Person {\n  int grade;\n\n  Student(String name, int grade) {\n    super(name);\n    this.grade = grade;\n  }\n\n  @Override\n  void introduce() {\n    super.introduce();\n    System.out.println(\"Класс: \" + grade);\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Student student = new Student(\"Алиса\", 10);\n    student.introduce();\n  }\n}\n// Вывод:\n// Моё имя: Алиса\n// Класс: 10"
+        "code": "public class Vehicle {\n  protected String brand;\n\n  public Vehicle(String brand) {\n    this.brand = brand;\n  }\n\n  public void move() {\n    String message = brand + \" движется\";\n    System.out.println(message);\n  }\n}\n\npublic class Car extends Vehicle {\n  public Car(String brand) {\n    super(brand);\n  }\n\n  @Override\n  public void move() {\n    super.move();\n    String message = brand + \" машина движется быстро\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car(\"Toyota\");\n    car.move();\n  }\n}\n// Вывод:\n// Toyota движется\n// Toyota машина движется быстро"
       },
       {
         "type": "heading",
-        "text": "Иерархия классов"
+        "text": "Наследование и абстрактные классы"
       },
       {
         "type": "paragraph",
-        "text": "Наследование позволяет организовать классы иерархически. Класс может непосредственно наследовать только от одного суперкласса (одиночное наследование)."
+        "text": "Абстрактные классы — особая форма наследования. Они определяются ключевым словом `abstract` и не могут быть инстанцированы напрямую. Абстрактные классы предоставляют общую функциональность и требуют от подклассов реализации определённых методов. Например, абстрактный класс `Animal` может определять метод `makeSound`, который реализуют классы `Dog` и `Cat`."
       },
       {
-        "type": "code",
-        "language": "java",
-        "code": "class Vehicle {\n  String type = \"Транспортное средство\";\n}\n\nclass Car extends Vehicle {\n  String brand = \"Toyota\";\n}\n\nclass ElectricCar extends Car {\n  int batteryCapacity = 60;\n\n  void display() {\n    System.out.println(\"Тип: \" + type + \", Бренд: \" + brand + \", Батарея: \" + batteryCapacity + \" кВтч\");\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    ElectricCar tesla = new ElectricCar();\n    tesla.display();\n  }\n}\n// Вывод: Тип: Транспортное средство, Бренд: Toyota, Батарея: 60 кВтч"
+        "type": "heading",
+        "text": "Наследование и интерфейсы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Хотя Java поддерживает одиночное наследование классов, множественное наследование можно симулировать с помощью интерфейсов. Интерфейсы реализуются с помощью ключевого слова `implements`, позволяя классу добавлять различные поведения. Например, класс `Car` может наследовать класс `Vehicle` и одновременно реализовать интерфейс `Drivable`."
+      },
+      {
+        "type": "heading",
+        "text": "Наследование и полиморфизм"
+      },
+      {
+        "type": "paragraph",
+        "text": "Наследование тесно связано с полиморфизмом, поскольку подклассы могут переопределять методы суперкласса, предоставляя различные поведения. Использование ссылки суперкласса для доступа к объектам подклассов обеспечивает полиморфное поведение. Например, ссылка `Vehicle` может управлять объектами `Car` или `Bicycle`."
       },
       {
         "type": "heading",
@@ -367,12 +336,7 @@
       },
       {
         "type": "paragraph",
-        "text": "Наследование используется для представления общих и специфичных сущностей, например, категорий продуктов в платформе электронной коммерции или иерархии сотрудников."
-      },
-      {
-        "type": "code",
-        "language": "java",
-        "code": "class Product {\n  String name;\n  double price;\n\n  Product(String name, double price) {\n    this.name = name;\n    this.price = price;\n  }\n\n  void display() {\n    System.out.println(\"Продукт: \" + name + \", Цена: \" + price + \" USD\");\n  }\n}\n\nclass Electronics extends Product {\n  String warranty;\n\n  Electronics(String name, double price, String warranty) {\n    super(name, price);\n    this.warranty = warranty;\n  }\n\n  @Override\n  void display() {\n    super.display();\n    System.out.println(\"Гарантия: \" + warranty);\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Electronics phone = new Electronics(\"Телефон\", 599.99, \"2 года\");\n    phone.display();\n  }\n}\n// Вывод:\n// Продукт: Телефон, Цена: 599.99 USD\n// Гарантия: 2 года"
+        "text": "Наследование широко используется в реальных приложениях:\n- **Разработка игр**: Персонажи игры наследуют общие характеристики от класса `Character`.\n- **Электронная коммерция**: Платёжные системы наследуют от класса `Payment` для разных типов платежей.\n- **Системы баз данных**: Подключения к базам данных наследуют от класса `Database` для разных типов.\n- **Автомобильные системы**: Транспортные средства наследуют от класса `Vehicle` для машин и мотоциклов.\n- **Фреймворки**: Фреймворки, такие как Spring и Hibernate, используют наследование для структуры.\nНапример, платформа электронной коммерции может использовать класс `Product` для общих атрибутов, а классы `Electronics` и `Clothing` добавляют специфические характеристики."
       },
       {
         "type": "heading",
@@ -380,7 +344,7 @@
       },
       {
         "type": "paragraph",
-        "text": "Наследование в Java способствует повторному использованию кода, иерархической организации классов и реализации принципов объектно-ориентированного программирования."
+        "text": "Наследование способствует повторному использованию кода, уменьшает дублирование и создаёт иерархическую связь между классами. Оно улучшает структуру и поддерживаемость кода. Без наследования управление крупными проектами было бы сложным."
       },
       {
         "type": "heading",
@@ -390,20 +354,20 @@
         "type": "list",
         "items": [
           {
-            "term": "Повторное использование кода",
-            "description": "Подклассы наследуют члены суперкласса."
+            "term": "Ключевое слово extends",
+            "description": "Обеспечивает наследование классов."
+          },
+          {
+            "term": "Ключевое слово super",
+            "description": "Обращается к конструкторам и методам суперкласса."
           },
           {
             "term": "Переопределение методов",
-            "description": "Подклассы могут настраивать методы суперкласса."
+            "description": "Переопределяет методы в подклассах."
           },
           {
-            "term": "Использование `super`",
-            "description": "Обращение к конструкторам и методам суперкласса."
-          },
-          {
-            "term": "Иерархия",
-            "description": "Организует классы от общего к частному."
+            "term": "Полиморфизм",
+            "description": "Обеспечивает гибкие поведения через наследование."
           }
         ]
       },
@@ -413,7 +377,7 @@
       },
       {
         "type": "paragraph",
-        "text": "- **Опасности**: Слишком глубокие иерархии могут усложнить код, неправильное использование `super`, некорректное переопределение методов.\n- **Рекомендации**: Проектируйте простые иерархии, используйте `super` и `@Override` осторожно, сохраняйте инкапсуляцию с помощью `protected` и `private`, используйте IDE, такие как IntelliJ IDEA."
+        "text": "- **Опасности**: Слишком сложные иерархии наследования могут усложнить код, плохо спроектированное наследование может снизить читаемость, чрезмерное наследование может влиять на производительность.\n- **Рекомендации**: Используйте наследование только при необходимости, держите иерархии классов простыми, используйте аннотацию `@Override`, применяйте IDE, такие как IntelliJ IDEA, для обнаружения ошибок."
       },
       {
         "type": "heading",
@@ -421,7 +385,7 @@
       },
       {
         "type": "editor",
-        "initialCode": "class Animal {\n  String name = \"Неизвестно\";\n\n  void makeSound() {\n    System.out.println(name + \" издаёт звук.\");\n  }\n}\n\nclass Dog extends Animal {\n  @Override\n  void makeSound() {\n    System.out.println(name + \" лает.\");\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Dog dog = new Dog();\n    dog.name = \"Рекс\";\n    dog.makeSound();\n  }\n}\n// Вывод: Рекс лает."
+        "initialCode": "public class Vehicle {\n  protected String brand;\n\n  public Vehicle(String brand) {\n    this.brand = brand;\n  }\n\n  public void move() {\n    String message = brand + \" движется\";\n    System.out.println(message);\n  }\n}\n\npublic class Car extends Vehicle {\n  public Car(String brand) {\n    super(brand);\n  }\n\n  @Override\n  public void move() {\n    String message = brand + \" машина движется быстро\";\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car(\"Toyota\");\n    car.move();\n  }\n}\n// Вывод: Toyota машина движется быстро"
       }
     ]
   }

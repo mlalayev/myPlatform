@@ -5,44 +5,44 @@ const prisma = new PrismaClient();
 
 export async function DELETE(req, { params }) {
   const { id } = await params;
-  
+
   // Handle Google user IDs (which are strings) vs regular user IDs (numbers)
   let userId;
   if (isNaN(Number(id))) {
     // This is a Google user ID (string), find by email instead
     const user = await prisma.user.findFirst({
-      where: { 
+      where: {
         OR: [
           { id: Number(id) },
-          { email: id } // Try to find by email if ID is not a number
-        ]
-      }
+          { email: id }, // Try to find by email if ID is not a number
+        ],
+      },
     });
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
     userId = user.id;
   } else {
     userId = Number(id);
   }
-  
+
   await prisma.user.delete({ where: { id: userId } });
   return NextResponse.json({ success: true });
 }
 
 export async function GET(req, { params }) {
   const { id } = await params;
-  
+
   // Handle Google user IDs (which are strings) vs regular user IDs (numbers)
   let user;
   if (isNaN(Number(id))) {
     // This is a Google user ID (string), find by email instead
     user = await prisma.user.findFirst({
-      where: { 
+      where: {
         OR: [
           { id: Number(id) },
-          { email: id } // Try to find by email if ID is not a number
-        ]
+          { email: id }, // Try to find by email if ID is not a number
+        ],
       },
       select: {
         id: true,
@@ -68,9 +68,9 @@ export async function GET(req, { params }) {
       },
     });
   }
-  
+
   if (!user) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
   return NextResponse.json(user);
 }
@@ -78,27 +78,27 @@ export async function GET(req, { params }) {
 export async function PATCH(req, { params }) {
   try {
     const { id } = await params;
-    
+
     // Handle Google user IDs (which are strings) vs regular user IDs (numbers)
     let userId;
     if (isNaN(Number(id))) {
       // This is a Google user ID (string), find by email instead
       const user = await prisma.user.findFirst({
-        where: { 
+        where: {
           OR: [
             { id: Number(id) },
-            { email: id } // Try to find by email if ID is not a number
-          ]
-        }
+            { email: id }, // Try to find by email if ID is not a number
+          ],
+        },
       });
       if (!user) {
-        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
       userId = user.id;
     } else {
       userId = Number(id);
     }
-    
+
     const data = await req.json();
     // Only allow updating name, email, role
     const allowedFields = ["name", "email", "role"];
@@ -116,6 +116,9 @@ export async function PATCH(req, { params }) {
     return NextResponse.json(user);
   } catch (error) {
     console.error("PATCH error:", error);
-    return NextResponse.json({ error: error.message || "Unknown error" }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Unknown error" },
+      { status: 500 }
+    );
   }
-} 
+}
