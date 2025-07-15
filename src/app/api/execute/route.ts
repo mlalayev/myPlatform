@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { exec } from "child_process";
 import { promisify } from "util";
 import * as fs from "fs";
+import * as path from "path";
+import * as os from "os";
 import { randomBytes } from "crypto";
 
 const execAsync = promisify(exec);
@@ -33,42 +35,268 @@ const filenames: Record<string, string> = {
 const commands: Record<string, (filename: string) => string> = {
   python: (filename: string) => `python /code/${filename}`,
   python3: (filename: string) => `python /code/${filename}`,
-  cpp: (filename: string) => `g++ /code/${filename} -o /code/a.out && /code/a.out`,
-  c: (filename: string) => `gcc /code/${filename} -o /code/a.out && /code/a.out`,
+  cpp: (filename: string) =>
+    `g++ /code/${filename} -o /code/a.out && /code/a.out`,
+  c: (filename: string) =>
+    `gcc /code/${filename} -o /code/a.out && /code/a.out`,
   java: (filename: string) => `javac /code/${filename} && java -cp /code Main`,
   php: (filename: string) => `php /code/${filename}`,
-  csharp: (filename: string) => `dotnet new console -o /code/app --force && mv /code/${filename} /code/app/Program.cs && dotnet run --project /code/app`,
+  // C# üçün: hər dəfə random qovluq yaradıb, orada dotnet new, kodu ora yazıb run et, sonra qovluğu sil
+  csharp: (filename: string) =>
+    `appdir=/code/app_$RANDOM$RANDOM && dotnet new console -o $appdir --force && cp /code/${filename} $appdir/Program.cs && dotnet run --no-restore --no-build --project $appdir && rm -rf $appdir`,
   go: (filename: string) => `go run /code/${filename}`,
-  rust: (filename: string) => `rustc /code/${filename} -o /code/a.out && /code/a.out`,
+  rust: (filename: string) =>
+    `rustc /code/${filename} -o /code/a.out && /code/a.out`,
 };
 
 async function runInSandbox(language: string, code: string) {
   const image = images[language];
   if (!image) throw new Error("Unsupported language");
   const filename = filenames[language];
-  const tmpDir = `/tmp/sandbox_${randomBytes(6).toString("hex")}`;
-  await fs.promises.mkdir(tmpDir, { recursive: true });
-  await fs.promises.writeFile(`${tmpDir}/${filename}`, code, { encoding: "utf8" });
-  const dockerCmd = [
-    "docker run --rm",
-    "--network none",
-    "--memory=256m --cpus=0.5",
-    `-v ${tmpDir}:/code`,
-    image,
-    "/bin/sh -c",
-    `'${commands[language](filename)}'`
-  ].join(" ");
-  let stdout = "", stderr = "";
-  try {
-    const { stdout: out, stderr: err } = await execAsync(dockerCmd, { timeout: 15000 });
-    stdout = out;
-    stderr = err;
-  } catch (e: unknown) {
-    stderr = (e as Error).message;
-    stdout = (e as Error).message;
+
+  // Java üçün həmişə fallback yolundan istifadə et
+
+  // ... eyni kod ...
+  if (language === "php") {
+    try {
+      const safeCode = code.replace(/([`$"\\])/g, "\\$1").replace(/\n/g, "\\n");
+      const dockerCmd = [
+        "docker run --rm",
+        "--network none",
+        "--memory=256m --cpus=0.5",
+        image,
+        "/bin/sh -c",
+        `'mkdir -p /code && echo "${safeCode}" > /code/main.php && php /code/main.php'`,
+      ].join(" ");
+      const { stdout: out, stderr: err } = await execAsync(dockerCmd, {
+        timeout: 30000,
+      });
+      return { stdout: out, stderr: err };
+    } catch (e) {
+      return {
+        stdout: "",
+        stderr:
+          "PHP code could not be written in container: " +
+          (e instanceof Error ? e.message : String(e)),
+      };
+    }
   }
-  await fs.promises.rm(tmpDir, { recursive: true, force: true });
-  return { stdout, stderr };
+
+  if (language === "java") {
+    console.log("JAVA FALLBACK YOLU İŞLƏYİR!!!");
+    try {
+      const safeCode = code.replace(/([`$"\\])/g, "\\$1").replace(/\n/g, "\\n");
+      const dockerCmd = [
+        "docker run --rm",
+        "--network none",
+        "--memory=256m --cpus=0.5",
+        image,
+        "/bin/sh -c",
+        `'mkdir -p /code && echo -e "${safeCode}" > /code/Main.java && javac /code/Main.java && java -cp /code Main'`,
+      ].join(" ");
+      const { stdout: out, stderr: err } = await execAsync(dockerCmd, {
+        timeout: 30000,
+      });
+      return { stdout: out, stderr: err };
+    } catch (e) {
+      return {
+        stdout: "",
+        stderr:
+          "Java code could not be written in container: " +
+          (e instanceof Error ? e.message : String(e)),
+      };
+    }
+  }
+
+  // Create temp directory in current working directory for Windows compatibility
+  const tmpDir = path.join(
+    process.cwd(),
+    "temp",
+    `sandbox_${randomBytes(6).toString("hex")}`
+  );
+
+  try {
+    // Create temp directory
+    await fs.promises.mkdir(tmpDir, { recursive: true });
+
+    // Write code to file
+    const filePath = path.join(tmpDir, filename);
+    await fs.promises.writeFile(filePath, code, { encoding: "utf8" });
+
+    // Verify file was created
+    const fileExists = await fs.promises
+      .access(filePath)
+      .then(() => true)
+      .catch(() => false);
+    if (!fileExists) {
+      throw new Error(`Failed to create file: ${filePath}`);
+    }
+
+    // Convert Windows path to Docker path format
+    let dockerPath = tmpDir.replace(/\\/g, "/");
+
+    // For Windows, we need to handle drive letters
+    if (dockerPath.match(/^[A-Za-z]:/)) {
+      // Remove drive letter and convert to Docker format
+      dockerPath = dockerPath.replace(/^[A-Za-z]:/, "");
+      // Add leading slash if not present
+      if (!dockerPath.startsWith("/")) {
+        dockerPath = "/" + dockerPath;
+      }
+    }
+
+    // Try different volume mounting approaches for Windows
+    let dockerCmd = "";
+    let success = false;
+    let stdout = "",
+      stderr = "";
+
+    // Approach 1: Direct volume mount
+    try {
+      dockerCmd = [
+        "docker run --rm",
+        "--network none",
+        "--memory=256m --cpus=0.5",
+        `-v \"${tmpDir}:/code\"`,
+        image,
+        "/bin/sh -c",
+        `'${commands[language](filename)}'`,
+      ].join(" ");
+      const { stdout: out, stderr: err } = await execAsync(dockerCmd, {
+        timeout: 30000,
+      });
+      stdout = out;
+      stderr = err;
+      success = true;
+    } catch (e: unknown) {
+      const error = e as Error;
+      if (error.message.includes("No such file or directory")) {
+        // Try approach 2: Copy file into container (cat >) for ALL languages
+        try {
+          dockerCmd = [
+            "docker run --rm",
+            "--network none",
+            "--memory=256m --cpus=0.5",
+            `-v \"${tmpDir}:/code\"`,
+            image,
+            "/bin/sh -c",
+            `'cat > /code/${filename} << "EOF"\n${code}\nEOF\n${commands[
+              language
+            ](filename)}'`,
+          ].join(" ");
+          const { stdout: out, stderr: err } = await execAsync(dockerCmd, {
+            timeout: 30000,
+          });
+          stdout = out;
+          stderr = err;
+          success = true;
+        } catch (e2: unknown) {
+          // SPECIAL: For Java, try echo code directly in container (no volume mount)
+          if (language === "java") {
+            try {
+              // Escape code for shell
+              const safeCode = code
+                .replace(/([`$"\\])/g, "\\$1")
+                .replace(/\n/g, "\\n");
+              dockerCmd = [
+                "docker run --rm",
+                "--network none",
+                "--memory=256m --cpus=0.5",
+                image,
+                "/bin/sh -c",
+                `'mkdir -p /code && echo -e \"${safeCode}\" > /code/Main.java && javac /code/Main.java && java -cp /code Main'`,
+              ].join(" ");
+              const { stdout: out, stderr: err } = await execAsync(dockerCmd, {
+                timeout: 30000,
+              });
+              stdout = out;
+              stderr = err;
+              success = true;
+            } catch (e3: unknown) {
+              stderr = `Java code could not be written in container: ${
+                (e3 as Error).message
+              }`;
+            }
+          } else {
+            const error2 = e2 as Error;
+            // Fayl errorunda temp qovluğun path-i də error mesajına əlavə olunsun
+            stderr = `Docker volume mounting failed.\nFirst error: ${error.message}\nSecond error: ${error2.message}\nTemp dir: ${tmpDir}`;
+          }
+        }
+      } else {
+        stderr = error.message;
+      }
+    }
+
+    if (!success) {
+      if (stderr.includes("timeout")) {
+        stderr =
+          "Kod icrası çox uzun çəkdi (30 saniyə). Zəhmət olmasa, kodunuzu yoxlayın.";
+      } else if (stderr.includes("Unable to find image")) {
+        stderr =
+          "Docker image yüklənir... Zəhmət olmasa, bir az gözləyin və yenidən cəhd edin.";
+      } else if (stderr.includes("No such file or directory")) {
+        stderr = `Fayl yaradıla bilmədi: ${filename}. Sistem xətası.`;
+      }
+      stdout = "";
+    }
+
+    // C# üçün yalnız istifadəçi çıxışını göstər
+    if (language === "csharp" && stdout) {
+      // Dotnet-in status mesajlarını filterlə
+      const filterPrefixes = [
+        "The template ",
+        "Processing post-creation actions",
+        "Restoring ",
+        "Restore succeeded",
+        "Determining projects to restore",
+        "All projects are up-to-date for restore",
+        "Restore completed",
+        "To learn more",
+        "Getting ready",
+        "Welcome to .NET",
+        "More information: ",
+        "Restore completed",
+        "Build succeeded.",
+        "Build started...",
+        "Build completed...",
+        "You can invoke the tool",
+        "info: ",
+        "warn: ",
+        "dbug: ",
+        "fail: ",
+        "error: ",
+        "Time Elapsed",
+        "Microsoft (R) Build Engine",
+        "Copyright (C)",
+        "For more information",
+        "Use 'dotnet new --help'",
+        "Use 'dotnet run --help'",
+        "Use 'dotnet build --help'",
+        "Use 'dotnet restore --help'",
+        "Use 'dotnet publish --help'",
+        "Use 'dotnet test --help'",
+      ];
+      const lines = stdout
+        .split(/\r?\n/)
+        .map((l) => l.trim())
+        .filter(
+          (l) =>
+            l.length > 0 &&
+            !filterPrefixes.some((prefix) => l.startsWith(prefix))
+        );
+      stdout = lines.join("\n");
+    }
+
+    return { stdout, stderr };
+  } finally {
+    // Clean up temp directory
+    try {
+      await fs.promises.rm(tmpDir, { recursive: true, force: true });
+    } catch (cleanupError) {
+      console.error("Failed to cleanup temp directory:", cleanupError);
+    }
+  }
 }
 
 export async function POST(request: NextRequest) {

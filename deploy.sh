@@ -81,3 +81,17 @@ echo "  - View logs: docker-compose logs -f"
 echo "  - Stop: docker-compose down"
 echo "  - Restart: docker-compose restart"
 echo "  - Update: git pull && docker-compose up -d --build" 
+
+print_status "Warming up backend language Docker images..."
+docker-compose exec -T app node scripts/warmupRunners.js || print_warning "Warm-up script failed, but deployment succeeded."
+print_status "Warm-up completed! Users will not wait for image pulls on first run." 
+
+# develop:
+#   watch:
+#     - action: sync
+#       path: ./src
+#       target: /app/src
+#       ignore:
+#         - node_modules/
+#     - action: rebuild
+#       path: package.json 

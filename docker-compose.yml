@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -8,11 +8,25 @@ services:
     env_file:
       - .env
     volumes:
-      - ./prisma:/app/prisma
+      - ./:/app
+      - /app/node_modules
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - db
     restart: unless-stopped
-
+    privileged: true
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
   db:
     image: postgres:15
     environment:
@@ -26,4 +40,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data: 
+  postgres_data:

@@ -209,7 +209,7 @@ export default function JsTryEditor({
     setShowOutput(false);
   };
 
-  const runCode = async () => {
+  const runCode = async (retryCount = 0) => {
     setError("");
     setOutput("");
     setShowOutput(false);
@@ -304,7 +304,7 @@ export default function JsTryEditor({
               if (!logTimer) logTimer = setTimeout(sendLogsAndExit, logDelay);
               // Global fallback: always terminate after 7 seconds
               globalTimeout = setTimeout(sendLogsAndExit, 7000);
-            } catch (error: unknown) {
+            } catch (error) {
               self.postMessage({ type: 'error', error: error instanceof Error ? error.message : String(error) });
               self.close();
             }
@@ -359,7 +359,9 @@ export default function JsTryEditor({
         }
         return;
       }
-      if (lang === "python" || lang === "python3") {
+      // Bütün backend dilləri üçün:
+      const backendLangs = ["python", "python3", "cpp", "c", "java", "csharp", "php", "go", "rust"];
+      if (backendLangs.includes(lang)) {
         try {
           const response = await fetch("/api/execute", {
             method: "POST",
@@ -368,181 +370,11 @@ export default function JsTryEditor({
           });
           const result = await response.json();
           if (result.error) {
-            setError(result.error);
-            setOutput(result.output || "");
-          } else {
-            setOutput(result.output || "");
-            setError(result.error || "");
-          }
-          setShowOutput(true);
-        } catch (err: unknown) {
-          setError("Server error: " + (err instanceof Error ? err.message : String(err)));
-          setShowOutput(true);
-        } finally {
-          setIsLoading(false);
-        }
-        return;
-      }
-      if (lang === "cpp") {
-        try {
-          const response = await fetch("/api/execute", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code, language: lang }),
-          });
-          const result = await response.json();
-          if (result.error) {
-            setError(result.error);
-            setOutput(result.output || "");
-          } else {
-            setOutput(result.output || "");
-            setError(result.error || "");
-          }
-          setShowOutput(true);
-        } catch (err: unknown) {
-          setError("Server error: " + (err instanceof Error ? err.message : String(err)));
-          setShowOutput(true);
-        } finally {
-          setIsLoading(false);
-        }
-        return;
-      }
-      if (lang === "java") {
-        try {
-          console.log("Java code before patch:", code);
-
-          // Əvvəlcə class adını tapaq
-          const classMatch = code.match(
-            /public\s+class\s+([A-Za-z_][A-Za-z0-9_]*)/
-          );
-          const originalClassName = classMatch ? classMatch[1] : null;
-
-          // Class adını Main-ə dəyişdir
-          let mainClassCode = code.replace(
-            /public\s+class\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/g,
-            "public class Main {"
-          );
-
-          // Əgər orijinal class adı varsa, constructor adını da dəyişdir
-          if (originalClassName && originalClassName !== "Main") {
-            // Constructor pattern: className(parameters) {
-            const constructorPattern = new RegExp(
-              `\\b${originalClassName}\\s*\\(`,
-              "g"
-            );
-            mainClassCode = mainClassCode.replace(constructorPattern, "Main(");
-
-            // Object yaradılması pattern: new className(
-            const newObjectPattern = new RegExp(
-              `new\\s+${originalClassName}\\s*\\(`,
-              "g"
-            );
-            mainClassCode = mainClassCode.replace(
-              newObjectPattern,
-              "new Main("
-            );
-
-            // Variable type pattern: ClassName variableName =
-            const variablePattern = new RegExp(
-              `\\b${originalClassName}\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*=`,
-              "g"
-            );
-            mainClassCode = mainClassCode.replace(variablePattern, "Main $1 =");
-
-            // Method parameter və return type pattern
-            const methodParamPattern = new RegExp(
-              `\\b${originalClassName}\\b`,
-              "g"
-            );
-            mainClassCode = mainClassCode.replace(methodParamPattern, "Main");
-          }
-
-          console.log("Java code after patch:", mainClassCode);
-
-          const response = await fetch("/api/execute", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code: mainClassCode, language: lang }),
-          });
-
-          const result = await response.json();
-          if (result.error) {
-            setError(result.error);
-            setOutput(result.output || "");
-          } else {
-            setOutput(result.output || "");
-            setError(result.error || "");
-          }
-          setShowOutput(true);
-        } catch (err: unknown) {
-          let errorMessage = "Server error";
-          if (err instanceof Error) {
-            errorMessage += ": " + err.message;
-          }
-          setError(errorMessage);
-          setShowOutput(true);
-        } finally {
-          setIsLoading(false);
-        }
-        return;
-      }
-      if (lang === "c") {
-        try {
-          const response = await fetch("/api/execute", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code, language: lang }),
-          });
-          const result = await response.json();
-          if (result.error) {
-            setError(result.error);
-            setOutput(result.output || "");
-          } else {
-            setOutput(result.output || "");
-            setError(result.error || "");
-          }
-          setShowOutput(true);
-        } catch (err: unknown) {
-          setError("Server error: " + (err instanceof Error ? err.message : String(err)));
-          setShowOutput(true);
-        } finally {
-          setIsLoading(false);
-        }
-        return;
-      }
-      if (lang === "csharp") {
-        try {
-          const response = await fetch("/api/execute", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code, language: lang }),
-          });
-          const result = await response.json();
-          if (result.error) {
-            setError(result.error);
-            setOutput(result.output || "");
-          } else {
-            setOutput(result.output || "");
-            setError(result.error || "");
-          }
-          setShowOutput(true);
-        } catch (err: unknown) {
-          setError("Server error: " + (err instanceof Error ? err.message : String(err)));
-          setShowOutput(true);
-        } finally {
-          setIsLoading(false);
-        }
-        return;
-      }
-      if (lang === "php") {
-        try {
-          const response = await fetch("/api/execute", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code, language: lang }),
-          });
-          const result = await response.json();
-          if (result.error) {
+            // Retry only if image loading (not file error)
+            if (result.error.includes("Docker image yüklənir") && retryCount < 2) {
+              setTimeout(() => runCode(retryCount + 1), 2000); // 2 saniyə sonra retry
+              return;
+            }
             setError(result.error);
             setOutput(result.output || "");
           } else {
@@ -619,7 +451,7 @@ export default function JsTryEditor({
             bottom="5px"
             right="10px"
             text={isLoading ? "Çalışır..." : "Kodlaşdır"}
-            onClick={runCode}
+            onClick={() => runCode()}
             disabled={isLoading}
           />
         )}

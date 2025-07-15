@@ -317,3 +317,29 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 - Docker daemon/service must be running for code execution to work.
 - For production, restrict Docker resource usage and never mount sensitive host folders into containers.
 - If you add new language support, install the corresponding compiler/runtime and update Docker images if needed.
+
+# Docker Image Warm-up və TryEditor Retry
+
+Bu platformada backend dilləri üçün Docker image-lərin ilk dəfə yüklənməsi zamanı gecikmə və ya error olmaması üçün `scripts/warmupRunners.js` skripti əlavə olunub. Serveri işə saldıqdan sonra bu skripti də işə salın:
+
+```
+node scripts/warmupRunners.js
+```
+
+Bu, bütün dillər üçün Docker image-ləri öncədən yükləyir və istifadəçi ilk dəfə kod göndərəndə gözləməyə ehtiyac qalmır.
+
+Frontend TryEditor komponentində isə, əgər error mesajı 'Docker image yüklənir' və ya 'Fayl yaradıla bilmədi' olarsa, avtomatik 2 dəfə retry edilir və istifadəçiyə loading göstəricisi verilir.
+
+## Development Watch Configuration
+
+```yaml
+develop:
+  watch:
+    - action: sync
+      path: ./src
+      target: /app/src
+      ignore:
+        - node_modules/
+    - action: rebuild
+      path: package.json
+```
