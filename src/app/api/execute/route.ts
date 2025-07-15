@@ -108,6 +108,65 @@ async function runInSandbox(language: string, code: string) {
     }
   }
 
+  if (language === "csharp") {
+    try {
+      // Use printf to write code safely
+      const safeCode = code.replace(/([`$"\\])/g, "\\$1").replace(/\n/g, "\\n");
+      const dockerCmd = [
+        "docker run --rm",
+        "--network none",
+        "--memory=256m --cpus=0.5",
+        image,
+        "/bin/sh -c",
+        `'appdir=$(mktemp -d /code/app_XXXXXX) && dotnet new console -o $appdir --force && printf "%s" "${safeCode}" > $appdir/Program.cs && dotnet run --no-restore --no-build --project $appdir && rm -rf $appdir'`
+      ].join(" ");
+      const { stdout: out, stderr: err } = await execAsync(dockerCmd, { timeout: 30000 });
+      // Filter out dotnet status messages (same as below)
+      const filterPrefixes = [
+        "The template ",
+        "Processing post-creation actions",
+        "Restoring ",
+        "Restore succeeded",
+        "Determining projects to restore",
+        "All projects are up-to-date for restore",
+        "Restore completed",
+        "To learn more",
+        "Getting ready",
+        "Welcome to .NET",
+        "More information: ",
+        "Restore completed",
+        "Build succeeded.",
+        "Build started...",
+        "Build completed...",
+        "You can invoke the tool",
+        "info: ",
+        "warn: ",
+        "dbug: ",
+        "fail: ",
+        "error: ",
+        "Time Elapsed",
+        "Microsoft (R) Build Engine",
+        "Copyright (C)",
+        "For more information",
+        "Use 'dotnet new --help'",
+        "Use 'dotnet run --help'",
+        "Use 'dotnet build --help'",
+        "Use 'dotnet restore --help'",
+        "Use 'dotnet publish --help'",
+        "Use 'dotnet test --help'",
+      ];
+      const lines = out.split(/\r?\n/)
+        .map(l => l.trim())
+        .filter(l => l.length > 0 && !filterPrefixes.some(prefix => l.startsWith(prefix)));
+      return { stdout: lines.join("\n"), stderr: err };
+    } catch (e) {
+      return {
+        stdout: "",
+        stderr: "C# code could not be written in container: " + (e instanceof Error ? e.message : String(e)),
+      };
+    }
+  }
+
   // Create temp directory in current working directory for Windows compatibility
   const tmpDir = path.join(
     process.cwd(),
