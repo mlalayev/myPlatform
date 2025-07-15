@@ -8,8 +8,6 @@ import {
   FiAward,
   FiTrendingUp,
   FiBookOpen,
-  FiStar,
-  FiUsers,
   FiActivity,
   FiTarget,
   FiBarChart2,
@@ -19,23 +17,9 @@ import {
   FiShield,
   FiBell,
   FiHeart,
-  FiGift,
-  FiZap,
 } from "react-icons/fi";
-import Link from "next/link";
 import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
-import HeroSection from "../components/heroSection/HeroSection";
-import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
-
-// Profile stats data
-const profileStats = {
-  totalPoints: 1250,
-  completedLessons: 45,
-  streakDays: 12,
-  achievements: 8,
-};
 
 const profileTabs = [
   {
@@ -113,39 +97,8 @@ const profileTabs = [
 ];
 
 export default function ProfilePage() {
-  const pathname = usePathname();
-  const currentLang = pathname.split("/")[1] || "en";
-  const { data: session } = useSession();
   const [selectedTab, setSelectedTab] = useState(profileTabs[0].key);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-  // Profile-specific hero boxes
-  const profileHeroBoxes = [
-    {
-      key: "totalPoints",
-      icon: FiStar,
-      number: profileStats.totalPoints,
-      titleKey: "profile.hero.stats.totalPoints",
-    },
-    {
-      key: "completedLessons",
-      icon: FiBookOpen,
-      number: profileStats.completedLessons,
-      titleKey: "profile.hero.stats.completedLessons",
-    },
-    {
-      key: "streakDays",
-      icon: FiZap,
-      number: profileStats.streakDays,
-      titleKey: "profile.hero.stats.streakDays",
-    },
-    {
-      key: "achievements",
-      icon: FiAward,
-      number: profileStats.achievements,
-      titleKey: "profile.hero.stats.achievements",
-    },
-  ];
 
   // Render content for each tab (placeholder for now)
   const renderTabContent = () => {

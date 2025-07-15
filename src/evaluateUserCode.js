@@ -1,4 +1,4 @@
-const { NodeVM } = require('vm2');
+import { VM } from 'vm2';
 
 /**
  * Evaluates user-submitted JavaScript code securely using vm2.
@@ -27,7 +27,7 @@ async function evaluateUserCode(userCode, testCases, timeout = 1000) {
     let startMem, endMem, startTime, endTime;
     let passed = false;
     try {
-      const vm = new NodeVM({
+      const vm = new VM({
         console: 'off',
         sandbox: {},
         timeout,

@@ -64,14 +64,6 @@ const getApiLanguageName = (displayName: string): string => {
   return LANGUAGE_MAPPING[displayName] || displayName.toLowerCase();
 };
 
-// Helper function to get display name from API name
-const getDisplayLanguageName = (apiName: string): string => {
-  const entry = Object.entries(LANGUAGE_MAPPING).find(
-    ([_, value]) => value === apiName
-  );
-  return entry ? entry[0] : apiName;
-};
-
 type LanguageProgress = {
   [key: string]: { percent: number; visited: number; total: number };
 };
@@ -198,7 +190,7 @@ const languages = [
   {
     name: "PHP",
     icon: <SiPhp size={32} color="#777bb4" />,
-    available: false,
+    available: true,
     description: "Web backend.",
     progress: 0,
   },
@@ -276,22 +268,25 @@ export default function TutorialLanguagePage() {
     {}
   );
 
+  // Move all hooks to the top level
+  // For frameworks/languages/algorithms/data-structures views
+  const [languageTopics, setLanguageTopics] = React.useState<LanguageTopics>(
+    {}
+  );
+  const [loadingLangs, setLoadingLangs] = React.useState(true);
+  const [topics, setTopics] = React.useState<Topic[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
   useEffect(() => {
     if (language === "algorithms" || language === "data-structures") {
       router.replace(`/${langKey}/tutorials/languages/${language}/${language}`);
     }
   }, [language, langKey, router]);
 
-  if (language === "algorithms" || language === "data-structures") {
-    return null;
-  }
-
   useEffect(() => {
     // Fetch progress for available languages only
     const fetchAllProgress = async () => {
       const progressData: LanguageProgress = {};
-
-      // Get visited lessons from API or localStorage
       let visitedLessonsByLang: VisitedLessonsByLang = {};
       try {
         const res = await fetch("/api/user/lessons");
@@ -311,19 +306,13 @@ export default function TutorialLanguagePage() {
           localStorage.getItem("visitedLessons") || "{}"
         );
       }
-
-      // Fetch topics only for available languages
       for (const lang of languages) {
         const apiLangName = getApiLanguageName(lang.name);
-
-        // Skip fetching for unavailable languages
         if (!lang.available) {
           progressData[apiLangName] = { percent: 0, visited: 0, total: 0 };
           continue;
         }
-
         let topics: Topic[] = [];
-
         try {
           const res = await fetch(`/api/tutorials/${apiLangName}/topics`);
           if (res.ok) {
@@ -331,7 +320,6 @@ export default function TutorialLanguagePage() {
             topics = data[langKey] || [];
           }
         } catch (e) {
-          // If API fails, try to get from public folder
           try {
             const res = await fetch(`/tutorials/${apiLangName}/topics.json`);
             if (res.ok) {
@@ -342,7 +330,6 @@ export default function TutorialLanguagePage() {
             topics = [];
           }
         }
-
         const total = topics.length;
         const topicIds = new Set(topics.map((t: Topic) => t.id));
         const arr: string[] = Array.isArray(visitedLessonsByLang[apiLangName])
@@ -353,15 +340,64 @@ export default function TutorialLanguagePage() {
         ).length;
         const percent =
           total > 0 ? Math.round((visitedCount / total) * 100) : 0;
-
         progressData[apiLangName] = { percent, visited: visitedCount, total };
       }
-
       setLanguageProgress(progressData);
     };
-
     fetchAllProgress();
   }, [langKey]);
+
+  React.useEffect(() => {
+    if (language !== "languages") return;
+    if (!langKey) return;
+    const availableLanguages = languages.filter((lang) => lang.available);
+    const fetchPromises = availableLanguages.map((lang) => {
+      const apiLangName = getApiLanguageName(lang.name);
+      return fetch(`/api/tutorials/${apiLangName}/topics`)
+        .then((res) => res.json())
+        .then((data) => ({
+          lang: apiLangName,
+          displayName: lang.name,
+          topics: (data[langKey] || []) as Topic[],
+        }))
+        .catch(() => ({
+          lang: apiLangName,
+          displayName: lang.name,
+          topics: [] as Topic[],
+        }));
+    });
+    Promise.all(fetchPromises)
+      .then((results) => {
+        const topicsMap: LanguageTopics = {};
+        results.forEach(
+          ({ lang, topics }: { lang: string; topics: Topic[] }) => {
+            topicsMap[lang] = topics;
+          }
+        );
+        setLanguageTopics(topicsMap);
+        setLoadingLangs(false);
+      })
+      .catch(() => setLoadingLangs(false));
+  }, [langKey, language]);
+
+  React.useEffect(() => {
+    if (language === "languages") return;
+    if (!language || !langKey) return;
+    fetch(`/api/tutorials/${language}/topics`)
+      .then((res) => res.json())
+      .then((data) => {
+        const arr = data[langKey] || [];
+        const topicsWithProgress = arr.map((topic: Topic) => ({
+          ...topic,
+          progress: Math.floor(Math.random() * 100),
+          available: true,
+          description: topic.description || "Təlimat və nümunələr",
+        }));
+        setTopics(topicsWithProgress);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [language, langKey]);
 
   // Back button handler
   const handleBack = () => {
@@ -459,46 +495,6 @@ export default function TutorialLanguagePage() {
 
   // List view for programming languages
   if (language === "languages") {
-    const [languageTopics, setLanguageTopics] = React.useState<LanguageTopics>(
-      {}
-    );
-    const [loading, setLoading] = React.useState(true);
-
-    React.useEffect(() => {
-      if (!langKey) return;
-
-      // Fetch topics for available languages
-      const availableLanguages = languages.filter((lang) => lang.available);
-      const fetchPromises = availableLanguages.map((lang) => {
-        const apiLangName = getApiLanguageName(lang.name);
-        return fetch(`/api/tutorials/${apiLangName}/topics`)
-          .then((res) => res.json())
-          .then((data) => ({
-            lang: apiLangName,
-            displayName: lang.name,
-            topics: (data[langKey] || []) as Topic[],
-          }))
-          .catch(() => ({
-            lang: apiLangName,
-            displayName: lang.name,
-            topics: [] as Topic[],
-          }));
-      });
-
-      Promise.all(fetchPromises)
-        .then((results) => {
-          const topicsMap: LanguageTopics = {};
-          results.forEach(
-            ({ lang, topics }: { lang: string; topics: Topic[] }) => {
-              topicsMap[lang] = topics;
-            }
-          );
-          setLanguageTopics(topicsMap);
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
-    }, [langKey]);
-
     const getFirstTopicHref = (langName: string): string => {
       const apiLangName = getApiLanguageName(langName);
       const topics = languageTopics[apiLangName];
@@ -516,7 +512,7 @@ export default function TutorialLanguagePage() {
           <div
             className={styles.tutorialsGrid}
             style={
-              loading
+              loadingLangs
                 ? {
                     display: "flex",
                     alignItems: "center",
@@ -526,7 +522,7 @@ export default function TutorialLanguagePage() {
                 : {}
             }
           >
-            {loading ? (
+            {loadingLangs ? (
               <CodeLoader />
             ) : (
               languages
@@ -554,26 +550,14 @@ export default function TutorialLanguagePage() {
   }
 
   // List view for algorithms/data-structures (fetch topics)
-  const [topics, setTopics] = React.useState<Topic[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  React.useEffect(() => {
-    if (!language || !langKey) return;
-    fetch(`/api/tutorials/${language}/topics`)
-      .then((res) => res.json())
-      .then((data) => {
-        const arr = data[langKey] || [];
-        // Add mock progress data for topics
-        const topicsWithProgress = arr.map((topic: Topic) => ({
-          ...topic,
-          progress: Math.floor(Math.random() * 100), // Mock progress - will be replaced with real data later
-          available: true,
-          description: topic.description || "Təlimat və nümunələr",
-        }));
-        setTopics(topicsWithProgress);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [language, langKey]);
+  const getFirstTopicHref = (langName: string): string => {
+    const apiLangName = getApiLanguageName(langName);
+    const topics = languageTopics[apiLangName];
+    if (topics && topics.length > 0) {
+      return `/${langKey}/tutorials/languages/${apiLangName}/${topics[0].id}`;
+    }
+    return `/${langKey}/tutorials/languages/${apiLangName}`;
+  };
 
   return (
     <>

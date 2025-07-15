@@ -1,0 +1,359 @@
+{
+  "az": {
+    "title": "Java Annotasiyaları: Giriş",
+    "language": "java",
+    "description": "Java annotasiyaları kod haqqında metadata təmin edir, kodun oxunaqlığını artırır və çərçivələrdə avtomatlaşdırmanı asanlaşdırır. Daxili annotasiyalar, xüsusi annotasiyalar və reflection ilə emal onların əsas xüsusiyyətləridir.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Annotasiyalar nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java annotasiyaları kodun müəyyən hissələri haqqında əlavə məlumat (metadata) təmin edən xüsusi işarələrdir. Onlar kodun özünü dəyişdirmir, lakin kompilyator, çərçivələr (məsələn, Spring, Hibernate) və ya digər alətlər tərəfindən istifadə olunur. Annotasiyalar `@` simvolu ilə başlayır, məsələn, `@Override` və ya `@Deprecated`. Onlar siniflərə, metodlara, dəyişənlərə və ya parametrlərə tətbiq edilə bilər. Annotasiyalar kodun oxunaqlığını artırır, səhvləri azaltmağa kömək edir və avtomatlaşdırmanı asanlaşdırır. Məsələn, bir veb tətbiqində `@RequestMapping` annotasiyası URL sorğularını metodlara bağlayır."
+      },
+      {
+        "type": "heading",
+        "text": "Daxili Annotasiyalar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java özündə bir neçə daxili annotasiya təmin edir:\n- **`@Override`**: Bir metodun super sinifdəki metodu yenidən yazdığını göstərir. Bu, səhv yazılmış metod adlarının qarşısını alır.\n- **`@Deprecated`**: Bir metodun və ya sinfin artıq istifadə edilməməsi tövsiyə olunduğunu bildirir.\n- **`@SuppressWarnings`**: Kompilyator xəbərdarlıqlarını susdurur, məsələn, istifadə edilməmiş dəyişənlər üçün.\nBu annotasiyalar sadə, lakin güclüdür. Məsələn, `@Override` istifadə edərək metodun düzgün yenidən yazıldığını yoxlamaq olar. Daxili annotasiyalar Java kodunun keyfiyyətini artırmağa kömək edir."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Animal {\n  public void makeSound() {\n    System.out.println(\"Səs çıxarır\");\n  }\n}\n\npublic class Dog extends Animal {\n  @Override\n  public void makeSound() {\n    System.out.println(\"Hav-hav!\");\n  }\n\n  public static void main(String[] args) {\n    Dog dog = new Dog();\n    dog.makeSound();\n  }\n}\n// Çıxış: Hav-hav!"
+      },
+      {
+        "type": "heading",
+        "text": "Xüsusi Annotasiyaların Yaradılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java istifadəçilərə öz annotasiyalarını yaratmağa imkan verir. Xüsusi annotasiyalar `@interface` açar sözü ilə müəyyənləşdirilir. Onlar adətən meta-annotasiyalarla (məsələn, `@Retention`, `@Target`) konfiqurasiya edilir:\n- **`@Retention`**: Annotasiyanın nə vaxta qədər saxlanacağını müəyyənləşdirir (məsələn, `SOURCE`, `CLASS`, `RUNTIME`).\n- **`@Target`**: Annotasiyanın harada istifadə oluna biləcəyini göstərir (məsələn, sinif, metod, dəyişən).\nMəsələn, bir xüsusi annotasiya ilə metodun icra müddətini ölçmək olar. Xüsusi annotasiyalar reflection ilə emal edilərək dinamik davranış əlavə edir."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.lang.annotation.ElementType;\nimport java.lang.annotation.Retention;\nimport java.lang.annotation.RetentionPolicy;\nimport java.lang.annotation.Target;\n\n@Retention(RetentionPolicy.RUNTIME)\n@Target(ElementType.METHOD)\n@interface MyAnnotation {\n  String value();\n}\n\npublic class Main {\n  @MyAnnotation(value = \"Test annotasiyası\")\n  public void myMethod() {\n    System.out.println(\"Metod işləyir\");\n  }\n\n  public static void main(String[] args) {\n    Main main = new Main();\n    main.myMethod();\n  }\n}\n// Çıxış: Metod işləyir"
+      },
+      {
+        "type": "heading",
+        "text": "Annotasiyaların Emalı (Reflection ilə)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Annotasiyalar `java.lang.reflect` paketi ilə emal edilə bilər. Reflection siniflər, metodlar və ya dəyişənlər haqqında məlumat almağa imkan verir. Məsələn, `@Retention(RetentionPolicy.RUNTIME)` olan annotasiyalar çalışma zamanı reflection ilə oxuna bilər. Bu, xüsusilə çərçivələrdə istifadə olunur, məsələn, Spring-də `@Autowired` ilə obyektlərin avtomatik inyeksiyası. Reflection ilə annotasiyanın dəyərləri oxuna bilər və ya xüsusi davranış tətbiq edilə bilər, məsələn, bir metodun icra müddətini ölçmək."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.lang.annotation.ElementType;\nimport java.lang.annotation.Retention;\nimport java.lang.annotation.RetentionPolicy;\nimport java.lang.annotation.Target;\nimport java.lang.reflect.Method;\n\n@Retention(RetentionPolicy.RUNTIME)\n@Target(ElementType.METHOD)\n@interface MyAnnotation {\n  String value();\n}\n\npublic class Main {\n  @MyAnnotation(value = \"Test annotasiyası\")\n  public void myMethod() {\n    System.out.println(\"Metod işləyir\");\n  }\n\n  public static void main(String[] args) throws Exception {\n    Method method = Main.class.getMethod(\"myMethod\");\n    MyAnnotation annotation = method.getAnnotation(MyAnnotation.class);\n    System.out.println(\"Annotasiya dəyəri: \" + annotation.value());\n  }\n}\n// Çıxış: Annotasiya dəyəri: Test annotasiyası"
+      },
+      {
+        "type": "heading",
+        "text": "Meta-Annotasiyalar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Meta-annotasiyalar annotasiyaların özlərinə tətbiq edilən annotasiyalardır. Əsas meta-annotasiyalar:\n- **`@Retention`**: Annotasiyanın saxlanma müddətini müəyyənləşdirir (`SOURCE`, `CLASS`, `RUNTIME`).\n- **`@Target`**: Annotasiyanın tətbiq oluna biləcəyi elementləri müəyyənləşdirir (məsələn, `METHOD`, `FIELD`).\n- **`@Documented`**: Annotasiyanın Javadoc-da görünməsini təmin edir.\n- **`@Inherited`**: Alt siniflərin annotasiyanı miras almasını təmin edir.\nBu meta-annotasiyalar xüsusi annotasiyaların davranışını idarə edir və onların necə istifadə olunacağını müəyyənləşdirir."
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Annotasiyalar real dünyada geniş istifadə olunur:\n- **Çərçivələr**: Spring-də `@Controller`, `@Service` və ya Hibernate-də `@Entity` kimi annotasiyalar tətbiqin strukturunu müəyyənləşdirir.\n- **Test sistemləri**: JUnit-də `@Test` və ya `@Before` annotasiyaları test metodlarını idarə edir.\n- **Kompilyator xəbərdarlıqları**: `@SuppressWarnings` ilə xəbərdarlıqlar susdurulur.\n- **Kod analizi**: Annotasiyalar statik analiz alətləri tərəfindən istifadə olunur.\n- **API dizaynı**: REST API-lərdə `@RequestMapping` ilə sorğular idarə olunur.\nMəsələn, bir veb tətbiqində `@GetMapping(\"/users\")` annotasiyası istifadəçi sorğularını müəyyən bir metoda yönləndirir."
+      },
+      {
+        "type": "heading",
+        "text": "Annotasiyaların Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Annotasiyalar kod haqqında metadata təmin edərək oxunaqlılığı artırır, səhvləri azaltmağa kömək edir və çərçivələrdə avtomatlaşdırmanı asanlaşdırır. Onlar kodun davranışını dəyişdirmədən əlavə məlumat verir, bu da tətbiqlərin inkişafını və saxlanmasını asanlaşdırır. Annotasiyalar olmadan çərçivələr və alətlər daha mürəkkəb konfiqurasiyalar tələb edərdi."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Daxili Annotasiyalar",
+            "description": "Sadə, lakin güclü metadata təmin edir."
+          },
+          {
+            "term": "Xüsusi Annotasiyalar",
+            "description": "İstifadəçilərə öz annotasiyalarını yaratmağa imkan verir."
+          },
+          {
+            "term": "Reflection",
+            "description": "Annotasiyaları çalışma zamanı emal etməyə imkan verir."
+          },
+          {
+            "term": "Meta-Annotasiyalar",
+            "description": "Annotasiyaların davranışını idarə edir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Həddindən artıq annotasiya istifadəsi kodu oxunmaz edə bilər, reflection performans xərcləri yarada bilər, səhv annotasiya tətbiqi səhvlərə səbəb olur.\n- **Tövsiyələr**: Annotasiyaları yalnız zəruri hallarda istifadə edin, reflection-dan ehtiyatla istifadə edin, meta-annotasiyaları düzgün konfiqurasiya edin, IntelliJ IDEA kimi IDE-lərdən istifadə edin ki, səhvlər asan aşkarlansın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.lang.annotation.ElementType;\nimport java.lang.annotation.Retention;\nimport java.lang.annotation.RetentionPolicy;\nimport java.lang.annotation.Target;\nimport java.lang.reflect.Method;\n\n@Retention(RetentionPolicy.RUNTIME)\n@Target(ElementType.METHOD)\n@interface Info {\n  String description();\n}\n\npublic class Main {\n  @Info(description = \"Bu metod mesajı çap edir\")\n  public void printMessage() {\n    System.out.println(\"Mesaj çap olunur\");\n  }\n\n  public static void main(String[] args) throws Exception {\n    Method method = Main.class.getMethod(\"printMessage\");\n    Info annotation = method.getAnnotation(Info.class);\n    System.out.println(\"Annotasiya təsviri: \" + annotation.description());\n    Main main = new Main();\n    main.printMessage();\n  }\n}\n// Çıxış:\n// Annotasiya təsviri: Bu metod mesajı çap edir\n// Mesaj çap olunur"
+      }
+    ]
+  },
+  "en": {
+    "title": "Java Annotations: Introduction",
+    "language": "java",
+    "description": "Java annotations provide metadata about code, improve readability, and simplify automation in frameworks. Built-in annotations, custom annotations, and reflection are their core features.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Annotations?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java annotations are special markers that provide metadata about code elements without altering their behavior. They are used by the compiler, frameworks (e.g., Spring, Hibernate), or other tools. Annotations start with the `@` symbol, such as `@Override` or `@Deprecated`, and can be applied to classes, methods, variables, or parameters. They improve code readability, reduce errors, and simplify automation. For example, in a web application, the `@RequestMapping` annotation maps URLs to methods."
+      },
+      {
+        "type": "heading",
+        "text": "Built-in Annotations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java provides several built-in annotations:\n- **`@Override`**: Indicates that a method overrides a superclass method, preventing errors from incorrect method signatures.\n- **`@Deprecated`**: Marks a method or class as no longer recommended for use.\n- **`@SuppressWarnings`**: Suppresses compiler warnings, such as for unused variables.\nThese annotations are simple but powerful. For example, `@Override` ensures a method is correctly overridden, improving code quality."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Animal {\n  public void makeSound() {\n    System.out.println(\"Making sound\");\n  }\n}\n\npublic class Dog extends Animal {\n  @Override\n  public void makeSound() {\n    System.out.println(\"Woof-woof!\");\n  }\n\n  public static void main(String[] args) {\n    Dog dog = new Dog();\n    dog.makeSound();\n  }\n}\n// Output: Woof-woof!"
+      },
+      {
+        "type": "heading",
+        "text": "Creating Custom Annotations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java allows creating custom annotations using the `@interface` keyword. Custom annotations are configured with meta-annotations like `@Retention` and `@Target`:\n- **`@Retention`**: Specifies how long the annotation is retained (`SOURCE`, `CLASS`, `RUNTIME`).\n- **`@Target`**: Defines where the annotation can be applied (e.g., class, method, field).\nFor example, a custom annotation can measure a method’s execution time. Custom annotations are processed with reflection to add dynamic behavior."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.lang.annotation.ElementType;\nimport java.lang.annotation.Retention;\nimport java.lang.annotation.RetentionPolicy;\nimport java.lang.annotation.Target;\n\n@Retention(RetentionPolicy.RUNTIME)\n@Target(ElementType.METHOD)\n@interface MyAnnotation {\n  String value();\n}\n\npublic class Main {\n  @MyAnnotation(value = \"Test annotation\")\n  public void myMethod() {\n    System.out.println(\"Method running\");\n  }\n\n  public static void main(String[] args) {\n    Main main = new Main();\n    main.myMethod();\n  }\n}\n// Output: Method running"
+      },
+      {
+        "type": "heading",
+        "text": "Processing Annotations (with Reflection)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Annotations can be processed using the `java.lang.reflect` package. Reflection allows accessing information about classes, methods, or fields at runtime. Annotations with `@Retention(RetentionPolicy.RUNTIME)` can be read dynamically. This is common in frameworks, such as Spring’s `@Autowired` for automatic dependency injection. Reflection can read annotation values or trigger custom behavior, like measuring a method’s execution time."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.lang.annotation.ElementType;\nimport java.lang.annotation.Retention;\nimport java.lang.annotation.RetentionPolicy;\nimport java.lang.annotation.Target;\nimport java.lang.reflect.Method;\n\n@Retention(RetentionPolicy.RUNTIME)\n@Target(ElementType.METHOD)\n@interface MyAnnotation {\n  String value();\n}\n\npublic class Main {\n  @MyAnnotation(value = \"Test annotation\")\n  public void myMethod() {\n    System.out.println(\"Method running\");\n  }\n\n  public static void main(String[] args) throws Exception {\n    Method method = Main.class.getMethod(\"myMethod\");\n    MyAnnotation annotation = method.getAnnotation(MyAnnotation.class);\n    System.out.println(\"Annotation value: \" + annotation.value());\n  }\n}\n// Output: Annotation value: Test annotation"
+      },
+      {
+        "type": "heading",
+        "text": "Meta-Annotations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Meta-annotations are annotations applied to other annotations. Key meta-annotations include:\n- **`@Retention`**: Specifies how long an annotation is retained (`SOURCE`, `CLASS`, `RUNTIME`).\n- **`@Target`**: Defines where an annotation can be applied (e.g., `METHOD`, `FIELD`).\n- **`@Documented`**: Ensures the annotation appears in Javadoc.\n- **`@Inherited`**: Allows subclasses to inherit the annotation.\nThese meta-annotations control the behavior and scope of custom annotations."
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Annotations are widely used in real-world applications:\n- **Frameworks**: Annotations like `@Controller` or `@Service` in Spring or `@Entity` in Hibernate define application structure.\n- **Testing Frameworks**: JUnit uses `@Test` or `@Before` to manage test methods.\n- **Compiler Warnings**: `@SuppressWarnings` suppresses unnecessary warnings.\n- **Code Analysis**: Annotations are used by static analysis tools.\n- **API Design**: `@RequestMapping` in REST APIs maps requests to methods.\nFor example, in a web application, `@GetMapping(\"/users\")` directs user requests to a specific method."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Annotations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Annotations provide metadata about code, improving readability, reducing errors, and simplifying automation in frameworks. They add information without altering code behavior, making application development and maintenance easier. Without annotations, frameworks and tools would require complex configurations."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Built-in Annotations",
+            "description": "Provide simple but powerful metadata."
+          },
+          {
+            "term": "Custom Annotations",
+            "description": "Allow users to create their own annotations."
+          },
+          {
+            "term": "Reflection",
+            "description": "Enables runtime processing of annotations."
+          },
+          {
+            "term": "Meta-Annotations",
+            "description": "Control the behavior of annotations."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Overusing annotations can make code less readable, reflection can introduce performance overhead, and incorrect annotation usage can cause errors.\n- **Recommendations**: Use annotations only when necessary, apply reflection cautiously, configure meta-annotations correctly, and use IDEs like IntelliJ IDEA to detect errors."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.lang.annotation.ElementType;\nimport java.lang.annotation.Retention;\nimport java.lang.annotation.RetentionPolicy;\nimport java.lang.annotation.Target;\nimport java.lang.reflect.Method;\n\n@Retention(RetentionPolicy.RUNTIME)\n@Target(ElementType.METHOD)\n@interface Info {\n  String description();\n}\n\npublic class Main {\n  @Info(description = \"This method prints a message\")\n  public void printMessage() {\n    System.out.println(\"Message printed\");\n  }\n\n  public static void main(String[] args) throws Exception {\n    Method method = Main.class.getMethod(\"printMessage\");\n    Info annotation = method.getAnnotation(Info.class);\n    System.out.println(\"Annotation description: \" + annotation.description());\n    Main main = new Main();\n    main.printMessage();\n  }\n}\n// Output:\n// Annotation description: This method prints a message\n// Message printed"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Аннотации в Java: Введение",
+    "language": "java",
+    "description": "Аннотации в Java предоставляют метаданные о коде, улучшают читаемость и упрощают автоматизацию в фреймворках. Встроенные аннотации, пользовательские аннотации и рефлексия — их основные возможности.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое аннотации?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Аннотации в Java — это специальные маркеры, которые предоставляют метаданные о коде, не изменяя его поведение. Они используются компилятором, фреймворками (например, Spring, Hibernate) или другими инструментами. Аннотации начинаются с символа `@`, например, `@Override` или `@Deprecated`, и могут применяться к классам, методам, переменным или параметрам. Они улучшают читаемость кода, помогают уменьшить ошибки и упрощают автоматизацию. Например, в веб-приложении аннотация `@RequestMapping` связывает URL-запросы с методами."
+      },
+      {
+        "type": "heading",
+        "text": "Встроенные аннотации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java предоставляет несколько встроенных аннотаций:\n- **`@Override`**: Указывает, что метод переопределяет метод суперкласса, предотвращая ошибки в сигнатурах.\n- **`@Deprecated`**: Отмечает метод или класс как устаревший и не рекомендуемый к использованию.\n- **`@SuppressWarnings`**: Подавляет предупреждения компилятора, например, для неиспользуемых переменных.\nЭти аннотации просты, но мощны. Например, `@Override` гарантирует корректное переопределение метода, улучшая качество кода."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Animal {\n  public void makeSound() {\n    System.out.println(\"Издаёт звук\");\n  }\n}\n\npublic class Dog extends Animal {\n  @Override\n  public void makeSound() {\n    System.out.println(\"Гав-гав!\");\n  }\n\n  public static void main(String[] args) {\n    Dog dog = new Dog();\n    dog.makeSound();\n  }\n}\n// Вывод: Гав-гав!"
+      },
+      {
+        "type": "heading",
+        "text": "Создание пользовательских аннотаций"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java позволяет создавать пользовательские аннотации с помощью ключевого слова `@interface`. Они конфигурируются с помощью мета-аннотаций, таких как `@Retention` и `@Target`:\n- **`@Retention`**: Определяет, как долго аннотация сохраняется (`SOURCE`, `CLASS`, `RUNTIME`).\n- **`@Target`**: Указывает, где аннотация может использоваться (например, класс, метод, поле).\nНапример, пользовательская аннотация может измерять время выполнения метода. Пользовательские аннотации обрабатываются с помощью рефлексии для добавления динамического поведения."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.lang.annotation.ElementType;\nimport java.lang.annotation.Retention;\nimport java.lang.annotation.RetentionPolicy;\nimport java.lang.annotation.Target;\n\n@Retention(RetentionPolicy.RUNTIME)\n@Target(ElementType.METHOD)\n@interface MyAnnotation {\n  String value();\n}\n\npublic class Main {\n  @MyAnnotation(value = \"Тестовая аннотация\")\n  public void myMethod() {\n    System.out.println(\"Метод выполняется\");\n  }\n\n  public static void main(String[] args) {\n    Main main = new Main();\n    main.myMethod();\n  }\n}\n// Вывод: Метод выполняется"
+      },
+      {
+        "type": "heading",
+        "text": "Обработка аннотаций (с рефлексией)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Аннотации могут обрабатываться с помощью пакета `java.lang.reflect`. Рефлексия позволяет получать информацию о классах, методах или полях во время выполнения. Аннотации с `@Retention(RetentionPolicy.RUNTIME)` можно читать динамически. Это часто используется в фреймворках, например, в Spring с `@Autowired` для автоматической инъекции зависимостей. Рефлексия позволяет читать значения аннотаций или реализовывать пользовательское поведение, например, измерение времени выполнения метода."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.lang.annotation.ElementType;\nimport java.lang.annotation.Retention;\nimport java.lang.annotation.RetentionPolicy;\nimport java.lang.annotation.Target;\nimport java.lang.reflect.Method;\n\n@Retention(RetentionPolicy.RUNTIME)\n@Target(ElementType.METHOD)\n@interface MyAnnotation {\n  String value();\n}\n\npublic class Main {\n  @MyAnnotation(value = \"Тестовая аннотация\")\n  public void myMethod() {\n    System.out.println(\"Метод выполняется\");\n  }\n\n  public static void main(String[] args) throws Exception {\n    Method method = Main.class.getMethod(\"myMethod\");\n    MyAnnotation annotation = method.getAnnotation(MyAnnotation.class);\n    System.out.println(\"Значение аннотации: \" + annotation.value());\n  }\n}\n// Вывод: Значение аннотации: Тестовая аннотация"
+      },
+      {
+        "type": "heading",
+        "text": "Мета-аннотации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Мета-аннотации — это аннотации, применяемые к другим аннотациям. Основные мета-аннотации:\n- **`@Retention`**: Определяет, как долго аннотация сохраняется (`SOURCE`, `CLASS`, `RUNTIME`).\n- **`@Target`**: Указывает, где аннотация может использоваться (например, `METHOD`, `FIELD`).\n- **`@Documented`**: Гарантирует, что аннотация отображается в Javadoc.\n- **`@Inherited`**: Позволяет подклассам наследовать аннотацию.\nЭти мета-аннотации управляют поведением и областью применения пользовательских аннотаций."
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Аннотации широко используются в реальных приложениях:\n- **Фреймворки**: Аннотации вроде `@Controller` или `@Service` в Spring или `@Entity` в Hibernate определяют структуру приложения.\n- **Тестовые фреймворки**: JUnit использует `@Test` или `@Before` для управления тестовыми методами.\n- **Предупреждения компилятора**: `@SuppressWarnings` подавляет ненужные предупреждения.\n- **Анализ кода**: Аннотации используются инструментами статического анализа.\n- **Дизайн API**: `@RequestMapping` в REST API связывает запросы с методами.\nНапример, в веб-приложении `@GetMapping(\"/users\")` направляет пользовательские запросы к определённому методу."
+      },
+      {
+        "type": "heading",
+        "text": "Цель аннотаций"
+      },
+      {
+        "type": "paragraph",
+        "text": "Аннотации предоставляют метаданные о коде, улучшая читаемость, уменьшая ошибки и упрощая автоматизацию в фреймворках. Они добавляют информацию, не изменяя поведение кода, что упрощает разработку и сопровождение приложений. Без аннотаций фреймворки и инструменты требовали бы сложных конфигураций."
+      },
+      {
+        "type": "heading",
+        "text": "Основные характеристики"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Встроенные аннотации",
+            "description": "Предоставляют простые, но мощные метаданные."
+          },
+          {
+            "term": "Пользовательские аннотации",
+            "description": "Позволяют создавать собственные аннотации."
+          },
+          {
+            "term": "Рефлексия",
+            "description": "Позволяет обрабатывать аннотации во время выполнения."
+          },
+          {
+            "term": "Мета-аннотации",
+            "description": "Управляют поведением аннотаций."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Чрезмерное использование аннотаций может снизить читаемость кода, рефлексия может вызвать накладные расходы на производительность, неправильное использование аннотаций приводит к ошибкам.\n- **Рекомендации**: Используйте аннотации только при необходимости, применяйте рефлексию с осторожностью, корректно настраивайте мета-аннотации, используйте IDE, такие как IntelliJ IDEA, для обнаружения ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.lang.annotation.ElementType;\nimport java.lang.annotation.Retention;\nimport java.lang.annotation.RetentionPolicy;\nimport java.lang.annotation.Target;\nimport java.lang.reflect.Method;\n\n@Retention(RetentionPolicy.RUNTIME)\n@Target(ElementType.METHOD)\n@interface Info {\n  String description();\n}\n\npublic class Main {\n  @Info(description = \"Этот метод выводит сообщение\")\n  public void printMessage() {\n    System.out.println(\"Сообщение выведено\");\n  }\n\n  public static void main(String[] args) throws Exception {\n    Method method = Main.class.getMethod(\"printMessage\");\n    Info annotation = method.getAnnotation(Info.class);\n    System.out.println(\"Описание аннотации: \" + annotation.description());\n    Main main = new Main();\n    main.printMessage();\n  }\n}\n// Вывод:\n// Описание аннотации: Этот метод выводит сообщение\n// Сообщение выведено"
+      }
+    ]
+  }
+}

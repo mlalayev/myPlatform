@@ -4,10 +4,8 @@ import MonacoEditor from "@monaco-editor/react";
 import styles from "./JsTryEditor.module.css";
 import SavadliButton from "../Buttons/savadliButton/SavadliButton";
 import CopyButton from "../Buttons/copyButton/CopyButton";
-import workerCode from "../../exercises/[id]/sandboxWorkerString";
-import tryEditorWorkerCode from "./tryEditorWorkerString";
-import * as Babel from '@babel/standalone';
-import { useI18n } from '@/contexts/I18nContext';
+import * as Babel from "@babel/standalone";
+import { useI18n } from "@/contexts/I18nContext";
 
 interface JsTryEditorProps {
   value?: string;
@@ -130,73 +128,31 @@ puts salam`,
 
 fn main() {
     println!("{}", salam());
-}`
+}`,
 };
 
 const defaultCode = languageSamples.javascript;
 
-// WebAssembly runtimes
-let pyodide: any = null;
-let cppWasmModule: any = null;
-
-const loadPyodide = async () => {
-  if (!(window as any).loadPyodide) {
-    // Dynamically load the script if not already loaded
-    await new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js";
-      script.onload = resolve;
-      script.onerror = reject;
-      document.body.appendChild(script);
-    });
-  }
-  if (!pyodide) {
-    pyodide = await (window as any).loadPyodide();
-  }
-  return pyodide;
-};
-
-const loadCppWasm = async () => {
-  if (!cppWasmModule) {
-    // Load a pre-compiled C++ runtime using Emscripten
-    const response = await fetch('/api/cpp-wasm-runtime');
-    const wasmBuffer = await response.arrayBuffer();
-    cppWasmModule = await WebAssembly.instantiate(wasmBuffer, {
-      env: {
-        memory: new WebAssembly.Memory({ initial: 256 }),
-        // C++ standard library functions
-        printf: (ptr: number) => {
-          // Implementation for printf
-          return 0;
-        },
-        malloc: (size: number) => {
-          // Implementation for malloc
-          return 0;
-        },
-        free: (ptr: number) => {
-          // Implementation for free
-        },
-        // Add more C++ standard library functions as needed
-      }
-    });
-  }
-  return cppWasmModule;
-};
-
 // Fix: add index signature for string keys
 const tryeditorErrorOverrides: { [key: string]: { [key: string]: string } } = {
   az: {
-    tsFilenameError: 'TypeScript transpilyasiya xətası: Bu kodun bəzi hissələri dəstəklənmir və ya sintaksis səhvidir. Zəhmət olmasa, kodunuzu yoxlayın və yalnız əsas TypeScript sintaksisindən istifadə edin.',
-    tsCompileError: 'TypeScript transpilyasiya xətası: Kodunuzda sintaksis və ya tip xətası var. Zəhmət olmasa, kodunuzu yoxlayın.'
+    tsFilenameError:
+      "TypeScript transpilyasiya xətası: Bu kodun bəzi hissələri dəstəklənmir və ya sintaksis səhvidir. Zəhmət olmasa, kodunuzu yoxlayın və yalnız əsas TypeScript sintaksisindən istifadə edin.",
+    tsCompileError:
+      "TypeScript transpilyasiya xətası: Kodunuzda sintaksis və ya tip xətası var. Zəhmət olmasa, kodunuzu yoxlayın.",
   },
   ru: {
-    tsFilenameError: 'Ошибка транспиляции TypeScript: Некоторые части этого кода не поддерживаются или содержат синтаксическую ошибку. Пожалуйста, проверьте ваш код и используйте только базовый синтаксис TypeScript.',
-    tsCompileError: 'Ошибка транспиляции TypeScript: В вашем коде есть синтаксическая или типовая ошибка. Пожалуйста, проверьте ваш код.'
+    tsFilenameError:
+      "Ошибка транспиляции TypeScript: Некоторые части этого кода не поддерживаются или содержат синтаксическую ошибку. Пожалуйста, проверьте ваш код и используйте только базовый синтаксис TypeScript.",
+    tsCompileError:
+      "Ошибка транспиляции TypeScript: В вашем коде есть синтаксическая или типовая ошибка. Пожалуйста, проверьте ваш код.",
   },
   en: {
-    tsFilenameError: 'TypeScript transpilation error: Some parts of this code are not supported or contain a syntax error. Please check your code and use only basic TypeScript syntax.',
-    tsCompileError: 'TypeScript transpilation error: There is a syntax or type error in your code. Please check your code.'
-  }
+    tsFilenameError:
+      "TypeScript transpilation error: Some parts of this code are not supported or contain a syntax error. Please check your code and use only basic TypeScript syntax.",
+    tsCompileError:
+      "TypeScript transpilation error: There is a syntax or type error in your code. Please check your code.",
+  },
 };
 
 export default function JsTryEditor({
@@ -214,17 +170,36 @@ export default function JsTryEditor({
   const [showOutput, setShowOutput] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const workerRef = useRef<Worker | null>(null);
-  
+
+  console.log(language);
+
   function tWithOverride(key: string) {
-    return (tryeditorErrorOverrides[lang] && tryeditorErrorOverrides[lang][key]) || t(key);
+    return (
+      (tryeditorErrorOverrides[lang] && tryeditorErrorOverrides[lang][key]) ||
+      t(key)
+    );
   }
 
   // Update sample code when language changes
   useEffect(() => {
     if (!value && languageSamples[language as keyof typeof languageSamples]) {
-      setInternalCode(languageSamples[language as keyof typeof languageSamples]);
+      setInternalCode(
+        languageSamples[language as keyof typeof languageSamples]
+      );
     }
   }, [language, value]);
+
+  // Update editor language and code sample when dropdown changes
+  // const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const newLang = e.target.value;
+  //   setSelectedLanguage(newLang);
+  //   if (languageSamples[newLang as keyof typeof languageSamples]) {
+  //     setInternalCode(languageSamples[newLang as keyof typeof languageSamples]);
+  //   }
+  //   setError("");
+  //   setOutput("");
+  //   setShowOutput(false);
+  // };
 
   const handleChange = (val: string | undefined) => {
     if (onChange) onChange(val ?? "");
@@ -234,37 +209,43 @@ export default function JsTryEditor({
     setShowOutput(false);
   };
 
-  const runCode = async () => {
+  const runCode = async (retryCount = 0) => {
     setError("");
     setOutput("");
     setShowOutput(false);
     setIsLoading(true);
 
     try {
-      const lang = (language || '').toLowerCase();
+      const lang = (language || "").toLowerCase();
       if (lang === "javascript" || lang === "typescript" || lang === "js") {
         try {
           let transpiled = code;
-          
+
           // Handle TypeScript transpilation
-          if (lang === 'typescript') {
+          if (lang === "typescript") {
             // Check for unsupported features
-            const unsupported = /(Promise|async\s+function|await\s|private |public |protected )/;
+            const unsupported =
+              /(Promise|async\s+function|await\s|private |public |protected )/;
             if (unsupported.test(code)) {
-              setError(tWithOverride('unsupportedTsFeature'));
+              setError(tWithOverride("unsupportedTsFeature"));
               setShowOutput(true);
               setIsLoading(false);
               return;
             }
-            
+
             // Use Babel TypeScript preset for transpilation
             try {
-              transpiled = Babel.transform(code, { 
-                presets: ['env', 'typescript'], 
-                filename: 'file.ts' 
-              }).code || code;
-            } catch (tsErr: any) {
-              setError(tWithOverride('tsCompileError') + '\n' + (tsErr.message || tsErr));
+              transpiled =
+                Babel.transform(code, {
+                  presets: ["env", "typescript"],
+                  filename: "file.ts",
+                }).code || code;
+            } catch (tsErr: unknown) {
+              setError(
+                tWithOverride("tsCompileError") +
+                  "\n" +
+                  (tsErr instanceof Error ? tsErr.message : String(tsErr))
+              );
               setShowOutput(true);
               setIsLoading(false);
               return;
@@ -272,7 +253,9 @@ export default function JsTryEditor({
           }
 
           // Use Web Worker for safe JavaScript execution
-          const workerBlob = new Blob([`
+          const workerBlob = new Blob(
+            [
+              `
             let logs = [];
             let logCount = 0;
             const maxLogs = 50;
@@ -322,28 +305,35 @@ export default function JsTryEditor({
               // Global fallback: always terminate after 7 seconds
               globalTimeout = setTimeout(sendLogsAndExit, 7000);
             } catch (error) {
-              self.postMessage({ type: 'error', error: error.message });
+              self.postMessage({ type: 'error', error: error instanceof Error ? error.message : String(error) });
               self.close();
             }
-          `], { type: 'application/javascript' });
+          `,
+            ],
+            { type: "application/javascript" }
+          );
 
           const worker = new Worker(URL.createObjectURL(workerBlob));
+          const timeoutId: ReturnType<typeof setTimeout> = setTimeout(() => {
+            worker.terminate();
+            setError(t("tryeditor.timeout"));
+            setShowOutput(true);
+            setIsLoading(false);
+          }, 7000); // 7 second timeout for async
 
-          let timeoutId: ReturnType<typeof setTimeout> | undefined;
-
-          worker.onmessage = function(e) {
+          worker.onmessage = function (e) {
             clearTimeout(timeoutId);
-            if (e.data.type === 'success') {
+            if (e.data.type === "success") {
               if (e.data.logs.length === 0) {
                 setOutput("");
-                setError(t('tryeditor.noOutput'));
+                setError(t("tryeditor.noOutput"));
               } else {
                 setOutput(e.data.logs.join("\n"));
                 setError("");
               }
               setShowOutput(true);
               setIsLoading(false);
-            } else if (e.data.type === 'error') {
+            } else if (e.data.type === "error") {
               setError(e.data.error);
               setShowOutput(true);
               setIsLoading(false);
@@ -351,39 +341,40 @@ export default function JsTryEditor({
             worker.terminate();
           };
 
-          worker.onerror = function(e) {
+          worker.onerror = function (e) {
             clearTimeout(timeoutId);
-            setError('Worker error: ' + e.message);
+            setError("Worker error: " + e.message);
             setShowOutput(true);
             setIsLoading(false);
             worker.terminate();
           };
 
-          // Set a timeout for the worker
-          timeoutId = setTimeout(() => {
-            worker.terminate();
-            setError(t('tryeditor.timeout'));
-            setShowOutput(true);
-            setIsLoading(false);
-          }, 7000); // 7 second timeout for async
-          
           return;
-        } catch (err: any) {
-          setError(t('tryeditor.jsInterpreter').replace('{{message}}', err.message));
+        } catch (err: unknown) {
+          setError(
+            t("tryeditor.jsInterpreter").replace("{{message}}", err instanceof Error ? err.message : String(err))
+          );
           setShowOutput(true);
           setIsLoading(false);
         }
         return;
       }
-      if (lang === "python" || lang === "python3") {
+      // Bütün backend dilləri üçün:
+      const backendLangs = ["python", "python3", "cpp", "c", "java", "csharp", "php", "go", "rust"];
+      if (backendLangs.includes(lang)) {
         try {
-          const response = await fetch('/api/execute', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+          const response = await fetch("/api/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code, language: lang }),
           });
           const result = await response.json();
           if (result.error) {
+            // Retry only if image loading (not file error)
+            if (result.error.includes("Docker image yüklənir") && retryCount < 2) {
+              setTimeout(() => runCode(retryCount + 1), 2000); // 2 saniyə sonra retry
+              return;
+            }
             setError(result.error);
             setOutput(result.output || "");
           } else {
@@ -391,115 +382,19 @@ export default function JsTryEditor({
             setError(result.error || "");
           }
           setShowOutput(true);
-        } catch (err: any) {
-          setError("Server error: " + err.message);
+        } catch (err: unknown) {
+          setError("Server error: " + (err instanceof Error ? err.message : String(err)));
           setShowOutput(true);
         } finally {
           setIsLoading(false);
         }
         return;
       }
-      if (lang === "cpp") {
-        try {
-          const response = await fetch('/api/execute', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code, language: lang }),
-          });
-          const result = await response.json();
-          if (result.error) {
-            setError(result.error);
-            setOutput(result.output || "");
-          } else {
-            setOutput(result.output || "");
-            setError(result.error || "");
-          }
-          setShowOutput(true);
-        } catch (err: any) {
-          setError("Server error: " + err.message);
-          setShowOutput(true);
-        } finally {
-          setIsLoading(false);
-        }
-        return;
-      }
-      if (lang === "java") {
-        try {
-          const response = await fetch('/api/execute', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code, language: lang }),
-          });
-          const result = await response.json();
-          if (result.error) {
-            setError(result.error);
-            setOutput(result.output || "");
-          } else {
-            setOutput(result.output || "");
-            setError(result.error || "");
-          }
-          setShowOutput(true);
-        } catch (err: any) {
-          setError("Server error: " + err.message);
-          setShowOutput(true);
-        } finally {
-          setIsLoading(false);
-        }
-        return;
-      }
-      if (lang === "c") {
-        try {
-          const response = await fetch('/api/execute', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code, language: lang }),
-          });
-          const result = await response.json();
-          if (result.error) {
-            setError(result.error);
-            setOutput(result.output || "");
-          } else {
-            setOutput(result.output || "");
-            setError(result.error || "");
-          }
-          setShowOutput(true);
-        } catch (err: any) {
-          setError("Server error: " + err.message);
-          setShowOutput(true);
-        } finally {
-          setIsLoading(false);
-        }
-        return;
-      }
-      if (lang === "csharp") {
-        try {
-          const response = await fetch('/api/execute', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code, language: lang }),
-          });
-          const result = await response.json();
-          if (result.error) {
-            setError(result.error);
-            setOutput(result.output || "");
-          } else {
-            setOutput(result.output || "");
-            setError(result.error || "");
-          }
-          setShowOutput(true);
-        } catch (err: any) {
-          setError("Server error: " + err.message);
-          setShowOutput(true);
-        } finally {
-          setIsLoading(false);
-        }
-        return;
-      }
-      setError(t('tryeditor.unsupported'));
+      setError(t("tryeditor.unsupported"));
       setShowOutput(true);
       setIsLoading(false);
-    } catch (err: any) {
-      setError(t('tryeditor.general').replace('{{message}}', err.message));
+    } catch (err: unknown) {
+      setError(t("tryeditor.general").replace("{{message}}", err instanceof Error ? err.message : String(err)));
       setShowOutput(true);
       setIsLoading(false);
     }
@@ -507,11 +402,12 @@ export default function JsTryEditor({
 
   // Cleanup worker on unmount
   useEffect(() => {
+    const worker = workerRef.current;
     return () => {
-      if (workerRef.current) {
-        workerRef.current.terminate();
-    }
-  };
+      if (worker) {
+        worker.terminate();
+      }
+    };
   }, []);
 
   return (
@@ -533,15 +429,19 @@ export default function JsTryEditor({
           }}
           onMount={(editor, monaco) => {
             if (language === "javascript") {
-              monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-                noSemanticValidation: true,
-                noSyntaxValidation: false,
-              });
-              monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-                allowNonTsExtensions: true,
-                checkJs: false,
-                noEmit: true,
-              });
+              monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(
+                {
+                  noSemanticValidation: true,
+                  noSyntaxValidation: false,
+                }
+              );
+              monaco.languages.typescript.javascriptDefaults.setCompilerOptions(
+                {
+                  allowNonTsExtensions: true,
+                  checkJs: false,
+                  noEmit: true,
+                }
+              );
             }
           }}
         />
@@ -551,11 +451,18 @@ export default function JsTryEditor({
             bottom="5px"
             right="10px"
             text={isLoading ? "Çalışır..." : "Kodlaşdır"}
-            onClick={runCode}
+            onClick={() => runCode()}
             disabled={isLoading}
           />
         )}
-        {showCopyButton && <CopyButton position="absolute" bottom="5px" right="160px" text={code}></CopyButton>}
+        {showCopyButton && (
+          <CopyButton
+            position="absolute"
+            bottom="5px"
+            right="160px"
+            text={code}
+          ></CopyButton>
+        )}
       </div>
       {showOutput && (output || error) && (
         <div className={styles.tryOutputBox}>
@@ -567,7 +474,9 @@ export default function JsTryEditor({
           )}
           {error && (
             <div className={styles.outputSection}>
-              <pre className={styles.error}>{t('tryeditor.errorLabel')} {error}</pre>
+              <pre className={styles.error}>
+                {t("tryeditor.errorLabel")} {error}
+              </pre>
             </div>
           )}
         </div>

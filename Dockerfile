@@ -11,7 +11,15 @@ RUN apt-get update && apt-get install -y \
     git \
     build-essential \
     software-properties-common \
+    ca-certificates \
+    gnupg \
+    lsb-release \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Docker CLI
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+RUN apt-get update && apt-get install -y docker-ce-cli
 
 # Install Python
 RUN apt-get update && apt-get install -y python3 python3-pip
@@ -50,9 +58,8 @@ RUN bash -c "source /root/.sdkman/bin/sdkman-init.sh && sdk install scala"
 
 # Install Dart
 RUN apt-get update && apt-get install -y apt-transport-https
-RUN wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list
-RUN wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.key | apt-key add -
-RUN apt-get update && apt-get install -y dart
+RUN curl -fsSL https://storage.googleapis.com/dart-archive/channels/stable/release/3.8.1/linux_packages/dart_3.8.1-1_amd64.deb -o dart.deb \
+ && dpkg -i dart.deb || apt-get install -f -y
 
 # Install Swift (if available for Ubuntu)
 RUN apt-get update && apt-get install -y \
@@ -75,15 +82,15 @@ COPY package*.json ./
 
 # Install Node.js dependencies
 RUN npm install
-
-# Copy application code
 COPY . .
+RUN npx prisma generate
 
-# Build the application
-RUN npm run build
+# Build the application (yalnız production üçün)
+ARG NODE_ENV=production
+RUN if [ "$NODE_ENV" = "production" ]; then npm run build; fi
 
 # Expose port
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "start"] 
+# Start the application (environment-a görə fərqli command)
+CMD ["sh", "-c", "if [ '$NODE_ENV' = 'development' ]; then npm run dev; else npm start; fi"] 

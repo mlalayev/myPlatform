@@ -1,0 +1,344 @@
+{
+  "az": {
+    "title": "Java Fayl Giriş-Çıxış: Giriş",
+    "language": "java",
+    "description": "Fayl giriş-çıxış (I/O) Java-da fayllardan məlumat oxumaq və ya fayllara məlumat yazmaq üçün istifadə olunan mexanizmdir. Java `java.io` və `java.nio` paketləri ilə bu əməliyyatları dəstəkləyir. Əsas siniflər `File`, `BufferedReader`, `BufferedWriter`, və `Files`-dir.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Fayl I/O nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayl giriş-çıxış (I/O) kompüterin fayl sistemindəki fayllarla işləmək üçün istifadə olunur. Bu, məlumatların fayllara yazılmasını (məsələn, mətn, rəqəmlər) və ya fayllardan məlumatların oxunmasını əhatə edir. Java-da fayl I/O əməliyyatları `java.io` paketindəki siniflərlə (məsələn, `File`, `FileReader`, `FileWriter`) və ya daha müasir `java.nio.file` paketindəki `Files` sinfi ilə həyata keçirilir. Bu əməliyyatlar proqramların məlumatları saxlaması, konfiqurasiya fayllarını oxuması və ya log qeydləri yazması kimi ssenarilərdə istifadə olunur. Fayl I/O-da əsas məqsəd məlumatların etibarlı və səmərəli şəkildə idarə olunmasıdır. Fayl əməliyyatları zamanı istisnalar (məsələn, `IOException`) tez-tez baş verir, buna görə də istisnaların düzgün idarə edilməsi çox vacibdir."
+      },
+      {
+        "type": "heading",
+        "text": "Fayl I/O-nun əsas komponentləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java-da fayl I/O ilə işləyərkən bir neçə əsas sinif və alət istifadə olunur:\n1. **`File` sinfi**: Fayl və ya qovluqla bağlı əməliyyatlar üçün istifadə olunur, məsələn, faylın mövcudluğunu yoxlamaq və ya yeni fayl yaratmaq.\n2. **`FileReader` və `FileWriter`**: Mətn fayllarından simvolları oxumaq və ya yazmaq üçün istifadə olunur.\n3. **`BufferedReader` və `BufferedWriter`**: Böyük fayllarla səmərəli işləmək üçün buferdən istifadə edir, bu da performansı artırır.\n4. **`Files` sinfi**: `java.nio.file` paketində yerləşir və fayl əməliyyatlarını daha müasir və sadə şəkildə həyata keçirməyə imkan verir.\nBu siniflər müxtəlif ssenarilər üçün uyğundur: kiçik fayllar üçün `FileReader`/`FileWriter`, böyük fayllar üçün `BufferedReader`/`BufferedWriter`, müasir yanaşmalar üçün isə `Files` sinfi tövsiyə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Fayl oxuma əməliyyatları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayl oxuma Java-da faylın məzmununu proqrama yükləmək üçün istifadə olunur. Məsələn, bir mətn faylındakı sətirləri oxumaq üçün `BufferedReader` istifadə edilə bilər. `BufferedReader` faylın məzmununu sətir-sətir oxuyur və böyük fayllar üçün səmərəlidir, çünki məlumatları buferdə saxlayır və diskə tez-tez müraciəti azaldır. Oxuma zamanı `IOException` kimi istisnalar baş verə bilər, məsələn, fayl mövcud olmadıqda və ya oxumaq üçün icazə olmadıqda. Buna görə də `try-catch` blokları ilə istisnalar idarə edilməlidir. `Files` sinfi ilə isə `readAllLines` metodu faylın bütün sətirlərini birbaşa `List<String>` kimi oxumağa imkan verir, bu da daha sadə və müasir bir yanaşmadır. Oxuma əməliyyatları adətən konfiqurasiya fayllarını, log qeydlərini və ya istifadəçi məlumatlarını oxumaq üçün istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Fayl yazma əməliyyatları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayl yazma əməliyyatları məlumatları fayla yazmaq üçün istifadə olunur. `BufferedWriter` mətn fayllarına yazmaq üçün səmərəli bir üsuldur, çünki buferdən istifadə edərək diskə yazma əməliyyatlarını optimallaşdırır. `FileWriter` isə sadə mətn yazmaq üçün istifadə olunur, lakin böyük fayllar üçün daha az səmərəlidir. `Files` sinfi ilə isə `write` metodu fayla məlumat yazmağı asanlaşdırır, məsələn, bir siyahını fayla yazmaq üçün birbaşa istifadə edilə bilər. Yazma əməliyyatları zamanı da `IOException` baş verə bilər, məsələn, diskdə yer olmadıqda və ya faylın yazılmasına icazə olmadıqda. Yazma əməliyyatları log qeydləri, istifadəçi məlumatları və ya hesabatlar yaratmaq üçün istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.io.BufferedWriter;\nimport java.io.FileWriter;\nimport java.io.IOException;\n\npublic class Main {\n  public static void main(String[] args) {\n    try {\n      BufferedWriter writer = new BufferedWriter(new FileWriter(\"output.txt\"));\n      writer.write(\"Salam, dünya!\\n\");\n      writer.write(\"Bu bir testdir.\");\n      writer.close();\n      System.out.println(\"Fayla yazıldı.\");\n    } catch (IOException e) {\n      System.out.println(\"Səhv: \" + e.getMessage());\n    }\n  }\n}\n// Çıxış: Fayla yazıldı.\n// (Fayl sistemində 'output.txt' adlı fayl yaradılır və mətn yazılır)"
+      },
+      {
+        "type": "heading",
+        "text": "İstisnaların idarə edilməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayl I/O əməliyyatları zamanı istisnalar tez-tez baş verir, çünki fayl sistemində gözlənilməz vəziyyətlər (məsələn, faylın olmaması, icazə problemləri) mümkündür. Əsas istisna `IOException`-dir və buna görə bütün fayl əməliyyatları `try-catch` blokları ilə əhatə olunmalıdır. Məsələn, fayl oxunarkən fayl mövcud deyilsə, `FileNotFoundException` (ki `IOException`-ın alt sinfidir) baş verə bilər. Eynilə, yazma əməliyyatları zamanı diskdə yer olmaması və ya faylın kilidli olması səbəbindən səhvlər yarana bilər. `try-with-resources` sintaksisi resursların (məsələn, `BufferedReader` və ya `BufferedWriter`) avtomatik bağlanmasını təmin edir və kodun daha təmiz olmasına kömək edir. İstisnaların düzgün idarə edilməsi proqramın dayanıqlığını artırır və gözlənilməz səhvlərin qarşısını alır."
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayl I/O real dünyada geniş istifadə olunur:\n- **Konfiqurasiya faylları**: Proqramın parametrlərini saxlamaq və oxumaq üçün (məsələn, JSON və ya properties faylları).\n- **Log qeydləri**: Proqramın fəaliyyətini qeyd etmək üçün log fayllarına yazma.\n- **Məlumat saxlama**: İstifadəçi məlumatlarını, məsələn, alış-veriş siyahısını fayla yazmaq və ya oxumaq.\n- **Hesabatlar**: Statistik məlumatları və ya hesabatları fayla yazmaq.\nMəsələn, bir mağaza proqramı məhsul siyahısını fayla saxlaya bilər və ya bir oyun istifadəçinin xallarını fayldan oxuya bilər. Fayl I/O proqramların xarici məlumatlarla qarşılıqlı əlaqəsini təmin edir."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.io.BufferedReader;\nimport java.io.FileReader;\nimport java.io.IOException;\n\npublic class Main {\n  public static void main(String[] args) {\n    try (BufferedReader reader = new BufferedReader(new FileReader(\"input.txt\"))) {\n      String line;\n      while ((line = reader.readLine()) != null) {\n        System.out.println(\"Oxunan sətir: \" + line);\n      }\n    } catch (IOException e) {\n      System.out.println(\"Səhv: \" + e.getMessage());\n    }\n  }\n}\n// Çıxış: (Əgər 'input.txt' mövcuddursa, onun sətirləri oxunur, əks halda səhv mesajı göstərilir)"
+      },
+      {
+        "type": "heading",
+        "text": "Fayl I/O-nun Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayl I/O Java-da məlumatların saxlanmasını, oxunmasını və idarə edilməsini təmin edir. Bu, proqramların xarici məlumatlarla qarşılıqlı əlaqəsini asanlaşdırır, məlumatların daimi saxlanmasını təmin edir və proqramın funksionallığını artırır. Fayl I/O olmadan proqramlar yalnız yaddaşda (RAM) məlumat saxlaya bilər ki, bu da proqram bağlandıqda məlumatların itməsinə səbəb olur."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Fayl oxuma",
+            "description": "Fayllardan məlumatları oxumaq üçün `BufferedReader` və ya `Files` istifadə olunur."
+          },
+          {
+            "term": "Fayl yazma",
+            "description": "Fayllara məlumat yazmaq üçün `BufferedWriter` və ya `Files` istifadə olunur."
+          },
+          {
+            "term": "İstisnaların idarə edilməsi",
+            "description": "`IOException` kimi səhvləri idarə etmək üçün `try-catch` və ya `try-with-resources` istifadə olunur."
+          },
+          {
+            "term": "Səmərəlilik",
+            "description": "Buferli siniflər (`BufferedReader`, `BufferedWriter`) performansı artırır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: İstisnaların idarə edilməməsi proqramın çökməsinə səbəb ola bilər, resursların (fayl axınlarının) bağlanmaması yaddaş sızmasına yol aça bilər, yanlış fayl yollarının istifadəsi səhvlərə səbəb olur.\n- **Tövsiyələr**: Həmişə `try-with-resources` istifadə edin ki, resurslar avtomatik bağlansın, istisnaları konkret şəkildə idarə edin (məsələn, `FileNotFoundException`), fayl yollarını diqqətlə yoxlayın, böyük fayllar üçün buferli siniflərdən istifadə edin, IntelliJ IDEA kimi IDE-lərdən istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.io.BufferedWriter;\nimport java.io.FileWriter;\nimport java.io.IOException;\n\npublic class Main {\n  public static void main(String[] args) {\n    try (BufferedWriter writer = new BufferedWriter(new FileWriter(\"test.txt\"))) {\n      writer.write(\"Bu bir test faylıdır.\");\n      System.out.println(\"Fayla yazıldı.\");\n    } catch (IOException e) {\n      System.out.println(\"Səhv: \" + e.getMessage());\n    }\n  }\n}\n// Çıxış: Fayla yazıldı.\n// (Fayl sistemində 'test.txt' adlı fayl yaradılır)"
+      }
+    ]
+  },
+  "en": {
+    "title": "Java File I/O: Introduction",
+    "language": "java",
+    "description": "File Input/Output (I/O) in Java is used to read from or write to files in the file system. Java supports these operations with the `java.io` and `java.nio` packages, using key classes like `File`, `BufferedReader`, `BufferedWriter`, and `Files`.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is File I/O?"
+      },
+      {
+        "type": "paragraph",
+        "text": "File Input/Output (I/O) refers to operations that allow a program to interact with files in the file system, such as reading data from a file or writing data to it. In Java, file I/O is handled using classes from the `java.io` package (e.g., `File`, `FileReader`, `FileWriter`) or the more modern `java.nio.file` package with the `Files` class. These operations are essential for tasks like saving program data, reading configuration files, or logging events. The primary goal of file I/O is to manage data efficiently and reliably. Since file operations can encounter issues like missing files or permission errors, handling exceptions (e.g., `IOException`) is critical to ensure robust programs."
+      },
+      {
+        "type": "heading",
+        "text": "Key Components of File I/O"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java provides several key classes and tools for file I/O operations:\n1. **`File` Class**: Used to interact with files or directories, such as checking if a file exists or creating a new file.\n2. **`FileReader` and `FileWriter`**: Used to read or write character data to text files.\n3. **`BufferedReader` and `BufferedWriter`**: Use buffering to improve performance when working with large files by reducing direct disk access.\n4. **`Files` Class**: Part of the `java.nio.file` package, it provides a modern and simpler way to perform file operations.\nThese classes serve different purposes: `FileReader`/`FileWriter` for small files, `BufferedReader`/`BufferedWriter` for efficient handling of large files, and `Files` for modern and streamlined operations."
+      },
+      {
+        "type": "heading",
+        "text": "File Reading Operations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Reading a file involves loading its contents into the program. For example, `BufferedReader` can read a text file line by line and is efficient for large files because it uses a buffer to minimize disk access. Reading operations may throw exceptions like `IOException` if the file doesn’t exist or lacks read permissions, so they must be wrapped in `try-catch` blocks. The `Files` class offers a simpler approach with methods like `readAllLines`, which reads all lines of a file into a `List<String>`. File reading is commonly used for tasks like loading configuration files, reading log data, or accessing user data."
+      },
+      {
+        "type": "heading",
+        "text": "File Writing Operations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Writing to a file involves saving data to a file in the file system. `BufferedWriter` is an efficient tool for writing text to files, as it uses buffering to optimize disk writes. `FileWriter` is simpler but less efficient for large files. The `Files` class provides methods like `write` to easily write data, such as a list of strings, to a file. Writing operations can also throw `IOException`, for instance, if the disk is full or the file is locked. These operations are used for tasks like saving log files, user data, or generating reports."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.io.BufferedWriter;\nimport java.io.FileWriter;\nimport java.io.IOException;\n\npublic class Main {\n  public static void main(String[] args) {\n    try {\n      BufferedWriter writer = new BufferedWriter(new FileWriter(\"output.txt\"));\n      writer.write(\"Hello, world!\\n\");\n      writer.write(\"This is a test.\");\n      writer.close();\n      System.out.println(\"Written to file.\");\n    } catch (IOException e) {\n      System.out.println(\"Error: \" + e.getMessage());\n    }\n  }\n}\n// Output: Written to file.\n// (Creates 'output.txt' in the file system with the specified text)"
+      },
+      {
+        "type": "heading",
+        "text": "Exception Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "File I/O operations often encounter exceptions due to issues like missing files or permission errors. The primary exception is `IOException`, so all file operations must be enclosed in `try-catch` blocks. For example, attempting to read a non-existent file may throw a `FileNotFoundException` (a subclass of `IOException`). Similarly, writing operations can fail due to insufficient disk space or file locks. The `try-with-resources` syntax is recommended as it automatically closes resources like `BufferedReader` or `BufferedWriter`, reducing the risk of resource leaks. Proper exception handling ensures program stability and prevents crashes due to unexpected errors."
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "File I/O is widely used in real-world applications:\n- **Configuration Files**: Reading and writing program settings, such as JSON or properties files.\n- **Logging**: Writing program events to log files for debugging or monitoring.\n- **Data Storage**: Saving user data, such as a shopping list, to a file or reading it back.\n- **Reports**: Generating reports or statistics and saving them to files.\nFor example, a retail application might save a product inventory to a file, or a game might read player scores from a file. File I/O enables programs to interact with external data persistently."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.io.BufferedReader;\nimport java.io.FileReader;\nimport java.io.IOException;\n\npublic class Main {\n  public static void main(String[] args) {\n    try (BufferedReader reader = new BufferedReader(new FileReader(\"input.txt\"))) {\n      String line;\n      while ((line = reader.readLine()) != null) {\n        System.out.println(\"Read line: \" + line);\n      }\n    } catch (IOException e) {\n      System.out.println(\"Error: \" + e.getMessage());\n    }\n  }\n}\n// Output: (If 'input.txt' exists, its lines are printed; otherwise, an error message is shown)"
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of File I/O"
+      },
+      {
+        "type": "paragraph",
+        "text": "File I/O in Java enables the storage, retrieval, and management of data, allowing programs to interact with external data sources. It ensures data persistence beyond the program’s runtime and enhances functionality by enabling tasks like logging and configuration management. Without file I/O, programs would be limited to in-memory data, which is lost when the program terminates."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "File Reading",
+            "description": "Uses `BufferedReader` or `Files` to read data from files."
+          },
+          {
+            "term": "File Writing",
+            "description": "Uses `BufferedWriter` or `Files` to write data to files."
+          },
+          {
+            "term": "Exception Handling",
+            "description": "Manages errors like `IOException` using `try-catch` or `try-with-resources`."
+          },
+          {
+            "term": "Efficiency",
+            "description": "Buffered classes (`BufferedReader`, `BufferedWriter`) improve performance."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Failing to handle exceptions can cause program crashes, not closing file streams can lead to resource leaks, and using incorrect file paths can result in errors.\n- **Recommendations**: Always use `try-with-resources` to ensure resources are closed, handle exceptions specifically (e.g., `FileNotFoundException`), verify file paths carefully, use buffered classes for large files, and leverage IDEs like IntelliJ IDEA for error detection."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.io.BufferedWriter;\nimport java.io.FileWriter;\nimport java.io.IOException;\n\npublic class Main {\n  public static void main(String[] args) {\n    try (BufferedWriter writer = new BufferedWriter(new FileWriter(\"test.txt\"))) {\n      writer.write(\"This is a test file.\");\n      System.out.println(\"Written to file.\");\n    } catch (IOException e) {\n      System.out.println(\"Error: \" + e.getMessage());\n    }\n  }\n}\n// Output: Written to file.\n// (Creates 'test.txt' in the file system)"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Ввод-вывод файлов в Java: Введение",
+    "language": "java",
+    "description": "Ввод-вывод файлов (I/O) в Java используется для чтения данных из файлов или записи данных в файлы. Java поддерживает эти операции с помощью пакетов `java.io` и `java.nio`, используя ключевые классы, такие как `File`, `BufferedReader`, `BufferedWriter` и `Files`.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое ввод-вывод файлов?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ввод-вывод файлов (I/O) позволяет программе взаимодействовать с файлами в файловой системе, например, читать данные из файла или записывать данные в файл. В Java операции ввода-вывода файлов выполняются с использованием классов из пакета `java.io` (например, `File`, `FileReader`, `FileWriter`) или более современного пакета `java.nio.file` с классом `Files`. Эти операции необходимы для таких задач, как сохранение данных программы, чтение конфигурационных файлов или ведение логов. Основная цель ввода-вывода файлов — обеспечить эффективное и надёжное управление данными. Поскольку операции с файлами могут столкнуться с проблемами, такими как отсутствие файла или ошибки доступа, обработка исключений (например, `IOException`) является критически важной."
+      },
+      {
+        "type": "heading",
+        "text": "Основные компоненты ввода-вывода файлов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java предоставляет несколько ключевых классов и инструментов для операций ввода-вывода файлов:\n1. **Класс `File`**: Используется для работы с файлами или директориями, например, для проверки существования файла или создания нового файла.\n2. **`FileReader` и `FileWriter`**: Используются для чтения или записи символьных данных в текстовые файлы.\n3. **`BufferedReader` и `BufferedWriter`**: Используют буферизацию для повышения производительности при работе с большими файлами, уменьшая количество обращений к диску.\n4. **Класс `Files`**: Находится в пакете `java.nio.file` и предоставляет современный и простой способ выполнения операций с файлами.\nЭти классы подходят для разных сценариев: `FileReader`/`FileWriter` для небольших файлов, `BufferedReader`/`BufferedWriter` для эффективной работы с большими файлами, а `Files` для современных и упрощённых операций."
+      },
+      {
+        "type": "heading",
+        "text": "Операции чтения файлов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтение файла заключается в загрузке его содержимого в программу. Например, `BufferedReader` может читать текстовый файл построчно и эффективен для больших файлов, поскольку использует буфер для минимизации обращений к диску. Операции чтения могут вызывать исключения, такие как `IOException`, если файл не существует или недоступен для чтения, поэтому их необходимо обрабатывать с помощью блоков `try-catch`. Класс `Files` предлагает более простой подход с методами, такими как `readAllLines`, который читает все строки файла в `List<String>`. Чтение файлов часто используется для загрузки конфигурационных файлов, чтения логов или доступа к данным пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Операции записи файлов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Операции записи файлов позволяют сохранять данные в файл. `BufferedWriter` эффективен для записи текста в файлы, так как использует буферизацию для оптимизации операций записи на диск. `FileWriter` проще, но менее эффективен для больших файлов. Класс `Files` предоставляет методы, такие как `write`, для упрощения записи данных, например, списка строк, в файл. Операции записи также могут вызывать `IOException`, например, при нехватке места на диске или если файл заблокирован. Эти операции используются для создания логов, сохранения пользовательских данных или генерации отчётов."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.io.BufferedWriter;\nimport java.io.FileWriter;\nimport java.io.IOException;\n\npublic class Main {\n  public static void main(String[] args) {\n    try {\n      BufferedWriter writer = new BufferedWriter(new FileWriter(\"output.txt\"));\n      writer.write(\"Привет, мир!\\n\");\n      writer.write(\"Это тест.\");\n      writer.close();\n      System.out.println(\"Записано в файл.\");\n    } catch (IOException e) {\n      System.out.println(\"Ошибка: \" + e.getMessage());\n    }\n  }\n}\n// Вывод: Записано в файл.\n// (Создаёт 'output.txt' в файловой системе с указанным текстом)"
+      },
+      {
+        "type": "heading",
+        "text": "Обработка исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Операции ввода-вывода файлов часто вызывают исключения из-за проблем, таких как отсутствие файла или ошибки доступа. Основное исключение — `IOException`, поэтому все операции с файлами должны быть заключены в блоки `try-catch`. Например, попытка чтения несуществующего файла может вызвать `FileNotFoundException` (подкласс `IOException`). Аналогично, операции записи могут завершиться ошибкой из-за нехватки места на диске или блокировки файла. Синтаксис `try-with-resources` рекомендуется, так как он автоматически закрывает ресурсы, такие как `BufferedReader` или `BufferedWriter`, уменьшая риск утечек ресурсов. Правильная обработка исключений повышает надёжность программы и предотвращает сбои из-за непредвиденных ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ввод-вывод файлов широко используется в реальных приложениях:\n- **Конфигурационные файлы**: Чтение и запись настроек программы, например, JSON или properties файлов.\n- **Логирование**: Запись событий программы в лог-файлы для отладки или мониторинга.\n- **Хранение данных**: Сохранение пользовательских данных, таких как список покупок, в файл или чтение их обратно.\n- **Отчёты**: Генерация отчётов или статистики и их сохранение в файлы.\nНапример, приложение для розничной торговли может сохранять инвентарь продуктов в файл, а игра может читать очки игрока из файла. Ввод-вывод файлов позволяет программам взаимодействовать с внешними данными на постоянной основе."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.io.BufferedReader;\nimport java.io.FileReader;\nimport java.io.IOException;\n\npublic class Main {\n  public static void main(String[] args) {\n    try (BufferedReader reader = new BufferedReader(new FileReader(\"input.txt\"))) {\n      String line;\n      while ((line = reader.readLine()) != null) {\n        System.out.println(\"Прочитанная строка: \" + line);\n      }\n    } catch (IOException e) {\n      System.out.println(\"Ошибка: \" + e.getMessage());\n    }\n  }\n}\n// Вывод: (Если 'input.txt' существует, его строки выводятся; иначе отображается сообщение об ошибке)"
+      },
+      {
+        "type": "heading",
+        "text": "Цель ввода-вывода файлов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ввод-вывод файлов в Java позволяет хранить, извлекать и управлять данными, обеспечивая взаимодействие программ с внешними источниками данных. Это обеспечивает постоянство данных после завершения программы и расширяет функциональность за счёт таких задач, как логирование и управление конфигурацией. Без ввода-вывода файлов программы были бы ограничены данными в оперативной памяти, которые теряются при завершении программы."
+      },
+      {
+        "type": "heading",
+        "text": "Основные характеристики"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Чтение файлов",
+            "description": "Использует `BufferedReader` или `Files` для чтения данных из файлов."
+          },
+          {
+            "term": "Запись файлов",
+            "description": "Использует `BufferedWriter` или `Files` для записи данных в файлы."
+          },
+          {
+            "term": "Обработка исключений",
+            "description": "Управляет ошибками, такими как `IOException`, с помощью `try-catch` или `try-with-resources`."
+          },
+          {
+            "term": "Эффективность",
+            "description": "Буферированные классы (`BufferedReader`, `BufferedWriter`) повышают производительность."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Игнорирование обработки исключений может привести к сбоям программы, незакрытие файловых потоков может вызвать утечки ресурсов, использование неправильных путей к файлам приводит к ошибкам.\n- **Рекомендации**: Всегда используйте `try-with-resources` для автоматического закрытия ресурсов, обрабатывайте исключения конкретно (например, `FileNotFoundException`), тщательно проверяйте пути к файлам, используйте буферированные классы для больших файлов, применяйте IDE, такие как IntelliJ IDEA, для обнаружения ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.io.BufferedWriter;\nimport java.io.FileWriter;\nimport java.io.IOException;\n\npublic class Main {\n  public static void main(String[] args) {\n    try (BufferedWriter writer = new BufferedWriter(new FileWriter(\"test.txt\"))) {\n      writer.write(\"Это тестовый файл.\");\n      System.out.println(\"Записано в файл.\");\n    } catch (IOException e) {\n      System.out.println(\"Ошибка: \" + e.getMessage());\n    }\n  }\n}\n// Вывод: Записано в файл.\n// (Создаёт 'test.txt' в файловой системе)"
+      }
+    ]
+  }
+}

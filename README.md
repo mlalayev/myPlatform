@@ -211,3 +211,135 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 npx prisma generate - Only updates the client, no database changes
 npx prisma migrate dev - Creates and applies migrations safely
 npx prisma db push - Pushes schema changes without migrations
+
+# Requirements for Deployment and Code Execution
+
+To run this platform and support all code execution features in the try editor, you must have the following compilers, runtimes, and tools installed on your server:
+
+## Universal Requirements
+- **Docker** (for secure sandboxed code execution)
+- **Node.js** (see package.json for version)
+- **npm** (Node.js package manager)
+
+## Language Runtimes & Compilers
+
+### Python
+- **python3** (recommended: Python 3.10+)
+- **pip** (Python package manager)
+
+### Java
+- **OpenJDK** (recommended: 11+)
+- **javac** (Java compiler)
+
+### C & C++
+- **gcc** (C compiler)
+- **g++** (C++ compiler)
+- **build-essential** (Ubuntu meta-package for C/C++ build tools)
+
+### C#
+- **.NET SDK** (recommended: 7.0+ or 8.0+)
+- **dotnet CLI**
+
+### PHP
+- **php** (CLI version, recommended: 8.0+)
+
+### JavaScript & TypeScript
+- **Node.js** (already required for the platform)
+- **npm** (already required)
+
+### Go (optional, if you want Go support)
+- **golang** (recommended: 1.21+)
+
+### Rust (optional, if you want Rust support)
+- **rustc** (Rust compiler)
+
+### Docker
+- **Docker Engine** (for sandboxed code execution)
+
+---
+
+## Installation Commands (Ubuntu Example)
+
+```sh
+# Update system
+sudo apt-get update
+
+# Install Docker
+sudo apt-get install -y docker.io
+sudo systemctl enable --now docker
+
+# Install Node.js & npm (example for Node 18)
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Install Python
+sudo apt-get install -y python3 python3-pip
+
+# Install Java (OpenJDK)
+sudo apt-get install -y openjdk-11-jdk
+
+# Install C/C++ compilers
+sudo apt-get install -y build-essential
+
+# Install PHP
+sudo apt-get install -y php php-cli
+
+# Install .NET SDK (C#)
+wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+sudo apt-get update
+sudo apt-get install -y dotnet-sdk-8.0
+
+# (Optional) Install Go
+sudo apt-get install -y golang
+
+# (Optional) Install Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+```
+
+---
+
+## Installation Notes (Windows)
+- **Docker Desktop**: [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)
+- **Node.js**: [https://nodejs.org/](https://nodejs.org/)
+- **Python**: [https://www.python.org/downloads/](https://www.python.org/downloads/)
+- **Java (OpenJDK)**: [https://adoptium.net/](https://adoptium.net/)
+- **C/C++ (MinGW or MSYS2 recommended)**: [https://www.msys2.org/](https://www.msys2.org/)
+- **PHP**: [https://windows.php.net/download/](https://windows.php.net/download/)
+- **.NET SDK**: [https://dotnet.microsoft.com/en-us/download](https://dotnet.microsoft.com/en-us/download)
+- **Go**: [https://go.dev/dl/](https://go.dev/dl/)
+- **Rust**: [https://www.rust-lang.org/tools/install](https://www.rust-lang.org/tools/install)
+
+---
+
+## Additional Notes
+- Make sure all compilers and runtimes are available in the system PATH.
+- Docker daemon/service must be running for code execution to work.
+- For production, restrict Docker resource usage and never mount sensitive host folders into containers.
+- If you add new language support, install the corresponding compiler/runtime and update Docker images if needed.
+
+# Docker Image Warm-up və TryEditor Retry
+
+Bu platformada backend dilləri üçün Docker image-lərin ilk dəfə yüklənməsi zamanı gecikmə və ya error olmaması üçün `scripts/warmupRunners.js` skripti əlavə olunub. Serveri işə saldıqdan sonra bu skripti də işə salın:
+
+```
+node scripts/warmupRunners.js
+```
+
+Bu, bütün dillər üçün Docker image-ləri öncədən yükləyir və istifadəçi ilk dəfə kod göndərəndə gözləməyə ehtiyac qalmır.
+
+Frontend TryEditor komponentində isə, əgər error mesajı 'Docker image yüklənir' və ya 'Fayl yaradıla bilmədi' olarsa, avtomatik 2 dəfə retry edilir və istifadəçiyə loading göstəricisi verilir.
+
+## Development Watch Configuration
+
+```yaml
+develop:
+  watch:
+    - action: sync
+      path: ./src
+      target: /app/src
+      ignore:
+        - node_modules/
+    - action: rebuild
+      path: package.json
+```

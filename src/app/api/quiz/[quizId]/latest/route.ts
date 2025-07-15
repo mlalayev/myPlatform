@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../../auth/[...nextauth]/route";
+import { authOptions } from "../../../auth/authOptions";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -32,14 +32,6 @@ export async function GET(req: Request, context: { params: Promise<{ quizId: str
     where: { userId: user.id, quizId: quizIdNum },
     orderBy: { timestamp: "desc" },
   });
-
-  // Calculate total test cases from latest submission if available
-  let totalTestCases = 0;
-  if (latest) {
-    totalTestCases = latest.answers?.failedCases
-      ? latest.score + latest.answers.failedCases.length
-      : latest.score;
-  }
 
   // Check if user has ever passed this quiz
   const hasPassed = await prisma.quizSubmission.findFirst({

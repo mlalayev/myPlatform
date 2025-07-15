@@ -18,7 +18,7 @@ export interface TestCase {
     spaceComplexity: string;
     hints?: string[];
     testCases: TestCase[];
-    inputParser: (input: string) => any;
+    inputParser: (input: string) => [number[], number] | [number[], number[]] | number[] | [number[][], number];
   }
   
   export const exercises: Exercise[] = [
@@ -122,7 +122,7 @@ export interface TestCase {
         { input: "1 8 6 2 5 4 8 3 7", expectedOutput: "49" },
         { input: "1 1", expectedOutput: "1", hidden: true },
       ],
-      inputParser: (input: string) => [input.trim().split(" ").map(Number)],
+      inputParser: (input: string) => input.trim().split(" ").map(Number),
     },
     {
       id: "74",

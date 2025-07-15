@@ -31,38 +31,21 @@ function LoginPointPopup() {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    console.log("LoginPointPopup useEffect triggered:", {
-      status,
-      hasSession: !!session,
-      userId: session?.user ? (session.user as any).id : null,
-      userName: session?.user?.name,
-      isNewUser: (session?.user as any)?.isNewUser
-    });
-
     if (
       status !== "authenticated" ||
-      !(session?.user && (session.user as any).id)
+      !(session?.user && (session.user as unknown as { id: string }).id)
     )
       return;
     
-    const userId = (session.user as any).id;
-    const isNewUser = (session.user as any).isNewUser;
+    const userId = (session.user as unknown as { id: string }).id;
+    const isNewUser = (session.user as unknown as { isNewUser: boolean }).isNewUser;
     const lastPopupKey = `loginPointPopup_${userId}`;
     const lastShown = localStorage.getItem(lastPopupKey);
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
     
-    console.log("LoginPointPopup checking:", {
-      userId,
-      isNewUser,
-      lastShown,
-      todayStr,
-      shouldShow: lastShown !== todayStr
-    });
-    
     // For new users, show popup and clear the isNewUser flag
     if (isNewUser && lastShown !== todayStr) {
-      console.log("LoginPointPopup: New user detected, showing popup and clearing flag");
       setShow(true);
       localStorage.setItem(lastPopupKey, todayStr);
       setChecked(true);
@@ -74,13 +57,11 @@ function LoginPointPopup() {
     
     // If we already showed the popup today, don't show it again
     if (lastShown === todayStr) {
-      console.log("LoginPointPopup: Already shown today, skipping");
       setChecked(true);
       return;
     }
     
     // Fetch user profile to check if user logged in today
-    console.log("LoginPointPopup: Fetching user data for ID:", userId);
     fetch(`/api/admin/users/${userId}`)
       .then((res) => {
         if (!res.ok) {
@@ -91,7 +72,6 @@ function LoginPointPopup() {
         return res.json();
       })
       .then((user) => {
-        console.log("LoginPointPopup: User data received:", user);
         if (!user) {
           setChecked(true);
           return;
@@ -100,25 +80,14 @@ function LoginPointPopup() {
         const lastLogin = user.lastLoginDate ? new Date(user.lastLoginDate) : null;
         const today = new Date();
         
-        console.log("LoginPointPopup: Date comparison:", {
-          lastLogin: lastLogin?.toISOString(),
-          today: today.toISOString(),
-          sameDay: lastLogin && 
-            today.getFullYear() === lastLogin.getFullYear() &&
-            today.getMonth() === lastLogin.getMonth() &&
-            today.getDate() === lastLogin.getDate()
-        });
-        
         // Show popup if user logged in today (regardless of whether they already got points)
         if (lastLogin && 
             today.getFullYear() === lastLogin.getFullYear() &&
             today.getMonth() === lastLogin.getMonth() &&
             today.getDate() === lastLogin.getDate()) {
-          console.log("LoginPointPopup: Showing popup!");
           setShow(true);
           localStorage.setItem(lastPopupKey, todayStr);
         } else {
-          console.log("LoginPointPopup: Not showing popup - not same day or no lastLogin");
         }
         setChecked(true);
       })

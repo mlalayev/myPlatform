@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import styles from "../../../TutorialsPage.module.css";
 import * as FiIcons from "react-icons/fi";
@@ -51,8 +51,9 @@ const languageShortMap: Record<string, string> = {
 function renderContentBlock(
   block: ContentBlock,
   i: number,
-  editorStates: any,
-  setEditorStates: any
+  editorStates: Record<string, string>,
+  setEditorStates: React.Dispatch<React.SetStateAction<Record<string, string>>>,
+  safeLanguage: string
 ) {
   switch (block.type) {
     case "heading":
@@ -96,11 +97,16 @@ function renderContentBlock(
           ? editorStates[editorKey]
           : block.initialCode || "";
       const handleEditorChange = (val: string) => {
-        setEditorStates((prev: any) => ({ ...prev, [editorKey]: val }));
+        setEditorStates((prev) => ({ ...prev, [editorKey]: val }));
       };
+      // Always lowercase the language prop
+      const editorLanguage = (block.language || safeLanguage || '').toLowerCase();
+      
+
       return (
         <div key={i} className={styles.editorContainer}>
           <JsTryEditor
+            language={editorLanguage}
             value={codeValue}
             onChange={handleEditorChange}
             showRunButton={true}
@@ -124,6 +130,8 @@ function renderContentBlock(
 }
 
 export default function TutorialTopicPage() {
+
+
   const params = useParams();
   const language = Array.isArray(params.language)
     ? params.language[0]
@@ -138,15 +146,15 @@ export default function TutorialTopicPage() {
   const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [topicContent, setTopicContent] = useState<any>(null);
-  const [editorStates, setEditorStates] = useState<any>({});
+  const [editorStates, setEditorStates] = useState<Record<string, string>>({});
   const { data: session } = useSession();
   const [visitedLessons, setVisitedLessons] = useState<string[]>([]);
 
   // Fetch visited lessons on load
   useEffect(() => {
     const fetchVisited = async () => {
-      let visitedLessonsByLang = JSON.parse(localStorage.getItem("visitedLessons") || '{}');
-      let visited = safeLanguage ? (visitedLessonsByLang[safeLanguage] || []) : [];
+      const visitedLessonsByLang = JSON.parse(localStorage.getItem("visitedLessons") || '{}');
+      const visited = safeLanguage ? (visitedLessonsByLang[safeLanguage] || []) : [];
       if (visited.length > 0) {
         setVisitedLessons(visited);
       } else if (session?.user) {
@@ -172,8 +180,8 @@ export default function TutorialTopicPage() {
   // Mark as visited on mount
   useEffect(() => {
     const markVisited = async () => {
-      let visitedLessonsByLang = JSON.parse(localStorage.getItem("visitedLessons") || '{}');
-      let visited = safeLanguage ? (visitedLessonsByLang[safeLanguage] || []) : [];
+      const visitedLessonsByLang = JSON.parse(localStorage.getItem("visitedLessons") || '{}');
+      const visited = safeLanguage ? (visitedLessonsByLang[safeLanguage] || []) : [];
       if (safeTopicId && !visited.includes(safeTopicId)) {
         visited.push(safeTopicId);
         if (safeLanguage) visitedLessonsByLang[safeLanguage] = visited;
@@ -379,13 +387,8 @@ export default function TutorialTopicPage() {
                 </p>
                 <div className={styles.contentBlocks}>
                   {topicContent.content &&
-                    topicContent.content.map((block: any, i: number) =>
-                      renderContentBlock(
-                        block,
-                        i,
-                        editorStates,
-                        setEditorStates
-                      )
+                    topicContent.content.map((block: ContentBlock, i: number) =>
+                      renderContentBlock(block, i, editorStates, setEditorStates, safeLanguage)
                     )}
                 </div>
               </>

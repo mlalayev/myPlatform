@@ -38,7 +38,7 @@ export default function SignupPage() {
         return;
       }
       router.push(`/${lang}/login`);
-    } catch (err) {
+    } catch {
       setError("Signup failed");
     }
   };

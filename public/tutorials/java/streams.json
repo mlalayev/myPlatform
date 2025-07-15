@@ -1,0 +1,344 @@
+{
+  "az": {
+    "title": "Java Stream API: Giriş",
+    "language": "java",
+    "description": "Java Stream API Java 8-də tətbiq edilmiş funksional proqramlaşdırma alətidir ki, kolleksiyalar üzərində kütləvi əməliyyatları (filtr, çevirmə, sıralama) asanlaşdırır. Lambda ifadələri ilə sıx bağlıdır.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Stream API nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java Stream API Java 8-də tətbiq edilmiş bir xüsusiyyətdir və kolleksiyalar (məsələn, `List`, `Set`) və ya digər məlumat mənbələri üzərində kütləvi əməliyyatlar aparmaq üçün istifadə olunur. Stream-lər məlumatların axını kimi düşünülə bilər: məlumatları ardıcıl şəkildə emal edir, lakin orijinal məlumatları dəyişdirmir. Stream API funksional proqramlaşdırmanı dəstəkləyir və lambda ifadələri ilə işləyir. Məsələn, bir siyahıdan yalnız cüt ədədləri seçmək və ya adları sıralamaq kimi tapşırıqlar Stream API ilə daha qısa və oxunaqlı şəkildə yerinə yetirilir. Stream-lər deklarativ yanaşma təklif edir: siz nə etmək istədiyinizi təsvir edirsiniz, necə etməyi isə Java özü idarə edir."
+      },
+      {
+        "type": "heading",
+        "text": "Stream-lərin əsas komponentləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API bir neçə əsas komponentə malikdir:\n1. **Mənbə**: Stream-in məlumat aldığı yer, məsələn, `List`, `Set` və ya massiv. `stream()` metodu ilə yaradılır.\n2. **Aralıq əməliyyatlar**: Məlumatları emal edən metodlar, məsələn, `filter()`, `map()`, `sorted()`. Bunlar axını dəyişdirir, lakin nəticəni birbaşa qaytarmır.\n3. **Son əməliyyatlar**: Axını tamamlayaraq nəticə yaradan metodlar, məsələn, `collect()`, `forEach()`, `reduce()`. Bu əməliyyatlar axını bağlayır.\n4. **Lambda ifadələri**: Stream metodlarının çoxu lambda ifadələri ilə işləyir, məsələn, `x -> x > 0` şərtini yoxlamaq üçün.\nStream-lər orijinal məlumatları dəyişdirmir, yeni nəticə yaradır və eyni stream təkrar istifadə edilə bilməz."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas Stream metodları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API-də ən çox istifadə olunan metodlar bunlardır:\n1. **`filter(Predicate<T>)`**: Şərtə uyğun elementləri seçir, məsələn, `x -> x % 2 == 0` cüt ədədləri filtr edir.\n2. **`map(Function<T, R>)`**: Elementləri başqa formata çevirir, məsələn, `x -> x * 2` hər elementi ikiqat artırır.\n3. **`sorted()`**: Elementləri sıralayır, məsələn, ədədləri və ya sətirləri artan sırayla düzür.\n4. **`forEach(Consumer<T>)`**: Hər elementə müəyyən bir əməliyyat tətbiq edir, məsələn, `x -> System.out.println(x)` hər elementi çap edir.\n5. **`collect()`**: Axını kolleksiyaya çevirir, məsələn, `Collectors.toList()` nəticəni `List`-ə yığır.\n6. **`reduce()`**: Elementləri birləşdirərək tək nəticə əldə edir, məsələn, siyahının cəmini hesablamaq.\nBu metodlar ardıcıl zəncirlənə bilər, məsələn: `list.stream().filter(x -> x > 0).map(x -> x * 2).collect(Collectors.toList())`."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.stream.Collectors;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);\n    List<Integer> evenDoubled = numbers.stream()\n                                       .filter(n -> n % 2 == 0)\n                                       .map(n -> n * 2)\n                                       .collect(Collectors.toList());\n    System.out.println(\"Cüt ədədlər ikiqat: \" + evenDoubled);\n  }\n}\n// Çıxış: Cüt ədədlər ikiqat: [4, 8]"
+      },
+      {
+        "type": "heading",
+        "text": "Paralel Stream-lər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API paralel emalı dəstəkləyir, yəni tapşırıqlar çoxnüvəli prosessorlarda paralel şəkildə icra oluna bilər. Paralel stream yaratmaq üçün `parallelStream()` metodu və ya `stream().parallel()` istifadə olunur. Bu, xüsusilə böyük məlumat dəstləri ilə işləyərkən performansı artırır. Məsələn, böyük bir siyahını filtr etmək və ya çevirmək paralel stream ilə daha sürətli ola bilər. Lakin paralel stream-lər sinxronizasiya problemlərinə səbəb ola bilər, ona görə də yalnız dəyişməz (immutable) məlumatlarla və sadə əməliyyatlarda istifadə edilməlidir. Məsələn, `list.parallelStream().filter(x -> x > 0)` böyük siyahıda müsbət ədədləri paralel şəkildə seçə bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Lambda ifadələri ilə əlaqə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API lambda ifadələri ilə sıx bağlıdır, çünki `filter`, `map`, `forEach` kimi metodlar funksional interfeyslərə (məsələn, `Predicate`, `Function`, `Consumer`) əsaslanır. Lambda ifadələri bu metodlara qısa və oxunaqlı şəkildə funksionallıq əlavə edir. Məsələn, `x -> x > 0` bir `Predicate` kimi `filter` metodunda istifadə olunur. Lambda ifadələri olmadan Stream API istifadəsi anonim siniflərlə çox mürəkkəb olardı. Bu əlaqə Stream API-ni funksional proqramlaşdırma üçün ideal edir."
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API real dünyada geniş istifadə olunur:\n- **Məlumat emalı**: Böyük məlumat dəstlərini filtr etmək, çevirmək və ya sıralamaq (məsələn, istifadəçi məlumatlarını analiz etmək).\n- **Verilənlər bazası sorğuları**: Verilənlər bazasından alınan məlumatları emal etmək.\n- **Hesabatlar**: Statistik hesabatlar yaratmaq, məsələn, satış məlumatlarını toplamaq.\n- **Paralel emal**: Böyük həcmdə məlumatları paralel şəkildə emal etmək, məsələn, şəkil emalı.\nMəsələn, bir e-ticarət platforması məhsulları qiymətə və ya kateqoriyaya görə filtr etmək üçün Stream API-dən istifadə edə bilər."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.Arrays;\nimport java.util.List;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<String> names = Arrays.asList(\"Ali\", \"Veli\", \"Ayşe\", \"Fatma\");\n    names.stream()\n         .filter(name -> name.startsWith(\"A\"))\n         .forEach(name -> System.out.println(\"Ad: \" + name));\n  }\n}\n// Çıxış:\n// Ad: Ali\n// Ad: Ayşe"
+      },
+      {
+        "type": "heading",
+        "text": "Stream API-nin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API Java-da kolleksiyalar üzərində kütləvi əməliyyatları asanlaşdırır, funksional proqramlaşdırmanı dəstəkləyir və kodun oxunaqlığını artırır. Orijinal məlumatları dəyişdirmədən yeni nəticələr yaradır, paralel emalı dəstəkləyir və böyük layihələrdə performansı optimallaşdırır. Stream API olmadan bu cür əməliyyatlar dövr (loop) ilə daha uzun və mürəkkəb kod tələb edərdi."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Deklarativ yanaşma",
+            "description": "Nə etmək istədiyinizi təsvir edir, necə etməyi Java idarə edir."
+          },
+          {
+            "term": "Lambda ifadələri",
+            "description": "Stream metodları lambda ifadələri ilə qısa və oxunaqlı olur."
+          },
+          {
+            "term": "Paralel emal",
+            "description": "Böyük məlumat dəstləri üçün performansı artırır."
+          },
+          {
+            "term": "Dəyişməzlik",
+            "description": "Orijinal məlumatları dəyişdirmir, yeni nəticə yaradır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Paralel stream-lərin düzgün istifadə edilməməsi sinxronizasiya problemlərinə səbəb ola bilər, mürəkkəb axınlar kodun oxunaqlığını azalda bilər, eyni stream-in təkrar istifadəsi səhvə səbəb olur.\n- **Tövsiyələr**: Paralel stream-ləri yalnız böyük məlumat dəstləri üçün istifadə edin, axınları sadə saxlayın, lambda ifadələrini qısa və aydın yazın, IntelliJ IDEA kimi IDE-lərdən istifadə edin ki, səhvlər asan aşkarlansın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.stream.Collectors;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);\n    List<Integer> squared = numbers.stream()\n                                   .map(n -> n * n)\n                                   .collect(Collectors.toList());\n    System.out.println(\"Kvadratlar: \" + squared);\n  }\n}\n// Çıxış: Kvadratlar: [1, 4, 9, 16, 25]"
+      }
+    ]
+  },
+  "en": {
+    "title": "Java Stream API: Introduction",
+    "language": "java",
+    "description": "The Java Stream API, introduced in Java 8, is a functional programming tool that simplifies bulk operations (filtering, mapping, sorting) on collections. It is closely tied to lambda expressions.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is the Stream API?"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Java Stream API, introduced in Java 8, is a feature designed for performing bulk operations on data sources like collections (e.g., `List`, `Set`) or arrays. Streams can be thought of as a pipeline that processes data sequentially without modifying the original source. The Stream API supports functional programming and works closely with lambda expressions. For example, tasks like selecting even numbers from a list or sorting names are made concise and readable with streams. Streams promote a declarative approach: you describe what you want to achieve, and Java handles how it’s done."
+      },
+      {
+        "type": "heading",
+        "text": "Key Components of Streams"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Stream API consists of several key components:\n1. **Source**: The data source for the stream, such as a `List`, `Set`, or array, created using the `stream()` method.\n2. **Intermediate Operations**: Methods that transform the stream, such as `filter()`, `map()`, and `sorted()`. These operations don’t produce a result immediately.\n3. **Terminal Operations**: Methods that close the stream and produce a result, such as `collect()`, `forEach()`, or `reduce()`.\n4. **Lambda Expressions**: Most stream methods use lambda expressions, e.g., `x -> x > 0` to check a condition.\nStreams are non-destructive (they don’t modify the original data) and can only be used once."
+      },
+      {
+        "type": "heading",
+        "text": "Core Stream Methods"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Stream API provides several commonly used methods:\n1. **`filter(Predicate<T>)`**: Selects elements that match a condition, e.g., `x -> x % 2 == 0` filters even numbers.\n2. **`map(Function<T, R>)`**: Transforms elements into another form, e.g., `x -> x * 2` doubles each element.\n3. **`sorted()`**: Sorts elements, e.g., numbers or strings in ascending order.\n4. **`forEach(Consumer<T>)`**: Applies an action to each element, e.g., `x -> System.out.println(x)` prints each element.\n5. **`collect()`**: Converts the stream into a collection, e.g., `Collectors.toList()` gathers results into a `List`.\n6. **`reduce()`**: Combines elements into a single result, e.g., summing a list.\nThese methods can be chained, e.g., `list.stream().filter(x -> x > 0).map(x -> x * 2).collect(Collectors.toList())`."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.stream.Collectors;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);\n    List<Integer> evenDoubled = numbers.stream()\n                                       .filter(n -> n % 2 == 0)\n                                       .map(n -> n * 2)\n                                       .collect(Collectors.toList());\n    System.out.println(\"Even numbers doubled: \" + evenDoubled);\n  }\n}\n// Output: Even numbers doubled: [4, 8]"
+      },
+      {
+        "type": "heading",
+        "text": "Parallel Streams"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Stream API supports parallel processing, allowing tasks to run concurrently on multi-core processors. Parallel streams are created using `parallelStream()` or `stream().parallel()`. This is particularly useful for large datasets, as it can significantly improve performance. For example, filtering or mapping a large list can be faster with parallel streams. However, parallel streams can introduce synchronization issues, so they should be used with immutable data and simple operations. For instance, `list.parallelStream().filter(x -> x > 0)` can filter positive numbers in parallel."
+      },
+      {
+        "type": "heading",
+        "text": "Relation to Lambda Expressions"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Stream API is closely tied to lambda expressions, as methods like `filter`, `map`, and `forEach` rely on functional interfaces (e.g., `Predicate`, `Function`, `Consumer`). Lambda expressions provide a concise way to define the behavior for these methods, e.g., `x -> x > 0` as a `Predicate` for `filter`. Without lambda expressions, using the Stream API would require verbose anonymous classes. This integration makes the Stream API ideal for functional programming."
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Stream API is widely used in real-world applications:\n- **Data Processing**: Filtering, transforming, or sorting large datasets (e.g., analyzing user data).\n- **Database Queries**: Processing data retrieved from databases.\n- **Reports**: Generating statistical reports, such as aggregating sales data.\n- **Parallel Processing**: Processing large datasets in parallel, e.g., image processing.\nFor example, an e-commerce platform might use the Stream API to filter products by price or category."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.Arrays;\nimport java.util.List;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<String> names = Arrays.asList(\"Ali\", \"Veli\", \"Ayşe\", \"Fatma\");\n    names.stream()\n         .filter(name -> name.startsWith(\"A\"))\n         .forEach(name -> System.out.println(\"Name: \" + name));\n  }\n}\n// Output:\n// Name: Ali\n// Name: Ayşe"
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of the Stream API"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Stream API simplifies bulk operations on collections, supports functional programming, and improves code readability. It creates new results without modifying the original data, supports parallel processing, and optimizes performance in large projects. Without the Stream API, such operations would require lengthy, loop-based code."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Declarative Approach",
+            "description": "Describes what to do, leaving how to Java."
+          },
+          {
+            "term": "Lambda Expressions",
+            "description": "Makes stream methods concise and readable."
+          },
+          {
+            "term": "Parallel Processing",
+            "description": "Improves performance for large datasets."
+          },
+          {
+            "term": "Immutability",
+            "description": "Creates new results without modifying original data."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Misusing parallel streams can cause synchronization issues, complex streams can reduce code readability, and reusing a stream causes errors.\n- **Recommendations**: Use parallel streams only for large datasets, keep streams simple, write clear lambda expressions, and use IDEs like IntelliJ IDEA to catch errors."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.stream.Collectors;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);\n    List<Integer> squared = numbers.stream()\n                                   .map(n -> n * n)\n                                   .collect(Collectors.toList());\n    System.out.println(\"Squares: \" + squared);\n  }\n}\n// Output: Squares: [1, 4, 9, 16, 25]"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Java Stream API: Введение",
+    "language": "java",
+    "description": "Java Stream API, введённый в Java 8, — это инструмент функционального программирования, упрощающий массовые операции (фильтрация, преобразование, сортировка) над коллекциями. Тесно связан с лямбда-выражениями.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Stream API?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java Stream API, введённый в Java 8, — это функция, предназначенная для выполнения массовых операций над источниками данных, такими как коллекции (например, `List`, `Set`) или массивы. Потоки можно рассматривать как конвейер, который последовательно обрабатывает данные, не изменяя исходный источник. Stream API поддерживает функциональное программирование и тесно работает с лямбда-выражениями. Например, задачи, такие как выбор чётных чисел из списка или сортировка имён, выполняются с помощью Stream API компактно и читабельно. Потоки используют декларативный подход: вы описываете, что хотите сделать, а Java решает, как это выполнить."
+      },
+      {
+        "type": "heading",
+        "text": "Основные компоненты Stream API"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API состоит из нескольких ключевых компонентов:\n1. **Источник**: Источник данных для потока, например, `List`, `Set` или массив, создаётся с помощью метода `stream()`.\n2. **Промежуточные операции**: Методы, преобразующие поток, такие как `filter()`, `map()`, `sorted()`. Они не возвращают результат сразу.\n3. **Терминальные операции**: Методы, завершающие поток и возвращающие результат, такие как `collect()`, `forEach()`, `reduce()`.\n4. **Лямбда-выражения**: Большинство методов потока используют лямбда-выражения, например, `x -> x > 0` для проверки условия.\nПотоки не изменяют исходные данные и могут использоваться только один раз."
+      },
+      {
+        "type": "heading",
+        "text": "Основные методы Stream API"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API предоставляет несколько часто используемых методов:\n1. **`filter(Predicate<T>)`**: Выбирает элементы, соответствующие условию, например, `x -> x % 2 == 0` фильтрует чётные числа.\n2. **`map(Function<T, R>)`**: Преобразует элементы в другой формат, например, `x -> x * 2` удваивает каждый элемент.\n3. **`sorted()`**: Сортирует элементы, например, числа или строки в порядке возрастания.\n4. **`forEach(Consumer<T>)`**: Применяет действие к каждому элементу, например, `x -> System.out.println(x)` выводит каждый элемент.\n5. **`collect()`**: Преобразует поток в коллекцию, например, `Collectors.toList()` собирает результаты в `List`.\n6. **`reduce()`**: Объединяет элементы в один результат, например, вычисляет сумму списка.\nЭти методы могут быть связаны в цепочку, например: `list.stream().filter(x -> x > 0).map(x -> x * 2).collect(Collectors.toList())`."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.stream.Collectors;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);\n    List<Integer> evenDoubled = numbers.stream()\n                                       .filter(n -> n % 2 == 0)\n                                       .map(n -> n * 2)\n                                       .collect(Collectors.toList());\n    System.out.println(\"Чётные числа, удвоенные: \" + evenDoubled);\n  }\n}\n// Вывод: Чётные числа, удвоенные: [4, 8]"
+      },
+      {
+        "type": "heading",
+        "text": "Параллельные потоки"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API поддерживает параллельную обработку, позволяя выполнять задачи одновременно на многоядерных процессорах. Параллельные потоки создаются с помощью метода `parallelStream()` или `stream().parallel()`. Это особенно полезно для больших наборов данных, так как может значительно повысить производительность. Например, фильтрация или преобразование большого списка может быть быстрее с параллельными потоками. Однако параллельные потоки могут вызывать проблемы синхронизации, поэтому их следует использовать только с неизменяемыми данными и простыми операциями. Например, `list.parallelStream().filter(x -> x > 0)` может фильтровать положительные числа параллельно."
+      },
+      {
+        "type": "heading",
+        "text": "Связь с лямбда-выражениями"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API тесно связан с лямбда-выражениями, так как методы, такие как `filter`, `map` и `forEach`, основаны на функциональных интерфейсах (например, `Predicate`, `Function`, `Consumer`). Лямбда-выражения обеспечивают компактный способ определения поведения для этих методов, например, `x -> x > 0` как `Predicate` для `filter`. Без лямбда-выражений использование Stream API потребовало бы громоздких анонимных классов. Эта связь делает Stream API идеальным для функционального программирования."
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API широко используется в реальных приложениях:\n- **Обработка данных**: Фильтрация, преобразование или сортировка больших наборов данных (например, анализ данных пользователей).\n- **Запросы к базам данных**: Обработка данных, полученных из баз данных.\n- **Отчёты**: Создание статистических отчётов, например, агрегация данных о продажах.\n- **Параллельная обработка**: Параллельная обработка больших объёмов данных, например, обработка изображений.\nНапример, платформа электронной коммерции может использовать Stream API для фильтрации продуктов по цене или категории."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "import java.util.Arrays;\nimport java.util.List;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<String> names = Arrays.asList(\"Ali\", \"Veli\", \"Ayşe\", \"Fatma\");\n    names.stream()\n         .filter(name -> name.startsWith(\"A\"))\n         .forEach(name -> System.out.println(\"Имя: \" + name));\n  }\n}\n// Вывод:\n// Имя: Ali\n// Имя: Ayşe"
+      },
+      {
+        "type": "heading",
+        "text": "Цель Stream API"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream API упрощает массовые операции над коллекциями, поддерживает функциональное программирование и повышает читаемость кода. Он создаёт новые результаты, не изменяя исходные данные, поддерживает параллельную обработку и оптимизирует производительность в крупных проектах. Без Stream API такие операции потребовали бы длинного, основанного на циклах кода."
+      },
+      {
+        "type": "heading",
+        "text": "Основные характеристики"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Декларативный подход",
+            "description": "Описывает, что нужно сделать, оставляя как это сделать на усмотрение Java."
+          },
+          {
+            "term": "Лямбда-выражения",
+            "description": "Делают методы потока компактными и читаемыми."
+          },
+          {
+            "term": "Параллельная обработка",
+            "description": "Повышает производительность для больших наборов данных."
+          },
+          {
+            "term": "Неизменяемость",
+            "description": "Создаёт новые результаты, не изменяя исходные данные."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильное использование параллельных потоков может вызвать проблемы синхронизации, сложные потоки могут снизить читаемость кода, повторное использование потока приводит к ошибкам.\n- **Рекомендации**: Используйте параллельные потоки только для больших наборов данных, держите потоки простыми, пишите ясные лямбда-выражения, используйте IDE, такие как IntelliJ IDEA, для обнаружения ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import java.util.Arrays;\nimport java.util.List;\nimport java.util.stream.Collectors;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);\n    List<Integer> squared = numbers.stream()\n                                   .map(n -> n * n)\n                                   .collect(Collectors.toList());\n    System.out.println(\"Квадраты: \" + squared);\n  }\n}\n// Вывод: Квадраты: [1, 4, 9, 16, 25]"
+      }
+    ]
+  }
+}

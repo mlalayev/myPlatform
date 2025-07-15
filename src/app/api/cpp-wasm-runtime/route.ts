@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // This would serve a pre-compiled C++ runtime using Emscripten
     // For now, we'll return a simple response indicating the feature is available
@@ -29,7 +29,10 @@ export async function GET(request: NextRequest) {
         message: 'Please use server-side compilation or online compiler'
       }, { status: 404 });
     }
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
   }
 } 

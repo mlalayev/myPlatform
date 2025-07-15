@@ -9,11 +9,12 @@ type Props = {
 };
 
 export default function I18nProvider({ lang, children }: Props) {
-  const translations = getTranslations(lang);
+  const translations = getTranslations(lang) as Record<string, any>;
 
   // Support nested keys like 'header.home'
   const t = (key: string) => {
-    return key.split('.').reduce((obj, k) => (obj && obj[k] !== undefined ? obj[k] : key), translations);
+    const value = key.split('.').reduce((obj, k) => (obj && (obj as Record<string, any>)[k] !== undefined ? (obj as Record<string, any>)[k] : key), translations);
+    return typeof value === 'string' ? value : key;
   };
 
   return (

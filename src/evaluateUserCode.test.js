@@ -1,4 +1,4 @@
-const evaluateUserCode = require('./evaluateUserCode');
+import evaluateUserCode from './evaluateUserCode';
 
 (async () => {
   const userCode = `function sum(a, b) { return a + b; }`;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import {
   SiJavascript,
@@ -19,7 +19,7 @@ interface Language {
 }
 
 const LanguagesSection: React.FC = () => {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
 
 
   const languages: Language[] = [

@@ -1,0 +1,344 @@
+{
+    "az": {
+      "title": "Java Generiklər: Giriş",
+      "language": "java",
+      "description": "Generiklər Java-da tip təhlükəsizliyini təmin edən və kodun təkrar istifadəsini asanlaşdıran bir mexanizmdir. Onlar siniflər, metodlar və interfeyslər üçün çevik tip sistemləri təmin edir. Sintaksis: `Class<T>`, burada `T` istənilən tipi təmsil edir.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Generiklər nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generiklər Java-da siniflər, metodlar və ya interfeyslər yazarkən konkret verilənlər tipindən asılı olmayaraq ümumi bir şablon yaratmağa imkan verir. Məsələn, bir siyahı (`List`) yaradarkən onun yalnız müəyyən bir tipdə (məsələn, `String` və ya `Integer`) elementləri saxlamasını təmin etmək üçün generiklərdən istifadə olunur. Bu, kodun təhlükəsizliyini artırır, çünki kompilyasiya zamanı tip uyğunsuzluqları aşkarlanır. Generiklər Java 5-də tətbiq edilib və `java.util` paketindəki kolleksiyalar kimi strukturlarda geniş istifadə olunur. Generiklər olmadan, məsələn, bir `ArrayList` obyektləri `Object` tipində saxlayırdı və bu, tip çevirmələri (casting) tələb edirdi, bu da səhvlərə yol aça bilərdi. Generiklər bu problemi aradan qaldırır, çünki siz siyahının hansı tipdə olacağını əvvəlcədən təyin edə bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "Generiklərin əsas üstünlükləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generiklər bir neçə əsas üstünlük təmin edir:\n1. **Tip təhlükəsizliyi**: Generiklər kompilyasiya zamanı tip yoxlamasını təmin edir. Məsələn, yalnız `String` saxlayan bir siyahıya `Integer` əlavə etməyə cəhd etsəniz, kompilyator səhv göstərəcək.\n2. **Kodun təkrar istifadəsi**: Eyni sinfi və ya metodu fərqli verilənlər tipləri ilə istifadə etmək mümkündür.\n3. **Oxunaqlılığın artması**: Kod daha aydın olur, çünki tip çevirmələri (casting) tələb olunmur.\n4. **Səhvlərin azalması**: Tip uyğunsuzluqları icra zamanı (runtime) deyil, kompilyasiya zamanı aşkarlanır.\n\nMəsələn, generiklərdən istifadə etmədən bir `ArrayList` obyektləri `Object` tipində saxlayırdı. Bu halda, elementləri çıxararkən hər dəfə tip çevirməsi (məsələn, `(String)list.get(0)`) etmək lazım idi. Generiklərlə isə `ArrayList<String>` yazaraq siyahının yalnız `String` saxlayacağını təmin edirik və çevirməyə ehtiyac qalmır."
+        },
+        {
+          "type": "heading",
+          "text": "Generik Siniflər"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generik siniflər müəyyən bir tipə bağlı olmayan siniflərdir. Onlar tip parametri (məsələn, `T`) istifadə edərək müxtəlif verilənlər tipləri ilə işləyə bilər. Generik sinif yaratmaq üçün sinif adından sonra `<T>` sintaksisi istifadə olunur. Burada `T` istənilən tipi təmsil edir, məsələn, `String`, `Integer`, və ya hətta özəl siniflər. Generik siniflər kolleksiyalar kimi strukturlarda və ya özəl məlumat saxlama siniflərində istifadə olunur. Məsələn, bir qutu (box) sinfi yarada bilərsiniz ki, bu qutu istənilən tipdə məlumat saxlaya bilsin. Generik sinifin üstünlüyü odur ki, eyni sinfi fərqli tiplər üçün təkrar istifadə etmək olar, bu da kodun qısalmasına və təkrar yazılmasının qarşısını alır."
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "class Box<T> {\n  private T item;\n\n  public void setItem(T item) {\n    this.item = item;\n  }\n\n  public T getItem() {\n    return item;\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Box<String> stringBox = new Box<>();\n    stringBox.setItem(\"Kitab\");\n    System.out.println(\"Qutuda: \" + stringBox.getItem());\n\n    Box<Integer> intBox = new Box<>();\n    intBox.setItem(42);\n    System.out.println(\"Qutuda: \" + intBox.getItem());\n  }\n}\n// Çıxış:\n// Qutuda: Kitab\n// Qutuda: 42"
+        },
+        {
+          "type": "heading",
+          "text": "Generik Metodlar"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generik metodlar yalnız metod səviyyəsində tip parametri təyin edərək yazılır. Bunlar sinif generik olmasa belə istifadə edilə bilər. Generik metodlar metodun daxilində istifadə olunan tipləri çevik şəkildə idarə etməyə imkan verir. Sintaksis olaraq, metodun qaytarma tipindən əvvəl `<T>` yazılır. Məsələn, iki elementi müqayisə edən bir metod yazmaq istəsək, generik metod istifadə edərək bunu həm `String`, həm də `Integer` kimi tiplər üçün edə bilərik. Generik metodlar kolleksiyalarla işləyərkən və ya müxtəlif tiplərlə eyni əməliyyatı yerinə yetirərkən çox faydalıdır. Bu, kodun təkrar yazılmasının qarşısını alır və çevikliyi artırır."
+        },
+        {
+          "type": "heading",
+          "text": "Wildcard (?)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Wildcard (`?`) generiklərdə naməlum bir tipi təmsil edir. Məsələn, `List<?>` hər hansı bir tipdə siyahını qəbul edə bilər. Wildcard iki əsas formada istifadə olunur:\n1. **Üst sərhədli wildcard (`? extends Tip`)**: Yalnız müəyyən bir sinif və ya onun alt siniflərini qəbul edir. Məsələn, `List<? extends Number>` yalnız `Number` və ya onun alt sinifləri (`Integer`, `Double`) ilə işləyir.\n2. **Alt sərhədli wildcard (`? super Tip`)**: Yalnız müəyyən bir sinif və ya onun üst siniflərini qəbul edir. Məsələn, `List<? super Integer>` `Integer` və ya onun üst sinfi (`Number`, `Object`) ilə işləyir.\nWildcard-lar metodlarda və ya parametr qəbul edərkən çeviklik təmin edir, lakin onların istifadəsi məhdudiyyətlərə malikdir, məsələn, `?` ilə siyahıya element əlavə etmək mümkün deyil, çünki tip dəqiq bilinmir."
+        },
+        {
+          "type": "heading",
+          "text": "Real həyatda istifadə ssenariləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generiklər real dünyada geniş istifadə olunur. Məsələn:\n- **Kolleksiyalar**: `ArrayList<String>`, `HashMap<Integer, String>` kimi strukturlar generiklərdən istifadə edir ki, tip təhlükəsizliyi təmin olunsun.\n- **API dizaynı**: API-lər müxtəlif verilənlər tipləri ilə işləmək üçün generik siniflərdən istifadə edir.\n- **Məlumat saxlama**: Müxtəlif tiplərdə məlumatları saxlamaq üçün generik siniflər yazılır, məsələn, bir məhsul qutusu (`Box<Product>`).\n- **Alətlər və kitabxanalar**: Java-nın standart kitabxanalarında generiklər geniş istifadə olunur, məsələn, `Collections` sinfindəki metodlar.\nGeneriklər kodun daha ümumi, təhlükəsiz və oxunaqlı olmasına kömək edir, xüsusilə böyük layihələrdə."
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.ArrayList;\n\npublic class Main {\n  public static <T> void printList(ArrayList<T> list) {\n    for (T item : list) {\n      System.out.println(\"Element: \" + item);\n    }\n  }\n\n  public static void main(String[] args) {\n    ArrayList<String> stringList = new ArrayList<>();\n    stringList.add(\"Alma\");\n    stringList.add(\"Armud\");\n    printList(stringList);\n\n    ArrayList<Integer> intList = new ArrayList<>();\n    intList.add(1);\n    intList.add(2);\n    printList(intList);\n  }\n}\n// Çıxış:\n// Element: Alma\n// Element: Armud\n// Element: 1\n// Element: 2"
+        },
+        {
+          "type": "heading",
+          "text": "Generiklərin Məqsədi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generiklər Java-da kodun təhlükəsizliyini, oxunaqlığını və təkrar istifadəsini artırır. Onlar tip çevirmələri (casting) ehtiyacını aradan qaldırır, səhvləri kompilyasiya zamanı aşkarlayır və kodun müxtəlif verilənlər tipləri ilə işləməsini asanlaşdırır. Generiklər xüsusilə kolleksiyalarla işləyərkən və ya ümumi alətlər yazarkən əvəzsizdir."
+        },
+        {
+          "type": "heading",
+          "text": "Əsas xüsusiyyətlər"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Tip təhlükəsizliyi",
+              "description": "Kompilyasiya zamanı tip uyğunsuzluqlarını aşkarlayır."
+            },
+            {
+              "term": "Kodun təkrar istifadəsi",
+              "description": "Eyni sinfi və ya metodu fərqli tiplər üçün istifadə etməyə imkan verir."
+            },
+            {
+              "term": "Oxunaqlılıq",
+              "description": "Tip çevirmələri tələb olunmur, kod daha aydın olur."
+            },
+            {
+              "term": "Wildcard-lar",
+              "description": "Çevik tip idarəetməsini təmin edir, xüsusilə metod parametrlarında."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Təhlükələr və tövsiyələr"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Təhlükələr**: Həddindən artıq mürəkkəb generik strukturları kodun oxunaqlığını azalda bilər, wildcard-ların yanlış istifadəsi, generik siniflərin düzgün olmayan tətbiqi.\n- **Tövsiyələr**: Generikləri sadə saxlayın, yalnız zəruri hallarda wildcard istifadə edin, generik sinifləri və metodları aydın adlarla təyin edin, IntelliJ IDEA kimi IDE-lərdən istifadə edin ki, tip yoxlamaları avtomatik aparılsın."
+        },
+        {
+          "type": "heading",
+          "text": "Sınaq üçün nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "class Pair<K, V> {\n  private K key;\n  private V value;\n\n  public Pair(K key, V value) {\n    this.key = key;\n    this.value = value;\n  }\n\n  public String toString() {\n    return key + \": \" + value;\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Pair<String, Integer> pair = new Pair<>(\"Yaş\", 25);\n    System.out.println(\"Cüt: \" + pair);\n  }\n}\n// Çıxış: Cüt: Yaş: 25"
+        }
+      ]
+    },
+    "en": {
+      "title": "Java Generics: Introduction",
+      "language": "java",
+      "description": "Generics in Java provide type safety and enable code reuse by allowing classes, methods, and interfaces to work with flexible types. Syntax: `Class<T>`, where `T` represents any type.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "What are Generics?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generics allow you to write classes, methods, or interfaces that work with any data type without specifying the exact type upfront. For example, you can create a `List` that only stores `String` or `Integer` elements, ensuring type safety. Generics were introduced in Java 5 and are widely used in structures like collections in the `java.util` package. Without generics, collections like `ArrayList` stored elements as `Object`, requiring type casting (e.g., `(String)list.get(0)`), which could lead to runtime errors. Generics eliminate this issue by enforcing type checks at compile-time, making code safer and more readable. They allow you to write reusable code that can work with multiple types without duplicating logic."
+        },
+        {
+          "type": "heading",
+          "text": "Key Benefits of Generics"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generics offer several advantages:\n1. **Type Safety**: Generics ensure that only the specified type is used, catching type mismatches at compile-time. For instance, trying to add an `Integer` to a `List<String>` will cause a compile-time error.\n2. **Code Reusability**: A single class or method can be used with different data types, reducing code duplication.\n3. **Improved Readability**: Generics eliminate the need for type casting, making code cleaner and easier to understand.\n4. **Fewer Errors**: By catching type issues during compilation, generics prevent runtime errors like `ClassCastException`.\n\nFor example, without generics, retrieving an element from a collection required casting, which was error-prone. With generics, you can declare `ArrayList<String>` to ensure the list only contains strings, and no casting is needed when accessing elements."
+        },
+        {
+          "type": "heading",
+          "text": "Generic Classes"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic classes are classes that can work with any data type. They use a type parameter (e.g., `T`) to represent the type of data they handle. To define a generic class, you add `<T>` after the class name. Here, `T` can represent any type, such as `String`, `Integer`, or even custom classes. Generic classes are commonly used in collections or custom data containers. For instance, you might create a `Box` class that can store any type of item. The advantage of generic classes is that they allow you to reuse the same class for different types, reducing code duplication and improving maintainability."
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "class Box<T> {\n  private T item;\n\n  public void setItem(T item) {\n    this.item = item;\n  }\n\n  public T getItem() {\n    return item;\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Box<String> stringBox = new Box<>();\n    stringBox.setItem(\"Book\");\n    System.out.println(\"In box: \" + stringBox.getItem());\n\n    Box<Integer> intBox = new Box<>();\n    intBox.setItem(42);\n    System.out.println(\"In box: \" + intBox.getItem());\n  }\n}\n// Output:\n// In box: Book\n// In box: 42"
+        },
+        {
+          "type": "heading",
+          "text": "Generic Methods"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generic methods allow you to define type parameters at the method level, even if the class itself is not generic. They are useful when you want a method to work with different types flexibly. The syntax involves adding `<T>` before the method’s return type. For example, a generic method can print elements of any type from a list, whether it’s `String`, `Integer`, or another type. Generic methods are particularly useful in utility functions or when working with collections, as they allow the same logic to be applied to different types without rewriting the method."
+        },
+        {
+          "type": "heading",
+          "text": "Wildcard (?)"
+        },
+        {
+          "type": "paragraph",
+          "text": "The wildcard (`?`) represents an unknown type in generics. It is used when you want a method or parameter to accept a collection of any type. There are two main forms of wildcards:\n1. **Upper-bounded wildcard (`? extends Type`)**: Restricts the type to a specific class or its subclasses. For example, `List<? extends Number>` accepts lists of `Number` or its subclasses like `Integer` or `Double`.\n2. **Lower-bounded wildcard (`? super Type`)**: Restricts the type to a specific class or its superclasses. For example, `List<? super Integer>` accepts lists of `Integer`, `Number`, or `Object`.\nWildcards provide flexibility when working with collections or methods but come with limitations, such as not being able to add elements to a `List<?>` because the exact type is unknown."
+        },
+        {
+          "type": "heading",
+          "text": "Real-world Use Cases"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generics are widely used in real-world applications, including:\n- **Collections**: Structures like `ArrayList<String>` or `HashMap<Integer, String>` use generics to ensure type safety.\n- **API Design**: APIs use generic classes to handle various data types flexibly.\n- **Data Containers**: Generic classes are used to create reusable containers, like a `Box<Product>` for storing products.\n- **Libraries and Tools**: Java’s standard libraries, such as the `Collections` class, heavily rely on generics for utility methods.\nGenerics make code more general, safe, and readable, especially in large-scale projects where type errors could be costly."
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.ArrayList;\n\npublic class Main {\n  public static <T> void printList(ArrayList<T> list) {\n    for (T item : list) {\n      System.out.println(\"Element: \" + item);\n    }\n  }\n\n  public static void main(String[] args) {\n    ArrayList<String> stringList = new ArrayList<>();\n    stringList.add(\"Apple\");\n    stringList.add(\"Pear\");\n    printList(stringList);\n\n    ArrayList<Integer> intList = new ArrayList<>();\n    intList.add(1);\n    intList.add(2);\n    printList(intList);\n  }\n}\n// Output:\n// Element: Apple\n// Element: Pear\n// Element: 1\n// Element: 2"
+        },
+        {
+          "type": "heading",
+          "text": "Purpose of Generics"
+        },
+        {
+          "type": "paragraph",
+          "text": "Generics enhance code safety, readability, and reusability in Java. They eliminate the need for type casting, catch type errors at compile-time, and allow code to work with various data types flexibly. Generics are essential for working with collections and creating reusable components, particularly in large applications."
+        },
+        {
+          "type": "heading",
+          "text": "Key Features"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Type Safety",
+              "description": "Ensures type mismatches are caught at compile-time."
+            },
+            {
+              "term": "Code Reusability",
+              "description": "Allows the same class or method to work with different types."
+            },
+            {
+              "term": "Readability",
+              "description": "Eliminates type casting, making code clearer."
+            },
+            {
+              "term": "Wildcards",
+              "description": "Provide flexibility in handling unknown types."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Dangers and Recommendations"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Dangers**: Overly complex generic structures can reduce code readability, incorrect use of wildcards, or improper implementation of generic classes.\n- **Recommendations**: Keep generics simple, use wildcards only when necessary, name generic classes and methods clearly, and use IDEs like IntelliJ IDEA to automate type checking."
+        },
+        {
+          "type": "heading",
+          "text": "Try it Yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "class Pair<K, V> {\n  private K key;\n  private V value;\n\n  public Pair(K key, V value) {\n    this.key = key;\n    this.value = value;\n  }\n\n  public String toString() {\n    return key + \": \" + value;\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Pair<String, Integer> pair = new Pair<>(\"Age\", 25);\n    System.out.println(\"Pair: \" + pair);\n  }\n}\n// Output: Pair: Age: 25"
+        }
+      ]
+    },
+    "ru": {
+      "title": "Дженерики в Java: Введение",
+      "language": "java",
+      "description": "Дженерики в Java обеспечивают безопасность типов и позволяют повторно использовать код, работая с гибкими типами. Синтаксис: `Class<T>`, где `T` представляет любой тип.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Что такое дженерики?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Дженерики позволяют создавать классы, методы или интерфейсы, которые работают с любым типом данных, не указывая конкретный тип заранее. Например, можно создать список (`List`), который хранит только элементы типа `String` или `Integer`, обеспечивая безопасность типов. Дженерики были введены в Java 5 и широко используются в структурах, таких как коллекции в пакете `java.util`. Без дженериков коллекции, такие как `ArrayList`, хранили элементы как `Object`, что требовало приведения типов (например, `(String)list.get(0)`), что могло привести к ошибкам во время выполнения. Дженерики решают эту проблему, обеспечивая проверку типов на этапе компиляции, что делает код более безопасным и читаемым."
+        },
+        {
+          "type": "heading",
+          "text": "Основные преимущества дженериков"
+        },
+        {
+          "type": "paragraph",
+          "text": "Дженерики предоставляют следующие преимущества:\n1. **Безопасность типов**: Дженерики гарантируют, что используется только указанный тип, обнаруживая несоответствия типов на этапе компиляции. Например, попытка добавить `Integer` в `List<String>` вызовет ошибку компиляции.\n2. **Повторное использование кода**: Один и тот же класс или метод можно использовать с разными типами данных, что уменьшает дублирование кода.\n3. **Улучшенная читаемость**: Дженерики исключают необходимость приведения типов, делая код более понятным.\n4. **Меньше ошибок**: Проблемы с типами обнаруживаются на этапе компиляции, а не во время выполнения, что предотвращает ошибки, такие как `ClassCastException`.\n\nНапример, без дженериков извлечение элемента из коллекции требовало приведения типов, что было подвержено ошибкам. С дженериками можно объявить `ArrayList<String>`, чтобы гарантировать, что список содержит только строки, и приведение типов не требуется."
+        },
+        {
+          "type": "heading",
+          "text": "Дженерик-классы"
+        },
+        {
+          "type": "paragraph",
+          "text": "Дженерик-классы — это классы, которые могут работать с любым типом данных. Они используют параметр типа (например, `T`) для представления типа данных, с которыми они работают. Для определения дженерик-класса используется синтаксис `<T>` после имени класса. Здесь `T` может представлять любой тип, например, `String`, `Integer` или пользовательские классы. Дженерик-классы часто используются в коллекциях или пользовательских контейнерах данных. Например, можно создать класс `Box`, который может хранить любой тип данных. Преимущество дженерик-классов в том, что они позволяют использовать один и тот же класс для разных типов, уменьшая дублирование кода и упрощая его сопровождение."
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "class Box<T> {\n  private T item;\n\n  public void setItem(T item) {\n    this.item = item;\n  }\n\n  public T getItem() {\n    return item;\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Box<String> stringBox = new Box<>();\n    stringBox.setItem(\"Книга\");\n    System.out.println(\"В коробке: \" + stringBox.getItem());\n\n    Box<Integer> intBox = new Box<>();\n    intBox.setItem(42);\n    System.out.println(\"В коробке: \" + intBox.getItem());\n  }\n}\n// Вывод:\n// В коробке: Книга\n// В коробке: 42"
+        },
+        {
+          "type": "heading",
+          "text": "Дженерик-методы"
+        },
+        {
+          "type": "paragraph",
+          "text": "Дженерик-методы позволяют определять параметры типа на уровне метода, даже если сам класс не является дженериком. Они полезны, когда нужно, чтобы метод работал с разными типами гибко. Синтаксис предполагает добавление `<T>` перед возвращаемым типом метода. Например, метод для печати элементов списка может работать как со `String`, так и с `Integer`. Дженерик-методы особенно полезны в утилитарных функциях или при работе с коллекциями, поскольку позволяют применять одну и ту же логику к разным типам без переписывания метода."
+        },
+        {
+          "type": "heading",
+          "text": "Wildcard (?)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Wildcard (`?`) представляет неизвестный тип в дженериках. Он используется, когда метод или параметр должен принимать коллекцию любого типа. Существует два основных вида wildcard:\n1. **Верхнеограниченный wildcard (`? extends Type`)**: Ограничивает тип определённым классом или его подклассами. Например, `List<? extends Number>` принимает списки типа `Number` или его подклассов, таких как `Integer` или `Double`.\n2. **Нижнеограниченный wildcard (`? super Type`)**: Ограничивает тип определённым классом или его суперклассами. Например, `List<? super Integer>` принимает списки типа `Integer`, `Number` или `Object`.\nWildcard обеспечивают гибкость при работе с коллекциями или методами, но имеют ограничения, например, нельзя добавлять элементы в `List<?>`, так как точный тип неизвестен."
+        },
+        {
+          "type": "heading",
+          "text": "Примеры из реальной жизни"
+        },
+        {
+          "type": "paragraph",
+          "text": "Дженерики широко используются в реальных приложениях, включая:\n- **Коллекции**: Структуры, такие как `ArrayList<String>` или `HashMap<Integer, String>`, используют дженерики для обеспечения безопасности типов.\n- **Дизайн API**: API используют дженерик-классы для гибкой работы с различными типами данных.\n- **Контейнеры данных**: Дженерик-классы применяются для создания многоразовых контейнеров, например, `Box<Product>` для хранения продуктов.\n- **Библиотеки и инструменты**: Стандартные библиотеки Java, такие как класс `Collections`, активно используют дженерики для утилитарных методов.\nДженерики делают код более универсальным, безопасным и читаемым, особенно в крупных проектах, где ошибки типов могут быть дорогостоящими."
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.ArrayList;\n\npublic class Main {\n  public static <T> void printList(ArrayList<T> list) {\n    for (T item : list) {\n      System.out.println(\"Элемент: \" + item);\n    }\n  }\n\n  public static void main(String[] args) {\n    ArrayList<String> stringList = new ArrayList<>();\n    stringList.add(\"Яблоко\");\n    stringList.add(\"Груша\");\n    printList(stringList);\n\n    ArrayList<Integer> intList = new ArrayList<>();\n    intList.add(1);\n    intList.add(2);\n    printList(intList);\n  }\n}\n// Вывод:\n// Элемент: Яблоко\n// Элемент: Груша\n// Элемент: 1\n// Элемент: 2"
+        },
+        {
+          "type": "heading",
+          "text": "Цель дженериков"
+        },
+        {
+          "type": "paragraph",
+          "text": "Дженерики повышают безопасность, читаемость и повторное использование кода в Java. Они устраняют необходимость приведения типов, обнаруживают ошибки типов на этапе компиляции и позволяют коду гибко работать с различными типами данных. Дженерики незаменимы при работе с коллекциями и создании многоразовых компонентов, особенно в крупных приложениях."
+        },
+        {
+          "type": "heading",
+          "text": "Основные характеристики"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Безопасность типов",
+              "description": "Обнаруживает несоответствия типов на этапе компиляции."
+            },
+            {
+              "term": "Повторное использование кода",
+              "description": "Позволяет использовать один и тот же класс или метод с разными типами."
+            },
+            {
+              "term": "Читаемость",
+              "description": "Устраняет необходимость приведения типов, делая код более понятным."
+            },
+            {
+              "term": "Wildcard",
+              "description": "Обеспечивают гибкость при работе с неизвестными типами."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Опасности и рекомендации"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Опасности**: Слишком сложные дженерик-структуры могут снизить читаемость кода, неправильное использование wildcard, некорректная реализация дженерик-классов.\n- **Рекомендации**: Держите дженерики простыми, используйте wildcard только при необходимости, ясно именуйте дженерик-классы и методы, используйте IDE, такие как IntelliJ IDEA, для автоматической проверки типов."
+        },
+        {
+          "type": "heading",
+          "text": "Попробуй сам"
+        },
+        {
+          "type": "editor",
+          "initialCode": "class Pair<K, V> {\n  private K key;\n  private V value;\n\n  public Pair(K key, V value) {\n    this.key = key;\n    this.value = value;\n  }\n\n  public String toString() {\n    return key + \": \" + value;\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Pair<String, Integer> pair = new Pair<>(\"Возраст\", 25);\n    System.out.println(\"Пара: \" + pair);\n  }\n}\n// Вывод: Пара: Возраст: 25"
+        }
+      ]
+    }
+  }

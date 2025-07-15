@@ -1,0 +1,398 @@
+{
+  "az": {
+    "title": "Java Konstruktorları: Giriş",
+    "language": "java",
+    "description": "Java-da konstruktorlar sinif obyektlərinin başlanğıc vəziyyətini təyin etmək üçün istifadə olunur. `this` və `super` açar sözləri ilə obyektlərin düzgün qurulması təmin edilir.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Konstruktor nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Java-da konstruktor sinifdən obyekt yaradılarkən avtomatik çağırılan xüsusi bir metodudur. Onun əsas vəzifəsi obyektin başlanğıc vəziyyətini (dəyişənlərin ilkin dəyərlərini) təyin etməkdir. Konstruktorlar sinfin adı ilə eyni ada malikdir və heç bir qaytarma tipi (hətta `void` belə) olmur. Məsələn, bir `Person` sinfi üçün konstruktor obyektin adını və yaşını təyin edə bilər. Konstruktorlar obyekt-orientasiyalı proqramlaşdırmada (OOP) vacibdir, çünki obyektlərin düzgün və etibarlı şəkildə qurulmasını təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Default Konstruktor"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əgər bir sinifdə heç bir konstruktor təyin edilməyibsə, Java avtomatik olaraq parametr almayan bir **default konstruktor** təmin edir. Bu konstruktor dəyişənləri ilkin dəyərlərlə (məsələn, `int` üçün 0, `String` üçün `null`) təyin edir. Lakin sinifdə hər hansı bir konstruktor təyin edildikdə, default konstruktor artıq avtomatik əlavə olunmur. Default konstruktor sadə obyektlər üçün faydalıdır, lakin mürəkkəb siniflərdə adətən öz konstruktorlarımız tələb olunur."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Person {\n  private String name;\n  private int age;\n\n  // Default konstruktor\n  public Person() {\n    name = \"Bilinməyən\";\n    age = 0;\n  }\n\n  public void display() {\n    String message = \"Ad: \" + name + \", Yaş: \" + age;\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Person person = new Person();\n    person.display();\n  }\n}\n// Çıxış: Ad: Bilinməyən, Yaş: 0"
+      },
+      {
+        "type": "heading",
+        "text": "Parametrli Konstruktor"
+      },
+      {
+        "type": "paragraph",
+        "text": "Parametrli konstruktorlar obyekt yaradılarkən xarici dəyərləri qəbul edərək dəyişənləri ilkinləşdirir. Bu konstruktorlar sinifə çeviklik qatır, çünki istifadəçi obyektin başlanğıc vəziyyətini özü təyin edə bilər. Məsələn, `Person` sinfi üçün ad və yaş parametrli konstruktor vasitəsilə təyin edilə bilər. Parametrli konstruktorlar dəyərləri validasiya etmək üçün də istifadə oluna bilər."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Person {\n  private String name;\n  private int age;\n\n  // Parametrli konstruktor\n  public Person(String name, int age) {\n    this.name = name;\n    if (age >= 0) {\n      this.age = age;\n    } else {\n      this.age = 0;\n      System.out.println(\"Yaş mənfi ola bilməz!\");\n    }\n  }\n\n  public void display() {\n    String message = \"Ad: \" + name + \", Yaş: \" + age;\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Person person = new Person(\"Ali\", 25);\n    person.display();\n    Person invalidPerson = new Person(\"Vəli\", -5);\n    invalidPerson.display();\n  }\n}\n// Çıxış:\n// Ad: Ali, Yaş: 25\n// Yaş mənfi ola bilməz!\n// Ad: Vəli, Yaş: 0"
+      },
+      {
+        "type": "heading",
+        "text": "this Açar Sözü"
+      },
+      {
+        "type": "paragraph",
+        "text": "`this` açar sözü cari obyektə istinad etmək üçün istifadə olunur. Konstruktorlarda parametr adları sinfin dəyişənləri ilə eyni olduqda, `this` dəyişənləri ayırmaq üçün istifadə edilir. Məsələn, `this.name = name;` ifadəsi sinfin `name` dəyişəninə parametr olaraq gələn `name` dəyərini təyin edir. `this` həmçinin bir konstruktorun digər konstruktoru çağırması üçün istifadə oluna bilər (konstruktor overloading)."
+      },
+      {
+        "type": "heading",
+        "text": "Konstruktor Overloading"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bir sinifdə eyni adlı, lakin fərqli parametrlərə malik çoxsaylı konstruktorlar təyin edilə bilər, buna **konstruktor overloading** deyilir. Bu, obyektlərin müxtəlif yollarla yaradılmasını təmin edir. Məsələn, bir `Person` sinfi həm default, həm də parametrli konstruktorlara malik ola bilər. Overloading zamanı `this()` ilə bir konstruktor digərini çağıra bilər ki, bu da kodun təkrarlanmasını azaldır."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Person {\n  private String name;\n  private int age;\n\n  // Default konstruktor\n  public Person() {\n    this(\"Bilinməyən\", 0);\n  }\n\n  // Parametrli konstruktor\n  public Person(String name, int age) {\n    this.name = name;\n    this.age = age >= 0 ? age : 0;\n    if (age < 0) {\n      System.out.println(\"Yaş mənfi ola bilməz!\");\n    }\n  }\n\n  public void display() {\n    String message = \"Ad: \" + name + \", Yaş: \" + age;\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Person person1 = new Person();\n    person1.display();\n    Person person2 = new Person(\"Aygün\", 30);\n    person2.display();\n  }\n}\n// Çıxış:\n// Ad: Bilinməyən, Yaş: 0\n// Ad: Aygün, Yaş: 30"
+      },
+      {
+        "type": "heading",
+        "text": "super Açar Sözü və Miras"
+      },
+      {
+        "type": "paragraph",
+        "text": "Miras kontekstində, `super` açar sözü alt sinfin üst sinfin konstruktorunu çağırması üçün istifadə olunur. Bu, üst sinfin dəyişənlərinin və ya metodlarının düzgün ilkinləşdirilməsini təmin edir. Məsələn, bir `Car` sinfi `Vehicle` sinfindən miras alırsa, `super` ilə üst sinfin konstruktoru çağırılır. `super()` çağırışı konstruktorun ilk sətrində olmalıdır."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Vehicle {\n  protected String brand;\n\n  public Vehicle(String brand) {\n    this.brand = brand;\n  }\n\n  public void display() {\n    String message = \"Marka: \" + brand;\n    System.out.println(message);\n  }\n}\n\npublic class Car extends Vehicle {\n  private String model;\n\n  public Car(String brand, String model) {\n    super(brand);\n    this.model = model;\n  }\n\n  @Override\n  public void display() {\n    super.display();\n    String message = \"Model: \" + model;\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car(\"Toyota\", \"Camry\");\n    car.display();\n  }\n}\n// Çıxış:\n// Marka: Toyota\n// Model: Camry"
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konstruktorlar real dünyada geniş istifadə olunur:\n- **Oyun inkişafı**: Oyun personajlarının ilkin sağlamlıq və ya xüsusiyyətləri konstruktorlarla təyin edilir.\n- **E-ticarət**: Sifariş obyektləri (məsələn, məhsul sayı, qiymət) konstruktorlarla qurulur.\n- **Verilənlər bazası**: Verilənlər bazası bağlantıları ilkin parametrlərlə (məsələn, URL, istifadəçi adı) konstruktorlarda təyin edilir.\n- **Avtomobil sistemləri**: Maşın obyektləri (marka, model) konstruktorlarla ilkinləşdirilir.\n- **İstifadəçi idarəetmə**: İstifadəçi hesabları (ad, e-poçt) konstruktorlarla qurulur.\nMəsələn, bir e-ticarət platformasında `Order` sinfi sifarişin ilkin məlumatlarını konstruktor vasitəsilə təyin edə bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Konstruktorların Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konstruktorlar obyektlərin düzgün və etibarlı şəkildə başlanğıc vəziyyətini təmin edir. Onlar dəyişənlərin ilkinləşdirilməsini, validasiyasını və miras mexanizmlərinin düzgün işləməsini təmin edir. Konstruktorlar olmadan obyektlər etibarsız və ya natamam vəziyyətdə ola bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Default Konstruktor",
+            "description": "Parametrsiz və avtomatik təmin edilə bilər."
+          },
+          {
+            "term": "Parametrli Konstruktor",
+            "description": "Xarici dəyərlərlə obyektləri ilkinləşdirir."
+          },
+          {
+            "term": "this Açar Sözü",
+            "description": "Cari obyektə istinad edir və konstruktor overloading üçün istifadə olunur."
+          },
+          {
+            "term": "super Açar Sözü",
+            "description": "Üst sinfin konstruktorlarına müraciət edir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Həddindən artıq konstruktor overloading kodun mürəkkəbliyini artıra bilər, düzgün validasiya olmadan konstruktorlar etibarsız dəyərlərə yol aça bilər, `super()` çağırışının düzgün yerləşdirilməməsi səhvlərə səbəb ola bilər.\n- **Tövsiyələr**: Konstruktorları sadə və mənalı saxlayın, parametrlərdə validasiya tətbiq edin, `this()` və `super()` çağırışlarını düzgün istifadə edin, IntelliJ IDEA kimi IDE-lərdən istifadə edin ki, səhvlər asan aşkarlansın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "public class Person {\n  private String name;\n  private int age;\n\n  public Person(String name, int age) {\n    this.name = name;\n    this.age = age >= 0 ? age : 0;\n    if (age < 0) {\n      System.out.println(\"Yaş mənfi ola bilməz!\");\n    }\n  }\n\n  public void display() {\n    String message = \"Ad: \" + name + \", Yaş: \" + age;\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Person person = new Person(\"Ali\", 25);\n    person.display();\n  }\n}\n// Çıxış: Ad: Ali, Yaş: 25"
+      }
+    ]
+  },
+  "en": {
+    "title": "Java Constructors: Introduction",
+    "language": "java",
+    "description": "Constructors in Java initialize objects of a class. The `this` and `super` keywords ensure proper object setup and configuration.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is a Constructor?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In Java, a constructor is a special method automatically called when an object of a class is created. Its primary role is to initialize the object’s state (assign initial values to variables). Constructors have the same name as the class and do not have a return type (not even `void`). For example, a `Person` class constructor can set the name and age of an object. Constructors are essential in object-oriented programming (OOP) as they ensure objects are created in a valid and reliable state."
+      },
+      {
+        "type": "heading",
+        "text": "Default Constructor"
+      },
+      {
+        "type": "paragraph",
+        "text": "If no constructor is defined in a class, Java automatically provides a **default constructor** with no parameters. This constructor initializes variables with default values (e.g., `int` to 0, `String` to `null`). However, if any constructor is defined, the default constructor is no longer provided automatically. Default constructors are useful for simple objects but are often insufficient for complex classes requiring custom initialization."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Person {\n  private String name;\n  private int age;\n\n  // Default constructor\n  public Person() {\n    name = \"Unknown\";\n    age = 0;\n  }\n\n  public void display() {\n    String message = \"Name: \" + name + \", Age: \" + age;\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Person person = new Person();\n    person.display();\n  }\n}\n// Output: Name: Unknown, Age: 0"
+      },
+      {
+        "type": "heading",
+        "text": "Parameterized Constructor"
+      },
+      {
+        "type": "paragraph",
+        "text": "Parameterized constructors accept external values to initialize an object’s state, providing flexibility. For example, a `Person` class can use a parameterized constructor to set name and age. These constructors can also include validation to ensure valid data. Parameterized constructors allow users to define the initial state of objects during creation."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Person {\n  private String name;\n  private int age;\n\n  // Parameterized constructor\n  public Person(String name, int age) {\n    this.name = name;\n    if (age >= 0) {\n      this.age = age;\n    } else {\n      this.age = 0;\n      System.out.println(\"Age cannot be negative!\");\n    }\n  }\n\n  public void display() {\n    String message = \"Name: \" + name + \", Age: \" + age;\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Person person = new Person(\"Alice\", 25);\n    person.display();\n    Person invalidPerson = new Person(\"Bob\", -5);\n    invalidPerson.display();\n  }\n}\n// Output:\n// Name: Alice, Age: 25\n// Age cannot be negative!\n// Name: Bob, Age: 0"
+      },
+      {
+        "type": "heading",
+        "text": "this Keyword"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `this` keyword refers to the current object. In constructors, it’s used to distinguish between instance variables and parameters with the same name. For example, `this.name = name;` assigns the parameter `name` to the class’s `name` variable. `this` can also be used to call another constructor in the same class (constructor overloading), reducing code duplication."
+      },
+      {
+        "type": "heading",
+        "text": "Constructor Overloading"
+      },
+      {
+        "type": "paragraph",
+        "text": "A class can have multiple constructors with different parameters, known as **constructor overloading**. This allows objects to be created in various ways. For example, a `Person` class can have both a default and a parameterized constructor. Using `this()` to call another constructor within the same class helps avoid redundant code."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Person {\n  private String name;\n  private int age;\n\n  // Default constructor\n  public Person() {\n    this(\"Unknown\", 0);\n  }\n\n  // Parameterized constructor\n  public Person(String name, int age) {\n    this.name = name;\n    this.age = age >= 0 ? age : 0;\n    if (age < 0) {\n      System.out.println(\"Age cannot be negative!\");\n    }\n  }\n\n  public void display() {\n    String message = \"Name: \" + name + \", Age: \" + age;\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Person person1 = new Person();\n    person1.display();\n    Person person2 = new Person(\"Alice\", 30);\n    person2.display();\n  }\n}\n// Output:\n// Name: Unknown, Age: 0\n// Name: Alice, Age: 30"
+      },
+      {
+        "type": "heading",
+        "text": "super Keyword and Inheritance"
+      },
+      {
+        "type": "paragraph",
+        "text": "In the context of inheritance, the `super` keyword is used to call the superclass’s constructor, ensuring proper initialization of inherited fields or methods. For example, a `Car` class inheriting from `Vehicle` uses `super` to call the superclass constructor. The `super()` call must be the first statement in a constructor."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Vehicle {\n  protected String brand;\n\n  public Vehicle(String brand) {\n    this.brand = brand;\n  }\n\n  public void display() {\n    String message = \"Brand: \" + brand;\n    System.out.println(message);\n  }\n}\n\npublic class Car extends Vehicle {\n  private String model;\n\n  public Car(String brand, String model) {\n    super(brand);\n    this.model = model;\n  }\n\n  @Override\n  public void display() {\n    super.display();\n    String message = \"Model: \" + model;\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car(\"Toyota\", \"Camry\");\n    car.display();\n  }\n}\n// Output:\n// Brand: Toyota\n// Model: Camry"
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Constructors are widely used in real-world applications:\n- **Game Development**: Game characters’ initial health or attributes are set via constructors.\n- **E-commerce**: Order objects (e.g., item count, price) are initialized with constructors.\n- **Database Systems**: Database connections are set up with initial parameters (e.g., URL, username) in constructors.\n- **Vehicle Systems**: Car objects (brand, model) are initialized via constructors.\n- **User Management**: User accounts (name, email) are set up using constructors.\nFor example, an e-commerce platform’s `Order` class can initialize order details using a constructor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Constructors"
+      },
+      {
+        "type": "paragraph",
+        "text": "Constructors ensure objects are initialized in a valid and reliable state. They handle variable initialization, validation, and proper setup in inheritance scenarios. Without constructors, objects might be created in an invalid or incomplete state."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Default Constructor",
+            "description": "Parameterless and provided automatically if no constructors are defined."
+          },
+          {
+            "term": "Parameterized Constructor",
+            "description": "Initializes objects with external values."
+          },
+          {
+            "term": "this Keyword",
+            "description": "Refers to the current object and supports constructor overloading."
+          },
+          {
+            "term": "super Keyword",
+            "description": "Accesses superclass constructors."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Excessive constructor overloading can complicate code, lack of validation in constructors may allow invalid data, and improper use of `super()` can cause errors.\n- **Recommendations**: Keep constructors simple and meaningful, include parameter validation, use `this()` and `super()` correctly, and leverage IDEs like IntelliJ IDEA to detect errors."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "public class Person {\n  private String name;\n  private int age;\n\n  public Person(String name, int age) {\n    this.name = name;\n    this.age = age >= 0 ? age : 0;\n    if (age < 0) {\n      System.out.println(\"Age cannot be negative!\");\n    }\n  }\n\n  public void display() {\n    String message = \"Name: \" + name + \", Age: \" + age;\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Person person = new Person(\"Alice\", 25);\n    person.display();\n  }\n}\n// Output: Name: Alice, Age: 25"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Конструкторы в Java: Введение",
+    "language": "java",
+    "description": "Конструкторы в Java инициализируют объекты класса. Ключевые слова `this` и `super` обеспечивают правильную настройку объектов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое конструктор?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В Java конструктор — это специальный метод, который автоматически вызывается при создании объекта класса. Его основная задача — инициализировать начальное состояние объекта (присваивать начальные значения переменным). Конструкторы имеют то же имя, что и класс, и не имеют возвращаемого типа (даже `void`). Например, конструктор класса `Person` может устанавливать имя и возраст объекта. Конструкторы важны в объектно-ориентированном программировании (ООП), поскольку обеспечивают создание объектов в корректном и надёжном состоянии."
+      },
+      {
+        "type": "heading",
+        "text": "Конструктор по умолчанию"
+      },
+      {
+        "type": "paragraph",
+        "text": "Если в классе не определён ни один конструктор, Java автоматически предоставляет **конструктор по умолчанию** без параметров. Этот конструктор инициализирует переменные значениями по умолчанию (например, `int` — 0, `String` — `null`). Однако, если в классе определён хотя бы один конструктор, конструктор по умолчанию не предоставляется автоматически. Конструкторы по умолчанию полезны для простых объектов, но для сложных классов обычно требуются пользовательские конструкторы."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Person {\n  private String name;\n  private int age;\n\n  // Конструктор по умолчанию\n  public Person() {\n    name = \"Неизвестно\";\n    age = 0;\n  }\n\n  public void display() {\n    String message = \"Имя: \" + name + \", Возраст: \" + age;\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Person person = new Person();\n    person.display();\n  }\n}\n// Вывод: Имя: Неизвестно, Возраст: 0"
+      },
+      {
+        "type": "heading",
+        "text": "Параметризованный конструктор"
+      },
+      {
+        "type": "paragraph",
+        "text": "Параметризованные конструкторы принимают внешние значения для инициализации состояния объекта, обеспечивая гибкость. Например, класс `Person` может использовать параметризованный конструктор для установки имени и возраста. Такие конструкторы также могут включать валидацию для обеспечения корректности данных. Параметризованные конструкторы позволяют пользователю задавать начальное состояние объекта при его создании."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Person {\n  private String name;\n  private int age;\n\n  // Параметризованный конструктор\n  public Person(String name, int age) {\n    this.name = name;\n    if (age >= 0) {\n      this.age = age;\n    } else {\n      this.age = 0;\n      System.out.println(\"Возраст не может быть отрицательным!\");\n    }\n  }\n\n  public void display() {\n    String message = \"Имя: \" + name + \", Возраст: \" + age;\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Person person = new Person(\"Алиса\", 25);\n    person.display();\n    Person invalidPerson = new Person(\"Боб\", -5);\n    invalidPerson.display();\n  }\n}\n// Вывод:\n// Имя: Алиса, Возраст: 25\n// Возраст не может быть отрицательным!\n// Имя: Боб, Возраст: 0"
+      },
+      {
+        "type": "heading",
+        "text": "Ключевое слово this"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ключевое слово `this` используется для ссылки на текущий объект. В конструкторах оно помогает различать переменные экземпляра и параметры с одинаковыми именами. Например, `this.name = name;` присваивает параметру `name` значение переменной экземпляра `name`. `this` также может использоваться для вызова другого конструктора в том же классе (перегрузка конструкторов), что уменьшает дублирование кода."
+      },
+      {
+        "type": "heading",
+        "text": "Перегрузка конструкторов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Класс может иметь несколько конструкторов с разными параметрами, что называется **перегрузкой конструкторов**. Это позволяет создавать объекты разными способами. Например, класс `Person` может иметь как конструктор по умолчанию, так и параметризованный конструктор. Использование `this()` для вызова другого конструктора в том же классе помогает избежать дублирования кода."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Person {\n  private String name;\n  private int age;\n\n  // Конструктор по умолчанию\n  public Person() {\n    this(\"Неизвестно\", 0);\n  }\n\n  // Параметризованный конструктор\n  public Person(String name, int age) {\n    this.name = name;\n    this.age = age >= 0 ? age : 0;\n    if (age < 0) {\n      System.out.println(\"Возраст не может быть отрицательным!\");\n    }\n  }\n\n  public void display() {\n    String message = \"Имя: \" + name + \", Возраст: \" + age;\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Person person1 = new Person();\n    person1.display();\n    Person person2 = new Person(\"Алиса\", 30);\n    person2.display();\n  }\n}\n// Вывод:\n// Имя: Неизвестно, Возраст: 0\n// Имя: Алиса, Возраст: 30"
+      },
+      {
+        "type": "heading",
+        "text": "Ключевое слово super и наследование"
+      },
+      {
+        "type": "paragraph",
+        "text": "В контексте наследования ключевое слово `super` используется для вызова конструктора суперкласса, обеспечивая правильную инициализацию унаследованных полей или методов. Например, класс `Car`, наследующий от `Vehicle`, использует `super` для вызова конструктора суперкласса. Вызов `super()` должен быть первой инструкцией в конструкторе."
+      },
+      {
+        "type": "code",
+        "language": "java",
+        "code": "public class Vehicle {\n  protected String brand;\n\n  public Vehicle(String brand) {\n    this.brand = brand;\n  }\n\n  public void display() {\n    String message = \"Марка: \" + brand;\n    System.out.println(message);\n  }\n}\n\npublic class Car extends Vehicle {\n  private String model;\n\n  public Car(String brand, String model) {\n    super(brand);\n    this.model = model;\n  }\n\n  @Override\n  public void display() {\n    super.display();\n    String message = \"Модель: \" + model;\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Car car = new Car(\"Toyota\", \"Camry\");\n    car.display();\n  }\n}\n// Вывод:\n// Марка: Toyota\n// Модель: Camry"
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конструкторы широко используются в реальных приложениях:\n- **Разработка игр**: Начальные характеристики игровых персонажей (здоровье, атрибуты) задаются через конструкторы.\n- **Электронная коммерция**: Объекты заказов (количество товаров, цена) инициализируются с помощью конструкторов.\n- **Системы баз данных**: Подключения к базам данных настраиваются с начальными параметрами (URL, имя пользователя) в конструкторах.\n- **Автомобильные системы**: Объекты машин (марка, модель) инициализируются через конструкторы.\n- **Управление пользователями**: Учётные записи пользователей (имя, email) создаются с помощью конструкторов.\nНапример, на платформе электронной коммерции класс `Order` может инициализировать детали заказа с помощью конструктора."
+      },
+      {
+        "type": "heading",
+        "text": "Цель конструкторов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конструкторы обеспечивают создание объектов в корректном и надёжном состоянии. Они обрабатывают инициализацию переменных, валидацию и правильную работу механизмов наследования. Без конструкторов объекты могли бы создаваться в некорректном или незавершённом состоянии."
+      },
+      {
+        "type": "heading",
+        "text": "Основные характеристики"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Конструктор по умолчанию",
+            "description": "Без параметров и предоставляется автоматически, если конструкторы не определены."
+          },
+          {
+            "term": "Параметризованный конструктор",
+            "description": "Инициализирует объекты с внешними значениями."
+          },
+          {
+            "term": "Ключевое слово this",
+            "description": "Ссылается на текущий объект и поддерживает перегрузку конструкторов."
+          },
+          {
+            "term": "Ключевое слово super",
+            "description": "Обращается к конструкторам суперкласса."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Чрезмерная перегрузка конструкторов может усложнить код, отсутствие валидации в конструкторах может привести к некорректным данным, неправильное использование `super()` может вызвать ошибки.\n- **Рекомендации**: Держите конструкторы простыми и понятными, включайте валидацию параметров, правильно используйте `this()` и `super()`, применяйте IDE, такие как IntelliJ IDEA, для обнаружения ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "public class Person {\n  private String name;\n  private int age;\n\n  public Person(String name, int age) {\n    this.name = name;\n    this.age = age >= 0 ? age : 0;\n    if (age < 0) {\n      System.out.println(\"Возраст не может быть отрицательным!\");\n    }\n  }\n\n  public void display() {\n    String message = \"Имя: \" + name + \", Возраст: \" + age;\n    System.out.println(message);\n  }\n\n  public static void main(String[] args) {\n    Person person = new Person(\"Алиса\", 25);\n    person.display();\n  }\n}\n// Вывод: Имя: Алиса, Возраст: 25"
+      }
+    ]
+  }
+}
