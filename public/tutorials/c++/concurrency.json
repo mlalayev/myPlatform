@@ -1,0 +1,395 @@
+{
+  "az": {
+    "title": "Concurrency & Multithreading",
+    "language": "cpp",
+    "description": "C++-da paralel proqramlaşdırma və çoxluqla iş (`std::thread`, `std::mutex`) çoxnüvəli prosessorlardan səmərəli istifadə edərək performansı artırır.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Paralel Proqramlaşdırma nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Paralel proqramlaşdırma (concurrency) bir proqramın eyni anda bir neçə tapşırığı yerinə yetirməsinə imkan verən bir texnikadır. Çoxluqla iş (multithreading) isə bu tapşırıqların ayrı-ayrı axınlarda (threads) icra edilməsini nəzərdə tutur. Bu, müasir çoxnüvəli prosessorların gücündən istifadə edərək proqramın performansını artırır."
+      },
+      {
+        "type": "paragraph",
+        "text": "C++11 ilə təqdim edilmiş `<thread>` başlıq faylı və `std::thread` sinfi çoxluqla işləməyi asanlaşdırır. Bununla yanaşı, sinxronizasiya mexanizmləri (məsələn, `std::mutex`) axınlar arasında verilənlərə təhlükəsiz girişi təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "std::thread"
+      },
+      {
+        "type": "paragraph",
+        "text": "`std::thread` bir axını təmsil edir və müəyyən bir funksiyanı paralel olaraq icra etmək üçün istifadə olunur. Axınlar proqramın müstəqil hissələrini eyni anda işlətməyə imkan verir. Axın başa çatdıqda, onun resursları avtomatik azad olunur, lakin proqramçı `join()` və ya `detach()` metodlarından istifadə etməlidir."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <thread>\n#include <string>\n\nvoid printMessage(const std::string& message) {\n  std::cout << \"Thread message: \" << message << \"\\n\";\n}\n\nint main() {\n  std::thread t1(printMessage, \"Hello from thread 1\");\n  std::thread t2(printMessage, \"Hello from thread 2\");\n  t1.join();\n  t2.join();\n  std::cout << \"Main thread done\\n\";\n  return 0;\n}\n// Output (sıra dəyişə bilər):\n// Thread message: Hello from thread 1\n// Thread message: Hello from thread 2\n// Main thread done"
+      },
+      {
+        "type": "heading",
+        "text": "std::mutex"
+      },
+      {
+        "type": "paragraph",
+        "text": "`std::mutex` (mutual exclusion) axınlar arasında paylaşılan resurslara təhlükəsiz girişi təmin edir. Bir axın müəyyən bir resursu istifadə edərkən, `std::mutex` digər axınların bu resursa daxil olmasının qarşısını alır, beləliklə 'data race' (verilənlər yarışı) problemlərini önləyir."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <thread>\n#include <mutex>\n\nstd::mutex mtx;\nint counter = 0;\n\nvoid incrementCounter() {\n  for (int i = 0; i < 1000; ++i) {\n    mtx.lock();\n    ++counter;\n    mtx.unlock();\n  }\n}\n\nint main() {\n  std::thread t1(incrementCounter);\n  std::thread t2(incrementCounter);\n  t1.join();\n  t2.join();\n  std::cout << \"Counter: \" << counter << \"\\n\";\n  return 0;\n}\n// Output:\n// Counter: 2000"
+      },
+      {
+        "type": "heading",
+        "text": "Sinxronizasiya Mexanizmləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Axınlar arasında sinxronizasiya vacibdir, çünki paylaşılan resurslara eyni anda giriş 'data race' və ya yanlış nəticələrə səbəb ola bilər. `std::mutex` ilə yanaşı, `std::lock_guard` və `std::unique_lock` kimi sinxronizasiya alətləri istisnalarla bağlı təhlükəsizliyi artırır."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <thread>\n#include <mutex>\n\nstd::mutex mtx;\nint counter = 0;\n\nvoid incrementCounter() {\n  for (int i = 0; i < 1000; ++i) {\n    std::lock_guard<std::mutex> guard(mtx);\n    ++counter;\n  }\n}\n\nint main() {\n  std::thread t1(incrementCounter);\n  std::thread t2(incrementCounter);\n  t1.join();\n  t2.join();\n  std::cout << \"Counter: \" << counter << \"\\n\";\n  return 0;\n}\n// Output:\n// Counter: 2000"
+      },
+      {
+        "type": "heading",
+        "text": "Paralel Proqramlaşdırmanın Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Paralel proqramlaşdırma tapşırıqları bölüşdürərək proqramın sürətini artırır. Çoxnüvəli prosessorlarda hər bir axın ayrı bir nüvədə işləyə bilər, bu da hesablama müddətini qısaldır. Məsələn, böyük verilənlər dəstinin emalı və ya çoxsaylı istifadəçi sorğularının idarə edilməsi paralelləşdirilə bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Real Həyatda İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Paralel proqramlaşdırma aşağıdakı hallarda istifadə olunur:\n- **Verilənlər Emalı**: Böyük verilənlər dəstlərinin paralel emalı.\n- **Server Tətbiqləri**: Çoxsaylı istifadəçi sorğularını eyni anda idarə etmək.\n- **Oyun İnkişafı**: Fərqli oyun komponentlərinin (fizika, qrafika) paralel icrası.\n- **Hesablamalar**: Matematik modelləşdirmə və simulyasiyalar.\nMəsələn, bir veb server istifadəçi sorğularını paralel olaraq idarə etmək üçün çoxluqla işləyə bilər."
+      },
+      {
+        "type": "paragraph",
+        "text": "Paralel proqramlaşdırma proqramın performansını artırır və resurslardan səmərəli istifadəni təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Paralel Proqramlaşdırmanın Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Paralel proqramlaşdırma çoxnüvəli prosessorlardan səmərəli istifadə edərək performansı artırır, tapşırıqları bölüşdürür və proqramın səmərəliliyini təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas Xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Performans",
+            "description": "Tapşırıqları paralel icra edərək sürəti artırır."
+          },
+          {
+            "term": "Sinxronizasiya",
+            "description": "Paylaşılan resurslara təhlükəsiz girişi təmin edir."
+          },
+          {
+            "term": "std::thread",
+            "description": "Ayrı axınlarda tapşırıqları icra edir."
+          },
+          {
+            "term": "std::mutex",
+            "description": "Verilənlər yarışını önləyir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Data race və deadlock (qarşılıqlı kilidlənmə) problemləri yaranarsa, proqram səhv işləyə bilər. Axınların düzgün sinxronizasiya edilməməsi nəticələri gözlənilməz edə bilər.\n- **Tövsiyələr**: `std::lock_guard` və ya `std::unique_lock` istifadə edin, axınları `join()` və ya `detach()` ilə idarə edin, sinxronizasiya mexanizmlərini diqqətlə tətbiq edin, Visual Studio və ya CLion kimi IDE-lərdən istifadə edin."
+      },
+      {
+        "type": "paragraph",
+        "text": "Məsələn, `std::mutex` istifadə edərkən `std::lock_guard` ilə avtomatik kilidləmə təmin edin ki, istisnalar zamanı kilid açılmasın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <iostream>\n#include <thread>\n#include <string>\n\nvoid printMessage(const std::string& message) {\n  std::cout << \"Thread message: \" << message << \"\\n\";\n}\n\nint main() {\n  std::thread t1(printMessage, \"Hello from thread 1\");\n  std::thread t2(printMessage, \"Hello from thread 2\");\n  t1.join();\n  t2.join();\n  std::cout << \"Main thread done\\n\";\n  return 0;\n}\n// Output (sıra dəyişə bilər):\n// Thread message: Hello from thread 1\n// Thread message: Hello from thread 2\n// Main thread done"
+      }
+    ]
+  },
+  "en": {
+    "title": "Concurrency & Multithreading",
+    "language": "cpp",
+    "description": "In C++, concurrency and multithreading (`std::thread`, `std::mutex`) leverage multicore processors to enhance performance.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Concurrency?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Concurrency allows a program to execute multiple tasks simultaneously. Multithreading, a form of concurrency, involves running these tasks in separate threads. This utilizes multicore processors to improve program performance."
+      },
+      {
+        "type": "paragraph",
+        "text": "Introduced in C++11, the `<thread>` header and `std::thread` class simplify multithreading. Synchronization mechanisms like `std::mutex` ensure safe access to shared resources across threads."
+      },
+      {
+        "type": "heading",
+        "text": "std::thread"
+      },
+      {
+        "type": "paragraph",
+        "text": "`std::thread` represents a single thread and is used to execute a function in parallel. Threads allow independent parts of a program to run concurrently. When a thread finishes, its resources are automatically released, but the programmer must use `join()` or `detach()` to manage it."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <thread>\n#include <string>\n\nvoid printMessage(const std::string& message) {\n  std::cout << \"Thread message: \" << message << \"\\n\";\n}\n\nint main() {\n  std::thread t1(printMessage, \"Hello from thread 1\");\n  std::thread t2(printMessage, \"Hello from thread 2\");\n  t1.join();\n  t2.join();\n  std::cout << \"Main thread done\\n\";\n  return 0;\n}\n// Output (order may vary):\n// Thread message: Hello from thread 1\n// Thread message: Hello from thread 2\n// Main thread done"
+      },
+      {
+        "type": "heading",
+        "text": "std::mutex"
+      },
+      {
+        "type": "paragraph",
+        "text": "`std::mutex` (mutual exclusion) ensures safe access to shared resources across threads. When one thread accesses a resource, `std::mutex` prevents others from accessing it, avoiding 'data race' issues."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <thread>\n#include <mutex>\n\nstd::mutex mtx;\nint counter = 0;\n\nvoid incrementCounter() {\n  for (int i = 0; i < 1000; ++i) {\n    mtx.lock();\n    ++counter;\n    mtx.unlock();\n  }\n}\n\nint main() {\n  std::thread t1(incrementCounter);\n  std::thread t2(incrementCounter);\n  t1.join();\n  t2.join();\n  std::cout << \"Counter: \" << counter << \"\\n\";\n  return 0;\n}\n// Output:\n// Counter: 2000"
+      },
+      {
+        "type": "heading",
+        "text": "Synchronization Mechanisms"
+      },
+      {
+        "type": "paragraph",
+        "text": "Synchronization is crucial to prevent data races and ensure correct results when threads access shared resources. Besides `std::mutex`, tools like `std::lock_guard` and `std::unique_lock` enhance safety by handling locks automatically, even in the presence of exceptions."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <thread>\n#include <mutex>\n\nstd::mutex mtx;\nint counter = 0;\n\nvoid incrementCounter() {\n  for (int i = 0; i < 1000; ++i) {\n    std::lock_guard<std::mutex> guard(mtx);\n    ++counter;\n  }\n}\n\nint main() {\n  std::thread t1(incrementCounter);\n  std::thread t2(incrementCounter);\n  t1.join();\n  t2.join();\n  std::cout << \"Counter: \" << counter << \"\\n\";\n  return 0;\n}\n// Output:\n// Counter: 2000"
+      },
+      {
+        "type": "heading",
+        "text": "Benefits of Concurrency"
+      },
+      {
+        "type": "paragraph",
+        "text": "Concurrency improves performance by distributing tasks across multiple cores. Each thread can run on a separate core, reducing computation time. For example, processing large datasets or handling multiple user requests can be parallelized."
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Concurrency is used in:\n- **Data Processing**: Parallel processing of large datasets.\n- **Server Applications**: Handling multiple user requests simultaneously.\n- **Game Development**: Running different game components (physics, graphics) in parallel.\n- **Computations**: Mathematical modeling and simulations.\nFor example, a web server can use threads to handle user requests concurrently."
+      },
+      {
+        "type": "paragraph",
+        "text": "Concurrency enhances performance and ensures efficient resource utilization."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Concurrency"
+      },
+      {
+        "type": "paragraph",
+        "text": "Concurrency leverages multicore processors to boost performance, distribute tasks, and ensure program efficiency."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Performance",
+            "description": "Increases speed by executing tasks in parallel."
+          },
+          {
+            "term": "Synchronization",
+            "description": "Ensures safe access to shared resources."
+          },
+          {
+            "term": "std::thread",
+            "description": "Executes tasks in separate threads."
+          },
+          {
+            "term": "std::mutex",
+            "description": "Prevents data races."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Data races and deadlocks can cause program errors. Improper thread synchronization may lead to unpredictable results.\n- **Recommendations**: Use `std::lock_guard` or `std::unique_lock` for automatic locking, manage threads with `join()` or `detach()`, carefully implement synchronization, and use IDEs like Visual Studio or CLion."
+      },
+      {
+        "type": "paragraph",
+        "text": "For example, use `std::lock_guard` with `std::mutex` to ensure automatic unlocking, even during exceptions."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <iostream>\n#include <thread>\n#include <string>\n\nvoid printMessage(const std::string& message) {\n  std::cout << \"Thread message: \" << message << \"\\n\";\n}\n\nint main() {\n  std::thread t1(printMessage, \"Hello from thread 1\");\n  std::thread t2(printMessage, \"Hello from thread 2\");\n  t1.join();\n  t2.join();\n  std::cout << \"Main thread done\\n\";\n  return 0;\n}\n// Output (order may vary):\n// Thread message: Hello from thread 1\n// Thread message: Hello from thread 2\n// Main thread done"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Concurrency & Multithreading",
+    "language": "cpp",
+    "description": "В C++ параллелизм и многопоточность (`std::thread`, `std::mutex`) используют многоядерные процессоры для повышения производительности.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое параллелизм?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Параллелизм (concurrency) позволяет программе выполнять несколько задач одновременно. Многопоточность (multithreading) предполагает выполнение этих задач в отдельных потоках. Это использует возможности многоядерных процессоров для повышения производительности программы."
+      },
+      {
+        "type": "paragraph",
+        "text": "Введённый в C++11 заголовочный файл `<thread>` и класс `std::thread` упрощают многопоточность. Механизмы синхронизации, такие как `std::mutex`, обеспечивают безопасный доступ к общим ресурсам между потоками."
+      },
+      {
+        "type": "heading",
+        "text": "std::thread"
+      },
+      {
+        "type": "paragraph",
+        "text": "`std::thread` представляет отдельный поток и используется для параллельного выполнения функции. Потоки позволяют запускать независимые части программы одновременно. Когда поток завершается, его ресурсы автоматически освобождаются, но программист должен использовать методы `join()` или `detach()` для управления."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <thread>\n#include <string>\n\nvoid printMessage(const std::string& message) {\n  std::cout << \"Thread message: \" << message << \"\\n\";\n}\n\nint main() {\n  std::thread t1(printMessage, \"Hello from thread 1\");\n  std::thread t2(printMessage, \"Hello from thread 2\");\n  t1.join();\n  t2.join();\n  std::cout << \"Main thread done\\n\";\n  return 0;\n}\n// Output (порядок может варьироваться):\n// Thread message: Hello from thread 1\n// Thread message: Hello from thread 2\n// Main thread done"
+      },
+      {
+        "type": "heading",
+        "text": "std::mutex"
+      },
+      {
+        "type": "paragraph",
+        "text": "`std::mutex` (взаимное исключение) обеспечивает безопасный доступ к общим ресурсам между потоками. Когда один поток использует ресурс, `std::mutex` предотвращает доступ других потоков, избегая проблем 'data race'."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <thread>\n#include <mutex>\n\nstd::mutex mtx;\nint counter = 0;\n\nvoid incrementCounter() {\n  for (int i = 0; i < 1000; ++i) {\n    mtx.lock();\n    ++counter;\n    mtx.unlock();\n  }\n}\n\nint main() {\n  std::thread t1(incrementCounter);\n  std::thread t2(incrementCounter);\n  t1.join();\n  t2.join();\n  std::cout << \"Counter: \" << counter << \"\\n\";\n  return 0;\n}\n// Output:\n// Counter: 2000"
+      },
+      {
+        "type": "heading",
+        "text": "Механизмы синхронизации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Синхронизация между потоками важна для предотвращения гонок данных и обеспечения корректных результатов. Помимо `std::mutex`, инструменты вроде `std::lock_guard` и `std::unique_lock` повышают безопасность, автоматически управляя блокировками даже при возникновении исключений."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <thread>\n#include <mutex>\n\nstd::mutex mtx;\nint counter = 0;\n\nvoid incrementCounter() {\n  for (int i = 0; i < 1000; ++i) {\n    std::lock_guard<std::mutex> guard(mtx);\n    ++counter;\n  }\n}\n\nint main() {\n  std::thread t1(incrementCounter);\n  std::thread t2(incrementCounter);\n  t1.join();\n  t2.join();\n  std::cout << \"Counter: \" << counter << \"\\n\";\n  return 0;\n}\n// Output:\n// Counter: 2000"
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества параллелизма"
+      },
+      {
+        "type": "paragraph",
+        "text": "Параллелизм повышает производительность, распределяя задачи между несколькими ядрами. Каждый поток может выполняться на отдельном ядре, сокращая время вычислений. Например, обработка больших наборов данных или управление множественными запросами пользователей может быть параллелизирована."
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Параллелизм используется в:\n- **Обработке данных**: Параллельная обработка больших наборов данных.\n- **Серверных приложениях**: Одновременная обработка множества пользовательских запросов.\n- **Разработке игр**: Параллельное выполнение различных компонентов игры (физика, графика).\n- **Вычислениях**: Математическое моделирование и симуляции.\nНапример, веб-сервер может использовать потоки для одновременной обработки пользовательских запросов."
+      },
+      {
+        "type": "paragraph",
+        "text": "Параллелизм повышает производительность и обеспечивает эффективное использование ресурсов."
+      },
+      {
+        "type": "heading",
+        "text": "Цель параллелизма"
+      },
+      {
+        "type": "paragraph",
+        "text": "Параллелизм использует многоядерные процессоры для повышения производительности, распределения задач и обеспечения эффективности программы."
+      },
+      {
+        "type": "heading",
+        "text": "Основные характеристики"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Производительность",
+            "description": "Увеличивает скорость за счёт параллельного выполнения задач."
+          },
+          {
+            "term": "Синхронизация",
+            "description": "Обеспечивает безопасный доступ к общим ресурсам."
+          },
+          {
+            "term": "std::thread",
+            "description": "Выполняет задачи в отдельных потоках."
+          },
+          {
+            "term": "std::mutex",
+            "description": "Предотвращает гонки данных."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Гонки данных и взаимные блокировки могут привести к ошибкам программы. Неправильная синхронизация потоков может вызвать непредсказуемые результаты.\n- **Рекомендации**: Используйте `std::lock_guard` или `std::unique_lock` для автоматической блокировки, управляйте потоками с помощью `join()` или `detach()`, тщательно применяйте механизмы синхронизации, используйте IDE, такие как Visual Studio или CLion."
+      },
+      {
+        "type": "paragraph",
+        "text": "Например, используйте `std::lock_guard` с `std::mutex` для автоматической разблокировки, даже при возникновении исключений."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <iostream>\n#include <thread>\n#include <string>\n\nvoid printMessage(const std::string& message) {\n  std::cout << \"Thread message: \" << message << \"\\n\";\n}\n\nint main() {\n  std::thread t1(printMessage, \"Hello from thread 1\");\n  std::thread t2(printMessage, \"Hello from thread 2\");\n  t1.join();\n  t2.join();\n  std::cout << \"Main thread done\\n\";\n  return 0;\n}\n// Output (порядок может варьироваться):\n// Thread message: Hello from thread 1\n// Thread message: Hello from thread 2\n// Main thread done"
+      }
+    ]
+  }
+}

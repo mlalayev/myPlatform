@@ -85,6 +85,12 @@ async function runInSandbox(language: string, code: string) {
   if (language === "java") {
     console.log("JAVA FALLBACK YOLU İŞLƏYİR!!!");
     try {
+      // Detect public class name
+      let className = "Main";
+      const match = code.match(/public\s+class\s+(\w+)/);
+      if (match) {
+        className = match[1];
+      }
       const safeCode = code.replace(/([`$"\\])/g, "\\$1").replace(/\n/g, "\\n");
       const dockerCmd = [
         "docker run --rm",
@@ -92,18 +98,14 @@ async function runInSandbox(language: string, code: string) {
         "--memory=256m --cpus=0.5",
         image,
         "/bin/sh -c",
-        `'mkdir -p /code && echo -e "${safeCode}" > /code/Main.java && javac /code/Main.java && java -cp /code Main'`,
+        `'mkdir -p /code && echo -e "${safeCode}" > /code/${className}.java && javac /code/${className}.java && java -cp /code ${className}'`
       ].join(" ");
-      const { stdout: out, stderr: err } = await execAsync(dockerCmd, {
-        timeout: 30000,
-      });
+      const { stdout: out, stderr: err } = await execAsync(dockerCmd, { timeout: 30000 });
       return { stdout: out, stderr: err };
     } catch (e) {
       return {
         stdout: "",
-        stderr:
-          "Java code could not be written in container: " +
-          (e instanceof Error ? e.message : String(e)),
+        stderr: "Java code could not be written in container: " + (e instanceof Error ? e.message : String(e)),
       };
     }
   }

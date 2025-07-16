@@ -1,0 +1,431 @@
+{
+    "az": {
+      "title": "Köçürmə Semantikası və Sağ Dəyər İstinadları",
+      "language": "cpp",
+      "description": "C++-da köçürmə semantikası və sağ dəyər istinadları resursların səmərəli idarə edilməsini təmin edir, performansı artırır.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Köçürmə Semantikası nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Köçürmə semantikası C++11 ilə təqdim edilmiş bir mexanizmdir ki, obyektlərin surətinin çıxarılması əvəzinə onların resurslarının köçürülməsinə imkan verir. Bu, xüsusilə böyük obyektlərlə (məsələn, `std::string` və ya `std::vector`) işləyərkən performansı artırır, çünki surət çıxarmaq əvəzinə resurslar sadəcə 'köçürülür'."
+        },
+        {
+          "type": "paragraph",
+          "text": "Ənənəvi surət çıxarma (copy semantics) hər dəfə yeni bir nüsxə yaradır, bu da yaddaş və vaxt baxımından baha ola bilər. Köçürmə semantikası isə resursları yeni obyektə ötürür və köhnə obyektin resurslarını 'boşaldır', beləliklə səmərəliliyi artırır."
+        },
+        {
+          "type": "heading",
+          "text": "Sağ Dəyər İstinadları (&&)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Sağ dəyər istinadları (`&&`) müvəqqəti obyektləri (rvalues) bağlamaq üçün istifadə olunur. Müvəqqəti obyektlər, məsələn, bir funksiyanın qaytardığı dəyər və ya ifadənin nəticəsidir. Sağ dəyər istinadları köçürmə semantikasının əsasını təşkil edir."
+        },
+        {
+          "type": "paragraph",
+          "text": "Sağ dəyərlər (rvalues) və sol dəyərlər (lvalues) arasında fərq var. Sol dəyərlər adətən dəyişənlərdir və yaddaşda sabit ünvana malikdir. Sağ dəyərlər isə müvəqqətidir və adətən proqramın işləməsi zamanı yox olur."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <string>\n\nvoid printValue(std::string&& value) {\n  std::cout << \"Rvalue: \" << value << std::endl;\n}\n\nvoid printValue(const std::string& value) {\n  std::cout << \"Lvalue: \" << value << std::endl;\n}\n\nint main() {\n  std::string str = \"Hello\";\n  printValue(str);\n  printValue(\"World\");\n  return 0;\n}\n// Output:\n// Lvalue: Hello\n// Rvalue: World"
+        },
+        {
+          "type": "heading",
+          "text": "Köçürmə Konstruktoru (Move Constructor)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Köçürmə konstruktoru bir sinifin resurslarını başqa bir obyektə köçürən xüsusi konstruktor növüdür. Sintaksis:\nclass ClassName {\npublic:\n  ClassName(ClassName&& other) noexcept;\n};\nBurada `noexcept` performansı artırır, çünki köçürmə əməliyyatının istisnasız olduğunu bildirir."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor\\n\"; }\n  Resource(Resource&& other) noexcept : data(std::move(other.data)) {\n    std::cout << \"Move constructor\\n\";\n    other.data = \"\";\n  }\n};\n\nint main() {\n  Resource obj1(\"Test\");\n  Resource obj2 = std::move(obj1);\n  std::cout << \"obj1: \" << obj1.data << \"\\nobj2: \" << obj2.data << std::endl;\n  return 0;\n}\n// Output:\n// Constructor\n// Move constructor\n// obj1: \n// obj2: Test"
+        },
+        {
+          "type": "heading",
+          "text": "std::move nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "`std::move` bir obyektin sağ dəyər istinadına çevrilməsini təmin edir, beləliklə köçürmə semantikası tətbiq oluna bilər. Bu, resursların kopyalanması əvəzinə köçürülməsinə imkan verir. `std::move` özü resursları köçürmür, sadəcə obyektin köçürülə biləcəyini bildirir."
+        },
+        {
+          "type": "heading",
+          "text": "Köçürmə Assignment Operatoru"
+        },
+        {
+          "type": "paragraph",
+          "text": "Köçürmə assignment operatoru (`operator=`) mövcud obyektə başqa bir obyektin resurslarını köçürür. Sintaksis:\nClassName& operator=(ClassName&& other) noexcept;\nBu, köçürmə konstruktoruna bənzəyir, lakin mövcud obyektə tətbiq olunur."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor\\n\"; }\n  Resource& operator=(Resource&& other) noexcept {\n    data = std::move(other.data);\n    other.data = \"\";\n    std::cout << \"Move assignment\\n\";\n    return *this;\n  }\n};\n\nint main() {\n  Resource obj1(\"Test\");\n  Resource obj2(\"Temp\");\n  obj2 = std::move(obj1);\n  std::cout << \"obj1: \" << obj1.data << \"\\nobj2: \" << obj2.data << std::endl;\n  return 0;\n}\n// Output:\n// Constructor\n// Constructor\n// Move assignment\n// obj1: \n// obj2: Test"
+        },
+        {
+          "type": "heading",
+          "text": "Performans Üstünlükləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Köçürmə semantikası surət çıxarma ilə müqayisədə daha az yaddaş və vaxt tələb edir. Məsələn, böyük bir `std::vector` obyektini kopyalamaq yerinə köçürmək yaddaşı və vaxtı əhəmiyyətli dərəcədə qənaət edir, çünki yalnız pointerlər köçürülür."
+        },
+        {
+          "type": "heading",
+          "text": "Real Həyatda İstifadə Ssenariləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Köçürmə semantikası aşağıdakı hallarda istifadə olunur:\n- **Böyük Verilənlər Strukturları**: `std::vector`, `std::string` kimi strukturlarda.\n- **Resurs İdarəetməsi**: Dinamik yaddaş və ya fayl tutacaqları (file handles).\n- **Konteyner Əməliyyatları**: Elementlərin konteynerə əlavə edilməsi və ya silinməsi.\nMəsələn, bir tətbiq böyük verilənlər dəstini bir konteynerdən digərinə köçürərkən `std::move` istifadə edə bilər."
+        },
+        {
+          "type": "paragraph",
+          "text": "Köçürmə semantikası proqramın performansını artırır, çünki lazımsız kopyalamaların qarşısını alır və resursların səmərəli idarə edilməsini təmin edir."
+        },
+        {
+          "type": "heading",
+          "text": "Köçürmə Semantikasının Məqsədi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Köçürmə semantikası resurs idarəetməsini optimallaşdırır, performansı artırır və kodun səmərəliliyini təmin edir, xüsusilə böyük obyektlərlə işləyərkən."
+        },
+        {
+          "type": "heading",
+          "text": "Əsas Xüsusiyyətlər"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Performans",
+              "description": "Lazımsız kopyalamaları aradan qaldırır."
+            },
+            {
+              "term": "Resurs İdarəetməsi",
+              "description": "Resursları səmərəli köçürür."
+            },
+            {
+              "term": "Sağ Dəyər İstinadları",
+              "description": "Müvəqqəti obyektləri bağlayır."
+            },
+            {
+              "term": "std::move",
+              "description": "Köçürməni mümkün edir."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Təhlükələr və Tövsiyələr"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Təhlükələr**: `std::move` istifadə edildikdə köçürülən obyektin vəziyyəti dəyişir (adətən boş olur), bu da yanlış istifadədə səhvlərə səbəb ola bilər. Köçürmə konstruktorlarının düzgün tətbiq edilməməsi resurs sızmalarına yol aça bilər.\n- **Tövsiyələr**: Köçürmə konstruktorlarında və assignment operatorunda `noexcept` istifadə edin, köçürülən obyektlərin vəziyyətini yoxlayın, `std::move` ilə ehtiyatlı olun, Visual Studio və ya CLion kimi IDE-lərdən istifadə edin."
+        },
+        {
+          "type": "paragraph",
+          "text": "Məsələn, `std::move` istifadə edərkən köçürülən obyektin sonrakı istifadəsini planlaşdırırsınızsa, onun vəziyyətini yoxlayın."
+        },
+        {
+          "type": "heading",
+          "text": "Sınaq üçün Nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "#include <iostream>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor\\n\"; }\n  Resource(Resource&& other) noexcept : data(std::move(other.data)) {\n    std::cout << \"Move constructor\\n\";\n    other.data = \"\";\n  }\n};\n\nint main() {\n  Resource obj1(\"Test\");\n  Resource obj2 = std::move(obj1);\n  std::cout << \"obj1: \" << obj1.data << \"\\nobj2: \" << obj2.data << std::endl;\n  return 0;\n}\n// Output:\n// Constructor\n// Move constructor\n// obj1: \n// obj2: Test"
+        }
+      ]
+    },
+    "en": {
+      "title": "Move Semantics & Rvalue References",
+      "language": "cpp",
+      "description": "In C++, move semantics and rvalue references enable efficient resource management, improving performance.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "What is Move Semantics?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Move semantics, introduced in C++11, is a mechanism that allows transferring resources from one object to another instead of copying them. This is particularly useful for large objects like `std::string` or `std::vector`, as it improves performance by avoiding costly copies."
+        },
+        {
+          "type": "paragraph",
+          "text": "Traditional copy semantics create a new copy of an object, which can be expensive in terms of memory and time. Move semantics transfers resources to a new object and leaves the original in a valid but empty state, enhancing efficiency."
+        },
+        {
+          "type": "heading",
+          "text": "Rvalue References (&&)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Rvalue references (`&&`) are used to bind to temporary objects (rvalues), such as the result of a function call or expression. They are the foundation of move semantics."
+        },
+        {
+          "type": "paragraph",
+          "text": "Rvalues are temporary objects, while lvalues are typically variables with a fixed memory address. Rvalue references allow efficient handling of temporaries."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <string>\n\nvoid printValue(std::string&& value) {\n  std::cout << \"Rvalue: \" << value << std::endl;\n}\n\nvoid printValue(const std::string& value) {\n  std::cout << \"Lvalue: \" << value << std::endl;\n}\n\nint main() {\n  std::string str = \"Hello\";\n  printValue(str);\n  printValue(\"World\");\n  return 0;\n}\n// Output:\n// Lvalue: Hello\n// Rvalue: World"
+        },
+        {
+          "type": "heading",
+          "text": "Move Constructor"
+        },
+        {
+          "type": "paragraph",
+          "text": "A move constructor transfers resources from one object to another. Syntax:\nclass ClassName {\npublic:\n  ClassName(ClassName&& other) noexcept;\n};\nThe `noexcept` specifier improves performance by indicating the operation won’t throw exceptions."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor\\n\"; }\n  Resource(Resource&& other) noexcept : data(std::move(other.data)) {\n    std::cout << \"Move constructor\\n\";\n    other.data = \"\";\n  }\n};\n\nint main() {\n  Resource obj1(\"Test\");\n  Resource obj2 = std::move(obj1);\n  std::cout << \"obj1: \" << obj1.data << \"\\nobj2: \" << obj2.data << std::endl;\n  return 0;\n}\n// Output:\n// Constructor\n// Move constructor\n// obj1: \n// obj2: Test"
+        },
+        {
+          "type": "heading",
+          "text": "What is std::move?"
+        },
+        {
+          "type": "paragraph",
+          "text": "`std::move` converts an object into an rvalue reference, enabling move semantics. It doesn’t move resources itself but signals that the object can be moved."
+        },
+        {
+          "type": "heading",
+          "text": "Move Assignment Operator"
+        },
+        {
+          "type": "paragraph",
+          "text": "The move assignment operator (`operator=`) transfers resources to an existing object. Syntax:\nClassName& operator=(ClassName&& other) noexcept;\nIt’s similar to the move constructor but applies to existing objects."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor\\n\"; }\n  Resource& operator=(Resource&& other) noexcept {\n    data = std::move(other.data);\n    other.data = \"\";\n    std::cout << \"Move assignment\\n\";\n    return *this;\n  }\n};\n\nint main() {\n  Resource obj1(\"Test\");\n  Resource obj2(\"Temp\");\n  obj2 = std::move(obj1);\n  std::cout << \"obj1: \" << obj1.data << \"\\nobj2: \" << obj2.data << std::endl;\n  return 0;\n}\n// Output:\n// Constructor\n// Constructor\n// Move assignment\n// obj1: \n// obj2: Test"
+        },
+        {
+          "type": "heading",
+          "text": "Performance Benefits"
+        },
+        {
+          "type": "paragraph",
+          "text": "Move semantics requires less memory and time compared to copying. For example, moving a large `std::vector` transfers pointers instead of copying all elements, saving resources."
+        },
+        {
+          "type": "heading",
+          "text": "Real-world Use Cases"
+        },
+        {
+          "type": "paragraph",
+          "text": "Move semantics is used in:\n- **Large Data Structures**: `std::vector`, `std::string`.\n- **Resource Management**: Dynamic memory or file handles.\n- **Container Operations**: Adding or removing elements in containers.\nFor example, an application can use `std::move` to transfer large datasets between containers efficiently."
+        },
+        {
+          "type": "paragraph",
+          "text": "Move semantics improves performance by avoiding unnecessary copies and ensuring efficient resource management."
+        },
+        {
+          "type": "heading",
+          "text": "Purpose of Move Semantics"
+        },
+        {
+          "type": "paragraph",
+          "text": "Move semantics optimizes resource management, enhances performance, and ensures code efficiency, especially with large objects."
+        },
+        {
+          "type": "heading",
+          "text": "Key Features"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Performance",
+              "description": "Eliminates unnecessary copies."
+            },
+            {
+              "term": "Resource Management",
+              "description": "Efficiently transfers resources."
+            },
+            {
+              "term": "Rvalue References",
+              "description": "Binds to temporary objects."
+            },
+            {
+              "term": "std::move",
+              "description": "Enables moving."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Dangers and Recommendations"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Dangers**: Using `std::move` changes the state of the moved object (often leaving it empty), which can cause errors if misused. Incorrect move constructor implementation may lead to resource leaks.\n- **Recommendations**: Use `noexcept` in move constructors and assignment operators, check the state of moved objects, use `std::move` cautiously, and leverage IDEs like Visual Studio or CLion."
+        },
+        {
+          "type": "paragraph",
+          "text": "For example, when using `std::move`, ensure the moved object’s state is checked if it will be used later."
+        },
+        {
+          "type": "heading",
+          "text": "Try it Yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "#include <iostream>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor\\n\"; }\n  Resource(Resource&& other) noexcept : data(std::move(other.data)) {\n    std::cout << \"Move constructor\\n\";\n    other.data = \"\";\n  }\n};\n\nint main() {\n  Resource obj1(\"Test\");\n  Resource obj2 = std::move(obj1);\n  std::cout << \"obj1: \" << obj1.data << \"\\nobj2: \" << obj2.data << std::endl;\n  return 0;\n}\n// Output:\n// Constructor\n// Move constructor\n// obj1: \n// obj2: Test"
+        }
+      ]
+    },
+    "ru": {
+      "title": "Семантика перемещения и ссылки на rvalue",
+      "language": "cpp",
+      "description": "В C++ семантика перемещения и ссылки на rvalue обеспечивают эффективное управление ресурсами, повышая производительность.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Что такое семантика перемещения?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Семантика перемещения, введённая в C++11, позволяет передавать ресурсы одного объекта другому вместо их копирования. Это особенно полезно для больших объектов, таких как `std::string` или `std::vector`, так как повышает производительность, избегая дорогостоящих копий."
+        },
+        {
+          "type": "paragraph",
+          "text": "Традиционная семантика копирования создаёт новую копию объекта, что может быть затратно по памяти и времени. Семантика перемещения передаёт ресурсы новому объекту, оставляя исходный в допустимом, но пустом состоянии, повышая эффективность."
+        },
+        {
+          "type": "heading",
+          "text": "Ссылки на rvalue (&&)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Ссылки на rvalue (`&&`) используются для привязки к временным объектам (rvalues), таким как результат вызова функции или выражения. Они являются основой семантики перемещения."
+        },
+        {
+          "type": "paragraph",
+          "text": "Rvalue — это временные объекты, а lvalue — это обычно переменные с фиксированным адресом в памяти. Ссылки на rvalue позволяют эффективно обрабатывать временные объекты."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <string>\n\nvoid printValue(std::string&& value) {\n  std::cout << \"Rvalue: \" << value << std::endl;\n}\n\nvoid printValue(const std::string& value) {\n  std::cout << \"Lvalue: \" << value << std::endl;\n}\n\nint main() {\n  std::string str = \"Hello\";\n  printValue(str);\n  printValue(\"World\");\n  return 0;\n}\n// Output:\n// Lvalue: Hello\n// Rvalue: World"
+        },
+        {
+          "type": "heading",
+          "text": "Конструктор перемещения"
+        },
+        {
+          "type": "paragraph",
+          "text": "Конструктор перемещения передаёт ресурсы одного объекта другому. Синтаксис:\nclass ClassName {\npublic:\n  ClassName(ClassName&& other) noexcept;\n};\nСпецификатор `noexcept` повышает производительность, указывая, что операция не вызовет исключений."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor\\n\"; }\n  Resource(Resource&& other) noexcept : data(std::move(other.data)) {\n    std::cout << \"Move constructor\\n\";\n    other.data = \"\";\n  }\n};\n\nint main() {\n  Resource obj1(\"Test\");\n  Resource obj2 = std::move(obj1);\n  std::cout << \"obj1: \" << obj1.data << \"\\nobj2: \" << obj2.data << std::endl;\n  return 0;\n}\n// Output:\n// Constructor\n// Move constructor\n// obj1: \n// obj2: Test"
+        },
+        {
+          "type": "heading",
+          "text": "Что такое std::move?"
+        },
+        {
+          "type": "paragraph",
+          "text": "`std::move` преобразует объект в ссылку на rvalue, позволяя применять семантику перемещения. Он не перемещает ресурсы сам по себе, а лишь указывает, что объект можно переместить."
+        },
+        {
+          "type": "heading",
+          "text": "Оператор присваивания перемещения"
+        },
+        {
+          "type": "paragraph",
+          "text": "Оператор присваивания перемещения (`operator=`) передаёт ресурсы существующему объекту. Синтаксис:\nClassName& operator=(ClassName&& other) noexcept;\nОн похож на конструктор перемещения, но применяется к существующим объектам."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor\\n\"; }\n  Resource& operator=(Resource&& other) noexcept {\n    data = std::move(other.data);\n    other.data = \"\";\n    std::cout << \"Move assignment\\n\";\n    return *this;\n  }\n};\n\nint main() {\n  Resource obj1(\"Test\");\n  Resource obj2(\"Temp\");\n  obj2 = std::move(obj1);\n  std::cout << \"obj1: \" << obj1.data << \"\\nobj2: \" << obj2.data << std::endl;\n  return 0;\n}\n// Output:\n// Constructor\n// Constructor\n// Move assignment\n// obj1: \n// obj2: Test"
+        },
+        {
+          "type": "heading",
+          "text": "Преимущества производительности"
+        },
+        {
+          "type": "paragraph",
+          "text": "Семантика перемещения требует меньше памяти и времени по сравнению с копированием. Например, перемещение большого объекта `std::vector` передаёт указатели вместо копирования всех элементов, экономя ресурсы."
+        },
+        {
+          "type": "heading",
+          "text": "Примеры из реальной жизни"
+        },
+        {
+          "type": "paragraph",
+          "text": "Семантика перемещения используется в:\n- **Больших структурах данных**: `std::vector`, `std::string`.\n- **Управлении ресурсами**: Динамическая память или дескрипторы файлов.\n- **Операциях с контейнерами**: Добавление или удаление элементов в контейнерах.\nНапример, приложение может использовать `std::move` для эффективного переноса больших наборов данных между контейнерами."
+        },
+        {
+          "type": "paragraph",
+          "text": "Семантика перемещения повышает производительность, избегая ненужных копий и обеспечивая эффективное управление ресурсами."
+        },
+        {
+          "type": "heading",
+          "text": "Цель семантики перемещения"
+        },
+        {
+          "type": "paragraph",
+          "text": "Семантика перемещения оптимизирует управление ресурсами, повышает производительность и обеспечивает эффективность кода, особенно при работе с большими объектами."
+        },
+        {
+          "type": "heading",
+          "text": "Основные характеристики"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Производительность",
+              "description": "Устраняет ненужные копии."
+            },
+            {
+              "term": "Управление ресурсами",
+              "description": "Эффективно передаёт ресурсы."
+            },
+            {
+              "term": "Ссылки на rvalue",
+              "description": "Привязывается к временным объектам."
+            },
+            {
+              "term": "std::move",
+              "description": "Позволяет перемещение."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Опасности и рекомендации"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Опасности**: Использование `std::move` изменяет состояние перемещённого объекта (обычно оставляя его пустым), что может привести к ошибкам при неправильном использовании. Некорректная реализация конструктора перемещения может вызвать утечки ресурсов.\n- **Рекомендации**: Используйте `noexcept` в конструкторах и операторах присваивания перемещения, проверяйте состояние перемещённых объектов, осторожно используйте `std::move`, применяйте IDE, такие как Visual Studio или CLion."
+        },
+        {
+          "type": "paragraph",
+          "text": "Например, при использовании `std::move` проверяйте состояние перемещённого объекта, если планируете его дальнейшее использование."
+        },
+        {
+          "type": "heading",
+          "text": "Попробуй сам"
+        },
+        {
+          "type": "editor",
+          "initialCode": "#include <iostream>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor\\n\"; }\n  Resource(Resource&& other) noexcept : data(std::move(other.data)) {\n    std::cout << \"Move constructor\\n\";\n    other.data = \"\";\n  }\n};\n\nint main() {\n  Resource obj1(\"Test\");\n  Resource obj2 = std::move(obj1);\n  std::cout << \"obj1: \" << obj1.data << \"\\nobj2: \" << obj2.data << std::endl;\n  return 0;\n}\n// Output:\n// Constructor\n// Move constructor\n// obj1: \n// obj2: Test"
+        }
+      ]
+    }
+  }

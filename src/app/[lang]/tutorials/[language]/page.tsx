@@ -43,7 +43,7 @@ const LANGUAGE_MAPPING: { [key: string]: string } = {
   Python: "python",
   Java: "java",
   C: "c",
-  "C++": "c++",
+  "C++": "cpp",
   "Go (Golang)": "go",
   Rust: "rust",
   TypeScript: "typescript",

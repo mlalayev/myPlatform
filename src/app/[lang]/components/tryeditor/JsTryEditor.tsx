@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import MonacoEditor from "@monaco-editor/react";
+import MonacoEditor from "@monaco-editor/react"
 import styles from "./JsTryEditor.module.css";
 import SavadliButton from "../Buttons/savadliButton/SavadliButton";
 import CopyButton from "../Buttons/copyButton/CopyButton";

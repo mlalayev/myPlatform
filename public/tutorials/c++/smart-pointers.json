@@ -1,0 +1,419 @@
+{
+    "az": {
+      "title": "Smart Pointers",
+      "language": "cpp",
+      "description": "C++-da Smart Pointers (`unique_ptr`, `shared_ptr`, `weak_ptr`) yaddaş idarəetməsini avtomatlaşdırır və yaddaş sızmalarını önləyir.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Smart Pointers nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Smart Pointers C++-da yaddaş idarəetməsini asanlaşdırmaq üçün təqdim edilmiş siniflərdir. Onlar dinamik yaddaşı avtomatik idarə edir, yaddaş sızmalarını (memory leaks) və asılı Pointersi (dangling pointers) önləyir. Ənənəvi xam Pointers (`raw pointers`) əl ilə idarəetmə tələb edir, bu da səhvlərə səbəb ola bilər. Smart Pointers isə RAII (Resource Acquisition Is Initialization) prinsipinə əsaslanaraq resursları avtomatik azad edir."
+        },
+        {
+          "type": "paragraph",
+          "text": "C++-da üç əsas Smart göstərici növü var: `std::unique_ptr`, `std::shared_ptr` və `std::weak_ptr`. Hər biri fərqli istifadə ssenariləri üçün nəzərdə tutulub."
+        },
+        {
+          "type": "heading",
+          "text": "std::unique_ptr"
+        },
+        {
+          "type": "paragraph",
+          "text": "`std::unique_ptr` tək bir obyektə eksklüziv sahiblik təmin edir. Bu, resursun yalnız bir Smart göstərici tərəfindən idarə olunduğunu bildirir. `std::unique_ptr` köçürülə bilər (move semantics ilə), lakin kopyalana bilməz. Obyektin ömrü bitdikdə, `std::unique_ptr` avtomatik olaraq yaddaşı azad edir."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <memory>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor: \" << data << \"\\n\"; }\n  ~Resource() { std::cout << \"Destructor: \" << data << \"\\n\"; }\n};\n\nint main() {\n  std::unique_ptr<Resource> ptr = std::make_unique<Resource>(\"Test\");\n  std::cout << \"Data: \" << ptr->data << \"\\n\";\n  return 0;\n}\n// Output:\n// Constructor: Test\n// Data: Test\n// Destructor: Test"
+        },
+        {
+          "type": "heading",
+          "text": "std::shared_ptr"
+        },
+        {
+          "type": "paragraph",
+          "text": "`std::shared_ptr` bir obyektə çoxsaylı Smart Pointersin sahiblik etməsinə imkan verir. O, referans sayğacından (reference counter) istifadə edərək resursun neçə `shared_ptr` tərəfindən istifadə olunduğunu izləyir. Son `shared_ptr` məhv edildikdə resurs azad olunur."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <memory>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor: \" << data << \"\\n\"; }\n  ~Resource() { std::cout << \"Destructor: \" << data << \"\\n\"; }\n};\n\nint main() {\n  std::shared_ptr<Resource> ptr1 = std::make_shared<Resource>(\"Shared\");\n  {\n    std::shared_ptr<Resource> ptr2 = ptr1;\n    std::cout << \"ptr1 data: \" << ptr1->data << \"\\n\";\n    std::cout << \"ptr2 data: \" << ptr2->data << \"\\n\";\n    std::cout << \"Reference count: \" << ptr1.use_count() << \"\\n\";\n  }\n  std::cout << \"After scope, ptr1 data: \" << ptr1->data << \"\\n\";\n  return 0;\n}\n// Output:\n// Constructor: Shared\n// ptr1 data: Shared\n// ptr2 data: Shared\n// Reference count: 2\n// After scope, ptr1 data: Shared\n// Destructor: Shared"
+        },
+        {
+          "type": "heading",
+          "text": "std::weak_ptr"
+        },
+        {
+          "type": "paragraph",
+          "text": "`std::weak_ptr` `std::shared_ptr` ilə birlikdə istifadə olunur və resursa sahiblik etmədən ona istinad edir. Bu, dairəvi istinad problemlərini (circular references) həll etmək üçün faydalıdır. `std::weak_ptr` resursun hələ də mövcud olub-olmadığını yoxlamaq üçün `expired()` və `lock()` metodlarından istifadə edir."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <memory>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor: \" << data << \"\\n\"; }\n  ~Resource() { std::cout << \"Destructor: \" << data << \"\\n\"; }\n};\n\nint main() {\n  std::weak_ptr<Resource> weak;\n  {\n    std::shared_ptr<Resource> shared = std::make_shared<Resource>(\"WeakTest\");\n    weak = shared;\n    if (auto temp = weak.lock()) {\n      std::cout << \"Weak ptr data: \" << temp->data << \"\\n\";\n    }\n  }\n  std::cout << \"Expired: \" << (weak.expired() ? \"Yes\" : \"No\") << \"\\n\";\n  return 0;\n}\n// Output:\n// Constructor: WeakTest\n// Weak ptr data: WeakTest\n// Destructor: WeakTest\n// Expired: Yes"
+        },
+        {
+          "type": "heading",
+          "text": "Yaddaş İdarəetməsi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Smart Pointers yaddaş idarəetməsini avtomatlaşdırır. `std::unique_ptr` tək sahiblik üçün idealdır, `std::shared_ptr` çoxsaylı istinadlar üçün, `std::weak_ptr` isə dairəvi istinadların qarşısını almaq üçün istifadə olunur. Bu, xam Pointerslə işləyərkən yaranan yaddaş sızması və ya asılı göstərici kimi problemləri aradan qaldırır."
+        },
+        {
+          "type": "heading",
+          "text": "std::make_unique və std::make_shared"
+        },
+        {
+          "type": "paragraph",
+          "text": "`std::make_unique` və `std::make_shared` Smart Pointers yaratmaq üçün təhlükəsiz və səmərəli funksiyalardır. Onlar yaddaşın birbaşa ayrılmasını təmin edir və istisnalarla bağlı təhlükəsizliyi artırır."
+        },
+        {
+          "type": "heading",
+          "text": "Real Həyatda İstifadə Ssenariləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Smart Pointers aşağıdakı hallarda istifadə olunur:\n- **Dinamik Yaddaş İdarəetməsi**: Obyektlərin avtomatik azad edilməsi.\n- **Konteynerlər**: `std::vector<std::shared_ptr<T>>` kimi strukturlarda.\n- **Dairəvi İstinadların Qarşısını Almaq**: `std::weak_ptr` ilə kompleks qrafiklərdə.\n- **Resurs Paylaşımı**: Çoxsaylı obyektlər arasında resurs paylaşımı.\nMəsələn, bir tətbiq böyük verilənlər dəstini idarə etmək üçün `std::shared_ptr` istifadə edə bilər."
+        },
+        {
+          "type": "paragraph",
+          "text": "Smart Pointers yaddaş idarəetməsini təhlükəsiz və səmərəli edir, çünki əl ilə `delete` çağırmağa ehtiyac yoxdur."
+        },
+        {
+          "type": "heading",
+          "text": "Smart Pointersin Məqsədi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Smart Pointers yaddaş idarəetməsini avtomatlaşdırır, yaddaş sızmalarını önləyir və proqramın təhlükəsizliyini və səmərəliliyini artırır."
+        },
+        {
+          "type": "heading",
+          "text": "Əsas Xüsusiyyətlər"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Avtomatlaşdırma",
+              "description": "Yaddaşı avtomatik azad edir."
+            },
+            {
+              "term": "Təhlükəsizlik",
+              "description": "Yaddaş sızmalarını və asılı Pointersi önləyir."
+            },
+            {
+              "term": "std::unique_ptr",
+              "description": "Tək sahiblik təmin edir."
+            },
+            {
+              "term": "std::shared_ptr",
+              "description": "Çoxsaylı sahiblik və referans sayğacı."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Təhlükələr və Tövsiyələr"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Təhlükələr**: `std::shared_ptr` ilə dairəvi istinadlar yaddaş sızmasına səbəb ola bilər. Smart və xam Pointersi qarışdırmaq səhvlərə yol aça bilər.\n- **Tövsiyələr**: `std::make_unique` və `std::make_shared` istifadə edin, dairəvi istinadları `std::weak_ptr` ilə həll edin, xam Pointerslə ehtiyatlı olun, Visual Studio və ya CLion kimi IDE-lərdən istifadə edin."
+        },
+        {
+          "type": "paragraph",
+          "text": "Məsələn, `std::shared_ptr` istifadə edərkən dairəvi istinadlardan qaçmaq üçün `std::weak_ptr` istifadə edin."
+        },
+        {
+          "type": "heading",
+          "text": "Sınaq üçün Nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "#include <iostream>\n#include <memory>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor: \" << data << \"\\n\"; }\n  ~Resource() { std::cout << \"Destructor: \" << data << \"\\n\"; }\n};\n\nint main() {\n  std::unique_ptr<Resource> ptr = std::make_unique<Resource>(\"Test\");\n  std::cout << \"Data: \" << ptr->data << \"\\n\";\n  return 0;\n}\n// Output:\n// Constructor: Test\n// Data: Test\n// Destructor: Test"
+        }
+      ]
+    },
+    "en": {
+      "title": "Smart Pointers",
+      "language": "cpp",
+      "description": "In C++, smart pointers (`unique_ptr`, `shared_ptr`, `weak_ptr`) automate memory management and prevent memory leaks.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "What are Smart Pointers?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Smart pointers in C++ are classes designed to simplify memory management. They automatically manage dynamically allocated memory, preventing memory leaks and dangling pointers. Unlike raw pointers, which require manual management, smart pointers use RAII (Resource Acquisition Is Initialization) to automatically release resources."
+        },
+        {
+          "type": "paragraph",
+          "text": "C++ provides three main smart pointer types: `std::unique_ptr`, `std::shared_ptr`, and `std::weak_ptr`, each designed for specific use cases."
+        },
+        {
+          "type": "heading",
+          "text": "std::unique_ptr"
+        },
+        {
+          "type": "paragraph",
+          "text": "`std::unique_ptr` ensures exclusive ownership of an object. Only one `unique_ptr` can manage a resource at a time. It supports move semantics but cannot be copied. When the `unique_ptr` goes out of scope, the resource is automatically freed."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <memory>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor: \" << data << \"\\n\"; }\n  ~Resource() { std::cout << \"Destructor: \" << data << \"\\n\"; }\n};\n\nint main() {\n  std::unique_ptr<Resource> ptr = std::make_unique<Resource>(\"Test\");\n  std::cout << \"Data: \" << ptr->data << \"\\n\";\n  return 0;\n}\n// Output:\n// Constructor: Test\n// Data: Test\n// Destructor: Test"
+        },
+        {
+          "type": "heading",
+          "text": "std::shared_ptr"
+        },
+        {
+          "type": "paragraph",
+          "text": "`std::shared_ptr` allows multiple smart pointers to share ownership of a resource. It uses a reference counter to track how many `shared_ptr` instances point to the resource. The resource is freed when the last `shared_ptr` is destroyed."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <memory>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor: \" << data << \"\\n\"; }\n  ~Resource() { std::cout << \"Destructor: \" << data << \"\\n\"; }\n};\n\nint main() {\n  std::shared_ptr<Resource> ptr1 = std::make_shared<Resource>(\"Shared\");\n  {\n    std::shared_ptr<Resource> ptr2 = ptr1;\n    std::cout << \"ptr1 data: \" << ptr1->data << \"\\n\";\n    std::cout << \"ptr2 data: \" << ptr2->data << \"\\n\";\n    std::cout << \"Reference count: \" << ptr1.use_count() << \"\\n\";\n  }\n  std::cout << \"After scope, ptr1 data: \" << ptr1->data << \"\\n\";\n  return 0;\n}\n// Output:\n// Constructor: Shared\n// ptr1 data: Shared\n// ptr2 data: Shared\n// Reference count: 2\n// After scope, ptr1 data: Shared\n// Destructor: Shared"
+        },
+        {
+          "type": "heading",
+          "text": "std::weak_ptr"
+        },
+        {
+          "type": "paragraph",
+          "text": "`std::weak_ptr` works with `std::shared_ptr` but does not own the resource. It’s used to break circular references. `std::weak_ptr` checks if the resource still exists using `expired()` and `lock()` methods."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <memory>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor: \" << data << \"\\n\"; }\n  ~Resource() { std::cout << \"Destructor: \" << data << \"\\n\"; }\n};\n\nint main() {\n  std::weak_ptr<Resource> weak;\n  {\n    std::shared_ptr<Resource> shared = std::make_shared<Resource>(\"WeakTest\");\n    weak = shared;\n    if (auto temp = weak.lock()) {\n      std::cout << \"Weak ptr data: \" << temp->data << \"\\n\";\n    }\n  }\n  std::cout << \"Expired: \" << (weak.expired() ? \"Yes\" : \"No\") << \"\\n\";\n  return 0;\n}\n// Output:\n// Constructor: WeakTest\n// Weak ptr data: WeakTest\n// Destructor: WeakTest\n// Expired: Yes"
+        },
+        {
+          "type": "heading",
+          "text": "Memory Management"
+        },
+        {
+          "type": "paragraph",
+          "text": "Smart pointers automate memory management. `std::unique_ptr` is ideal for single ownership, `std::shared_ptr` for shared ownership, and `std::weak_ptr` for avoiding circular references. They eliminate issues like memory leaks and dangling pointers common with raw pointers."
+        },
+        {
+          "type": "heading",
+          "text": "std::make_unique and std::make_shared"
+        },
+        {
+          "type": "paragraph",
+          "text": "`std::make_unique` and `std::make_shared` are safe and efficient ways to create smart pointers. They handle memory allocation directly and improve exception safety."
+        },
+        {
+          "type": "heading",
+          "text": "Real-world Use Cases"
+        },
+        {
+          "type": "paragraph",
+          "text": "Smart pointers are used in:\n- **Dynamic Memory Management**: Automatic resource cleanup.\n- **Containers**: Structures like `std::vector<std::shared_ptr<T>>`.\n- **Avoiding Circular References**: Using `std::weak_ptr` in complex graphs.\n- **Resource Sharing**: Sharing resources among multiple objects.\nFor example, an application can use `std::shared_ptr` to manage large datasets."
+        },
+        {
+          "type": "paragraph",
+          "text": "Smart pointers make memory management safe and efficient, eliminating the need for manual `delete` calls."
+        },
+        {
+          "type": "heading",
+          "text": "Purpose of Smart Pointers"
+        },
+        {
+          "type": "paragraph",
+          "text": "Smart pointers automate memory management, prevent memory leaks, and enhance program safety and efficiency."
+        },
+        {
+          "type": "heading",
+          "text": "Key Features"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Automation",
+              "description": "Automatically frees memory."
+            },
+            {
+              "term": "Safety",
+              "description": "Prevents memory leaks and dangling pointers."
+            },
+            {
+              "term": "std::unique_ptr",
+              "description": "Ensures single ownership."
+            },
+            {
+              "term": "std::shared_ptr",
+              "description": "Supports multiple ownership with reference counting."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Dangers and Recommendations"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Dangers**: Circular references with `std::shared_ptr` can cause memory leaks. Mixing smart and raw pointers may lead to errors.\n- **Recommendations**: Use `std::make_unique` and `std::make_shared`, resolve circular references with `std::weak_ptr`, avoid raw pointers, and use IDEs like Visual Studio or CLion."
+        },
+        {
+          "type": "paragraph",
+          "text": "For example, when using `std::shared_ptr`, avoid circular references by using `std::weak_ptr`."
+        },
+        {
+          "type": "heading",
+          "text": "Try it Yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "#include <iostream>\n#include <memory>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor: \" << data << \"\\n\"; }\n  ~Resource() { std::cout << \"Destructor: \" << data << \"\\n\"; }\n};\n\nint main() {\n  std::unique_ptr<Resource> ptr = std::make_unique<Resource>(\"Test\");\n  std::cout << \"Data: \" << ptr->data << \"\\n\";\n  return 0;\n}\n// Output:\n// Constructor: Test\n// Data: Test\n// Destructor: Test"
+        }
+      ]
+    },
+    "ru": {
+      "title": "Умные указатели",
+      "language": "cpp",
+      "description": "В C++ умные указатели (`unique_ptr`, `shared_ptr`, `weak_ptr`) автоматизируют управление памятью и предотвращают утечки памяти.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Что такое умные указатели?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Умные указатели в C++ — это классы, упрощающие управление памятью. Они автоматически управляют динамически выделенной памятью, предотвращая утечки памяти и висячие указатели. В отличие от сырых указателей, требующих ручного управления, умные указатели используют принцип RAII (Resource Acquisition Is Initialization) для автоматического освобождения ресурсов."
+        },
+        {
+          "type": "paragraph",
+          "text": "В C++ есть три основных типа умных указателей: `std::unique_ptr`, `std::shared_ptr` и `std::weak_ptr`, каждый из которых предназначен для определённых сценариев использования."
+        },
+        {
+          "type": "heading",
+          "text": "std::unique_ptr"
+        },
+        {
+          "type": "paragraph",
+          "text": "`std::unique_ptr` обеспечивает эксклюзивное владение объектом. Только один `unique_ptr` может управлять ресурсом. Он поддерживает семантику перемещения, но не копирования. Когда `unique_ptr` выходит из области видимости, ресурс автоматически освобождается."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <memory>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor: \" << data << \"\\n\"; }\n  ~Resource() { std::cout << \"Destructor: \" << data << \"\\n\"; }\n};\n\nint main() {\n  std::unique_ptr<Resource> ptr = std::make_unique<Resource>(\"Test\");\n  std::cout << \"Data: \" << ptr->data << \"\\n\";\n  return 0;\n}\n// Output:\n// Constructor: Test\n// Data: Test\n// Destructor: Test"
+        },
+        {
+          "type": "heading",
+          "text": "std::shared_ptr"
+        },
+        {
+          "type": "paragraph",
+          "text": "`std::shared_ptr` позволяет нескольким умным указателям совместно владеть ресурсом. Он использует счётчик ссылок для отслеживания количества указателей, ссылающихся на ресурс. Ресурс освобождается, когда уничтожается последний `shared_ptr`."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <memory>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor: \" << data << \"\\n\"; }\n  ~Resource() { std::cout << \"Destructor: \" << data << \"\\n\"; }\n};\n\nint main() {\n  std::shared_ptr<Resource> ptr1 = std::make_shared<Resource>(\"Shared\");\n  {\n    std::shared_ptr<Resource> ptr2 = ptr1;\n    std::cout << \"ptr1 data: \" << ptr1->data << \"\\n\";\n    std::cout << \"ptr2 data: \" << ptr2->data << \"\\n\";\n    std::cout << \"Reference count: \" << ptr1.use_count() << \"\\n\";\n  }\n  std::cout << \"After scope, ptr1 data: \" << ptr1->data << \"\\n\";\n  return 0;\n}\n// Output:\n// Constructor: Shared\n// ptr1 data: Shared\n// ptr2 data: Shared\n// Reference count: 2\n// After scope, ptr1 data: Shared\n// Destructor: Shared"
+        },
+        {
+          "type": "heading",
+          "text": "std::weak_ptr"
+        },
+        {
+          "type": "paragraph",
+          "text": "`std::weak_ptr` используется вместе с `std::shared_ptr` и ссылается на ресурс без владения им. Он помогает избежать циклических ссылок. `std::weak_ptr` использует методы `expired()` и `lock()` для проверки существования ресурса."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <memory>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor: \" << data << \"\\n\"; }\n  ~Resource() { std::cout << \"Destructor: \" << data << \"\\n\"; }\n};\n\nint main() {\n  std::weak_ptr<Resource> weak;\n  {\n    std::shared_ptr<Resource> shared = std::make_shared<Resource>(\"WeakTest\");\n    weak = shared;\n    if (auto temp = weak.lock()) {\n      std::cout << \"Weak ptr data: \" << temp->data << \"\\n\";\n    }\n  }\n  std::cout << \"Expired: \" << (weak.expired() ? \"Yes\" : \"No\") << \"\\n\";\n  return 0;\n}\n// Output:\n// Constructor: WeakTest\n// Weak ptr data: WeakTest\n// Destructor: WeakTest\n// Expired: Yes"
+        },
+        {
+          "type": "heading",
+          "text": "Управление памятью"
+        },
+        {
+          "type": "paragraph",
+          "text": "Умные указатели автоматизируют управление памятью. `std::unique_ptr` идеален для единоличного владения, `std::shared_ptr` — для совместного владения, а `std::weak_ptr` — для предотвращения циклических ссылок. Они устраняют проблемы, такие как утечки памяти и висячие указатели, характерные для сырых указателей."
+        },
+        {
+          "type": "heading",
+          "text": "std::make_unique и std::make_shared"
+        },
+        {
+          "type": "paragraph",
+          "text": "`std::make_unique` и `std::make_shared` — это безопасные и эффективные способы создания умных указателей. Они обеспечивают прямое выделение памяти и повышают безопасность при работе с исключениями."
+        },
+        {
+          "type": "heading",
+          "text": "Примеры из реальной жизни"
+        },
+        {
+          "type": "paragraph",
+          "text": "Умные указатели используются в:\n- **Управлении динамической памятью**: Автоматическая очистка ресурсов.\n- **Контейнерах**: Структуры, такие как `std::vector<std::shared_ptr<T>>`.\n- **Избежании циклических ссылок**: Использование `std::weak_ptr` в сложных графах.\n- **Совместном использовании ресурсов**: Разделение ресурсов между несколькими объектами.\nНапример, приложение может использовать `std::shared_ptr` для управления большими наборами данных."
+        },
+        {
+          "type": "paragraph",
+          "text": "Умные указатели делают управление памятью безопасным и эффективным, устраняя необходимость ручного вызова `delete`."
+        },
+        {
+          "type": "heading",
+          "text": "Цель умных указателей"
+        },
+        {
+          "type": "paragraph",
+          "text": "Умные указатели автоматизируют управление памятью, предотвращают утечки памяти и повышают безопасность и эффективность программы."
+        },
+        {
+          "type": "heading",
+          "text": "Основные характеристики"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Автоматизация",
+              "description": "Автоматически освобождает память."
+            },
+            {
+              "term": "Безопасность",
+              "description": "Предотвращает утечки памяти и висячие указатели."
+            },
+            {
+              "term": "std::unique_ptr",
+              "description": "Обеспечивает единоличное владение."
+            },
+            {
+              "term": "std::shared_ptr",
+              "description": "Поддерживает множественное владение с подсчётом ссылок."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Опасности и рекомендации"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Опасности**: Циклические ссылки с `std::shared_ptr` могут вызвать утечки памяти. Смешивание умных и сырых указателей может привести к ошибкам.\n- **Рекомендации**: Используйте `std::make_unique` и `std::make_shared`, разрешайте циклические ссылки с помощью `std::weak_ptr`, избегайте сырых указателей, используйте IDE, такие как Visual Studio или CLion."
+        },
+        {
+          "type": "paragraph",
+          "text": "Например, при использовании `std::shared_ptr` избегайте циклических ссылок, применяя `std::weak_ptr`."
+        },
+        {
+          "type": "heading",
+          "text": "Попробуй сам"
+        },
+        {
+          "type": "editor",
+          "initialCode": "#include <iostream>\n#include <memory>\n#include <string>\n\nclass Resource {\npublic:\n  std::string data;\n  Resource(const std::string& d) : data(d) { std::cout << \"Constructor: \" << data << \"\\n\"; }\n  ~Resource() { std::cout << \"Destructor: \" << data << \"\\n\"; }\n};\n\nint main() {\n  std::unique_ptr<Resource> ptr = std::make_unique<Resource>(\"Test\");\n  std::cout << \"Data: \" << ptr->data << \"\\n\";\n  return 0;\n}\n// Output:\n// Constructor: Test\n// Data: Test\n// Destructor: Test"
+        }
+      ]
+    }
+  }
