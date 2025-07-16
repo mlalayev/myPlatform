@@ -3,7 +3,8 @@ import { promises as fs } from "fs";
 import { NextRequest } from "next/server";
 
 export async function GET(req, context) {
-  const { language, id } = context.params;
+  const params = await context.params;
+  const { language, id } = params;
   const filePath = path.join(
     process.cwd(),
     "public",

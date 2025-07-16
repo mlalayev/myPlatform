@@ -48,6 +48,13 @@ const languageShortMap: Record<string, string> = {
   matlab: "ML",
 };
 
+function languageAlias(lang: string) {
+  if (!lang) return '';
+  const l = lang.toLowerCase();
+  if (l === 'c++' || l === 'c%2b%2b') return 'cpp';
+  return l;
+}
+
 function renderContentBlock(
   block: ContentBlock,
   i: number,
@@ -99,8 +106,10 @@ function renderContentBlock(
       const handleEditorChange = (val: string) => {
         setEditorStates((prev) => ({ ...prev, [editorKey]: val }));
       };
-      // Always lowercase the language prop
-      const editorLanguage = (block.language || safeLanguage || '').toLowerCase();
+      // Prefer block.language (from JSON), fallback to safeLanguage (from URL)
+      const editorLanguage = block.language
+        ? languageAlias(block.language)
+        : languageAlias(safeLanguage);
       
 
       return (
@@ -127,6 +136,13 @@ function renderContentBlock(
     default:
       return null;
   }
+}
+
+// Add a helper for display name
+function displayLanguageName(lang: string) {
+  const l = languageAlias(lang);
+  if (l === 'cpp') return 'C++';
+  return lang.charAt(0).toUpperCase() + lang.slice(1);
 }
 
 export default function TutorialTopicPage() {
@@ -299,14 +315,9 @@ export default function TutorialTopicPage() {
           <div className={styles.sidebarHeaderNew}>
             <span className={styles.sidebarTitleNew}>
               {collapsed
-                ? languageShortMap[safeLanguage] ||
-                  (safeLanguage ? safeLanguage.slice(0, 2).toUpperCase() : "L")
-                : `${
-                    safeLanguage
-                      ? safeLanguage.charAt(0).toUpperCase() +
-                        safeLanguage.slice(1)
-                      : "Language"
-                  } Mövzular`}
+                ? languageShortMap[languageAlias(decodeURIComponent(safeLanguage))] ||
+                  (safeLanguage ? decodeURIComponent(safeLanguage).slice(0, 2).toUpperCase() : "L")
+                : `${displayLanguageName(decodeURIComponent(safeLanguage))} Mövzular`}
             </span>
             <button
               className={styles.collapseBtnNew}

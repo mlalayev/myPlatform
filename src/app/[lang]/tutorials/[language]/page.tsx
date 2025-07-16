@@ -43,7 +43,7 @@ const LANGUAGE_MAPPING: { [key: string]: string } = {
   Python: "python",
   Java: "java",
   C: "c",
-  "C++": "cpp",
+  "C++": "c++",
   "Go (Golang)": "go",
   Rust: "rust",
   TypeScript: "typescript",
@@ -264,9 +264,8 @@ export default function TutorialLanguagePage() {
   const router = useRouter();
   const langKey = Array.isArray(lang) ? lang[0] : lang || "az";
 
-  const [languageProgress, setLanguageProgress] = useState<LanguageProgress>(
-    {}
-  );
+  const [languageProgress, setLanguageProgress] = useState<LanguageProgress>({});
+  const [redirecting, setRedirecting] = useState(false);
 
   // Move all hooks to the top level
   // For frameworks/languages/algorithms/data-structures views
@@ -278,8 +277,17 @@ export default function TutorialLanguagePage() {
   const [loading, setLoading] = React.useState(true);
 
   useEffect(() => {
-    if (language === "algorithms" || language === "data-structures") {
-      router.replace(`/${langKey}/tutorials/languages/${language}/${language}`);
+    if (language === "algorithms" || language === "data-structures" || language === "topics") {
+      fetch(`/tutorials/${language}/topics.json`)
+        .then(res => res.json())
+        .then(data => {
+          const topics = data[langKey] || [];
+          if (topics.length > 0) {
+            const firstTopicId = topics[0].id;
+            setRedirecting(true);
+            router.replace(`/${langKey}/tutorials/languages/${language}/${firstTopicId}`);
+          }
+        });
     }
   }, [language, langKey, router]);
 
@@ -471,6 +479,15 @@ export default function TutorialLanguagePage() {
     }
     return cardContent;
   };
+
+  if (redirecting) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', fontSize: 22 }}>
+        <CodeLoader />
+        <div style={{ marginTop: 24 }}>Yönləndirilir...</div>
+      </div>
+    );
+  }
 
   // List view for frameworks
   if (language === "frameworks") {
