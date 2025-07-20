@@ -13,6 +13,7 @@ interface JsTryEditorProps {
   showRunButton?: boolean;
   showCopyButton?: boolean;
   language?: string;
+  onRun?: () => void;
 }
 
 const languageSamples = {
@@ -451,7 +452,7 @@ export default function JsTryEditor({
             scrollBeyondLastLine: false,
             wordWrap: "on",
           }}
-          onMount={(editor, monaco) => {
+          onMount={(editor: any, monaco: any) => {
             if (language === "javascript") {
               monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(
                 {

@@ -206,6 +206,7 @@ export default function TutorialTopicPage() {
   const rightLanguages = editorLanguages.slice(
     Math.ceil(editorLanguages.length / 2)
   );
+  const [algoCode, setAlgoCode] = useState("");
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -367,6 +368,15 @@ export default function TutorialTopicPage() {
     setEditorStates({}); // Reset editor states when topic changes
   }, [language, topicId, lang, router]);
 
+  useEffect(() => {
+    if (
+      (language === "algorithms" || language === "data-structures") &&
+      topicContent?.codes
+    ) {
+      setAlgoCode(topicContent.codes[algoLang] || "");
+    }
+  }, [topicContent, algoLang, language]);
+
   const handleSelect = (id: string) => {
     if (id !== topicId) {
       router.push(`/${lang}/tutorials/languages/${language}/${id}`);
@@ -382,16 +392,20 @@ export default function TutorialTopicPage() {
   const runCode = (code: string, language: string) => {
     // Burada kodu backendə göndərmək üçün fetch və ya API call yaz
     // Məsələn:
-    fetch('/api/execute', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    fetch("/api/execute", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code, language }),
     })
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         // nəticəni state-də saxla və ya göstər
-        console.log('Run result:', data);
+        console.log("Run result:", data);
       });
+  };
+
+  const handleAlgoRun = () => {
+    runCode(algoCode, algoLang);
   };
 
   if (loading) {
@@ -525,122 +539,125 @@ export default function TutorialTopicPage() {
                     )}
                 </div>
                 {/* ALGORITHMS: Language Picker və Try Editor ən aşağıda */}
-                {language === "algorithms" && topicContent.codes && (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-start",
-                      gap: 16,
-                      margin: "32px 0 0 0",
-                    }}
-                  >
+                {(language === "algorithms" ||
+                  language === "data-structures") &&
+                  topicContent.codes && (
                     <div
-                      className={
-                        mainPageTryEditorStyles.languageDropdownWrapper
-                      }
-                      ref={dropdownRef}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        gap: 16,
+                        margin: "32px 0 0 0",
+                      }}
                     >
-                      <button
+                      <div
                         className={
-                          mainPageTryEditorStyles.languageDropdownButton
+                          mainPageTryEditorStyles.languageDropdownWrapper
                         }
-                        type="button"
-                        onClick={() => setDropdownOpen((open) => !open)}
-                        aria-haspopup="listbox"
-                        aria-expanded={dropdownOpen}
+                        ref={dropdownRef}
                       >
-                        <span>
-                          {editorLanguages.find((l) => l.value === algoLang)
-                            ?.label || "Select Language"}
-                        </span>
-                        <FiIcons.FiChevronDown
-                          style={{
-                            marginLeft: 8,
-                            fontSize: 16,
-                            transition: "transform 0.2s ease",
-                            transform: dropdownOpen
-                              ? "rotate(180deg)"
-                              : "rotate(0deg)",
-                          }}
-                        />
-                      </button>
-                      {dropdownOpen && (
-                        <div
+                        <button
                           className={
-                            mainPageTryEditorStyles.languageDropdownMenu
+                            mainPageTryEditorStyles.languageDropdownButton
                           }
-                          role="listbox"
+                          type="button"
+                          onClick={() => setDropdownOpen((open) => !open)}
+                          aria-haspopup="listbox"
+                          aria-expanded={dropdownOpen}
                         >
+                          <span>
+                            {editorLanguages.find((l) => l.value === algoLang)
+                              ?.label || "Select Language"}
+                          </span>
+                          <FiIcons.FiChevronDown
+                            style={{
+                              marginLeft: 8,
+                              fontSize: 16,
+                              transition: "transform 0.2s ease",
+                              transform: dropdownOpen
+                                ? "rotate(180deg)"
+                                : "rotate(0deg)",
+                            }}
+                          />
+                        </button>
+                        {dropdownOpen && (
                           <div
                             className={
-                              mainPageTryEditorStyles.languageDropdownColumn
+                              mainPageTryEditorStyles.languageDropdownMenu
                             }
+                            role="listbox"
                           >
-                            {leftLanguages.map((lang) => (
-                              <button
-                                key={lang.value}
-                                className={
-                                  mainPageTryEditorStyles.languageDropdownItem +
-                                  (algoLang === lang.value
-                                    ? " " + mainPageTryEditorStyles.selected
-                                    : "")
-                                }
-                                onClick={() => {
-                                  handleAlgoLangChange({
-                                    target: { value: lang.value },
-                                  } as any);
-                                  setDropdownOpen(false);
-                                }}
-                                type="button"
-                                role="option"
-                                aria-selected={algoLang === lang.value}
-                              >
-                                {lang.label}
-                              </button>
-                            ))}
+                            <div
+                              className={
+                                mainPageTryEditorStyles.languageDropdownColumn
+                              }
+                            >
+                              {leftLanguages.map((lang) => (
+                                <button
+                                  key={lang.value}
+                                  className={
+                                    mainPageTryEditorStyles.languageDropdownItem +
+                                    (algoLang === lang.value
+                                      ? " " + mainPageTryEditorStyles.selected
+                                      : "")
+                                  }
+                                  onClick={() => {
+                                    handleAlgoLangChange({
+                                      target: { value: lang.value },
+                                    } as any);
+                                    setDropdownOpen(false);
+                                  }}
+                                  type="button"
+                                  role="option"
+                                  aria-selected={algoLang === lang.value}
+                                >
+                                  {lang.label}
+                                </button>
+                              ))}
+                            </div>
+                            <div
+                              className={
+                                mainPageTryEditorStyles.languageDropdownColumn
+                              }
+                            >
+                              {rightLanguages.map((lang) => (
+                                <button
+                                  key={lang.value}
+                                  className={
+                                    mainPageTryEditorStyles.languageDropdownItem +
+                                    (algoLang === lang.value
+                                      ? " " + mainPageTryEditorStyles.selected
+                                      : "")
+                                  }
+                                  onClick={() => {
+                                    handleAlgoLangChange({
+                                      target: { value: lang.value },
+                                    } as any);
+                                    setDropdownOpen(false);
+                                  }}
+                                  type="button"
+                                  role="option"
+                                  aria-selected={algoLang === lang.value}
+                                >
+                                  {lang.label}
+                                </button>
+                              ))}
+                            </div>
                           </div>
-                          <div
-                            className={
-                              mainPageTryEditorStyles.languageDropdownColumn
-                            }
-                          >
-                            {rightLanguages.map((lang) => (
-                              <button
-                                key={lang.value}
-                                className={
-                                  mainPageTryEditorStyles.languageDropdownItem +
-                                  (algoLang === lang.value
-                                    ? " " + mainPageTryEditorStyles.selected
-                                    : "")
-                                }
-                                onClick={() => {
-                                  handleAlgoLangChange({
-                                    target: { value: lang.value },
-                                  } as any);
-                                  setDropdownOpen(false);
-                                }}
-                                type="button"
-                                role="option"
-                                aria-selected={algoLang === lang.value}
-                              >
-                                {lang.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                        )}
+                      </div>
 
-                    <div style={{ width: "100%" }}>
-                      <JsTryEditor
-                        language={algoLang}
-                        value={topicContent.codes[algoLang] || ""}
-                        showRunButton={true}
-                      />
+                      <div style={{ width: "100%" }}>
+                        <JsTryEditor
+                          language={algoLang}
+                          value={algoCode}
+                          onChange={setAlgoCode}
+                          showRunButton={true}
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </>
             ) : (
               <div className={styles.topicEmptyNew}>Mövzu tapılmadı</div>

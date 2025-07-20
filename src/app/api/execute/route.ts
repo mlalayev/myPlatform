@@ -36,9 +36,9 @@ const commands: Record<string, (filename: string) => string> = {
   python: (filename: string) => `python /code/${filename}`,
   python3: (filename: string) => `python /code/${filename}`,
   cpp: (filename: string) =>
-    `g++ /code/${filename} -o /code/a.out && /code/a.out`,
+    `g++ /code/${filename} -o /tmp/a.out && chmod +x /tmp/a.out && /tmp/a.out`,
   c: (filename: string) =>
-    `gcc /code/${filename} -o /code/a.out && /code/a.out`,
+    `gcc /code/${filename} -o /tmp/a.out && chmod +x /tmp/a.out && /tmp/a.out`,
   java: (filename: string) => `javac /code/${filename} && java -cp /code Main`,
   php: (filename: string) => `php /code/${filename}`,
   // C# üçün: hər dəfə random qovluq yaradıb, orada dotnet new, kodu ora yazıb run et, sonra qovluğu sil
@@ -104,10 +104,12 @@ async function runInSandbox(language: string, code: string) {
         "--memory=256m --cpus=0.5",
         image,
         "/bin/sh -c",
-        `'mkdir -p /code && echo -e "${safeCode}" > /code/${className}.java && javac /code/${className}.java && java -cp /code ${className}'`
+        `'mkdir -p /code && echo -e "${safeCode}" > /code/${className}.java && javac /code/${className}.java && java -cp /code ${className}'`,
       ].join(" ");
       console.log(`[runInSandbox][JAVA] dockerCmd: ${dockerCmd}`);
-      const { stdout: out, stderr: err } = await execAsync(dockerCmd, { timeout: 30000 });
+      const { stdout: out, stderr: err } = await execAsync(dockerCmd, {
+        timeout: 30000,
+      });
       console.log(`[runInSandbox][JAVA] stdout:`, out);
       console.log(`[runInSandbox][JAVA] stderr:`, err);
       return { stdout: out, stderr: err };
@@ -115,7 +117,9 @@ async function runInSandbox(language: string, code: string) {
       console.error(`[runInSandbox][JAVA] error:`, e);
       return {
         stdout: "",
-        stderr: "Java code could not be written in container: " + (e instanceof Error ? e.message : String(e)),
+        stderr:
+          "Java code could not be written in container: " +
+          (e instanceof Error ? e.message : String(e)),
       };
     }
   }
@@ -123,18 +127,24 @@ async function runInSandbox(language: string, code: string) {
   if (language === "csharp") {
     try {
       // Kodun sonundakı şərhləri və əlavə boşluqları sil
-      const codeWithoutTrailingComments = code.replace(/\n\s*\/\/.*$/gm, '').trim();
-      const safeCode = codeWithoutTrailingComments.replace(/([`$"\\])/g, "\\$1").replace(/\n/g, "\\n");
+      const codeWithoutTrailingComments = code
+        .replace(/\n\s*\/\/.*$/gm, "")
+        .trim();
+      const safeCode = codeWithoutTrailingComments
+        .replace(/([`$"\\])/g, "\\$1")
+        .replace(/\n/g, "\\n");
       const dockerCmd = [
         "docker run --rm",
         "--network none",
         "--memory=256m --cpus=0.5",
         image,
         "/bin/sh -c",
-        `'appdir=$(mktemp -d /tmp/app_XXXXXX) && dotnet new console -o $appdir --force && cat > $appdir/Program.cs <<EOF\n${codeWithoutTrailingComments}\nEOF\ndotnet run --project $appdir && rm -rf $appdir'`
+        `'appdir=$(mktemp -d /tmp/app_XXXXXX) && dotnet new console -o $appdir --force && cat > $appdir/Program.cs <<EOF\n${codeWithoutTrailingComments}\nEOF\ndotnet run --project $appdir && rm -rf $appdir'`,
       ].join(" ");
       console.log(`[runInSandbox][CSHARP] dockerCmd: ${dockerCmd}`);
-      const { stdout: out, stderr: err } = await execAsync(dockerCmd, { timeout: 30000 });
+      const { stdout: out, stderr: err } = await execAsync(dockerCmd, {
+        timeout: 30000,
+      });
       console.log(`[runInSandbox][CSHARP] stdout:`, out);
       console.log(`[runInSandbox][CSHARP] stderr:`, err);
       // Filter out dotnet status messages (same as below)
@@ -172,24 +182,28 @@ async function runInSandbox(language: string, code: string) {
         "Use 'dotnet test --help'",
         "Restored ", // <-- bunu əlavə edirəm
       ];
-      const lines = out.split(/\r?\n/)
-        .map(l => l.trim())
-        .filter(l => l.length > 0 && !filterPrefixes.some(prefix => l.startsWith(prefix)));
+      const lines = out
+        .split(/\r?\n/)
+        .map((l) => l.trim())
+        .filter(
+          (l) =>
+            l.length > 0 &&
+            !filterPrefixes.some((prefix) => l.startsWith(prefix))
+        );
       return { stdout: lines.join("\n"), stderr: err };
     } catch (e) {
       console.error(`[runInSandbox][CSHARP] error:`, e);
       return {
         stdout: "",
-        stderr: "C# code could not be written in container: " + (e instanceof Error ? e.message : String(e)),
+        stderr:
+          "C# code could not be written in container: " +
+          (e instanceof Error ? e.message : String(e)),
       };
     }
   }
 
   // Create temp directory in universal /tmp for Docker compatibility
-  const tmpDir = path.join(
-    "/tmp",
-    `sandbox_${randomBytes(6).toString("hex")}`
-  );
+  const tmpDir = path.join("/tmp", `sandbox_${randomBytes(6).toString("hex")}`);
   console.log(`[runInSandbox] tmpDir: ${tmpDir}`);
 
   try {
@@ -200,8 +214,8 @@ async function runInSandbox(language: string, code: string) {
     let codeToWrite = code;
     if (language === "python" || language === "python3") {
       codeToWrite = code
-        .replace(/\n\s*#.*$/gm, '') // bütün şərhləri sil
-        .replace(/\s+$/, '')        // sonda boşluqları sil
+        .replace(/\n\s*#.*$/gm, "") // bütün şərhləri sil
+        .replace(/\s+$/, "") // sonda boşluqları sil
         .trim();
     }
 
@@ -301,7 +315,9 @@ async function runInSandbox(language: string, code: string) {
                 "/bin/sh -c",
                 `'mkdir -p /code && echo -e \"${safeCode}\" > /code/Main.java && javac /code/Main.java && java -cp /code Main'`,
               ].join(" ");
-              console.log(`[runInSandbox][JAVA-FALLBACK] dockerCmd: ${dockerCmd}`);
+              console.log(
+                `[runInSandbox][JAVA-FALLBACK] dockerCmd: ${dockerCmd}`
+              );
               const { stdout: out, stderr: err } = await execAsync(dockerCmd, {
                 timeout: 30000,
               });
