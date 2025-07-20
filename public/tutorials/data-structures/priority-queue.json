@@ -1,0 +1,402 @@
+{
+  "id": "priority-queue",
+  "az": {
+    "title": "Prioritet Növbə (Priority Queue)",
+    "icon": "FiArrowDownCircle",
+    "language": "multiple",
+    "codes": {
+      "python": "class PriorityQueue:\n    def __init__(self):\n        self.heap = []\n\n    def enqueue(self, value, priority):\n        self.heap.append((priority, value))\n        self._sift_up(len(self.heap) - 1)\n\n    def _sift_up(self, index):\n        parent = (index - 1) // 2\n        if index > 0 and self.heap[parent][0] < self.heap[index][0]:\n            self.heap[parent], self.heap[index] = self.heap[index], self.heap[parent]\n            self._sift_up(parent)\n\n    def dequeue(self):\n        if not self.heap:\n            return None\n        max_val = self.heap[0][1]\n        self.heap[0] = self.heap[-1]\n        self.heap.pop()\n        if self.heap:\n            self._sift_down(0)\n        return max_val\n\n    def _sift_down(self, index):\n        max_index = index\n        left = 2 * index + 1\n        right = 2 * index + 2\n        if left < len(self.heap) and self.heap[left][0] > self.heap[max_index][0]:\n            max_index = left\n        if right < len(self.heap) and self.heap[right][0] > self.heap[max_index][0]:\n            max_index = right\n        if max_index != index:\n            self.heap[index], self.heap[max_index] = self.heap[max_index], self.heap[index]\n            self._sift_down(max_index)\n\n    def peek(self):\n        return self.heap[0][1] if self.heap else None\n\n    def get_queue(self):\n        return [(item[1], item[0]) for item in self.heap]\n\n# Example: Priority Queue operations\npq = PriorityQueue()\nitems = [(10, 2), (5, 1), (15, 3)]\nfor val, pri in items:\n    pq.enqueue(val, pri)\nprint('Queue after enqueue:', pq.get_queue())\nprint('Peek:', pq.peek())\nmax_val = pq.dequeue()\nprint('Dequeued:', max_val)\nprint('Queue after dequeue:', pq.get_queue())\n# Output: Queue after enqueue: [(15, 3), (10, 2), (5, 1)]\n# Output: Peek: 15\n# Output: Dequeued: 15\n# Output: Queue after dequeue: [(10, 2), (5, 1)]",
+      "javascript": "class PriorityQueue {\n    constructor() {\n        this.heap = [];\n    }\n\n    enqueue(value, priority) {\n        this.heap.push([priority, value]);\n        this._siftUp(this.heap.length - 1);\n    }\n\n    _siftUp(index) {\n        let parent = Math.floor((index - 1) / 2);\n        if (index > 0 && this.heap[parent][0] < this.heap[index][0]) {\n            [this.heap[parent], this.heap[index]] = [this.heap[index], this.heap[parent]];\n            this._siftUp(parent);\n        }\n    }\n\n    dequeue() {\n        if (this.heap.length === 0) return null;\n        let maxVal = this.heap[0][1];\n        this.heap[0] = this.heap[this.heap.length - 1];\n        this.heap.pop();\n        if (this.heap.length > 0) {\n            this._siftDown(0);\n        }\n        return maxVal;\n    }\n\n    _siftDown(index) {\n        let maxIndex = index;\n        let left = 2 * index + 1;\n        let right = 2 * index + 2;\n        if (left < this.heap.length && this.heap[left][0] > this.heap[maxIndex][0]) {\n            maxIndex = left;\n        }\n        if (right < this.heap.length && this.heap[right][0] > this.heap[maxIndex][0]) {\n            maxIndex = right;\n        }\n        if (maxIndex !== index) {\n            [this.heap[index], this.heap[maxIndex]] = [this.heap[maxIndex], this.heap[index]];\n            this._siftDown(maxIndex);\n        }\n    }\n\n    peek() {\n        return this.heap.length > 0 ? this.heap[0][1] : null;\n    }\n\n    getQueue() {\n        return this.heap.map(item => [item[1], item[0]]);\n    }\n}\n\n// Example: Priority Queue operations\nconst pq = new PriorityQueue();\nconst items = [[10, 2], [5, 1], [15, 3]];\nitems.forEach(([val, pri]) => pq.enqueue(val, pri));\nconsole.log('Queue after enqueue:', pq.getQueue());\nconsole.log('Peek:', pq.peek());\nconst maxVal = pq.dequeue();\nconsole.log('Dequeued:', maxVal);\nconsole.log('Queue after dequeue:', pq.getQueue());\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "typescript": "class PriorityQueue {\n    private heap: [number, number][] = [];\n\n    enqueue(value: number, priority: number): void {\n        this.heap.push([priority, value]);\n        this._siftUp(this.heap.length - 1);\n    }\n\n    private _siftUp(index: number): void {\n        let parent = Math.floor((index - 1) / 2);\n        if (index > 0 && this.heap[parent][0] < this.heap[index][0]) {\n            [this.heap[parent], this.heap[index]] = [this.heap[index], this.heap[parent]];\n            this._siftUp(parent);\n        }\n    }\n\n    dequeue(): number | null {\n        if (this.heap.length === 0) return null;\n        let maxVal = this.heap[0][1];\n        this.heap[0] = this.heap[this.heap.length - 1];\n        this.heap.pop();\n        if (this.heap.length > 0) {\n            this._siftDown(0);\n        }\n        return maxVal;\n    }\n\n    private _siftDown(index: number): void {\n        let maxIndex = index;\n        let left = 2 * index + 1;\n        let right = 2 * index + 2;\n        if (left < this.heap.length && this.heap[left][0] > this.heap[maxIndex][0]) {\n            maxIndex = left;\n        }\n        if (right < this.heap.length && this.heap[right][0] > this.heap[maxIndex][0]) {\n            maxIndex = right;\n        }\n        if (maxIndex !== index) {\n            [this.heap[index], this.heap[maxIndex]] = [this.heap[maxIndex], this.heap[index]];\n            this._siftDown(maxIndex);\n        }\n    }\n\n    peek(): number | null {\n        return this.heap.length > 0 ? this.heap[0][1] : null;\n    }\n\n    getQueue(): [number, number][] {\n        return this.heap.map(item => [item[1], item[0]]);\n    }\n}\n\n// Example: Priority Queue operations\nconst pq = new PriorityQueue();\nconst items: [number, number][] = [[10, 2], [5, 1], [15, 3]];\nitems.forEach(([val, pri]) => pq.enqueue(val, pri));\nconsole.log('Queue after enqueue:', pq.getQueue());\nconsole.log('Peek:', pq.peek());\nconst maxVal = pq.dequeue();\nconsole.log('Dequeued:', maxVal);\nconsole.log('Queue after dequeue:', pq.getQueue());\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "java": "import java.util.ArrayList;\n\nclass PriorityQueue {\n    private ArrayList<int[]> heap;\n\n    public PriorityQueue() {\n        heap = new ArrayList<>();\n    }\n\n    public void enqueue(int value, int priority) {\n        heap.add(new int[]{priority, value});\n        siftUp(heap.size() - 1);\n    }\n\n    private void siftUp(int index) {\n        int parent = (index - 1) / 2;\n        if (index > 0 && heap.get(parent)[0] < heap.get(index)[0]) {\n            int[] temp = heap.get(parent);\n            heap.set(parent, heap.get(index));\n            heap.set(index, temp);\n            siftUp(parent);\n        }\n    }\n\n    public Integer dequeue() {\n        if (heap.isEmpty()) return null;\n        int maxVal = heap.get(0)[1];\n        heap.set(0, heap.get(heap.size() - 1));\n        heap.remove(heap.size() - 1);\n        if (!heap.isEmpty()) {\n            siftDown(0);\n        }\n        return maxVal;\n    }\n\n    private void siftDown(int index) {\n        int maxIndex = index;\n        int left = 2 * index + 1;\n        int right = 2 * index + 2;\n        if (left < heap.size() && heap.get(left)[0] > heap.get(maxIndex)[0]) {\n            maxIndex = left;\n        }\n        if (right < heap.size() && heap.get(right)[0] > heap.get(maxIndex)[0]) {\n            maxIndex = right;\n        }\n        if (maxIndex != index) {\n            int[] temp = heap.get(index);\n            heap.set(index, heap.get(maxIndex));\n            heap.set(maxIndex, temp);\n            siftDown(maxIndex);\n        }\n    }\n\n    public Integer peek() {\n        return heap.isEmpty() ? null : heap.get(0)[1];\n    }\n\n    public ArrayList<int[]> getQueue() {\n        ArrayList<int[]> result = new ArrayList<>();\n        for (int[] item : heap) {\n            result.add(new int[]{item[1], item[0]});\n        }\n        return result;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        PriorityQueue pq = new PriorityQueue();\n        int[][] items = {{10, 2}, {5, 1}, {15, 3}};\n        for (int[] item : items) {\n            pq.enqueue(item[0], item[1]);\n        }\n        System.out.println(\"Queue after enqueue: \" + pq.getQueue());\n        System.out.println(\"Peek: \" + pq.peek());\n        Integer maxVal = pq.dequeue();\n        System.out.println(\"Dequeued: \" + maxVal);\n        System.out.println(\"Queue after dequeue: \" + pq.getQueue());\n    }\n}\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "php": "<?php\n\nclass PriorityQueue {\n    private $heap = [];\n\n    public function enqueue($value, $priority) {\n        $this->heap[] = [$priority, $value];\n        $this->_siftUp(count($this->heap) - 1);\n    }\n\n    private function _siftUp($index) {\n        $parent = (int)(($index - 1) / 2);\n        if ($index > 0 && $this->heap[$parent][0] < $this->heap[$index][0]) {\n            $temp = $this->heap[$parent];\n            $this->heap[$parent] = $this->heap[$index];\n            $this->heap[$index] = $temp;\n            $this->_siftUp($parent);\n        }\n    }\n\n    public function dequeue() {\n        if (empty($this->heap)) return null;\n        $maxVal = $this->heap[0][1];\n        $this->heap[0] = $this->heap[count($this->heap) - 1];\n        array_pop($this->heap);\n        if (!empty($this->heap)) {\n            $this->_siftDown(0);\n        }\n        return $maxVal;\n    }\n\n    private function _siftDown($index) {\n        $maxIndex = $index;\n        $left = 2 * $index + 1;\n        $right = 2 * $index + 2;\n        if ($left < count($this->heap) && $this->heap[$left][0] > $this->heap[$maxIndex][0]) {\n            $maxIndex = $left;\n        }\n        if ($right < count($this->heap) && $this->heap[$right][0] > $this->heap[$maxIndex][0]) {\n            $maxIndex = $right;\n        }\n        if ($maxIndex !== $index) {\n            $temp = $this->heap[$index];\n            $this->heap[$index] = $this->heap[$maxIndex];\n            $this->heap[$maxIndex] = $temp;\n            $this->_siftDown($maxIndex);\n        }\n    }\n\n    public function peek() {\n        return empty($this->heap) ? null : $this->heap[0][1];\n    }\n\n    public function getQueue() {\n        $result = [];\n        foreach ($this->heap as $item) {\n            $result[] = [$item[1], $item[0]];\n        }\n        return $result;\n    }\n}\n\n// Example: Priority Queue operations\n$pq = new PriorityQueue();\n$items = [[10, 2], [5, 1], [15, 3]];\nforeach ($items as $item) {\n    $pq->enqueue($item[0], $item[1]);\n}\necho 'Queue after enqueue: [' . implode(', ', array_map(fn($x) => '[' . implode(', ', $x) . ']', $pq->getQueue())) . ']\\n';\necho 'Peek: ' . $pq->peek() . '\\n';\n$maxVal = $pq->dequeue();\necho 'Dequeued: ' . $maxVal . '\\n';\necho 'Queue after dequeue: [' . implode(', ', array_map(fn($x) => '[' . implode(', ', $x) . ']', $pq->getQueue())) . ']\\n';\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\n#define MAX_SIZE 100\n\ntypedef struct PriorityQueue {\n    int (*heap)[2];\n    int size;\n    int capacity;\n} PriorityQueue;\n\nPriorityQueue* createPriorityQueue() {\n    PriorityQueue* pq = (PriorityQueue*)malloc(sizeof(PriorityQueue));\n    pq->heap = (int(*)[2])malloc(MAX_SIZE * sizeof(int[2]));\n    pq->size = 0;\n    pq->capacity = MAX_SIZE;\n    return pq;\n}\n\nvoid siftUp(PriorityQueue* pq, int index) {\n    int parent = (index - 1) / 2;\n    if (index > 0 && pq->heap[parent][0] < pq->heap[index][0]) {\n        int temp[2] = {pq->heap[parent][0], pq->heap[parent][1]};\n        pq->heap[parent][0] = pq->heap[index][0];\n        pq->heap[parent][1] = pq->heap[index][1];\n        pq->heap[index][0] = temp[0];\n        pq->heap[index][1] = temp[1];\n        siftUp(pq, parent);\n    }\n}\n\nvoid enqueue(PriorityQueue* pq, int value, int priority) {\n    if (pq->size < pq->capacity) {\n        pq->heap[pq->size][0] = priority;\n        pq->heap[pq->size][1] = value;\n        siftUp(pq, pq->size);\n        pq->size++;\n    }\n}\n\nvoid siftDown(PriorityQueue* pq, int index) {\n    int maxIndex = index;\n    int left = 2 * index + 1;\n    int right = 2 * index + 2;\n    if (left < pq->size && pq->heap[left][0] > pq->heap[maxIndex][0]) {\n        maxIndex = left;\n    }\n    if (right < pq->size && pq->heap[right][0] > pq->heap[maxIndex][0]) {\n        maxIndex = right;\n    }\n    if (maxIndex != index) {\n        int temp[2] = {pq->heap[index][0], pq->heap[index][1]};\n        pq->heap[index][0] = pq->heap[maxIndex][0];\n        pq->heap[index][1] = pq->heap[maxIndex][1];\n        pq->heap[maxIndex][0] = temp[0];\n        pq->heap[maxIndex][1] = temp[1];\n        siftDown(pq, maxIndex);\n    }\n}\n\nint dequeue(PriorityQueue* pq) {\n    if (pq->size == 0) return -1;\n    int maxVal = pq->heap[0][1];\n    pq->heap[0][0] = pq->heap[pq->size - 1][0];\n    pq->heap[0][1] = pq->heap[pq->size - 1][1];\n    pq->size--;\n    if (pq->size > 0) {\n        siftDown(pq, 0);\n    }\n    return maxVal;\n}\n\nint peek(PriorityQueue* pq) {\n    return pq->size > 0 ? pq->heap[0][1] : -1;\n}\n\nvoid printQueue(PriorityQueue* pq) {\n    printf(\"[\");\n    for (int i = 0; i < pq->size; i++) {\n        printf(\"[%d, %d]\", pq->heap[i][1], pq->heap[i][0]);\n        if (i < pq->size - 1) printf(\", \");\n    }\n    printf(\"]\\n\");\n}\n\nint main() {\n    PriorityQueue* pq = createPriorityQueue();\n    int items[][2] = {{10, 2}, {5, 1}, {15, 3}};\n    for (int i = 0; i < 3; i++) {\n        enqueue(pq, items[i][0], items[i][1]);\n    }\n    printf(\"Queue after enqueue: \");\n    printQueue(pq);\n    printf(\"Peek: %d\\n\", peek(pq));\n    int maxVal = dequeue(pq);\n    printf(\"Dequeued: %d\\n\", maxVal);\n    printf(\"Queue after dequeue: \");\n    printQueue(pq);\n    free(pq->heap);\n    free(pq);\n    return 0;\n}\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass PriorityQueue {\n    private List<int[]> heap;\n\n    public PriorityQueue() {\n        heap = new List<int[]>();\n    }\n\n    public void Enqueue(int value, int priority) {\n        heap.Add(new int[] { priority, value });\n        SiftUp(heap.Count - 1);\n    }\n\n    private void SiftUp(int index) {\n        int parent = (index - 1) / 2;\n        if (index > 0 && heap[parent][0] < heap[index][0]) {\n            int[] temp = heap[parent];\n            heap[parent] = heap[index];\n            heap[index] = temp;\n            SiftUp(parent);\n        }\n    }\n\n    public int? Dequeue() {\n        if (heap.Count == 0) return null;\n        int maxVal = heap[0][1];\n        heap[0] = heap[heap.Count - 1];\n        heap.RemoveAt(heap.Count - 1);\n        if (heap.Count > 0) {\n            SiftDown(0);\n        }\n        return maxVal;\n    }\n\n    private void SiftDown(int index) {\n        int maxIndex = index;\n        int left = 2 * index + 1;\n        int right = 2 * index + 2;\n        if (left < heap.Count && heap[left][0] > heap[maxIndex][0]) {\n            maxIndex = left;\n        }\n        if (right < heap.Count && heap[right][0] > heap[maxIndex][0]) {\n            maxIndex = right;\n        }\n        if (maxIndex != index) {\n            int[] temp = heap[index];\n            heap[index] = heap[maxIndex];\n            heap[maxIndex] = temp;\n            SiftDown(maxIndex);\n        }\n    }\n\n    public int? Peek() {\n        return heap.Count > 0 ? heap[0][1] : null;\n    }\n\n    public List<int[]> GetQueue() {\n        List<int[]> result = new List<int[]>();\n        foreach (var item in heap) {\n            result.Add(new int[] { item[1], item[0] });\n        }\n        return result;\n    }\n}\n\nclass Program {\n    static void Main() {\n        PriorityQueue pq = new PriorityQueue();\n        int[][] items = { new int[] { 10, 2 }, new int[] { 5, 1 }, new int[] { 15, 3 } };\n        foreach (var item in items) {\n            pq.Enqueue(item[0], item[1]);\n        }\n        Console.WriteLine(\"Queue after enqueue: [\" + string.Join(\", \", pq.GetQueue().Select(x => \"[\" + x[0] + \", \" + x[1] + \"]\")) + \"]\");\n        Console.WriteLine(\"Peek: \" + pq.Peek());\n        int? maxVal = pq.Dequeue();\n        Console.WriteLine(\"Dequeued: \" + maxVal);\n        Console.WriteLine(\"Queue after dequeue: [\" + string.Join(\", \", pq.GetQueue().Select(x => \"[\" + x[0] + \", \" + x[1] + \"]\")) + \"]\");\n    }\n}\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "cpp": "#include <iostream>\n#include <vector>\n\nclass PriorityQueue {\nprivate:\n    std::vector<std::pair<int, int>> heap;\n\n    void siftUp(int index) {\n        int parent = (index - 1) / 2;\n        if (index > 0 && heap[parent].first < heap[index].first) {\n            std::swap(heap[parent], heap[index]);\n            siftUp(parent);\n        }\n    }\n\n    void siftDown(int index) {\n        int maxIndex = index;\n        int left = 2 * index + 1;\n        int right = 2 * index + 2;\n        if (left < heap.size() && heap[left].first > heap[maxIndex].first) {\n            maxIndex = left;\n        }\n        if (right < heap.size() && heap[right].first > heap[maxIndex].first) {\n            maxIndex = right;\n        }\n        if (maxIndex != index) {\n            std::swap(heap[index], heap[maxIndex]);\n            siftDown(maxIndex);\n        }\n    }\n\npublic:\n    PriorityQueue() {}\n\n    void enqueue(int value, int priority) {\n        heap.push_back({priority, value});\n        siftUp(heap.size() - 1);\n    }\n\n    int dequeue() {\n        if (heap.empty()) return -1;\n        int maxVal = heap[0].second;\n        heap[0] = heap.back();\n        heap.pop_back();\n        if (!heap.empty()) {\n            siftDown(0);\n        }\n        return maxVal;\n    }\n\n    int peek() {\n        return heap.empty() ? -1 : heap[0].second;\n    }\n\n    std::vector<std::pair<int, int>> getQueue() {\n        std::vector<std::pair<int, int>> result;\n        for (auto& item : heap) {\n            result.push_back({item.second, item.first});\n        }\n        return result;\n    }\n};\n\nint main() {\n    PriorityQueue pq;\n    std::vector<std::pair<int, int>> items = {{10, 2}, {5, 1}, {15, 3}};\n    for (auto& item : items) {\n        pq.enqueue(item.first, item.second);\n    }\n    std::cout << \"Queue after enqueue: [\";\n    auto result = pq.getQueue();\n    for (size_t i = 0; i < result.size(); i++) {\n        std::cout << \"[\" << result[i].first << \", \" << result[i].second << \"]\";\n        if (i < result.size() - 1) std::cout << \", \";\n    }\n    std::cout << \"]\\n\";\n    std::cout << \"Peek: \" << pq.peek() << \"\\n\";\n    int maxVal = pq.dequeue();\n    std::cout << \"Dequeued: \" << maxVal << \"\\n\";\n    std::cout << \"Queue after dequeue: [\";\n    result = pq.getQueue();\n    for (size_t i = 0; i < result.size(); i++) {\n        std::cout << \"[\" << result[i].first << \", \" << result[i].second << \"]\";\n        if (i < result.size() - 1) std::cout << \", \";\n    }\n    std::cout << \"]\\n\";\n    return 0;\n}\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]"
+    },
+    "description": "Prioritet növbə və onun tətbiqləri haqqında ümumi məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Prioritet Növbə nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Prioritet Növbə (Priority Queue) hər elementin prioritetə malik olduğu və ən yüksək (və ya ən aşağı) prioritetli elementin ilk çıxarıldığı məlumat strukturudur. Adətən Max-Heap və ya Min-Heap əsasında tətbiq olunur. Yuxarıdakı nümunədə Max-Heap əsasında Prioritet Növbəsi istifadə olunur: [(10, 2), (5, 1), (15, 3)] əlavə edilir, ən yüksək prioritetli (15, prioritet 3) çıxarılır və nəticədə [(10, 2), (5, 1)] qalır."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas Terminlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Element: Prioriteti ilə birlikdə saxlanılan dəyər."
+          },
+          {
+            "description": "Prioritet: Elementin növbədəki sırasını müəyyən edən dəyər."
+          },
+          {
+            "description": "Enqueue: Yeni elementin prioritetlə əlavə edilməsi (yuxarıdakı enqueue funksiyası)."
+          },
+          {
+            "description": "Dequeue: Ən yüksək prioritetli elementin çıxarılması (yuxarıdakı dequeue funksiyası)."
+          },
+          {
+            "description": "Peek: Ən yüksək prioritetli elementə baxış (yuxarıdakı peek funksiyası)."
+          },
+          {
+            "description": "Heap: Prioritet Növbəsinin tətbiqi üçün adətən istifadə olunan struktur (Max-Heap və ya Min-Heap)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Prioritet Növbə Növləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Prioritet Növbələri iki əsas növdə olur: 1) **Max-Heap əsasında**: Ən yüksək prioritetli element çıxarılır (yuxarıdakı nümunədə istifadə olunur). 2) **Min-Heap əsasında**: Ən aşağı prioritetli element çıxarılır. Digər tətbiqlərə Fibonaççi Heap və ya sadə massiv əsaslı növlər daxildir, lakin heap əsasında olanlar daha səmərəlidir."
+      },
+      {
+        "type": "heading",
+        "text": "Prioritet Növbələri nə üçün lazımdır?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Prioritet Növbələri elementlərin prioritetə əsasən idarə olunmasını təmin edir. Onlar tapşırıqların prioritetə görə icrası, qraf alqoritmləri və ya dinamik resurs paylanması kimi vəziyyətlərdə vacibdir. Sürətli maksimum/minimum elementə çıxış və effektiv əlavə/silmə əməliyyatları təklif edir."
+      },
+      {
+        "type": "heading",
+        "text": "Prioritet Növbələri nəyə kömək edir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Prioritet Növbələri aşağıdakı sahələrdə kömək edir: 1) **Tapşırıq Planlaşdırma**: Əməliyyat sistemlərində tapşırıqların prioritetə görə icrası. 2) **Qraf Alqoritmləri**: Dijkstra və Prim alqoritmlərində minimum məsafə tapmaq. 3) **Şəbəkə İdarəetməsi**: Paketlərin prioritetə görə göndərilməsi. 4) **Oyunlar**: Oyun vəziyyətlərinin prioritet əsasında idarə edilməsi. Yuxarıdakı dequeue əməliyyatı tapşırıq planlaşdırmasını simulyasiya edir."
+      },
+      {
+        "type": "heading",
+        "text": "Prioritet Növbələrinin Səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Heap əsasında Prioritet Növbəsinin səmərəliliyi: enqueue və sift up O(log n), dequeue və sift down O(log n), peek O(1). Məkan mürəkkəbliyi O(n)-dir (n elementlərin sayı). Yuxarıdakı nümunədə Max-Heap istifadə olunur və dequeue səmərəli işləyir."
+      },
+      {
+        "type": "heading",
+        "text": "Üstünlüklər və Mənfi Cəhətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Üstünlük: Sürətli maksimum/minimum elementə çıxış (O(1) peek ilə)."
+          },
+          {
+            "description": "Üstünlük: Enqueue və dequeue əməliyyatları O(log n) səmərəliliyi ilə."
+          },
+          {
+            "description": "Üstünlük: Prioritetə əsaslanan tapşırıq idarəetməsi üçün idealdır."
+          },
+          {
+            "description": "Mənfi cəhət: Axtarış və ya element yeniləmə O(n) ola bilər."
+          },
+          {
+            "description": "Mənfi cəhət: Mürəkkəb tətbiqlərdə yaddaş idarəetməsi çətin ola bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real Həyatda İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Prioritet Növbələri geniş tətbiq sahəsinə malikdir: 1) **Əməliyyat Sistemləri**: Tapşırıqların prioritetə görə planlaşdırılması. 2) **Şəbəkələr**: Məlumat paketlərinin prioritetə görə göndərilməsi. 3) **Qraf Alqoritmləri**: Dijkstra və ya Prim alqoritmlərində minimum prioritet tapmaq. 4) **Simulyasiyalar**: Hadisələrin prioritetə görə emalı. Yuxarıdakı enqueue əməliyyatı tapşırıq əlavə etməyə bənzəyir."
+      },
+      {
+        "type": "heading",
+        "text": "Optimallaşdırma Strategiyaları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Prioritet Növbələrinin performansını artırmaq üçün: 1) **Effektiv Tətbiq**: Max-Heap və ya Min-Heap əsasında səmərəli tətbiqlərdən istifadə edin (yuxarıdakı nümunədəki kimi). 2) **Kəşləmə**: Tez-tez istifadə olunan elementləri kəşləyin. 3) **Səmərəli Alqoritmlər**: Sift up/down əməliyyatlarını optimallaşdırın. 4) **Struktur Seçimi**: Böyük məlumatlar üçün Fibonaççi Heap kimi alternativləri nəzərdən keçirin. 5) **Yaddaş İdarəetməsi**: Böyük növbələrdə yaddaş istifadəsini optimallaşdırın."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əsas təhlükələrə daxildir: 1) **Yaddaş İstifadəsi**: Böyük növbələr çox yaddaş tələb edə bilər. 2) **Axtarış Performansı**: Element axtarışı və ya yeniləmə O(n) ola bilər. 3) **Mürəkkəblik**: Dinamik prioritet dəyişiklikləri çətin ola bilər. Tövsiyələr: 1) Axtarış üçün BST və ya başqa strukturlardan istifadə edin. 2) Yaddaş istifadəsini optimallaşdırın. 3) Kodları böyük məlumatlarla test edin."
+      }
+    ]
+  },
+  "en": {
+    "title": "Priority Queue",
+    "icon": "FiArrowDownCircle",
+    "language": "multiple",
+    "codes": {
+      "python": "class PriorityQueue:\n    def __init__(self):\n        self.heap = []\n\n    def enqueue(self, value, priority):\n        self.heap.append((priority, value))\n        self._sift_up(len(self.heap) - 1)\n\n    def _sift_up(self, index):\n        parent = (index - 1) // 2\n        if index > 0 and self.heap[parent][0] < self.heap[index][0]:\n            self.heap[parent], self.heap[index] = self.heap[index], self.heap[parent]\n            self._sift_up(parent)\n\n    def dequeue(self):\n        if not self.heap:\n            return None\n        max_val = self.heap[0][1]\n        self.heap[0] = self.heap[-1]\n        self.heap.pop()\n        if self.heap:\n            self._sift_down(0)\n        return max_val\n\n    def _sift_down(self, index):\n        max_index = index\n        left = 2 * index + 1\n        right = 2 * index + 2\n        if left < len(self.heap) and self.heap[left][0] > self.heap[max_index][0]:\n            max_index = left\n        if right < len(self.heap) and self.heap[right][0] > self.heap[max_index][0]:\n            max_index = right\n        if max_index != index:\n            self.heap[index], self.heap[max_index] = self.heap[max_index], self.heap[index]\n            self._sift_down(max_index)\n\n    def peek(self):\n        return self.heap[0][1] if self.heap else None\n\n    def get_queue(self):\n        return [(item[1], item[0]) for item in self.heap]\n\n# Example: Priority Queue operations\npq = PriorityQueue()\nitems = [(10, 2), (5, 1), (15, 3)]\nfor val, pri in items:\n    pq.enqueue(val, pri)\nprint('Queue after enqueue:', pq.get_queue())\nprint('Peek:', pq.peek())\nmax_val = pq.dequeue()\nprint('Dequeued:', max_val)\nprint('Queue after dequeue:', pq.get_queue())\n# Output: Queue after enqueue: [(15, 3), (10, 2), (5, 1)]\n# Output: Peek: 15\n# Output: Dequeued: 15\n# Output: Queue after dequeue: [(10, 2), (5, 1)]",
+      "javascript": "class PriorityQueue {\n    constructor() {\n        this.heap = [];\n    }\n\n    enqueue(value, priority) {\n        this.heap.push([priority, value]);\n        this._siftUp(this.heap.length - 1);\n    }\n\n    _siftUp(index) {\n        let parent = Math.floor((index - 1) / 2);\n        if (index > 0 && this.heap[parent][0] < this.heap[index][0]) {\n            [this.heap[parent], this.heap[index]] = [this.heap[index], this.heap[parent]];\n            this._siftUp(parent);\n        }\n    }\n\n    dequeue() {\n        if (this.heap.length === 0) return null;\n        let maxVal = this.heap[0][1];\n        this.heap[0] = this.heap[this.heap.length - 1];\n        this.heap.pop();\n        if (this.heap.length > 0) {\n            this._siftDown(0);\n        }\n        return maxVal;\n    }\n\n    _siftDown(index) {\n        let maxIndex = index;\n        let left = 2 * index + 1;\n        let right = 2 * index + 2;\n        if (left < this.heap.length && this.heap[left][0] > this.heap[maxIndex][0]) {\n            maxIndex = left;\n        }\n        if (right < this.heap.length && this.heap[right][0] > this.heap[maxIndex][0]) {\n            maxIndex = right;\n        }\n        if (maxIndex !== index) {\n            [this.heap[index], this.heap[maxIndex]] = [this.heap[maxIndex], this.heap[index]];\n            this._siftDown(maxIndex);\n        }\n    }\n\n    peek() {\n        return this.heap.length > 0 ? this.heap[0][1] : null;\n    }\n\n    getQueue() {\n        return this.heap.map(item => [item[1], item[0]]);\n    }\n}\n\n// Example: Priority Queue operations\nconst pq = new PriorityQueue();\nconst items = [[10, 2], [5, 1], [15, 3]];\nitems.forEach(([val, pri]) => pq.enqueue(val, pri));\nconsole.log('Queue after enqueue:', pq.getQueue());\nconsole.log('Peek:', pq.peek());\nconst maxVal = pq.dequeue();\nconsole.log('Dequeued:', maxVal);\nconsole.log('Queue after dequeue:', pq.getQueue());\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "typescript": "class PriorityQueue {\n    private heap: [number, number][] = [];\n\n    enqueue(value: number, priority: number): void {\n        this.heap.push([priority, value]);\n        this._siftUp(this.heap.length - 1);\n    }\n\n    private _siftUp(index: number): void {\n        let parent = Math.floor((index - 1) / 2);\n        if (index > 0 && this.heap[parent][0] < this.heap[index][0]) {\n            [this.heap[parent], this.heap[index]] = [this.heap[index], this.heap[parent]];\n            this._siftUp(parent);\n        }\n    }\n\n    dequeue(): number | null {\n        if (this.heap.length === 0) return null;\n        let maxVal = this.heap[0][1];\n        this.heap[0] = this.heap[this.heap.length - 1];\n        this.heap.pop();\n        if (this.heap.length > 0) {\n            this._siftDown(0);\n        }\n        return maxVal;\n    }\n\n    private _siftDown(index: number): void {\n        let maxIndex = index;\n        let left = 2 * index + 1;\n        let right = 2 * index + 2;\n        if (left < this.heap.length && this.heap[left][0] > this.heap[maxIndex][0]) {\n            maxIndex = left;\n        }\n        if (right < this.heap.length && this.heap[right][0] > this.heap[maxIndex][0]) {\n            maxIndex = right;\n        }\n        if (maxIndex !== index) {\n            [this.heap[index], this.heap[maxIndex]] = [this.heap[maxIndex], this.heap[index]];\n            this._siftDown(maxIndex);\n        }\n    }\n\n    peek(): number | null {\n        return this.heap.length > 0 ? this.heap[0][1] : null;\n    }\n\n    getQueue(): [number, number][] {\n        return this.heap.map(item => [item[1], item[0]]);\n    }\n}\n\n// Example: Priority Queue operations\nconst pq = new PriorityQueue();\nconst items: [number, number][] = [[10, 2], [5, 1], [15, 3]];\nitems.forEach(([val, pri]) => pq.enqueue(val, pri));\nconsole.log('Queue after enqueue:', pq.getQueue());\nconsole.log('Peek:', pq.peek());\nconst maxVal = pq.dequeue();\nconsole.log('Dequeued:', maxVal);\nconsole.log('Queue after dequeue:', pq.getQueue());\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "java": "import java.util.ArrayList;\n\nclass PriorityQueue {\n    private ArrayList<int[]> heap;\n\n    public PriorityQueue() {\n        heap = new ArrayList<>();\n    }\n\n    public void enqueue(int value, int priority) {\n        heap.add(new int[]{priority, value});\n        siftUp(heap.size() - 1);\n    }\n\n    private void siftUp(int index) {\n        int parent = (index - 1) / 2;\n        if (index > 0 && heap.get(parent)[0] < heap.get(index)[0]) {\n            int[] temp = heap.get(parent);\n            heap.set(parent, heap.get(index));\n            heap.set(index, temp);\n            siftUp(parent);\n        }\n    }\n\n    public Integer dequeue() {\n        if (heap.isEmpty()) return null;\n        int maxVal = heap.get(0)[1];\n        heap.set(0, heap.get(heap.size() - 1));\n        heap.remove(heap.size() - 1);\n        if (!heap.isEmpty()) {\n            siftDown(0);\n        }\n        return maxVal;\n    }\n\n    private void siftDown(int index) {\n        int maxIndex = index;\n        int left = 2 * index + 1;\n        int right = 2 * index + 2;\n        if (left < heap.size() && heap.get(left)[0] > heap.get(maxIndex)[0]) {\n            maxIndex = left;\n        }\n        if (right < heap.size() && heap.get(right)[0] > heap.get(maxIndex)[0]) {\n            maxIndex = right;\n        }\n        if (maxIndex != index) {\n            int[] temp = heap.get(index);\n            heap.set(index, heap.get(maxIndex));\n            heap.set(maxIndex, temp);\n            siftDown(maxIndex);\n        }\n    }\n\n    public Integer peek() {\n        return heap.isEmpty() ? null : heap.get(0)[1];\n    }\n\n    public ArrayList<int[]> getQueue() {\n        ArrayList<int[]> result = new ArrayList<>();\n        for (int[] item : heap) {\n            result.add(new int[]{item[1], item[0]});\n        }\n        return result;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        PriorityQueue pq = new PriorityQueue();\n        int[][] items = {{10, 2}, {5, 1}, {15, 3}};\n        for (int[] item : items) {\n            pq.enqueue(item[0], item[1]);\n        }\n        System.out.println(\"Queue after enqueue: \" + pq.getQueue());\n        System.out.println(\"Peek: \" + pq.peek());\n        Integer maxVal = pq.dequeue();\n        System.out.println(\"Dequeued: \" + maxVal);\n        System.out.println(\"Queue after dequeue: \" + pq.getQueue());\n    }\n}\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "php": "<?php\n\nclass PriorityQueue {\n    private $heap = [];\n\n    public function enqueue($value, $priority) {\n        $this->heap[] = [$priority, $value];\n        $this->_siftUp(count($this->heap) - 1);\n    }\n\n    private function _siftUp($index) {\n        $parent = (int)(($index - 1) / 2);\n        if ($index > 0 && $this->heap[$parent][0] < $this->heap[$index][0]) {\n            $temp = $this->heap[$parent];\n            $this->heap[$parent] = $this->heap[$index];\n            $this->heap[$index] = $temp;\n            $this->_siftUp($parent);\n        }\n    }\n\n    public function dequeue() {\n        if (empty($this->heap)) return null;\n        $maxVal = $this->heap[0][1];\n        $this->heap[0] = $this->heap[count($this->heap) - 1];\n        array_pop($this->heap);\n        if (!empty($this->heap)) {\n            $this->_siftDown(0);\n        }\n        return $maxVal;\n    }\n\n    private function _siftDown($index) {\n        $maxIndex = $index;\n        $left = 2 * $index + 1;\n        $right = 2 * $index + 2;\n        if ($left < count($this->heap) && $this->heap[$left][0] > $this->heap[$maxIndex][0]) {\n            $maxIndex = $left;\n        }\n        if ($right < count($this->heap) && $this->heap[$right][0] > $this->heap[$maxIndex][0]) {\n            $maxIndex = $right;\n        }\n        if ($maxIndex !== $index) {\n            $temp = $this->heap[$index];\n            $this->heap[$index] = $this->heap[$maxIndex];\n            $this->heap[$maxIndex] = $temp;\n            $this->_siftDown($maxIndex);\n        }\n    }\n\n    public function peek() {\n        return empty($this->heap) ? null : $this->heap[0][1];\n    }\n\n    public function getQueue() {\n        $result = [];\n        foreach ($this->heap as $item) {\n            $result[] = [$item[1], $item[0]];\n        }\n        return $result;\n    }\n}\n\n// Example: Priority Queue operations\n$pq = new PriorityQueue();\n$items = [[10, 2], [5, 1], [15, 3]];\nforeach ($items as $item) {\n    $pq->enqueue($item[0], $item[1]);\n}\necho 'Queue after enqueue: [' . implode(', ', array_map(fn($x) => '[' . implode(', ', $x) . ']', $pq->getQueue())) . ']\\n';\necho 'Peek: ' . $pq->peek() . '\\n';\n$maxVal = $pq->dequeue();\necho 'Dequeued: ' . $maxVal . '\\n';\necho 'Queue after dequeue: [' . implode(', ', array_map(fn($x) => '[' . implode(', ', $x) . ']', $pq->getQueue())) . ']\\n';\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\n#define MAX_SIZE 100\n\ntypedef struct PriorityQueue {\n    int (*heap)[2];\n    int size;\n    int capacity;\n} PriorityQueue;\n\nPriorityQueue* createPriorityQueue() {\n    PriorityQueue* pq = (PriorityQueue*)malloc(sizeof(PriorityQueue));\n    pq->heap = (int(*)[2])malloc(MAX_SIZE * sizeof(int[2]));\n    pq->size = 0;\n    pq->capacity = MAX_SIZE;\n    return pq;\n}\n\nvoid siftUp(PriorityQueue* pq, int index) {\n    int parent = (index - 1) / 2;\n    if (index > 0 && pq->heap[parent][0] < pq->heap[index][0]) {\n        int temp[2] = {pq->heap[parent][0], pq->heap[parent][1]};\n        pq->heap[parent][0] = pq->heap[index][0];\n        pq->heap[parent][1] = pq->heap[index][1];\n        pq->heap[index][0] = temp[0];\n        pq->heap[index][1] = temp[1];\n        siftUp(pq, parent);\n    }\n}\n\nvoid enqueue(PriorityQueue* pq, int value, int priority) {\n    if (pq->size < pq->capacity) {\n        pq->heap[pq->size][0] = priority;\n        pq->heap[pq->size][1] = value;\n        siftUp(pq, pq->size);\n        pq->size++;\n    }\n}\n\nvoid siftDown(PriorityQueue* pq, int index) {\n    int maxIndex = index;\n    int left = 2 * index + 1;\n    int right = 2 * index + 2;\n    if (left < pq->size && pq->heap[left][0] > pq->heap[maxIndex][0]) {\n        maxIndex = left;\n    }\n    if (right < pq->size && pq->heap[right][0] > pq->heap[maxIndex][0]) {\n        maxIndex = right;\n    }\n    if (maxIndex != index) {\n        int temp[2] = {pq->heap[index][0], pq->heap[index][1]};\n        pq->heap[index][0] = pq->heap[maxIndex][0];\n        pq->heap[index][1] = pq->heap[maxIndex][1];\n        pq->heap[maxIndex][0] = temp[0];\n        pq->heap[maxIndex][1] = temp[1];\n        siftDown(pq, maxIndex);\n    }\n}\n\nint dequeue(PriorityQueue* pq) {\n    if (pq->size == 0) return -1;\n    int maxVal = pq->heap[0][1];\n    pq->heap[0][0] = pq->heap[pq->size - 1][0];\n    pq->heap[0][1] = pq->heap[pq->size - 1][1];\n    pq->size--;\n    if (pq->size > 0) {\n        siftDown(pq, 0);\n    }\n    return maxVal;\n}\n\nint peek(PriorityQueue* pq) {\n    return pq->size > 0 ? pq->heap[0][1] : -1;\n}\n\nvoid printQueue(PriorityQueue* pq) {\n    printf(\"[\");\n    for (int i = 0; i < pq->size; i++) {\n        printf(\"[%d, %d]\", pq->heap[i][1], pq->heap[i][0]);\n        if (i < pq->size - 1) printf(\", \");\n    }\n    printf(\"]\\n\");\n}\n\nint main() {\n    PriorityQueue* pq = createPriorityQueue();\n    int items[][2] = {{10, 2}, {5, 1}, {15, 3}};\n    for (int i = 0; i < 3; i++) {\n        enqueue(pq, items[i][0], items[i][1]);\n    }\n    printf(\"Queue after enqueue: \");\n    printQueue(pq);\n    printf(\"Peek: %d\\n\", peek(pq));\n    int maxVal = dequeue(pq);\n    printf(\"Dequeued: %d\\n\", maxVal);\n    printf(\"Queue after dequeue: \");\n    printQueue(pq);\n    free(pq->heap);\n    free(pq);\n    return 0;\n}\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass PriorityQueue {\n    private List<int[]> heap;\n\n    public PriorityQueue() {\n        heap = new List<int[]>();\n    }\n\n    public void Enqueue(int value, int priority) {\n        heap.Add(new int[] { priority, value });\n        SiftUp(heap.Count - 1);\n    }\n\n    private void SiftUp(int index) {\n        int parent = (index - 1) / 2;\n        if (index > 0 && heap[parent][0] < heap[index][0]) {\n            int[] temp = heap[parent];\n            heap[parent] = heap[index];\n            heap[index] = temp;\n            SiftUp(parent);\n        }\n    }\n\n    public int? Dequeue() {\n        if (heap.Count == 0) return null;\n        int maxVal = heap[0][1];\n        heap[0] = heap[heap.Count - 1];\n        heap.RemoveAt(heap.Count - 1);\n        if (heap.Count > 0) {\n            SiftDown(0);\n        }\n        return maxVal;\n    }\n\n    private void SiftDown(int index) {\n        int maxIndex = index;\n        int left = 2 * index + 1;\n        int right = 2 * index + 2;\n        if (left < heap.Count && heap[left][0] > heap[maxIndex][0]) {\n            maxIndex = left;\n        }\n        if (right < heap.Count && heap[right][0] > heap[maxIndex][0]) {\n            maxIndex = right;\n        }\n        if (maxIndex != index) {\n            int[] temp = heap[index];\n            heap[index] = heap[maxIndex];\n            heap[maxIndex] = temp;\n            SiftDown(maxIndex);\n        }\n    }\n\n    public int? Peek() {\n        return heap.Count > 0 ? heap[0][1] : null;\n    }\n\n    public List<int[]> GetQueue() {\n        List<int[]> result = new List<int[]>();\n        foreach (var item in heap) {\n            result.Add(new int[] { item[1], item[0] });\n        }\n        return result;\n    }\n}\n\nclass Program {\n    static void Main() {\n        PriorityQueue pq = new PriorityQueue();\n        int[][] items = { new int[] { 10, 2 }, new int[] { 5, 1 }, new int[] { 15, 3 } };\n        foreach (var item in items) {\n            pq.Enqueue(item[0], item[1]);\n        }\n        Console.WriteLine(\"Queue after enqueue: [\" + string.Join(\", \", pq.GetQueue().Select(x => \"[\" + x[0] + \", \" + x[1] + \"]\")) + \"]\");\n        Console.WriteLine(\"Peek: \" + pq.Peek());\n        int? maxVal = pq.Dequeue();\n        Console.WriteLine(\"Dequeued: \" + maxVal);\n        Console.WriteLine(\"Queue after dequeue: [\" + string.Join(\", \", pq.GetQueue().Select(x => \"[\" + x[0] + \", \" + x[1] + \"]\")) + \"]\");\n    }\n}\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "cpp": "#include <iostream>\n#include <vector>\n\nclass PriorityQueue {\nprivate:\n    std::vector<std::pair<int, int>> heap;\n\n    void siftUp(int index) {\n        int parent = (index - 1) / 2;\n        if (index > 0 && heap[parent].first < heap[index].first) {\n            std::swap(heap[parent], heap[index]);\n            siftUp(parent);\n        }\n    }\n\n    void siftDown(int index) {\n        int maxIndex = index;\n        int left = 2 * index + 1;\n        int right = 2 * index + 2;\n        if (left < heap.size() && heap[left].first > heap[maxIndex].first) {\n            maxIndex = left;\n        }\n        if (right < heap.size() && heap[right].first > heap[maxIndex].first) {\n            maxIndex = right;\n        }\n        if (maxIndex != index) {\n            std::swap(heap[index], heap[maxIndex]);\n            siftDown(maxIndex);\n        }\n    }\n\npublic:\n    PriorityQueue() {}\n\n    void enqueue(int value, int priority) {\n        heap.push_back({priority, value});\n        siftUp(heap.size() - 1);\n    }\n\n    int dequeue() {\n        if (heap.empty()) return -1;\n        int maxVal = heap[0].second;\n        heap[0] = heap.back();\n        heap.pop_back();\n        if (!heap.empty()) {\n            siftDown(0);\n        }\n        return maxVal;\n    }\n\n    int peek() {\n        return heap.empty() ? -1 : heap[0].second;\n    }\n\n    std::vector<std::pair<int, int>> getQueue() {\n        std::vector<std::pair<int, int>> result;\n        for (auto& item : heap) {\n            result.push_back({item.second, item.first});\n        }\n        return result;\n    }\n};\n\nint main() {\n    PriorityQueue pq;\n    std::vector<std::pair<int, int>> items = {{10, 2}, {5, 1}, {15, 3}};\n    for (auto& item : items) {\n        pq.enqueue(item.first, item.second);\n    }\n    std::cout << \"Queue after enqueue: [\";\n    auto result = pq.getQueue();\n    for (size_t i = 0; i < result.size(); i++) {\n        std::cout << \"[\" << result[i].first << \", \" << result[i].second << \"]\";\n        if (i < result.size() - 1) std::cout << \", \";\n    }\n    std::cout << \"]\\n\";\n    std::cout << \"Peek: \" << pq.peek() << \"\\n\";\n    int maxVal = pq.dequeue();\n    std::cout << \"Dequeued: \" << maxVal << \"\\n\";\n    std::cout << \"Queue after dequeue: [\";\n    result = pq.getQueue();\n    for (size_t i = 0; i < result.size(); i++) {\n        std::cout << \"[\" << result[i].first << \", \" << result[i].second << \"]\";\n        if (i < result.size() - 1) std::cout << \", \";\n    }\n    std::cout << \"]\\n\";\n    return 0;\n}\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]"
+    },
+    "description": "Overview of Priority Queue and its applications.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is a Priority Queue?"
+      },
+      {
+        "type": "paragraph",
+        "text": "A Priority Queue is a data structure where each element has a priority, and the element with the highest (or lowest) priority is dequeued first. It is typically implemented using a Max-Heap or Min-Heap. In the example above, a Max-Heap-based Priority Queue is used: [(10, 2), (5, 1), (15, 3)] are enqueued, the highest priority element (15, priority 3) is dequeued, resulting in [(10, 2), (5, 1)]."
+      },
+      {
+        "type": "heading",
+        "text": "Key Terminology"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Element: A value stored with an associated priority."
+          },
+          {
+            "description": "Priority: A value determining the element's order in the queue."
+          },
+          {
+            "description": "Enqueue: Adding a new element with a priority (shown in the enqueue function above)."
+          },
+          {
+            "description": "Dequeue: Removing the highest-priority element (shown in the dequeue function above)."
+          },
+          {
+            "description": "Peek: Viewing the highest-priority element (shown in the peek function above)."
+          },
+          {
+            "description": "Heap: The underlying structure typically used to implement a Priority Queue (Max-Heap or Min-Heap)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Types of Priority Queues"
+      },
+      {
+        "type": "paragraph",
+        "text": "Priority Queues come in two main types: 1) **Max-Heap-based**: Dequeues the highest-priority element (used in the example). 2) **Min-Heap-based**: Dequeues the lowest-priority element. Other implementations include Fibonacci Heap or simple array-based versions, but heap-based ones are more efficient."
+      },
+      {
+        "type": "heading",
+        "text": "Why are Priority Queues Needed?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Priority Queues are essential for managing elements based on priority, enabling efficient task scheduling, graph algorithms, or dynamic resource allocation. They provide fast access to the highest/lowest priority element and efficient insertion/deletion operations."
+      },
+      {
+        "type": "heading",
+        "text": "What Do Priority Queues Help With?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Priority Queues support various tasks: 1) **Task Scheduling**: Executing tasks based on priority in operating systems. 2) **Graph Algorithms**: Finding minimum distances in Dijkstra or Prim’s algorithms. 3) **Network Management**: Sending packets based on priority. 4) **Games**: Managing game states by priority. The dequeue operation in the example simulates task scheduling."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of Priority Queues (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "For a heap-based Priority Queue, efficiencies are: enqueue and sift up O(log n), dequeue and sift down O(log n), peek O(1). Space complexity is O(n) (n is the number of elements). The example uses a Max-Heap, where dequeue operates efficiently."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Advantage: Fast access to the highest/lowest priority element (O(1) with peek)."
+          },
+          {
+            "description": "Advantage: Enqueue and dequeue operations are O(log n)."
+          },
+          {
+            "description": "Advantage: Ideal for priority-based task management."
+          },
+          {
+            "description": "Disadvantage: Search or element update can be O(n)."
+          },
+          {
+            "description": "Disadvantage: Memory management in complex implementations can be challenging."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real-Life Applications"
+      },
+      {
+        "type": "paragraph",
+        "text": "Priority Queues are widely used: 1) **Operating Systems**: Scheduling tasks by priority. 2) **Networks**: Sending data packets based on priority. 3) **Graph Algorithms**: Finding minimum priorities in Dijkstra or Prim’s algorithms. 4) **Simulations**: Processing events by priority. The enqueue operation in the example mimics adding a task to a scheduler."
+      },
+      {
+        "type": "heading",
+        "text": "Optimization Strategies"
+      },
+      {
+        "type": "paragraph",
+        "text": "To optimize Priority Queues: 1) **Efficient Implementation**: Use Max-Heap or Min-Heap for efficient operations (as in the example). 2) **Caching**: Cache frequently accessed elements. 3) **Efficient Algorithms**: Optimize sift up/down operations. 4) **Structure Selection**: Consider alternatives like Fibonacci Heap for large datasets. 5) **Memory Management**: Optimize memory usage for large queues."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Key risks include: 1) **Memory Usage**: Large queues may consume significant memory. 2) **Search Performance**: Searching or updating elements can be O(n). 3) **Complexity**: Dynamic priority changes can be complex. Recommendations: 1) Use BST or other structures for search-heavy tasks. 2) Optimize memory usage. 3) Test code with large datasets."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Очередь с приоритетами (Priority Queue)",
+    "icon": "FiArrowDownCircle",
+    "language": "multiple",
+    "codes": {
+      "python": "class PriorityQueue:\n    def __init__(self):\n        self.heap = []\n\n    def enqueue(self, value, priority):\n        self.heap.append((priority, value))\n        self._sift_up(len(self.heap) - 1)\n\n    def _sift_up(self, index):\n        parent = (index - 1) // 2\n        if index > 0 and self.heap[parent][0] < self.heap[index][0]:\n            self.heap[parent], self.heap[index] = self.heap[index], self.heap[parent]\n            self._sift_up(parent)\n\n    def dequeue(self):\n        if not self.heap:\n            return None\n        max_val = self.heap[0][1]\n        self.heap[0] = self.heap[-1]\n        self.heap.pop()\n        if self.heap:\n            self._sift_down(0)\n        return max_val\n\n    def _sift_down(self, index):\n        max_index = index\n        left = 2 * index + 1\n        right = 2 * index + 2\n        if left < len(self.heap) and self.heap[left][0] > self.heap[max_index][0]:\n            max_index = left\n        if right < len(self.heap) and self.heap[right][0] > self.heap[max_index][0]:\n            max_index = right\n        if max_index != index:\n            self.heap[index], self.heap[max_index] = self.heap[max_index], self.heap[index]\n            self._sift_down(max_index)\n\n    def peek(self):\n        return self.heap[0][1] if self.heap else None\n\n    def get_queue(self):\n        return [(item[1], item[0]) for item in self.heap]\n\n# Example: Priority Queue operations\npq = PriorityQueue()\nitems = [(10, 2), (5, 1), (15, 3)]\nfor val, pri in items:\n    pq.enqueue(val, pri)\nprint('Queue after enqueue:', pq.get_queue())\nprint('Peek:', pq.peek())\nmax_val = pq.dequeue()\nprint('Dequeued:', max_val)\nprint('Queue after dequeue:', pq.get_queue())\n# Output: Queue after enqueue: [(15, 3), (10, 2), (5, 1)]\n# Output: Peek: 15\n# Output: Dequeued: 15\n# Output: Queue after dequeue: [(10, 2), (5, 1)]",
+      "javascript": "class PriorityQueue {\n    constructor() {\n        this.heap = [];\n    }\n\n    enqueue(value, priority) {\n        this.heap.push([priority, value]);\n        this._siftUp(this.heap.length - 1);\n    }\n\n    _siftUp(index) {\n        let parent = Math.floor((index - 1) / 2);\n        if (index > 0 && this.heap[parent][0] < this.heap[index][0]) {\n            [this.heap[parent], this.heap[index]] = [this.heap[index], this.heap[parent]];\n            this._siftUp(parent);\n        }\n    }\n\n    dequeue() {\n        if (this.heap.length === 0) return null;\n        let maxVal = this.heap[0][1];\n        this.heap[0] = this.heap[this.heap.length - 1];\n        this.heap.pop();\n        if (this.heap.length > 0) {\n            this._siftDown(0);\n        }\n        return maxVal;\n    }\n\n    _siftDown(index) {\n        let maxIndex = index;\n        let left = 2 * index + 1;\n        let right = 2 * index + 2;\n        if (left < this.heap.length && this.heap[left][0] > this.heap[maxIndex][0]) {\n            maxIndex = left;\n        }\n        if (right < this.heap.length && this.heap[right][0] > this.heap[maxIndex][0]) {\n            maxIndex = right;\n        }\n        if (maxIndex !== index) {\n            [this.heap[index], this.heap[maxIndex]] = [this.heap[maxIndex], this.heap[index]];\n            this._siftDown(maxIndex);\n        }\n    }\n\n    peek() {\n        return this.heap.length > 0 ? this.heap[0][1] : null;\n    }\n\n    getQueue() {\n        return this.heap.map(item => [item[1], item[0]]);\n    }\n}\n\n// Example: Priority Queue operations\nconst pq = new PriorityQueue();\nconst items = [[10, 2], [5, 1], [15, 3]];\nitems.forEach(([val, pri]) => pq.enqueue(val, pri));\nconsole.log('Queue after enqueue:', pq.getQueue());\nconsole.log('Peek:', pq.peek());\nconst maxVal = pq.dequeue();\nconsole.log('Dequeued:', maxVal);\nconsole.log('Queue after dequeue:', pq.getQueue());\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "typescript": "class PriorityQueue {\n    private heap: [number, number][] = [];\n\n    enqueue(value: number, priority: number): void {\n        this.heap.push([priority, value]);\n        this._siftUp(this.heap.length - 1);\n    }\n\n    private _siftUp(index: number): void {\n        let parent = Math.floor((index - 1) / 2);\n        if (index > 0 && this.heap[parent][0] < this.heap[index][0]) {\n            [this.heap[parent], this.heap[index]] = [this.heap[index], this.heap[parent]];\n            this._siftUp(parent);\n        }\n    }\n\n    dequeue(): number | null {\n        if (this.heap.length === 0) return null;\n        let maxVal = this.heap[0][1];\n        this.heap[0] = this.heap[this.heap.length - 1];\n        this.heap.pop();\n        if (this.heap.length > 0) {\n            this._siftDown(0);\n        }\n        return maxVal;\n    }\n\n    private _siftDown(index: number): void {\n        let maxIndex = index;\n        let left = 2 * index + 1;\n        let right = 2 * index + 2;\n        if (left < this.heap.length && this.heap[left][0] > this.heap[maxIndex][0]) {\n            maxIndex = left;\n        }\n        if (right < this.heap.length && this.heap[right][0] > this.heap[maxIndex][0]) {\n            maxIndex = right;\n        }\n        if (maxIndex !== index) {\n            [this.heap[index], this.heap[maxIndex]] = [this.heap[maxIndex], this.heap[index]];\n            this._siftDown(maxIndex);\n        }\n    }\n\n    peek(): number | null {\n        return this.heap.length > 0 ? this.heap[0][1] : null;\n    }\n\n    getQueue(): [number, number][] {\n        return this.heap.map(item => [item[1], item[0]]);\n    }\n}\n\n// Example: Priority Queue operations\nconst pq = new PriorityQueue();\nconst items: [number, number][] = [[10, 2], [5, 1], [15, 3]];\nitems.forEach(([val, pri]) => pq.enqueue(val, pri));\nconsole.log('Queue after enqueue:', pq.getQueue());\nconsole.log('Peek:', pq.peek());\nconst maxVal = pq.dequeue();\nconsole.log('Dequeued:', maxVal);\nconsole.log('Queue after dequeue:', pq.getQueue());\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "java": "import java.util.ArrayList;\n\nclass PriorityQueue {\n    private ArrayList<int[]> heap;\n\n    public PriorityQueue() {\n        heap = new ArrayList<>();\n    }\n\n    public void enqueue(int value, int priority) {\n        heap.add(new int[]{priority, value});\n        siftUp(heap.size() - 1);\n    }\n\n    private void siftUp(int index) {\n        int parent = (index - 1) / 2;\n        if (index > 0 && heap.get(parent)[0] < heap.get(index)[0]) {\n            int[] temp = heap.get(parent);\n            heap.set(parent, heap.get(index));\n            heap.set(index, temp);\n            siftUp(parent);\n        }\n    }\n\n    public Integer dequeue() {\n        if (heap.isEmpty()) return null;\n        int maxVal = heap.get(0)[1];\n        heap.set(0, heap.get(heap.size() - 1));\n        heap.remove(heap.size() - 1);\n        if (!heap.isEmpty()) {\n            siftDown(0);\n        }\n        return maxVal;\n    }\n\n    private void siftDown(int index) {\n        int maxIndex = index;\n        int left = 2 * index + 1;\n        int right = 2 * index + 2;\n        if (left < heap.size() && heap.get(left)[0] > heap.get(maxIndex)[0]) {\n            maxIndex = left;\n        }\n        if (right < heap.size() && heap.get(right)[0] > heap.get(maxIndex)[0]) {\n            maxIndex = right;\n        }\n        if (maxIndex != index) {\n            int[] temp = heap.get(index);\n            heap.set(index, heap.get(maxIndex));\n            heap.set(maxIndex, temp);\n            siftDown(maxIndex);\n        }\n    }\n\n    public Integer peek() {\n        return heap.isEmpty() ? null : heap.get(0)[1];\n    }\n\n    public ArrayList<int[]> getQueue() {\n        ArrayList<int[]> result = new ArrayList<>();\n        for (int[] item : heap) {\n            result.add(new int[]{item[1], item[0]});\n        }\n        return result;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        PriorityQueue pq = new PriorityQueue();\n        int[][] items = {{10, 2}, {5, 1}, {15, 3}};\n        for (int[] item : items) {\n            pq.enqueue(item[0], item[1]);\n        }\n        System.out.println(\"Queue after enqueue: \" + pq.getQueue());\n        System.out.println(\"Peek: \" + pq.peek());\n        Integer maxVal = pq.dequeue();\n        System.out.println(\"Dequeued: \" + maxVal);\n        System.out.println(\"Queue after dequeue: \" + pq.getQueue());\n    }\n}\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "php": "<?php\n\nclass PriorityQueue {\n    private $heap = [];\n\n    public function enqueue($value, $priority) {\n        $this->heap[] = [$priority, $value];\n        $this->_siftUp(count($this->heap) - 1);\n    }\n\n    private function _siftUp($index) {\n        $parent = (int)(($index - 1) / 2);\n        if ($index > 0 && $this->heap[$parent][0] < $this->heap[$index][0]) {\n            $temp = $this->heap[$parent];\n            $this->heap[$parent] = $this->heap[$index];\n            $this->heap[$index] = $temp;\n            $this->_siftUp($parent);\n        }\n    }\n\n    public function dequeue() {\n        if (empty($this->heap)) return null;\n        $maxVal = $this->heap[0][1];\n        $this->heap[0] = $this->heap[count($this->heap) - 1];\n        array_pop($this->heap);\n        if (!empty($this->heap)) {\n            $this->_siftDown(0);\n        }\n        return $maxVal;\n    }\n\n    private function _siftDown($index) {\n        $maxIndex = $index;\n        $left = 2 * $index + 1;\n        $right = 2 * $index + 2;\n        if ($left < count($this->heap) && $this->heap[$left][0] > $this->heap[$maxIndex][0]) {\n            $maxIndex = $left;\n        }\n        if ($right < count($this->heap) && $this->heap[$right][0] > $this->heap[$maxIndex][0]) {\n            $maxIndex = $right;\n        }\n        if ($maxIndex !== $index) {\n            $temp = $this->heap[$index];\n            $this->heap[$index] = $this->heap[$maxIndex];\n            $this->heap[$maxIndex] = $temp;\n            $this->_siftDown($maxIndex);\n        }\n    }\n\n    public function peek() {\n        return empty($this->heap) ? null : $this->heap[0][1];\n    }\n\n    public function getQueue() {\n        $result = [];\n        foreach ($this->heap as $item) {\n            $result[] = [$item[1], $item[0]];\n        }\n        return $result;\n    }\n}\n\n// Example: Priority Queue operations\n$pq = new PriorityQueue();\n$items = [[10, 2], [5, 1], [15, 3]];\nforeach ($items as $item) {\n    $pq->enqueue($item[0], $item[1]);\n}\necho 'Queue after enqueue: [' . implode(', ', array_map(fn($x) => '[' . implode(', ', $x) . ']', $pq->getQueue())) . ']\\n';\necho 'Peek: ' . $pq->peek() . '\\n';\n$maxVal = $pq->dequeue();\necho 'Dequeued: ' . $maxVal . '\\n';\necho 'Queue after dequeue: [' . implode(', ', array_map(fn($x) => '[' . implode(', ', $x) . ']', $pq->getQueue())) . ']\\n';\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\n#define MAX_SIZE 100\n\ntypedef struct PriorityQueue {\n    int (*heap)[2];\n    int size;\n    int capacity;\n} PriorityQueue;\n\nPriorityQueue* createPriorityQueue() {\n    PriorityQueue* pq = (PriorityQueue*)malloc(sizeof(PriorityQueue));\n    pq->heap = (int(*)[2])malloc(MAX_SIZE * sizeof(int[2]));\n    pq->size = 0;\n    pq->capacity = MAX_SIZE;\n    return pq;\n}\n\nvoid siftUp(PriorityQueue* pq, int index) {\n    int parent = (index - 1) / 2;\n    if (index > 0 && pq->heap[parent][0] < pq->heap[index][0]) {\n        int temp[2] = {pq->heap[parent][0], pq->heap[parent][1]};\n        pq->heap[parent][0] = pq->heap[index][0];\n        pq->heap[parent][1] = pq->heap[index][1];\n        pq->heap[index][0] = temp[0];\n        pq->heap[index][1] = temp[1];\n        siftUp(pq, parent);\n    }\n}\n\nvoid enqueue(PriorityQueue* pq, int value, int priority) {\n    if (pq->size < pq->capacity) {\n        pq->heap[pq->size][0] = priority;\n        pq->heap[pq->size][1] = value;\n        siftUp(pq, pq->size);\n        pq->size++;\n    }\n}\n\nvoid siftDown(PriorityQueue* pq, int index) {\n    int maxIndex = index;\n    int left = 2 * index + 1;\n    int right = 2 * index + 2;\n    if (left < pq->size && pq->heap[left][0] > pq->heap[maxIndex][0]) {\n        maxIndex = left;\n    }\n    if (right < pq->size && pq->heap[right][0] > pq->heap[maxIndex][0]) {\n        maxIndex = right;\n    }\n    if (maxIndex != index) {\n        int temp[2] = {pq->heap[index][0], pq->heap[index][1]};\n        pq->heap[index][0] = pq->heap[maxIndex][0];\n        pq->heap[index][1] = pq->heap[maxIndex][1];\n        pq->heap[maxIndex][0] = temp[0];\n        pq->heap[maxIndex][1] = temp[1];\n        siftDown(pq, maxIndex);\n    }\n}\n\nint dequeue(PriorityQueue* pq) {\n    if (pq->size == 0) return -1;\n    int maxVal = pq->heap[0][1];\n    pq->heap[0][0] = pq->heap[pq->size - 1][0];\n    pq->heap[0][1] = pq->heap[pq->size - 1][1];\n    pq->size--;\n    if (pq->size > 0) {\n        siftDown(pq, 0);\n    }\n    return maxVal;\n}\n\nint peek(PriorityQueue* pq) {\n    return pq->size > 0 ? pq->heap[0][1] : -1;\n}\n\nvoid printQueue(PriorityQueue* pq) {\n    printf(\"[\");\n    for (int i = 0; i < pq->size; i++) {\n        printf(\"[%d, %d]\", pq->heap[i][1], pq->heap[i][0]);\n        if (i < pq->size - 1) printf(\", \");\n    }\n    printf(\"]\\n\");\n}\n\nint main() {\n    PriorityQueue* pq = createPriorityQueue();\n    int items[][2] = {{10, 2}, {5, 1}, {15, 3}};\n    for (int i = 0; i < 3; i++) {\n        enqueue(pq, items[i][0], items[i][1]);\n    }\n    printf(\"Queue after enqueue: \");\n    printQueue(pq);\n    printf(\"Peek: %d\\n\", peek(pq));\n    int maxVal = dequeue(pq);\n    printf(\"Dequeued: %d\\n\", maxVal);\n    printf(\"Queue after dequeue: \");\n    printQueue(pq);\n    free(pq->heap);\n    free(pq);\n    return 0;\n}\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass PriorityQueue {\n    private List<int[]> heap;\n\n    public PriorityQueue() {\n        heap = new List<int[]>();\n    }\n\n    public void Enqueue(int value, int priority) {\n        heap.Add(new int[] { priority, value });\n        SiftUp(heap.Count - 1);\n    }\n\n    private void SiftUp(int index) {\n        int parent = (index - 1) / 2;\n        if (index > 0 && heap[parent][0] < heap[index][0]) {\n            int[] temp = heap[parent];\n            heap[parent] = heap[index];\n            heap[index] = temp;\n            SiftUp(parent);\n        }\n    }\n\n    public int? Dequeue() {\n        if (heap.Count == 0) return null;\n        int maxVal = heap[0][1];\n        heap[0] = heap[heap.Count - 1];\n        heap.RemoveAt(heap.Count - 1);\n        if (heap.Count > 0) {\n            SiftDown(0);\n        }\n        return maxVal;\n    }\n\n    private void SiftDown(int index) {\n        int maxIndex = index;\n        int left = 2 * index + 1;\n        int right = 2 * index + 2;\n        if (left < heap.Count && heap[left][0] > heap[maxIndex][0]) {\n            maxIndex = left;\n        }\n        if (right < heap.Count && heap[right][0] > heap[maxIndex][0]) {\n            maxIndex = right;\n        }\n        if (maxIndex != index) {\n            int[] temp = heap[index];\n            heap[index] = heap[maxIndex];\n            heap[maxIndex] = temp;\n            SiftDown(maxIndex);\n        }\n    }\n\n    public int? Peek() {\n        return heap.Count > 0 ? heap[0][1] : null;\n    }\n\n    public List<int[]> GetQueue() {\n        List<int[]> result = new List<int[]>();\n        foreach (var item in heap) {\n            result.Add(new int[] { item[1], item[0] });\n        }\n        return result;\n    }\n}\n\nclass Program {\n    static void Main() {\n        PriorityQueue pq = new PriorityQueue();\n        int[][] items = { new int[] { 10, 2 }, new int[] { 5, 1 }, new int[] { 15, 3 } };\n        foreach (var item in items) {\n            pq.Enqueue(item[0], item[1]);\n        }\n        Console.WriteLine(\"Queue after enqueue: [\" + string.Join(\", \", pq.GetQueue().Select(x => \"[\" + x[0] + \", \" + x[1] + \"]\")) + \"]\");\n        Console.WriteLine(\"Peek: \" + pq.Peek());\n        int? maxVal = pq.Dequeue();\n        Console.WriteLine(\"Dequeued: \" + maxVal);\n        Console.WriteLine(\"Queue after dequeue: [\" + string.Join(\", \", pq.GetQueue().Select(x => \"[\" + x[0] + \", \" + x[1] + \"]\")) + \"]\");\n    }\n}\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]",
+      "cpp": "#include <iostream>\n#include <vector>\n\nclass PriorityQueue {\nprivate:\n    std::vector<std::pair<int, int>> heap;\n\n    void siftUp(int index) {\n        int parent = (index - 1) / 2;\n        if (index > 0 && heap[parent].first < heap[index].first) {\n            std::swap(heap[parent], heap[index]);\n            siftUp(parent);\n        }\n    }\n\n    void siftDown(int index) {\n        int maxIndex = index;\n        int left = 2 * index + 1;\n        int right = 2 * index + 2;\n        if (left < heap.size() && heap[left].first > heap[maxIndex].first) {\n            maxIndex = left;\n        }\n        if (right < heap.size() && heap[right].first > heap[maxIndex].first) {\n            maxIndex = right;\n        }\n        if (maxIndex != index) {\n            std::swap(heap[index], heap[maxIndex]);\n            siftDown(maxIndex);\n        }\n    }\n\npublic:\n    PriorityQueue() {}\n\n    void enqueue(int value, int priority) {\n        heap.push_back({priority, value});\n        siftUp(heap.size() - 1);\n    }\n\n    int dequeue() {\n        if (heap.empty()) return -1;\n        int maxVal = heap[0].second;\n        heap[0] = heap.back();\n        heap.pop_back();\n        if (!heap.empty()) {\n            siftDown(0);\n        }\n        return maxVal;\n    }\n\n    int peek() {\n        return heap.empty() ? -1 : heap[0].second;\n    }\n\n    std::vector<std::pair<int, int>> getQueue() {\n        std::vector<std::pair<int, int>> result;\n        for (auto& item : heap) {\n            result.push_back({item.second, item.first});\n        }\n        return result;\n    }\n};\n\nint main() {\n    PriorityQueue pq;\n    std::vector<std::pair<int, int>> items = {{10, 2}, {5, 1}, {15, 3}};\n    for (auto& item : items) {\n        pq.enqueue(item.first, item.second);\n    }\n    std::cout << \"Queue after enqueue: [\";\n    auto result = pq.getQueue();\n    for (size_t i = 0; i < result.size(); i++) {\n        std::cout << \"[\" << result[i].first << \", \" << result[i].second << \"]\";\n        if (i < result.size() - 1) std::cout << \", \";\n    }\n    std::cout << \"]\\n\";\n    std::cout << \"Peek: \" << pq.peek() << \"\\n\";\n    int maxVal = pq.dequeue();\n    std::cout << \"Dequeued: \" << maxVal << \"\\n\";\n    std::cout << \"Queue after dequeue: [\";\n    result = pq.getQueue();\n    for (size_t i = 0; i < result.size(); i++) {\n        std::cout << \"[\" << result[i].first << \", \" << result[i].second << \"]\";\n        if (i < result.size() - 1) std::cout << \", \";\n    }\n    std::cout << \"]\\n\";\n    return 0;\n}\n// Output: Queue after enqueue: [[15, 3], [10, 2], [5, 1]]\n// Output: Peek: 15\n// Output: Dequeued: 15\n// Output: Queue after dequeue: [[10, 2], [5, 1]]"
+    },
+    "description": "Обзор очереди с приоритетами и её применений.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Очередь с приоритетами?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Очередь с приоритетами (Priority Queue) — это структура данных, в которой каждый элемент имеет приоритет, и элемент с наивысшим (или наименьшим) приоритетом извлекается первым. Обычно реализуется на основе Max-Heap или Min-Heap. В примере выше используется очередь на основе Max-Heap: добавляются [(10, 2), (5, 1), (15, 3)], извлекается элемент с наивысшим приоритетом (15, приоритет 3), в результате остается [(10, 2), (5, 1)]."
+      },
+      {
+        "type": "heading",
+        "text": "Основные термины"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Элемент: Значение, хранимое вместе с приоритетом."
+          },
+          {
+            "description": "Приоритет: Значение, определяющее порядок элемента в очереди."
+          },
+          {
+            "description": "Enqueue: Добавление нового элемента с приоритетом (показано в функции enqueue выше)."
+          },
+          {
+            "description": "Dequeue: Извлечение элемента с наивысшим приоритетом (показано в функции dequeue выше)."
+          },
+          {
+            "description": "Peek: Просмотр элемента с наивысшим приоритетом (показано в функции peek выше)."
+          },
+          {
+            "description": "Куча (Heap): Структура, обычно используемая для реализации очереди с приоритетами (Max-Heap или Min-Heap)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Типы очередей с приоритетами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Очереди с приоритетами бывают двух основных типов: 1) **На основе Max-Heap**: Извлекается элемент с наивысшим приоритетом (используется в примере). 2) **На основе Min-Heap**: Извлекается элемент с наименьшим приоритетом. Другие реализации включают Fibonacci Heap или простые массивы, но кучи более эффективны."
+      },
+      {
+        "type": "heading",
+        "text": "Зачем нужны очереди с приоритетами?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Очереди с приоритетами необходимы для управления элементами на основе приоритетов, что важно для планирования задач, графовых алгоритмов или динамического распределения ресурсов. Они обеспечивают быстрый доступ к элементу с наивысшим/наименьшим приоритетом и эффективные операции добавления и удаления."
+      },
+      {
+        "type": "heading",
+        "text": "Для чего помогают очереди с приоритетами?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Очереди с приоритетами поддерживают множество задач: 1) **Планирование задач**: Выполнение задач по приоритету в операционных системах. 2) **Графовые алгоритмы**: Поиск минимальных расстояний в алгоритмах Дейкстры или Прима. 3) **Управление сетями**: Отправка пакетов по приоритету. 4) **Игры**: Управление игровыми состояниями по приоритету. Операция dequeue в примере имитирует планирование задач."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность очередей с приоритетами (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для очереди на основе кучи: enqueue и sift up — O(log n), dequeue и sift down — O(log n), peek — O(1). Пространственная сложность — O(n) (n — количество элементов). В примере используется Max-Heap, где dequeue работает эффективно."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Преимущество: Быстрый доступ к элементу с наивысшим/наименьшим приоритетом (O(1) с peek)."
+          },
+          {
+            "description": "Преимущество: Операции enqueue и dequeue — O(log n)."
+          },
+          {
+            "description": "Преимущество: Идеально для управления задачами по приоритету."
+          },
+          {
+            "description": "Недостаток: Поиск или обновление элемента может быть O(n)."
+          },
+          {
+            "description": "Недостаток: Управление памятью в сложных реализациях может быть трудным."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Применение в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Очереди с приоритетами широко используются: 1) **Операционные системы**: Планирование задач по приоритету. 2) **Сети**: Отправка пакетов данных по приоритету. 3) **Графовые алгоритмы**: Поиск минимальных приоритетов в алгоритмах Дейкстры или Прима. 4) **Симуляции**: Обработка событий по приоритету. Операция enqueue в примере имитирует добавление задачи в планировщик."
+      },
+      {
+        "type": "heading",
+        "text": "Стратегии оптимизации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для оптимизации очередей с приоритетами: 1) **Эффективная реализация**: Используйте Max-Heap или Min-Heap для эффективных операций (как в примере). 2) **Кэширование**: Кэшируйте часто используемые элементы. 3) **Эффективные алгоритмы**: Оптимизируйте операции sift up/down. 4) **Выбор структуры**: Рассмотрите альтернативы, такие как Fibonacci Heap, для больших данных. 5) **Управление памятью**: Оптимизируйте использование памяти для больших очередей."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основные риски включают: 1) **Использование памяти**: Большие очереди могут потреблять много памяти. 2) **Производительность поиска**: Поиск или обновление элементов может быть O(n). 3) **Сложность**: Динамическое изменение приоритетов может быть сложным. Рекомендации: 1) Используйте BST для задач с интенсивным поиском. 2) Оптимизируйте использование памяти. 3) Тестируйте код с большими данными."
+      }
+    ]
+  }
+}

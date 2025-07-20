@@ -57,12 +57,26 @@ function languageAlias(lang: string) {
   return l;
 }
 
+function renderBoldText(text: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") ? (
+      <strong key={i} style={{ fontWeight: 700 }}>
+        {part.slice(2, -2)}
+      </strong>
+    ) : (
+      <React.Fragment key={i}>{part}</React.Fragment>
+    )
+  );
+}
+
 function renderContentBlock(
   block: ContentBlock,
   i: number,
   editorStates: Record<string, string>,
   setEditorStates: React.Dispatch<React.SetStateAction<Record<string, string>>>,
-  safeLanguage: string
+  safeLanguage: string,
+  runCode?: (code: string, language: string) => void // yeni prop
 ) {
   switch (block.type) {
     case "heading":
@@ -112,6 +126,9 @@ function renderContentBlock(
       const editorLanguage = block.language
         ? languageAlias(block.language)
         : languageAlias(safeLanguage);
+      const handleRun = () => {
+        if (runCode) runCode(codeValue, editorLanguage);
+      };
 
       return (
         <div key={i} className={styles.editorContainer}>
@@ -120,6 +137,7 @@ function renderContentBlock(
             value={codeValue}
             onChange={handleEditorChange}
             showRunButton={true}
+            onRun={handleRun}
           />
         </div>
       );
@@ -129,7 +147,7 @@ function renderContentBlock(
         <ul key={i} style={{ marginBottom: 16, paddingLeft: 24 }}>
           {block.items?.map((item, idx) => (
             <li key={idx} style={{ marginBottom: 8 }}>
-              <strong>{item.term}:</strong> {item.description}
+              <strong>{item.term}:</strong> {renderBoldText(item.description)}
             </li>
           ))}
         </ul>
@@ -361,6 +379,21 @@ export default function TutorialTopicPage() {
     router.push(`/${lang}/tutorials`);
   };
 
+  const runCode = (code: string, language: string) => {
+    // Burada kodu backendə göndərmək üçün fetch və ya API call yaz
+    // Məsələn:
+    fetch('/api/execute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, language }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        // nəticəni state-də saxla və ya göstər
+        console.log('Run result:', data);
+      });
+  };
+
   if (loading) {
     return (
       <>
@@ -486,7 +519,8 @@ export default function TutorialTopicPage() {
                         i,
                         editorStates,
                         setEditorStates,
-                        safeLanguage
+                        safeLanguage,
+                        runCode // yeni prop
                       )
                     )}
                 </div>
@@ -598,7 +632,7 @@ export default function TutorialTopicPage() {
                       )}
                     </div>
 
-                    <div style={{ width:"100%" }}>
+                    <div style={{ width: "100%" }}>
                       <JsTryEditor
                         language={algoLang}
                         value={topicContent.codes[algoLang] || ""}

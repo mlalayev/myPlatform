@@ -1,0 +1,379 @@
+{
+  "id": "persistent",
+  "az": {
+    "title": "Persistent Data Structures",
+    "icon": "FiRefreshCw",
+    "language": "multiple",
+    "codes": {
+      "python": "class Node:\n    def __init__(self, value, next_node=None):\n        self.value = value\n        self.next = next_node\n\nclass PersistentList:\n    def __init__(self):\n        self.versions = []\n\n    def insert(self, value):\n        if not self.versions:\n            self.versions.append(Node(value))\n        else:\n            new_head = Node(value, self.versions[-1])\n            self.versions.append(new_head)\n\n    def search(self, version, value):\n        node = self.versions[version] if version < len(self.versions) else None\n        while node:\n            if node.value == value:\n                return True\n            node = node.next\n        return False\n\n# Example: Persistent List operations\nplist = PersistentList()\nfor value in [10, 20, 30, 40]:\n    plist.insert(value)\nprint('Search version 2 for 30:', plist.search(2, 30))\nprint('Search version 2 for 50:', plist.search(2, 50))\n# Output: Search version 2 for 30: True\n# Output: Search version 2 for 50: False",
+      "javascript": "class Node {\n    constructor(value, next = null) {\n        this.value = value;\n        this.next = next;\n    }\n}\n\nclass PersistentList {\n    constructor() {\n        this.versions = [];\n    }\n\n    insert(value) {\n        if (!this.versions.length) {\n            this.versions.push(new Node(value));\n        } else {\n            const newHead = new Node(value, this.versions[this.versions.length - 1]);\n            this.versions.push(newHead);\n        }\n    }\n\n    search(version, value) {\n        let node = version < this.versions.length ? this.versions[version] : null;\n        while (node) {\n            if (node.value === value) return true;\n            node = node.next;\n        }\n        return false;\n    }\n}\n\n// Example: Persistent List operations\nconst plist = new PersistentList();\n[10, 20, 30, 40].forEach(value => plist.insert(value));\nconsole.log('Search version 2 for 30:', plist.search(2, 30));\nconsole.log('Search version 2 for 50:', plist.search(2, 50));\n// Output: Search version 2 for 30: true\n// Output: Search version 2 for 50: false",
+      "typescript": "class Node {\n    value: number;\n    next: Node | null;\n\n    constructor(value: number, next: Node | null = null) {\n        this.value = value;\n        this.next = next;\n    }\n}\n\nclass PersistentList {\n    private versions: Node[] = [];\n\n    insert(value: number): void {\n        if (!this.versions.length) {\n            this.versions.push(new Node(value));\n        } else {\n            const newHead = new Node(value, this.versions[this.versions.length - 1]);\n            this.versions.push(newHead);\n        }\n    }\n\n    search(version: number, value: number): boolean {\n        let node = version < this.versions.length ? this.versions[version] : null;\n        while (node) {\n            if (node.value === value) return true;\n            node = node.next;\n        }\n        return false;\n    }\n}\n\n// Example: Persistent List operations\nconst plist = new PersistentList();\n[10, 20, 30, 40].forEach(value => plist.insert(value));\nconsole.log('Search version 2 for 30:', plist.search(2, 30));\nconsole.log('Search version 2 for 50:', plist.search(2, 50));\n// Output: Search version 2 for 30: true\n// Output: Search version 2 for 50: false",
+      "java": "class Node {\n    int value;\n    Node next;\n\n    Node(int value, Node next) {\n        this.value = value;\n        this.next = next;\n    }\n}\n\nclass PersistentList {\n    private java.util.List<Node> versions = new java.util.ArrayList<>();\n\n    public void insert(int value) {\n        if (versions.isEmpty()) {\n            versions.add(new Node(value, null));\n        } else {\n            versions.add(new Node(value, versions.get(versions.size() - 1)));\n        }\n    }\n\n    public boolean search(int version, int value) {\n        Node node = version < versions.size() ? versions.get(version) : null;\n        while (node != null) {\n            if (node.value == value) return true;\n            node = node.next;\n        }\n        return false;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        PersistentList plist = new PersistentList();\n        int[] values = {10, 20, 30, 40};\n        for (int value : values) {\n            plist.insert(value);\n        }\n        System.out.println(\"Search version 2 for 30: \" + plist.search(2, 30));\n        System.out.println(\"Search version 2 for 50: \" + plist.search(2, 50));\n    }\n}\n// Output: Search version 2 for 30: true\n// Output: Search version 2 for 50: false",
+      "php": "<?php\n\nclass Node {\n    public $value;\n    public $next;\n\n    public function __construct($value, $next = null) {\n        $this->value = $value;\n        $this->next = $next;\n    }\n}\n\nclass PersistentList {\n    private $versions = [];\n\n    public function insert($value) {\n        if (empty($this->versions)) {\n            $this->versions[] = new Node($value);\n        } else {\n            $this->versions[] = new Node($value, end($this->versions));\n        }\n    }\n\n    public function search($version, $value) {\n        $node = isset($this->versions[$version]) ? $this->versions[$version] : null;\n        while ($node) {\n            if ($node->value == $value) return true;\n            $node = $node->next;\n        }\n        return false;\n    }\n}\n\n// Example: Persistent List operations\n$plist = new PersistentList();\n$values = [10, 20, 30, 40];\nforeach ($values as $value) {\n    $plist->insert($value);\n}\necho \"Search version 2 for 30: \" . ($plist->search(2, 30) ? 'true' : 'false') . \"\\n\";\necho \"Search version 2 for 50: \" . ($plist->search(2, 50) ? 'true' : 'false') . \"\\n\";\n// Output: Search version 2 for 30: true\n// Output: Search version 2 for 50: false",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int value;\n    struct Node* next;\n} Node;\n\ntypedef struct PersistentList {\n    Node** versions;\n    int version_count;\n} PersistentList;\n\nNode* createNode(int value, Node* next) {\n    Node* node = (Node*)malloc(sizeof(Node));\n    node->value = value;\n    node->next = next;\n    return node;\n}\n\nPersistentList* createPersistentList() {\n    PersistentList* plist = (PersistentList*)malloc(sizeof(PersistentList));\n    plist->versions = NULL;\n    plist->version_count = 0;\n    return plist;\n}\n\nvoid insert(PersistentList* plist, int value) {\n    plist->versions = (Node**)realloc(plist->versions, (plist->version_count + 1) * sizeof(Node*));\n    if (plist->version_count == 0) {\n        plist->versions[0] = createNode(value, NULL);\n    } else {\n        plist->versions[plist->version_count] = createNode(value, plist->versions[plist->version_count - 1]);\n    }\n    plist->version_count++;\n}\n\nint search(PersistentList* plist, int version, int value) {\n    Node* node = version < plist->version_count ? plist->versions[version] : NULL;\n    while (node) {\n        if (node->value == value) return 1;\n        node = node->next;\n    }\n    return 0;\n}\n\nvoid freePersistentList(PersistentList* plist) {\n    for (int i = 0; i < plist->version_count; i++) {\n        Node* node = plist->versions[i];\n        while (node) {\n            Node* temp = node;\n            node = node->next;\n            if (i == plist->version_count - 1) free(temp);\n        }\n    }\n    free(plist->versions);\n    free(plist);\n}\n\nint main() {\n    PersistentList* plist = createPersistentList();\n    int values[] = {10, 20, 30, 40};\n    for (int i = 0; i < 4; i++) {\n        insert(plist, values[i]);\n    }\n    printf(\"Search version 2 for 30: %d\\n\", search(plist, 2, 30));\n    printf(\"Search version 2 for 50: %d\\n\", search(plist, 2, 50));\n    freePersistentList(plist);\n    return 0;\n}\n// Output: Search version 2 for 30: 1\n// Output: Search version 2 for 50: 0",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\npublic class Node {\n    public int Value;\n    public Node Next;\n\n    public Node(int value, Node next = null) {\n        Value = value;\n        Next = next;\n    }\n}\n\npublic class PersistentList {\n    private List<Node> versions = new List<Node>();\n\n    public void Insert(int value) {\n        if (versions.Count == 0) {\n            versions.Add(new Node(value));\n        } else {\n            versions.Add(new Node(value, versions[versions.Count - 1]));\n        }\n    }\n\n    public bool Search(int version, int value) {\n        Node node = version < versions.Count ? versions[version] : null;\n        while (node != null) {\n            if (node.Value == value) return true;\n            node = node.Next;\n        }\n        return false;\n    }\n}\n\nclass Program {\n    static void Main() {\n        PersistentList plist = new PersistentList();\n        int[] values = { 10, 20, 30, 40 };\n        foreach (int value in values) {\n            plist.Insert(value);\n        }\n        Console.WriteLine(\"Search version 2 for 30: \" + plist.Search(2, 30));\n        Console.WriteLine(\"Search version 2 for 50: \" + plist.Search(2, 50));\n    }\n}\n// Output: Search version 2 for 30: True\n// Output: Search version 2 for 50: False",
+      "cpp": "#include <iostream>\n#include <vector>\n\nclass Node {\npublic:\n    int value;\n    Node* next;\n\n    Node(int value, Node* next = nullptr) : value(value), next(next) {}\n};\n\nclass PersistentList {\nprivate:\n    std::vector<Node*> versions;\n\npublic:\n    PersistentList() {}\n\n    void insert(int value) {\n        if (versions.empty()) {\n            versions.push_back(new Node(value));\n        } else {\n            versions.push_back(new Node(value, versions.back()));\n        }\n    }\n\n    bool search(int version, int value) {\n        Node* node = version < versions.size() ? versions[version] : nullptr;\n        while (node) {\n            if (node->value == value) return true;\n            node = node->next;\n        }\n        return false;\n    }\n\n    ~PersistentList() {\n        for (size_t i = 0; i < versions.size(); i++) {\n            Node* node = versions[i];\n            while (node && i == versions.size() - 1) {\n                Node* temp = node;\n                node = node->next;\n                delete temp;\n            }\n        }\n    }\n};\n\nint main() {\n    PersistentList plist;\n    int values[] = {10, 20, 30, 40};\n    for (int value : values) {\n        plist.insert(value);\n    }\n    std::cout << \"Search version 2 for 30: \" << (plist.search(2, 30) ? \"true\" : \"false\") << \"\\n\";\n    std::cout << \"Search version 2 for 50: \" << (plist.search(2, 50) ? \"true\" : \"false\") << \"\\n\";\n    return 0;\n}\n// Output: Search version 2 for 30: true\n// Output: Search version 2 for 50: false"
+    },
+    "description": "Əvvəlki versiyaları qoruyan məlumat strukturları haqqında ümumi məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Persistent Data Structures nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Persistent Data Structures dəyişikliklərdən sonra əvvəlki versiyalarını qoruyan məlumat strukturlarıdır. Hər əməliyyat yeni versiya yaradır, lakin köhnə versiyalar əlçatan qalır. Yuxarıdakı nümunədə persistent singly linked list qurulur, [10, 20, 30, 40] daxil edilir, 2-ci versiyada 30 tapılır, 50 tapılmır."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas Terminlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Node: Dəyər və sonrakı düyünə işarəni saxlayan struktur (yuxarıdakı Node)."
+          },
+          {
+            "description": "Version: Strukturun müəyyən zaman nöqtəsindəki vəziyyəti (yuxarıdakı versions)."
+          },
+          {
+            "description": "Insert: Yeni dəyər əlavə edərək yeni versiya yaradan əməliyyat (yuxarıdakı insert)."
+          },
+          {
+            "description": "Search: Müəyyən versiyada dəyər axtarışı (yuxarıdakı search)."
+          },
+          {
+            "description": "Persistence: Əvvəlki versiyaların qorunması mexanizmi."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Persistent Data Structures Xüsusiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Tam Persistentlik**: Bütün versiyalar əlçatandır və dəyişdirilə bilər. 2) **Qismən Persistentlik**: Yalnız baxış mümkündür, dəyişikliklər son versiyada edilir. 3) **Kopyalama**: Dəyişikliklər zamanı node-lar kopyalanır (yuxarıdakı insert). 4) **Yaddaş Paylaşımı**: Versiyalar arasında ümumi node-lar paylaşılır. Yuxarıdakı kod qismən persistentliyi nümayiş etdirir."
+      },
+      {
+        "type": "heading",
+        "text": "Persistent Data Structures nə üçün lazımdır?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Persistent Data Structures versiya nəzarəti, geri qaytarma (undo) mexanizmləri və funksional proqramlaşdırma üçün istifadə olunur. Əvvəlki vəziyyətlərə qayıtmaq və ya onları müqayisə etmək lazım olduqda faydalıdır."
+      },
+      {
+        "type": "heading",
+        "text": "Persistent Data Structures nəyə kömək edir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Versiya Nəzarəti**: Məlumatın müxtəlif versiyalarını saxlamaq (yuxarıdakı versions). 2) **Geri Qaytarma**: Əvvəlki vəziyyətlərə qayıtmaq. 3) **Funksional Proqramlaşdırma**: Dəyişməz (immutable) strukturlar yaratmaq. 4) **Paralel Emal**: Müxtəlif versiyalarla eyni anda işləmək."
+      },
+      {
+        "type": "heading",
+        "text": "Persistent Data Structures-ın Səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Daxil etmə O(1) (yuxarıdakı insert), axtarış O(n) (yuxarıdakı search) vaxt aparır (n node-ların sayı). Məkan mürəkkəbliyi O(n) ola bilər, lakin paylaşım sayəsində optimallaşdırılır."
+      },
+      {
+        "type": "heading",
+        "text": "Üstünlüklər və Mənfi Cəhətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "Üstünlük: Əvvəlki versiyalara giriş imkanı." },
+          {
+            "description": "Üstünlük: Funksional proqramlaşdırma üçün uyğundur."
+          },
+          { "description": "Üstünlük: Geri qaytarma mexanizmləri." },
+          {
+            "description": "Mənfi cəhət: Əlavə yaddaş tələb edir (kopyalama səbəbindən)."
+          },
+          {
+            "description": "Mənfi cəhət: Mürəkkəb tətbiqlərdə yavaşlama riski."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real Həyatda İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Versiya Nəzarət Sistemləri**: Git kimi sistemlərdə commit tarixçəsi. 2) **Verilənlər Bazaları**: Tranzaksiya tarixçəsinin saxlanması. 3) **Funksional Proqramlaşdırma**: Haskell və ya Clojure kimi dillərdə istifadə. 4) **Undo Mexanizmləri**: Mətn redaktorlarında geri qaytarma. Yuxarıdakı search funksiyası versiya axtarışını simulyasiya edir."
+      },
+      {
+        "type": "heading",
+        "text": "Optimallaşdırma Strategiyaları"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Paylaşım**: Dəyişməyən node-ları versiyalar arasında paylaşmaq. 2) **Kəşləmə**: Tez-tez axtarılan versiyaları kəşləyin. 3) **Sadələşdirmə**: Kopyalama əməliyyatlarını minimuma endirmək. 4) **Yaddaş İdarəetməsi**: Lazımsız versiyaları təmizləmək."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əsas təhlükələr: 1) **Yaddaş**: Kopyalama səbəbindən böyük yaddaş istehlakı. 2) **Performans**: Böyük versiya sayında yavaşlama. 3) **Mürəkkəblik**: Tətbiq çətindir. Tövsiyələr: 1) Sadə strukturlardan başlayın (məsələn, linked list). 2) Yaddaş istifadəsini optimallaşdırın. 3) Lazımsız versiyaları silmək üçün strategiya qurun."
+      }
+    ]
+  },
+  "en": {
+    "title": "Persistent Data Structures",
+    "icon": "FiRefreshCw",
+    "language": "multiple",
+    "codes": {
+      "python": "class Node:\n    def __init__(self, value, next_node=None):\n        self.value = value\n        self.next = next_node\n\nclass PersistentList:\n    def __init__(self):\n        self.versions = []\n\n    def insert(self, value):\n        if not self.versions:\n            self.versions.append(Node(value))\n        else:\n            new_head = Node(value, self.versions[-1])\n            self.versions.append(new_head)\n\n    def search(self, version, value):\n        node = self.versions[version] if version < len(self.versions) else None\n        while node:\n            if node.value == value:\n                return True\n            node = node.next\n        return False\n\n# Example: Persistent List operations\nplist = PersistentList()\nfor value in [10, 20, 30, 40]:\n    plist.insert(value)\nprint('Search version 2 for 30:', plist.search(2, 30))\nprint('Search version 2 for 50:', plist.search(2, 50))\n# Output: Search version 2 for 30: True\n# Output: Search version 2 for 50: False",
+      "javascript": "class Node {\n    constructor(value, next = null) {\n        this.value = value;\n        this.next = next;\n    }\n}\n\nclass PersistentList {\n    constructor() {\n        this.versions = [];\n    }\n\n    insert(value) {\n        if (!this.versions.length) {\n            this.versions.push(new Node(value));\n        } else {\n            const newHead = new Node(value, this.versions[this.versions.length - 1]);\n            this.versions.push(newHead);\n        }\n    }\n\n    search(version, value) {\n        let node = version < this.versions.length ? this.versions[version] : null;\n        while (node) {\n            if (node.value === value) return true;\n            node = node.next;\n        }\n        return false;\n    }\n}\n\n// Example: Persistent List operations\nconst plist = new PersistentList();\n[10, 20, 30, 40].forEach(value => plist.insert(value));\nconsole.log('Search version 2 for 30:', plist.search(2, 30));\nconsole.log('Search version 2 for 50:', plist.search(2, 50));\n// Output: Search version 2 for 30: true\n// Output: Search version 2 for 50: false",
+      "typescript": "class Node {\n    value: number;\n    next: Node | null;\n\n    constructor(value: number, next: Node | null = null) {\n        this.value = value;\n        this.next = next;\n    }\n}\n\nclass PersistentList {\n    private versions: Node[] = [];\n\n    insert(value: number): void {\n        if (!this.versions.length) {\n            this.versions.push(new Node(value));\n        } else {\n            const newHead = new Node(value, this.versions[this.versions.length - 1]);\n            this.versions.push(newHead);\n        }\n    }\n\n    search(version: number, value: number): boolean {\n        let node = version < this.versions.length ? this.versions[version] : null;\n        while (node) {\n            if (node.value === value) return true;\n            node = node.next;\n        }\n        return false;\n    }\n}\n\n// Example: Persistent List operations\nconst plist = new PersistentList();\n[10, 20, 30, 40].forEach(value => plist.insert(value));\nconsole.log('Search version 2 for 30:', plist.search(2, 30));\nconsole.log('Search version 2 for 50:', plist.search(2, 50));\n// Output: Search version 2 for 30: true\n// Output: Search version 2 for 50: false",
+      "java": "class Node {\n    int value;\n    Node next;\n\n    Node(int value, Node next) {\n        this.value = value;\n        this.next = next;\n    }\n}\n\nclass PersistentList {\n    private java.util.List<Node> versions = new java.util.ArrayList<>();\n\n    public void insert(int value) {\n        if (versions.isEmpty()) {\n            versions.add(new Node(value, null));\n        } else {\n            versions.add(new Node(value, versions.get(versions.size() - 1)));\n        }\n    }\n\n    public boolean search(int version, int value) {\n        Node node = version < versions.size() ? versions.get(version) : null;\n        while (node != null) {\n            if (node.value == value) return true;\n            node = node.next;\n        }\n        return false;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        PersistentList plist = new PersistentList();\n        int[] values = {10, 20, 30, 40};\n        for (int value : values) {\n            plist.insert(value);\n        }\n        System.out.println(\"Search version 2 for 30: \" + plist.search(2, 30));\n        System.out.println(\"Search version 2 for 50: \" + plist.search(2, 50));\n    }\n}\n// Output: Search version 2 for 30: true\n// Output: Search version 2 for 50: false",
+      "php": "<?php\n\nclass Node {\n    public $value;\n    public $next;\n\n    public function __construct($value, $next = null) {\n        $this->value = $value;\n        $this->next = $next;\n    }\n}\n\nclass PersistentList {\n    private $versions = [];\n\n    public function insert($value) {\n        if (empty($this->versions)) {\n            $this->versions[] = new Node($value);\n        } else {\n            $this->versions[] = new Node($value, end($this->versions));\n        }\n    }\n\n    public function search($version, $value) {\n        $node = isset($this->versions[$version]) ? $this->versions[$version] : null;\n        while ($node) {\n            if ($node->value == $value) return true;\n            $node = $node->next;\n        }\n        return false;\n    }\n}\n\n// Example: Persistent List operations\n$plist = new PersistentList();\n$values = [10, 20, 30, 40];\nforeach ($values as $value) {\n    $plist->insert($value);\n}\necho \"Search version 2 for 30: \" . ($plist->search(2, 30) ? 'true' : 'false') . \"\\n\";\necho \"Search version 2 for 50: \" . ($plist->search(2, 50) ? 'true' : 'false') . \"\\n\";\n// Output: Search version 2 for 30: true\n// Output: Search version 2 for 50: false",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int value;\n    struct Node* next;\n} Node;\n\ntypedef struct PersistentList {\n    Node** versions;\n    int version_count;\n} PersistentList;\n\nNode* createNode(int value, Node* next) {\n    Node* node = (Node*)malloc(sizeof(Node));\n    node->value = value;\n    node->next = next;\n    return node;\n}\n\nPersistentList* createPersistentList() {\n    PersistentList* plist = (PersistentList*)malloc(sizeof(PersistentList));\n    plist->versions = NULL;\n    plist->version_count = 0;\n    return plist;\n}\n\nvoid insert(PersistentList* plist, int value) {\n    plist->versions = (Node**)realloc(plist->versions, (plist->version_count + 1) * sizeof(Node*));\n    if (plist->version_count == 0) {\n        plist->versions[0] = createNode(value, NULL);\n    } else {\n        plist->versions[plist->version_count] = createNode(value, plist->versions[plist->version_count - 1]);\n    }\n    plist->version_count++;\n}\n\nint search(PersistentList* plist, int version, int value) {\n    Node* node = version < plist->version_count ? plist->versions[version] : NULL;\n    while (node) {\n        if (node->value == value) return 1;\n        node = node->next;\n    }\n    return 0;\n}\n\nvoid freePersistentList(PersistentList* plist) {\n    for (int i = 0; i < plist->version_count; i++) {\n        Node* node = plist->versions[i];\n        while (node) {\n            Node* temp = node;\n            node = node->next;\n            if (i == plist->version_count - 1) free(temp);\n        }\n    }\n    free(plist->versions);\n    free(plist);\n}\n\nint main() {\n    PersistentList* plist = createPersistentList();\n    int values[] = {10, 20, 30, 40};\n    for (int i = 0; i < 4; i++) {\n        insert(plist, values[i]);\n    }\n    printf(\"Search version 2 for 30: %d\\n\", search(plist, 2, 30));\n    printf(\"Search version 2 for 50: %d\\n\", search(plist, 2, 50));\n    freePersistentList(plist);\n    return 0;\n}\n// Output: Search version 2 for 30: 1\n// Output: Search version 2 for 50: 0",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\npublic class Node {\n    public int Value;\n    public Node Next;\n\n    public Node(int value, Node next = null) {\n        Value = value;\n        Next = next;\n    }\n}\n\npublic class PersistentList {\n    private List<Node> versions = new List<Node>();\n\n    public void Insert(int value) {\n        if (versions.Count == 0) {\n            versions.Add(new Node(value));\n        } else {\n            versions.Add(new Node(value, versions[versions.Count - 1]));\n        }\n    }\n\n    public bool Search(int version, int value) {\n        Node node = version < versions.Count ? versions[version] : null;\n        while (node != null) {\n            if (node.Value == value) return true;\n            node = node.Next;\n        }\n        return false;\n    }\n}\n\nclass Program {\n    static void Main() {\n        PersistentList plist = new PersistentList();\n        int[] values = { 10, 20, 30, 40 };\n        foreach (int value in values) {\n            plist.Insert(value);\n        }\n        Console.WriteLine(\"Search version 2 for 30: \" + plist.Search(2, 30));\n        Console.WriteLine(\"Search version 2 for 50: \" + plist.Search(2, 50));\n    }\n}\n// Output: Search version 2 for 30: True\n// Output: Search version 2 for 50: False",
+      "cpp": "#include <iostream>\n#include <vector>\n\nclass Node {\npublic:\n    int value;\n    Node* next;\n\n    Node(int value, Node* next = nullptr) : value(value), next(next) {}\n};\n\nclass PersistentList {\nprivate:\n    std::vector<Node*> versions;\n\npublic:\n    PersistentList() {}\n\n    void insert(int value) {\n        if (versions.empty()) {\n            versions.push_back(new Node(value));\n        } else {\n            versions.push_back(new Node(value, versions.back()));\n        }\n    }\n\n    bool search(int version, int value) {\n        Node* node = version < versions.size() ? versions[version] : nullptr;\n        while (node) {\n            if (node->value == value) return true;\n            node = node->next;\n        }\n        return false;\n    }\n\n    ~PersistentList() {\n        for (size_t i = 0; i < versions.size(); i++) {\n            Node* node = versions[i];\n            while (node && i == versions.size() - 1) {\n                Node* temp = node;\n                node = node->next;\n                delete temp;\n            }\n        }\n    }\n};\n\nint main() {\n    PersistentList plist;\n    int values[] = {10, 20, 30, 40};\n    for (int value : values) {\n        plist.insert(value);\n    }\n    std::cout << \"Search version 2 for 30: \" << (plist.search(2, 30) ? \"true\" : \"false\") << \"\\n\";\n    std::cout << \"Search version 2 for 50: \" << (plist.search(2, 50) ? \"true\" : \"false\") << \"\\n\";\n    return 0;\n}\n// Output: Search version 2 for 30: true\n// Output: Search version 2 for 50: false"
+    },
+    "description": "Overview of data structures that preserve previous versions.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Persistent Data Structures?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Persistent Data Structures are data structures that preserve their previous versions after modifications. Each operation creates a new version, while old versions remain accessible. In the example above, a persistent singly linked list is built, [10, 20, 30, 40] are inserted, version 2 finds 30, and 50 is not found."
+      },
+      {
+        "type": "heading",
+        "text": "Key Terminology"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Node: A structure storing a value and a pointer to the next node (used as Node above)."
+          },
+          {
+            "description": "Version: The state of the structure at a specific point in time (used as versions above)."
+          },
+          {
+            "description": "Insert: An operation that adds a new value, creating a new version (used as insert above)."
+          },
+          {
+            "description": "Search: Searching for a value in a specific version (used as search above)."
+          },
+          {
+            "description": "Persistence: The mechanism of preserving previous versions."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Persistent Data Structures Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Fully Persistent**: All versions are accessible and modifiable. 2) **Partially Persistent**: Only viewing past versions is allowed, modifications apply to the latest version. 3) **Copying**: Nodes are copied during modifications (used in insert above). 4) **Sharing**: Common nodes are shared across versions to save memory. The code above demonstrates partial persistence."
+      },
+      {
+        "type": "heading",
+        "text": "Why are Persistent Data Structures Needed?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Persistent Data Structures are used for version control, undo mechanisms, and functional programming. They are valuable when accessing or comparing previous states is required."
+      },
+      {
+        "type": "heading",
+        "text": "What Do Persistent Data Structures Help With?"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Version Control**: Storing different versions of data (shown in versions above). 2) **Undo Mechanisms**: Reverting to previous states. 3) **Functional Programming**: Creating immutable structures. 4) **Parallel Processing**: Working with multiple versions simultaneously."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of Persistent Data Structures (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Insertion is O(1) (shown in insert above), search is O(n) (shown in search above), where n is the number of nodes. Space complexity is O(n), but sharing optimizes memory usage."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "Advantage: Access to previous versions." },
+          { "description": "Advantage: Suitable for functional programming." },
+          { "description": "Advantage: Supports undo mechanisms." },
+          {
+            "description": "Disadvantage: Requires extra memory due to copying."
+          },
+          {
+            "description": "Disadvantage: Potential slowdown in complex implementations."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real-Life Applications"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Version Control Systems**: Commit history in systems like Git. 2) **Databases**: Storing transaction histories. 3) **Functional Programming**: Used in languages like Haskell or Clojure. 4) **Undo Mechanisms**: In text editors for reverting changes. The search function above simulates versioned lookups."
+      },
+      {
+        "type": "heading",
+        "text": "Optimization Strategies"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Sharing**: Share unchanged nodes across versions. 2) **Caching**: Cache frequently accessed versions. 3) **Simplification**: Minimize copying operations. 4) **Memory Management**: Clean up unused versions."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Key risks: 1) **Memory**: High memory usage due to copying. 2) **Performance**: Slowdown with many versions. 3) **Complexity**: Implementation is challenging. Recommendations: 1) Start with simple structures (e.g., linked lists). 2) Optimize memory usage. 3) Develop a strategy for pruning unused versions."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Persistent Data Structures",
+    "icon": "FiRefreshCw",
+    "language": "multiple",
+    "codes": {
+      "python": "class Node:\n    def __init__(self, value, next_node=None):\n        self.value = value\n        self.next = next_node\n\nclass PersistentList:\n    def __init__(self):\n        self.versions = []\n\n    def insert(self, value):\n        if not self.versions:\n            self.versions.append(Node(value))\n        else:\n            new_head = Node(value, self.versions[-1])\n            self.versions.append(new_head)\n\n    def search(self, version, value):\n        node = self.versions[version] if version < len(self.versions) else None\n        while node:\n            if node.value == value:\n                return True\n            node = node.next\n        return False\n\n# Example: Persistent List operations\nplist = PersistentList()\nfor value in [10, 20, 30, 40]:\n    plist.insert(value)\nprint('Search version 2 for 30:', plist.search(2, 30))\nprint('Search version 2 for 50:', plist.search(2, 50))\n# Output: Search version 2 for 30: True\n# Output: Search version 2 for 50: False",
+      "javascript": "class Node {\n    constructor(value, next = null) {\n        this.value = value;\n        this.next = next;\n    }\n}\n\nclass PersistentList {\n    constructor() {\n        this.versions = [];\n    }\n\n    insert(value) {\n        if (!this.versions.length) {\n            this.versions.push(new Node(value));\n        } else {\n            const newHead = new Node(value, this.versions[this.versions.length - 1]);\n            this.versions.push(newHead);\n        }\n    }\n\n    search(version, value) {\n        let node = version < this.versions.length ? this.versions[version] : null;\n        while (node) {\n            if (node.value === value) return true;\n            node = node.next;\n        }\n        return false;\n    }\n}\n\n// Example: Persistent List operations\nconst plist = new PersistentList();\n[10, 20, 30, 40].forEach(value => plist.insert(value));\nconsole.log('Search version 2 for 30:', plist.search(2, 30));\nconsole.log('Search version 2 for 50:', plist.search(2, 50));\n// Output: Search version 2 for 30: true\n// Output: Search version 2 for 50: false",
+      "typescript": "class Node {\n    value: number;\n    next: Node | null;\n\n    constructor(value: number, next: Node | null = null) {\n        this.value = value;\n        this.next = next;\n    }\n}\n\nclass PersistentList {\n    private versions: Node[] = [];\n\n    insert(value: number): void {\n        if (!this.versions.length) {\n            this.versions.push(new Node(value));\n        } else {\n            const newHead = new Node(value, this.versions[this.versions.length - 1]);\n            this.versions.push(newHead);\n        }\n    }\n\n    search(version: number, value: number): boolean {\n        let node = version < this.versions.length ? this.versions[version] : null;\n        while (node) {\n            if (node.value === value) return true;\n            node = node.next;\n        }\n        return false;\n    }\n}\n\n// Example: Persistent List operations\nconst plist = new PersistentList();\n[10, 20, 30, 40].forEach(value => plist.insert(value));\nconsole.log('Search version 2 for 30:', plist.search(2, 30));\nconsole.log('Search version 2 for 50:', plist.search(2, 50));\n// Output: Search version 2 for 30: true\n// Output: Search version 2 for 50: false",
+      "java": "class Node {\n    int value;\n    Node next;\n\n    Node(int value, Node next) {\n        this.value = value;\n        this.next = next;\n    }\n}\n\nclass PersistentList {\n    private java.util.List<Node> versions = new java.util.ArrayList<>();\n\n    public void insert(int value) {\n        if (versions.isEmpty()) {\n            versions.add(new Node(value, null));\n        } else {\n            versions.add(new Node(value, versions.get(versions.size() - 1)));\n        }\n    }\n\n    public boolean search(int version, int value) {\n        Node node = version < versions.size() ? versions.get(version) : null;\n        while (node != null) {\n            if (node.value == value) return true;\n            node = node.next;\n        }\n        return false;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        PersistentList plist = new PersistentList();\n        int[] values = {10, 20, 30, 40};\n        for (int value : values) {\n            plist.insert(value);\n        }\n        System.out.println(\"Search version 2 for 30: \" + plist.search(2, 30));\n        System.out.println(\"Search version 2 for 50: \" + plist.search(2, 50));\n    }\n}\n// Output: Search version 2 for 30: true\n// Output: Search version 2 for 50: false",
+      "php": "<?php\n\nclass Node {\n    public $value;\n    public $next;\n\n    public function __construct($value, $next = null) {\n        $this->value = $value;\n        $this->next = $next;\n    }\n}\n\nclass PersistentList {\n    private $versions = [];\n\n    public function insert($value) {\n        if (empty($this->versions)) {\n            $this->versions[] = new Node($value);\n        } else {\n            $this->versions[] = new Node($value, end($this->versions));\n        }\n    }\n\n    public function search($version, $value) {\n        $node = isset($this->versions[$version]) ? $this->versions[$version] : null;\n        while ($node) {\n            if ($node->value == $value) return true;\n            $node = $node->next;\n        }\n        return false;\n    }\n}\n\n// Example: Persistent List operations\n$plist = new PersistentList();\n$values = [10, 20, 30, 40];\nforeach ($values as $value) {\n    $plist->insert($value);\n}\necho \"Search version 2 for 30: \" . ($plist->search(2, 30) ? 'true' : 'false') . \"\\n\";\necho \"Search version 2 for 50: \" . ($plist->search(2, 50) ? 'true' : 'false') . \"\\n\";\n// Output: Search version 2 for 30: true\n// Output: Search version 2 for 50: false",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int value;\n    struct Node* next;\n} Node;\n\ntypedef struct PersistentList {\n    Node** versions;\n    int version_count;\n} PersistentList;\n\nNode* createNode(int value, Node* next) {\n    Node* node = (Node*)malloc(sizeof(Node));\n    node->value = value;\n    node->next = next;\n    return node;\n}\n\nPersistentList* createPersistentList() {\n    PersistentList* plist = (PersistentList*)malloc(sizeof(PersistentList));\n    plist->versions = NULL;\n    plist->version_count = 0;\n    return plist;\n}\n\nvoid insert(PersistentList* plist, int value) {\n    plist->versions = (Node**)realloc(plist->versions, (plist->version_count + 1) * sizeof(Node*));\n    if (plist->version_count == 0) {\n        plist->versions[0] = createNode(value, NULL);\n    } else {\n        plist->versions[plist->version_count] = createNode(value, plist->versions[plist->version_count - 1]);\n    }\n    plist->version_count++;\n}\n\nint search(PersistentList* plist, int version, int value) {\n    Node* node = version < plist->version_count ? plist->versions[version] : NULL;\n    while (node) {\n        if (node->value == value) return 1;\n        node = node->next;\n    }\n    return 0;\n}\n\nvoid freePersistentList(PersistentList* plist) {\n    for (int i = 0; i < plist->version_count; i++) {\n        Node* node = plist->versions[i];\n        while (node) {\n            Node* temp = node;\n            node = node->next;\n            if (i == plist->version_count - 1) free(temp);\n        }\n    }\n    free(plist->versions);\n    free(plist);\n}\n\nint main() {\n    PersistentList* plist = createPersistentList();\n    int values[] = {10, 20, 30, 40};\n    for (int i = 0; i < 4; i++) {\n        insert(plist, values[i]);\n    }\n    printf(\"Search version 2 for 30: %d\\n\", search(plist, 2, 30));\n    printf(\"Search version 2 for 50: %d\\n\", search(plist, 2, 50));\n    freePersistentList(plist);\n    return 0;\n}\n// Output: Search version 2 for 30: 1\n// Output: Search version 2 for 50: 0",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\npublic class Node {\n    public int Value;\n    public Node Next;\n\n    public Node(int value, Node next = null) {\n        Value = value;\n        Next = next;\n    }\n}\n\npublic class PersistentList {\n    private List<Node> versions = new List<Node>();\n\n    public void Insert(int value) {\n        if (versions.Count == 0) {\n            versions.Add(new Node(value));\n        } else {\n            versions.Add(new Node(value, versions[versions.Count - 1]));\n        }\n    }\n\n    public bool Search(int version, int value) {\n        Node node = version < versions.Count ? versions[version] : null;\n        while (node != null) {\n            if (node.Value == value) return true;\n            node = node.Next;\n        }\n        return false;\n    }\n}\n\nclass Program {\n    static void Main() {\n        PersistentList plist = new PersistentList();\n        int[] values = { 10, 20, 30, 40 };\n        foreach (int value in values) {\n            plist.Insert(value);\n        }\n        Console.WriteLine(\"Search version 2 for 30: \" + plist.Search(2, 30));\n        Console.WriteLine(\"Search version 2 for 50: \" + plist.Search(2, 50));\n    }\n}\n// Output: Search version 2 for 30: True\n// Output: Search version 2 for 50: False",
+      "cpp": "#include <iostream>\n#include <vector>\n\nclass Node {\npublic:\n    int value;\n    Node* next;\n\n    Node(int value, Node* next = nullptr) : value(value), next(next) {}\n};\n\nclass PersistentList {\nprivate:\n    std::vector<Node*> versions;\n\npublic:\n    PersistentList() {}\n\n    void insert(int value) {\n        if (versions.empty()) {\n            versions.push_back(new Node(value));\n        } else {\n            versions.push_back(new Node(value, versions.back()));\n        }\n    }\n\n    bool search(int version, int value) {\n        Node* node = version < versions.size() ? versions[version] : nullptr;\n        while (node) {\n            if (node->value == value) return true;\n            node = node->next;\n        }\n        return false;\n    }\n\n    ~PersistentList() {\n        for (size_t i = 0; i < versions.size(); i++) {\n            Node* node = versions[i];\n            while (node && i == versions.size() - 1) {\n                Node* temp = node;\n                node = node->next;\n                delete temp;\n            }\n        }\n    }\n};\n\nint main() {\n    PersistentList plist;\n    int values[] = {10, 20, 30, 40};\n    for (int value : values) {\n        plist.insert(value);\n    }\n    std::cout << \"Search version 2 for 30: \" << (plist.search(2, 30) ? \"true\" : \"false\") << \"\\n\";\n    std::cout << \"Search version 2 for 50: \" << (plist.search(2, 50) ? \"true\" : \"false\") << \"\\n\";\n    return 0;\n}\n// Output: Search version 2 for 30: true\n// Output: Search version 2 for 50: false"
+    },
+    "description": "Обзор структур данных, сохраняющих предыдущие версии.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Persistent Data Structures?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Persistent Data Structures — это структуры данных, которые сохраняют свои предыдущие версии после изменений. Каждая операция создает новую версию, при этом старые остаются доступными. В примере выше строится persistent singly linked list, вставляются [10, 20, 30, 40], в версии 2 находится 30, а 50 — нет."
+      },
+      {
+        "type": "heading",
+        "text": "Основные термины"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Узел: Структура, содержащая значение и указатель на следующий узел (используется как Node выше)."
+          },
+          {
+            "description": "Версия: Состояние структуры в определенный момент времени (используется как versions выше)."
+          },
+          {
+            "description": "Вставка: Операция добавления нового значения с созданием новой версии (используется как insert выше)."
+          },
+          {
+            "description": "Поиск: Поиск значения в определенной версии (используется как search выше)."
+          },
+          {
+            "description": "Персистентность: Механизм сохранения предыдущих версий."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Свойства Persistent Data Structures"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Полная персистентность**: Все версии доступны и могут быть изменены. 2) **Частичная персистентность**: Доступны только для просмотра, изменения вносятся в последнюю версию. 3) **Копирование**: Узлы копируются при изменениях (используется в insert выше). 4) **Совместное использование**: Общие узлы используются разными версиями для экономии памяти. Код выше демонстрирует частичную персистентность."
+      },
+      {
+        "type": "heading",
+        "text": "Зачем нужны Persistent Data Structures?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Persistent Data Structures используются для контроля версий, механизмов отмены и функционального программирования. Они полезны, когда требуется доступ к предыдущим состояниям или их сравнение."
+      },
+      {
+        "type": "heading",
+        "text": "Для чего помогают Persistent Data Structures?"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Контроль версий**: Хранение различных версий данных (показано в versions выше). 2) **Механизмы отмены**: Возврат к предыдущим состояниям. 3) **Функциональное программирование**: Создание неизменяемых структур. 4) **Параллельная обработка**: Работа с несколькими версиями одновременно."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность Persistent Data Structures (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Вставка занимает O(1) (показано в insert выше), поиск — O(n) (показано в search выше), где n — количество узлов. Пространственная сложность — O(n), но совместное использование оптимизирует использование памяти."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "Преимущество: Доступ к предыдущим версиям." },
+          {
+            "description": "Преимущество: Подходит для функционального программирования."
+          },
+          { "description": "Преимущество: Поддержка механизмов отмены." },
+          {
+            "description": "Недостаток: Требует дополнительной памяти из-за копирования."
+          },
+          {
+            "description": "Недостаток: Потенциальное замедление в сложных реализациях."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Применение в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Системы контроля версий**: Хранение истории коммитов в системах, таких как Git. 2) **Базы данных**: Сохранение истории транзакций. 3) **Функциональное программирование**: Использование в языках, таких как Haskell или Clojure. 4) **Механизмы отмены**: Откат изменений в текстовых редакторах. Функция search выше имитирует поиск по версиям."
+      },
+      {
+        "type": "heading",
+        "text": "Стратегии оптимизации"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Совместное использование**: Использование неизменяемых узлов разными версиями. 2) **Кэширование**: Кэширование часто запрашиваемых версий. 3) **Упрощение**: Минимизация операций копирования. 4) **Управление памятью**: Очистка неиспользуемых версий."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основные риски: 1) **Память**: Высокое потребление памяти из-за копирования. 2) **Производительность**: Замедление при большом количестве версий. 3) **Сложность**: Реализация сложна. Рекомендации: 1) Начинайте с простых структур (например, связных списков). 2) Оптимизируйте использование памяти. 3) Разработайте стратегию удаления ненужных версий."
+      }
+    ]
+  }
+}

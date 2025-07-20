@@ -1,3 +1,5 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
+
 FROM ubuntu:22.04
 
 # Set environment variables
@@ -49,12 +51,12 @@ ENV PATH=$PATH:/root/.cargo/bin
 
 # Install C/C++ compilers (already included in build-essential)
 
-# Install Kotlin
-RUN curl -s "https://get.sdkman.io" | bash
-RUN bash -c "source /root/.sdkman/bin/sdkman-init.sh && sdk install kotlin"
+# Install Kotlin (hazırda istifadə olunmur)
+# RUN curl -s "https://get.sdkman.io" | bash
+# RUN bash -c "source /root/.sdkman/bin/sdkman-init.sh && sdk install kotlin"
 
-# Install Scala
-RUN bash -c "source /root/.sdkman/bin/sdkman-init.sh && sdk install scala"
+# Install Scala (hazırda istifadə olunmur)
+# RUN bash -c "source /root/.sdkman/bin/sdkman-init.sh && sdk install scala"
 
 # Install Dart
 RUN apt-get update && apt-get install -y apt-transport-https
@@ -73,6 +75,11 @@ RUN apt-get update && apt-get install -y \
     tzdata \
     unzip \
     zlib1g-dev
+
+# Copy .NET SDK from base image
+COPY --from=base /usr/share/dotnet /usr/share/dotnet
+ENV DOTNET_ROOT=/usr/share/dotnet
+ENV PATH="$PATH:/usr/share/dotnet"
 
 # Set working directory
 WORKDIR /app

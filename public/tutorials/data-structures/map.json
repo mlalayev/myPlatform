@@ -1,0 +1,317 @@
+{
+  "id": "map",
+  "az": {
+    "title": "Map (Xəritə)",
+    "icon": "FiMap",
+    "language": "multiple",
+    "codes": {
+      "python": "class Map:\n    def __init__(self):\n        self.items = {}\n\n    def insert(self, key, value):\n        self.items[key] = value\n\n    def get(self, key):\n        return self.items.get(key)\n\n    def remove(self, key):\n        if key in self.items:\n            del self.items[key]\n            return True\n        return False\n\n    def to_dict(self):\n        return dict(self.items)\n\n# Example: Map operations\nm = Map()\nm.insert('name', 'Alice')\nm.insert('age', 25)\nprint('Map after insert:', m.to_dict())\nprint('Get name:', m.get('name'))\nm.remove('age')\nprint('Map after remove:', m.to_dict())\n# Output: Map after insert: {'name': 'Alice', 'age': 25}\n# Output: Get name: Alice\n# Output: Map after remove: {'name': 'Alice'}",
+      "javascript": "class Map {\n    constructor() {\n        this.items = {};\n    }\n\n    insert(key, value) {\n        this.items[key] = value;\n    }\n\n    get(key) {\n        return this.items[key] || null;\n    }\n\n    remove(key) {\n        if (this.get(key) !== null) {\n            delete this.items[key];\n            return true;\n        }\n        return false;\n    }\n\n    toObject() {\n        return { ...this.items };\n    }\n}\n\n// Example: Map operations\nconst m = new Map();\nm.insert('name', 'Alice');\nm.insert('age', 25);\nconsole.log('Map after insert:', m.toObject());\nconsole.log('Get name:', m.get('name'));\nm.remove('age');\nconsole.log('Map after remove:', m.toObject());\n// Output: Map after insert: { name: 'Alice', age: 25 }\n// Output: Get name: Alice\n// Output: Map after remove: { name: 'Alice' }",
+      "typescript": "class Map {\n    private items: { [key: string]: any } = {};\n\n    insert(key: string, value: any): void {\n        this.items[key] = value;\n    }\n\n    get(key: string): any {\n        return this.items[key] || null;\n    }\n\n    remove(key: string): boolean {\n        if (this.get(key) !== null) {\n            delete this.items[key];\n            return true;\n        }\n        return false;\n    }\n\n    toObject(): { [key: string]: any } {\n        return { ...this.items };\n    }\n}\n\n// Example: Map operations\nconst m = new Map();\nm.insert('name', 'Alice');\nm.insert('age', 25);\nconsole.log('Map after insert:', m.toObject());\nconsole.log('Get name:', m.get('name'));\nm.remove('age');\nconsole.log('Map after remove:', m.toObject());\n// Output: Map after insert: { name: 'Alice', age: 25 }\n// Output: Get name: Alice\n// Output: Map after remove: { name: 'Alice' }",
+      "java": "import java.util.HashMap;\n\nclass Map {\n    private HashMap<String, Object> items;\n\n    public Map() {\n        items = new HashMap<>();\n    }\n\n    public void insert(String key, Object value) {\n        items.put(key, value);\n    }\n\n    public Object get(String key) {\n        return items.get(key);\n    }\n\n    public boolean remove(String key) {\n        if (items.containsKey(key)) {\n            items.remove(key);\n            return true;\n        }\n        return false;\n    }\n\n    public HashMap<String, Object> toMap() {\n        return new HashMap<>(items);\n    }\n}\n\nclass MapExample {\n    public static void main(String[] args) {\n        Map m = new Map();\n        m.insert(\"name\", \"Alice\");\n        m.insert(\"age\", 25);\n        System.out.println(\"Map after insert: \" + m.toMap());\n        System.out.println(\"Get name: \" + m.get(\"name\"));\n        m.remove(\"age\");\n        System.out.println(\"Map after remove: \" + m.toMap());\n    }\n}\n// Output: Map after insert: {name=Alice, age=25}\n// Output: Get name: Alice\n// Output: Map after remove: {name=Alice}",
+      "php": "<?php\n\nclass Map {\n    private $items = [];\n\n    public function insert($key, $value) {\n        $this->items[$key] = $value;\n    }\n\n    public function get($key) {\n        return array_key_exists($key, $this->items) ? $this->items[$key] : null;\n    }\n\n    public function remove($key) {\n        if ($this->get($key) !== null) {\n            unset($this->items[$key]);\n            return true;\n        }\n        return false;\n    }\n\n    public function toArray() {\n        return $this->items;\n    }\n}\n\n// Example: Map operations\n$m = new Map();\n$m->insert('name', 'Alice');\n$m->insert('age', 25);\necho 'Map after insert: ' . json_encode($m->toArray()) . \"\\n\";\necho 'Get name: ' . $m->get('name') . \"\\n\";\n$m->remove('age');\necho 'Map after remove: ' . json_encode($m->toArray()) . \"\\n\";\n// Output: Map after insert: {\"name\":\"Alice\",\"age\":25}\n// Output: Get name: Alice\n// Output: Map after remove: {\"name\":\"Alice\"}",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#define MAX_SIZE 10\n#define MAX_KEY_LEN 100\n\ntypedef struct Item {\n    char key[MAX_KEY_LEN];\n    char* value;\n} Item;\n\ntypedef struct Map {\n    Item* items[MAX_SIZE];\n    int size;\n} Map;\n\nvoid initMap(Map* map) {\n    map->size = MAX_SIZE;\n    for (int i = 0; i < MAX_SIZE; i++) {\n        map->items[i] = NULL;\n    }\n}\n\nvoid insert(Map* map, const char* key, const char* value) {\n    unsigned int index = 0;\n    for (int i = 0; key[i]; i++) index += key[i];\n    index %= map->size;\n    if (map->items[index] != NULL) {\n        free(map->items[index]->value);\n        map->items[index]->value = strdup(value);\n        return;\n    }\n    Item* item = (Item*)malloc(sizeof(Item));\n    strncpy(item->key, key, MAX_KEY_LEN);\n    item->value = strdup(value);\n    map->items[index] = item;\n}\n\nchar* get(Map* map, const char* key) {\n    unsigned int index = 0;\n    for (int i = 0; key[i]; i++) index += key[i];\n    index %= map->size;\n    if (map->items[index] != NULL && strcmp(map->items[index]->key, key) == 0) {\n        return map->items[index]->value;\n    }\n    return NULL;\n}\n\nint removeItem(Map* map, const char* key) {\n    unsigned int index = 0;\n    for (int i = 0; key[i]; i++) index += key[i];\n    index %= map->size;\n    if (map->items[index] != NULL && strcmp(map->items[index]->key, key) == 0) {\n        free(map->items[index]->value);\n        free(map->items[index]);\n        map->items[index] = NULL;\n        return 1;\n    }\n    return 0;\n}\n\nvoid printMap(Map* map) {\n    printf(\"{\");\n    int first = 1;\n    for (int i = 0; i < map->size; i++) {\n        if (map->items[i] != NULL) {\n            if (!first) printf(\", \");\n            printf(\"%s: %s\", map->items[i]->key, map->items[i]->value);\n            first = 0;\n        }\n    }\n    printf(\"}\\n\");\n}\n\nint main() {\n    Map map;\n    initMap(&map);\n    insert(&map, \"name\", \"Alice\");\n    insert(&map, \"age\", \"25\");\n    printf(\"Map after insert: \");\n    printMap(&map);\n    printf(\"Get name: %s\\n\", get(&map, \"name\"));\n    removeItem(&map, \"age\");\n    printf(\"Map after remove: \");\n    printMap(&map);\n    return 0;\n}\n// Output: Map after insert: {name: Alice, age: 25}\n// Output: Get name: Alice\n// Output: Map after remove: {name: Alice}",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass Map {\n    private Dictionary<string, object> items;\n\n    public Map() {\n        items = new Dictionary<string, object>();\n    }\n\n    public void Insert(string key, object value) {\n        items[key] = value;\n    }\n\n    public object Get(string key) {\n        return items.ContainsKey(key) ? items[key] : null;\n    }\n\n    public bool Remove(string key) {\n        return items.Remove(key);\n    }\n\n    public Dictionary<string, object> ToDictionary() {\n        return new Dictionary<string, object>(items);\n    }\n}\n\nclass Program {\n    static void Main() {\n        Map m = new Map();\n        m.Insert(\"name\", \"Alice\");\n        m.Insert(\"age\", 25);\n        Console.WriteLine(\"Map after insert: {{ \" + string.Join(\", \", m.ToDictionary().Select(kv => $\"{kv.Key}: {kv.Value}\")) + \" }}\");\n        Console.WriteLine(\"Get name: \" + m.Get(\"name\"));\n        m.Remove(\"age\");\n        Console.WriteLine(\"Map after remove: {{ \" + string.Join(\", \", m.ToDictionary().Select(kv => $\"{kv.Key}: {kv.Value}\")) + \" }}\");\n    }\n}\n// Output: Map after insert: { name: Alice, age: 25 }\n// Output: Get name: Alice\n// Output: Map after remove: { name: Alice }",
+      "cpp": "#include <iostream>\n#include <unordered_map>\n#include <string>\n\nclass Map {\nprivate:\n    std::unordered_map<std::string, std::string> items;\n\npublic:\n    void insert(const std::string& key, const std::string& value) {\n        items[key] = value;\n    }\n\n    std::string get(const std::string& key) {\n        if (items.find(key) != items.end()) {\n            return items[key];\n        }\n        return \"\";\n    }\n\n    bool remove(const std::string& key) {\n        if (items.find(key) != items.end()) {\n            items.erase(key);\n            return true;\n        }\n        return false;\n    }\n\n    void print() {\n        std::cout << \"{\";\n        bool first = true;\n        for (const auto& item : items) {\n            if (!first) std::cout << \", \";\n            std::cout << item.first << \": \" << item.second;\n            first = false;\n        }\n        std::cout << \"}\\n\";\n    }\n};\n\nint main() {\n    Map m;\n    m.insert(\"name\", \"Alice\");\n    m.insert(\"age\", \"25\");\n    std::cout << \"Map after insert: \";\n    m.print();\n    std::cout << \"Get name: \" << m.get(\"name\") << \"\\n\";\n    m.remove(\"age\");\n    std::cout << \"Map after remove: \";\n    m.print();\n    return 0;\n}\n// Output: Map after insert: {name: Alice, age: 25}\n// Output: Get name: Alice\n// Output: Map after remove: {name: Alice}"
+    },
+    "description": "Map strukturu və onun istifadəsi haqqında ümumi məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Map (Xəritə) nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Map (xəritə), açar-dəyər cütlərini saxlayan dinamik məlumat strukturudur. Hər açar unikal olmalı və ona uyğun bir dəyər əlaqələndirilməlidir. Map strukturu sürətli axtarış, əlavə etmə və silmə əməliyyatlarını dəstəkləyir. Yuxarıdakı nümunədə map-ə 'name' → 'Alice' və 'age' → 25 əlavə edilir, 'name' açarı ilə 'Alice' alınır, 'age' açarı silinir və nəticədə yalnız 'name' → 'Alice' qalır."
+      },
+      {
+        "type": "heading",
+        "text": "Map-lər nə üçün lazımdır?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Map-lər açar-dəyər cütləri ilə effektiv işləmək üçün istifadə olunur. Onlar verilənlərin strukturlaşdırılmış şəkildə saxlanmasını və sürətli əldə edilməsini təmin edir. Məsələn, verilənlər bazalarında indeksləmə, kəşləmə sistemlərində müvəqqəti məlumat saxlama və ya alqoritmlərdə tezlik sayımı üçün map-lər əvəzsizdir."
+      },
+      {
+        "type": "heading",
+        "text": "Map-lər nəyə kömək edir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Map-lər aşağıdakı sahələrdə kömək edir: 1) **Verilənlər Bazaları**: Sürətli axtarış və indeksləmə üçün açar-dəyər cütləri. 2) **Kəşləmə Sistemləri**: Məlumatların müvəqqəti saxlanması (məsələn, Redis). 3) **Alqoritmlər**: Tezlik sayımı və ya unikal elementlərin idarə edilməsi. 4) **Proqramlaşdırma Dilləri**: Python-un dict, Java-nın HashMap, JavaScript-in obyektləri map əsaslıdır. Yuxarıdakı get əməliyyatı sürətli axtarışın nümunəsidir."
+      },
+      {
+        "type": "heading",
+        "text": "Map-lərin Səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Map-lərin səmərəliliyi hash əsaslı tətbiqlərdə orta hesabla O(1) vaxt tələb edən insert, get və remove əməliyyatlarına malikdir. Toqquşmalar (eyni indeksə düşən açarlar) çox olarsa, zəncirvari üsulla O(n) ola bilər (n eyni bucket-dəki elementlərin sayıdır). Ağac əsaslı map-lər (məsələn, TreeMap) O(log n) vaxt tələb edir, lakin sıralı açarlara imkan verir. Məkan mürəkkəbliyi O(n)-dir. Yuxarıdakı nümunədə zəncirvari hash map O(1) orta səmərəliliyi təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Toqquşma İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hash əsaslı map-lərdə toqquşma (collision) iki fərqli açarın eyni indeksə düşməsi halıdır. Bunu idarə etmək üçün: 1) **Zəncirvari (Chaining)**: Eyni indeksdəki elementlər bağlı siyahı kimi saxlanılır (yuxarıdakı kodlarda istifadə olunur). 2) **Açıq Ünvanlama (Open Addressing)**: Alternativ indeks axtarılır (məsələn, xətti sınaq). Zəncirvari üsul sadədir, lakin yaddaş istifadəsini artıra bilər; açıq ünvanlama isə yaddaş baxımından səmərəlidir, lakin mürəkkəbdir."
+      },
+      {
+        "type": "heading",
+        "text": "Üstünlüklər və Mənfi Cəhətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Üstünlük: Orta hesabla O(1) vaxtla sürətli axtarış, əlavə etmə və silmə."
+          },
+          { "description": "Üstünlük: Çevik açar-dəyər cütləri ilə işləmə." },
+          {
+            "description": "Mənfi cəhət: Pis hash funksiyası toqquşmaları artırır və performansı pisləşdirir."
+          },
+          {
+            "description": "Mənfi cəhət: Yaddaş istifadəsi zəncirvari üsulla artıra bilər."
+          },
+          {
+            "description": "Mənfi cəhət: Sıralı açarlara ehtiyac olduqda hash map-lər uyğun deyil."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real Həyatda İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Map-lər geniş tətbiq sahəsinə malikdir: 1) **Verilənlər Bazaları**: Sürətli indeksləmə və sorğu icrası. 2) **Kəşləmə Sistemləri**: Veb tətbiqlərdə məlumat saxlama (məsələn, Redis). 3) **Proqramlaşdırma Dilləri**: Python-un dict, Java-nın HashMap, JavaScript-in obyektləri. 4) **Təhlükəsizlik**: Parol saxlama və ya rəqəmsal imzalarda. 5) **Alqoritmlər**: Tezlik sayımı və ya məlumatların strukturlaşdırılması. Yuxarıdakı remove əməliyyatı kəşdən məlumat silinməsinə bənzəyir."
+      },
+      {
+        "type": "heading",
+        "text": "Optimallaşdırma Strategiyaları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Map-lərin performansını artırmaq üçün: 1) **Yaxşı Hash Funksiyası**: Toqquşmaları minimuma endirmək üçün bərabər paylanma təmin edən funksiya seçin (məsələn, MD5, SHA). 2) **Dinamik Ölçü Dəyişdirmə**: Yük faktoru yüksək olarsa, map-in ölçüsünü artırın. 3) **Toqquşma İdarəetməsi**: Zəncirvari və ya açıq ünvanlama arasında balanslaşdırılmış seçim edin. 4) **Yük Faktoru**: 0.7-0.8 arasında saxlayın. 5) **Kəşləmə**: Tez-tez istifadə olunan açarları kəşləyin."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əsas təhlükələrə daxildir: 1) **Toqquşma Problemləri**: Pis hash funksiyası performansı O(n)-ə sala bilər. 2) **Yaddaş İstifadəsi**: Böyük map-lər çox yaddaş tələb edə bilər. 3) **Təhlükəsizlik**: Zəif hash funksiyaları təhlükəsizlik boşluqlarına səbəb ola bilər (məsələn, DoS hücumları). Tövsiyələr: 1) Kriptoqrafik hash funksiyalarından istifadə edin. 2) Dinamik ölçüləndirmə tətbiq edin. 3) Toqquşma idarəetməsini optimallaşdırın. 4) Kodları hərtərəfli test edin."
+      }
+    ]
+  },
+  "en": {
+    "title": "Map",
+    "icon": "FiMap",
+    "language": "multiple",
+    "codes": {
+      "python": "class Map:\n    def __init__(self):\n        self.items = {}\n\n    def insert(self, key, value):\n        self.items[key] = value\n\n    def get(self, key):\n        return self.items.get(key)\n\n    def remove(self, key):\n        if key in self.items:\n            del self.items[key]\n            return True\n        return False\n\n    def to_dict(self):\n        return dict(self.items)\n\n# Example: Map operations\nm = Map()\nm.insert('name', 'Alice')\nm.insert('age', 25)\nprint('Map after insert:', m.to_dict())\nprint('Get name:', m.get('name'))\nm.remove('age')\nprint('Map after remove:', m.to_dict())\n# Output: Map after insert: {'name': 'Alice', 'age': 25}\n# Output: Get name: Alice\n# Output: Map after remove: {'name': 'Alice'}",
+      "javascript": "class Map {\n    constructor() {\n        this.items = {};\n    }\n\n    insert(key, value) {\n        this.items[key] = value;\n    }\n\n    get(key) {\n        return this.items[key] || null;\n    }\n\n    remove(key) {\n        if (this.get(key) !== null) {\n            delete this.items[key];\n            return true;\n        }\n        return false;\n    }\n\n    toObject() {\n        return { ...this.items };\n    }\n}\n\n// Example: Map operations\nconst m = new Map();\nm.insert('name', 'Alice');\nm.insert('age', 25);\nconsole.log('Map after insert:', m.toObject());\nconsole.log('Get name:', m.get('name'));\nm.remove('age');\nconsole.log('Map after remove:', m.toObject());\n// Output: Map after insert: { name: 'Alice', age: 25 }\n// Output: Get name: Alice\n// Output: Map after remove: { name: 'Alice' }",
+      "typescript": "class Map {\n    private items: { [key: string]: any } = {};\n\n    insert(key: string, value: any): void {\n        this.items[key] = value;\n    }\n\n    get(key: string): any {\n        return this.items[key] || null;\n    }\n\n    remove(key: string): boolean {\n        if (this.get(key) !== null) {\n            delete this.items[key];\n            return true;\n        }\n        return false;\n    }\n\n    toObject(): { [key: string]: any } {\n        return { ...this.items };\n    }\n}\n\n// Example: Map operations\nconst m = new Map();\nm.insert('name', 'Alice');\nm.insert('age', 25);\nconsole.log('Map after insert:', m.toObject());\nconsole.log('Get name:', m.get('name'));\nm.remove('age');\nconsole.log('Map after remove:', m.toObject());\n// Output: Map after insert: { name: 'Alice', age: 25 }\n// Output: Get name: Alice\n// Output: Map after remove: { name: 'Alice' }",
+      "java": "import java.util.HashMap;\n\nclass Map {\n    private HashMap<String, Object> items;\n\n    public Map() {\n        items = new HashMap<>();\n    }\n\n    public void insert(String key, Object value) {\n        items.put(key, value);\n    }\n\n    public Object get(String key) {\n        return items.get(key);\n    }\n\n    public boolean remove(String key) {\n        if (items.containsKey(key)) {\n            items.remove(key);\n            return true;\n        }\n        return false;\n    }\n\n    public HashMap<String, Object> toMap() {\n        return new HashMap<>(items);\n    }\n}\n\nclass MapExample {\n    public static void main(String[] args) {\n        Map m = new Map();\n        m.insert(\"name\", \"Alice\");\n        m.insert(\"age\", 25);\n        System.out.println(\"Map after insert: \" + m.toMap());\n        System.out.println(\"Get name: \" + m.get(\"name\"));\n        m.remove(\"age\");\n        System.out.println(\"Map after remove: \" + m.toMap());\n    }\n}\n// Output: Map after insert: {name=Alice, age=25}\n// Output: Get name: Alice\n// Output: Map after remove: {name=Alice}",
+      "php": "<?php\n\nclass Map {\n    private $items = [];\n\n    public function insert($key, $value) {\n        $this->items[$key] = $value;\n    }\n\n    public function get($key) {\n        return array_key_exists($key, $this->items) ? $this->items[$key] : null;\n    }\n\n    public function remove($key) {\n        if ($this->get($key) !== null) {\n            unset($this->items[$key]);\n            return true;\n        }\n        return false;\n    }\n\n    public function toArray() {\n        return $this->items;\n    }\n}\n\n// Example: Map operations\n$m = new Map();\n$m->insert('name', 'Alice');\n$m->insert('age', 25);\necho 'Map after insert: ' . json_encode($m->toArray()) . \"\\n\";\necho 'Get name: ' . $m->get('name') . \"\\n\";\n$m->remove('age');\necho 'Map after remove: ' . json_encode($m->toArray()) . \"\\n\";\n// Output: Map after insert: {\"name\":\"Alice\",\"age\":25}\n// Output: Get name: Alice\n// Output: Map after remove: {\"name\":\"Alice\"}",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#define MAX_SIZE 10\n#define MAX_KEY_LEN 100\n\ntypedef struct Item {\n    char key[MAX_KEY_LEN];\n    char* value;\n} Item;\n\ntypedef struct Map {\n    Item* items[MAX_SIZE];\n    int size;\n} Map;\n\nvoid initMap(Map* map) {\n    map->size = MAX_SIZE;\n    for (int i = 0; i < MAX_SIZE; i++) {\n        map->items[i] = NULL;\n    }\n}\n\nvoid insert(Map* map, const char* key, const char* value) {\n    unsigned int index = 0;\n    for (int i = 0; key[i]; i++) index += key[i];\n    index %= map->size;\n    if (map->items[index] != NULL) {\n        free(map->items[index]->value);\n        map->items[index]->value = strdup(value);\n        return;\n    }\n    Item* item = (Item*)malloc(sizeof(Item));\n    strncpy(item->key, key, MAX_KEY_LEN);\n    item->value = strdup(value);\n    map->items[index] = item;\n}\n\nchar* get(Map* map, const char* key) {\n    unsigned int index = 0;\n    for (int i = 0; key[i]; i++) index += key[i];\n    index %= map->size;\n    if (map->items[index] != NULL && strcmp(map->items[index]->key, key) == 0) {\n        return map->items[index]->value;\n    }\n    return NULL;\n}\n\nint removeItem(Map* map, const char* key) {\n    unsigned int index = 0;\n    for (int i = 0; key[i]; i++) index += key[i];\n    index %= map->size;\n    if (map->items[index] != NULL && strcmp(map->items[index]->key, key) == 0) {\n        free(map->items[index]->value);\n        free(map->items[index]);\n        map->items[index] = NULL;\n        return 1;\n    }\n    return 0;\n}\n\nvoid printMap(Map* map) {\n    printf(\"{\");\n    int first = 1;\n    for (int i = 0; i < map->size; i++) {\n        if (map->items[i] != NULL) {\n            if (!first) printf(\", \");\n            printf(\"%s: %s\", map->items[i]->key, map->items[i]->value);\n            first = 0;\n        }\n    }\n    printf(\"}\\n\");\n}\n\nint main() {\n    Map map;\n    initMap(&map);\n    insert(&map, \"name\", \"Alice\");\n    insert(&map, \"age\", \"25\");\n    printf(\"Map after insert: \");\n    printMap(&map);\n    printf(\"Get name: %s\\n\", get(&map, \"name\"));\n    removeItem(&map, \"age\");\n    printf(\"Map after remove: \");\n    printMap(&map);\n    return 0;\n}\n// Output: Map after insert: {name: Alice, age: 25}\n// Output: Get name: Alice\n// Output: Map after remove: {name: Alice}",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass Map {\n    private Dictionary<string, object> items;\n\n    public Map() {\n        items = new Dictionary<string, object>();\n    }\n\n    public void Insert(string key, object value) {\n        items[key] = value;\n    }\n\n    public object Get(string key) {\n        return items.ContainsKey(key) ? items[key] : null;\n    }\n\n    public bool Remove(string key) {\n        return items.Remove(key);\n    }\n\n    public Dictionary<string, object> ToDictionary() {\n        return new Dictionary<string, object>(items);\n    }\n}\n\nclass Program {\n    static void Main() {\n        Map m = new Map();\n        m.Insert(\"name\", \"Alice\");\n        m.Insert(\"age\", 25);\n        Console.WriteLine(\"Map after insert: {{ \" + string.Join(\", \", m.ToDictionary().Select(kv => $\"{kv.Key}: {kv.Value}\")) + \" }}\");\n        Console.WriteLine(\"Get name: \" + m.Get(\"name\"));\n        m.Remove(\"age\");\n        Console.WriteLine(\"Map after remove: {{ \" + string.Join(\", \", m.ToDictionary().Select(kv => $\"{kv.Key}: {kv.Value}\")) + \" }}\");\n    }\n}\n// Output: Map after insert: { name: Alice, age: 25 }\n// Output: Get name: Alice\n// Output: Map after remove: { name: Alice }",
+      "cpp": "#include <iostream>\n#include <unordered_map>\n#include <string>\n\nclass Map {\nprivate:\n    std::unordered_map<std::string, std::string> items;\n\npublic:\n    void insert(const std::string& key, const std::string& value) {\n        items[key] = value;\n    }\n\n    std::string get(const std::string& key) {\n        if (items.find(key) != items.end()) {\n            return items[key];\n        }\n        return \"\";\n    }\n\n    bool remove(const std::string& key) {\n        if (items.find(key) != items.end()) {\n            items.erase(key);\n            return true;\n        }\n        return false;\n    }\n\n    void print() {\n        std::cout << \"{\";\n        bool first = true;\n        for (const auto& item : items) {\n            if (!first) std::cout << \", \";\n            std::cout << item.first << \": \" << item.second;\n            first = false;\n        }\n        std::cout << \"}\\n\";\n    }\n};\n\nint main() {\n    Map m;\n    m.insert(\"name\", \"Alice\");\n    m.insert(\"age\", \"25\");\n    std::cout << \"Map after insert: \";\n    m.print();\n    std::cout << \"Get name: \" << m.get(\"name\") << \"\\n\";\n    m.remove(\"age\");\n    std::cout << \"Map after remove: \";\n    m.print();\n    return 0;\n}\n// Output: Map after insert: {name: Alice, age: 25}\n// Output: Get name: Alice\n// Output: Map after remove: {name: Alice}"
+    },
+    "description": "Overview of map structure and its usage.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is a Map?"
+      },
+      {
+        "type": "paragraph",
+        "text": "A map is a dynamic data structure that stores key-value pairs, where each key is unique and associated with a value. It supports fast lookup, insertion, and deletion operations. In the example above, a map inserts 'name' → 'Alice' and 'age' → 25, retrieves 'Alice' for 'name', and removes 'age', leaving only 'name' → 'Alice'."
+      },
+      {
+        "type": "heading",
+        "text": "Why are Maps Needed?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Maps are essential for efficient handling of key-value pairs, enabling structured data storage and fast retrieval. They are critical in databases for indexing, caching systems for temporary data storage, and algorithms for frequency counting or data organization."
+      },
+      {
+        "type": "heading",
+        "text": "What Do Maps Help With?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Maps support various tasks: 1) **Databases**: Fast indexing and query execution. 2) **Caching Systems**: Temporary data storage (e.g., Redis). 3) **Algorithms**: Frequency counting or structured data management. 4) **Programming Languages**: Python’s dict, Java’s HashMap, JavaScript’s objects are map-based. The get operation in the example demonstrates fast lookup."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of Maps (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hash-based maps offer average-case O(1) time complexity for insert, get, and remove operations. With many collisions, chaining can degrade to O(n) (n is the number of elements in a bucket). Tree-based maps (e.g., TreeMap) take O(log n) but support ordered keys. Space complexity is O(n). The example uses a hash-based map for O(1) average efficiency."
+      },
+      {
+        "type": "heading",
+        "text": "Collision Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "In hash-based maps, collisions occur when different keys map to the same index. Handling methods include: 1) **Chaining**: Elements are stored in a linked list at the same index (used in the code above). 2) **Open Addressing**: Alternative indices are found via probing (e.g., linear probing). Chaining is simple but may increase memory usage; open addressing is memory-efficient but complex."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Advantage: Fast average-case O(1) lookup, insertion, and deletion."
+          },
+          { "description": "Advantage: Flexible key-value pair management." },
+          {
+            "description": "Disadvantage: Poor hash functions increase collisions, degrading performance."
+          },
+          {
+            "description": "Disadvantage: Memory usage may increase with chaining."
+          },
+          {
+            "description": "Disadvantage: Hash maps are not suitable for ordered keys."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real-Life Applications"
+      },
+      {
+        "type": "paragraph",
+        "text": "Maps are widely used: 1) **Databases**: Fast indexing and querying. 2) **Caching Systems**: Data storage in web applications (e.g., Redis). 3) **Programming Languages**: Python’s dict, Java’s HashMap, JavaScript’s objects. 4) **Security**: Password storage or digital signatures. 5) **Algorithms**: Frequency counting or data organization. The remove operation in the example mimics cache eviction."
+      },
+      {
+        "type": "heading",
+        "text": "Optimization Strategies"
+      },
+      {
+        "type": "paragraph",
+        "text": "To optimize maps: 1) **Good Hash Function**: Choose a function ensuring even distribution (e.g., MD5, SHA). 2) **Dynamic Resizing**: Resize the map when the load factor is high. 3) **Collision Handling**: Balance chaining and open addressing. 4) **Load Factor**: Keep it between 0.7-0.8 to minimize collisions. 5) **Caching**: Cache frequently used keys."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Key risks include: 1) **Collision Issues**: Poor hash functions can degrade performance to O(n). 2) **Memory Usage**: Large maps may consume excessive memory. 3) **Security**: Weak hash functions can lead to vulnerabilities (e.g., DoS attacks). Recommendations: 1) Use cryptographic hash functions for security. 2) Implement dynamic resizing. 3) Optimize collision handling. 4) Test code thoroughly."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Map (Карта)",
+    "icon": "FiMap",
+    "language": "multiple",
+    "codes": {
+      "python": "class Map:\n    def __init__(self):\n        self.items = {}\n\n    def insert(self, key, value):\n        self.items[key] = value\n\n    def get(self, key):\n        return self.items.get(key)\n\n    def remove(self, key):\n        if key in self.items:\n            del self.items[key]\n            return True\n        return False\n\n    def to_dict(self):\n        return dict(self.items)\n\n# Example: Map operations\nm = Map()\nm.insert('name', 'Alice')\nm.insert('age', 25)\nprint('Map after insert:', m.to_dict())\nprint('Get name:', m.get('name'))\nm.remove('age')\nprint('Map after remove:', m.to_dict())\n# Output: Map after insert: {'name': 'Alice', 'age': 25}\n# Output: Get name: Alice\n# Output: Map after remove: {'name': 'Alice'}",
+      "javascript": "class Map {\n    constructor() {\n        this.items = {};\n    }\n\n    insert(key, value) {\n        this.items[key] = value;\n    }\n\n    get(key) {\n        return this.items[key] || null;\n    }\n\n    remove(key) {\n        if (this.get(key) !== null) {\n            delete this.items[key];\n            return true;\n        }\n        return false;\n    }\n\n    toObject() {\n        return { ...this.items };\n    }\n}\n\n// Example: Map operations\nconst m = new Map();\nm.insert('name', 'Alice');\nm.insert('age', 25);\nconsole.log('Map after insert:', m.toObject());\nconsole.log('Get name:', m.get('name'));\nm.remove('age');\nconsole.log('Map after remove:', m.toObject());\n// Output: Map after insert: { name: 'Alice', age: 25 }\n// Output: Get name: Alice\n// Output: Map after remove: { name: 'Alice' }",
+      "typescript": "class Map {\n    private items: { [key: string]: any } = {};\n\n    insert(key: string, value: any): void {\n        this.items[key] = value;\n    }\n\n    get(key: string): any {\n        return this.items[key] || null;\n    }\n\n    remove(key: string): boolean {\n        if (this.get(key) !== null) {\n            delete this.items[key];\n            return true;\n        }\n        return false;\n    }\n\n    toObject(): { [key: string]: any } {\n        return { ...this.items };\n    }\n}\n\n// Example: Map operations\nconst m = new Map();\nm.insert('name', 'Alice');\nm.insert('age', 25);\nconsole.log('Map after insert:', m.toObject());\nconsole.log('Get name:', m.get('name'));\nm.remove('age');\nconsole.log('Map after remove:', m.toObject());\n// Output: Map after insert: { name: 'Alice', age: 25 }\n// Output: Get name: Alice\n// Output: Map after remove: { name: 'Alice' }",
+      "java": "import java.util.HashMap;\n\nclass Map {\n    private HashMap<String, Object> items;\n\n    public Map() {\n        items = new HashMap<>();\n    }\n\n    public void insert(String key, Object value) {\n        items.put(key, value);\n    }\n\n    public Object get(String key) {\n        return items.get(key);\n    }\n\n    public boolean remove(String key) {\n        if (items.containsKey(key)) {\n            items.remove(key);\n            return true;\n        }\n        return false;\n    }\n\n    public HashMap<String, Object> toMap() {\n        return new HashMap<>(items);\n    }\n}\n\nclass MapExample {\n    public static void main(String[] args) {\n        Map m = new Map();\n        m.insert(\"name\", \"Alice\");\n        m.insert(\"age\", 25);\n        System.out.println(\"Map after insert: \" + m.toMap());\n        System.out.println(\"Get name: \" + m.get(\"name\"));\n        m.remove(\"age\");\n        System.out.println(\"Map after remove: \" + m.toMap());\n    }\n}\n// Output: Map after insert: {name=Alice, age=25}\n// Output: Get name: Alice\n// Output: Map after remove: {name=Alice}",
+      "php": "<?php\n\nclass Map {\n    private $items = [];\n\n    public function insert($key, $value) {\n        $this->items[$key] = $value;\n    }\n\n    public function get($key) {\n        return array_key_exists($key, $this->items) ? $this->items[$key] : null;\n    }\n\n    public function remove($key) {\n        if ($this->get($key) !== null) {\n            unset($this->items[$key]);\n            return true;\n        }\n        return false;\n    }\n\n    public function toArray() {\n        return $this->items;\n    }\n}\n\n// Example: Map operations\n$m = new Map();\n$m->insert('name', 'Alice');\n$m->insert('age', 25);\necho 'Map after insert: ' . json_encode($m->toArray()) . \"\\n\";\necho 'Get name: ' . $m->get('name') . \"\\n\";\n$m->remove('age');\necho 'Map after remove: ' . json_encode($m->toArray()) . \"\\n\";\n// Output: Map after insert: {\"name\":\"Alice\",\"age\":25}\n// Output: Get name: Alice\n// Output: Map after remove: {\"name\":\"Alice\"}",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#define MAX_SIZE 10\n#define MAX_KEY_LEN 100\n\ntypedef struct Item {\n    char key[MAX_KEY_LEN];\n    char* value;\n} Item;\n\ntypedef struct Map {\n    Item* items[MAX_SIZE];\n    int size;\n} Map;\n\nvoid initMap(Map* map) {\n    map->size = MAX_SIZE;\n    for (int i = 0; i < MAX_SIZE; i++) {\n        map->items[i] = NULL;\n    }\n}\n\nvoid insert(Map* map, const char* key, const char* value) {\n    unsigned int index = 0;\n    for (int i = 0; key[i]; i++) index += key[i];\n    index %= map->size;\n    if (map->items[index] != NULL) {\n        free(map->items[index]->value);\n        map->items[index]->value = strdup(value);\n        return;\n    }\n    Item* item = (Item*)malloc(sizeof(Item));\n    strncpy(item->key, key, MAX_KEY_LEN);\n    item->value = strdup(value);\n    map->items[index] = item;\n}\n\nchar* get(Map* map, const char* key) {\n    unsigned int index = 0;\n    for (int i = 0; key[i]; i++) index += key[i];\n    index %= map->size;\n    if (map->items[index] != NULL && strcmp(map->items[index]->key, key) == 0) {\n        return map->items[index]->value;\n    }\n    return NULL;\n}\n\nint removeItem(Map* map, const char* key) {\n    unsigned int index = 0;\n    for (int i = 0; key[i]; i++) index += key[i];\n    index %= map->size;\n    if (map->items[index] != NULL && strcmp(map->items[index]->key, key) == 0) {\n        free(map->items[index]->value);\n        free(map->items[index]);\n        map->items[index] = NULL;\n        return 1;\n    }\n    return 0;\n}\n\nvoid printMap(Map* map) {\n    printf(\"{\");\n    int first = 1;\n    for (int i = 0; i < map->size; i++) {\n        if (map->items[i] != NULL) {\n            if (!first) printf(\", \");\n            printf(\"%s: %s\", map->items[i]->key, map->items[i]->value);\n            first = 0;\n        }\n    }\n    printf(\"}\\n\");\n}\n\nint main() {\n    Map map;\n    initMap(&map);\n    insert(&map, \"name\", \"Alice\");\n    insert(&map, \"age\", \"25\");\n    printf(\"Map after insert: \");\n    printMap(&map);\n    printf(\"Get name: %s\\n\", get(&map, \"name\"));\n    removeItem(&map, \"age\");\n    printf(\"Map after remove: \");\n    printMap(&map);\n    return 0;\n}\n// Output: Map after insert: {name: Alice, age: 25}\n// Output: Get name: Alice\n// Output: Map after remove: {name: Alice}",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass Map {\n    private Dictionary<string, object> items;\n\n    public Map() {\n        items = new Dictionary<string, object>();\n    }\n\n    public void Insert(string key, object value) {\n        items[key] = value;\n    }\n\n    public object Get(string key) {\n        return items.ContainsKey(key) ? items[key] : null;\n    }\n\n    public bool Remove(string key) {\n        return items.Remove(key);\n    }\n\n    public Dictionary<string, object> ToDictionary() {\n        return new Dictionary<string, object>(items);\n    }\n}\n\nclass Program {\n    static void Main() {\n        Map m = new Map();\n        m.Insert(\"name\", \"Alice\");\n        m.Insert(\"age\", 25);\n        Console.WriteLine(\"Map after insert: {{ \" + string.Join(\", \", m.ToDictionary().Select(kv => $\"{kv.Key}: {kv.Value}\")) + \" }}\");\n        Console.WriteLine(\"Get name: \" + m.Get(\"name\"));\n        m.Remove(\"age\");\n        Console.WriteLine(\"Map after remove: {{ \" + string.Join(\", \", m.ToDictionary().Select(kv => $\"{kv.Key}: {kv.Value}\")) + \" }}\");\n    }\n}\n// Output: Map after insert: { name: Alice, age: 25 }\n// Output: Get name: Alice\n// Output: Map after remove: { name: Alice }",
+      "cpp": "#include <iostream>\n#include <unordered_map>\n#include <string>\n\nclass Map {\nprivate:\n    std::unordered_map<std::string, std::string> items;\n\npublic:\n    void insert(const std::string& key, const std::string& value) {\n        items[key] = value;\n    }\n\n    std::string get(const std::string& key) {\n        if (items.find(key) != items.end()) {\n            return items[key];\n        }\n        return \"\";\n    }\n\n    bool remove(const std::string& key) {\n        if (items.find(key) != items.end()) {\n            items.erase(key);\n            return true;\n        }\n        return false;\n    }\n\n    void print() {\n        std::cout << \"{\";\n        bool first = true;\n        for (const auto& item : items) {\n            if (!first) std::cout << \", \";\n            std::cout << item.first << \": \" << item.second;\n            first = false;\n        }\n        std::cout << \"}\\n\";\n    }\n};\n\nint main() {\n    Map m;\n    m.insert(\"name\", \"Alice\");\n    m.insert(\"age\", \"25\");\n    std::cout << \"Map after insert: \";\n    m.print();\n    std::cout << \"Get name: \" << m.get(\"name\") << \"\\n\";\n    m.remove(\"age\");\n    std::cout << \"Map after remove: \";\n    m.print();\n    return 0;\n}\n// Output: Map after insert: {name: Alice, age: 25}\n// Output: Get name: Alice\n// Output: Map after remove: {name: Alice}"
+    },
+    "description": "Обзор структуры map и ее использования.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Map?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Map (карта) — это динамическая структура данных, которая хранит пары ключ-значение, где каждый ключ уникален и связан с определенным значением. Она поддерживает быстрый поиск, добавление и удаление. В примере выше map добавляет 'name' → 'Alice' и 'age' → 25, извлекает 'Alice' по ключу 'name' и удаляет 'age', оставляя только 'name' → 'Alice'."
+      },
+      {
+        "type": "heading",
+        "text": "Зачем нужны Map?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Map необходимы для эффективной работы с парами ключ-значение, обеспечивая структурированное хранение данных и быстрый доступ. Они незаменимы в базах данных для индексирования, системах кэширования для временного хранения данных и алгоритмах для подсчета частоты или организации данных."
+      },
+      {
+        "type": "heading",
+        "text": "Для чего помогают Map?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Map поддерживают множество задач: 1) **Базы данных**: Быстрое индексирование и выполнение запросов. 2) **Системы кэширования**: Временное хранение данных (например, Redis). 3) **Алгоритмы**: Подсчет частоты или структурированное управление данными. 4) **Языки программирования**: dict в Python, HashMap в Java, объекты в JavaScript основаны на map. Операция get в примере демонстрирует быстрый поиск."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность Map (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Хэш-основанные map обеспечивают среднюю временную сложность O(1) для операций insert, get и remove. При множестве коллизий цепочки могут ухудшить производительность до O(n) (n — количество элементов в одной ячейке). Древовидные map (например, TreeMap) занимают O(log n), но поддерживают упорядоченные ключи. Пространственная сложность — O(n). Пример использует хэш-основанный map для средней эффективности O(1)."
+      },
+      {
+        "type": "heading",
+        "text": "Обработка коллизий"
+      },
+      {
+        "type": "paragraph",
+        "text": "В хэш-основанных map коллизия возникает, когда разные ключи отображаются на один индекс. Методы обработки: 1) **Цепочки (Chaining)**: Элементы хранятся в связном списке по одному индексу (используется в коде выше). 2) **Открытая адресация (Open Addressing)**: Поиск альтернативного индекса с помощью пробинга (например, линейного). Цепочки просты, но увеличивают использование памяти; открытая адресация экономит память, но сложнее."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Преимущество: Быстрые операции поиска, добавления и удаления со средней сложностью O(1)."
+          },
+          {
+            "description": "Преимущество: Гибкое управление парами ключ-значение."
+          },
+          {
+            "description": "Недостаток: Плохая хэш-функция увеличивает коллизии, ухудшая производительность."
+          },
+          {
+            "description": "Недостаток: Использование памяти может увеличиваться при цепочках."
+          },
+          {
+            "description": "Недостаток: Хэш-основанные map не подходят для упорядоченных ключей."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Применение в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Map широко используются: 1) **Базы данных**: Быстрое индексирование и выполнение запросов. 2) **Системы кэширования**: Хранение данных в веб-приложениях (например, Redis). 3) **Языки программирования**: dict в Python, HashMap в Java, объекты в JavaScript. 4) **Безопасность**: Хранение паролей или цифровые подписи. 5) **Алгоритмы**: Подсчет частоты или организация данных. Операция remove в примере имитирует удаление из кэша."
+      },
+      {
+        "type": "heading",
+        "text": "Стратегии оптимизации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для оптимизации map: 1) **Хорошая хэш-функция**: Выберите функцию, обеспечивающую равномерное распределение (например, MD5, SHA). 2) **Динамическое изменение размера**: Увеличивайте размер map при высоком коэффициенте загрузки. 3) **Обработка коллизий**: Балансируйте между цепочками и открытой адресацией. 4) **Коэффициент загрузки**: Поддерживайте его в пределах 0.7-0.8 для минимизации коллизий. 5) **Кэширование**: Кэшируйте часто используемые ключи."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основные риски включают: 1) **Проблемы коллизий**: Плохая хэш-функция может ухудшить производительность до O(n). 2) **Использование памяти**: Большие map могут потреблять много памяти. 3) **Безопасность**: Слабые хэш-функции могут привести к уязвимостям (например, DoS-атаки). Рекомендации: 1) Используйте криптографические хэш-функции для безопасности. 2) Внедрите динамическое изменение размера. 3) Оптимизируйте обработку коллизий. 4) Тщательно тестируйте код."
+      }
+    ]
+  }
+}

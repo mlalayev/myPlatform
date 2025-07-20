@@ -50,9 +50,11 @@ const commands: Record<string, (filename: string) => string> = {
 };
 
 async function runInSandbox(language: string, code: string) {
+  console.log(`[runInSandbox] language: ${language}`);
   const image = images[language];
   if (!image) throw new Error("Unsupported language");
   const filename = filenames[language];
+  console.log(`[runInSandbox] filename: ${filename}`);
 
   // Java üçün həmişə fallback yolundan istifadə et
 
@@ -68,11 +70,15 @@ async function runInSandbox(language: string, code: string) {
         "/bin/sh -c",
         `'mkdir -p /code && echo "${safeCode}" > /code/main.php && php /code/main.php'`,
       ].join(" ");
+      console.log(`[runInSandbox][PHP] dockerCmd: ${dockerCmd}`);
       const { stdout: out, stderr: err } = await execAsync(dockerCmd, {
         timeout: 30000,
       });
+      console.log(`[runInSandbox][PHP] stdout:`, out);
+      console.log(`[runInSandbox][PHP] stderr:`, err);
       return { stdout: out, stderr: err };
     } catch (e) {
+      console.error(`[runInSandbox][PHP] error:`, e);
       return {
         stdout: "",
         stderr:
@@ -100,9 +106,13 @@ async function runInSandbox(language: string, code: string) {
         "/bin/sh -c",
         `'mkdir -p /code && echo -e "${safeCode}" > /code/${className}.java && javac /code/${className}.java && java -cp /code ${className}'`
       ].join(" ");
+      console.log(`[runInSandbox][JAVA] dockerCmd: ${dockerCmd}`);
       const { stdout: out, stderr: err } = await execAsync(dockerCmd, { timeout: 30000 });
+      console.log(`[runInSandbox][JAVA] stdout:`, out);
+      console.log(`[runInSandbox][JAVA] stderr:`, err);
       return { stdout: out, stderr: err };
     } catch (e) {
+      console.error(`[runInSandbox][JAVA] error:`, e);
       return {
         stdout: "",
         stderr: "Java code could not be written in container: " + (e instanceof Error ? e.message : String(e)),
@@ -112,17 +122,21 @@ async function runInSandbox(language: string, code: string) {
 
   if (language === "csharp") {
     try {
-      // Use printf to write code safely
-      const safeCode = code.replace(/([`$"\\])/g, "\\$1").replace(/\n/g, "\\n");
+      // Kodun sonundakı şərhləri və əlavə boşluqları sil
+      const codeWithoutTrailingComments = code.replace(/\n\s*\/\/.*$/gm, '').trim();
+      const safeCode = codeWithoutTrailingComments.replace(/([`$"\\])/g, "\\$1").replace(/\n/g, "\\n");
       const dockerCmd = [
         "docker run --rm",
         "--network none",
         "--memory=256m --cpus=0.5",
         image,
         "/bin/sh -c",
-        `'appdir=$(mktemp -d /code/app_XXXXXX) && dotnet new console -o $appdir --force && printf "%s" "${safeCode}" > $appdir/Program.cs && dotnet run --no-restore --no-build --project $appdir && rm -rf $appdir'`
+        `'appdir=$(mktemp -d /tmp/app_XXXXXX) && dotnet new console -o $appdir --force && cat > $appdir/Program.cs <<EOF\n${codeWithoutTrailingComments}\nEOF\ndotnet run --project $appdir && rm -rf $appdir'`
       ].join(" ");
+      console.log(`[runInSandbox][CSHARP] dockerCmd: ${dockerCmd}`);
       const { stdout: out, stderr: err } = await execAsync(dockerCmd, { timeout: 30000 });
+      console.log(`[runInSandbox][CSHARP] stdout:`, out);
+      console.log(`[runInSandbox][CSHARP] stderr:`, err);
       // Filter out dotnet status messages (same as below)
       const filterPrefixes = [
         "The template ",
@@ -156,12 +170,14 @@ async function runInSandbox(language: string, code: string) {
         "Use 'dotnet restore --help'",
         "Use 'dotnet publish --help'",
         "Use 'dotnet test --help'",
+        "Restored ", // <-- bunu əlavə edirəm
       ];
       const lines = out.split(/\r?\n/)
         .map(l => l.trim())
         .filter(l => l.length > 0 && !filterPrefixes.some(prefix => l.startsWith(prefix)));
       return { stdout: lines.join("\n"), stderr: err };
     } catch (e) {
+      console.error(`[runInSandbox][CSHARP] error:`, e);
       return {
         stdout: "",
         stderr: "C# code could not be written in container: " + (e instanceof Error ? e.message : String(e)),
@@ -169,26 +185,37 @@ async function runInSandbox(language: string, code: string) {
     }
   }
 
-  // Create temp directory in current working directory for Windows compatibility
+  // Create temp directory in universal /tmp for Docker compatibility
   const tmpDir = path.join(
-    process.cwd(),
-    "temp",
+    "/tmp",
     `sandbox_${randomBytes(6).toString("hex")}`
   );
+  console.log(`[runInSandbox] tmpDir: ${tmpDir}`);
 
   try {
     // Create temp directory
     await fs.promises.mkdir(tmpDir, { recursive: true });
 
+    // Kodun sonundakı şərhləri və əlavə boşluqları sil (Python və digər dillər üçün)
+    let codeToWrite = code;
+    if (language === "python" || language === "python3") {
+      codeToWrite = code
+        .replace(/\n\s*#.*$/gm, '') // bütün şərhləri sil
+        .replace(/\s+$/, '')        // sonda boşluqları sil
+        .trim();
+    }
+
     // Write code to file
     const filePath = path.join(tmpDir, filename);
-    await fs.promises.writeFile(filePath, code, { encoding: "utf8" });
+    await fs.promises.writeFile(filePath, codeToWrite, { encoding: "utf8" });
+    console.log(`[runInSandbox] code written to: ${filePath}`);
 
     // Verify file was created
     const fileExists = await fs.promises
       .access(filePath)
       .then(() => true)
       .catch(() => false);
+    console.log(`[runInSandbox] fileExists: ${fileExists}`);
     if (!fileExists) {
       throw new Error(`Failed to create file: ${filePath}`);
     }
@@ -223,14 +250,18 @@ async function runInSandbox(language: string, code: string) {
         "/bin/sh -c",
         `'${commands[language](filename)}'`,
       ].join(" ");
+      console.log(`[runInSandbox][VOLUME] dockerCmd: ${dockerCmd}`);
       const { stdout: out, stderr: err } = await execAsync(dockerCmd, {
         timeout: 30000,
       });
+      console.log(`[runInSandbox][VOLUME] stdout:`, out);
+      console.log(`[runInSandbox][VOLUME] stderr:`, err);
       stdout = out;
       stderr = err;
       success = true;
     } catch (e: unknown) {
       const error = e as Error;
+      console.error(`[runInSandbox][VOLUME] error:`, error);
       if (error.message.includes("No such file or directory")) {
         // Try approach 2: Copy file into container (cat >) for ALL languages
         try {
@@ -245,9 +276,12 @@ async function runInSandbox(language: string, code: string) {
               language
             ](filename)}'`,
           ].join(" ");
+          console.log(`[runInSandbox][CAT] dockerCmd: ${dockerCmd}`);
           const { stdout: out, stderr: err } = await execAsync(dockerCmd, {
             timeout: 30000,
           });
+          console.log(`[runInSandbox][CAT] stdout:`, out);
+          console.log(`[runInSandbox][CAT] stderr:`, err);
           stdout = out;
           stderr = err;
           success = true;
@@ -267,13 +301,17 @@ async function runInSandbox(language: string, code: string) {
                 "/bin/sh -c",
                 `'mkdir -p /code && echo -e \"${safeCode}\" > /code/Main.java && javac /code/Main.java && java -cp /code Main'`,
               ].join(" ");
+              console.log(`[runInSandbox][JAVA-FALLBACK] dockerCmd: ${dockerCmd}`);
               const { stdout: out, stderr: err } = await execAsync(dockerCmd, {
                 timeout: 30000,
               });
+              console.log(`[runInSandbox][JAVA-FALLBACK] stdout:`, out);
+              console.log(`[runInSandbox][JAVA-FALLBACK] stderr:`, err);
               stdout = out;
               stderr = err;
               success = true;
             } catch (e3: unknown) {
+              console.error(`[runInSandbox][JAVA-FALLBACK] error:`, e3);
               stderr = `Java code could not be written in container: ${
                 (e3 as Error).message
               }`;
@@ -348,12 +386,14 @@ async function runInSandbox(language: string, code: string) {
         );
       stdout = lines.join("\n");
     }
-
+    console.log(`[runInSandbox] final stdout:`, stdout);
+    console.log(`[runInSandbox] final stderr:`, stderr);
     return { stdout, stderr };
   } finally {
     // Clean up temp directory
     try {
       await fs.promises.rm(tmpDir, { recursive: true, force: true });
+      console.log(`[runInSandbox] cleaned up tmpDir: ${tmpDir}`);
     } catch (cleanupError) {
       console.error("Failed to cleanup temp directory:", cleanupError);
     }

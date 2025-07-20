@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import MonacoEditor from "@monaco-editor/react"
+import MonacoEditor from "@monaco-editor/react";
 import styles from "./JsTryEditor.module.css";
 import SavadliButton from "../Buttons/savadliButton/SavadliButton";
 import CopyButton from "../Buttons/copyButton/CopyButton";
@@ -352,7 +352,10 @@ export default function JsTryEditor({
           return;
         } catch (err: unknown) {
           setError(
-            t("tryeditor.jsInterpreter").replace("{{message}}", err instanceof Error ? err.message : String(err))
+            t("tryeditor.jsInterpreter").replace(
+              "{{message}}",
+              err instanceof Error ? err.message : String(err)
+            )
           );
           setShowOutput(true);
           setIsLoading(false);
@@ -360,7 +363,17 @@ export default function JsTryEditor({
         return;
       }
       // Bütün backend dilləri üçün:
-      const backendLangs = ["python", "python3", "cpp", "c", "java", "csharp", "php", "go", "rust"];
+      const backendLangs = [
+        "python",
+        "python3",
+        "cpp",
+        "c",
+        "java",
+        "csharp",
+        "php",
+        "go",
+        "rust",
+      ];
       if (backendLangs.includes(lang)) {
         try {
           const response = await fetch("/api/execute", {
@@ -371,7 +384,10 @@ export default function JsTryEditor({
           const result = await response.json();
           if (result.error) {
             // Retry only if image loading (not file error)
-            if (result.error.includes("Docker image yüklənir") && retryCount < 2) {
+            if (
+              result.error.includes("Docker image yüklənir") &&
+              retryCount < 2
+            ) {
               setTimeout(() => runCode(retryCount + 1), 2000); // 2 saniyə sonra retry
               return;
             }
@@ -383,7 +399,10 @@ export default function JsTryEditor({
           }
           setShowOutput(true);
         } catch (err: unknown) {
-          setError("Server error: " + (err instanceof Error ? err.message : String(err)));
+          setError(
+            "Server error: " +
+              (err instanceof Error ? err.message : String(err))
+          );
           setShowOutput(true);
         } finally {
           setIsLoading(false);
@@ -394,7 +413,12 @@ export default function JsTryEditor({
       setShowOutput(true);
       setIsLoading(false);
     } catch (err: unknown) {
-      setError(t("tryeditor.general").replace("{{message}}", err instanceof Error ? err.message : String(err)));
+      setError(
+        t("tryeditor.general").replace(
+          "{{message}}",
+          err instanceof Error ? err.message : String(err)
+        )
+      );
       setShowOutput(true);
       setIsLoading(false);
     }

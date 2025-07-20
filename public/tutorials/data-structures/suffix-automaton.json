@@ -1,0 +1,377 @@
+{
+  "id": "suffix-automaton",
+  "az": {
+    "title": "Suffix Automaton",
+    "icon": "FiType",
+    "language": "multiple",
+    "codes": {
+      "python": "class State:\n    def __init__(self):\n        self.next = {}\n        self.length = 0\n        self.link = None\n\nclass SuffixAutomaton:\n    def __init__(self):\n        self.root = State()\n        self.last = self.root\n\n    def extend(self, c):\n        curr = State()\n        curr.length = self.last.length + 1\n        p = self.last\n        while p and c not in p.next:\n            p.next[c] = curr\n            p = p.link\n        if not p:\n            curr.link = self.root\n        else:\n            q = p.next[c]\n            if p.length + 1 == q.length:\n                curr.link = q\n            else:\n                clone = State()\n                clone.length = p.length + 1\n                clone.next = q.next.copy()\n                clone.link = q.link\n                q.link = clone\n                curr.link = clone\n                while p and p.next[c] == q:\n                    p.next[c] = clone\n                    p = p.link\n        self.last = curr\n\n    def contains_suffix(self, s):\n        node = self.root\n        for c in s:\n            if c not in node.next:\n                return False\n            node = node.next[c]\n        return True\n\n# Example: Suffix Automaton operations\nautomaton = SuffixAutomaton()\nword = 'banana'\nfor c in word:\n    automaton.extend(c)\nprint('Contains suffix \"ana\":', automaton.contains_suffix('ana'))\nprint('Contains suffix \"xyz\":', automaton.contains_suffix('xyz'))\n# Output: Contains suffix \"ana\": True\n# Output: Contains suffix \"xyz\": False",
+      "javascript": "class State {\n    constructor() {\n        this.next = {};\n        this.length = 0;\n        this.link = null;\n    }\n}\n\nclass SuffixAutomaton {\n    constructor() {\n        this.root = new State();\n        this.last = this.root;\n    }\n\n    extend(c) {\n        let curr = new State();\n        curr.length = this.last.length + 1;\n        let p = this.last;\n        while (p && !(c in p.next)) {\n            p.next[c] = curr;\n            p = p.link;\n        }\n        if (!p) {\n            curr.link = this.root;\n        } else {\n            let q = p.next[c];\n            if (p.length + 1 === q.length) {\n                curr.link = q;\n            } else {\n                let clone = new State();\n                clone.length = p.length + 1;\n                clone.next = { ...q.next };\n                clone.link = q.link;\n                q.link = clone;\n                curr.link = clone;\n                while (p && p.next[c] === q) {\n                    p.next[c] = clone;\n                    p = p.link;\n                }\n            }\n        }\n        this.last = curr;\n    }\n\n    containsSuffix(s) {\n        let node = this.root;\n        for (let c of s) {\n            if (!(c in node.next)) {\n                return false;\n            }\n            node = node.next[c];\n        }\n        return true;\n    }\n}\n\n// Example: Suffix Automaton operations\nconst automaton = new SuffixAutomaton();\nconst word = 'banana';\nfor (let c of word) {\n    automaton.extend(c);\n}\nconsole.log('Contains suffix \"ana\":', automaton.containsSuffix('ana'));\nconsole.log('Contains suffix \"xyz\":', automaton.containsSuffix('xyz'));\n// Output: Contains suffix \"ana\": true\n// Output: Contains suffix \"xyz\": false",
+      "typescript": "class State {\n    next: { [key: string]: State } = {};\n    length: number = 0;\n    link: State | null = null;\n}\n\nclass SuffixAutomaton {\n    private root: State;\n    private last: State;\n\n    constructor() {\n        this.root = new State();\n        this.last = this.root;\n    }\n\n    extend(c: string): void {\n        let curr = new State();\n        curr.length = this.last.length + 1;\n        let p: State | null = this.last;\n        while (p && !(c in p.next)) {\n            p.next[c] = curr;\n            p = p.link;\n        }\n        if (!p) {\n            curr.link = this.root;\n        } else {\n            let q = p.next[c];\n            if (p.length + 1 === q.length) {\n                curr.link = q;\n            } else {\n                let clone = new State();\n                clone.length = p.length + 1;\n                clone.next = { ...q.next };\n                clone.link = q.link;\n                q.link = clone;\n                curr.link = clone;\n                while (p && p.next[c] === q) {\n                    p.next[c] = clone;\n                    p = p.link;\n                }\n            }\n        }\n        this.last = curr;\n    }\n\n    containsSuffix(s: string): boolean {\n        let node = this.root;\n        for (let c of s) {\n            if (!(c in node.next)) {\n                return false;\n            }\n            node = node.next[c];\n        }\n        return true;\n    }\n}\n\n// Example: Suffix Automaton operations\nconst automaton = new SuffixAutomaton();\nconst word = 'banana';\nfor (let c of word) {\n    automaton.extend(c);\n}\nconsole.log('Contains suffix \"ana\":', automaton.containsSuffix('ana'));\nconsole.log('Contains suffix \"xyz\":', automaton.containsSuffix('xyz'));\n// Output: Contains suffix \"ana\": true\n// Output: Contains suffix \"xyz\": false",
+      "java": "import java.util.HashMap;\n\nclass State {\n    HashMap<Character, State> next = new HashMap<>();\n    int length;\n    State link;\n}\n\nclass SuffixAutomaton {\n    private State root;\n    private State last;\n\n    public SuffixAutomaton() {\n        root = new State();\n        last = root;\n    }\n\n    public void extend(char c) {\n        State curr = new State();\n        curr.length = last.length + 1;\n        State p = last;\n        while (p != null && !p.next.containsKey(c)) {\n            p.next.put(c, curr);\n            p = p.link;\n        }\n        if (p == null) {\n            curr.link = root;\n        } else {\n            State q = p.next.get(c);\n            if (p.length + 1 == q.length) {\n                curr.link = q;\n            } else {\n                State clone = new State();\n                clone.length = p.length + 1;\n                clone.next = new HashMap<>(q.next);\n                clone.link = q.link;\n                q.link = clone;\n                curr.link = clone;\n                while (p != null && p.next.get(c) == q) {\n                    p.next.put(c, clone);\n                    p = p.link;\n                }\n            }\n        }\n        last = curr;\n    }\n\n    public boolean containsSuffix(String s) {\n        State node = root;\n        for (char c : s.toCharArray()) {\n            if (!node.next.containsKey(c)) {\n                return false;\n            }\n            node = node.next.get(c);\n        }\n        return true;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        SuffixAutomaton automaton = new SuffixAutomaton();\n        String word = \"banana\";\n        for (char c : word.toCharArray()) {\n            automaton.extend(c);\n        }\n        System.out.println(\"Contains suffix \\\"ana\\\": \" + automaton.containsSuffix(\"ana\"));\n        System.out.println(\"Contains suffix \\\"xyz\\\": \" + automaton.containsSuffix(\"xyz\"));\n    }\n}\n// Output: Contains suffix \"ana\": true\n// Output: Contains suffix \"xyz\": false",
+      "php": "<?php\n\nclass State {\n    public $next = [];\n    public $length = 0;\n    public $link = null;\n}\n\nclass SuffixAutomaton {\n    private $root;\n    private $last;\n\n    public function __construct() {\n        $this->root = new State();\n        $this->last = $this->root;\n    }\n\n    public function extend($c) {\n        $curr = new State();\n        $curr->length = $this->last->length + 1;\n        $p = $this->last;\n        while ($p && !isset($p->next[$c])) {\n            $p->next[$c] = $curr;\n            $p = $p->link;\n        }\n        if (!$p) {\n            $curr->link = $this->root;\n        } else {\n            $q = $p->next[$c];\n            if ($p->length + 1 == $q->length) {\n                $curr->link = $q;\n            } else {\n                $clone = new State();\n                $clone->length = $p->length + 1;\n                $clone->next = $q->next;\n                $clone->link = $q->link;\n                $q->link = $clone;\n                $curr->link = $clone;\n                while ($p && $p->next[$c] === $q) {\n                    $p->next[$c] = $clone;\n                    $p = $p->link;\n                }\n            }\n        }\n        $this->last = $curr;\n    }\n\n    public function containsSuffix($s) {\n        $node = $this->root;\n        foreach (str_split($s) as $c) {\n            if (!isset($node->next[$c])) {\n                return false;\n            }\n            $node = $node->next[$c];\n        }\n        return true;\n    }\n}\n\n// Example: Suffix Automaton operations\n$automaton = new SuffixAutomaton();\n$word = 'banana';\nforeach (str_split($word) as $c) {\n    $automaton->extend($c);\n}\necho 'Contains suffix \"ana\": ' . ($automaton->containsSuffix('ana') ? 'true' : 'false') . '\\n';\necho 'Contains suffix \"xyz\": ' . ($automaton->containsSuffix('xyz') ? 'true' : 'false') . '\\n';\n// Output: Contains suffix \"ana\": true\n// Output: Contains suffix \"xyz\": false",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n#define ALPHABET_SIZE 26\n\ntypedef struct State {\n    struct State* next[ALPHABET_SIZE];\n    int length;\n    struct State* link;\n} State;\n\ntypedef struct SuffixAutomaton {\n    State* root;\n    State* last;\n} SuffixAutomaton;\n\nState* createState() {\n    State* s = (State*)malloc(sizeof(State));\n    s->length = 0;\n    s->link = NULL;\n    for (int i = 0; i < ALPHABET_SIZE; i++) {\n        s->next[i] = NULL;\n    }\n    return s;\n}\n\nSuffixAutomaton* createAutomaton() {\n    SuffixAutomaton* sa = (SuffixAutomaton*)malloc(sizeof(SuffixAutomaton));\n    sa->root = createState();\n    sa->last = sa->root;\n    return sa;\n}\n\nvoid extend(SuffixAutomaton* sa, char c) {\n    State* curr = createState();\n    curr->length = sa->last->length + 1;\n    State* p = sa->last;\n    int idx = c - 'a';\n    while (p && !p->next[idx]) {\n        p->next[idx] = curr;\n        p = p->link;\n    }\n    if (!p) {\n        curr->link = sa->root;\n    } else {\n        State* q = p->next[idx];\n        if (p->length + 1 == q->length) {\n            curr->link = q;\n        } else {\n            State* clone = createState();\n            clone->length = p->length + 1;\n            for (int i = 0; i < ALPHABET_SIZE; i++) {\n                clone->next[i] = q->next[i];\n            }\n            clone->link = q->link;\n            q->link = clone;\n            curr->link = clone;\n            while (p && p->next[idx] == q) {\n                p->next[idx] = clone;\n                p = p->link;\n            }\n        }\n    }\n    sa->last = curr;\n}\n\nint containsSuffix(SuffixAutomaton* sa, const char* s) {\n    State* node = sa->root;\n    for (int i = 0; s[i]; i++) {\n        int idx = s[i] - 'a';\n        if (!node->next[idx]) {\n            return 0;\n        }\n        node = node->next[idx];\n    }\n    return 1;\n}\n\nvoid freeState(State* s) {\n    if (!s) return;\n    for (int i = 0; i < ALPHABET_SIZE; i++) {\n        freeState(s->next[i]);\n    }\n    free(s);\n}\n\nvoid freeAutomaton(SuffixAutomaton* sa) {\n    freeState(sa->root);\n    free(sa);\n}\n\nint main() {\n    SuffixAutomaton* automaton = createAutomaton();\n    const char* word = \"banana\";\n    for (int i = 0; word[i]; i++) {\n        extend(automaton, word[i]);\n    }\n    printf(\"Contains suffix \\\"ana\\\": %d\\n\", containsSuffix(automaton, \"ana\"));\n    printf(\"Contains suffix \\\"xyz\\\": %d\\n\", containsSuffix(automaton, \"xyz\"));\n    freeAutomaton(automaton);\n    return 0;\n}\n// Output: Contains suffix \"ana\": 1\n// Output: Contains suffix \"xyz\": 0",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass State {\n    public Dictionary<char, State> Next = new Dictionary<char, State>();\n    public int Length;\n    public State Link;\n}\n\nclass SuffixAutomaton {\n    private State root;\n    private State last;\n\n    public SuffixAutomaton() {\n        root = new State();\n        last = root;\n    }\n\n    public void Extend(char c) {\n        State curr = new State();\n        curr.Length = last.Length + 1;\n        State p = last;\n        while (p != null && !p.Next.ContainsKey(c)) {\n            p.Next[c] = curr;\n            p = p.Link;\n        }\n        if (p == null) {\n            curr.Link = root;\n        } else {\n            State q = p.Next[c];\n            if (p.Length + 1 == q.Length) {\n                curr.Link = q;\n            } else {\n                State clone = new State();\n                clone.Length = p.Length + 1;\n                clone.Next = new Dictionary<char, State>(q.Next);\n                clone.Link = q.Link;\n                q.Link = clone;\n                curr.Link = clone;\n                while (p != null && p.Next[c] == q) {\n                    p.Next[c] = clone;\n                    p = p.Link;\n                }\n            }\n        }\n        last = curr;\n    }\n\n    public bool ContainsSuffix(string s) {\n        State node = root;\n        foreach (char c in s) {\n            if (!node.Next.ContainsKey(c)) {\n                return false;\n            }\n            node = node.Next[c];\n        }\n        return true;\n    }\n}\n\nclass Program {\n    static void Main() {\n        SuffixAutomaton automaton = new SuffixAutomaton();\n        string word = \"banana\";\n        foreach (char c in word) {\n            automaton.Extend(c);\n        }\n        Console.WriteLine(\"Contains suffix \\\"ana\\\": \" + automaton.ContainsSuffix(\"ana\"));\n        Console.WriteLine(\"Contains suffix \\\"xyz\\\": \" + automaton.ContainsSuffix(\"xyz\"));\n    }\n}\n// Output: Contains suffix \"ana\": True\n// Output: Contains suffix \"xyz\": False",
+      "cpp": "#include <iostream>\n#include <unordered_map>\n#include <string>\n\nclass State {\npublic:\n    std::unordered_map<char, State*> next;\n    int length;\n    State* link;\n    State() : length(0), link(nullptr) {}\n};\n\nclass SuffixAutomaton {\nprivate:\n    State* root;\n    State* last;\n\npublic:\n    SuffixAutomaton() {\n        root = new State();\n        last = root;\n    }\n\n    void extend(char c) {\n        State* curr = new State();\n        curr->length = last->length + 1;\n        State* p = last;\n        while (p && p->next.find(c) == p->next.end()) {\n            p->next[c] = curr;\n            p = p->link;\n        }\n        if (!p) {\n            curr->link = root;\n        } else {\n            State* q = p->next[c];\n            if (p->length + 1 == q->length) {\n                curr->link = q;\n            } else {\n                State* clone = new State();\n                clone->length = p->length + 1;\n                clone->next = q->next;\n                clone->link = q->link;\n                q->link = clone;\n                curr->link = clone;\n                while (p && p->next[c] == q) {\n                    p->next[c] = clone;\n                    p = p->link;\n                }\n            }\n        }\n        last = curr;\n    }\n\n    bool containsSuffix(const std::string& s) {\n        State* node = root;\n        for (char c : s) {\n            if (node->next.find(c) == node->next.end()) {\n                return false;\n            }\n            node = node->next[c];\n        }\n        return true;\n    }\n\n    ~SuffixAutomaton() {\n        deleteState(root);\n    }\n\nprivate:\n    void deleteState(State* s) {\n        if (!s) return;\n        for (auto& pair : s->next) {\n            deleteState(pair.second);\n        }\n        delete s;\n    }\n};\n\nint main() {\n    SuffixAutomaton automaton;\n    std::string word = \"banana\";\n    for (char c : word) {\n        automaton.extend(c);\n    }\n    std::cout << \"Contains suffix \\\"ana\\\": \" << (automaton.containsSuffix(\"ana\") ? \"true\" : \"false\") << \"\\n\";\n    std::cout << \"Contains suffix \\\"xyz\\\": \" << (automaton.containsSuffix(\"xyz\") ? \"true\" : \"false\") << \"\\n\";\n    return 0;\n}\n// Output: Contains suffix \"ana\": true\n// Output: Contains suffix \"xyz\": false"
+    },
+    "description": "Suffix avtomatları və onların tətbiqləri haqqında ümumi məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Suffix Automaton nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Automaton (Sufiks Avtomatı) bir sözün bütün sufikslarını effektiv şəkildə təmsil edən minimal deterministik sonlu avtomatdır (DFA). O, simvol ardıcıllıqlarının sürətli axtarışını və sufiks əsaslı sorğuları təmin edir. Yuxarıdakı nümunədə 'banana' sözü üçün Suffix Automaton qurulur, 'ana' sufiksi yoxlanılır (true) və 'xyz' sufiksi yoxlanılır (false)."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas Terminlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "State: Avtomatın vəziyyəti, simvol keçidlərini və sufiks bağlantılarını təmsil edir."
+          },
+          { "description": "Root: Avtomatın başlanğıc vəziyyəti." },
+          {
+            "description": "Link: Sufiks bağlantısı, daha qısa sufiksə keçidi göstərir (yuxarıdakı link)."
+          },
+          {
+            "description": "Extend: Yeni simvol əlavə etmək (yuxarıdakı extend funksiyası)."
+          },
+          {
+            "description": "ContainsSuffix: Verilmiş ardıcıllığın sufiks kimi mövcudluğunu yoxlamaq (yuxarıdakı contains_suffix funksiyası)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Suffix Automaton Növləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Automaton əsasən standart formada istifadə olunur, lakin varyasyonları mövcuddur: 1) **Standart Suffix Automaton**: Bütün sufiksları təmsil edir (yuxarıdakı nümunədəki kimi). 2) **Sıkıştırılmış Suffix Automaton**: Daha az yaddaş istifadəsi üçün optimallaşdırılmışdır. 3) **Genişləndirilmiş Suffix Automaton**: Əlavə funksionallıq (məsələn, palindromlar) üçün."
+      },
+      {
+        "type": "heading",
+        "text": "Suffix Automaton nə üçün lazımdır?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Automaton simvol ardıcıllıqlarının effektiv axtarışını və sufiks əsaslı sorğuları təmin edir. Tekst emalı, nümunə uyğunlaşdırma və məlumat sıxışdırma kimi sahələrdə istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Suffix Automaton nəyə kömək edir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Automaton aşağıdakı sahələrdə kömək edir: 1) **Nümunə Uyğunlaşdırma**: Sözdə alt sətirlərin axtarışı. 2) **Tekst Emalı**: Sufiks əsaslı sorğular (məsələn, ən uzun ümumi sufiks). 3) **Məlumat Sıxışdırma**: Təkrarlanan ardıcıllıqların aşkarlanması. 4) **Bioinformatika**: DNT ardıcıllıqlarının təhlili. Yuxarıdakı contains_suffix funksiyası nümunə uyğunlaşdırmasını simulyasiya edir."
+      },
+      {
+        "type": "heading",
+        "text": "Suffix Automaton-un Səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Automaton-un qurulması O(n) vaxt tələb edir (n sözün uzunluğu). Sufiks axtarışı O(m) vaxt aparır (m axtarılan sufiksin uzunluğu). Məkan mürəkkəbliyi O(n) təşkil edir. Yuxarıdakı nümunədə extend və contains_suffix effektiv işləyir."
+      },
+      {
+        "type": "heading",
+        "text": "Üstünlüklər və Mənfi Cəhətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Üstünlük: Bütün sufiksları O(n) yaddaşda saxlayır."
+          },
+          { "description": "Üstünlük: Sürətli sufiks axtarışı (O(m))." },
+          {
+            "description": "Üstünlük: Nümunə uyğunlaşdırma və tekst emalı üçün idealdır."
+          },
+          {
+            "description": "Mənfi cəhət: Tətbiqi mürəkkəbdir və anlaşılması çətindir."
+          },
+          {
+            "description": "Mənfi cəhət: Böyük məlumatlarda yaddaş istifadəsi artıq ola bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real Həyatda İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Automaton geniş tətbiq sahəsinə malikdir: 1) **Tekst Axtarışı**: Nümunə uyğunlaşdırma və alt sətir axtarışı. 2) **Məlumat Sıxışdırma**: Təkrarlanan ardıcıllıqların tapılması. 3) **Bioinformatika**: DNT ardıcıllıqlarının təhlili. 4) **Lüğətlər**: Sürətli sufiks əsaslı sorğular. Yuxarıdakı contains_suffix funksiyası tekst axtarışını simulyasiya edir."
+      },
+      {
+        "type": "heading",
+        "text": "Optimallaşdırma Strategiyaları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Automaton performansını artırmaq üçün: 1) **Sıkıştırma**: Daha az yaddaş üçün sıxılmış avtomat istifadə edin. 2) **Kəşləmə**: Tez-tezən axtarılan sufiksleri kəşləyin. 3) **Alfabet Azaltma**: Simvol kodlamasını optimallaşdırın. 4) **Yaddaş İdarəetməsi**: Dinamik yaddaş ayırmadan istifadə edin. 5) **Səmərəli Alqoritmlər**: Qurulma və axtarış alqoritmlərini optimallaşdırın."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əsas təhlükələrə daxildir: 1) **Mürəkkəblik**: Tətbiq və anlaşılma çətindir. 2) **Yaddaş İstifadəsi**: Böyük sözlər üçün çox yaddaş tələb edə bilər. 3) **Performans**: Böyük məlumatlarda yavaşlama riski. Tövsiyələr: 1) Sadələşdirilmiş tətbiqlərdən başlayın. 2) Yaddaş istifadəsini optimallaşdırın. 3) Kodları böyük məlumatlarla test edin."
+      }
+    ]
+  },
+  "en": {
+    "title": "Suffix Automaton",
+    "icon": "FiType",
+    "language": "multiple",
+    "codes": {
+      "python": "class State:\n    def __init__(self):\n        self.next = {}\n        self.length = 0\n        self.link = None\n\nclass SuffixAutomaton:\n    def __init__(self):\n        self.root = State()\n        self.last = self.root\n\n    def extend(self, c):\n        curr = State()\n        curr.length = self.last.length + 1\n        p = self.last\n        while p and c not in p.next:\n            p.next[c] = curr\n            p = p.link\n        if not p:\n            curr.link = self.root\n        else:\n            q = p.next[c]\n            if p.length + 1 == q.length:\n                curr.link = q\n            else:\n                clone = State()\n                clone.length = p.length + 1\n                clone.next = q.next.copy()\n                clone.link = q.link\n                q.link = clone\n                curr.link = clone\n                while p and p.next[c] == q:\n                    p.next[c] = clone\n                    p = p.link\n        self.last = curr\n\n    def contains_suffix(self, s):\n        node = self.root\n        for c in s:\n            if c not in node.next:\n                return False\n            node = node.next[c]\n        return True\n\n# Example: Suffix Automaton operations\nautomaton = SuffixAutomaton()\nword = 'banana'\nfor c in word:\n    automaton.extend(c)\nprint('Contains suffix \"ana\":', automaton.contains_suffix('ana'))\nprint('Contains suffix \"xyz\":', automaton.contains_suffix('xyz'))\n# Output: Contains suffix \"ana\": True\n# Output: Contains suffix \"xyz\": False",
+      "javascript": "class State {\n    constructor() {\n        this.next = {};\n        this.length = 0;\n        this.link = null;\n    }\n}\n\nclass SuffixAutomaton {\n    constructor() {\n        this.root = new State();\n        this.last = this.root;\n    }\n\n    extend(c) {\n        let curr = new State();\n        curr.length = this.last.length + 1;\n        let p = this.last;\n        while (p && !(c in p.next)) {\n            p.next[c] = curr;\n            p = p.link;\n        }\n        if (!p) {\n            curr.link = this.root;\n        } else {\n            let q = p.next[c];\n            if (p.length + 1 === q.length) {\n                curr.link = q;\n            } else {\n                let clone = new State();\n                clone.length = p.length + 1;\n                clone.next = { ...q.next };\n                clone.link = q.link;\n                q.link = clone;\n                curr.link = clone;\n                while (p && p.next[c] === q) {\n                    p.next[c] = clone;\n                    p = p.link;\n                }\n            }\n        }\n        this.last = curr;\n    }\n\n    containsSuffix(s) {\n        let node = this.root;\n        for (let c of s) {\n            if (!(c in node.next)) {\n                return false;\n            }\n            node = node.next[c];\n        }\n        return true;\n    }\n}\n\n// Example: Suffix Automaton operations\nconst automaton = new SuffixAutomaton();\nconst word = 'banana';\nfor (let c of word) {\n    automaton.extend(c);\n}\nconsole.log('Contains suffix \"ana\":', automaton.containsSuffix('ana'));\nconsole.log('Contains suffix \"xyz\":', automaton.containsSuffix('xyz'));\n// Output: Contains suffix \"ana\": true\n// Output: Contains suffix \"xyz\": false",
+      "typescript": "class State {\n    next: { [key: string]: State } = {};\n    length: number = 0;\n    link: State | null = null;\n}\n\nclass SuffixAutomaton {\n    private root: State;\n    private last: State;\n\n    constructor() {\n        this.root = new State();\n        this.last = this.root;\n    }\n\n    extend(c: string): void {\n        let curr = new State();\n        curr.length = this.last.length + 1;\n        let p: State | null = this.last;\n        while (p && !(c in p.next)) {\n            p.next[c] = curr;\n            p = p.link;\n        }\n        if (!p) {\n            curr.link = this.root;\n        } else {\n            let q = p.next[c];\n            if (p.length + 1 === q.length) {\n                curr.link = q;\n            } else {\n                let clone = new State();\n                clone.length = p.length + 1;\n                clone.next = { ...q.next };\n                clone.link = q.link;\n                q.link = clone;\n                curr.link = clone;\n                while (p && p.next[c] === q) {\n                    p.next[c] = clone;\n                    p = p.link;\n                }\n            }\n        }\n        this.last = curr;\n    }\n\n    containsSuffix(s: string): boolean {\n        let node = this.root;\n        for (let c of s) {\n            if (!(c in node.next)) {\n                return false;\n            }\n            node = node.next[c];\n        }\n        return true;\n    }\n}\n\n// Example: Suffix Automaton operations\nconst automaton = new SuffixAutomaton();\nconst word = 'banana';\nfor (let c of word) {\n    automaton.extend(c);\n}\nconsole.log('Contains suffix \"ana\":', automaton.containsSuffix('ana'));\nconsole.log('Contains suffix \"xyz\":', automaton.containsSuffix('xyz'));\n// Output: Contains suffix \"ana\": true\n// Output: Contains suffix \"xyz\": false",
+      "java": "import java.util.HashMap;\n\nclass State {\n    HashMap<Character, State> next = new HashMap<>();\n    int length;\n    State link;\n}\n\nclass SuffixAutomaton {\n    private State root;\n    private State last;\n\n    public SuffixAutomaton() {\n        root = new State();\n        last = root;\n    }\n\n    public void extend(char c) {\n        State curr = new State();\n        curr.length = last.length + 1;\n        State p = last;\n        while (p != null && !p.next.containsKey(c)) {\n            p.next.put(c, curr);\n            p = p.link;\n        }\n        if (p == null) {\n            curr.link = root;\n        } else {\n            State q = p.next.get(c);\n            if (p.length + 1 == q.length) {\n                curr.link = q;\n            } else {\n                State clone = new State();\n                clone.length = p.length + 1;\n                clone.next = new HashMap<>(q.next);\n                clone.link = q.link;\n                q.link = clone;\n                curr.link = clone;\n                while (p != null && p.next.get(c) == q) {\n                    p.next.put(c, clone);\n                    p = p.link;\n                }\n            }\n        }\n        last = curr;\n    }\n\n    public boolean containsSuffix(String s) {\n        State node = root;\n        for (char c : s.toCharArray()) {\n            if (!node.next.containsKey(c)) {\n                return false;\n            }\n            node = node.next.get(c);\n        }\n        return true;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        SuffixAutomaton automaton = new SuffixAutomaton();\n        String word = \"banana\";\n        for (char c : word.toCharArray()) {\n            automaton.extend(c);\n        }\n        System.out.println(\"Contains suffix \\\"ana\\\": \" + automaton.containsSuffix(\"ana\"));\n        System.out.println(\"Contains suffix \\\"xyz\\\": \" + automaton.containsSuffix(\"xyz\"));\n    }\n}\n// Output: Contains suffix \"ana\": true\n// Output: Contains suffix \"xyz\": false",
+      "php": "<?php\n\nclass State {\n    public $next = [];\n    public $length = 0;\n    public $link = null;\n}\n\nclass SuffixAutomaton {\n    private $root;\n    private $last;\n\n    public function __construct() {\n        $this->root = new State();\n        $this->last = $this->root;\n    }\n\n    public function extend($c) {\n        $curr = new State();\n        $curr->length = $this->last->length + 1;\n        $p = $this->last;\n        while ($p && !isset($p->next[$c])) {\n            $p->next[$c] = $curr;\n            $p = $p->link;\n        }\n        if (!$p) {\n            $curr->link = $this->root;\n        } else {\n            $q = $p->next[$c];\n            if ($p->length + 1 == $q->length) {\n                $curr->link = $q;\n            } else {\n                $clone = new State();\n                $clone->length = $p->length + 1;\n                $clone->next = $q->next;\n                $clone->link = $q->link;\n                $q->link = $clone;\n                $curr->link = $clone;\n                while ($p && $p->next[$c] === $q) {\n                    $p->next[$c] = $clone;\n                    $p = $p->link;\n                }\n            }\n        }\n        $this->last = $curr;\n    }\n\n    public function containsSuffix($s) {\n        $node = $this->root;\n        foreach (str_split($s) as $c) {\n            if (!isset($node->next[$c])) {\n                return false;\n            }\n            $node = $node->next[$c];\n        }\n        return true;\n    }\n}\n\n// Example: Suffix Automaton operations\n$automaton = new SuffixAutomaton();\n$word = 'banana';\nforeach (str_split($word) as $c) {\n    $automaton->extend($c);\n}\necho 'Contains suffix \"ana\": ' . ($automaton->containsSuffix('ana') ? 'true' : 'false') . '\\n';\necho 'Contains suffix \"xyz\": ' . ($automaton->containsSuffix('xyz') ? 'true' : 'false') . '\\n';\n// Output: Contains suffix \"ana\": true\n// Output: Contains suffix \"xyz\": false",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n#define ALPHABET_SIZE 26\n\ntypedef struct State {\n    struct State* next[ALPHABET_SIZE];\n    int length;\n    struct State* link;\n} State;\n\ntypedef struct SuffixAutomaton {\n    State* root;\n    State* last;\n} SuffixAutomaton;\n\nState* createState() {\n    State* s = (State*)malloc(sizeof(State));\n    s->length = 0;\n    s->link = NULL;\n    for (int i = 0; i < ALPHABET_SIZE; i++) {\n        s->next[i] = NULL;\n    }\n    return s;\n}\n\nSuffixAutomaton* createAutomaton() {\n    SuffixAutomaton* sa = (SuffixAutomaton*)malloc(sizeof(SuffixAutomaton));\n    sa->root = createState();\n    sa->last = sa->root;\n    return sa;\n}\n\nvoid extend(SuffixAutomaton* sa, char c) {\n    State* curr = createState();\n    curr->length = sa->last->length + 1;\n    State* p = sa->last;\n    int idx = c - 'a';\n    while (p && !p->next[idx]) {\n        p->next[idx] = curr;\n        p = p->link;\n    }\n    if (!p) {\n        curr->link = sa->root;\n    } else {\n        State* q = p->next[idx];\n        if (p->length + 1 == q->length) {\n            curr->link = q;\n        } else {\n            State* clone = createState();\n            clone->length = p->length + 1;\n            for (int i = 0; i < ALPHABET_SIZE; i++) {\n                clone->next[i] = q->next[i];\n            }\n            clone->link = q->link;\n            q->link = clone;\n            curr->link = clone;\n            while (p && p->next[idx] == q) {\n                p->next[idx] = clone;\n                p = p->link;\n            }\n        }\n    }\n    sa->last = curr;\n}\n\nint containsSuffix(SuffixAutomaton* sa, const char* s) {\n    State* node = sa->root;\n    for (int i = 0; s[i]; i++) {\n        int idx = s[i] - 'a';\n        if (!node->next[idx]) {\n            return 0;\n        }\n        node = node->next[idx];\n    }\n    return 1;\n}\n\nvoid freeState(State* s) {\n    if (!s) return;\n    for (int i = 0; i < ALPHABET_SIZE; i++) {\n        freeState(s->next[i]);\n    }\n    free(s);\n}\n\nvoid freeAutomaton(SuffixAutomaton* sa) {\n    freeState(sa->root);\n    free(sa);\n}\n\nint main() {\n    SuffixAutomaton* automaton = createAutomaton();\n    const char* word = \"banana\";\n    for (int i = 0; word[i]; i++) {\n        extend(automaton, word[i]);\n    }\n    printf(\"Contains suffix \\\"ana\\\": %d\\n\", containsSuffix(automaton, \"ana\"));\n    printf(\"Contains suffix \\\"xyz\\\": %d\\n\", containsSuffix(automaton, \"xyz\"));\n    freeAutomaton(automaton);\n    return 0;\n}\n// Output: Contains suffix \"ana\": 1\n// Output: Contains suffix \"xyz\": 0",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass State {\n    public Dictionary<char, State> Next = new Dictionary<char, State>();\n    public int Length;\n    public State Link;\n}\n\nclass SuffixAutomaton {\n    private State root;\n    private State last;\n\n    public SuffixAutomaton() {\n        root = new State();\n        last = root;\n    }\n\n    public void Extend(char c) {\n        State curr = new State();\n        curr.Length = last.Length + 1;\n        State p = last;\n        while (p != null && !p.Next.ContainsKey(c)) {\n            p.Next[c] = curr;\n            p = p.Link;\n        }\n        if (p == null) {\n            curr.Link = root;\n        } else {\n            State q = p.Next[c];\n            if (p.Length + 1 == q.Length) {\n                curr.Link = q;\n            } else {\n                State clone = new State();\n                clone.Length = p.Length + 1;\n                clone.Next = new Dictionary<char, State>(q.Next);\n                clone.Link = q.Link;\n                q.Link = clone;\n                curr.Link = clone;\n                while (p != null && p.Next[c] == q) {\n                    p.Next[c] = clone;\n                    p = p.Link;\n                }\n            }\n        }\n        last = curr;\n    }\n\n    public bool ContainsSuffix(string s) {\n        State node = root;\n        foreach (char c in s) {\n            if (!node.Next.ContainsKey(c)) {\n                return false;\n            }\n            node = node.Next[c];\n        }\n        return true;\n    }\n}\n\nclass Program {\n    static void Main() {\n        SuffixAutomaton automaton = new SuffixAutomaton();\n        string word = \"banana\";\n        foreach (char c in word) {\n            automaton.Extend(c);\n        }\n        Console.WriteLine(\"Contains suffix \\\"ana\\\": \" + automaton.ContainsSuffix(\"ana\"));\n        Console.WriteLine(\"Contains suffix \\\"xyz\\\": \" + automaton.ContainsSuffix(\"xyz\"));\n    }\n}\n// Output: Contains suffix \"ana\": True\n// Output: Contains suffix \"xyz\": False",
+      "cpp": "#include <iostream>\n#include <unordered_map>\n#include <string>\n\nclass State {\npublic:\n    std::unordered_map<char, State*> next;\n    int length;\n    State* link;\n    State() : length(0), link(nullptr) {}\n};\n\nclass SuffixAutomaton {\nprivate:\n    State* root;\n    State* last;\n\npublic:\n    SuffixAutomaton() {\n        root = new State();\n        last = root;\n    }\n\n    void extend(char c) {\n        State* curr = new State();\n        curr->length = last->length + 1;\n        State* p = last;\n        while (p && p->next.find(c) == p->next.end()) {\n            p->next[c] = curr;\n            p = p->link;\n        }\n        if (!p) {\n            curr->link = root;\n        } else {\n            State* q = p->next[c];\n            if (p->length + 1 == q->length) {\n                curr->link = q;\n            } else {\n                State* clone = new State();\n                clone->length = p->length + 1;\n                clone->next = q->next;\n                clone->link = q->link;\n                q->link = clone;\n                curr->link = clone;\n                while (p && p->next[c] == q) {\n                    p->next[c] = clone;\n                    p = p->link;\n                }\n            }\n        }\n        last = curr;\n    }\n\n    bool containsSuffix(const std::string& s) {\n        State* node = root;\n        for (char c : s) {\n            if (node->next.find(c) == node->next.end()) {\n                return false;\n            }\n            node = node->next[c];\n        }\n        return true;\n    }\n\n    ~SuffixAutomaton() {\n        deleteState(root);\n    }\n\nprivate:\n    void deleteState(State* s) {\n        if (!s) return;\n        for (auto& pair : s->next) {\n            deleteState(pair.second);\n        }\n        delete s;\n    }\n};\n\nint main() {\n    SuffixAutomaton automaton;\n    std::string word = \"banana\";\n    for (char c : word) {\n        automaton.extend(c);\n    }\n    std::cout << \"Contains suffix \\\"ana\\\": \" << (automaton.containsSuffix(\"ana\") ? \"true\" : \"false\") << \"\\n\";\n    std::cout << \"Contains suffix \\\"xyz\\\": \" << (automaton.containsSuffix(\"xyz\") ? \"true\" : \"false\") << \"\\n\";\n    return 0;\n}\n// Output: Contains suffix \"ana\": true\n// Output: Contains suffix \"xyz\": false"
+    },
+    "description": "Overview of Suffix Automaton and its applications.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is a Suffix Automaton?"
+      },
+      {
+        "type": "paragraph",
+        "text": "A Suffix Automaton is a minimal deterministic finite automaton (DFA) that efficiently represents all suffixes of a given string. It enables fast substring searches and suffix-based queries. In the example above, a Suffix Automaton is built for 'banana', checking 'ana' as a suffix (returns true) and 'xyz' (returns false)."
+      },
+      {
+        "type": "heading",
+        "text": "Key Terminology"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "State: Represents a state in the automaton, holding transitions and suffix links."
+          },
+          { "description": "Root: The initial state of the automaton." },
+          {
+            "description": "Link: Suffix link pointing to the state representing the longest proper suffix (used as link above)."
+          },
+          {
+            "description": "Extend: Adds a new character to the automaton (shown in the extend function above)."
+          },
+          {
+            "description": "ContainsSuffix: Checks if a sequence is a suffix of the original string (shown in the contains_suffix function above)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Types of Suffix Automata"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Automata are primarily used in their standard form but have variations: 1) **Standard Suffix Automaton**: Represents all suffixes (as in the example). 2) **Compressed Suffix Automaton**: Optimized for reduced memory usage. 3) **Extended Suffix Automaton**: Supports additional functionality (e.g., palindromes)."
+      },
+      {
+        "type": "heading",
+        "text": "Why are Suffix Automata Needed?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Automata enable efficient string searches and suffix-based queries, making them essential for text processing, pattern matching, and data compression."
+      },
+      {
+        "type": "heading",
+        "text": "What Do Suffix Automata Help With?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Automata support various tasks: 1) **Pattern Matching**: Substring searches in text. 2) **Text Processing**: Suffix-based queries (e.g., longest common suffix). 3) **Data Compression**: Detecting repeated sequences. 4) **Bioinformatics**: Analyzing DNA sequences. The contains_suffix function in the example simulates pattern matching."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of Suffix Automata (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Building a Suffix Automaton takes O(n) time (n is the string length). Suffix search is O(m) (m is the length of the searched suffix). Space complexity is O(n). The example’s extend and contains_suffix operations are efficient."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "Advantage: Stores all suffixes in O(n) space." },
+          { "description": "Advantage: Fast suffix search (O(m))." },
+          {
+            "description": "Advantage: Ideal for pattern matching and text processing."
+          },
+          {
+            "description": "Disadvantage: Implementation is complex and hard to understand."
+          },
+          {
+            "description": "Disadvantage: Memory usage can be high for large strings."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real-Life Applications"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Automata are widely used: 1) **Text Search**: Pattern matching and substring search. 2) **Data Compression**: Identifying repeated sequences. 3) **Bioinformatics**: DNA sequence analysis. 4) **Dictionaries**: Fast suffix-based queries. The contains_suffix function in the example simulates text search."
+      },
+      {
+        "type": "heading",
+        "text": "Optimization Strategies"
+      },
+      {
+        "type": "paragraph",
+        "text": "To optimize Suffix Automata: 1) **Compression**: Use compressed automata for less memory. 2) **Caching**: Cache frequently searched suffixes. 3) **Alphabet Reduction**: Optimize character encoding. 4) **Memory Management**: Use dynamic memory allocation. 5) **Efficient Algorithms**: Optimize construction and search algorithms."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Key risks include: 1) **Complexity**: Implementation and understanding are challenging. 2) **Memory Usage**: Large strings may require significant memory. 3) **Performance**: Risk of slowdown with large datasets. Recommendations: 1) Start with simplified implementations. 2) Optimize memory usage. 3) Test code with large datasets."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Suffix Automaton",
+    "icon": "FiType",
+    "language": "multiple",
+    "codes": {
+      "python": "class State:\n    def __init__(self):\n        self.next = {}\n        self.length = 0\n        self.link = None\n\nclass SuffixAutomaton:\n    def __init__(self):\n        self.root = State()\n        self.last = self.root\n\n    def extend(self, c):\n        curr = State()\n        curr.length = self.last.length + 1\n        p = self.last\n        while p and c not in p.next:\n            p.next[c] = curr\n            p = p.link\n        if not p:\n            curr.link = self.root\n        else:\n            q = p.next[c]\n            if p.length + 1 == q.length:\n                curr.link = q\n            else:\n                clone = State()\n                clone.length = p.length + 1\n                clone.next = q.next.copy()\n                clone.link = q.link\n                q.link = clone\n                curr.link = clone\n                while p and p.next[c] == q:\n                    p.next[c] = clone\n                    p = p.link\n        self.last = curr\n\n    def contains_suffix(self, s):\n        node = self.root\n        for c in s:\n            if c not in node.next:\n                return False\n            node = node.next[c]\n        return True\n\n# Example: Suffix Automaton operations\nautomaton = SuffixAutomaton()\nword = 'banana'\nfor c in word:\n    automaton.extend(c)\nprint('Contains suffix \"ana\":', automaton.contains_suffix('ana'))\nprint('Contains suffix \"xyz\":', automaton.contains_suffix('xyz'))\n# Output: Contains suffix \"ana\": True\n# Output: Contains suffix \"xyz\": False",
+      "javascript": "class State {\n    constructor() {\n        this.next = {};\n        this.length = 0;\n        this.link = null;\n    }\n}\n\nclass SuffixAutomaton {\n    constructor() {\n        this.root = new State();\n        this.last = this.root;\n    }\n\n    extend(c) {\n        let curr = new State();\n        curr.length = this.last.length + 1;\n        let p = this.last;\n        while (p && !(c in p.next)) {\n            p.next[c] = curr;\n            p = p.link;\n        }\n        if (!p) {\n            curr.link = this.root;\n        } else {\n            let q = p.next[c];\n            if (p.length + 1 === q.length) {\n                curr.link = q;\n            } else {\n                let clone = new State();\n                clone.length = p.length + 1;\n                clone.next = { ...q.next };\n                clone.link = q.link;\n                q.link = clone;\n                curr.link = clone;\n                while (p && p.next[c] === q) {\n                    p.next[c] = clone;\n                    p = p.link;\n                }\n            }\n        }\n        this.last = curr;\n    }\n\n    containsSuffix(s) {\n        let node = this.root;\n        for (let c of s) {\n            if (!(c in node.next)) {\n                return false;\n            }\n            node = node.next[c];\n        }\n        return true;\n    }\n}\n\n// Example: Suffix Automaton operations\nconst automaton = new SuffixAutomaton();\nconst word = 'banana';\nfor (let c of word) {\n    automaton.extend(c);\n}\nconsole.log('Contains suffix \"ana\":', automaton.containsSuffix('ana'));\nconsole.log('Contains suffix \"xyz\":', automaton.containsSuffix('xyz'));\n// Output: Contains suffix \"ana\": true\n// Output: Contains suffix \"xyz\": false",
+      "typescript": "class State {\n    next: { [key: string]: State } = {};\n    length: number = 0;\n    link: State | null = null;\n}\n\nclass SuffixAutomaton {\n    private root: State;\n    private last: State;\n\n    constructor() {\n        this.root = new State();\n        this.last = this.root;\n    }\n\n    extend(c: string): void {\n        let curr = new State();\n        curr.length = this.last.length + 1;\n        let p: State | null = this.last;\n        while (p && !(c in p.next)) {\n            p.next[c] = curr;\n            p = p.link;\n        }\n        if (!p) {\n            curr.link = this.root;\n        } else {\n            let q = p.next[c];\n            if (p.length + 1 === q.length) {\n                curr.link = q;\n            } else {\n                let clone = new State();\n                clone.length = p.length + 1;\n                clone.next = { ...q.next };\n                clone.link = q.link;\n                q.link = clone;\n                curr.link = clone;\n                while (p && p.next[c] === q) {\n                    p.next[c] = clone;\n                    p = p.link;\n                }\n            }\n        }\n        this.last = curr;\n    }\n\n    containsSuffix(s: string): boolean {\n        let node = this.root;\n        for (let c of s) {\n            if (!(c in node.next)) {\n                return false;\n            }\n            node = node.next[c];\n        }\n        return true;\n    }\n}\n\n// Example: Suffix Automaton operations\nconst automaton = new SuffixAutomaton();\nconst word = 'banana';\nfor (let c of word) {\n    automaton.extend(c);\n}\nconsole.log('Contains suffix \"ana\":', automaton.containsSuffix('ana'));\nconsole.log('Contains suffix \"xyz\":', automaton.containsSuffix('xyz'));\n// Output: Contains suffix \"ana\": true\n// Output: Contains suffix \"xyz\": false",
+      "java": "import java.util.HashMap;\n\nclass State {\n    HashMap<Character, State> next = new HashMap<>();\n    int length;\n    State link;\n}\n\nclass SuffixAutomaton {\n    private State root;\n    private State last;\n\n    public SuffixAutomaton() {\n        root = new State();\n        last = root;\n    }\n\n    public void extend(char c) {\n        State curr = new State();\n        curr.length = last.length + 1;\n        State p = last;\n        while (p != null && !p.next.containsKey(c)) {\n            p.next.put(c, curr);\n            p = p.link;\n        }\n        if (p == null) {\n            curr.link = root;\n        } else {\n            State q = p.next.get(c);\n            if (p.length + 1 == q.length) {\n                curr.link = q;\n            } else {\n                State clone = new State();\n                clone.length = p.length + 1;\n                clone.next = new HashMap<>(q.next);\n                clone.link = q.link;\n                q.link = clone;\n                curr.link = clone;\n                while (p != null && p.next.get(c) == q) {\n                    p.next.put(c, clone);\n                    p = p.link;\n                }\n            }\n        }\n        last = curr;\n    }\n\n    public boolean containsSuffix(String s) {\n        State node = root;\n        for (char c : s.toCharArray()) {\n            if (!node.next.containsKey(c)) {\n                return false;\n            }\n            node = node.next.get(c);\n        }\n        return true;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        SuffixAutomaton automaton = new SuffixAutomaton();\n        String word = \"banana\";\n        for (char c : word.toCharArray()) {\n            automaton.extend(c);\n        }\n        System.out.println(\"Contains suffix \\\"ana\\\": \" + automaton.containsSuffix(\"ana\"));\n        System.out.println(\"Contains suffix \\\"xyz\\\": \" + automaton.containsSuffix(\"xyz\"));\n    }\n}\n// Output: Contains suffix \"ana\": true\n// Output: Contains suffix \"xyz\": false",
+      "php": "<?php\n\nclass State {\n    public $next = [];\n    public $length = 0;\n    public $link = null;\n}\n\nclass SuffixAutomaton {\n    private $root;\n    private $last;\n\n    public function __construct() {\n        $this->root = new State();\n        $this->last = $this->root;\n    }\n\n    public function extend($c) {\n        $curr = new State();\n        $curr->length = $this->last->length + 1;\n        $p = $this->last;\n        while ($p && !isset($p->next[$c])) {\n            $p->next[$c] = $curr;\n            $p = $p->link;\n        }\n        if (!$p) {\n            $curr->link = $this->root;\n        } else {\n            $q = $p->next[$c];\n            if ($p->length + 1 == $q->length) {\n                $curr->link = $q;\n            } else {\n                $clone = new State();\n                $clone->length = $p->length + 1;\n                $clone->next = $q->next;\n                $clone->link = $q->link;\n                $q->link = $clone;\n                $curr->link = $clone;\n                while ($p && $p->next[$c] === $q) {\n                    $p->next[$c] = $clone;\n                    $p = $p->link;\n                }\n            }\n        }\n        $this->last = $curr;\n    }\n\n    public function containsSuffix($s) {\n        $node = $this->root;\n        foreach (str_split($s) as $c) {\n            if (!isset($node->next[$c])) {\n                return false;\n            }\n            $node = $node->next[$c];\n        }\n        return true;\n    }\n}\n\n// Example: Suffix Automaton operations\n$automaton = new SuffixAutomaton();\n$word = 'banana';\nforeach (str_split($word) as $c) {\n    $automaton->extend($c);\n}\necho 'Contains suffix \"ana\": ' . ($automaton->containsSuffix('ana') ? 'true' : 'false') . '\\n';\necho 'Contains suffix \"xyz\": ' . ($automaton->containsSuffix('xyz') ? 'true' : 'false') . '\\n';\n// Output: Contains suffix \"ana\": true\n// Output: Contains suffix \"xyz\": false",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n#define ALPHABET_SIZE 26\n\ntypedef struct State {\n    struct State* next[ALPHABET_SIZE];\n    int length;\n    struct State* link;\n} State;\n\ntypedef struct SuffixAutomaton {\n    State* root;\n    State* last;\n} SuffixAutomaton;\n\nState* createState() {\n    State* s = (State*)malloc(sizeof(State));\n    s->length = 0;\n    s->link = NULL;\n    for (int i = 0; i < ALPHABET_SIZE; i++) {\n        s->next[i] = NULL;\n    }\n    return s;\n}\n\nSuffixAutomaton* createAutomaton() {\n    SuffixAutomaton* sa = (SuffixAutomaton*)malloc(sizeof(SuffixAutomaton));\n    sa->root = createState();\n    sa->last = sa->root;\n    return sa;\n}\n\nvoid extend(SuffixAutomaton* sa, char c) {\n    State* curr = createState();\n    curr->length = sa->last->length + 1;\n    State* p = sa->last;\n    int idx = c - 'a';\n    while (p && !p->next[idx]) {\n        p->next[idx] = curr;\n        p = p->link;\n    }\n    if (!p) {\n        curr->link = sa->root;\n    } else {\n        State* q = p->next[idx];\n        if (p->length + 1 == q->length) {\n            curr->link = q;\n        } else {\n            State* clone = createState();\n            clone->length = p->length + 1;\n            for (int i = 0; i < ALPHABET_SIZE; i++) {\n                clone->next[i] = q->next[i];\n            }\n            clone->link = q->link;\n            q->link = clone;\n            curr->link = clone;\n            while (p && p->next[idx] == q) {\n                p->next[idx] = clone;\n                p = p->link;\n            }\n        }\n    }\n    sa->last = curr;\n}\n\nint containsSuffix(SuffixAutomaton* sa, const char* s) {\n    State* node = sa->root;\n    for (int i = 0; s[i]; i++) {\n        int idx = s[i] - 'a';\n        if (!node->next[idx]) {\n            return 0;\n        }\n        node = node->next[idx];\n    }\n    return 1;\n}\n\nvoid freeState(State* s) {\n    if (!s) return;\n    for (int i = 0; i < ALPHABET_SIZE; i++) {\n        freeState(s->next[i]);\n    }\n    free(s);\n}\n\nvoid freeAutomaton(SuffixAutomaton* sa) {\n    freeState(sa->root);\n    free(sa);\n}\n\nint main() {\n    SuffixAutomaton* automaton = createAutomaton();\n    const char* word = \"banana\";\n    for (int i = 0; word[i]; i++) {\n        extend(automaton, word[i]);\n    }\n    printf(\"Contains suffix \\\"ana\\\": %d\\n\", containsSuffix(automaton, \"ana\"));\n    printf(\"Contains suffix \\\"xyz\\\": %d\\n\", containsSuffix(automaton, \"xyz\"));\n    freeAutomaton(automaton);\n    return 0;\n}\n// Output: Contains suffix \"ana\": 1\n// Output: Contains suffix \"xyz\": 0",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass State {\n    public Dictionary<char, State> Next = new Dictionary<char, State>();\n    public int Length;\n    public State Link;\n}\n\nclass SuffixAutomaton {\n    private State root;\n    private State last;\n\n    public SuffixAutomaton() {\n        root = new State();\n        last = root;\n    }\n\n    public void Extend(char c) {\n        State curr = new State();\n        curr.Length = last.Length + 1;\n        State p = last;\n        while (p != null && !p.Next.ContainsKey(c)) {\n            p.Next[c] = curr;\n            p = p.Link;\n        }\n        if (p == null) {\n            curr.Link = root;\n        } else {\n            State q = p.Next[c];\n            if (p.Length + 1 == q.Length) {\n                curr.Link = q;\n            } else {\n                State clone = new State();\n                clone.Length = p.Length + 1;\n                clone.Next = new Dictionary<char, State>(q.Next);\n                clone.Link = q.Link;\n                q.Link = clone;\n                curr.Link = clone;\n                while (p != null && p.Next[c] == q) {\n                    p.Next[c] = clone;\n                    p = p.Link;\n                }\n            }\n        }\n        last = curr;\n    }\n\n    public bool ContainsSuffix(string s) {\n        State node = root;\n        foreach (char c in s) {\n            if (!node.Next.ContainsKey(c)) {\n                return false;\n            }\n            node = node.Next[c];\n        }\n        return true;\n    }\n}\n\nclass Program {\n    static void Main() {\n        SuffixAutomaton automaton = new SuffixAutomaton();\n        string word = \"banana\";\n        foreach (char c in word) {\n            automaton.Extend(c);\n        }\n        Console.WriteLine(\"Contains suffix \\\"ana\\\": \" + automaton.ContainsSuffix(\"ana\"));\n        Console.WriteLine(\"Contains suffix \\\"xyz\\\": \" + automaton.ContainsSuffix(\"xyz\"));\n    }\n}\n// Output: Contains suffix \"ana\": True\n// Output: Contains suffix \"xyz\": False",
+      "cpp": "#include <iostream>\n#include <unordered_map>\n#include <string>\n\nclass State {\npublic:\n    std::unordered_map<char, State*> next;\n    int length;\n    State* link;\n    State() : length(0), link(nullptr) {}\n};\n\nclass SuffixAutomaton {\nprivate:\n    State* root;\n    State* last;\n\npublic:\n    SuffixAutomaton() {\n        root = new State();\n        last = root;\n    }\n\n    void extend(char c) {\n        State* curr = new State();\n        curr->length = last->length + 1;\n        State* p = last;\n        while (p && p->next.find(c) == p->next.end()) {\n            p->next[c] = curr;\n            p = p->link;\n        }\n        if (!p) {\n            curr->link = root;\n        } else {\n            State* q = p->next[c];\n            if (p->length + 1 == q->length) {\n                curr->link = q;\n            } else {\n                State* clone = new State();\n                clone->length = p->length + 1;\n                clone->next = q->next;\n                clone->link = q->link;\n                q->link = clone;\n                curr->link = clone;\n                while (p && p->next[c] == q) {\n                    p->next[c] = clone;\n                    p = p->link;\n                }\n            }\n        }\n        last = curr;\n    }\n\n    bool containsSuffix(const std::string& s) {\n        State* node = root;\n        for (char c : s) {\n            if (node->next.find(c) == node->next.end()) {\n                return false;\n            }\n            node = node->next[c];\n        }\n        return true;\n    }\n\n    ~SuffixAutomaton() {\n        deleteState(root);\n    }\n\nprivate:\n    void deleteState(State* s) {\n        if (!s) return;\n        for (auto& pair : s->next) {\n            deleteState(pair.second);\n        }\n        delete s;\n    }\n};\n\nint main() {\n    SuffixAutomaton automaton;\n    std::string word = \"banana\";\n    for (char c : word) {\n        automaton.extend(c);\n    }\n    std::cout << \"Contains suffix \\\"ana\\\": \" << (automaton.containsSuffix(\"ana\") ? \"true\" : \"false\") << \"\\n\";\n    std::cout << \"Contains suffix \\\"xyz\\\": \" << (automaton.containsSuffix(\"xyz\") ? \"true\" : \"false\") << \"\\n\";\n    return 0;\n}\n// Output: Contains suffix \"ana\": true\n// Output: Contains suffix \"xyz\": false"
+    },
+    "description": "Обзор суффиксного автомата и его применений.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Suffix Automaton?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Automaton (Суффиксный автомат) — это минимальный детерминированный конечный автомат (DFA), который эффективно представляет все суффиксы заданной строки. Он обеспечивает быстрый поиск подстрок и суффиксные запросы. В примере выше строится Suffix Automaton для строки 'banana', проверяется суффикс 'ana' (возвращает true) и 'xyz' (возвращает false)."
+      },
+      {
+        "type": "heading",
+        "text": "Основные термины"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Состояние (State): Представляет состояние автомата, содержит переходы и суффиксные ссылки."
+          },
+          { "description": "Корень (Root): Начальное состояние автомата." },
+          {
+            "description": "Ссылка (Link): Суффиксная ссылка, указывающая на состояние с самым длинным собственным суффиксом (используется как link выше)."
+          },
+          {
+            "description": "Extend: Добавление нового символа в автомат (показано в функции extend выше)."
+          },
+          {
+            "description": "ContainsSuffix: Проверка, является ли последовательность суффиксом исходной строки (показано в функции contains_suffix выше)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Типы суффиксных автоматов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Суффиксные автоматы в основном используются в стандартной форме, но имеют вариации: 1) **Стандартный Suffix Automaton**: Представляет все суффиксы (как в примере). 2) **Сжатый Suffix Automaton**: Оптимизирован для меньшего использования памяти. 3) **Расширенный Suffix Automaton**: Поддерживает дополнительные функции (например, палиндромы)."
+      },
+      {
+        "type": "heading",
+        "text": "Зачем нужны суффиксные автоматы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Суффиксные автоматы обеспечивают эффективный поиск строк и суффиксные запросы, что делает их необходимыми для обработки текста, поиска узоров и сжатия данных."
+      },
+      {
+        "type": "heading",
+        "text": "Для чего помогают суффиксные автоматы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Суффиксные автоматы поддерживают множество задач: 1) **Поиск узоров**: Поиск подстрок в тексте. 2) **Обработка текста**: Суффиксные запросы (например, самый длинный общий суффикс). 3) **Сжатие данных**: Обнаружение повторяющихся последовательностей. 4) **Биоинформатика**: Анализ последовательностей ДНК. Функция contains_suffix в примере имитирует поиск узоров."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность суффиксных автоматов (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Построение суффиксного автомата занимает O(n) времени (n — длина строки). Поиск суффикса — O(m) (m — длина искомого суффикса). Пространственная сложность — O(n). В примере операции extend и contains_suffix работают эффективно."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "Преимущество: Хранит все суффиксы в O(n) памяти." },
+          { "description": "Преимущество: Быстрый поиск суффиксов (O(m))." },
+          {
+            "description": "Преимущество: Идеально для поиска узоров и обработки текста."
+          },
+          {
+            "description": "Недостаток: Реализация сложна и трудна для понимания."
+          },
+          {
+            "description": "Недостаток: Использование памяти может быть высоким для больших строк."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Применение в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Суффиксные автоматы широко используются: 1) **Поиск текста**: Поиск узоров и подстрок. 2) **Сжатие данных**: Обнаружение повторяющихся последовательностей. 3) **Биоинформатика**: Анализ последовательностей ДНК. 4) **Словари**: Быстрые суффиксные запросы. Функция contains_suffix в примере имитирует поиск текста."
+      },
+      {
+        "type": "heading",
+        "text": "Стратегии оптимизации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для оптимизации суффиксных автоматов: 1) **Сжатие**: Используйте сжатые автоматы для меньшего использования памяти. 2) **Кэширование**: Кэшируйте часто запрашиваемые суффиксы. 3) **Уменьшение алфавита**: Оптимизируйте кодирование символов. 4) **Управление памятью**: Используйте динамическое выделение памяти. 5) **Эффективные алгоритмы**: Оптимизируйте алгоритмы построения и поиска."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основные риски включают: 1) **Сложность**: Реализация и понимание сложны. 2) **Использование памяти**: Большие строки могут требовать много памяти. 3) **Производительность**: Риск замедления при больших данных. Рекомендации: 1) Начинайте с упрощённых реализаций. 2) Оптимизируйте использование памяти. 3) Тестируйте код с большими данными."
+      }
+    ]
+  }
+}

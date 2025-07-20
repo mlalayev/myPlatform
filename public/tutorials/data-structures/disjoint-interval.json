@@ -1,0 +1,387 @@
+{
+  "id": "disjoint-interval",
+  "az": {
+    "title": "Disjoint Interval Structures",
+    "icon": "FiLink2",
+    "language": "multiple",
+    "codes": {
+      "python": "class Interval:\n    def __init__(self, low, high):\n        self.low = low\n        self.high = high\n\nclass Node:\n    def __init__(self, interval):\n        self.interval = interval\n        self.max_high = interval.high\n        self.left = None\n        self.right = None\n\nclass IntervalTree:\n    def __init__(self):\n        self.root = None\n\n    def insert(self, interval):\n        self.root = self._insert(self.root, interval)\n\n    def _insert(self, node, interval):\n        if not node:\n            return Node(interval)\n        if interval.low < node.interval.low:\n            node.left = self._insert(node.left, interval)\n        else:\n            node.right = self._insert(node.right, interval)\n        node.max_high = max(node.max_high, interval.high)\n        return node\n\n    def overlap_search(self, interval):\n        result = []\n        self._overlap_search(self.root, interval, result)\n        return result\n\n    def _overlap_search(self, node, interval, result):\n        if not node:\n            return\n        if (node.interval.low <= interval.high and interval.low <= node.interval.high):\n            result.append(node.interval)\n        if node.left and node.left.max_high >= interval.low:\n            self._overlap_search(node.left, interval, result)\n        if node.right and node.max_high >= interval.low:\n            self._overlap_search(node.right, interval, result)\n\n# Example: Interval Tree operations\ntree = IntervalTree()\nintervals = [(1, 5), (2, 6), (3, 7), (8, 10)]\nfor low, high in intervals:\n    tree.insert(Interval(low, high))\noverlaps = tree.overlap_search(Interval(4, 8))\nprint('Overlapping intervals with (4, 8):', [(i.low, i.high) for i in overlaps])\n# Output: Overlapping intervals with (4, 8): [(1, 5), (2, 6), (3, 7)]",
+      "javascript": "class Interval {\n    constructor(low, high) {\n        this.low = low;\n        this.high = high;\n    }\n}\n\nclass Node {\n    constructor(interval) {\n        this.interval = interval;\n        this.maxHigh = interval.high;\n        this.left = null;\n        this.right = null;\n    }\n}\n\nclass IntervalTree {\n    constructor() {\n        this.root = null;\n    }\n\n    insert(interval) {\n        this.root = this._insert(this.root, interval);\n    }\n\n    _insert(node, interval) {\n        if (!node) {\n            return new Node(interval);\n        }\n        if (interval.low < node.interval.low) {\n            node.left = this._insert(node.left, interval);\n        } else {\n            node.right = this._insert(node.right, interval);\n        }\n        node.maxHigh = Math.max(node.maxHigh, interval.high);\n        return node;\n    }\n\n    overlapSearch(interval) {\n        const result = [];\n        this._overlapSearch(this.root, interval, result);\n        return result;\n    }\n\n    _overlapSearch(node, interval, result) {\n        if (!node) return;\n        if (node.interval.low <= interval.high && interval.low <= node.interval.high) {\n            result.push(node.interval);\n        }\n        if (node.left && node.left.maxHigh >= interval.low) {\n            this._overlapSearch(node.left, interval, result);\n        }\n        if (node.right && node.maxHigh >= interval.low) {\n            this._overlapSearch(node.right, interval, result);\n        }\n    }\n}\n\n// Example: Interval Tree operations\nconst tree = new IntervalTree();\nconst intervals = [[1, 5], [2, 6], [3, 7], [8, 10]];\nintervals.forEach(([low, high]) => tree.insert(new Interval(low, high)));\nconst overlaps = tree.overlapSearch(new Interval(4, 8));\nconsole.log('Overlapping intervals with (4, 8):', overlaps.map(i => [i.low, i.high]));\n// Output: Overlapping intervals with (4, 8): [[1, 5], [2, 6], [3, 7]]",
+      "typescript": "interface Interval {\n    low: number;\n    high: number;\n}\n\nclass Node {\n    interval: Interval;\n    maxHigh: number;\n    left: Node | null;\n    right: Node | null;\n\n    constructor(interval: Interval) {\n        this.interval = interval;\n        this.maxHigh = interval.high;\n        this.left = null;\n        this.right = null;\n    }\n}\n\nclass IntervalTree {\n    private root: Node | null = null;\n\n    insert(interval: Interval): void {\n        this.root = this._insert(this.root, interval);\n    }\n\n    private _insert(node: Node | null, interval: Interval): Node {\n        if (!node) {\n            return new Node(interval);\n        }\n        if (interval.low < node.interval.low) {\n            node.left = this._insert(node.left, interval);\n        } else {\n            node.right = this._insert(node.right, interval);\n        }\n        node.maxHigh = Math.max(node.maxHigh, interval.high);\n        return node;\n    }\n\n    overlapSearch(interval: Interval): Interval[] {\n        const result: Interval[] = [];\n        this._overlapSearch(this.root, interval, result);\n        return result;\n    }\n\n    private _overlapSearch(node: Node | null, interval: Interval, result: Interval[]): void {\n        if (!node) return;\n        if (node.interval.low <= interval.high && interval.low <= node.interval.high) {\n            result.push(node.interval);\n        }\n        if (node.left && node.left.maxHigh >= interval.low) {\n            this._overlapSearch(node.left, interval, result);\n        }\n        if (node.right && node.maxHigh >= interval.low) {\n            this._overlapSearch(node.right, interval, result);\n        }\n    }\n}\n\n// Example: Interval Tree operations\nconst tree = new IntervalTree();\nconst intervals: [number, number][] = [[1, 5], [2, 6], [3, 7], [8, 10]];\nintervals.forEach(([low, high]) => tree.insert({ low, high }));\nconst overlaps = tree.overlapSearch({ low: 4, high: 8 });\nconsole.log('Overlapping intervals with (4, 8):', overlaps.map(i => [i.low, i.high]));\n// Output: Overlapping intervals with (4, 8): [[1, 5], [2, 6], [3, 7]]",
+      "java": "class Interval {\n    int low, high;\n    Interval(int low, int high) {\n        this.low = low;\n        this.high = high;\n    }\n}\n\nclass Node {\n    Interval interval;\n    int maxHigh;\n    Node left, right;\n\n    Node(Interval interval) {\n        this.interval = interval;\n        this.maxHigh = interval.high;\n        this.left = null;\n        this.right = null;\n    }\n}\n\nclass IntervalTree {\n    private Node root;\n\n    void insert(Interval interval) {\n        root = insert(root, interval);\n    }\n\n    private Node insert(Node node, Interval interval) {\n        if (node == null) {\n            return new Node(interval);\n        }\n        if (interval.low < node.interval.low) {\n            node.left = insert(node.left, interval);\n        } else {\n            node.right = insert(node.right, interval);\n        }\n        node.maxHigh = Math.max(node.maxHigh, interval.high);\n        return node;\n    }\n\n    java.util.List<Interval> overlapSearch(Interval interval) {\n        java.util.List<Interval> result = new java.util.ArrayList<>();\n        overlapSearch(root, interval, result);\n        return result;\n    }\n\n    private void overlapSearch(Node node, Interval interval, java.util.List<Interval> result) {\n        if (node == null) return;\n        if (node.interval.low <= interval.high && interval.low <= node.interval.high) {\n            result.add(node.interval);\n        }\n        if (node.left != null && node.left.maxHigh >= interval.low) {\n            overlapSearch(node.left, interval, result);\n        }\n        if (node.right != null && node.maxHigh >= interval.low) {\n            overlapSearch(node.right, interval, result);\n        }\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        IntervalTree tree = new IntervalTree();\n        int[][] intervals = {{1, 5}, {2, 6}, {3, 7}, {8, 10}};\n        for (int[] interval : intervals) {\n            tree.insert(new Interval(interval[0], interval[1]));\n        }\n        java.util.List<Interval> overlaps = tree.overlapSearch(new Interval(4, 8));\n        System.out.print(\"Overlapping intervals with (4, 8): \");\n        for (Interval i : overlaps) {\n            System.out.print(\"(\" + i.low + \", \" + i.high + \") \");\n        }\n        System.out.println();\n    }\n}\n// Output: Overlapping intervals with (4, 8): (1, 5) (2, 6) (3, 7)",
+      "php": "<?php\n\nclass Interval {\n    public $low, $high;\n    public function __construct($low, $high) {\n        $this->low = $low;\n        $this->high = $high;\n    }\n}\n\nclass Node {\n    public $interval, $maxHigh, $left, $right;\n    public function __construct($interval) {\n        $this->interval = $interval;\n        $this->maxHigh = $interval->high;\n        $this->left = null;\n        $this->right = null;\n    }\n}\n\nclass IntervalTree {\n    private $root = null;\n\n    public function insert($interval) {\n        $this->root = $this->_insert($this->root, $interval);\n    }\n\n    private function _insert($node, $interval) {\n        if (!$node) {\n            return new Node($interval);\n        }\n        if ($interval->low < $node->interval->low) {\n            $node->left = $this->_insert($node->left, $interval);\n        } else {\n            $node->right = $this->_insert($node->right, $interval);\n        }\n        $node->maxHigh = max($node->maxHigh, $interval->high);\n        return $node;\n    }\n\n    public function overlapSearch($interval) {\n        $result = [];\n        $this->_overlapSearch($this->root, $interval, $result);\n        return $result;\n    }\n\n    private function _overlapSearch($node, $interval, &$result) {\n        if (!$node) return;\n        if ($node->interval->low <= $interval->high && $interval->low <= $node->interval->high) {\n            $result[] = $node->interval;\n        }\n        if ($node->left && $node->left->maxHigh >= $interval->low) {\n            $this->_overlapSearch($node->left, $interval, $result);\n        }\n        if ($node->right && $node->maxHigh >= $interval->low) {\n            $this->_overlapSearch($node->right, $interval, $result);\n        }\n    }\n}\n\n// Example: Interval Tree operations\n$tree = new IntervalTree();\n$intervals = [[1, 5], [2, 6], [3, 7], [8, 10]];\nforeach ($intervals as $interval) {\n    $tree->insert(new Interval($interval[0], $interval[1]));\n}\n$overlaps = $tree->overlapSearch(new Interval(4, 8));\necho \"Overlapping intervals with (4, 8): \";\nforeach ($overlaps as $i) {\n    echo \"($i->low, $i->high) \";\n}\necho \"\\n\";\n// Output: Overlapping intervals with (4, 8): (1, 5) (2, 6) (3, 7)",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Interval {\n    int low, high;\n} Interval;\n\ntypedef struct Node {\n    Interval interval;\n    int maxHigh;\n    struct Node *left, *right;\n} Node;\n\ntypedef struct IntervalTree {\n    Node* root;\n} IntervalTree;\n\nNode* createNode(Interval interval) {\n    Node* node = (Node*)malloc(sizeof(Node));\n    node->interval = interval;\n    node->maxHigh = interval.high;\n    node->left = node->right = NULL;\n    return node;\n}\n\nIntervalTree* createIntervalTree() {\n    IntervalTree* tree = (IntervalTree*)malloc(sizeof(IntervalTree));\n    tree->root = NULL;\n    return tree;\n}\n\nNode* insert(Node* node, Interval interval) {\n    if (!node) {\n        return createNode(interval);\n    }\n    if (interval.low < node->interval.low) {\n        node->left = insert(node->left, interval);\n    } else {\n        node->right = insert(node->right, interval);\n    }\n    if (node->maxHigh < interval.high) {\n        node->maxHigh = interval.high;\n    }\n    return node;\n}\n\nvoid insertInterval(IntervalTree* tree, Interval interval) {\n    tree->root = insert(tree->root, interval);\n}\n\nvoid overlapSearch(Node* node, Interval interval, Interval** result, int* size) {\n    if (!node) return;\n    if (node->interval.low <= interval.high && interval.low <= node->interval.high) {\n        result[*size] = &node->interval;\n        (*size)++;\n    }\n    if (node->left && node->left->maxHigh >= interval.low) {\n        overlapSearch(node->left, interval, result, size);\n    }\n    if (node->right && node->maxHigh >= interval.low) {\n        overlapSearch(node->right, interval, result, size);\n    }\n}\n\nvoid freeTree(Node* node) {\n    if (!node) return;\n    freeTree(node->left);\n    freeTree(node->right);\n    free(node);\n}\n\nint main() {\n    IntervalTree* tree = createIntervalTree();\n    Interval intervals[] = {{1, 5}, {2, 6}, {3, 7}, {8, 10}};\n    for (int i = 0; i < 4; i++) {\n        insertInterval(tree, intervals[i]);\n    }\n    Interval query = {4, 8};\n    Interval* result[10];\n    int size = 0;\n    overlapSearch(tree->root, query, result, &size);\n    printf(\"Overlapping intervals with (4, 8): \");\n    for (int i = 0; i < size; i++) {\n        printf(\"(%d, %d) \", result[i]->low, result[i]->high);\n    }\n    printf(\"\\n\");\n    freeTree(tree->root);\n    free(tree);\n    return 0;\n}\n// Output: Overlapping intervals with (4, 8): (1, 5) (2, 6) (3, 7)",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\npublic class Interval {\n    public int Low, High;\n    public Interval(int low, int high) {\n        Low = low;\n        High = high;\n    }\n}\n\npublic class Node {\n    public Interval Interval;\n    public int MaxHigh;\n    public Node Left, Right;\n\n    public Node(Interval interval) {\n        Interval = interval;\n        MaxHigh = interval.High;\n        Left = Right = null;\n    }\n}\n\npublic class IntervalTree {\n    private Node root;\n\n    public void Insert(Interval interval) {\n        root = Insert(root, interval);\n    }\n\n    private Node Insert(Node node, Interval interval) {\n        if (node == null) {\n            return new Node(interval);\n        }\n        if (interval.Low < node.Interval.Low) {\n            node.Left = Insert(node.Left, interval);\n        } else {\n            node.Right = Insert(node.Right, interval);\n        }\n        node.MaxHigh = Math.Max(node.MaxHigh, interval.High);\n        return node;\n    }\n\n    public List<Interval> OverlapSearch(Interval interval) {\n        var result = new List<Interval>();\n        OverlapSearch(root, interval, result);\n        return result;\n    }\n\n    private void OverlapSearch(Node node, Interval interval, List<Interval> result) {\n        if (node == null) return;\n        if (node.Interval.Low <= interval.High && interval.Low <= node.Interval.High) {\n            result.Add(node.Interval);\n        }\n        if (node.Left != null && node.Left.MaxHigh >= interval.Low) {\n            OverlapSearch(node.Left, interval, result);\n        }\n        if (node.Right != null && node.MaxHigh >= interval.Low) {\n            OverlapSearch(node.Right, interval, result);\n        }\n    }\n}\n\nclass Program {\n    static void Main() {\n        IntervalTree tree = new IntervalTree();\n        var intervals = new (int, int)[] { (1, 5), (2, 6), (3, 7), (8, 10) };\n        foreach (var (low, high) in intervals) {\n            tree.Insert(new Interval(low, high));\n        }\n        var overlaps = tree.OverlapSearch(new Interval(4, 8));\n        Console.Write(\"Overlapping intervals with (4, 8): \");\n        foreach (var i in overlaps) {\n            Console.Write($\"({i.Low}, {i.High}) \");\n        }\n        Console.WriteLine();\n    }\n}\n// Output: Overlapping intervals with (4, 8): (1, 5) (2, 6) (3, 7)",
+      "cpp": "#include <iostream>\n#include <vector>\n\nstruct Interval {\n    int low, high;\n    Interval(int low, int high) : low(low), high(high) {}\n};\n\nclass Node {\npublic:\n    Interval interval;\n    int maxHigh;\n    Node *left, *right;\n\n    Node(Interval interval) : interval(interval), maxHigh(interval.high), left(nullptr), right(nullptr) {}\n};\n\nclass IntervalTree {\nprivate:\n    Node* root = nullptr;\n\n    Node* insert(Node* node, Interval interval) {\n        if (!node) {\n            return new Node(interval);\n        }\n        if (interval.low < node->interval.low) {\n            node->left = insert(node->left, interval);\n        } else {\n            node->right = insert(node->right, interval);\n        }\n        node->maxHigh = std::max(node->maxHigh, interval.high);\n        return node;\n    }\n\n    void overlapSearch(Node* node, Interval interval, std::vector<Interval>& result) {\n        if (!node) return;\n        if (node->interval.low <= interval.high && interval.low <= node->interval.high) {\n            result.push_back(node->interval);\n        }\n        if (node->left && node->left->maxHigh >= interval.low) {\n            overlapSearch(node->left, interval, result);\n        }\n        if (node->right && node->maxHigh >= interval.low) {\n            overlapSearch(node->right, interval, result);\n        }\n    }\n\n    void freeTree(Node* node) {\n        if (!node) return;\n        freeTree(node->left);\n        freeTree(node->right);\n        delete node;\n    }\n\npublic:\n    void insert(Interval interval) {\n        root = insert(root, interval);\n    }\n\n    std::vector<Interval> overlapSearch(Interval interval) {\n        std::vector<Interval> result;\n        overlapSearch(root, interval, result);\n        return result;\n    }\n\n    ~IntervalTree() {\n        freeTree(root);\n    }\n};\n\nint main() {\n    IntervalTree tree;\n    std::vector<Interval> intervals = {{1, 5}, {2, 6}, {3, 7}, {8, 10}};\n    for (const auto& interval : intervals) {\n        tree.insert(interval);\n    }\n    auto overlaps = tree.overlapSearch(Interval(4, 8));\n    std::cout << \"Overlapping intervals with (4, 8): \";\n    for (const auto& i : overlaps) {\n        std::cout << \"(\" << i.low << \", \" << i.high << \") \";\n    }\n    std::cout << \"\\n\";\n    return 0;\n}\n// Output: Overlapping intervals with (4, 8): (1, 5) (2, 6) (3, 7)"
+    },
+    "description": "Interval ağacları və seqment ağacları haqqında ümumi məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Disjoint Interval Structures nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Disjoint Interval Structures intervalların effektiv idarə edilməsi üçün istifadə olunan məlumat strukturlarıdır, əsasən Interval Tree və Segment Tree kimi strukturları əhatə edir. Interval Tree intervalların üst-üstə düşməsini yoxlamaq üçün optimallaşdırılmışdır, Segment Tree isə interval sorğuları (məsələn, cəm və ya minimum) üçün istifadə olunur. Yuxarıdakı nümunədə Interval Tree qurulur, [(1, 5), (2, 6), (3, 7), (8, 10)] daxil edilir, (4, 8) ilə üst-üstə düşən intervallar tapılır."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas Terminlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Interval: Başlanğıc (low) və son (high) nöqtələri olan diapazon (yuxarıdakı Interval)."
+          },
+          {
+            "description": "Node: Intervalı və maksimum son nöqtəni (maxHigh) saxlayan struktur (yuxarıdakı Node)."
+          },
+          {
+            "description": "MaxHigh: Alt ağacda ən böyük son nöqtə (yuxarıdakı maxHigh)."
+          },
+          {
+            "description": "Overlap Search: Verilmiş interval ilə üst-üstə düşən intervalları tapma (yuxarıdakı overlapSearch)."
+          },
+          {
+            "description": "Insert: Yeni intervalın ağaca əlavə edilməsi (yuxarıdakı insert)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Disjoint Interval Structures Xüsusiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) Interval Tree ikili axtarış ağacı əsasında qurulur, hər node-da interval və maxHigh saxlanılır. 2) Segment Tree interval sorğuları üçün seqmentləri parçalayır. 3) Üst-üstə düşmə yoxlanışı O(log n) vaxtda icra olunur (n node sayı). 4) Dinamik dəyişikliklərə uyğundur. Yuxarıdakı kod Interval Tree-nin xüsusiyyətlərini nümayiş etdirir."
+      },
+      {
+        "type": "heading",
+        "text": "Disjoint Interval Structures nə üçün lazımdır?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu strukturlar intervallarla işləyən tətbiqlərdə (məsələn, planlaşdırma, verilənlər bazası sorğuları) effektiv axtarış və idarəetmə üçün istifadə olunur. Interval Tree üst-üstə düşən intervalları, Segment Tree isə cəm və ya minimum kimi sorğuları sürətləndirir."
+      },
+      {
+        "type": "heading",
+        "text": "Disjoint Interval Structures nəyə kömək edir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Üst-üstə düşmə yoxlanışı**: Verilmiş interval ilə kəsişən intervalları tapmaq (yuxarıdakı overlapSearch). 2) **Interval sorğuları**: Müəyyən diapazonda cəm və ya minimum tapmaq (Segment Tree). 3) **Planlaşdırma**: Tədbirlərin və ya tapşırıqların kəsişməsini yoxlamaq. 4) **Verilənlər bazaları**: Effektiv indeksləşdirmə."
+      },
+      {
+        "type": "heading",
+        "text": "Disjoint Interval Structures-ın Səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interval Tree-də daxil etmə və üst-üstə düşmə axtarışı O(log n) vaxt aparır (n node sayı). Segment Tree-də sorğular və yeniləmələr də O(log n). Məkan mürəkkəbliyi O(n). Yuxarıdakı insert və overlapSearch effektivdir."
+      },
+      {
+        "type": "heading",
+        "text": "Üstünlüklər və Mənfi Cəhətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Üstünlük: O(log n) vaxtda effektiv axtarış və daxil etmə."
+          },
+          { "description": "Üstünlük: Dinamik intervalların idarə edilməsi." },
+          {
+            "description": "Üstünlük: Çoxsaylı interval sorğularına uyğunluq."
+          },
+          {
+            "description": "Mənfi cəhət: Mürəkkəb tətbiq (sadə siyahılara nisbətən)."
+          },
+          {
+            "description": "Mənfi cəhət: Əlavə yaddaş tələb edir (maxHigh saxlanması)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real Həyatda İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Planlaşdırma**: Tədbirlərin kəsişməsini yoxlamaq (məsələn, təqvim tətbiqləri). 2) **Verilənlər Bazaları**: Interval əsaslı sorğular. 3) **Geoinformasiya Sistemləri**: Coğrafi intervalların idarə edilməsi. 4) **Şəbəkə Təhlükəsizliyi**: Vaxt intervalında hadisələrin analizi. Yuxarıdakı overlapSearch kəsişmə yoxlamasını simulyasiya edir."
+      },
+      {
+        "type": "heading",
+        "text": "Optimallaşdırma Strategiyaları"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Balanslaşdırma**: AVL və ya Red-Black ağacları ilə Interval Tree-nin balanslaşdırılması. 2) **Kəşləmə**: Tez-tez axtarılan intervalları kəşləyin. 3) **Sadələşdirmə**: Lazımsız node-ları təmizləyin. 4) **Paralel Emal**: Böyük intervallarda paralel axtarış tətbiq edin."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əsas təhlükələr: 1) **Mürəkkəblik**: Tətbiq sadə strukturlara nisbətən çətindir. 2) **Yaddaş**: maxHigh saxlanması əlavə yaddaş tələb edir. 3) **Balanslaşdırma**: Balanssız ağac performansı azalda bilər. Tövsiyələr: 1) Balanslaşdırılmış ağaclarla inteqrasiya edin. 2) Yaddaş istifadəsini optimallaşdırın. 3) Testlərlə performansı yoxlayın."
+      }
+    ]
+  },
+  "en": {
+    "title": "Disjoint Interval Structures",
+    "icon": "FiLink2",
+    "language": "multiple",
+    "codes": {
+      "python": "class Interval:\n    def __init__(self, low, high):\n        self.low = low\n        self.high = high\n\nclass Node:\n    def __init__(self, interval):\n        self.interval = interval\n        self.max_high = interval.high\n        self.left = None\n        self.right = None\n\nclass IntervalTree:\n    def __init__(self):\n        self.root = None\n\n    def insert(self, interval):\n        self.root = self._insert(self.root, interval)\n\n    def _insert(self, node, interval):\n        if not node:\n            return Node(interval)\n        if interval.low < node.interval.low:\n            node.left = self._insert(node.left, interval)\n        else:\n            node.right = self._insert(node.right, interval)\n        node.max_high = max(node.max_high, interval.high)\n        return node\n\n    def overlap_search(self, interval):\n        result = []\n        self._overlap_search(self.root, interval, result)\n        return result\n\n    def _overlap_search(self, node, interval, result):\n        if not node:\n            return\n        if (node.interval.low <= interval.high and interval.low <= node.interval.high):\n            result.append(node.interval)\n        if node.left and node.left.max_high >= interval.low:\n            self._overlap_search(node.left, interval, result)\n        if node.right and node.max_high >= interval.low:\n            self._overlap_search(node.right, interval, result)\n\n# Example: Interval Tree operations\ntree = IntervalTree()\nintervals = [(1, 5), (2, 6), (3, 7), (8, 10)]\nfor low, high in intervals:\n    tree.insert(Interval(low, high))\noverlaps = tree.overlap_search(Interval(4, 8))\nprint('Overlapping intervals with (4, 8):', [(i.low, i.high) for i in overlaps])\n# Output: Overlapping intervals with (4, 8): [(1, 5), (2, 6), (3, 7)]",
+      "javascript": "class Interval {\n    constructor(low, high) {\n        this.low = low;\n        this.high = high;\n    }\n}\n\nclass Node {\n    constructor(interval) {\n        this.interval = interval;\n        this.maxHigh = interval.high;\n        this.left = null;\n        this.right = null;\n    }\n}\n\nclass IntervalTree {\n    constructor() {\n        this.root = null;\n    }\n\n    insert(interval) {\n        this.root = this._insert(this.root, interval);\n    }\n\n    _insert(node, interval) {\n        if (!node) {\n            return new Node(interval);\n        }\n        if (interval.low < node.interval.low) {\n            node.left = this._insert(node.left, interval);\n        } else {\n            node.right = this._insert(node.right, interval);\n        }\n        node.maxHigh = Math.max(node.maxHigh, interval.high);\n        return node;\n    }\n\n    overlapSearch(interval) {\n        const result = [];\n        this._overlapSearch(this.root, interval, result);\n        return result;\n    }\n\n    _overlapSearch(node, interval, result) {\n        if (!node) return;\n        if (node.interval.low <= interval.high && interval.low <= node.interval.high) {\n            result.push(node.interval);\n        }\n        if (node.left && node.left.maxHigh >= interval.low) {\n            this._overlapSearch(node.left, interval, result);\n        }\n        if (node.right && node.maxHigh >= interval.low) {\n            this._overlapSearch(node.right, interval, result);\n        }\n    }\n}\n\n// Example: Interval Tree operations\nconst tree = new IntervalTree();\nconst intervals = [[1, 5], [2, 6], [3, 7], [8, 10]];\nintervals.forEach(([low, high]) => tree.insert(new Interval(low, high)));\nconst overlaps = tree.overlapSearch(new Interval(4, 8));\nconsole.log('Overlapping intervals with (4, 8):', overlaps.map(i => [i.low, i.high]));\n// Output: Overlapping intervals with (4, 8): [[1, 5], [2, 6], [3, 7]]",
+      "typescript": "interface Interval {\n    low: number;\n    high: number;\n}\n\nclass Node {\n    interval: Interval;\n    maxHigh: number;\n    left: Node | null;\n    right: Node | null;\n\n    constructor(interval: Interval) {\n        this.interval = interval;\n        this.maxHigh = interval.high;\n        this.left = null;\n        this.right = null;\n    }\n}\n\nclass IntervalTree {\n    private root: Node | null = null;\n\n    insert(interval: Interval): void {\n        this.root = this._insert(this.root, interval);\n    }\n\n    private _insert(node: Node | null, interval: Interval): Node {\n        if (!node) {\n            return new Node(interval);\n        }\n        if (interval.low < node.interval.low) {\n            node.left = this._insert(node.left, interval);\n        } else {\n            node.right = this._insert(node.right, interval);\n        }\n        node.maxHigh = Math.max(node.maxHigh, interval.high);\n        return node;\n    }\n\n    overlapSearch(interval: Interval): Interval[] {\n        const result: Interval[] = [];\n        this._overlapSearch(this.root, interval, result);\n        return result;\n    }\n\n    private _overlapSearch(node: Node | null, interval: Interval, result: Interval[]): void {\n        if (!node) return;\n        if (node.interval.low <= interval.high && interval.low <= node.interval.high) {\n            result.push(node.interval);\n        }\n        if (node.left && node.left.maxHigh >= interval.low) {\n            this._overlapSearch(node.left, interval, result);\n        }\n        if (node.right && node.maxHigh >= interval.low) {\n            this._overlapSearch(node.right, interval, result);\n        }\n    }\n}\n\n// Example: Interval Tree operations\nconst tree = new IntervalTree();\nconst intervals: [number, number][] = [[1, 5], [2, 6], [3, 7], [8, 10]];\nintervals.forEach(([low, high]) => tree.insert({ low, high }));\nconst overlaps = tree.overlapSearch({ low: 4, high: 8 });\nconsole.log('Overlapping intervals with (4, 8):', overlaps.map(i => [i.low, i.high]));\n// Output: Overlapping intervals with (4, 8): [[1, 5], [2, 6], [3, 7]]",
+      "java": "class Interval {\n    int low, high;\n    Interval(int low, int high) {\n        this.low = low;\n        this.high = high;\n    }\n}\n\nclass Node {\n    Interval interval;\n    int maxHigh;\n    Node left, right;\n\n    Node(Interval interval) {\n        this.interval = interval;\n        this.maxHigh = interval.high;\n        this.left = null;\n        this.right = null;\n    }\n}\n\nclass IntervalTree {\n    private Node root;\n\n    void insert(Interval interval) {\n        root = insert(root, interval);\n    }\n\n    private Node insert(Node node, Interval interval) {\n        if (node == null) {\n            return new Node(interval);\n        }\n        if (interval.low < node.interval.low) {\n            node.left = insert(node.left, interval);\n        } else {\n            node.right = insert(node.right, interval);\n        }\n        node.maxHigh = Math.max(node.maxHigh, interval.high);\n        return node;\n    }\n\n    java.util.List<Interval> overlapSearch(Interval interval) {\n        java.util.List<Interval> result = new java.util.ArrayList<>();\n        overlapSearch(root, interval, result);\n        return result;\n    }\n\n    private void overlapSearch(Node node, Interval interval, java.util.List<Interval> result) {\n        if (node == null) return;\n        if (node.interval.low <= interval.high && interval.low <= node.interval.high) {\n            result.add(node.interval);\n        }\n        if (node.left != null && node.left.maxHigh >= interval.low) {\n            overlapSearch(node.left, interval, result);\n        }\n        if (node.right != null && node.maxHigh >= interval.low) {\n            overlapSearch(node.right, interval, result);\n        }\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        IntervalTree tree = new IntervalTree();\n        int[][] intervals = {{1, 5}, {2, 6}, {3, 7}, {8, 10}};\n        for (int[] interval : intervals) {\n            tree.insert(new Interval(interval[0], interval[1]));\n        }\n        java.util.List<Interval> overlaps = tree.overlapSearch(new Interval(4, 8));\n        System.out.print(\"Overlapping intervals with (4, 8): \");\n        for (Interval i : overlaps) {\n            System.out.print(\"(\" + i.low + \", \" + i.high + \") \");\n        }\n        System.out.println();\n    }\n}\n// Output: Overlapping intervals with (4, 8): (1, 5) (2, 6) (3, 7)",
+      "php": "<?php\n\nclass Interval {\n    public $low, $high;\n    public function __construct($low, $high) {\n        $this->low = $low;\n        $this->high = $high;\n    }\n}\n\nclass Node {\n    public $interval, $maxHigh, $left, $right;\n    public function __construct($interval) {\n        $this->interval = $interval;\n        $this->maxHigh = $interval->high;\n        $this->left = null;\n        $this->right = null;\n    }\n}\n\nclass IntervalTree {\n    private $root = null;\n\n    public function insert($interval) {\n        $this->root = $this->_insert($this->root, $interval);\n    }\n\n    private function _insert($node, $interval) {\n        if (!$node) {\n            return new Node($interval);\n        }\n        if ($interval->low < $node->interval->low) {\n            $node->left = $this->_insert($node->left, $interval);\n        } else {\n            $node->right = $this->_insert($node->right, $interval);\n        }\n        $node->maxHigh = max($node->maxHigh, $interval->high);\n        return $node;\n    }\n\n    public function overlapSearch($interval) {\n        $result = [];\n        $this->_overlapSearch($this->root, $interval, $result);\n        return $result;\n    }\n\n    private function _overlapSearch($node, $interval, &$result) {\n        if (!$node) return;\n        if ($node->interval->low <= $interval->high && $interval->low <= $node->interval->high) {\n            $result[] = $node->interval;\n        }\n        if ($node->left && $node->left->maxHigh >= $interval->low) {\n            $this->_overlapSearch($node->left, $interval, $result);\n        }\n        if ($node->right && $node->maxHigh >= $interval->low) {\n            $this->_overlapSearch($node->right, $interval, $result);\n        }\n    }\n}\n\n// Example: Interval Tree operations\n$tree = new IntervalTree();\n$intervals = [[1, 5], [2, 6], [3, 7], [8, 10]];\nforeach ($intervals as $interval) {\n    $tree->insert(new Interval($interval[0], $interval[1]));\n}\n$overlaps = $tree->overlapSearch(new Interval(4, 8));\necho \"Overlapping intervals with (4, 8): \";\nforeach ($overlaps as $i) {\n    echo \"($i->low, $i->high) \";\n}\necho \"\\n\";\n// Output: Overlapping intervals with (4, 8): (1, 5) (2, 6) (3, 7)",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Interval {\n    int low, high;\n} Interval;\n\ntypedef struct Node {\n    Interval interval;\n    int maxHigh;\n    struct Node *left, *right;\n} Node;\n\ntypedef struct IntervalTree {\n    Node* root;\n} IntervalTree;\n\nNode* createNode(Interval interval) {\n    Node* node = (Node*)malloc(sizeof(Node));\n    node->interval = interval;\n    node->maxHigh = interval.high;\n    node->left = node->right = NULL;\n    return node;\n}\n\nIntervalTree* createIntervalTree() {\n    IntervalTree* tree = (IntervalTree*)malloc(sizeof(IntervalTree));\n    tree->root = NULL;\n    return tree;\n}\n\nNode* insert(Node* node, Interval interval) {\n    if (!node) {\n        return createNode(interval);\n    }\n    if (interval.low < node->interval.low) {\n        node->left = insert(node->left, interval);\n    } else {\n        node->right = insert(node->right, interval);\n    }\n    if (node->maxHigh < interval.high) {\n        node->maxHigh = interval.high;\n    }\n    return node;\n}\n\nvoid insertInterval(IntervalTree* tree, Interval interval) {\n    tree->root = insert(tree->root, interval);\n}\n\nvoid overlapSearch(Node* node, Interval interval, Interval** result, int* size) {\n    if (!node) return;\n    if (node->interval.low <= interval.high && interval.low <= node->interval.high) {\n        result[*size] = &node->interval;\n        (*size)++;\n    }\n    if (node->left && node->left->maxHigh >= interval.low) {\n        overlapSearch(node->left, interval, result, size);\n    }\n    if (node->right && node->maxHigh >= interval.low) {\n        overlapSearch(node->right, interval, result, size);\n    }\n}\n\nvoid freeTree(Node* node) {\n    if (!node) return;\n    freeTree(node->left);\n    freeTree(node->right);\n    free(node);\n}\n\nint main() {\n    IntervalTree* tree = createIntervalTree();\n    Interval intervals[] = {{1, 5}, {2, 6}, {3, 7}, {8, 10}};\n    for (int i = 0; i < 4; i++) {\n        insertInterval(tree, intervals[i]);\n    }\n    Interval query = {4, 8};\n    Interval* result[10];\n    int size = 0;\n    overlapSearch(tree->root, query, result, &size);\n    printf(\"Overlapping intervals with (4, 8): \");\n    for (int i = 0; i < size; i++) {\n        printf(\"(%d, %d) \", result[i]->low, result[i]->high);\n    }\n    printf(\"\\n\");\n    freeTree(tree->root);\n    free(tree);\n    return 0;\n}\n// Output: Overlapping intervals with (4, 8): (1, 5) (2, 6) (3, 7)",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\npublic class Interval {\n    public int Low, High;\n    public Interval(int low, int high) {\n        Low = low;\n        High = high;\n    }\n}\n\npublic class Node {\n    public Interval Interval;\n    public int MaxHigh;\n    public Node Left, Right;\n\n    public Node(Interval interval) {\n        Interval = interval;\n        MaxHigh = interval.High;\n        Left = Right = null;\n    }\n}\n\npublic class IntervalTree {\n    private Node root;\n\n    public void Insert(Interval interval) {\n        root = Insert(root, interval);\n    }\n\n    private Node Insert(Node node, Interval interval) {\n        if (node == null) {\n            return new Node(interval);\n        }\n        if (interval.Low < node.Interval.Low) {\n            node.Left = Insert(node.Left, interval);\n        } else {\n            node.Right = Insert(node.Right, interval);\n        }\n        node.MaxHigh = Math.Max(node.MaxHigh, interval.High);\n        return node;\n    }\n\n    public List<Interval> OverlapSearch(Interval interval) {\n        var result = new List<Interval>();\n        OverlapSearch(root, interval, result);\n        return result;\n    }\n\n    private void OverlapSearch(Node node, Interval interval, List<Interval> result) {\n        if (node == null) return;\n        if (node.Interval.Low <= interval.High && interval.Low <= node.Interval.High) {\n            result.Add(node.Interval);\n        }\n        if (node.Left != null && node.Left.MaxHigh >= interval.Low) {\n            OverlapSearch(node.Left, interval, result);\n        }\n        if (node.Right != null && node.MaxHigh >= interval.Low) {\n            OverlapSearch(node.Right, interval, result);\n        }\n    }\n}\n\nclass Program {\n    static void Main() {\n        IntervalTree tree = new IntervalTree();\n        var intervals = new (int, int)[] { (1, 5), (2, 6), (3, 7), (8, 10) };\n        foreach (var (low, high) in intervals) {\n            tree.Insert(new Interval(low, high));\n        }\n        var overlaps = tree.OverlapSearch(new Interval(4, 8));\n        Console.Write(\"Overlapping intervals with (4, 8): \");\n        foreach (var i in overlaps) {\n            Console.Write($\"({i.Low}, {i.High}) \");\n        }\n        Console.WriteLine();\n    }\n}\n// Output: Overlapping intervals with (4, 8): (1, 5) (2, 6) (3, 7)",
+      "cpp": "#include <iostream>\n#include <vector>\n\nstruct Interval {\n    int low, high;\n    Interval(int low, int high) : low(low), high(high) {}\n};\n\nclass Node {\npublic:\n    Interval interval;\n    int maxHigh;\n    Node *left, *right;\n\n    Node(Interval interval) : interval(interval), maxHigh(interval.high), left(nullptr), right(nullptr) {}\n};\n\nclass IntervalTree {\nprivate:\n    Node* root = nullptr;\n\n    Node* insert(Node* node, Interval interval) {\n        if (!node) {\n            return new Node(interval);\n        }\n        if (interval.low < node->interval.low) {\n            node->left = insert(node->left, interval);\n        } else {\n            node->right = insert(node->right, interval);\n        }\n        node->maxHigh = std::max(node->maxHigh, interval.high);\n        return node;\n    }\n\n    void overlapSearch(Node* node, Interval interval, std::vector<Interval>& result) {\n        if (!node) return;\n        if (node->interval.low <= interval.high && interval.low <= node->interval.high) {\n            result.push_back(node->interval);\n        }\n        if (node->left && node->left->maxHigh >= interval.low) {\n            overlapSearch(node->left, interval, result);\n        }\n        if (node->right && node->maxHigh >= interval.low) {\n            overlapSearch(node->right, interval, result);\n        }\n    }\n\n    void freeTree(Node* node) {\n        if (!node) return;\n        freeTree(node->left);\n        freeTree(node->right);\n        delete node;\n    }\n\npublic:\n    void insert(Interval interval) {\n        root = insert(root, interval);\n    }\n\n    std::vector<Interval> overlapSearch(Interval interval) {\n        std::vector<Interval> result;\n        overlapSearch(root, interval, result);\n        return result;\n    }\n\n    ~IntervalTree() {\n        freeTree(root);\n    }\n};\n\nint main() {\n    IntervalTree tree;\n    std::vector<Interval> intervals = {{1, 5}, {2, 6}, {3, 7}, {8, 10}};\n    for (const auto& interval : intervals) {\n        tree.insert(interval);\n    }\n    auto overlaps = tree.overlapSearch(Interval(4, 8));\n    std::cout << \"Overlapping intervals with (4, 8): \";\n    for (const auto& i : overlaps) {\n        std::cout << \"(\" << i.low << \", \" << i.high << \") \";\n    }\n    std::cout << \"\\n\";\n    return 0;\n}\n// Output: Overlapping intervals with (4, 8): (1, 5) (2, 6) (3, 7)"
+    },
+    "description": "Overview of Interval Trees and Segment Trees for intervals.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Disjoint Interval Structures?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Disjoint Interval Structures are data structures designed for efficient management of intervals, primarily Interval Trees and Segment Trees. Interval Trees are optimized for detecting overlapping intervals, while Segment Trees handle interval queries (e.g., sum or minimum). In the example above, an Interval Tree is built, [(1, 5), (2, 6), (3, 7), (8, 10)] are inserted, and intervals overlapping with (4, 8) are found."
+      },
+      {
+        "type": "heading",
+        "text": "Key Terminology"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Interval: A range with start (low) and end (high) points (used as Interval above)."
+          },
+          {
+            "description": "Node: A structure storing an interval and maximum endpoint (maxHigh) (used as Node above)."
+          },
+          {
+            "description": "MaxHigh: The maximum endpoint in a subtree (used as maxHigh above)."
+          },
+          {
+            "description": "Overlap Search: Finding intervals that overlap with a given interval (used as overlapSearch above)."
+          },
+          {
+            "description": "Insert: Adding a new interval to the tree (used as insert above)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Disjoint Interval Structures Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) Interval Trees are built on binary search trees, storing intervals and maxHigh in each node. 2) Segment Trees divide intervals into segments for queries. 3) Overlap detection is performed in O(log n) time (n is the number of nodes). 4) Suitable for dynamic updates. The code above demonstrates Interval Tree properties."
+      },
+      {
+        "type": "heading",
+        "text": "Why are Disjoint Interval Structures Needed?"
+      },
+      {
+        "type": "paragraph",
+        "text": "These structures are used in applications involving intervals (e.g., scheduling, database queries) for efficient search and management. Interval Trees detect overlapping intervals, while Segment Trees accelerate queries like sum or minimum."
+      },
+      {
+        "type": "heading",
+        "text": "What Do Disjoint Interval Structures Help With?"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Overlap Detection**: Finding intervals that intersect with a given interval (shown in overlapSearch above). 2) **Interval Queries**: Computing sum or minimum in a range (Segment Tree). 3) **Scheduling**: Checking event or task overlaps. 4) **Databases**: Efficient indexing."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of Disjoint Interval Structures (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In Interval Trees, insertion and overlap search take O(log n) time (n is the number of nodes). In Segment Trees, queries and updates are also O(log n). Space complexity is O(n). The insert and overlapSearch above are efficient."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Advantage: Efficient O(log n) search and insertion."
+          },
+          { "description": "Advantage: Handles dynamic intervals." },
+          {
+            "description": "Advantage: Suitable for multiple interval queries."
+          },
+          {
+            "description": "Disadvantage: Complex implementation compared to simple lists."
+          },
+          { "description": "Disadvantage: Extra memory for storing maxHigh." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real-Life Applications"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Scheduling**: Detecting overlapping events (e.g., calendar apps). 2) **Databases**: Interval-based queries. 3) **Geographic Information Systems**: Managing spatial intervals. 4) **Network Security**: Analyzing events in time intervals. The overlapSearch above simulates overlap detection."
+      },
+      {
+        "type": "heading",
+        "text": "Optimization Strategies"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Balancing**: Use AVL or Red-Black trees for Interval Tree balancing. 2) **Caching**: Cache frequently accessed intervals. 3) **Simplification**: Remove unnecessary nodes. 4) **Parallel Processing**: Apply parallel search for large intervals."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Key risks: 1) **Complexity**: Implementation is more complex than simple structures. 2) **Memory**: Storing maxHigh requires extra memory. 3) **Balancing**: Unbalanced trees may degrade performance. Recommendations: 1) Integrate with balanced trees. 2) Optimize memory usage. 3) Test performance thoroughly."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Disjoint Interval Structures",
+    "icon": "FiLink2",
+    "language": "multiple",
+    "codes": {
+      "python": "class Interval:\n    def __init__(self, low, high):\n        self.low = low\n        self.high = high\n\nclass Node:\n    def __init__(self, interval):\n        self.interval = interval\n        self.max_high = interval.high\n        self.left = None\n        self.right = None\n\nclass IntervalTree:\n    def __init__(self):\n        self.root = None\n\n    def insert(self, interval):\n        self.root = self._insert(self.root, interval)\n\n    def _insert(self, node, interval):\n        if not node:\n            return Node(interval)\n        if interval.low < node.interval.low:\n            node.left = self._insert(node.left, interval)\n        else:\n            node.right = self._insert(node.right, interval)\n        node.max_high = max(node.max_high, interval.high)\n        return node\n\n    def overlap_search(self, interval):\n        result = []\n        self._overlap_search(self.root, interval, result)\n        return result\n\n    def _overlap_search(self, node, interval, result):\n        if not node:\n            return\n        if (node.interval.low <= interval.high and interval.low <= node.interval.high):\n            result.append(node.interval)\n        if node.left and node.left.max_high >= interval.low:\n            self._overlap_search(node.left, interval, result)\n        if node.right and node.max_high >= interval.low:\n            self._overlap_search(node.right, interval, result)\n\n# Example: Interval Tree operations\ntree = IntervalTree()\nintervals = [(1, 5), (2, 6), (3, 7), (8, 10)]\nfor low, high in intervals:\n    tree.insert(Interval(low, high))\noverlaps = tree.overlap_search(Interval(4, 8))\nprint('Overlapping intervals with (4, 8):', [(i.low, i.high) for i in overlaps])\n# Output: Overlapping intervals with (4, 8): [(1, 5), (2, 6), (3, 7)]",
+      "javascript": "class Interval {\n    constructor(low, high) {\n        this.low = low;\n        this.high = high;\n    }\n}\n\nclass Node {\n    constructor(interval) {\n        this.interval = interval;\n        this.maxHigh = interval.high;\n        this.left = null;\n        this.right = null;\n    }\n}\n\nclass IntervalTree {\n    constructor() {\n        this.root = null;\n    }\n\n    insert(interval) {\n        this.root = this._insert(this.root, interval);\n    }\n\n    _insert(node, interval) {\n        if (!node) {\n            return new Node(interval);\n        }\n        if (interval.low < node.interval.low) {\n            node.left = this._insert(node.left, interval);\n        } else {\n            node.right = this._insert(node.right, interval);\n        }\n        node.maxHigh = Math.max(node.maxHigh, interval.high);\n        return node;\n    }\n\n    overlapSearch(interval) {\n        const result = [];\n        this._overlapSearch(this.root, interval, result);\n        return result;\n    }\n\n    _overlapSearch(node, interval, result) {\n        if (!node) return;\n        if (node.interval.low <= interval.high && interval.low <= node.interval.high) {\n            result.push(node.interval);\n        }\n        if (node.left && node.left.maxHigh >= interval.low) {\n            this._overlapSearch(node.left, interval, result);\n        }\n        if (node.right && node.maxHigh >= interval.low) {\n            this._overlapSearch(node.right, interval, result);\n        }\n    }\n}\n\n// Example: Interval Tree operations\nconst tree = new IntervalTree();\nconst intervals = [[1, 5], [2, 6], [3, 7], [8, 10]];\nintervals.forEach(([low, high]) => tree.insert(new Interval(low, high)));\nconst overlaps = tree.overlapSearch(new Interval(4, 8));\nconsole.log('Overlapping intervals with (4, 8):', overlaps.map(i => [i.low, i.high]));\n// Output: Overlapping intervals with (4, 8): [[1, 5], [2, 6], [3, 7]]",
+      "typescript": "interface Interval {\n    low: number;\n    high: number;\n}\n\nclass Node {\n    interval: Interval;\n    maxHigh: number;\n    left: Node | null;\n    right: Node | null;\n\n    constructor(interval: Interval) {\n        this.interval = interval;\n        this.maxHigh = interval.high;\n        this.left = null;\n        this.right = null;\n    }\n}\n\nclass IntervalTree {\n    private root: Node | null = null;\n\n    insert(interval: Interval): void {\n        this.root = this._insert(this.root, interval);\n    }\n\n    private _insert(node: Node | null, interval: Interval): Node {\n        if (!node) {\n            return new Node(interval);\n        }\n        if (interval.low < node.interval.low) {\n            node.left = this._insert(node.left, interval);\n        } else {\n            node.right = this._insert(node.right, interval);\n        }\n        node.maxHigh = Math.max(node.maxHigh, interval.high);\n        return node;\n    }\n\n    overlapSearch(interval: Interval): Interval[] {\n        const result: Interval[] = [];\n        this._overlapSearch(this.root, interval, result);\n        return result;\n    }\n\n    private _overlapSearch(node: Node | null, interval: Interval, result: Interval[]): void {\n        if (!node) return;\n        if (node.interval.low <= interval.high && interval.low <= node.interval.high) {\n            result.push(node.interval);\n        }\n        if (node.left && node.left.maxHigh >= interval.low) {\n            this._overlapSearch(node.left, interval, result);\n        }\n        if (node.right && node.maxHigh >= interval.low) {\n            this._overlapSearch(node.right, interval, result);\n        }\n    }\n}\n\n// Example: Interval Tree operations\nconst tree = new IntervalTree();\nconst intervals: [number, number][] = [[1, 5], [2, 6], [3, 7], [8, 10]];\nintervals.forEach(([low, high]) => tree.insert({ low, high }));\nconst overlaps = tree.overlapSearch({ low: 4, high: 8 });\nconsole.log('Overlapping intervals with (4, 8):', overlaps.map(i => [i.low, i.high]));\n// Output: Overlapping intervals with (4, 8): [[1, 5], [2, 6], [3, 7]]",
+      "java": "class Interval {\n    int low, high;\n    Interval(int low, int high) {\n        this.low = low;\n        this.high = high;\n    }\n}\n\nclass Node {\n    Interval interval;\n    int maxHigh;\n    Node left, right;\n\n    Node(Interval interval) {\n        this.interval = interval;\n        this.maxHigh = interval.high;\n        this.left = null;\n        this.right = null;\n    }\n}\n\nclass IntervalTree {\n    private Node root;\n\n    void insert(Interval interval) {\n        root = insert(root, interval);\n    }\n\n    private Node insert(Node node, Interval interval) {\n        if (node == null) {\n            return new Node(interval);\n        }\n        if (interval.low < node.interval.low) {\n            node.left = insert(node.left, interval);\n        } else {\n            node.right = insert(node.right, interval);\n        }\n        node.maxHigh = Math.max(node.maxHigh, interval.high);\n        return node;\n    }\n\n    java.util.List<Interval> overlapSearch(Interval interval) {\n        java.util.List<Interval> result = new java.util.ArrayList<>();\n        overlapSearch(root, interval, result);\n        return result;\n    }\n\n    private void overlapSearch(Node node, Interval interval, java.util.List<Interval> result) {\n        if (node == null) return;\n        if (node.interval.low <= interval.high && interval.low <= node.interval.high) {\n            result.add(node.interval);\n        }\n        if (node.left != null && node.left.maxHigh >= interval.low) {\n            overlapSearch(node.left, interval, result);\n        }\n        if (node.right != null && node.maxHigh >= interval.low) {\n            overlapSearch(node.right, interval, result);\n        }\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        IntervalTree tree = new IntervalTree();\n        int[][] intervals = {{1, 5}, {2, 6}, {3, 7}, {8, 10}};\n        for (int[] interval : intervals) {\n            tree.insert(new Interval(interval[0], interval[1]));\n        }\n        java.util.List<Interval> overlaps = tree.overlapSearch(new Interval(4, 8));\n        System.out.print(\"Overlapping intervals with (4, 8): \");\n        for (Interval i : overlaps) {\n            System.out.print(\"(\" + i.low + \", \" + i.high + \") \");\n        }\n        System.out.println();\n    }\n}\n// Output: Overlapping intervals with (4, 8): (1, 5) (2, 6) (3, 7)",
+      "php": "<?php\n\nclass Interval {\n    public $low, $high;\n    public function __construct($low, $high) {\n        $this->low = $low;\n        $this->high = $high;\n    }\n}\n\nclass Node {\n    public $interval, $maxHigh, $left, $right;\n    public function __construct($interval) {\n        $this->interval = $interval;\n        $this->maxHigh = $interval->high;\n        $this->left = null;\n        $this->right = null;\n    }\n}\n\nclass IntervalTree {\n    private $root = null;\n\n    public function insert($interval) {\n        $this->root = $this->_insert($this->root, $interval);\n    }\n\n    private function _insert($node, $interval) {\n        if (!$node) {\n            return new Node($interval);\n        }\n        if ($interval->low < $node->interval->low) {\n            $node->left = $this->_insert($node->left, $interval);\n        } else {\n            $node->right = $this->_insert($node->right, $interval);\n        }\n        $node->maxHigh = max($node->maxHigh, $interval->high);\n        return $node;\n    }\n\n    public function overlapSearch($interval) {\n        $result = [];\n        $this->_overlapSearch($this->root, $interval, $result);\n        return $result;\n    }\n\n    private function _overlapSearch($node, $interval, &$result) {\n        if (!$node) return;\n        if ($node->interval->low <= $interval->high && $interval->low <= $node->interval->high) {\n            $result[] = $node->interval;\n        }\n        if ($node->left && $node->left->maxHigh >= $interval->low) {\n            $this->_overlapSearch($node->left, $interval, $result);\n        }\n        if ($node->right && $node->maxHigh >= $interval->low) {\n            $this->_overlapSearch($node->right, $interval, $result);\n        }\n    }\n}\n\n// Example: Interval Tree operations\n$tree = new IntervalTree();\n$intervals = [[1, 5], [2, 6], [3, 7], [8, 10]];\nforeach ($intervals as $interval) {\n    $tree->insert(new Interval($interval[0], $interval[1]));\n}\n$overlaps = $tree->overlapSearch(new Interval(4, 8));\necho \"Overlapping intervals with (4, 8): \";\nforeach ($overlaps as $i) {\n    echo \"($i->low, $i->high) \";\n}\necho \"\\n\";\n// Output: Overlapping intervals with (4, 8): (1, 5) (2, 6) (3, 7)",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Interval {\n    int low, high;\n} Interval;\n\ntypedef struct Node {\n    Interval interval;\n    int maxHigh;\n    struct Node *left, *right;\n} Node;\n\ntypedef struct IntervalTree {\n    Node* root;\n} IntervalTree;\n\nNode* createNode(Interval interval) {\n    Node* node = (Node*)malloc(sizeof(Node));\n    node->interval = interval;\n    node->maxHigh = interval.high;\n    node->left = node->right = NULL;\n    return node;\n}\n\nIntervalTree* createIntervalTree() {\n    IntervalTree* tree = (IntervalTree*)malloc(sizeof(IntervalTree));\n    tree->root = NULL;\n    return tree;\n}\n\nNode* insert(Node* node, Interval interval) {\n    if (!node) {\n        return createNode(interval);\n    }\n    if (interval.low < node->interval.low) {\n        node->left = insert(node->left, interval);\n    } else {\n        node->right = insert(node->right, interval);\n    }\n    if (node->maxHigh < interval.high) {\n        node->maxHigh = interval.high;\n    }\n    return node;\n}\n\nvoid insertInterval(IntervalTree* tree, Interval interval) {\n    tree->root = insert(tree->root, interval);\n}\n\nvoid overlapSearch(Node* node, Interval interval, Interval** result, int* size) {\n    if (!node) return;\n    if (node->interval.low <= interval.high && interval.low <= node->interval.high) {\n        result[*size] = &node->interval;\n        (*size)++;\n    }\n    if (node->left && node->left->maxHigh >= interval.low) {\n        overlapSearch(node->left, interval, result, size);\n    }\n    if (node->right && node->maxHigh >= interval.low) {\n        overlapSearch(node->right, interval, result, size);\n    }\n}\n\nvoid freeTree(Node* node) {\n    if (!node) return;\n    freeTree(node->left);\n    freeTree(node->right);\n    free(node);\n}\n\nint main() {\n    IntervalTree* tree = createIntervalTree();\n    Interval intervals[] = {{1, 5}, {2, 6}, {3, 7}, {8, 10}};\n    for (int i = 0; i < 4; i++) {\n        insertInterval(tree, intervals[i]);\n    }\n    Interval query = {4, 8};\n    Interval* result[10];\n    int size = 0;\n    overlapSearch(tree->root, query, result, &size);\n    printf(\"Overlapping intervals with (4, 8): \");\n    for (int i = 0; i < size; i++) {\n        printf(\"(%d, %d) \", result[i]->low, result[i]->high);\n    }\n    printf(\"\\n\");\n    freeTree(tree->root);\n    free(tree);\n    return 0;\n}\n// Output: Overlapping intervals with (4, 8): (1, 5) (2, 6) (3, 7)",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\npublic class Interval {\n    public int Low, High;\n    public Interval(int low, int high) {\n        Low = low;\n        High = high;\n    }\n}\n\npublic class Node {\n    public Interval Interval;\n    public int MaxHigh;\n    public Node Left, Right;\n\n    public Node(Interval interval) {\n        Interval = interval;\n        MaxHigh = interval.High;\n        Left = Right = null;\n    }\n}\n\npublic class IntervalTree {\n    private Node root;\n\n    public void Insert(Interval interval) {\n        root = Insert(root, interval);\n    }\n\n    private Node Insert(Node node, Interval interval) {\n        if (node == null) {\n            return new Node(interval);\n        }\n        if (interval.Low < node.Interval.Low) {\n            node.Left = Insert(node.Left, interval);\n        } else {\n            node.Right = Insert(node.Right, interval);\n        }\n        node.MaxHigh = Math.Max(node.MaxHigh, interval.High);\n        return node;\n    }\n\n    public List<Interval> OverlapSearch(Interval interval) {\n        var result = new List<Interval>();\n        OverlapSearch(root, interval, result);\n        return result;\n    }\n\n    private void OverlapSearch(Node node, Interval interval, List<Interval> result) {\n        if (node == null) return;\n        if (node.Interval.Low <= interval.High && interval.Low <= node.Interval.High) {\n            result.Add(node.Interval);\n        }\n        if (node.Left != null && node.Left.MaxHigh >= interval.Low) {\n            OverlapSearch(node.Left, interval, result);\n        }\n        if (node.Right != null && node.MaxHigh >= interval.Low) {\n            OverlapSearch(node.Right, interval, result);\n        }\n    }\n}\n\nclass Program {\n    static void Main() {\n        IntervalTree tree = new IntervalTree();\n        var intervals = new (int, int)[] { (1, 5), (2, 6), (3, 7), (8, 10) };\n        foreach (var (low, high) in intervals) {\n            tree.Insert(new Interval(low, high));\n        }\n        var overlaps = tree.OverlapSearch(new Interval(4, 8));\n        Console.Write(\"Overlapping intervals with (4, 8): \");\n        foreach (var i in overlaps) {\n            Console.Write($\"({i.Low}, {i.High}) \");\n        }\n        Console.WriteLine();\n    }\n}\n// Output: Overlapping intervals with (4, 8): (1, 5) (2, 6) (3, 7)",
+      "cpp": "#include <iostream>\n#include <vector>\n\nstruct Interval {\n    int low, high;\n    Interval(int low, int high) : low(low), high(high) {}\n};\n\nclass Node {\npublic:\n    Interval interval;\n    int maxHigh;\n    Node *left, *right;\n\n    Node(Interval interval) : interval(interval), maxHigh(interval.high), left(nullptr), right(nullptr) {}\n};\n\nclass IntervalTree {\nprivate:\n    Node* root = nullptr;\n\n    Node* insert(Node* node, Interval interval) {\n        if (!node) {\n            return new Node(interval);\n        }\n        if (interval.low < node->interval.low) {\n            node->left = insert(node->left, interval);\n        } else {\n            node->right = insert(node->right, interval);\n        }\n        node->maxHigh = std::max(node->maxHigh, interval.high);\n        return node;\n    }\n\n    void overlapSearch(Node* node, Interval interval, std::vector<Interval>& result) {\n        if (!node) return;\n        if (node->interval.low <= interval.high && interval.low <= node->interval.high) {\n            result.push_back(node->interval);\n        }\n        if (node->left && node->left->maxHigh >= interval.low) {\n            overlapSearch(node->left, interval, result);\n        }\n        if (node->right && node->maxHigh >= interval.low) {\n            overlapSearch(node->right, interval, result);\n        }\n    }\n\n    void freeTree(Node* node) {\n        if (!node) return;\n        freeTree(node->left);\n        freeTree(node->right);\n        delete node;\n    }\n\npublic:\n    void insert(Interval interval) {\n        root = insert(root, interval);\n    }\n\n    std::vector<Interval> overlapSearch(Interval interval) {\n        std::vector<Interval> result;\n        overlapSearch(root, interval, result);\n        return result;\n    }\n\n    ~IntervalTree() {\n        freeTree(root);\n    }\n};\n\nint main() {\n    IntervalTree tree;\n    std::vector<Interval> intervals = {{1, 5}, {2, 6}, {3, 7}, {8, 10}};\n    for (const auto& interval : intervals) {\n        tree.insert(interval);\n    }\n    auto overlaps = tree.overlapSearch(Interval(4, 8));\n    std::cout << \"Overlapping intervals with (4, 8): \";\n    for (const auto& i : overlaps) {\n        std::cout << \"(\" << i.low << \", \" << i.high << \") \";\n    }\n    std::cout << \"\\n\";\n    return 0;\n}\n// Output: Overlapping intervals with (4, 8): (1, 5) (2, 6) (3, 7)"
+    },
+    "description": "Обзор Interval Trees и Segment Trees для интервалов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Disjoint Interval Structures?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Disjoint Interval Structures — это структуры данных для эффективного управления интервалами, в основном Interval Trees и Segment Trees. Interval Trees оптимизированы для обнаружения пересекающихся интервалов, а Segment Trees используются для запросов на интервалах (например, сумма или минимум). В примере выше строится Interval Tree, вставляются [(1, 5), (2, 6), (3, 7), (8, 10)], и находятся интервалы, пересекающиеся с (4, 8)."
+      },
+      {
+        "type": "heading",
+        "text": "Основные термины"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Интервал: Диапазон с начальной (low) и конечной (high) точками (используется как Interval выше)."
+          },
+          {
+            "description": "Узел: Структура, содержащая интервал и максимальную конечную точку (maxHigh) (используется как Node выше)."
+          },
+          {
+            "description": "MaxHigh: Максимальная конечная точка в поддереве (используется как maxHigh выше)."
+          },
+          {
+            "description": "Поиск пересечений: Нахождение интервалов, пересекающихся с заданным интервалом (используется как overlapSearch выше)."
+          },
+          {
+            "description": "Вставка: Добавление нового интервала в дерево (используется как insert выше)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Свойства Disjoint Interval Structures"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) Interval Trees строятся на основе бинарных деревьев поиска, хранят интервалы и maxHigh в каждом узле. 2) Segment Trees разбивают интервалы на сегменты для запросов. 3) Обнаружение пересечений выполняется за O(log n) времени (n — количество узлов). 4) Подходят для динамических обновлений. Код выше демонстрирует свойства Interval Tree."
+      },
+      {
+        "type": "heading",
+        "text": "Зачем нужны Disjoint Interval Structures?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Эти структуры используются в приложениях, работающих с интервалами (например, планирование, запросы к базам данных) для эффективного поиска и управления. Interval Trees обнаруживают пересекающиеся интервалы, а Segment Trees ускоряют запросы, такие как сумма или минимум."
+      },
+      {
+        "type": "heading",
+        "text": "Для чего помогают Disjoint Interval Structures?"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Обнаружение пересечений**: Нахождение интервалов, пересекающихся с заданным интервалом (показано в overlapSearch выше). 2) **Запросы на интервалах**: Вычисление суммы или минимума в диапазоне (Segment Tree). 3) **Планирование**: Проверка пересечений событий или задач. 4) **Базы данных**: Эффективная индексация."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность Disjoint Interval Structures (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В Interval Trees вставка и поиск пересечений занимают O(log n) времени (n — количество узлов). В Segment Trees запросы и обновления также O(log n). Пространственная сложность — O(n). Операции insert и overlapSearch выше эффективны."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Преимущество: Эффективный поиск и вставка за O(log n)."
+          },
+          {
+            "description": "Преимущество: Управление динамическими интервалами."
+          },
+          {
+            "description": "Преимущество: Подходит для множества запросов на интервалах."
+          },
+          {
+            "description": "Недостаток: Сложная реализация по сравнению с простыми списками."
+          },
+          {
+            "description": "Недостаток: Дополнительная память для хранения maxHigh."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Применение в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Планирование**: Обнаружение пересекающихся событий (например, календарные приложения). 2) **Базы данных**: Запросы на основе интервалов. 3) **Геоинформационные системы**: Управление пространственными интервалами. 4) **Сетевая безопасность**: Анализ событий во временных интервалах. Функция overlapSearch выше имитирует обнаружение пересечений."
+      },
+      {
+        "type": "heading",
+        "text": "Стратегии оптимизации"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Балансировка**: Использование AVL или Red-Black деревьев для балансировки Interval Tree. 2) **Кэширование**: Кэширование часто запрашиваемых интервалов. 3) **Упрощение**: Удаление ненужных узлов. 4) **Параллельная обработка**: Применение параллельного поиска для больших интервалов."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основные риски: 1) **Сложность**: Реализация сложнее, чем у простых структур. 2) **Память**: Хранение maxHigh требует дополнительной памяти. 3) **Балансировка**: Несбалансированные деревья могут снизить производительность. Рекомендации: 1) Интегрируйте с сбалансированными деревьями. 2) Оптимизируйте использование памяти. 3) Тщательно тестируйте производительность."
+      }
+    ]
+  }
+}

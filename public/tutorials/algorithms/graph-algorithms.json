@@ -1,0 +1,239 @@
+{
+  "az": {
+    "title": "Qraf alqoritmləri",
+    "icon": "FiShare2",
+    "language": "multiple",
+    "description": "DFS, BFS və digər qraf alqoritmləri qraf strukturunda axtarış və yol tapma problemlərini həll edir, BFS ilə ən qısa yol problemi ilə izah edilir.",
+    "codes": {
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\n#define MAX 100\n\ntypedef struct {\n  int items[MAX];\n  int front, rear;\n} Queue;\n\nvoid initQueue(Queue* q) {\n  q->front = -1;\n  q->rear = -1;\n}\n\nvoid enqueue(Queue* q, int value) {\n  if (q->rear == MAX - 1) return;\n  if (q->front == -1) q->front = 0;\n  q->rear++;\n  q->items[q->rear] = value;\n}\n\nint dequeue(Queue* q) {\n  if (q->front == -1) return -1;\n  int item = q->items[q->front];\n  q->front++;\n  if (q->front > q->rear) q->front = q->rear = -1;\n  return item;\n}\n\nvoid bfs(int graph[MAX][MAX], int vertices, int start, int target) {\n  int visited[MAX] = {0};\n  int distance[MAX] = {0};\n  Queue q;\n  initQueue(&q);\n  visited[start] = 1;\n  enqueue(&q, start);\n  while (q.front != -1) {\n    int current = dequeue(&q);\n    if (current == target) {\n      printf(\"Distance to target: %d\\n\", distance[current]);\n      return;\n    }\n    for (int i = 0; i < vertices; i++) {\n      if (graph[current][i] && !visited[i]) {\n        visited[i] = 1;\n        distance[i] = distance[current] + 1;\n        enqueue(&q, i);\n      }\n    }\n  }\n  printf(\"Target not reachable\\n\");\n}\n\nint main() {\n  int vertices = 5;\n  int graph[MAX][MAX] = {\n    {0, 1, 1, 0, 0},\n    {1, 0, 0, 1, 0},\n    {1, 0, 0, 1, 1},\n    {0, 1, 1, 0, 1},\n    {0, 0, 1, 1, 0}\n  };\n  bfs(graph, vertices, 0, 4);\n  return 0;\n}\n// Output: Distance to target: 2",
+      "cpp": "#include <iostream>\n#include <queue>\n#include <vector>\n\nvoid bfs(std::vector<std::vector<int>>& graph, int start, int target) {\n  int vertices = graph.size();\n  std::vector<int> visited(vertices, 0);\n  std::vector<int> distance(vertices, 0);\n  std::queue<int> q;\n  visited[start] = 1;\n  q.push(start);\n  while (!q.empty()) {\n    int current = q.front();\n    q.pop();\n    if (current == target) {\n      std::cout << \"Distance to target: \" << distance[current] << std::endl;\n      return;\n    }\n    for (int i = 0; i < vertices; i++) {\n      if (graph[current][i] && !visited[i]) {\n        visited[i] = 1;\n        distance[i] = distance[current] + 1;\n        q.push(i);\n      }\n    }\n  }\n  std::cout << \"Target not reachable\" << std::endl;\n}\n\nint main() {\n  std::vector<std::vector<int>> graph = {\n    {0, 1, 1, 0, 0},\n    {1, 0, 0, 1, 0},\n    {1, 0, 0, 1, 1},\n    {0, 1, 1, 0, 1},\n    {0, 0, 1, 1, 0}\n  };\n  bfs(graph, 0, 4);\n  return 0;\n}\n// Output: Distance to target: 2",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass Program {\n  static void BFS(int[,] graph, int vertices, int start, int target) {\n    int[] visited = new int[vertices];\n    int[] distance = new int[vertices];\n    Queue<int> q = new Queue<int>();\n    visited[start] = 1;\n    q.Enqueue(start);\n    while (q.Count > 0) {\n      int current = q.Dequeue();\n      if (current == target) {\n        Console.WriteLine(\"Distance to target: \" + distance[current]);\n        return;\n      }\n      for (int i = 0; i < vertices; i++) {\n        if (graph[current, i] == 1 && visited[i] == 0) {\n          visited[i] = 1;\n          distance[i] = distance[current] + 1;\n          q.Enqueue(i);\n        }\n      }\n    }\n    Console.WriteLine(\"Target not reachable\");\n  }\n\n  static void Main() {\n    int vertices = 5;\n    int[,] graph = new int[,] {\n      {0, 1, 1, 0, 0},\n      {1, 0, 0, 1, 0},\n      {1, 0, 0, 1, 1},\n      {0, 1, 1, 0, 1},\n      {0, 0, 1, 1, 0}\n    };\n    BFS(graph, vertices, 0, 4);\n  }\n}\n// Output: Distance to target: 2",
+      "java": "import java.util.LinkedList;\nimport java.util.Queue;\n\npublic class Main {\n  static void bfs(int[][] graph, int start, int target) {\n    int vertices = graph.length;\n    int[] visited = new int[vertices];\n    int[] distance = new int[vertices];\n    Queue<Integer> q = new LinkedList<>();\n    visited[start] = 1;\n    q.add(start);\n    while (!q.isEmpty()) {\n      int current = q.poll();\n      if (current == target) {\n        System.out.println(\"Distance to target: \" + distance[current]);\n        return;\n      }\n      for (int i = 0; i < vertices; i++) {\n        if (graph[current][i] == 1 && visited[i] == 0) {\n          visited[i] = 1;\n          distance[i] = distance[current] + 1;\n          q.add(i);\n        }\n      }\n    }\n    System.out.println(\"Target not reachable\");\n  }\n\n  public static void main(String[] args) {\n    int[][] graph = {\n      {0, 1, 1, 0, 0},\n      {1, 0, 0, 1, 0},\n      {1, 0, 0, 1, 1},\n      {0, 1, 1, 0, 1},\n      {0, 0, 1, 1, 0}\n    };\n    bfs(graph, 0, 4);\n  }\n}\n// Output: Distance to target: 2",
+      "javascript": "function bfs(graph, start, target) {\n  const vertices = graph.length;\n  const visited = new Array(vertices).fill(0);\n  const distance = new Array(vertices).fill(0);\n  const queue = [];\n  visited[start] = 1;\n  queue.push(start);\n  while (queue.length > 0) {\n    const current = queue.shift();\n    if (current === target) {\n      console.log(`Distance to target: ${distance[current]}`);\n      return;\n    }\n    for (let i = 0; i < vertices; i++) {\n      if (graph[current][i] && !visited[i]) {\n        visited[i] = 1;\n        distance[i] = distance[current] + 1;\n        queue.push(i);\n      }\n    }\n  }\n  console.log(\"Target not reachable\");\n}\n\nconst graph = [\n  [0, 1, 1, 0, 0],\n  [1, 0, 0, 1, 0],\n  [1, 0, 0, 1, 1],\n  [0, 1, 1, 0, 1],\n  [0, 0, 1, 1, 0]\n];\nbfs(graph, 0, 4);\n// Output: Distance to target: 2",
+      "typescript": "function bfs(graph: number[][], start: number, target: number): void {\n  const vertices: number = graph.length;\n  const visited: number[] = new Array(vertices).fill(0);\n  const distance: number[] = new Array(vertices).fill(0);\n  const queue: number[] = [];\n  visited[start] = 1;\n  queue.push(start);\n  while (queue.length > 0) {\n    const current: number = queue.shift()!;\n    if (current === target) {\n      console.log(`Distance to target: ${distance[current]}`);\n      return;\n    }\n    for (let i = 0; i < vertices; i++) {\n      if (graph[current][i] && !visited[i]) {\n        visited[i] = 1;\n        distance[i] = distance[current] + 1;\n        queue.push(i);\n      }\n    }\n  }\n  console.log(\"Target not reachable\");\n}\n\nconst graph: number[][] = [\n  [0, 1, 1, 0, 0],\n  [1, 0, 0, 1, 0],\n  [1, 0, 0, 1, 1],\n  [0, 1, 1, 0, 1],\n  [0, 0, 1, 1, 0]\n];\nbfs(graph, 0, 4);\n// Output: Distance to target: 2",
+      "python": "from collections import deque\n\ndef bfs(graph, start, target):\n    vertices = len(graph)\n    visited = [0] * vertices\n    distance = [0] * vertices\n    queue = deque()\n    visited[start] = 1\n    queue.append(start)\n    while queue:\n        current = queue.popleft()\n        if current == target:\n            print(f\"Distance to target: {distance[current]}\")\n            return\n        for i in range(vertices):\n            if graph[current][i] and not visited[i]:\n                visited[i] = 1\n                distance[i] = distance[current] + 1\n                queue.append(i)\n    print(\"Target not reachable\")\n\ngraph = [\n    [0, 1, 1, 0, 0],\n    [1, 0, 0, 1, 0],\n    [1, 0, 0, 1, 1],\n    [0, 1, 1, 0, 1],\n    [0, 0, 1, 1, 0]\n]\nbfs(graph, 0, 4)\n# Output: Distance to target: 2",
+      "php": "<?php\n\nfunction bfs($graph, $start, $target) {\n  $vertices = count($graph);\n  $visited = array_fill(0, $vertices, 0);\n  $distance = array_fill(0, $vertices, 0);\n  $queue = [];\n  $visited[$start] = 1;\n  array_push($queue, $start);\n  while (!empty($queue)) {\n    $current = array_shift($queue);\n    if ($current == $target) {\n      echo \"Distance to target: \" . $distance[$current] . \"\\n\";\n      return;\n    }\n    for ($i = 0; $i < $vertices; $i++) {\n      if ($graph[$current][$i] && !$visited[$i]) {\n        $visited[$i] = 1;\n        $distance[$i] = $distance[$current] + 1;\n        array_push($queue, $i);\n      }\n    }\n  }\n  echo \"Target not reachable\\n\";\n}\n\n$graph = [\n  [0, 1, 1, 0, 0],\n  [1, 0, 0, 1, 0],\n  [1, 0, 0, 1, 1],\n  [0, 1, 1, 0, 1],\n  [0, 0, 1, 1, 0]\n];\nbfs($graph, 0, 4);\n// Output: Distance to target: 2"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "Qraf alqoritmləri nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Qraf alqoritmləri qraf strukturunda (nöqtələr və onların arasındakı kənarlardan ibarət) problemləri həll etmək üçün istifadə olunur. Qraf nöqtələri (vertices) və kənarları (edges) ilə təmsil olunan bir məlumat strukturudur, məsələn, sosial şəbəkələrdə insanlar nöqtələr, dostluq əlaqələri isə kənarlar ola bilər. Ən məşhur qraf alqoritmləri DFS (Depth-First Search, dərinlik-əsaslı axtarış) və BFS (Breadth-First Search, eninə-əsaslı axtarış) alqoritmləridir. BFS ilə ən qısa yol problemi bu alqoritmlərin klassik nümunəsidir: bir qrafda başlanğıc nöqtəsindən hədəf nöqtəsinə ən qısa yolu tapmaq. BFS səviyyə-səviyyə axtarış aparır və çəkisiz qraflarda optimal yolu tapır. DFS isə dərinliyinə gedərək axtarış aparır və dövr aşkarlamaq kimi problemlərdə faydalıdır. Qraf alqoritmləri Backtracking ilə müqayisədə daha strukturlaşdırılmış axtarış aparır, Dinamik proqramlaşdırma ilə müqayisədə isə daha az yaddaş tələb edir, lakin problemin xüsusiyyətlərindən asılı olaraq fərqli səmərəlilik göstərir."
+      },
+      {
+        "type": "heading",
+        "text": "Qraf alqoritmləri necə işləyir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Qraf alqoritmləri qrafın nöqtələrini və kənarlarını araşdıraraq problemləri həll edir. BFS və DFS fərqli strategiyalarla qrafı gəzir. BFS-də proses belədir: 1) **Başlanğıc nöqtə** - axtarış başlanğıc nöqtəsindən başlayır, məsələn, 0 nömrəli nöqtədən. 2) **Növbə istifadəsi** - BFS bir növbə (queue) istifadə edir, cari nöqtənin bütün qonşuları növbəyə əlavə edilir. 3) **Səviyyə-səviyyə axtarış** - hər səviyyədə (yəni məsafədə) nöqtələr araşdırılır, hədəf tapılana qədər davam edilir. 4) **Məsafə hesablanması** - hər nöqtəyə çatmaq üçün keçilən kənarların sayı hesablanır. Məsələn, 5 nöqtəli bir qrafda BFS 0-dan 4-ə ən qısa yolu tapır (məsələn, 0 → 2 → 4 yolu ilə məsafə 2 olur). DFS isə bir yolu sonuna qədər araşdırır, sonra geri qayıdır. BFS çəkisiz qraflarda ən qısa yolu tapmaq üçün idealdır, DFS isə dövr aşkarlamaq və ya bağlı komponentlər tapmaq üçün daha uyğundur."
+      },
+      {
+        "type": "heading",
+        "text": "Qraf alqoritmlərinin səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Qraf alqoritmlərinin səmərəliliyi qrafın təmsilindən (məsələn, qonşuluq matrisi və ya siyahısı) asılıdır. BFS və DFS üçün vaxt mürəkkəbliyi qonşuluq matrisi ilə O(V²)-dir, burada V nöqtələrin sayıdır, çünki hər nöqtənin qonşuları yoxlanılır. Qonşuluq siyahısı ilə isə O(V + E) olur, burada E kənarların sayıdır, çünki yalnız mövcud kənarlar araşdırılır. Məsələn, 5 nöqtəli və 7 kənarlı bir qrafda BFS O(5 + 7) = O(12) əməliyyat aparır. Məkan mürəkkəbliyi BFS-də O(V)-dir (növbə və visited massivi üçün), DFS-də isə rekursiya yığını səbəbindən O(V) ola bilər. Backtracking ilə müqayisədə (məsələn, O(N!) N-Queens üçün), qraf alqoritmləri daha səmərəlidir, çünki yalnız qrafın strukturunu araşdırır. Dinamik proqramlaşdırma (məsələn, O(n * m) Minimum sikkə problemində) ilə müqayisədə isə qraf alqoritmləri daha az yaddaş tələb edir, lakin xüsusi problemlərdə yavaş ola bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Qraf alqoritmlərinin üstünlükləri və mənfi cəhətləri"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Effektiv axtarış: BFS ən qısa yolu tapır, DFS dövr aşkarlayır."
+          },
+          {
+            "description": "Çox yönlülük: Şəbəkə analizi, yol tapma və s. üçün uyğundur."
+          },
+          {
+            "description": "Mənfi cəhət: Böyük qraflarda O(V²) vaxt tələb edə bilər."
+          },
+          {
+            "description": "Mənfi cəhət: Çəkili qraflarda BFS ən qısa yolu tapa bilməz (Dijkstra tələb olunur)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda qraf alqoritmləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Qraf alqoritmləri şəbəkələrlə işləyən problemlərdə geniş istifadə olunur. BFS ilə ən qısa yol tapma problemi naviqasiya sistemlərində (məsələn, Google Maps-də iki nöqtə arasında ən qısa marşrut tapmaq) və sosial şəbəkələrdə (məsələn, LinkedIn-də bağlantı dərəcəsi hesablamaq) tətbiq edilir. DFS isə dövr aşkarlamaq (məsələn, proqramlaşdırmada dead-lock aşkarlanması) və ya bağlı komponentlər tapmaq üçün istifadə olunur. Məsələn, bir şəhər xəritəsində BFS ilə iki məntəqə arasında ən qısa yol tapıla bilər. Backtracking ilə müqayisədə qraf alqoritmləri daha strukturlaşdırılmış və səmərəlidir, çünki yalnız qrafın kənarlarını araşdırır. Dinamik proqramlaşdırma ilə müqayisədə isə yaddaş istifadəsi azdır, lakin çəkili qraflarda Dijkstra kimi xüsusi alqoritmlərə ehtiyac ola bilər. Qraf alqoritmləri müasir texnologiyalarda, məsələn, şəbəkə təhlükəsizliyi və oyun dizaynında vacibdir."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Qraf alqoritmlərinin əsas təhlükəsi böyük qraflarda hesablama yüküdür, xüsusilə qonşuluq matrisi ilə O(V²) vaxt tələb olunur. Böyük qraflarda yaddaş istifadəsi də problem ola bilər, xüsusilə sıx qraflarda. DFS-də dərin rekursiya stack overflow-a səbəb ola bilər. Tövsiyələrə gəlincə, qonşuluq siyahılarından istifadə edərək O(V + E) səmərəliliyinə nail olmaq mümkündür. Çəkili qraflarda BFS əvəzinə Dijkstra və ya Bellman-Ford alqoritmləri nəzərdən keçirilməlidir. Problemin xüsusiyyətlərinə uyğun alqoritm seçilməli, məsələn, ən qısa yol üçün BFS, dövr aşkarlamaq üçün DFS uyğundur. Alqoritmi müxtəlif ölçülü qraflarla sınaqdan keçirin və performansını qiymətləndirin. Əgər sürət prioritetdirsə, açgözlü alqoritmlər və ya heuristikalar (məsələn, A* alqoritmi) araşdırıla bilər, lakin onların optimal həll təmin etdiyi yoxlanılmalıdır."
+      }
+    ]
+  },
+  "en": {
+    "title": "Graph Algorithms",
+    "icon": "FiShare2",
+    "language": "multiple",
+    "description": "DFS, BFS, and other graph algorithms solve search and pathfinding problems in graph structures, exemplified by BFS for shortest path finding.",
+    "codes": {
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\n#define MAX 100\n\ntypedef struct {\n  int items[MAX];\n  int front, rear;\n} Queue;\n\nvoid initQueue(Queue* q) {\n  q->front = -1;\n  q->rear = -1;\n}\n\nvoid enqueue(Queue* q, int value) {\n  if (q->rear == MAX - 1) return;\n  if (q->front == -1) q->front = 0;\n  q->rear++;\n  q->items[q->rear] = value;\n}\n\nint dequeue(Queue* q) {\n  if (q->front == -1) return -1;\n  int item = q->items[q->front];\n  q->front++;\n  if (q->front > q->rear) q->front = q->rear = -1;\n  return item;\n}\n\nvoid bfs(int graph[MAX][MAX], int vertices, int start, int target) {\n  int visited[MAX] = {0};\n  int distance[MAX] = {0};\n  Queue q;\n  initQueue(&q);\n  visited[start] = 1;\n  enqueue(&q, start);\n  while (q.front != -1) {\n    int current = dequeue(&q);\n    if (current == target) {\n      printf(\"Distance to target: %d\\n\", distance[current]);\n      return;\n    }\n    for (int i = 0; i < vertices; i++) {\n      if (graph[current][i] && !visited[i]) {\n        visited[i] = 1;\n        distance[i] = distance[current] + 1;\n        enqueue(&q, i);\n      }\n    }\n  }\n  printf(\"Target not reachable\\n\");\n}\n\nint main() {\n  int vertices = 5;\n  int graph[MAX][MAX] = {\n    {0, 1, 1, 0, 0},\n    {1, 0, 0, 1, 0},\n    {1, 0, 0, 1, 1},\n    {0, 1, 1, 0, 1},\n    {0, 0, 1, 1, 0}\n  };\n  bfs(graph, vertices, 0, 4);\n  return 0;\n}\n// Output: Distance to target: 2",
+      "cpp": "#include <iostream>\n#include <queue>\n#include <vector>\n\nvoid bfs(std::vector<std::vector<int>>& graph, int start, int target) {\n  int vertices = graph.size();\n  std::vector<int> visited(vertices, 0);\n  std::vector<int> distance(vertices, 0);\n  std::queue<int> q;\n  visited[start] = 1;\n  q.push(start);\n  while (!q.empty()) {\n    int current = q.front();\n    q.pop();\n    if (current == target) {\n      std::cout << \"Distance to target: \" << distance[current] << std::endl;\n      return;\n    }\n    for (int i = 0; i < vertices; i++) {\n      if (graph[current][i] && !visited[i]) {\n        visited[i] = 1;\n        distance[i] = distance[current] + 1;\n        q.push(i);\n      }\n    }\n  }\n  std::cout << \"Target not reachable\" << std::endl;\n}\n\nint main() {\n  std::vector<std::vector<int>> graph = {\n    {0, 1, 1, 0, 0},\n    {1, 0, 0, 1, 0},\n    {1, 0, 0, 1, 1},\n    {0, 1, 1, 0, 1},\n    {0, 0, 1, 1, 0}\n  };\n  bfs(graph, 0, 4);\n  return 0;\n}\n// Output: Distance to target: 2",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass Program {\n  static void BFS(int[,] graph, int vertices, int start, int target) {\n    int[] visited = new int[vertices];\n    int[] distance = new int[vertices];\n    Queue<int> q = new Queue<int>();\n    visited[start] = 1;\n    q.Enqueue(start);\n    while (q.Count > 0) {\n      int current = q.Dequeue();\n      if (current == target) {\n        Console.WriteLine(\"Distance to target: \" + distance[current]);\n        return;\n      }\n      for (int i = 0; i < vertices; i++) {\n        if (graph[current, i] == 1 && visited[i] == 0) {\n          visited[i] = 1;\n          distance[i] = distance[current] + 1;\n          q.Enqueue(i);\n        }\n      }\n    }\n    Console.WriteLine(\"Target not reachable\");\n  }\n\n  static void Main() {\n    int vertices = 5;\n    int[,] graph = new int[,] {\n      {0, 1, 1, 0, 0},\n      {1, 0, 0, 1, 0},\n      {1, 0, 0, 1, 1},\n      {0, 1, 1, 0, 1},\n      {0, 0, 1, 1, 0}\n    };\n    BFS(graph, vertices, 0, 4);\n  }\n}\n// Output: Distance to target: 2",
+      "java": "import java.util.LinkedList;\nimport java.util.Queue;\n\npublic class Main {\n  static void bfs(int[][] graph, int start, int target) {\n    int vertices = graph.length;\n    int[] visited = new int[vertices];\n    int[] distance = new int[vertices];\n    Queue<Integer> q = new LinkedList<>();\n    visited[start] = 1;\n    q.add(start);\n    while (!q.isEmpty()) {\n      int current = q.poll();\n      if (current == target) {\n        System.out.println(\"Distance to target: \" + distance[current]);\n        return;\n      }\n      for (int i = 0; i < vertices; i++) {\n        if (graph[current][i] == 1 && visited[i] == 0) {\n          visited[i] = 1;\n          distance[i] = distance[current] + 1;\n          q.add(i);\n        }\n      }\n    }\n    System.out.println(\"Target not reachable\");\n  }\n\n  public static void main(String[] args) {\n    int[][] graph = {\n      {0, 1, 1, 0, 0},\n      {1, 0, 0, 1, 0},\n      {1, 0, 0, 1, 1},\n      {0, 1, 1, 0, 1},\n      {0, 0, 1, 1, 0}\n    };\n    bfs(graph, 0, 4);\n  }\n}\n// Output: Distance to target: 2",
+      "javascript": "function bfs(graph, start, target) {\n  const vertices = graph.length;\n  const visited = new Array(vertices).fill(0);\n  const distance = new Array(vertices).fill(0);\n  const queue = [];\n  visited[start] = 1;\n  queue.push(start);\n  while (queue.length > 0) {\n    const current = queue.shift();\n    if (current === target) {\n      console.log(`Distance to target: ${distance[current]}`);\n      return;\n    }\n    for (let i = 0; i < vertices; i++) {\n      if (graph[current][i] && !visited[i]) {\n        visited[i] = 1;\n        distance[i] = distance[current] + 1;\n        queue.push(i);\n      }\n    }\n  }\n  console.log(\"Target not reachable\");\n}\n\nconst graph = [\n  [0, 1, 1, 0, 0],\n  [1, 0, 0, 1, 0],\n  [1, 0, 0, 1, 1],\n  [0, 1, 1, 0, 1],\n  [0, 0, 1, 1, 0]\n];\nbfs(graph, 0, 4);\n// Output: Distance to target: 2",
+      "typescript": "function bfs(graph: number[][], start: number, target: number): void {\n  const vertices: number = graph.length;\n  const visited: number[] = new Array(vertices).fill(0);\n  const distance: number[] = new Array(vertices).fill(0);\n  const queue: number[] = [];\n  visited[start] = 1;\n  queue.push(start);\n  while (queue.length > 0) {\n    const current: number = queue.shift()!;\n    if (current === target) {\n      console.log(`Distance to target: ${distance[current]}`);\n      return;\n    }\n    for (let i = 0; i < vertices; i++) {\n      if (graph[current][i] && !visited[i]) {\n        visited[i] = 1;\n        distance[i] = distance[current] + 1;\n        queue.push(i);\n      }\n    }\n  }\n  console.log(\"Target not reachable\");\n}\n\nconst graph: number[][] = [\n  [0, 1, 1, 0, 0],\n  [1, 0, 0, 1, 0],\n  [1, 0, 0, 1, 1],\n  [0, 1, 1, 0, 1],\n  [0, 0, 1, 1, 0]\n];\nbfs(graph, 0, 4);\n// Output: Distance to target: 2",
+      "python": "from collections import deque\n\ndef bfs(graph, start, target):\n    vertices = len(graph)\n    visited = [0] * vertices\n    distance = [0] * vertices\n    queue = deque()\n    visited[start] = 1\n    queue.append(start)\n    while queue:\n        current = queue.popleft()\n        if current == target:\n            print(f\"Distance to target: {distance[current]}\")\n            return\n        for i in range(vertices):\n            if graph[current][i] and not visited[i]:\n                visited[i] = 1\n                distance[i] = distance[current] + 1\n                queue.append(i)\n    print(\"Target not reachable\")\n\ngraph = [\n    [0, 1, 1, 0, 0],\n    [1, 0, 0, 1, 0],\n    [1, 0, 0, 1, 1],\n    [0, 1, 1, 0, 1],\n    [0, 0, 1, 1, 0]\n]\nbfs(graph, 0, 4)\n# Output: Distance to target: 2",
+      "php": "<?php\n\nfunction bfs($graph, $start, $target) {\n  $vertices = count($graph);\n  $visited = array_fill(0, $vertices, 0);\n  $distance = array_fill(0, $vertices, 0);\n  $queue = [];\n  $visited[$start] = 1;\n  array_push($queue, $start);\n  while (!empty($queue)) {\n    $current = array_shift($queue);\n    if ($current == $target) {\n      echo \"Distance to target: \" . $distance[$current] . \"\\n\";\n      return;\n    }\n    for ($i = 0; $i < $vertices; $i++) {\n      if ($graph[$current][$i] && !$visited[$i]) {\n        $visited[$i] = 1;\n        $distance[$i] = $distance[$current] + 1;\n        array_push($queue, $i);\n      }\n    }\n  }\n  echo \"Target not reachable\\n\";\n}\n\n$graph = [\n  [0, 1, 1, 0, 0],\n  [1, 0, 0, 1, 0],\n  [1, 0, 0, 1, 1],\n  [0, 1, 1, 0, 1],\n  [0, 0, 1, 1, 0]\n];\nbfs($graph, 0, 4);\n// Output: Distance to target: 2"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Graph Algorithms?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Graph algorithms solve problems on graph structures, which consist of nodes (vertices) and connections between them (edges). A graph can represent, for example, a social network where people are nodes and friendships are edges. The most common graph algorithms are DFS (Depth-First Search) and BFS (Breadth-First Search). BFS for shortest path finding is a classic example: finding the shortest path from a start node to a target node in a graph. BFS explores the graph level by level and finds the optimal path in unweighted graphs. DFS, on the other hand, explores as far as possible along each branch before backtracking, useful for detecting cycles or connected components. Compared to backtracking, graph algorithms are more structured, and compared to dynamic programming, they require less memory but vary in efficiency depending on the problem."
+      },
+      {
+        "type": "heading",
+        "text": "How Do Graph Algorithms Work?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Graph algorithms traverse nodes and edges to solve problems. BFS and DFS use different strategies to explore the graph. For BFS, the process is as follows: 1) **Start node** - exploration begins at the start node, e.g., node 0. 2) **Queue usage** - BFS uses a queue to store nodes, adding all neighbors of the current node. 3) **Level-by-level search** - nodes are explored by distance (level), continuing until the target is found. 4) **Distance calculation** - the number of edges to reach each node is tracked. For example, in a 5-node graph, BFS finds the shortest path from node 0 to node 4 (e.g., via 0 → 2 → 4, distance 2). DFS explores one path to its end before backtracking. BFS is ideal for shortest path problems in unweighted graphs, while DFS is better for cycle detection or finding connected components."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of Graph Algorithms (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "The efficiency of graph algorithms depends on the graph representation (e.g., adjacency matrix or adjacency list). For BFS and DFS, the time complexity is O(V²) with an adjacency matrix, where V is the number of vertices, as all neighbors are checked. With an adjacency list, it’s O(V + E), where E is the number of edges, as only existing edges are explored. For example, in a 5-node, 7-edge graph, BFS takes O(5 + 7) = O(12) operations. Space complexity for BFS is O(V) for the queue and visited array, and for DFS, it’s O(V) due to the recursion stack. Compared to backtracking (e.g., O(N!) for N-Queens), graph algorithms are more efficient as they only explore the graph’s structure. Compared to dynamic programming (e.g., O(n * m) for Minimum Coin Change), graph algorithms use less memory but may be slower for specific problems."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages of Graph Algorithms"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Efficient search: BFS finds the shortest path, DFS detects cycles."
+          },
+          {
+            "description": "Versatility: Suitable for network analysis, pathfinding, etc."
+          },
+          {
+            "description": "Disadvantage: O(V²) time complexity for large graphs with adjacency matrices."
+          },
+          {
+            "description": "Disadvantage: BFS cannot find shortest paths in weighted graphs (requires Dijkstra)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Graph Algorithms in Real Life"
+      },
+      {
+        "type": "paragraph",
+        "text": "Graph algorithms are widely used in network-related problems. BFS for shortest path finding is applied in navigation systems (e.g., Google Maps finding the shortest route between two points) and social networks (e.g., LinkedIn calculating connection degrees). DFS is used for cycle detection (e.g., detecting deadlocks in programming) or finding connected components. For example, BFS can find the shortest path between two locations in a city map. Compared to backtracking, graph algorithms are more structured and efficient, as they only explore the graph’s edges. Compared to dynamic programming, they use less memory, but weighted graphs may require specialized algorithms like Dijkstra. Graph algorithms are crucial in modern technology, such as network security and game design."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "The main danger of graph algorithms is the computational load for large graphs, especially O(V²) with adjacency matrices. Memory usage can also be an issue for dense graphs. Deep recursion in DFS may cause stack overflow. Recommendations include using adjacency lists for O(V + E) efficiency. For weighted graphs, consider Dijkstra or Bellman-Ford instead of BFS. Choose the algorithm based on the problem’s needs, e.g., BFS for shortest paths, DFS for cycle detection. Test the algorithm with different graph sizes to evaluate performance. If speed is a priority, explore greedy algorithms or heuristics (e.g., A* algorithm), but verify they produce optimal solutions."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Графовые алгоритмы",
+    "icon": "FiShare2",
+    "language": "multiple",
+    "description": "DFS, BFS и другие графовые алгоритмы решают задачи поиска и нахождения путей в структурах графа, примером чего является BFS для поиска кратчайшего пути.",
+    "codes": {
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\n#define MAX 100\n\ntypedef struct {\n  int items[MAX];\n  int front, rear;\n} Queue;\n\nvoid initQueue(Queue* q) {\n  q->front = -1;\n  q->rear = -1;\n}\n\nvoid enqueue(Queue* q, int value) {\n  if (q->rear == MAX - 1) return;\n  if (q->front == -1) q->front = 0;\n  q->rear++;\n  q->items[q->rear] = value;\n}\n\nint dequeue(Queue* q) {\n  if (q->front == -1) return -1;\n  int item = q->items[q->front];\n  q->front++;\n  if (q->front > q->rear) q->front = q->rear = -1;\n  return item;\n}\n\nvoid bfs(int graph[MAX][MAX], int vertices, int start, int target) {\n  int visited[MAX] = {0};\n  int distance[MAX] = {0};\n  Queue q;\n  initQueue(&q);\n  visited[start] = 1;\n  enqueue(&q, start);\n  while (q.front != -1) {\n    int current = dequeue(&q);\n    if (current == target) {\n      printf(\"Distance to target: %d\\n\", distance[current]);\n      return;\n    }\n    for (int i = 0; i < vertices; i++) {\n      if (graph[current][i] && !visited[i]) {\n        visited[i] = 1;\n        distance[i] = distance[current] + 1;\n        enqueue(&q, i);\n      }\n    }\n  }\n  printf(\"Target not reachable\\n\");\n}\n\nint main() {\n  int vertices = 5;\n  int graph[MAX][MAX] = {\n    {0, 1, 1, 0, 0},\n    {1, 0, 0, 1, 0},\n    {1, 0, 0, 1, 1},\n    {0, 1, 1, 0, 1},\n    {0, 0, 1, 1, 0}\n  };\n  bfs(graph, vertices, 0, 4);\n  return 0;\n}\n// Output: Distance to target: 2",
+      "cpp": "#include <iostream>\n#include <queue>\n#include <vector>\n\nvoid bfs(std::vector<std::vector<int>>& graph, int start, int target) {\n  int vertices = graph.size();\n  std::vector<int> visited(vertices, 0);\n  std::vector<int> distance(vertices, 0);\n  std::queue<int> q;\n  visited[start] = 1;\n  q.push(start);\n  while (!q.empty()) {\n    int current = q.front();\n    q.pop();\n    if (current == target) {\n      std::cout << \"Distance to target: \" << distance[current] << std::endl;\n      return;\n    }\n    for (int i = 0; i < vertices; i++) {\n      if (graph[current][i] && !visited[i]) {\n        visited[i] = 1;\n        distance[i] = distance[current] + 1;\n        q.push(i);\n      }\n    }\n  }\n  std::cout << \"Target not reachable\" << std::endl;\n}\n\nint main() {\n  std::vector<std::vector<int>> graph = {\n    {0, 1, 1, 0, 0},\n    {1, 0, 0, 1, 0},\n    {1, 0, 0, 1, 1},\n    {0, 1, 1, 0, 1},\n    {0, 0, 1, 1, 0}\n  };\n  bfs(graph, 0, 4);\n  return 0;\n}\n// Output: Distance to target: 2",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass Program {\n  static void BFS(int[,] graph, int vertices, int start, int target) {\n    int[] visited = new int[vertices];\n    int[] distance = new int[vertices];\n    Queue<int> q = new Queue<int>();\n    visited[start] = 1;\n    q.Enqueue(start);\n    while (q.Count > 0) {\n      int current = q.Dequeue();\n      if (current == target) {\n        Console.WriteLine(\"Distance to target: \" + distance[current]);\n        return;\n      }\n      for (int i = 0; i < vertices; i++) {\n        if (graph[current, i] == 1 && visited[i] == 0) {\n          visited[i] = 1;\n          distance[i] = distance[current] + 1;\n          q.Enqueue(i);\n        }\n      }\n    }\n    Console.WriteLine(\"Target not reachable\");\n  }\n\n  static void Main() {\n    int vertices = 5;\n    int[,] graph = new int[,] {\n      {0, 1, 1, 0, 0},\n      {1, 0, 0, 1, 0},\n      {1, 0, 0, 1, 1},\n      {0, 1, 1, 0, 1},\n      {0, 0, 1, 1, 0}\n    };\n    BFS(graph, vertices, 0, 4);\n  }\n}\n// Output: Distance to target: 2",
+      "java": "import java.util.LinkedList;\nimport java.util.Queue;\n\npublic class Main {\n  static void bfs(int[][] graph, int start, int target) {\n    int vertices = graph.length;\n    int[] visited = new int[vertices];\n    int[] distance = new int[vertices];\n    Queue<Integer> q = new LinkedList<>();\n    visited[start] = 1;\n    q.add(start);\n    while (!q.isEmpty()) {\n      int current = q.poll();\n      if (current == target) {\n        System.out.println(\"Distance to target: \" + distance[current]);\n        return;\n      }\n      for (int i = 0; i < vertices; i++) {\n        if (graph[current][i] == 1 && visited[i] == 0) {\n          visited[i] = 1;\n          distance[i] = distance[current] + 1;\n          q.add(i);\n        }\n      }\n    }\n    System.out.println(\"Target not reachable\");\n  }\n\n  public static void main(String[] args) {\n    int[][] graph = {\n      {0, 1, 1, 0, 0},\n      {1, 0, 0, 1, 0},\n      {1, 0, 0, 1, 1},\n      {0, 1, 1, 0, 1},\n      {0, 0, 1, 1, 0}\n    };\n    bfs(graph, 0, 4);\n  }\n}\n// Output: Distance to target: 2",
+      "javascript": "function bfs(graph, start, target) {\n  const vertices = graph.length;\n  const visited = new Array(vertices).fill(0);\n  const distance = new Array(vertices).fill(0);\n  const queue = [];\n  visited[start] = 1;\n  queue.push(start);\n  while (queue.length > 0) {\n    const current = queue.shift();\n    if (current === target) {\n      console.log(`Distance to target: ${distance[current]}`);\n      return;\n    }\n    for (let i = 0; i < vertices; i++) {\n      if (graph[current][i] && !visited[i]) {\n        visited[i] = 1;\n        distance[i] = distance[current] + 1;\n        queue.push(i);\n      }\n    }\n  }\n  console.log(\"Target not reachable\");\n}\n\nconst graph = [\n  [0, 1, 1, 0, 0],\n  [1, 0, 0, 1, 0],\n  [1, 0, 0, 1, 1],\n  [0, 1, 1, 0, 1],\n  [0, 0, 1, 1, 0]\n];\nbfs(graph, 0, 4);\n// Output: Distance to target: 2",
+      "typescript": "function bfs(graph: number[][], start: number, target: number): void {\n  const vertices: number = graph.length;\n  const visited: number[] = new Array(vertices).fill(0);\n  const distance: number[] = new Array(vertices).fill(0);\n  const queue: number[] = [];\n  visited[start] = 1;\n  queue.push(start);\n  while (queue.length > 0) {\n    const current: number = queue.shift()!;\n    if (current === target) {\n      console.log(`Distance to target: ${distance[current]}`);\n      return;\n    }\n    for (let i = 0; i < vertices; i++) {\n      if (graph[current][i] && !visited[i]) {\n        visited[i] = 1;\n        distance[i] = distance[current] + 1;\n        queue.push(i);\n      }\n    }\n  }\n  console.log(\"Target not reachable\");\n}\n\nconst graph: number[][] = [\n  [0, 1, 1, 0, 0],\n  [1, 0, 0, 1, 0],\n  [1, 0, 0, 1, 1],\n  [0, 1, 1, 0, 1],\n  [0, 0, 1, 1, 0]\n];\nbfs(graph, 0, 4);\n// Output: Distance to target: 2",
+      "python": "from collections import deque\n\ndef bfs(graph, start, target):\n    vertices = len(graph)\n    visited = [0] * vertices\n    distance = [0] * vertices\n    queue = deque()\n    visited[start] = 1\n    queue.append(start)\n    while queue:\n        current = queue.popleft()\n        if current == target:\n            print(f\"Distance to target: {distance[current]}\")\n            return\n        for i in range(vertices):\n            if graph[current][i] and not visited[i]:\n                visited[i] = 1\n                distance[i] = distance[current] + 1\n                queue.append(i)\n    print(\"Target not reachable\")\n\ngraph = [\n    [0, 1, 1, 0, 0],\n    [1, 0, 0, 1, 0],\n    [1, 0, 0, 1, 1],\n    [0, 1, 1, 0, 1],\n    [0, 0, 1, 1, 0]\n]\nbfs(graph, 0, 4)\n# Output: Distance to target: 2",
+      "php": "<?php\n\nfunction bfs($graph, $start, $target) {\n  $vertices = count($graph);\n  $visited = array_fill(0, $vertices, 0);\n  $distance = array_fill(0, $vertices, 0);\n  $queue = [];\n  $visited[$start] = 1;\n  array_push($queue, $start);\n  while (!empty($queue)) {\n    $current = array_shift($queue);\n    if ($current == $target) {\n      echo \"Distance to target: \" . $distance[$current] . \"\\n\";\n      return;\n    }\n    for ($i = 0; $i < $vertices; $i++) {\n      if ($graph[$current][$i] && !$visited[$i]) {\n        $visited[$i] = 1;\n        $distance[$i] = $distance[$current] + 1;\n        array_push($queue, $i);\n      }\n    }\n  }\n  echo \"Target not reachable\\n\";\n}\n\n$graph = [\n  [0, 1, 1, 0, 0],\n  [1, 0, 0, 1, 0],\n  [1, 0, 0, 1, 1],\n  [0, 1, 1, 0, 1],\n  [0, 0, 1, 1, 0]\n];\nbfs($graph, 0, 4);\n// Output: Distance to target: 2"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое графовые алгоритмы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Графовые алгоритмы решают задачи на структурах графа, состоящих из вершин (узлов) и рёбер (связей между ними). Граф может представлять, например, социальную сеть, где люди — это вершины, а дружеские связи — рёбра. Наиболее известные графовые алгоритмы — это DFS (поиск в глубину) и BFS (поиск в ширину). BFS для поиска кратчайшего пути — классический пример: нахождение кратчайшего пути от начальной вершины к целевой в графе. BFS исследует граф по уровням и находит оптимальный путь в невзвешенных графах. DFS, напротив, исследует путь до конца, прежде чем вернуться назад, что полезно для обнаружения циклов или связанных компонент. По сравнению с бэктрекингом, графовые алгоритмы более структурированы, а по сравнению с динамическим программированием требуют меньше памяти, но их эффективность зависит от задачи."
+      },
+      {
+        "type": "heading",
+        "text": "Как работают графовые алгоритмы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Графовые алгоритмы обходят вершины и рёбра графа для решения задач. BFS и DFS используют разные стратегии обхода. Для BFS процесс следующий: 1) **Начальная вершина** — поиск начинается с начальной вершины, например, вершины 0. 2) **Использование очереди** — BFS использует очередь для хранения вершин, добавляя всех соседей текущей вершины. 3) **Поуровневый поиск** — вершины исследуются по уровням (расстоянию), пока не найдётся цель. 4) **Вычисление расстояния** — отслеживается количество рёбер до каждой вершины. Например, в графе с 5 вершинами BFS находит кратчайший путь от вершины 0 до вершины 4 (например, через 0 → 2 → 4, расстояние 2). DFS исследует один путь до конца, затем возвращается назад. BFS идеален для задач поиска кратчайшего пути в невзвешенных графах, тогда как DFS лучше подходит для обнаружения циклов или связанных компонент."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность графовых алгоритмов (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Эффективность графовых алгоритмов зависит от представления графа (например, матрица смежности или список смежности). Для BFS и DFS временная сложность с матрицей смежности составляет O(V²), где V — количество вершин, так как проверяются все соседи. Со списком смежности — O(V + E), где E — количество рёбер, так как исследуются только существующие рёбра. Например, в графе с 5 вершинами и 7 рёбрами BFS занимает O(5 + 7) = O(12) операций. Пространственная сложность для BFS — O(V) для очереди и массива посещённых вершин, для DFS — O(V) из-за стека рекурсии. По сравнению с бэктрекингом (например, O(N!) для задачи N ферзей), графовые алгоритмы эффективнее, так как исследуют только структуру графа. По сравнению с динамическим программированием (например, O(n * m) для задачи о минимальном количестве монет), они используют меньше памяти, но могут быть медленнее для специфических задач."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки графовых алгоритмов"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Эффективный поиск: BFS находит кратчайший путь, DFS обнаруживает циклы."
+          },
+          {
+            "description": "Универсальность: Подходит для анализа сетей, поиска путей и т.д."
+          },
+          {
+            "description": "Недостаток: O(V²) временная сложность для больших графов с матрицами смежности."
+          },
+          {
+            "description": "Недостаток: BFS не может найти кратчайший путь во взвешенных графах (требуется Dijkstra)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Графовые алгоритмы в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Графовые алгоритмы широко применяются в задачах, связанных с сетями. BFS для поиска кратчайшего пути используется в навигационных системах (например, Google Maps для нахождения кратчайшего маршрута между двумя точками) и социальных сетях (например, LinkedIn для вычисления степени связи). DFS применяется для обнаружения циклов (например, выявление deadlock в программировании) или поиска связанных компонент. Например, BFS может найти кратчайший путь между двумя точками на карте города. По сравнению с бэктрекингом, графовые алгоритмы более структурированы и эффективны, так как исследуют только рёбра графа. По сравнению с динамическим программированием, они используют меньше памяти, но для взвешенных графов могут потребоваться специализированные алгоритмы, такие как Dijkstra. Графовые алгоритмы важны в современных технологиях, таких как сетевая безопасность и дизайн игр."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основная опасность графовых алгоритмов — вычислительная нагрузка для больших графов, особенно O(V²) с матрицами смежности. Использование памяти также может быть проблемой для плотных графов. Глубокая рекурсия в DFS может вызвать переполнение стека. Рекомендации включают использование списков смежности для эффективности O(V + E). Для взвешенных графов вместо BFS рассмотрите Dijkstra или Bellman-Ford. Выбирайте алгоритм в зависимости от задачи, например, BFS для кратчайших путей, DFS для обнаружения циклов. Тестируйте алгоритм с графами разного размера для оценки производительности. Если скорость в приоритете, исследуйте жадные алгоритмы или эвристики (например, алгоритм A*), но проверяйте, дают ли они оптимальные решения."
+      }
+    ]
+  }
+}
