@@ -1,0 +1,506 @@
+{
+  "id": "preprocessor",
+  "az": {
+    "title": "Preprocessor",
+    "icon": "FiSettings",
+    "language": "c",
+    "description": "#include, #define, #ifdef və s.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Preprocessor Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində preprocessor (ön prosessor) kodu kompilyasiya edilməzdən əvvəl işləyən və kod üzərində dəyişikliklər edən bir vasitədir. Preprocessor direktivləri `#` simvolu ilə başlayır və kodun strukturunu dəyişdirmək, faylları daxil etmək, sabitlər təyin etmək və ya şərtli kompilyasiya üçün istifadə olunur. Bu direktivlər kompilyator tərəfindən işlənməzdən əvvəl kodu hazırlayır, məsələn, `#include` ilə başqa faylları kodunuza əlavə edir və ya `#define` ilə sabit dəyərlər təyin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas Preprocessor Direktivləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Preprocessor direktivləri C-də müxtəlif məqsədlər üçün istifadə olunur. Ən çox istifadə olunanlar `#include`, `#define`, `#ifdef`, `#ifndef`, `#endif` və `#else` direktivləridir."
+      },
+      {
+        "type": "heading",
+        "text": "#include Direktivi"
+      },
+      {
+        "type": "paragraph",
+        "text": "`#include` direktivi başqa faylların məzmununu cari kod faylına daxil etmək üçün istifadə olunur. İki forması var:\n- `#include <file>`: Standart kitabxana faylları üçün (məsələn, `<stdio.h>`).\n- `#include \"file\"`: İstifadəçi tərəfindən yaradılmış fayllar üçün (məsələn, `\"myfile.h\"`)."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  printf(\"Hello, World!\\n\");\n  return 0;\n}\n// Output:\n// Hello, World!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `#include <stdio.h>`: `stdio.h` faylını daxil edir, bu faylda `printf` funksiyası təyin olunub.\n- `printf`: Ekrana mesaj çıxarır."
+      },
+      {
+        "type": "heading",
+        "text": "#define Direktivi"
+      },
+      {
+        "type": "paragraph",
+        "text": "`#define` direktivi sabit dəyərlər və ya makrolar təyin etmək üçün istifadə olunur. Sabitlər adətən dəyişməyən dəyərləri (məsələn, PI) təyin etmək üçün, makrolar isə kiçik funksiyaları və ya kod fraqmentlərini əvəz etmək üçün istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define PI 3.14159\n#define SQUARE(x) ((x) * (x))\n\nint main() {\n  float radius = 5.0;\n  float area = PI * SQUARE(radius);\n  printf(\"Circle area: %.2f\\n\", area);\n  return 0;\n}\n// Output:\n// Circle area: 78.54"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `#define PI 3.14159`: `PI` sabitini təyin edir.\n- `#define SQUARE(x) ((x) * (x))`: `SQUARE` makrosu bir ədədin kvadratını hesablayır.\n- `area = PI * SQUARE(radius)`: Sabit və makrodan istifadə edərək çevrənin sahəsini hesablayır."
+      },
+      {
+        "type": "heading",
+        "text": "#ifdef, #ifndef, #endif və #else Direktivləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu direktivlər şərtli kompilyasiya üçün istifadə olunur. Kodun hansı hissələrinin kompilyasiya olunacağını müəyyənləşdirir.\n- `#ifdef NAME`: Əgər `NAME` təyin edilibsə, daxilindəki kod kompilyasiya olunur.\n- `#ifndef NAME`: Əgər `NAME` təyin edilməyibsə, daxilindəki kod kompilyasiya olunur.\n- `#endif`: Şərtli bloku bağlayır.\n- `#else`: Şərt doğru olmadıqda alternativ kodu kompilyasiya edir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define DEBUG\n\nint main() {\n  #ifdef DEBUG\n    printf(\"Debug mode is ON\\n\");\n  #else\n    printf(\"Debug mode is OFF\\n\");\n  #endif\n  return 0;\n}\n// Output:\n// Debug mode is ON"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `#define DEBUG`: `DEBUG` sabitini təyin edir.\n- `#ifdef DEBUG`: `DEBUG` təyin edildiyi üçün daxilindəki kod (`printf(\"Debug mode is ON\\n\")`) kompilyasiya olunur.\n- `#else`: Əgər `DEBUG` təyin edilməsəydi, bu hissə işləyəcəkdi.\n- `#endif`: Şərtli bloku bağlayır."
+      },
+      {
+        "type": "heading",
+        "text": "#ifndef ilə Header Fayllarının Qorunması"
+      },
+      {
+        "type": "paragraph",
+        "text": "`#ifndef` adətən header fayllarında eyni faylın təkrar daxil edilməsinin qarşısını almaq üçün istifadə olunur. Buna 'include guard' deyilir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// myheader.h\n#ifndef MYHEADER_H\n#define MYHEADER_H\n\nint add(int a, int b) {\n  return a + b;\n}\n\n#endif\n\n// main.c\n#include <stdio.h>\n#include \"myheader.h\"\n\nint main() {\n  printf(\"Sum: %d\\n\", add(3, 4));\n  return 0;\n}\n// Output:\n// Sum: 7"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `#ifndef MYHEADER_H`: `MYHEADER_H` təyin edilməyibsə, header faylının məzmunu daxil edilir.\n- `#define MYHEADER_H`: Təkrar daxil edilmənin qarşısını almaq üçün `MYHEADER_H` təyin edilir.\n- `#endif`: Bloku bağlayır.\n- `main.c`: `myheader.h` faylını daxil edir və `add` funksiyasını çağırır."
+      },
+      {
+        "type": "heading",
+        "text": "Preprocessor Direktivlərinin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Preprocessor direktivləri kodu daha çevik və idarəolunan edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nKodu modullaşdırmağa imkan verir (`#include` ilə)."
+          },
+          {
+            "description": "\nSabitlər və makrolar ilə təkrar istifadəni asanlaşdırır (`#define`)."
+          },
+          {
+            "description": "\nŞərtli kompilyasiya ilə müxtəlif ssenariləri dəstəkləyir (`#ifdef`, `#ifndef`)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Preprocessor direktivləri yeni başlayanlar üçün qarışıq ola bilər, çünki onlar kompilyasiya prosesindən əvvəl işləyir və səhvlər aşkar etmək çətin ola bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nHəddindən artıq makro istifadəsi kodu oxunması çətin edə bilər."
+          },
+          {
+            "description": "\nSəhv direktiv istifadəsi gözlənilməz nəticələrə səbəb ola bilər."
+          },
+          {
+            "description": "\nŞərtli kompilyasiya bloklarının düzgün bağlanmaması səhvlərə yol açır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Mürəkkəb makrolar və ya səhv şərtli direktivlər kodu anlaşılmaz və səhvə meylli edə bilər. `#endif` unudulması kompilyasiya xətalarına səbəb olur.\n- **Tövsiyələr**: Makroları sadə saxla. Header fayllarında `include guard` istifadə et. Şərtli blokları düzgün bağla. Kodu Visual Studio Code kimi redaktorlarda sına."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə səhv makro təyini səbəbindən gözlənilməz nəticə yaranır. Bu kod icra olunmamalıdır, sadəcə nəzəri nümunədir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define SQUARE(x) x * x // Səhv: Qapaqlar olmadan\n\nint main() {\n  int result = SQUARE(2 + 3);\n  printf(\"Result: %d\\n\", result);\n  return 0;\n}\n// Output:\n// Result: 11 (Gözlənirdi: 25)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `#define SQUARE(x) x * x`: Qapaqlar olmadan təyin edilmiş makro səhvə səbəb olur.\n- `SQUARE(2 + 3)`: `2 + 3 * 2 + 3` kimi hesablanır (11), halbuki `(2 + 3) * (2 + 3)` (25) gözlənilirdi.\n- Tövsiyə: Makrolarda həmişə qapaqlar istifadə et (`#define SQUARE(x) ((x) * (x))`)."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\n#define PI 3.14159\n#define SQUARE(x) ((x) * (x))\n\nint main() {\n  float radius = 5.0;\n  float area = PI * SQUARE(radius);\n  printf(\"Circle area: %.2f\\n\", area);\n  return 0;\n}\n// Output:\n// Circle area: 78.54"
+      }
+    ]
+  },
+  "en": {
+    "title": "Preprocessor",
+    "icon": "FiSettings",
+    "language": "c",
+    "description": "#include, #define, #ifdef, and more.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is the Preprocessor?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, the preprocessor is a tool that processes code before it is compiled. Preprocessor directives start with `#` and are used to modify the code’s structure, include files, define constants, or enable conditional compilation. These directives prepare the code for the compiler, for example, by including other files with `#include` or defining constants with `#define`."
+      },
+      {
+        "type": "heading",
+        "text": "Main Preprocessor Directives"
+      },
+      {
+        "type": "paragraph",
+        "text": "Preprocessor directives in C serve various purposes. The most commonly used ones are `#include`, `#define`, `#ifdef`, `#ifndef`, `#endif`, and `#else`."
+      },
+      {
+        "type": "heading",
+        "text": "#include Directive"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `#include` directive includes the contents of another file in the current code file. It has two forms:\n- `#include <file>`: For standard library files (e.g., `<stdio.h>`).\n- `#include \"file\"`: For user-defined files (e.g., `\"myfile.h\"`)."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  printf(\"Hello, World!\\n\");\n  return 0;\n}\n// Output:\n// Hello, World!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `#include <stdio.h>`: Includes the `stdio.h` file, which defines the `printf` function.\n- `printf`: Outputs a message to the screen."
+      },
+      {
+        "type": "heading",
+        "text": "#define Directive"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `#define` directive is used to define constants or macros. Constants are used for unchanging values (e.g., PI), while macros can replace small functions or code snippets."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define PI 3.14159\n#define SQUARE(x) ((x) * (x))\n\nint main() {\n  float radius = 5.0;\n  float area = PI * SQUARE(radius);\n  printf(\"Circle area: %.2f\\n\", area);\n  return 0;\n}\n// Output:\n// Circle area: 78.54"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `#define PI 3.14159`: Defines the constant `PI`.\n- `#define SQUARE(x) ((x) * (x))`: Defines a macro to calculate the square of a number.\n- `area = PI * SQUARE(radius)`: Uses the constant and macro to calculate the area of a circle."
+      },
+      {
+        "type": "heading",
+        "text": "#ifdef, #ifndef, #endif, and #else Directives"
+      },
+      {
+        "type": "paragraph",
+        "text": "These directives are used for conditional compilation, determining which parts of the code are compiled.\n- `#ifdef NAME`: If `NAME` is defined, the code inside is compiled.\n- `#ifndef NAME`: If `NAME` is not defined, the code inside is compiled.\n- `#endif`: Closes the conditional block.\n- `#else`: Compiles alternative code if the condition is false."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define DEBUG\n\nint main() {\n  #ifdef DEBUG\n    printf(\"Debug mode is ON\\n\");\n  #else\n    printf(\"Debug mode is OFF\\n\");\n  #endif\n  return 0;\n}\n// Output:\n// Debug mode is ON"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `#define DEBUG`: Defines the `DEBUG` constant.\n- `#ifdef DEBUG`: Since `DEBUG` is defined, the code inside (`printf(\"Debug mode is ON\\n\")`) is compiled.\n- `#else`: Would run if `DEBUG` were not defined.\n- `#endif`: Closes the conditional block."
+      },
+      {
+        "type": "heading",
+        "text": "#ifndef for Header File Protection"
+      },
+      {
+        "type": "paragraph",
+        "text": "`#ifndef` is commonly used in header files to prevent multiple inclusions, known as an 'include guard'."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// myheader.h\n#ifndef MYHEADER_H\n#define MYHEADER_H\n\nint add(int a, int b) {\n  return a + b;\n}\n\n#endif\n\n// main.c\n#include <stdio.h>\n#include \"myheader.h\"\n\nint main() {\n  printf(\"Sum: %d\\n\", add(3, 4));\n  return 0;\n}\n// Output:\n// Sum: 7"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `#ifndef MYHEADER_H`: Checks if `MYHEADER_H` is not defined, including the header content if true.\n- `#define MYHEADER_H`: Defines `MYHEADER_H` to prevent re-inclusion.\n- `#endif`: Closes the block.\n- `main.c`: Includes `myheader.h` and calls the `add` function."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Preprocessor Directives"
+      },
+      {
+        "type": "paragraph",
+        "text": "Preprocessor directives make code more flexible and manageable."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nEnable code modularity with `#include`." },
+          {
+            "description": "\nFacilitate reuse with constants and macros (`#define`)."
+          },
+          {
+            "description": "\nSupport different scenarios with conditional compilation (`#ifdef`, `#ifndef`)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Preprocessor directives can be confusing for beginners because they run before compilation, and errors can be hard to trace."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nOverusing macros can make code hard to read." },
+          {
+            "description": "\nIncorrect directive usage can cause unexpected results."
+          },
+          {
+            "description": "\nFailing to close conditional blocks properly leads to errors."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Complex macros or incorrect conditional directives can make code unclear and error-prone. Forgetting `#endif` causes compilation errors.\n- **Recommendations**: Keep macros simple. Use include guards in header files. Ensure conditional blocks are properly closed. Test code in editors like Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example shows an incorrect macro definition causing unexpected results. This code should not be run; it’s a theoretical example."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define SQUARE(x) x * x // Error: No parentheses\n\nint main() {\n  int result = SQUARE(2 + 3);\n  printf(\"Result: %d\\n\", result);\n  return 0;\n}\n// Output:\n// Result: 11 (Expected: 25)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `#define SQUARE(x) x * x`: A macro without parentheses causes an error.\n- `SQUARE(2 + 3)`: Evaluates as `2 + 3 * 2 + 3` (11), instead of `(2 + 3) * (2 + 3)` (25).\n- Recommendation: Always use parentheses in macros (`#define SQUARE(x) ((x) * (x))`)."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\n#define PI 3.14159\n#define SQUARE(x) ((x) * (x))\n\nint main() {\n  float radius = 5.0;\n  float area = PI * SQUARE(radius);\n  printf(\"Circle area: %.2f\\n\", area);\n  return 0;\n}\n// Output:\n// Circle area: 78.54"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Препроцессор",
+    "icon": "FiSettings",
+    "language": "c",
+    "description": "#include, #define, #ifdef и др.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое препроцессор?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C препроцессор — это инструмент, который обрабатывает код перед его компиляцией. Директивы препроцессора начинаются с `#` и используются для изменения структуры кода, включения файлов, определения констант или условной компиляции. Эти директивы подготавливают код для компилятора, например, включая другие файлы с помощью `#include` или определяя константы с помощью `#define`."
+      },
+      {
+        "type": "heading",
+        "text": "Основные директивы препроцессора"
+      },
+      {
+        "type": "paragraph",
+        "text": "Директивы препроцессора в C используются для различных целей. Наиболее распространённые — это `#include`, `#define`, `#ifdef`, `#ifndef`, `#endif` и `#else`."
+      },
+      {
+        "type": "heading",
+        "text": "Директива #include"
+      },
+      {
+        "type": "paragraph",
+        "text": "Директива `#include` включает содержимое другого файла в текущий файл кода. Она имеет две формы:\n- `#include <file>`: Для стандартных библиотечных файлов (например, `<stdio.h>`).\n- `#include \"file\"`: Для пользовательских файлов (например, `\"myfile.h\"`)."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  printf(\"Hello, World!\\n\");\n  return 0;\n}\n// Output:\n// Hello, World!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `#include <stdio.h>`: Включает файл `stdio.h`, в котором определена функция `printf`.\n- `printf`: Выводит сообщение на экран."
+      },
+      {
+        "type": "heading",
+        "text": "Директива #define"
+      },
+      {
+        "type": "paragraph",
+        "text": "Директива `#define` используется для определения констант или макросов. Константы применяются для неизменяемых значений (например, PI), а макросы — для замены небольших функций или фрагментов кода."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define PI 3.14159\n#define SQUARE(x) ((x) * (x))\n\nint main() {\n  float radius = 5.0;\n  float area = PI * SQUARE(radius);\n  printf(\"Circle area: %.2f\\n\", area);\n  return 0;\n}\n// Output:\n// Circle area: 78.54"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `#define PI 3.14159`: Определяет константу `PI`.\n- `#define SQUARE(x) ((x) * (x))`: Определяет макрос для вычисления квадрата числа.\n- `area = PI * SQUARE(radius)`: Использует константу и макрос для вычисления площади круга."
+      },
+      {
+        "type": "heading",
+        "text": "Директивы #ifdef, #ifndef, #endif и #else"
+      },
+      {
+        "type": "paragraph",
+        "text": "Эти директивы используются для условной компиляции, определяя, какие части кода будут скомпилированы.\n- `#ifdef NAME`: Если `NAME` определён, код внутри компилируется.\n- `#ifndef NAME`: Если `NAME` не определён, код внутри компилируется.\n- `#endif`: Завершает условный блок.\n- `#else`: Компилирует альтернативный код, если условие ложно."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define DEBUG\n\nint main() {\n  #ifdef DEBUG\n    printf(\"Debug mode is ON\\n\");\n  #else\n    printf(\"Debug mode is OFF\\n\");\n  #endif\n  return 0;\n}\n// Output:\n// Debug mode is ON"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `#define DEBUG`: Определяет константу `DEBUG`.\n- `#ifdef DEBUG`: Поскольку `DEBUG` определён, компилируется код внутри (`printf(\"Debug mode is ON\\n\")`).\n- `#else`: Выполнился бы, если бы `DEBUG` не был определён.\n- `#endif`: Завершает условный блок."
+      },
+      {
+        "type": "heading",
+        "text": "#ifndef для защиты заголовочных файлов"
+      },
+      {
+        "type": "paragraph",
+        "text": "`#ifndef` обычно используется в заголовочных файлах для предотвращения их многократного включения. Это называется 'include guard'."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// myheader.h\n#ifndef MYHEADER_H\n#define MYHEADER_H\n\nint add(int a, int b) {\n  return a + b;\n}\n\n#endif\n\n// main.c\n#include <stdio.h>\n#include \"myheader.h\"\n\nint main() {\n  printf(\"Sum: %d\\n\", add(3, 4));\n  return 0;\n}\n// Output:\n// Sum: 7"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `#ifndef MYHEADER_H`: Проверяет, не определён ли `MYHEADER_H`, и включает содержимое заголовочного файла, если это так.\n- `#define MYHEADER_H`: Определяет `MYHEADER_H`, чтобы предотвратить повторное включение.\n- `#endif`: Завершает блок.\n- `main.c`: Включает `myheader.h` и вызывает функцию `add`."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества директив препроцессора"
+      },
+      {
+        "type": "paragraph",
+        "text": "Директивы препроцессора делают код более гибким и управляемым."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПозволяют модулизировать код с помощью `#include`."
+          },
+          {
+            "description": "\nОблегчают повторное использование с помощью констант и макросов (`#define`)."
+          },
+          {
+            "description": "\nПоддерживают разные сценарии с помощью условной компиляции (`#ifdef`, `#ifndef`)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Директивы препроцессора могут быть запутанными для новичков, так как они выполняются до компиляции, и ошибки могут быть трудно обнаружимы."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nЧрезмерное использование макросов может затруднить чтение кода."
+          },
+          {
+            "description": "\nНеправильное использование директив может привести к непредсказуемым результатам."
+          },
+          {
+            "description": "\nНеправильное закрытие условных блоков вызывает ошибки компиляции."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Сложные макросы или неправильные условные директивы могут сделать код непонятным и склонным к ошибкам. Забытый `#endif` вызывает ошибки компиляции.\n- **Рекомендации**: Держите макросы простыми. Используйте include guard в заголовочных файлах. Убедитесь, что условные блоки правильно закрыты. Тестируйте код в редакторах, таких как Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример показывает неправильное определение макроса, приводящее к неожиданным результатам. Код не следует запускать; это теоретический пример."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define SQUARE(x) x * x // Ошибка: Без скобок\n\nint main() {\n  int result = SQUARE(2 + 3);\n  printf(\"Result: %d\\n\", result);\n  return 0;\n}\n// Output:\n// Result: 11 (Ожидалось: 25)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `#define SQUARE(x) x * x`: Макрос без скобок вызывает ошибку.\n- `SQUARE(2 + 3)`: Вычисляется как `2 + 3 * 2 + 3` (11), вместо `(2 + 3) * (2 + 3)` (25).\n- Рекомендация: Всегда используйте скобки в макросах (`#define SQUARE(x) ((x) * (x))`)."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\n#define PI 3.14159\n#define SQUARE(x) ((x) * (x))\n\nint main() {\n  float radius = 5.0;\n  float area = PI * SQUARE(radius);\n  printf(\"Circle area: %.2f\\n\", area);\n  return 0;\n}\n// Output:\n// Circle area: 78.54"
+      }
+    ]
+  }
+}

@@ -1,0 +1,406 @@
+{
+  "id": "stacks-queues",
+  "az": {
+    "title": "Stack və Queue",
+    "icon": "FiLayers",
+    "language": "c",
+    "description": "Stack və queue məlumat strukturları.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Stack və Queue Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində stack (yığın) və queue (növbə) məlumatların saxlanması və idarə edilməsi üçün istifadə olunan dinamik məlumat strukturlarıdır. Bu strukturlar verilənləri müəyyən bir qaydada saxlayır və əməliyyatlar üçün xüsusi qaydalar tətbiq edir. Stack 'son gələn, ilk çıxır' (LIFO - Last In, First Out) prinsipi ilə işləyir, queue isə 'ilk gələn, ilk çıxır' (FIFO - First In, First Out) prinsipinə əsaslanır. Bu JSON faylda hər iki struktur üçün əsas əməliyyatları (əlavə etmə, silmə, göstərmə) və onların istifadəsini izah edəcəyik. Kod nümunələri Pyodide mühitində işləyə bilər, çünki yalnız dinamik yaddaşdan istifadə edir."
+      },
+      {
+        "type": "heading",
+        "text": "Stack (Yığın)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stack, məlumatların yığın kimi saxlandığı bir məlumat strukturudur. Elementlər yalnız yığının üstünə əlavə olunur (push) və yalnız üstündən çıxarılır (pop). Bu, LIFO prinsipinə əsaslanır: son əlavə olunan element ilk çıxarılır. Məsələn, bir boşqab yığınını düşünün: yeni boşqab yuxarıya qoyulur, götürüləndə də ən üstəki alınır."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nstruct Stack {\n  struct Node* top;\n};\n\nvoid push(struct Stack* stack, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = stack->top;\n  stack->top = new_node;\n}\n\nint pop(struct Stack* stack) {\n  if (stack->top == NULL) {\n    printf(\"Stack boşdur\\n\");\n    return -1;\n  }\n  struct Node* temp = stack->top;\n  int data = temp->data;\n  stack->top = temp->next;\n  free(temp);\n  return data;\n}\n\nvoid print_stack(struct Stack* stack) {\n  struct Node* current = stack->top;\n  printf(\"Stack: \");\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Stack stack = {NULL};\n  push(&stack, 10);\n  push(&stack, 20);\n  push(&stack, 30);\n  print_stack(&stack);\n  printf(\"Pop: %d\\n\", pop(&stack));\n  print_stack(&stack);\n  return 0;\n}\n// Output:\n// Stack: 30 20 10\n// Pop: 30\n// Stack: 20 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `struct Node` stack-in hər elementini (düymü) təyin edir: `data` və `next` göstəricisi.\n- `struct Stack` yığının başını (`top`) saxlayır.\n- `push` funksiyası yeni elementi yığının üstünə əlavə edir.\n- `pop` funksiyası üst elementini çıxarır və yaddaşı azad edir (`free`).\n- `print_stack` yığının məzmununu göstərir.\n- Nümunə: 10, 20, 30 əlavə olunur, sonra 30 çıxarılır → [20|→] -> [10|NULL]."
+      },
+      {
+        "type": "heading",
+        "text": "Queue (Növbə)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Queue, məlumatların növbə kimi saxlandığı bir məlumat strukturudur. Elementlər növbənin sonuna əlavə olunur (enqueue) və başından çıxarılır (dequeue). Bu, FIFO prinsipinə əsaslanır: ilk əlavə olunan element ilk çıxarılır. Məsələn, bir bank növbəsini düşünün: ilk gələn ilk xidmət alır."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nstruct Queue {\n  struct Node* front;\n  struct Node* rear;\n};\n\nvoid enqueue(struct Queue* queue, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = NULL;\n\n  if (queue->rear == NULL) {\n    queue->front = new_node;\n    queue->rear = new_node;\n    return;\n  }\n\n  queue->rear->next = new_node;\n  queue->rear = new_node;\n}\n\nint dequeue(struct Queue* queue) {\n  if (queue->front == NULL) {\n    printf(\"Növbə boşdur\\n\");\n    return -1;\n  }\n  struct Node* temp = queue->front;\n  int data = temp->data;\n  queue->front = temp->next;\n  if (queue->front == NULL) {\n    queue->rear = NULL;\n  }\n  free(temp);\n  return data;\n}\n\nvoid print_queue(struct Queue* queue) {\n  struct Node* current = queue->front;\n  printf(\"Növbə: \");\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Queue queue = {NULL, NULL};\n  enqueue(&queue, 10);\n  enqueue(&queue, 20);\n  enqueue(&queue, 30);\n  print_queue(&queue);\n  printf(\"Dequeue: %d\\n\", dequeue(&queue));\n  print_queue(&queue);\n  return 0;\n}\n// Output:\n// Növbə: 10 20 30\n// Dequeue: 10\n// Növbə: 20 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `struct Queue` növbənin başını (`front`) və sonunu (`rear`) saxlayır.\n- `enqueue` funksiyası yeni elementi növbənin sonuna əlavə edir.\n- `dequeue` funksiyası növbənin başından elementi çıxarır və yaddaşı azad edir.\n- `print_queue` növbənin məzmununu göstərir.\n- Nümunə: 10, 20, 30 əlavə olunur, sonra 10 çıxarılır → [20|→] -> [30|NULL]."
+      },
+      {
+        "type": "heading",
+        "text": "Stack və Queue-nin Müqayisəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stack və Queue fərqli prinsiplərlə işləyir:\n- **Stack**: LIFO prinsipi (son gələn, ilk çıxır). Əməliyyatlar yalnız yığının üstündə aparılır.\n- **Queue**: FIFO prinsipi (ilk gələn, ilk çıxır). Əlavə etmə sondan, silmə başdan olur."
+      },
+      {
+        "type": "heading",
+        "text": "Stack və Queue-nin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu strukturlar müxtəlif ssenarilərdə faydalıdır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nStack: Proqramda geri qayıtma (undo) və ya funksiya çağırışlarını idarə etmək üçün idealdır."
+          },
+          {
+            "description": "\nQueue: Tapşırıqların ardıcıllıqla icrasını (məsələn, printer növbəsi) təmin edir."
+          },
+          {
+            "description": "\nDinamik ölçü: Elementləri asanlıqla əlavə etmək və silmək mümkündür."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stack və Queue yeni başlayanlar üçün çətin ola bilər, çünki göstəricilər və dinamik yaddaş idarəetməsi tələb olunur."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nGöstəricilər səhv istifadə edilərsə, proqram çökə bilər."
+          },
+          {
+            "description": "\nYaddaş sızması riski var, əgər `free` istifadə edilməzsə."
+          },
+          {
+            "description": "\nQueue-nin hər iki tərəfdən (front və rear) idarə edilməsi mürəkkəb ola bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Səhv göstərici idarəetməsi proqramın çökməsinə səbəb ola bilər. `free` istifadə edilməzsə, yaddaş sızması yaranar. Boş stack və ya queue-dən element çıxarmağa çalışmaq səhvə yol açar.\n- **Tövsiyələr**: Həmişə `malloc` ilə ayrılan yaddaşı `free` ilə azad edin. Boşluq yoxlamalarını aparın (NULL və ya empty). Kiçik testlərlə sınaq edin. Pyodide və ya Visual Studio Code-da sınaq aparın."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə stack-də yaddaş azad edilmədən elementlər əlavə edilir və çıxarılır, bu da yaddaş sızmasına səbəb ola bilər. Bu kodu icra etmək olar, lakin uzun müddətdə problem yarada bilər."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nstruct Stack {\n  struct Node* top;\n};\n\nvoid wrong_push(struct Stack* stack, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = stack->top;\n  stack->top = new_node;\n  // Səhv: Yaddaş idarəetməsi yoxdur\n}\n\nint wrong_pop(struct Stack* stack) {\n  if (stack->top == NULL) {\n    printf(\"Stack boşdur\\n\");\n    return -1;\n  }\n  struct Node* temp = stack->top;\n  int data = temp->data;\n  stack->top = temp->next;\n  // Səhv: temp azad edilmir\n  return data;\n}\n\nvoid print_stack(struct Stack* stack) {\n  struct Node* current = stack->top;\n  printf(\"Stack: \");\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Stack stack = {NULL};\n  wrong_push(&stack, 10);\n  wrong_push(&stack, 20);\n  print_stack(&stack);\n  printf(\"Pop: %d\\n\", wrong_pop(&stack));\n  print_stack(&stack);\n  return 0;\n}\n// Output:\n// Stack: 20 10\n// Pop: 20\n// Stack: 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `wrong_pop` funksiyası yaddaşı azad etmir (`free` istifadə edilmir).\n- Bu, yaddaş sızmasına (memory leak) səbəb ola bilər.\n- Tövsiyə: Həmişə `pop` və ya `dequeue` əməliyyatlarında yaddaşı `free` ilə azad edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nstruct Stack {\n  struct Node* top;\n};\n\nvoid push(struct Stack* stack, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = stack->top;\n  stack->top = new_node;\n}\n\nint pop(struct Stack* stack) {\n  if (stack->top == NULL) {\n    printf(\"Stack boşdur\\n\");\n    return -1;\n  }\n  struct Node* temp = stack->top;\n  int data = temp->data;\n  stack->top = temp->next;\n  free(temp);\n  return data;\n}\n\nvoid print_stack(struct Stack* stack) {\n  struct Node* current = stack->top;\n  printf(\"Stack: \");\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Stack stack = {NULL};\n  push(&stack, 10);\n  push(&stack, 20);\n  push(&stack, 30);\n  print_stack(&stack);\n  printf(\"Pop: %d\\n\", pop(&stack));\n  print_stack(&stack);\n  return 0;\n}\n// Output:\n// Stack: 30 20 10\n// Pop: 30\n// Stack: 20 10"
+      }
+    ]
+  },
+  "en": {
+    "title": "Stacks and Queues",
+    "icon": "FiLayers",
+    "language": "c",
+    "description": "Stack and queue data structures.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Stacks and Queues?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, stacks and queues are dynamic data structures used to store and manage data. These structures organize data in specific ways and follow distinct rules for operations. A stack operates on the 'Last In, First Out' (LIFO) principle, while a queue follows the 'First In, First Out' (FIFO) principle. This JSON file explains the core operations (adding, removing, displaying) for both structures. The code examples can run in Pyodide, as they only use dynamic memory."
+      },
+      {
+        "type": "heading",
+        "text": "Stack"
+      },
+      {
+        "type": "paragraph",
+        "text": "A stack is a data structure where data is stored like a stack of plates. Elements are added (pushed) and removed (popped) only from the top, following the LIFO principle: the last element added is the first removed. For example, think of a stack of plates where you add a new plate on top and remove the topmost one."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nstruct Stack {\n  struct Node* top;\n};\n\nvoid push(struct Stack* stack, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = stack->top;\n  stack->top = new_node;\n}\n\nint pop(struct Stack* stack) {\n  if (stack->top == NULL) {\n    printf(\"Stack is empty\\n\");\n    return -1;\n  }\n  struct Node* temp = stack->top;\n  int data = temp->data;\n  stack->top = temp->next;\n  free(temp);\n  return data;\n}\n\nvoid print_stack(struct Stack* stack) {\n  struct Node* current = stack->top;\n  printf(\"Stack: \");\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Stack stack = {NULL};\n  push(&stack, 10);\n  push(&stack, 20);\n  push(&stack, 30);\n  print_stack(&stack);\n  printf(\"Pop: %d\\n\", pop(&stack));\n  print_stack(&stack);\n  return 0;\n}\n// Output:\n// Stack: 30 20 10\n// Pop: 30\n// Stack: 20 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `struct Node` defines each stack element (node): `data` and `next` pointer.\n- `struct Stack` holds the `top` of the stack.\n- `push` adds a new element to the top.\n- `pop` removes the top element and frees memory.\n- `print_stack` displays the stack.\n- Example: 10, 20, 30 are pushed, then 30 is popped → [20|→] -> [10|NULL]."
+      },
+      {
+        "type": "heading",
+        "text": "Queue"
+      },
+      {
+        "type": "paragraph",
+        "text": "A queue is a data structure where data is stored like a line of people. Elements are added (enqueued) at the rear and removed (dequeued) from the front, following the FIFO principle: the first element added is the first removed. For example, think of a bank queue where the first person in line is served first."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nstruct Queue {\n  struct Node* front;\n  struct Node* rear;\n};\n\nvoid enqueue(struct Queue* queue, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = NULL;\n\n  if (queue->rear == NULL) {\n    queue->front = new_node;\n    queue->rear = new_node;\n    return;\n  }\n\n  queue->rear->next = new_node;\n  queue->rear = new_node;\n}\n\nint dequeue(struct Queue* queue) {\n  if (queue->front == NULL) {\n    printf(\"Queue is empty\\n\");\n    return -1;\n  }\n  struct Node* temp = queue->front;\n  int data = temp->data;\n  queue->front = temp->next;\n  if (queue->front == NULL) {\n    queue->rear = NULL;\n  }\n  free(temp);\n  return data;\n}\n\nvoid print_queue(struct Queue* queue) {\n  struct Node* current = queue->front;\n  printf(\"Queue: \");\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Queue queue = {NULL, NULL};\n  enqueue(&queue, 10);\n  enqueue(&queue, 20);\n  enqueue(&queue, 30);\n  print_queue(&queue);\n  printf(\"Dequeue: %d\\n\", dequeue(&queue));\n  print_queue(&queue);\n  return 0;\n}\n// Output:\n// Queue: 10 20 30\n// Dequeue: 10\n// Queue: 20 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `struct Queue` holds the `front` and `rear` of the queue.\n- `enqueue` adds a new element to the rear.\n- `dequeue` removes an element from the front and frees memory.\n- `print_queue` displays the queue.\n- Example: 10, 20, 30 are enqueued, then 10 is dequeued → [20|→] -> [30|NULL]."
+      },
+      {
+        "type": "heading",
+        "text": "Comparison of Stack and Queue"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stacks and queues operate on different principles:\n- **Stack**: LIFO (Last In, First Out). Operations occur only at the top.\n- **Queue**: FIFO (First In, First Out). Elements are added at the rear and removed from the front."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Stacks and Queues"
+      },
+      {
+        "type": "paragraph",
+        "text": "These structures are useful in various scenarios."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nStack: Ideal for undo operations or managing function calls."
+          },
+          {
+            "description": "\nQueue: Ensures sequential task execution (e.g., printer queue)."
+          },
+          { "description": "\nDynamic size: Easy to add or remove elements." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stacks and queues can be challenging for beginners due to pointers and dynamic memory management."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nIncorrect pointer handling can crash the program."
+          },
+          {
+            "description": "\nMemory leaks are possible if `free` is not used."
+          },
+          {
+            "description": "\nManaging both front and rear in queues can be complex."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Incorrect pointer handling can crash the program. Not freeing memory causes memory leaks. Attempting to pop or dequeue from an empty structure leads to errors.\n- **Recommendations**: Always free memory allocated with `malloc` using `free`. Check for empty structures (NULL or empty). Test with small inputs. Run code in Pyodide or Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example adds and removes elements from a stack without freeing memory, potentially causing a memory leak. The code can be run but may cause issues over time."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nstruct Stack {\n  struct Node* top;\n};\n\nvoid wrong_push(struct Stack* stack, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = stack->top;\n  stack->top = new_node;\n  // Error: No memory management\n}\n\nint wrong_pop(struct Stack* stack) {\n  if (stack->top == NULL) {\n    printf(\"Stack is empty\\n\");\n    return -1;\n  }\n  struct Node* temp = stack->top;\n  int data = temp->data;\n  stack->top = temp->next;\n  // Error: temp not freed\n  return data;\n}\n\nvoid print_stack(struct Stack* stack) {\n  struct Node* current = stack->top;\n  printf(\"Stack: \");\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Stack stack = {NULL};\n  wrong_push(&stack, 10);\n  wrong_push(&stack, 20);\n  print_stack(&stack);\n  printf(\"Pop: %d\\n\", wrong_pop(&stack));\n  print_stack(&stack);\n  return 0;\n}\n// Output:\n// Stack: 20 10\n// Pop: 20\n// Stack: 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `wrong_pop` function does not free memory (`free` is not used).\n- This can cause a memory leak.\n- Recommendation: Always free memory in `pop` or `dequeue` operations using `free`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nstruct Stack {\n  struct Node* top;\n};\n\nvoid push(struct Stack* stack, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = stack->top;\n  stack->top = new_node;\n}\n\nint pop(struct Stack* stack) {\n  if (stack->top == NULL) {\n    printf(\"Stack is empty\\n\");\n    return -1;\n  }\n  struct Node* temp = stack->top;\n  int data = temp->data;\n  stack->top = temp->next;\n  free(temp);\n  return data;\n}\n\nvoid print_stack(struct Stack* stack) {\n  struct Node* current = stack->top;\n  printf(\"Stack: \");\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Stack stack = {NULL};\n  push(&stack, 10);\n  push(&stack, 20);\n  push(&stack, 30);\n  print_stack(&stack);\n  printf(\"Pop: %d\\n\", pop(&stack));\n  print_stack(&stack);\n  return 0;\n}\n// Output:\n// Stack: 30 20 10\n// Pop: 30\n// Stack: 20 10"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Стеки и очереди",
+    "icon": "FiLayers",
+    "language": "c",
+    "description": "Структуры данных стек и очередь.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое стеки и очереди?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C стеки и очереди — это динамические структуры данных для хранения и управления данными. Эти структуры организуют данные определённым образом и следуют строгим правилам для операций. Стек работает по принципу 'последним вошёл, первым вышел' (LIFO - Last In, First Out), а очередь — по принципу 'первым вошёл, первым вышел' (FIFO - First In, First Out). Этот JSON-файл объясняет основные операции (добавление, удаление, отображение) для обеих структур. Примеры кода могут работать в Pyodide, так как используют только динамическую память."
+      },
+      {
+        "type": "heading",
+        "text": "Стек"
+      },
+      {
+        "type": "paragraph",
+        "text": "Стек — это структура данных, где данные хранятся как стопка тарелок. Элементы добавляются (push) и удаляются (pop) только с вершины, следуя принципу LIFO: последний добавленный элемент удаляется первым. Например, представьте стопку тарелок: новая тарелка кладётся сверху, а снимается верхняя."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nstruct Stack {\n  struct Node* top;\n};\n\nvoid push(struct Stack* stack, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = stack->top;\n  stack->top = new_node;\n}\n\nint pop(struct Stack* stack) {\n  if (stack->top == NULL) {\n    printf(\"Стек пуст\\n\");\n    return -1;\n  }\n  struct Node* temp = stack->top;\n  int data = temp->data;\n  stack->top = temp->next;\n  free(temp);\n  return data;\n}\n\nvoid print_stack(struct Stack* stack) {\n  struct Node* current = stack->top;\n  printf(\"Стек: \");\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Stack stack = {NULL};\n  push(&stack, 10);\n  push(&stack, 20);\n  push(&stack, 30);\n  print_stack(&stack);\n  printf(\"Pop: %d\\n\", pop(&stack));\n  print_stack(&stack);\n  return 0;\n}\n// Output:\n// Стек: 30 20 10\n// Pop: 30\n// Стек: 20 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `struct Node` определяет каждый элемент стека (узел): `data` и указатель `next`.\n- `struct Stack` хранит вершину стека (`top`).\n- `push` добавляет новый элемент на вершину.\n- `pop` удаляет верхний элемент и освобождает память.\n- `print_stack` отображает стек.\n- Пример: 10, 20, 30 добавляются, затем 30 удаляется → [20|→] -> [10|NULL]."
+      },
+      {
+        "type": "heading",
+        "text": "Очередь"
+      },
+      {
+        "type": "paragraph",
+        "text": "Очередь — это структура данных, где данные хранятся как очередь людей. Элементы добавляются (enqueue) в конец и удаляются (dequeue) с начала, следуя принципу FIFO: первый добавленный элемент удаляется первым. Например, представьте очередь в банке, где первый в очереди обслуживается первым."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nstruct Queue {\n  struct Node* front;\n  struct Node* rear;\n};\n\nvoid enqueue(struct Queue* queue, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = NULL;\n\n  if (queue->rear == NULL) {\n    queue->front = new_node;\n    queue->rear = new_node;\n    return;\n  }\n\n  queue->rear->next = new_node;\n  queue->rear = new_node;\n}\n\nint dequeue(struct Queue* queue) {\n  if (queue->front == NULL) {\n    printf(\"Очередь пуста\\n\");\n    return -1;\n  }\n  struct Node* temp = queue->front;\n  int data = temp->data;\n  queue->front = temp->next;\n  if (queue->front == NULL) {\n    queue->rear = NULL;\n  }\n  free(temp);\n  return data;\n}\n\nvoid print_queue(struct Queue* queue) {\n  struct Node* current = queue->front;\n  printf(\"Очередь: \");\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Queue queue = {NULL, NULL};\n  enqueue(&queue, 10);\n  enqueue(&queue, 20);\n  enqueue(&queue, 30);\n  print_queue(&queue);\n  printf(\"Dequeue: %d\\n\", dequeue(&queue));\n  print_queue(&queue);\n  return 0;\n}\n// Output:\n// Очередь: 10 20 30\n// Dequeue: 10\n// Очередь: 20 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `struct Queue` хранит начало (`front`) и конец (`rear`) очереди.\n- `enqueue` добавляет новый элемент в конец.\n- `dequeue` удаляет элемент с начала и освобождает память.\n- `print_queue` отображает очередь.\n- Пример: 10, 20, 30 добавляются, затем 10 удаляется → [20|→] -> [30|NULL]."
+      },
+      {
+        "type": "heading",
+        "text": "Сравнение стека и очереди"
+      },
+      {
+        "type": "paragraph",
+        "text": "Стеки и очереди работают по разным принципам:\n- **Стек**: LIFO (последним вошёл, первым вышел). Операции происходят только на вершине.\n- **Очередь**: FIFO (первым вошёл, первым вышел). Добавление с конца, удаление с начала."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества стеков и очередей"
+      },
+      {
+        "type": "paragraph",
+        "text": "Эти структуры полезны в различных сценариях."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСтек: Идеален для операций отмены (undo) или управления вызовами функций."
+          },
+          {
+            "description": "\nОчередь: Обеспечивает последовательное выполнение задач (например, очередь принтера)."
+          },
+          {
+            "description": "\nДинамический размер: Легко добавлять или удалять элементы."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Стеки и очереди могут быть сложными для новичков из-за указателей и управления динамической памятью."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nНеправильная работа с указателями может привести к сбою программы."
+          },
+          {
+            "description": "\nУтечки памяти возможны, если не использовать `free`."
+          },
+          {
+            "description": "\nУправление началом и концом очереди может быть сложным."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильная работа с указателями может привести к сбою программы. Неосвобождение памяти вызывает утечки. Попытка извлечь элемент из пустого стека или очереди приводит к ошибкам.\n- **Рекомендации**: Всегда освобождайте память, выделенную с помощью `malloc`, используя `free`. Проверяйте пустоту структуры (NULL или empty). Тестируйте с небольшими данными. Запускайте код в Pyodide или Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример добавляет и удаляет элементы из стека без освобождения памяти, что может вызвать утечку памяти. Код можно запустить, но со временем он может создать проблемы."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nstruct Stack {\n  struct Node* top;\n};\n\nvoid wrong_push(struct Stack* stack, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = stack->top;\n  stack->top = new_node;\n  // Ошибка: Нет управления памятью\n}\n\nint wrong_pop(struct Stack* stack) {\n  if (stack->top == NULL) {\n    printf(\"Стек пуст\\n\");\n    return -1;\n  }\n  struct Node* temp = stack->top;\n  int data = temp->data;\n  stack->top = temp->next;\n  // Ошибка: temp не освобождается\n  return data;\n}\n\nvoid print_stack(struct Stack* stack) {\n  struct Node* current = stack->top;\n  printf(\"Стек: \");\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Stack stack = {NULL};\n  wrong_push(&stack, 10);\n  wrong_push(&stack, 20);\n  print_stack(&stack);\n  printf(\"Pop: %d\\n\", wrong_pop(&stack));\n  print_stack(&stack);\n  return 0;\n}\n// Output:\n// Стек: 20 10\n// Pop: 20\n// Стек: 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `wrong_pop` не освобождает память (`free` не используется).\n- Это может вызвать утечку памяти.\n- Рекомендация: Всегда освобождайте память в операциях `pop` или `dequeue` с помощью `free`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nstruct Stack {\n  struct Node* top;\n};\n\nvoid push(struct Stack* stack, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = stack->top;\n  stack->top = new_node;\n}\n\nint pop(struct Stack* stack) {\n  if (stack->top == NULL) {\n    printf(\"Стек пуст\\n\");\n    return -1;\n  }\n  struct Node* temp = stack->top;\n  int data = temp->data;\n  stack->top = temp->next;\n  free(temp);\n  return data;\n}\n\nvoid print_stack(struct Stack* stack) {\n  struct Node* current = stack->top;\n  printf(\"Стек: \");\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Stack stack = {NULL};\n  push(&stack, 10);\n  push(&stack, 20);\n  push(&stack, 30);\n  print_stack(&stack);\n  printf(\"Pop: %d\\n\", pop(&stack));\n  print_stack(&stack);\n  return 0;\n}\n// Output:\n// Стек: 30 20 10\n// Pop: 30\n// Стек: 20 10"
+      }
+    ]
+  }
+}

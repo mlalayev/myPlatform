@@ -1,0 +1,457 @@
+{
+  "id": "linked-lists",
+  "az": {
+    "title": "Bağlı Siyahılar",
+    "icon": "FiLink",
+    "language": "c",
+    "description": "Linked list strukturları.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Bağlı Siyahılar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində bağlı siyahı (linked list), məlumatları saxlamaq üçün istifadə olunan dinamik bir məlumat strukturudur. Massivlərdən fərqli olaraq, bağlı siyahılar elementləri bir-birinə göstəricilər (pointers) vasitəsilə bağlayır. Hər element (düym adlanır) iki hissədən ibarətdir: **məlumat** (data) və **növbəti elementə göstərici** (next pointer). Bağlı siyahılar dinamik ölçüyə malikdir, yəni elementləri əlavə etmək və ya silmək asandır. Bu JSON faylda əsasən **tək bağlı siyahı** (singly linked list) üzərində dayanacağıq, çünki bu, yeni başlayanlar üçün ən sadə formada başa düşüləndir. Kod nümunələri Pyodide mühitində işləyə bilər, çünki yalnız dinamik yaddaşdan istifadə edir."
+      },
+      {
+        "type": "heading",
+        "text": "Tək Bağlı Siyahının Strukturu"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tək bağlı siyahıda hər düym bir məlumat və növbəti düymə işarə edən göstərici saxlayır. Siyahının başlanğıcı **head** adlanır, sonu isə **NULL** göstəricisi ilə bitir. Aşağıdakı diaqram bunu izah edir:\n- [head] -> [data|next] -> [data|next] -> [data|NULL]\nBu strukturu C-də təyin etmək üçün `struct` istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nint main() {\n  printf(\"Tək bağlı siyahı strukturu təyin edildi\\n\");\n  return 0;\n}\n// Output:\n// Tək bağlı siyahı strukturu təyin edildi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `struct Node` bir düymü təyin edir: `data` (ədəd) və `next` (növbəti düymə işarə edən göstərici).\n- `stdlib.h` dinamik yaddaş (`malloc`, `free`) üçün lazımdır.\n- Bu, sadəcə struktur təyinatıdır; aşağıda əməliyyatları görəcəyik."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas Əməliyyatlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bağlı siyahılarla işləmək üçün bir neçə əsas əməliyyat var: element əlavə etmə, element silmə və siyahını göstərmə. Aşağıda bunları nümunələrlə izah edirik."
+      },
+      {
+        "type": "heading",
+        "text": "Element Əlavə Etmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Siyahının sonuna element əlavə etmək üçün yeni düym yaradılır və siyahının sonuna bağlanır."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nvoid append(struct Node** head, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = NULL;\n\n  if (*head == NULL) {\n    *head = new_node;\n    return;\n  }\n\n  struct Node* current = *head;\n  while (current->next != NULL) {\n    current = current->next;\n  }\n  current->next = new_node;\n}\n\nvoid print_list(struct Node* head) {\n  struct Node* current = head;\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Node* head = NULL;\n  append(&head, 10);\n  append(&head, 20);\n  append(&head, 30);\n  printf(\"Bağlı siyahı: \");\n  print_list(head);\n  return 0;\n}\n// Output:\n// Bağlı siyahı: 10 20 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `append` funksiyası yeni düym yaradır və siyahının sonuna əlavə edir.\n- `malloc` dinamik yaddaş ayırır, `new_node->next = NULL` son düymü göstərir.\n- `print_list` siyahını ekrana çıxarır.\n- Siyahı: [10|→] -> [20|→] -> [30|NULL]."
+      },
+      {
+        "type": "heading",
+        "text": "Element Silmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Müəyyən bir dəyəri silmək üçün siyahıda axtarılır və həmin düym silinərək yaddaş azad edilir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nvoid append(struct Node** head, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = NULL;\n\n  if (*head == NULL) {\n    *head = new_node;\n    return;\n  }\n\n  struct Node* current = *head;\n  while (current->next != NULL) {\n    current = current->next;\n  }\n  current->next = new_node;\n}\n\nvoid delete_node(struct Node** head, int key) {\n  struct Node* temp = *head;\n  struct Node* prev = NULL;\n\n  if (temp != NULL && temp->data == key) {\n    *head = temp->next;\n    free(temp);\n    return;\n  }\n\n  while (temp != NULL && temp->data != key) {\n    prev = temp;\n    temp = temp->next;\n  }\n\n  if (temp == NULL) return;\n\n  prev->next = temp->next;\n  free(temp);\n}\n\nvoid print_list(struct Node* head) {\n  struct Node* current = head;\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Node* head = NULL;\n  append(&head, 10);\n  append(&head, 20);\n  append(&head, 30);\n  printf(\"Əvvəlki siyahı: \");\n  print_list(head);\n  delete_node(&head, 20);\n  printf(\"20 silindikdən sonra: \");\n  print_list(head);\n  return 0;\n}\n// Output:\n// Əvvəlki siyahı: 10 20 30\n// 20 silindikdən sonra: 10 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `delete_node` funksiyası `key` dəyərini axtarır və silir.\n- Əgər `key` başda olarsa, `head` yenilənir.\n- `prev` və `temp` göstəriciləri ilə siyahıda hərəkət edilir.\n- `free` yaddaşı azad edir.\n- Siyahı: [10|→] -> [20|→] -> [30|NULL] → [10|→] -> [30|NULL]."
+      },
+      {
+        "type": "heading",
+        "text": "Bağlı Siyahıların Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bağlı siyahılar dinamik və çevikdir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nDinamik ölçü: Elementləri asanlıqla əlavə etmək və silmək mümkündür."
+          },
+          {
+            "description": "\nYaddaşın effektiv istifadəsi: Yalnız lazım olan qədər yaddaş ayrılır."
+          },
+          {
+            "description": "\nMüxtəlif strukturlarda (siyahılar, ağaclar) əsas kimi istifadə olunur."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bağlı siyahılar yeni başlayanlar üçün çətin ola bilər, çünki göstəricilər və dinamik yaddaş idarəetməsi tələb olunur."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nGöstəricilər səhv istifadə edilərsə, proqram çökə bilər."
+          },
+          {
+            "description": "\nYaddaş sızması (memory leak) riski var, əgər `free` istifadə edilməzsə."
+          },
+          {
+            "description": "\nMassivlərdən fərqli olaraq, elementlərə birbaşa indekslə giriş yoxdur."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Səhv göstərici idarəetməsi proqramın çökməsinə səbəb ola bilər. `free` istifadə edilməzsə, yaddaş sızması yaranar. NULL göstəriciləri yoxlanılmazsa, səhvlər baş verər.\n- **Tövsiyələr**: Həmişə `malloc` ilə ayrılan yaddaşı `free` ilə azad edin. Göstəriciləri yoxlayın (NULL olub-olmaması). Kiçik siyahılarla test edin. Pyodide və ya Visual Studio Code-da sınaq aparın."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə yaddaş azad edilmədən siyahıya element əlavə edilir, bu da yaddaş sızmasına səbəb ola bilər. Bu kodu icra etmək olar, lakin uzun müddətdə problem yarada bilər."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nvoid wrong_append(struct Node** head, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = NULL;\n\n  if (*head == NULL) {\n    *head = new_node;\n    return;\n  }\n\n  struct Node* current = *head;\n  while (current->next != NULL) {\n    current = current->next;\n  }\n  current->next = new_node;\n  // Səhv: Yaddaş azad edilmir\n}\n\nvoid print_list(struct Node* head) {\n  struct Node* current = head;\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Node* head = NULL;\n  wrong_append(&head, 10);\n  wrong_append(&head, 20);\n  printf(\"Bağlı siyahı: \");\n  print_list(head);\n  // Yaddaş azad edilmir\n  return 0;\n}\n// Output:\n// Bağlı siyahı: 10 20"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `wrong_append` funksiyası yaddaşı `malloc` ilə ayırır, lakin proqram bitdikdə `free` istifadə edilmir.\n- Bu, yaddaş sızmasına (memory leak) səbəb ola bilər.\n- Tövsiyə: Həmişə proqram bitdikdə siyahının bütün düymlərini `free` ilə azad edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nvoid append(struct Node** head, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = NULL;\n\n  if (*head == NULL) {\n    *head = new_node;\n    return;\n  }\n\n  struct Node* current = *head;\n  while (current->next != NULL) {\n    current = current->next;\n  }\n  current->next = new_node;\n}\n\nvoid print_list(struct Node* head) {\n  struct Node* current = head;\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Node* head = NULL;\n  append(&head, 10);\n  append(&head, 20);\n  append(&head, 30);\n  printf(\"Bağlı siyahı: \");\n  print_list(head);\n  return 0;\n}\n// Output:\n// Bağlı siyahı: 10 20 30"
+      }
+    ]
+  },
+  "en": {
+    "title": "Linked Lists",
+    "icon": "FiLink",
+    "language": "c",
+    "description": "Linked list structures.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Linked Lists?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, a linked list is a dynamic data structure used to store data. Unlike arrays, linked lists connect elements using pointers. Each element (called a node) consists of two parts: **data** and a **pointer to the next node**. Linked lists have a dynamic size, making it easy to add or remove elements. This JSON file focuses on the **singly linked list**, as it is the simplest form for beginners. The code examples can run in Pyodide, as they only use dynamic memory."
+      },
+      {
+        "type": "heading",
+        "text": "Structure of a Singly Linked List"
+      },
+      {
+        "type": "paragraph",
+        "text": "In a singly linked list, each node contains data and a pointer to the next node. The list starts with a **head** and ends with a **NULL** pointer. The following diagram illustrates this:\n- [head] -> [data|next] -> [data|next] -> [data|NULL]\nThis structure is defined in C using `struct`."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nint main() {\n  printf(\"Singly linked list structure defined\\n\");\n  return 0;\n}\n// Output:\n// Singly linked list structure defined"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `struct Node` defines a node: `data` (an integer) and `next` (a pointer to the next node).\n- `stdlib.h` is included for dynamic memory (`malloc`, `free`).\n- This is just the structure definition; operations are shown below."
+      },
+      {
+        "type": "heading",
+        "text": "Basic Operations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Working with linked lists involves several basic operations: adding elements, deleting elements, and displaying the list. These are explained with examples below."
+      },
+      {
+        "type": "heading",
+        "text": "Adding an Element"
+      },
+      {
+        "type": "paragraph",
+        "text": "To add an element to the end of the list, a new node is created and linked to the last node."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nvoid append(struct Node** head, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = NULL;\n\n  if (*head == NULL) {\n    *head = new_node;\n    return;\n  }\n\n  struct Node* current = *head;\n  while (current->next != NULL) {\n    current = current->next;\n  }\n  current->next = new_node;\n}\n\nvoid print_list(struct Node* head) {\n  struct Node* current = head;\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Node* head = NULL;\n  append(&head, 10);\n  append(&head, 20);\n  append(&head, 30);\n  printf(\"Linked list: \");\n  print_list(head);\n  return 0;\n}\n// Output:\n// Linked list: 10 20 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `append` function creates a new node and adds it to the end of the list.\n- `malloc` allocates memory, and `new_node->next = NULL` marks the end.\n- `print_list` displays the list.\n- List: [10|→] -> [20|→] -> [30|NULL]."
+      },
+      {
+        "type": "heading",
+        "text": "Deleting an Element"
+      },
+      {
+        "type": "paragraph",
+        "text": "To delete a specific value, the list is searched, and the node is removed, freeing its memory."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nvoid append(struct Node** head, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = NULL;\n\n  if (*head == NULL) {\n    *head = new_node;\n    return;\n  }\n\n  struct Node* current = *head;\n  while (current->next != NULL) {\n    current = current->next;\n  }\n  current->next = new_node;\n}\n\nvoid delete_node(struct Node** head, int key) {\n  struct Node* temp = *head;\n  struct Node* prev = NULL;\n\n  if (temp != NULL && temp->data == key) {\n    *head = temp->next;\n    free(temp);\n    return;\n  }\n\n  while (temp != NULL && temp->data != key) {\n    prev = temp;\n    temp = temp->next;\n  }\n\n  if (temp == NULL) return;\n\n  prev->next = temp->next;\n  free(temp);\n}\n\nvoid print_list(struct Node* head) {\n  struct Node* current = head;\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Node* head = NULL;\n  append(&head, 10);\n  append(&head, 20);\n  append(&head, 30);\n  printf(\"Original list: \");\n  print_list(head);\n  delete_node(&head, 20);\n  printf(\"After deleting 20: \");\n  print_list(head);\n  return 0;\n}\n// Output:\n// Original list: 10 20 30\n// After deleting 20: 10 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `delete_node` function searches for the `key` and removes it.\n- If the `key` is at the head, the `head` is updated.\n- `prev` and `temp` pointers traverse the list.\n- `free` releases memory.\n- List: [10|→] -> [20|→] -> [30|NULL] → [10|→] -> [30|NULL]."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Linked Lists"
+      },
+      {
+        "type": "paragraph",
+        "text": "Linked lists are dynamic and flexible."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nDynamic size: Easy to add or remove elements." },
+          {
+            "description": "\nEfficient memory usage: Allocates only needed memory."
+          },
+          {
+            "description": "\nUsed as a foundation for other structures (lists, trees)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Linked lists can be challenging for beginners due to pointers and dynamic memory management."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nIncorrect pointer handling can crash the program."
+          },
+          {
+            "description": "\nMemory leaks are possible if `free` is not used."
+          },
+          {
+            "description": "\nUnlike arrays, no direct index-based access to elements."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Incorrect pointer handling can crash the program. Not freeing memory causes memory leaks. Unchecked NULL pointers lead to errors.\n- **Recommendations**: Always free memory allocated with `malloc` using `free`. Check pointers for NULL. Test with small lists. Run code in Pyodide or Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example adds elements without freeing memory, potentially causing a memory leak. The code can be run but may cause issues over time."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nvoid wrong_append(struct Node** head, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = NULL;\n\n  if (*head == NULL) {\n    *head = new_node;\n    return;\n  }\n\n  struct Node* current = *head;\n  while (current->next != NULL) {\n    current = current->next;\n  }\n  current->next = new_node;\n  // Error: Memory not freed\n}\n\nvoid print_list(struct Node* head) {\n  struct Node* current = head;\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Node* head = NULL;\n  wrong_append(&head, 10);\n  wrong_append(&head, 20);\n  printf(\"Linked list: \");\n  print_list(head);\n  // Memory not freed\n  return 0;\n}\n// Output:\n// Linked list: 10 20"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `wrong_append` function allocates memory with `malloc` but does not free it.\n- This can cause a memory leak.\n- Recommendation: Always free all nodes in the list when done using `free`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nvoid append(struct Node** head, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = NULL;\n\n  if (*head == NULL) {\n    *head = new_node;\n    return;\n  }\n\n  struct Node* current = *head;\n  while (current->next != NULL) {\n    current = current->next;\n  }\n  current->next = new_node;\n}\n\nvoid print_list(struct Node* head) {\n  struct Node* current = head;\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Node* head = NULL;\n  append(&head, 10);\n  append(&head, 20);\n  append(&head, 30);\n  printf(\"Linked list: \");\n  print_list(head);\n  return 0;\n}\n// Output:\n// Linked list: 10 20 30"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Связные списки",
+    "icon": "FiLink",
+    "language": "c",
+    "description": "Структуры связных списков.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое связные списки?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C связной список — это динамическая структура данных для хранения информации. В отличие от массивов, связные списки соединяют элементы с помощью указателей. Каждый элемент (называемый узлом) состоит из двух частей: **данные** и **указатель на следующий узел**. Связные списки имеют динамический размер, что упрощает добавление или удаление элементов. Этот JSON-файл фокусируется на **односвязном списке**, так как это наиболее простая форма для новичков. Примеры кода могут работать в Pyodide, так как используют только динамическую память."
+      },
+      {
+        "type": "heading",
+        "text": "Структура односвязного списка"
+      },
+      {
+        "type": "paragraph",
+        "text": "В односвязном списке каждый узел содержит данные и указатель на следующий узел. Список начинается с **head** и заканчивается указателем **NULL**. Следующая диаграмма иллюстрирует это:\n- [head] -> [data|next] -> [data|next] -> [data|NULL]\nЭта структура определяется в C с помощью `struct`."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nint main() {\n  printf(\"Структура односвязного списка определена\\n\");\n  return 0;\n}\n// Output:\n// Структура односвязного списка определена"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `struct Node` определяет узел: `data` (целое число) и `next` (указатель на следующий узел).\n- `stdlib.h` нужен для динамической памяти (`malloc`, `free`).\n- Это только определение структуры; операции показаны ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Основные операции"
+      },
+      {
+        "type": "paragraph",
+        "text": "Работа со связными списками включает несколько основных операций: добавление элементов, удаление элементов и отображение списка. Эти операции объясняются с примерами ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Добавление элемента"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы добавить элемент в конец списка, создаётся новый узел и связывается с последним узлом."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nvoid append(struct Node** head, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = NULL;\n\n  if (*head == NULL) {\n    *head = new_node;\n    return;\n  }\n\n  struct Node* current = *head;\n  while (current->next != NULL) {\n    current = current->next;\n  }\n  current->next = new_node;\n}\n\nvoid print_list(struct Node* head) {\n  struct Node* current = head;\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Node* head = NULL;\n  append(&head, 10);\n  append(&head, 20);\n  append(&head, 30);\n  printf(\"Связный список: \");\n  print_list(head);\n  return 0;\n}\n// Output:\n// Связный список: 10 20 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `append` создаёт новый узел и добавляет его в конец списка.\n- `malloc` выделяет память, а `new_node->next = NULL` обозначает конец.\n- `print_list` выводит список.\n- Список: [10|→] -> [20|→] -> [30|NULL]."
+      },
+      {
+        "type": "heading",
+        "text": "Удаление элемента"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы удалить определённое значение, список просматривается, и узел удаляется с освобождением памяти."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nvoid append(struct Node** head, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = NULL;\n\n  if (*head == NULL) {\n    *head = new_node;\n    return;\n  }\n\n  struct Node* current = *head;\n  while (current->next != NULL) {\n    current = current->next;\n  }\n  current->next = new_node;\n}\n\nvoid delete_node(struct Node** head, int key) {\n  struct Node* temp = *head;\n  struct Node* prev = NULL;\n\n  if (temp != NULL && temp->data == key) {\n    *head = temp->next;\n    free(temp);\n    return;\n  }\n\n  while (temp != NULL && temp->data != key) {\n    prev = temp;\n    temp = temp->next;\n  }\n\n  if (temp == NULL) return;\n\n  prev->next = temp->next;\n  free(temp);\n}\n\nvoid print_list(struct Node* head) {\n  struct Node* current = head;\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Node* head = NULL;\n  append(&head, 10);\n  append(&head, 20);\n  append(&head, 30);\n  printf(\"Исходный список: \");\n  print_list(head);\n  delete_node(&head, 20);\n  printf(\"После удаления 20: \");\n  print_list(head);\n  return 0;\n}\n// Output:\n// Исходный список: 10 20 30\n// После удаления 20: 10 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `delete_node` ищет и удаляет `key`.\n- Если `key` находится в начале, обновляется `head`.\n- Указатели `prev` и `temp` используются для обхода списка.\n- `free` освобождает память.\n- Список: [10|→] -> [20|→] -> [30|NULL] → [10|→] -> [30|NULL]."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества связных списков"
+      },
+      {
+        "type": "paragraph",
+        "text": "Связные списки динамичны и гибки."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nДинамический размер: Легко добавлять или удалять элементы."
+          },
+          {
+            "description": "\nЭффективное использование памяти: Выделяется только необходимая память."
+          },
+          {
+            "description": "\nИспользуются как основа для других структур (списков, деревьев)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Связные списки могут быть сложными для новичков из-за указателей и управления динамической памятью."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nНеправильная работа с указателями может привести к сбою программы."
+          },
+          {
+            "description": "\nВозможны утечки памяти, если не использовать `free`."
+          },
+          {
+            "description": "\nВ отличие от массивов, нет прямого доступа к элементам по индексу."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильная работа с указателями может привести к сбою программы. Неосвобождение памяти вызывает утечки. Непроверенные NULL-указатели приводят к ошибкам.\n- **Рекомендации**: Всегда освобождайте память, выделенную с помощью `malloc`, используя `free`. Проверяйте указатели на NULL. Тестируйте с маленькими списками. Запускайте код в Pyodide или Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример добавляет элементы без освобождения памяти, что может вызвать утечку памяти. Код можно запустить, но со временем он может создать проблемы."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nvoid wrong_append(struct Node** head, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = NULL;\n\n  if (*head == NULL) {\n    *head = new_node;\n    return;\n  }\n\n  struct Node* current = *head;\n  while (current->next != NULL) {\n    current = current->next;\n  }\n  current->next = new_node;\n  // Ошибка: Память не освобождается\n}\n\nvoid print_list(struct Node* head) {\n  struct Node* current = head;\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Node* head = NULL;\n  wrong_append(&head, 10);\n  wrong_append(&head, 20);\n  printf(\"Связный список: \");\n  print_list(head);\n  // Память не освобождается\n  return 0;\n}\n// Output:\n// Связный список: 10 20"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `wrong_append` выделяет память с помощью `malloc`, но не освобождает её.\n- Это может вызвать утечку памяти.\n- Рекомендация: Всегда освобождайте все узлы списка с помощью `free` по завершении."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n  int data;\n  struct Node* next;\n};\n\nvoid append(struct Node** head, int data) {\n  struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));\n  new_node->data = data;\n  new_node->next = NULL;\n\n  if (*head == NULL) {\n    *head = new_node;\n    return;\n  }\n\n  struct Node* current = *head;\n  while (current->next != NULL) {\n    current = current->next;\n  }\n  current->next = new_node;\n}\n\nvoid print_list(struct Node* head) {\n  struct Node* current = head;\n  while (current != NULL) {\n    printf(\"%d \", current->data);\n    current = current->next;\n  }\n  printf(\"\\n\");\n}\n\nint main() {\n  struct Node* head = NULL;\n  append(&head, 10);\n  append(&head, 20);\n  append(&head, 30);\n  printf(\"Связный список: \");\n  print_list(head);\n  return 0;\n}\n// Output:\n// Связный список: 10 20 30"
+      }
+    ]
+  }
+}

@@ -1,0 +1,506 @@
+{
+  "id": "unions",
+  "az": {
+    "title": "Birliklər (Unions)",
+    "icon": "FiLayers",
+    "language": "c",
+    "description": "Union tipləri və istifadəsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Birliklər (Unions) Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində `union` müxtəlif tipli dəyişənləri eyni yaddaş sahəsində saxlayan xüsusi bir məlumat tipidir. `struct`-dan fərqli olaraq, `union` daxilindəki bütün üzvlər eyni yaddaş ünvanını paylaşır. Bu o deməkdir ki, bir `union`-un yalnız bir üzvü eyni anda aktiv ola bilər. Bu, yaddaşdan səmərəli istifadə etmək üçün faydalıdır, xüsusilə müxtəlif tipli məlumatların yalnız biri istifadə olunacaqsa."
+      },
+      {
+        "type": "heading",
+        "text": "Union Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Birlik təyin etmək üçün `union` açar sözü istifadə olunur. Sintaksis belədir:\n```c\nunion name {\n  type1 member1;\n  type2 member2;\n  // digər üzvlər\n};\n```\n- **union**: Birlik təyin etdiyini göstərir.\n- **name**: Birliyin adı (məsələn, `Data`).\n- **type1, type2**: Üzvlərin tipləri (məsələn, `int`, `float`, `char`).\n- **member1, member2**: Birlikdəki dəyişənlər.\nBirlik təyin edildikdən sonra, onun obyektlərini yaratmaq üçün istifadə olunur:\n```c\nunion name variable;\n```\nBirlikdəki bütün üzvlər eyni yaddaş sahəsini paylaşır, ona görə də `union`-un ölçüsü ən böyük üzvünün ölçüsünə bərabərdir."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Union Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə bir `union` təyin edilir və müxtəlif üzvlərə dəyər təyin olunur. Kod giriş tələb etmir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nunion Data {\n  int i;\n  float f;\n  char c;\n};\n\nint main() {\n  union Data data;\n  data.i = 10;\n  printf(\"Integer: %d\\n\", data.i);\n  data.f = 3.14;\n  printf(\"Float: %.2f\\n\", data.f);\n  data.c = 'A';\n  printf(\"Char: %c\\n\", data.c);\n  return 0;\n}\n// Output:\n// Integer: 10\n// Float: 3.14\n// Char: A"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `union Data`: `int`, `float` və `char` tipli üzvləri olan bir birlik təyin edilir.\n- `union Data data`: `Data` tipli bir obyekt yaradılır.\n- `data.i`, `data.f`, `data.c`: Hər dəfə bir üzvə dəyər təyin edilir və çap olunur.\n- Hər dəyər təyinatından sonra əvvəlki dəyər yaddaşda dəyişdirilir, çünki bütün üzvlər eyni yaddaş sahəsini paylaşır."
+      },
+      {
+        "type": "heading",
+        "text": "Union və Yaddaş Paylaşımı"
+      },
+      {
+        "type": "paragraph",
+        "text": "Birlikdəki üzvlər eyni yaddaş sahəsini paylaşdığı üçün eyni anda yalnız bir üzvün dəyəri etibarlıdır. Aşağıdakı nümunə bunu göstərir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nunion Data {\n  int i;\n  float f;\n  char c;\n};\n\nint main() {\n  union Data data;\n  data.i = 10;\n  printf(\"Integer: %d\\n\", data.i);\n  data.f = 3.14;\n  printf(\"Float: %.2f\\n\", data.f);\n  printf(\"Integer after float: %d\\n\", data.i);\n  return 0;\n}\n// Output:\n// Integer: 10\n// Float: 3.14\n// Integer after float: (Gözlənilməz nəticə)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `data.i = 10`: `int` üzvünə dəyər təyin edilir.\n- `data.f = 3.14`: Eyni yaddaş sahəsinə `float` dəyəri yazılır, bu da `data.i` dəyərini pozur.\n- `data.i` yenidən çap edildikdə gözlənilməz nəticə verir, çünki yaddaş artıq `float` üçün istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Unions və Strukturlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Birliklər `struct` ilə birlikdə istifadə oluna bilər. Məsələn, bir struktur daxilində `union` istifadə edərək müxtəlif tipli məlumatları saxlaya bilərsiniz."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nunion Value {\n  int i;\n  float f;\n  char c;\n};\n\nstruct Item {\n  char name[20];\n  union Value value;\n};\n\nint main() {\n  struct Item item;\n  item.name[0] = 'I';\n  item.name[1] = 't';\n  item.name[2] = 'e';\n  item.name[3] = 'm';\n  item.name[4] = '\\0';\n  item.value.i = 100;\n  printf(\"Name: %s, Integer: %d\\n\", item.name, item.value.i);\n  item.value.f = 12.34;\n  printf(\"Name: %s, Float: %.2f\\n\", item.name, item.value.f);\n  return 0;\n}\n// Output:\n// Name: Item, Integer: 100\n// Name: Item, Float: 12.34"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `union Value`: `int`, `float` və `char` tipli üzvləri olan bir birlik təyin edilir.\n- `struct Item`: Bir ad (`name`) və `union Value` saxlayan struktur təyin edilir.\n- `item.value.i` və `item.value.f`: `union` üzvlərinə dəyərlər təyin edilir və çap olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Göstəricilərlə Unions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Birliklər göstəricilərlə də istifadə oluna bilər. Göstərici ilə birlik üzvlərinə müraciət etmək üçün `->` operatoru istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nunion Data {\n  int i;\n  float f;\n  char c;\n};\n\nint main() {\n  union Data data;\n  union Data *ptr = &data;\n  ptr->i = 50;\n  printf(\"Integer: %d\\n\", ptr->i);\n  ptr->f = 2.718;\n  printf(\"Float: %.3f\\n\", ptr->f);\n  return 0;\n}\n// Output:\n// Integer: 50\n// Float: 2.718"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `union Data *ptr = &data`: `ptr` göstəricisi `data` birliyinin ünvanını saxlayır.\n- `ptr->i`, `ptr->f`: Göstərici ilə birlik üzvlərinə müraciət edilir.\n- `->` operatoru `*ptr.i` yazmaq əvəzinə istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Birliklərin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Birliklər yaddaşdan səmərəli istifadə etməyə imkan verir və müxtəlif tipli məlumatlarla işləmək üçün çeviklik təmin edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nYaddaşdan qənaət edir, çünki bütün üzvlər eyni yaddaş sahəsini paylaşır."
+          },
+          {
+            "description": "\nMüxtəlif tipli məlumatları bir obyekt daxilində saxlamağa imkan verir."
+          },
+          {
+            "description": "\nXüsusi məlumatların tipə görə dəyişdirilməsini asanlaşdırır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Birliklər yeni başlayanlar üçün qarışıq ola bilər, çünki eyni anda yalnız bir üzv aktivdir. Yanlış istifadə proqram səhvlərinə səbəb ola bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nEyni yaddaş sahəsini paylaşma səbəbindən səhv üzvlərə müraciət səhvlərə yol açır."
+          },
+          {
+            "description": "\nHansı üzvün aktiv olduğunu izləmək tələb olunur."
+          },
+          {
+            "description": "\nTip uyğunsuzluğu gözlənilməz nəticələrə səbəb ola bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Səhv üzvə müraciət etmək proqramın gözlənilməz davranışına səbəb ola bilər. Hansı üzvün aktiv olduğunu bilməmək səhvlərə yol açır.\n- **Tövsiyələr**: Həmişə hansı üzvün aktiv olduğunu izlə. Mənalı adlar istifadə et. Birlikləri yalnız eyni yaddaş sahəsində müxtəlif tipli məlumatlara ehtiyac olduqda istifadə et. Kodu Visual Studio Code kimi redaktorlarda sına."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə səhv üzvə müraciət edilir, bu da gözlənilməz nəticələrə səbəb ola bilər. Bu kod icra olunmamalıdır, sadəcə nəzəri nümunədir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nunion Data {\n  int i;\n  float f;\n};\n\nint main() {\n  union Data data;\n  data.f = 3.14;\n  printf(\"Integer: %d\\n\", data.i); // Səhv: float dəyəri int kimi oxunur\n  return 0;\n}\n// Output: (Gözlənilməz nəticə, çünki int üzvü aktiv deyil)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda `data.f` dəyəri təyin edilib, lakin `data.i` çap olunur. Bu, yaddaşın `float` kimi istifadə olunduğu halda `int` kimi oxunmasına səbəb olur və gözlənilməz nəticə verir. Həmişə aktiv üzvə müraciət et."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nunion Data {\n  int i;\n  float f;\n  char c;\n};\n\nint main() {\n  union Data data;\n  data.i = 10;\n  printf(\"Integer: %d\\n\", data.i);\n  data.f = 3.14;\n  printf(\"Float: %.2f\\n\", data.f);\n  data.c = 'A';\n  printf(\"Char: %c\\n\", data.c);\n  return 0;\n}\n// Output:\n// Integer: 10\n// Float: 3.14\n// Char: A"
+      }
+    ]
+  },
+  "en": {
+    "title": "Unions",
+    "icon": "FiLayers",
+    "language": "c",
+    "description": "Union types and usage.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Unions?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, a `union` is a special data type that allows storing different types of variables in the same memory location. Unlike a `struct`, where each member has its own memory, all members of a `union` share the same memory space. This means only one member can hold a value at a time. Unions are useful for saving memory, especially when only one type of data is needed at a time."
+      },
+      {
+        "type": "heading",
+        "text": "Union Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "A union is defined using the `union` keyword. The syntax is:\n```c\nunion name {\n  type1 member1;\n  type2 member2;\n  // other members\n};\n```\n- **union**: Indicates a union definition.\n- **name**: The name of the union (e.g., `Data`).\n- **type1, type2**: Types of the members (e.g., `int`, `float`, `char`).\n- **member1, member2**: Variables within the union.\nAfter defining a union, you can create objects of that type:\n```c\nunion name variable;\n```\nAll members of a union share the same memory space, so the size of a union is equal to the size of its largest member."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Union Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example defines a union and assigns values to its members. The code doesn’t require input."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nunion Data {\n  int i;\n  float f;\n  char c;\n};\n\nint main() {\n  union Data data;\n  data.i = 10;\n  printf(\"Integer: %d\\n\", data.i);\n  data.f = 3.14;\n  printf(\"Float: %.2f\\n\", data.f);\n  data.c = 'A';\n  printf(\"Char: %c\\n\", data.c);\n  return 0;\n}\n// Output:\n// Integer: 10\n// Float: 3.14\n// Char: A"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `union Data`: Defines a union with `int`, `float`, and `char` members.\n- `union Data data`: Creates an object of type `Data`.\n- `data.i`, `data.f`, `data.c`: Assigns values to each member and prints them.\n- Each assignment overwrites the previous value in memory, as all members share the same space."
+      },
+      {
+        "type": "heading",
+        "text": "Unions and Memory Sharing"
+      },
+      {
+        "type": "paragraph",
+        "text": "Since union members share the same memory space, only one member’s value is valid at a time. This example demonstrates this behavior."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nunion Data {\n  int i;\n  float f;\n  char c;\n};\n\nint main() {\n  union Data data;\n  data.i = 10;\n  printf(\"Integer: %d\\n\", data.i);\n  data.f = 3.14;\n  printf(\"Float: %.2f\\n\", data.f);\n  printf(\"Integer after float: %d\\n\", data.i);\n  return 0;\n}\n// Output:\n// Integer: 10\n// Float: 3.14\n// Integer after float: (Unpredictable result)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `data.i = 10`: Assigns a value to the `int` member.\n- `data.f = 3.14`: Overwrites the same memory with a `float` value, corrupting `data.i`.\n- Accessing `data.i` after setting `data.f` produces an unpredictable result, as the memory is now used for a `float`."
+      },
+      {
+        "type": "heading",
+        "text": "Unions and Structs"
+      },
+      {
+        "type": "paragraph",
+        "text": "Unions can be used within structs to store different types of data in a single field."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nunion Value {\n  int i;\n  float f;\n  char c;\n};\n\nstruct Item {\n  char name[20];\n  union Value value;\n};\n\nint main() {\n  struct Item item;\n  item.name[0] = 'I';\n  item.name[1] = 't';\n  item.name[2] = 'e';\n  item.name[3] = 'm';\n  item.name[4] = '\\0';\n  item.value.i = 100;\n  printf(\"Name: %s, Integer: %d\\n\", item.name, item.value.i);\n  item.value.f = 12.34;\n  printf(\"Name: %s, Float: %.2f\\n\", item.name, item.value.f);\n  return 0;\n}\n// Output:\n// Name: Item, Integer: 100\n// Name: Item, Float: 12.34"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `union Value`: Defines a union with `int`, `float`, and `char` members.\n- `struct Item`: Defines a structure containing a name and a `union Value`.\n- `item.value.i`, `item.value.f`: Assigns values to the union members and prints them."
+      },
+      {
+        "type": "heading",
+        "text": "Unions with Pointers"
+      },
+      {
+        "type": "paragraph",
+        "text": "Unions can be used with pointers. The `->` operator is used to access union members through a pointer."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nunion Data {\n  int i;\n  float f;\n  char c;\n};\n\nint main() {\n  union Data data;\n  union Data *ptr = &data;\n  ptr->i = 50;\n  printf(\"Integer: %d\\n\", ptr->i);\n  ptr->f = 2.718;\n  printf(\"Float: %.3f\\n\", ptr->f);\n  return 0;\n}\n// Output:\n// Integer: 50\n// Float: 2.718"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `union Data *ptr = &data`: `ptr` points to the address of `data`.\n- `ptr->i`, `ptr->f`: Accesses union members via the pointer.\n- The `->` operator is used instead of `(*ptr).i`."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Unions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Unions provide memory efficiency and flexibility for handling different data types."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nSave memory by sharing the same memory space for all members."
+          },
+          {
+            "description": "\nAllow storing different data types in a single object."
+          },
+          {
+            "description": "\nSimplify switching between data types in the same memory space."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Unions can be confusing for beginners because only one member is active at a time. Incorrect usage can lead to program errors."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nAccessing the wrong member causes errors due to shared memory."
+          },
+          { "description": "\nTracking which member is active is required." },
+          {
+            "description": "\nType mismatches can lead to unpredictable results."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Accessing the wrong member can cause unpredictable behavior. Not tracking the active member leads to errors.\n- **Recommendations**: Always track which member is active. Use meaningful names. Use unions only when different data types need to share the same memory. Test code in editors like Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example accesses the wrong member, which can cause unpredictable results. This code should not be run; it’s a theoretical example."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nunion Data {\n  int i;\n  float f;\n};\n\nint main() {\n  union Data data;\n  data.f = 3.14;\n  printf(\"Integer: %d\\n\", data.i); // Error: float value read as int\n  return 0;\n}\n// Output: (Unpredictable result, as int member is not active)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code, `data.f` is assigned a value, but `data.i` is accessed. This reads the memory as an `int` when it’s used as a `float`, causing unpredictable results. Always access the active member."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nunion Data {\n  int i;\n  float f;\n  char c;\n};\n\nint main() {\n  union Data data;\n  data.i = 10;\n  printf(\"Integer: %d\\n\", data.i);\n  data.f = 3.14;\n  printf(\"Float: %.2f\\n\", data.f);\n  data.c = 'A';\n  printf(\"Char: %c\\n\", data.c);\n  return 0;\n}\n// Output:\n// Integer: 10\n// Float: 3.14\n// Char: A"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Объединения (Unions)",
+    "icon": "FiLayers",
+    "language": "c",
+    "description": "Типы объединений и их использование.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое объединения?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C объединение (`union`) — это специальный тип данных, который позволяет хранить переменные разных типов в одной и той же области памяти. В отличие от `struct`, где каждый член имеет свою собственную память, все члены `union` используют одну и ту же область памяти. Это означает, что только один член может содержать значение в определённый момент времени. Объединения полезны для экономии памяти, особенно когда одновременно используется только один тип данных."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис объединений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Объединение определяется с помощью ключевого слова `union`. Синтаксис:\n```c\nunion name {\n  type1 member1;\n  type2 member2;\n  // другие члены\n};\n```\n- **union**: Указывает на определение объединения.\n- **name**: Имя объединения (например, `Data`).\n- **type1, type2**: Типы данных членов (например, `int`, `float`, `char`).\n- **member1, member2**: Переменные внутри объединения.\nПосле определения объединения можно создавать его объекты:\n```c\nunion name variable;\n```\nВсе члены объединения используют одну область памяти, поэтому размер объединения равен размеру его самого большого члена."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример объединения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример определяет объединение и присваивает значения его членам. Код не требует ввода."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nunion Data {\n  int i;\n  float f;\n  char c;\n};\n\nint main() {\n  union Data data;\n  data.i = 10;\n  printf(\"Integer: %d\\n\", data.i);\n  data.f = 3.14;\n  printf(\"Float: %.2f\\n\", data.f);\n  data.c = 'A';\n  printf(\"Char: %c\\n\", data.c);\n  return 0;\n}\n// Output:\n// Integer: 10\n// Float: 3.14\n// Char: A"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `union Data`: Определяет объединение с членами `int`, `float` и `char`.\n- `union Data data`: Создаёт объект типа `Data`.\n- `data.i`, `data.f`, `data.c`: Присваивает значения каждому члену и выводит их.\n- Каждое присваивание перезаписывает предыдущее значение в памяти, так как все члены используют одну область памяти."
+      },
+      {
+        "type": "heading",
+        "text": "Объединения и совместное использование памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "Поскольку члены объединения используют одну область памяти, только значение одного члена действительно в определённый момент. Этот пример демонстрирует это поведение."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nunion Data {\n  int i;\n  float f;\n  char c;\n};\n\nint main() {\n  union Data data;\n  data.i = 10;\n  printf(\"Integer: %d\\n\", data.i);\n  data.f = 3.14;\n  printf(\"Float: %.2f\\n\", data.f);\n  printf(\"Integer after float: %d\\n\", data.i);\n  return 0;\n}\n// Output:\n// Integer: 10\n// Float: 3.14\n// Integer after float: (Непредсказуемый результат)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `data.i = 10`: Присваивает значение члену `int`.\n- `data.f = 3.14`: Перезаписывает ту же память значением `float`, повреждая `data.i`.\n- Доступ к `data.i` после установки `data.f` даёт непредсказуемый результат, так как память теперь используется для `float`."
+      },
+      {
+        "type": "heading",
+        "text": "Объединения и структуры"
+      },
+      {
+        "type": "paragraph",
+        "text": "Объединения могут использоваться внутри структур для хранения данных разных типов в одном поле."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nunion Value {\n  int i;\n  float f;\n  char c;\n};\n\nstruct Item {\n  char name[20];\n  union Value value;\n};\n\nint main() {\n  struct Item item;\n  item.name[0] = 'I';\n  item.name[1] = 't';\n  item.name[2] = 'e';\n  item.name[3] = 'm';\n  item.name[4] = '\\0';\n  item.value.i = 100;\n  printf(\"Name: %s, Integer: %d\\n\", item.name, item.value.i);\n  item.value.f = 12.34;\n  printf(\"Name: %s, Float: %.2f\\n\", item.name, item.value.f);\n  return 0;\n}\n// Output:\n// Name: Item, Integer: 100\n// Name: Item, Float: 12.34"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `union Value`: Определяет объединение с членами `int`, `float` и `char`.\n- `struct Item`: Определяет структуру, содержащую имя и объединение `Value`.\n- `item.value.i`, `item.value.f`: Присваивает значения членам объединения и выводит их."
+      },
+      {
+        "type": "heading",
+        "text": "Объединения с указателями"
+      },
+      {
+        "type": "paragraph",
+        "text": "Объединения могут использоваться с указателями. Для доступа к членам объединения через указатель используется оператор `->`."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nunion Data {\n  int i;\n  float f;\n  char c;\n};\n\nint main() {\n  union Data data;\n  union Data *ptr = &data;\n  ptr->i = 50;\n  printf(\"Integer: %d\\n\", ptr->i);\n  ptr->f = 2.718;\n  printf(\"Float: %.3f\\n\", ptr->f);\n  return 0;\n}\n// Output:\n// Integer: 50\n// Float: 2.718"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `union Data *ptr = &data`: `ptr` указывает на адрес `data`.\n- `ptr->i`, `ptr->f`: Обращается к членам объединения через указатель.\n- Оператор `->` используется вместо `(*ptr).i`."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества объединений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Объединения обеспечивают эффективное использование памяти и гибкость при работе с разными типами данных."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nЭкономят память, так как все члены используют одну область памяти."
+          },
+          {
+            "description": "\nПозволяют хранить данные разных типов в одном объекте."
+          },
+          {
+            "description": "\nУпрощают переключение между типами данных в одной области памяти."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Объединения могут быть запутанными для новичков, так как только один член активен в определённый момент. Неправильное использование может привести к ошибкам в программе."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nОбращение к неверному члену вызывает ошибки из-за совместного использования памяти."
+          },
+          { "description": "\nТребуется отслеживать, какой член активен." },
+          {
+            "description": "\nНесоответствие типов может привести к непредсказуемым результатам."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Обращение к неверному члену может вызвать непредсказуемое поведение. Незнание активного члена приводит к ошибкам.\n- **Рекомендации**: Всегда отслеживайте, какой член активен. Используйте осмысленные имена. Применяйте объединения только тогда, когда разные типы данных должны использовать одну область памяти. Тестируйте код в редакторах, таких как Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример обращается к неверному члену, что может вызвать непредсказуемые результаты. Код не следует запускать; это теоретический пример."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nunion Data {\n  int i;\n  float f;\n};\n\nint main() {\n  union Data data;\n  data.f = 3.14;\n  printf(\"Integer: %d\\n\", data.i); // Ошибка: значение float читается как int\n  return 0;\n}\n// Output: (Непредсказуемый результат, так как член int не активен)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде `data.f` присваивается значение, но обращение идёт к `data.i`. Это приводит к чтению памяти как `int`, когда она используется как `float`, вызывая непредсказуемые результаты. Всегда обращайтесь к активному члену."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nunion Data {\n  int i;\n  float f;\n  char c;\n};\n\nint main() {\n  union Data data;\n  data.i = 10;\n  printf(\"Integer: %d\\n\", data.i);\n  data.f = 3.14;\n  printf(\"Float: %.2f\\n\", data.f);\n  data.c = 'A';\n  printf(\"Char: %c\\n\", data.c);\n  return 0;\n}\n// Output:\n// Integer: 10\n// Float: 3.14\n// Char: A"
+      }
+    ]
+  }
+}

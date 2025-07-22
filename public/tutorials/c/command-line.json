@@ -1,0 +1,453 @@
+{
+  "id": "command-line",
+  "az": {
+    "title": "Command Line Arqumentləri",
+    "icon": "FiTerminal",
+    "language": "c",
+    "description": "argc və argv parametrləri.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Command Line Arqumentləri Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində komanda xətti arqumentləri proqramın işə salınması zamanı terminal və ya komanda xətti vasitəsilə verilən məlumatlardır. Bu arqumentlər proqramın davranışını dəyişdirmək və ya əlavə məlumat təmin etmək üçün istifadə olunur. Məsələn, proqramı işə salarkən fayl adı və ya ədəd kimi dəyərlər verə bilərsiniz. Bu arqumentlər `main` funksiyasında `argc` (arqument sayı) və `argv` (arqument siyahısı) parametrləri vasitəsilə əlçatan olur. Qeyd: Bu kod nümunələri Pyodide mühitində işləməyəcək, çünki Pyodide komanda xətti arqumentlərini dəstəkləmir. Kodu sınamaq üçün Visual Studio Code və ya gcc kimi yerli C kompilyatoru istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "argc və argv Parametrləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "C-də `main` funksiyası komanda xətti arqumentlərini qəbul etmək üçün aşağıdakı formada yazılır:\n```c\nint main(int argc, char *argv[])\n```\n- `argc`: Arqumentlərin sayını göstərən tam ədəddir (ən azı 1 olur, çünki proqramın adı həmişə daxil edilir).\n- `argv`: Arqumentlərin siyahısını saxlayan simvol göstəriciləri massividir. `argv[0]` proqramın adını, `argv[1]` və sonrakılar isə istifadəçi tərəfindən verilən arqumentləri ehtiva edir."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə proqram komanda xəttindən arqumentləri oxuyur və onları ekrana çap edir. Kod giriş tələb etmir, lakin komanda xəttində arqumentlər verilməlidir (məsələn, `./program test1 test2`)."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n  printf(\"Arqumentlerin sayi: %d\\n\", argc);\n  for (int i = 0; i < argc; i++) {\n    printf(\"Arqument %d: %s\\n\", i, argv[i]);\n  }\n  return 0;\n}\n// Komanda xətti: ./program test1 test2\n// Output:\n// Arqumentlerin sayi: 3\n// Arqument 0: ./program\n// Arqument 1: test1\n// Arqument 2: test2"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `argc`: Arqumentlərin sayını (proqram adı daxil olmaqla 3) göstərir.\n- `argv`: Arqumentləri massiv kimi saxlayır (`argv[0]` proqram adı, `argv[1]` və `argv[2]` istifadəçi arqumentləridir).\n- `for` döngüsü: Bütün arqumentləri ekrana çap edir.\nQeyd: Bu kodu yerli kompilyatorda sınayın (məsələn, `gcc program.c -o program && ./program test1 test2`)."
+      },
+      {
+        "type": "heading",
+        "text": "Arqumentlərlə İşləmə Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə komanda xəttindən iki ədəd qəbul edilib onların cəmi hesablanır. Arqumentlərin düzgün olub-olmaması yoxlanılır."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(int argc, char *argv[]) {\n  if (argc != 3) {\n    printf(\"Xeta: Tam olaraq 2 eded daxil edin!\\n\");\n    printf(\"Numune: ./program 5 3\\n\");\n    return 1;\n  }\n  int num1 = atoi(argv[1]);\n  int num2 = atoi(argv[2]);\n  printf(\"Cem: %d\\n\", num1 + num2);\n  return 0;\n}\n// Komanda xətti: ./program 5 3\n// Output:\n// Cem: 8\n// Komanda xətti: ./program\n// Output:\n// Xeta: Tam olaraq 2 eded daxil edin!\n// Numune: ./program 5 3"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `if (argc != 3)`: Arqument sayının düzgünlüyünü yoxlayır (proqram adı + 2 ədəd).\n- `atoi(argv[1])`: `argv[1]` simvolunu tam ədədə çevirir.\n- `printf`: Ədədlərin cəmini çap edir.\nQeyd: Kodu yerli kompilyatorda sınayın (məsələn, `gcc program.c -o program && ./program 5 3`)."
+      },
+      {
+        "type": "heading",
+        "text": "Arqumentlərin Fayl Adı kimi İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Komanda xətti arqumentləri fayl adlarını təyin etmək üçün istifadə oluna bilər. Bu nümunədə proqram fayl adına arqument kimi daxil edilir və fayla mətn yazılır. Qeyd: Pyodide fayl əməliyyatlarını dəstəkləmədiyi üçün bu kodu yerli kompilyatorda sınayın."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n  if (argc != 2) {\n    printf(\"Xeta: Fayl adi daxil edin!\\n\");\n    printf(\"Numune: ./program output.txt\\n\");\n    return 1;\n  }\n  FILE* file = fopen(argv[1], \"w\");\n  if (file == NULL) {\n    printf(\"Fayl acilmadi!\\n\");\n    return 1;\n  }\n  fprintf(file, \"Salam, Dunya!\\n\");\n  fclose(file);\n  printf(\"Fayla yazildi: %s\\n\", argv[1]);\n  return 0;\n}\n// Komanda xətti: ./program output.txt\n// Output:\n// Fayla yazildi: output.txt\n// (output.txt faylına yazılır: Salam, Dunya!)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `if (argc != 2)`: Fayl adının daxil edilib-edilmədiyini yoxlayır.\n- `fopen(argv[1], \"w\")`: `argv[1]`-dəki fayl adını istifadə edərək faylı açır.\n- `fprintf`: Fayla mətn yazır.\n- Kodu yerli kompilyatorda sınayın (məsələn, `gcc program.c -o program && ./program output.txt`)."
+      },
+      {
+        "type": "heading",
+        "text": "Komanda Xətti Arqumentlərinin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Komanda xətti arqumentləri proqramın çevikliyini artırır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nProqramın davranışını dinamik şəkildə dəyişməyə imkan verir."
+          },
+          {
+            "description": "\nİstifadəçiyə proqramı işə salarkən məlumat daxil etmə imkanı verir."
+          },
+          { "description": "\nSkriptlər və avtomatlaşdırma üçün faydalıdır." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Komanda xətti arqumentləri yeni başlayanlar üçün çətin ola bilər, xüsusilə arqumentlərin düzgünlüyünü yoxlamaq və simvolları digər tiplərə çevirmək zamanı."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nArqumentlərin sayının və ya tipinin səhv olması xətalara səbəb ola bilər."
+          },
+          {
+            "description": "\nSimvol arqumentlərini (`argv`) ədədə çevirmək (`atoi`, `atof`) diqqət tələb edir."
+          },
+          {
+            "description": "\nSəhv arqumentlər proqramın gözlənilməz davranışına səbəb ola bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Arqument sayını yoxlamamaq proqramın çökməsinə səbəb ola bilər. Simvol arqumentlərinin düzgün çevrilməməsi səhvlərə yol açar.\n- **Tövsiyələr**: Həmişə `argc` dəyərini yoxlayın. Arqumentləri istifadə etməzdən əvvəl onların düzgünlüyünü təsdiqləyin. `atoi` və ya `atof` istifadə edərkən səhv daxiletmələri nəzərə alın. Kodu Visual Studio Code və ya gcc ilə yerli kompilyatorda sınayın."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə arqument sayının yoxlanılmaması səhvə səbəb olur. Bu kod icra olunmamalıdır, sadəcə nəzəri nümunədir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(int argc, char *argv[]) {\n  int num = atoi(argv[1]); // Səhv: argc yoxlanılmır\n  printf(\"Eded: %d\\n\", num);\n  return 0;\n}\n// Komanda xətti: ./program\n// Output: (Proqram çökə bilər, çünki argv[1] yoxdur)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `atoi(argv[1])`: `argc` yoxlanılmadan `argv[1]`-ə müraciət edir, bu da arqument verilməyibsə proqramın çökməsinə səbəb olur.\n- Tövsiyə: `if (argc < 2)` ilə arqument sayını yoxlayın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n  printf(\"Arqumentlerin sayi: %d\\n\", argc);\n  for (int i = 0; i < argc; i++) {\n    printf(\"Arqument %d: %s\\n\", i, argv[i]);\n  }\n  return 0;\n}\n// Komanda xətti: ./program test1 test2\n// Output:\n// Arqumentlerin sayi: 3\n// Arqument 0: ./program\n// Arqument 1: test1\n// Arqument 2: test2"
+      }
+    ]
+  },
+  "en": {
+    "title": "Command Line Arguments",
+    "icon": "FiTerminal",
+    "language": "c",
+    "description": "argc and argv parameters.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Command Line Arguments?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, command line arguments are data passed to a program when it is run from a terminal or command line. These arguments allow you to modify the program’s behavior or provide additional information. For example, you can pass a file name or number when running a program. These arguments are accessible in the `main` function via `argc` (argument count) and `argv` (argument vector). Note: These code examples will not work in Pyodide, as it does not support command line arguments. Test them in a local C compiler like Visual Studio Code or gcc."
+      },
+      {
+        "type": "heading",
+        "text": "argc and argv Parameters"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C, the `main` function is defined to accept command line arguments as follows:\n```c\nint main(int argc, char *argv[])\n```\n- `argc`: An integer representing the number of arguments (at least 1, as the program name is always included).\n- `argv`: An array of character pointers (strings) containing the arguments. `argv[0]` is the program name, and `argv[1]` onward are user-provided arguments."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example reads command line arguments and prints them to the screen. The code doesn’t require user input but expects arguments from the command line (e.g., `./program test1 test2`)."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n  printf(\"Number of arguments: %d\\n\", argc);\n  for (int i = 0; i < argc; i++) {\n    printf(\"Argument %d: %s\\n\", i, argv[i]);\n  }\n  return 0;\n}\n// Command line: ./program test1 test2\n// Output:\n// Number of arguments: 3\n// Argument 0: ./program\n// Argument 1: test1\n// Argument 2: test2"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `argc`: Indicates the number of arguments (3, including the program name).\n- `argv`: Stores the arguments as an array (`argv[0]` is the program name, `argv[1]` and `argv[2]` are user arguments).\n- `for` loop: Prints all arguments.\nNote: Test this code in a local compiler (e.g., `gcc program.c -o program && ./program test1 test2`)."
+      },
+      {
+        "type": "heading",
+        "text": "Working with Arguments Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example takes two numbers from the command line and calculates their sum, checking if the correct number of arguments is provided."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(int argc, char *argv[]) {\n  if (argc != 3) {\n    printf(\"Error: Please provide exactly 2 numbers!\\n\");\n    printf(\"Example: ./program 5 3\\n\");\n    return 1;\n  }\n  int num1 = atoi(argv[1]);\n  int num2 = atoi(argv[2]);\n  printf(\"Sum: %d\\n\", num1 + num2);\n  return 0;\n}\n// Command line: ./program 5 3\n// Output:\n// Sum: 8\n// Command line: ./program\n// Output:\n// Error: Please provide exactly 2 numbers!\n// Example: ./program 5 3"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `if (argc != 3)`: Checks if the correct number of arguments is provided (program name + 2 numbers).\n- `atoi(argv[1])`: Converts `argv[1]` from a string to an integer.\n- `printf`: Prints the sum of the numbers.\nNote: Test this code in a local compiler (e.g., `gcc program.c -o program && ./program 5 3`)."
+      },
+      {
+        "type": "heading",
+        "text": "Using Arguments as File Names"
+      },
+      {
+        "type": "paragraph",
+        "text": "Command line arguments can be used to specify file names. This example uses an argument as a file name and writes text to it. Note: Since Pyodide does not support file operations, test this code in a local compiler."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n  if (argc != 2) {\n    printf(\"Error: Please provide a file name!\\n\");\n    printf(\"Example: ./program output.txt\\n\");\n    return 1;\n  }\n  FILE* file = fopen(argv[1], \"w\");\n  if (file == NULL) {\n    printf(\"File could not be opened!\\n\");\n    return 1;\n  }\n  fprintf(file, \"Hello, World!\\n\");\n  fclose(file);\n  printf(\"Written to file: %s\\n\", argv[1]);\n  return 0;\n}\n// Command line: ./program output.txt\n// Output:\n// Written to file: output.txt\n// (output.txt contains: Hello, World!)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `if (argc != 2)`: Checks if a file name was provided.\n- `fopen(argv[1], \"w\")`: Opens the file specified by `argv[1]` for writing.\n- `fprintf`: Writes text to the file.\n- Test this code in a local compiler (e.g., `gcc program.c -o program && ./program output.txt`)."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Command Line Arguments"
+      },
+      {
+        "type": "paragraph",
+        "text": "Command line arguments increase a program’s flexibility."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nAllow dynamic modification of program behavior."
+          },
+          {
+            "description": "\nEnable users to input data when running the program."
+          },
+          { "description": "\nUseful for scripting and automation." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Command line arguments can be challenging for beginners, especially when validating argument count or converting strings to other types."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nIncorrect argument count or type can cause errors."
+          },
+          {
+            "description": "\nConverting string arguments (`argv`) to numbers (`atoi`, `atof`) requires care."
+          },
+          {
+            "description": "\nInvalid arguments can lead to unexpected behavior."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Failing to check `argc` can cause the program to crash. Incorrect conversion of string arguments can lead to errors.\n- **Recommendations**: Always check `argc` for the correct number of arguments. Validate arguments before using them. Handle errors when using `atoi` or `atof`. Test code in a local compiler like Visual Studio Code or gcc."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example fails to check the argument count, causing an error. This code should not be run; it’s a theoretical example."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(int argc, char *argv[]) {\n  int num = atoi(argv[1]); // Error: argc not checked\n  printf(\"Number: %d\\n\", num);\n  return 0;\n}\n// Command line: ./program\n// Output: (Program may crash, as argv[1] is not provided)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `atoi(argv[1])`: Accesses `argv[1]` without checking `argc`, causing a crash if no arguments are provided.\n- Recommendation: Check `argc` with `if (argc < 2)`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n  printf(\"Number of arguments: %d\\n\", argc);\n  for (int i = 0; i < argc; i++) {\n    printf(\"Argument %d: %s\\n\", i, argv[i]);\n  }\n  return 0;\n}\n// Command line: ./program test1 test2\n// Output:\n// Number of arguments: 3\n// Argument 0: ./program\n// Argument 1: test1\n// Argument 2: test2"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Аргументы командной строки",
+    "icon": "FiTerminal",
+    "language": "c",
+    "description": "Параметры argc и argv.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое аргументы командной строки?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C аргументы командной строки — это данные, передаваемые программе при её запуске через терминал или командную строку. Эти аргументы позволяют изменять поведение программы или предоставлять дополнительные данные. Например, при запуске программы можно передать имя файла или число. Эти аргументы доступны в функции `main` через параметры `argc` (количество аргументов) и `argv` (вектор аргументов). Примечание: Эти примеры кода не будут работать в Pyodide, так как он не поддерживает аргументы командной строки. Тестируйте их в локальном компиляторе, таком как Visual Studio Code или gcc."
+      },
+      {
+        "type": "heading",
+        "text": "Параметры argc и argv"
+      },
+      {
+        "type": "paragraph",
+        "text": "В C функция `main` определена для принятия аргументов командной строки следующим образом:\n```c\nint main(int argc, char *argv[])\n```\n- `argc`: Целое число, указывающее количество аргументов (как минимум 1, так как имя программы всегда включено).\n- `argv`: Массив указателей на строки, содержащий аргументы. `argv[0]` — это имя программы, а `argv[1]` и далее — аргументы, предоставленные пользователем."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример считывает аргументы командной строки и выводит их на экран. Код не требует ввода данных, но ожидает аргументы из командной строки (например, `./program test1 test2`)."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n  printf(\"Количество аргументов: %d\\n\", argc);\n  for (int i = 0; i < argc; i++) {\n    printf(\"Аргумент %d: %s\\n\", i, argv[i]);\n  }\n  return 0;\n}\n// Командная строка: ./program test1 test2\n// Output:\n// Количество аргументов: 3\n// Аргумент 0: ./program\n// Аргумент 1: test1\n// Аргумент 2: test2"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `argc`: Указывает количество аргументов (3, включая имя программы).\n- `argv`: Хранит аргументы в виде массива (`argv[0]` — имя программы, `argv[1]` и `argv[2]` — пользовательские аргументы).\n- Цикл `for`: Выводит все аргументы.\nПримечание: Тестируйте этот код в локальном компиляторе (например, `gcc program.c -o program && ./program test1 test2`)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример работы с аргументами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример принимает два числа из командной строки и вычисляет их сумму, проверяя правильность количества аргументов."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(int argc, char *argv[]) {\n  if (argc != 3) {\n    printf(\"Ошибка: Введите ровно 2 числа!\\n\");\n    printf(\"Пример: ./program 5 3\\n\");\n    return 1;\n  }\n  int num1 = atoi(argv[1]);\n  int num2 = atoi(argv[2]);\n  printf(\"Сумма: %d\\n\", num1 + num2);\n  return 0;\n}\n// Командная строка: ./program 5 3\n// Output:\n// Сумма: 8\n// Командная строка: ./program\n// Output:\n// Ошибка: Введите ровно 2 числа!\n// Пример: ./program 5 3"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `if (argc != 3)`: Проверяет правильность количества аргументов (имя программы + 2 числа).\n- `atoi(argv[1])`: Преобразует `argv[1]` из строки в целое число.\n- `printf`: Выводит сумму чисел.\nПримечание: Тестируйте этот код в локальном компиляторе (например, `gcc program.c -o program && ./program 5 3`)."
+      },
+      {
+        "type": "heading",
+        "text": "Использование аргументов как имён файлов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Аргументы командной строки могут использоваться для указания имён файлов. Этот пример использует аргумент как имя файла и записывает в него текст. Примечание: Поскольку Pyodide не поддерживает операции с файлами, тестируйте этот код в локальном компиляторе."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n  if (argc != 2) {\n    printf(\"Ошибка: Укажите имя файла!\\n\");\n    printf(\"Пример: ./program output.txt\\n\");\n    return 1;\n  }\n  FILE* file = fopen(argv[1], \"w\");\n  if (file == NULL) {\n    printf(\"Файл не удалось открыть!\\n\");\n    return 1;\n  }\n  fprintf(file, \"Привет, мир!\\n\");\n  fclose(file);\n  printf(\"Записано в файл: %s\\n\", argv[1]);\n  return 0;\n}\n// Командная строка: ./program output.txt\n// Output:\n// Записано в файл: output.txt\n// (в output.txt записано: Привет, мир!)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `if (argc != 2)`: Проверяет, указано ли имя файла.\n- `fopen(argv[1], \"w\")`: Открывает файл, указанный в `argv[1]`, для записи.\n- `fprintf`: Записывает текст в файл.\n- Тестируйте этот код в локальном компиляторе (например, `gcc program.c -o program && ./program output.txt`)."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества аргументов командной строки"
+      },
+      {
+        "type": "paragraph",
+        "text": "Аргументы командной строки повышают гибкость программы."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПозволяют динамически изменять поведение программы."
+          },
+          {
+            "description": "\nДают пользователю возможность вводить данные при запуске программы."
+          },
+          { "description": "\nПолезны для скриптов и автоматизации." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Аргументы командной строки могут быть сложными для новичков, особенно при проверке количества аргументов или преобразовании строк в другие типы."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nНеправильное количество или тип аргументов может вызвать ошибки."
+          },
+          {
+            "description": "\nПреобразование строковых аргументов (`argv`) в числа (`atoi`, `atof`) требует осторожности."
+          },
+          {
+            "description": "\nНедопустимые аргументы могут привести к непредсказуемому поведению."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Непроверка `argc` может привести к сбою программы. Неправильное преобразование строковых аргументов может вызвать ошибки.\n- **Рекомендации**: Всегда проверяйте `argc` на правильное количество аргументов. Проверяйте аргументы перед их использованием. Учитывайте ошибки при использовании `atoi` или `atof`. Тестируйте код в локальном компиляторе, таком как Visual Studio Code или gcc."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример не проверяет количество аргументов, что приводит к ошибке. Код не следует запускать; это теоретический пример."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(int argc, char *argv[]) {\n  int num = atoi(argv[1]); // Ошибка: argc не проверяется\n  printf(\"Число: %d\\n\", num);\n  return 0;\n}\n// Командная строка: ./program\n// Output: (Программа может аварийно завершиться, так как argv[1] отсутствует)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `atoi(argv[1])`: Обращается к `argv[1]` без проверки `argc`, что вызывает сбой, если аргументы не предоставлены.\n- Рекомендация: Проверяйте `argc` с помощью `if (argc < 2)`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n  printf(\"Количество аргументов: %d\\n\", argc);\n  for (int i = 0; i < argc; i++) {\n    printf(\"Аргумент %d: %s\\n\", i, argv[i]);\n  }\n  return 0;\n}\n// Командная строка: ./program test1 test2\n// Output:\n// Количество аргументов: 3\n// Аргумент 0: ./program\n// Аргумент 1: test1\n// Аргумент 2: test2"
+      }
+    ]
+  }
+}

@@ -1,0 +1,447 @@
+{
+  "id": "header-files",
+  "az": {
+    "title": "Header Faylları",
+    "icon": "FiFile",
+    "language": "c",
+    "description": "Header fayllarının yaradılması və istifadəsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Header Faylları Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində header faylları (`.h` faylları) kodun təkrar istifadəsini asanlaşdırmaq və modullaşdırmaq üçün istifadə olunur. Header faylları adətən funksiya prototiplərini, sabitləri, makroları, `struct`, `enum` və ya `typedef` təriflərini ehtiva edir. Bu fayllar `#include` direktivi ilə digər C fayllarına daxil edilir, beləliklə kodun müxtəlif hissələri eyni təriflərdən istifadə edə bilər. Header faylları kodu daha mütəşəkkil və oxunaqlı edir."
+      },
+      {
+        "type": "heading",
+        "text": "Header Faylının Strukturu"
+      },
+      {
+        "type": "paragraph",
+        "text": "Header faylı adətən `.h` uzantısı ilə saxlanılır və aşağıdakı elementləri ehtiva edə bilər:\n- Funksiya prototipləri: Funksiyaların tərifləri olmadan yalnız elanları.\n- Sabitlər və makrolar: `#define` ilə təyin edilmiş dəyərlər.\n- `struct` və `enum` tərifləri: Məlumat strukturlarının tərifləri.\n- `typedef` tərifləri: Tiplərə yeni adlar verilməsi.\nHeader faylları təkrar daxil edilmənin qarşısını almaq üçün `include guard` mexanizmindən istifadə edir."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Header Faylı Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə sadə bir header faylı yaradılır və istifadə olunur. Kod giriş tələb etmir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// math_utils.h\n#ifndef MATH_UTILS_H\n#define MATH_UTILS_H\n\nint add(int a, int b);\nint subtract(int a, int b);\n\n#endif\n\n// math_utils.c\n#include \"math_utils.h\"\n\nint add(int a, int b) {\n  return a + b;\n}\n\nint subtract(int a, int b) {\n  return a - b;\n}\n\n// main.c\n#include <stdio.h>\n#include \"math_utils.h\"\n\nint main() {\n  printf(\"Sum: %d\\n\", add(5, 3));\n  printf(\"Difference: %d\\n\", subtract(5, 3));\n  return 0;\n}\n// Output:\n// Sum: 8\n// Difference: 2"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `math_utils.h`: `add` və `subtract` funksiyalarının prototiplərini ehtiva edir. `#ifndef MATH_UTILS_H` və `#endif` `include guard` kimi istifadə olunur.\n- `math_utils.c`: Funksiyaların təriflərini ehtiva edir.\n- `main.c`: `math_utils.h` faylını daxil edir və funksiyaları çağırır."
+      },
+      {
+        "type": "heading",
+        "text": "Include Guard Mexanizmi"
+      },
+      {
+        "type": "paragraph",
+        "text": "`include guard` header faylının təkrar daxil edilməsinin qarşısını alır. Bu, `#ifndef`, `#define` və `#endif` direktivləri ilə həyata keçirilir. Hər header faylı unikal bir identifikator (adətən fayl adının böyük hərflə yazılmış forması) istifadə edir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// config.h\n#ifndef CONFIG_H\n#define CONFIG_H\n\n#define MAX_SIZE 100\ntypedef struct {\n  int id;\n  char name[50];\n} User;\n\n#endif\n\n// main.c\n#include <stdio.h>\n#include \"config.h\"\n\nint main() {\n  User user;\n  user.id = 1;\n  user.name[0] = 'A';\n  user.name[1] = 'l';\n  user.name[2] = 'i';\n  user.name[3] = '\\0';\n  printf(\"User ID: %d, Name: %s, Max Size: %d\\n\", user.id, user.name, MAX_SIZE);\n  return 0;\n}\n// Output:\n// User ID: 1, Name: Ali, Max Size: 100"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `config.h`: `MAX_SIZE` sabitini və `User` strukturunu təyin edir. `include guard` (`CONFIG_H`) təkrar daxil edilməni önləyir.\n- `main.c`: `config.h` faylını daxil edir və təriflərdən istifadə edir."
+      },
+      {
+        "type": "heading",
+        "text": "Header Fayllarında Enum və Typedef İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Header faylları `enum` və `typedef` təriflərini ehtiva edə bilər, bu da kodun daha mütəşəkkil olmasını təmin edir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// types.h\n#ifndef TYPES_H\n#define TYPES_H\n\ntypedef enum {\n  Monday,\n  Tuesday,\n  Wednesday,\n  Thursday,\n  Friday,\n  Saturday,\n  Sunday\n} Day;\n\ntypedef struct {\n  int id;\n  Day day;\n} Event;\n\n#endif\n\n// main.c\n#include <stdio.h>\n#include \"types.h\"\n\nint main() {\n  Event event;\n  event.id = 101;\n  event.day = Wednesday;\n  printf(\"Event ID: %d, Day: %d\\n\", event.id, event.day);\n  return 0;\n}\n// Output:\n// Event ID: 101, Day: 2"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `types.h`: `Day` enumunu və `Event` strukturunu `typedef` ilə təyin edir.\n- `main.c`: `types.h` faylını daxil edir və təriflərdən istifadə edərək `Event` obyektini yaradır."
+      },
+      {
+        "type": "heading",
+        "text": "Header Fayllarının Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Header faylları kodu modullaşdırır və təkrar istifadəni asanlaşdırır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nKodu modullaşdırır və təkrar istifadəni asanlaşdırır."
+          },
+          {
+            "description": "\nTərifləri mərkəzləşdirərək dəyişiklikləri idarə etməyi asanlaşdırır."
+          },
+          { "description": "\nBöyük layihələrdə kodu mütəşəkkil saxlayır." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Header faylları yeni başlayanlar üçün bəzən qarışıq ola bilər, xüsusilə `include guard` düzgün istifadə edilmədikdə."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nTəkrar daxil edilmə səhvləri kompilyasiya xətalarına səbəb ola bilər."
+          },
+          {
+            "description": "\nHeader fayllarının çox olması layihəni idarə etməyi çətinləşdirə bilər."
+          },
+          {
+            "description": "\nTəriflərin səhv yerləşdirilməsi (məsələn, funksiya tərifi header faylda) səhvlərə yol açar."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: `include guard` istifadə edilmədikdə təkrar tərif səhvləri (multiple definition errors) baş verə bilər. Header fayllarında funksiya tərifləri yerləşdirmək əvəzinə yalnız prototiplər olmalıdır.\n- **Tövsiyələr**: Hər header faylında `include guard` istifadə et. Header fayllarında yalnız təriflər (prototip, sabit, `struct`) yerləşdir. Fayl adlarını mənalı seç. Kodu Visual Studio Code kimi redaktorlarda sına."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə `include guard` olmadan header faylı təkrar daxil edilir, bu da səhvə səbəb olur. Bu kod icra olunmamalıdır, sadəcə nəzəri nümunədir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// bad_header.h\nint add(int a, int b); // include guard yoxdur\n\n// main.c\n#include <stdio.h>\n#include \"bad_header.h\"\n#include \"bad_header.h\" // Təkrar daxil edilir\n\nint add(int a, int b) {\n  return a + b;\n}\n\nint main() {\n  printf(\"Sum: %d\\n\", add(3, 4));\n  return 0;\n}\n// Output: (Kompilyasiya xətası: multiple definition)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `bad_header.h`: `include guard` olmadan təkrar daxil edilir, bu da kompilyasiya xətasına səbəb olur.\n- Tövsiyə: `#ifndef`, `#define` və `#endif` ilə `include guard` istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// math_utils.h\n#ifndef MATH_UTILS_H\n#define MATH_UTILS_H\n\nint add(int a, int b);\nint subtract(int a, int b);\n\n#endif\n\n// math_utils.c\n#include \"math_utils.h\"\n\nint add(int a, int b) {\n  return a + b;\n}\n\nint subtract(int a, int b) {\n  return a - b;\n}\n\n// main.c\n#include <stdio.h>\n#include \"math_utils.h\"\n\nint main() {\n  printf(\"Sum: %d\\n\", add(5, 3));\n  printf(\"Difference: %d\\n\", subtract(5, 3));\n  return 0;\n}\n// Output:\n// Sum: 8\n// Difference: 2"
+      }
+    ]
+  },
+  "en": {
+    "title": "Header Files",
+    "icon": "FiFile",
+    "language": "c",
+    "description": "Creating and using header files.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Header Files?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, header files (`.h` files) are used to facilitate code reuse and modularity. Header files typically contain function prototypes, constants, macros, `struct`, `enum`, or `typedef` definitions. These files are included in other C files using the `#include` directive, allowing multiple parts of a program to share the same definitions. Header files make code more organized and readable."
+      },
+      {
+        "type": "heading",
+        "text": "Structure of a Header File"
+      },
+      {
+        "type": "paragraph",
+        "text": "A header file typically has a `.h` extension and may include:\n- Function prototypes: Declarations of functions without their definitions.\n- Constants and macros: Values defined with `#define`.\n- `struct` and `enum` definitions: Data structure definitions.\n- `typedef` definitions: Aliases for types.\nHeader files use an `include guard` mechanism to prevent multiple inclusions."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Header File Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example creates and uses a simple header file. The code doesn’t require input."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// math_utils.h\n#ifndef MATH_UTILS_H\n#define MATH_UTILS_H\n\nint add(int a, int b);\nint subtract(int a, int b);\n\n#endif\n\n// math_utils.c\n#include \"math_utils.h\"\n\nint add(int a, int b) {\n  return a + b;\n}\n\nint subtract(int a, int b) {\n  return a - b;\n}\n\n// main.c\n#include <stdio.h>\n#include \"math_utils.h\"\n\nint main() {\n  printf(\"Sum: %d\\n\", add(5, 3));\n  printf(\"Difference: %d\\n\", subtract(5, 3));\n  return 0;\n}\n// Output:\n// Sum: 8\n// Difference: 2"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `math_utils.h`: Contains prototypes for `add` and `subtract` functions. `#ifndef MATH_UTILS_H` and `#endif` serve as an include guard.\n- `math_utils.c`: Contains the function definitions.\n- `main.c`: Includes `math_utils.h` and calls the functions."
+      },
+      {
+        "type": "heading",
+        "text": "Include Guard Mechanism"
+      },
+      {
+        "type": "paragraph",
+        "text": "An `include guard` prevents a header file from being included multiple times. It uses `#ifndef`, `#define`, and `#endif` directives. Each header file uses a unique identifier, typically the file name in uppercase."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// config.h\n#ifndef CONFIG_H\n#define CONFIG_H\n\n#define MAX_SIZE 100\ntypedef struct {\n  int id;\n  char name[50];\n} User;\n\n#endif\n\n// main.c\n#include <stdio.h>\n#include \"config.h\"\n\nint main() {\n  User user;\n  user.id = 1;\n  user.name[0] = 'A';\n  user.name[1] = 'l';\n  user.name[2] = 'i';\n  user.name[3] = '\\0';\n  printf(\"User ID: %d, Name: %s, Max Size: %d\\n\", user.id, user.name, MAX_SIZE);\n  return 0;\n}\n// Output:\n// User ID: 1, Name: Ali, Max Size: 100"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `config.h`: Defines the `MAX_SIZE` constant and `User` struct. The `include guard` (`CONFIG_H`) prevents multiple inclusions.\n- `main.c`: Includes `config.h` and uses its definitions."
+      },
+      {
+        "type": "heading",
+        "text": "Using Enums and Typedef in Header Files"
+      },
+      {
+        "type": "paragraph",
+        "text": "Header files can contain `enum` and `typedef` definitions, making code more organized."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// types.h\n#ifndef TYPES_H\n#define TYPES_H\n\ntypedef enum {\n  Monday,\n  Tuesday,\n  Wednesday,\n  Thursday,\n  Friday,\n  Saturday,\n  Sunday\n} Day;\n\ntypedef struct {\n  int id;\n  Day day;\n} Event;\n\n#endif\n\n// main.c\n#include <stdio.h>\n#include \"types.h\"\n\nint main() {\n  Event event;\n  event.id = 101;\n  event.day = Wednesday;\n  printf(\"Event ID: %d, Day: %d\\n\", event.id, event.day);\n  return 0;\n}\n// Output:\n// Event ID: 101, Day: 2"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `types.h`: Defines the `Day` enum and `Event` struct using `typedef`.\n- `main.c`: Includes `types.h` and creates an `Event` object using the definitions."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Header Files"
+      },
+      {
+        "type": "paragraph",
+        "text": "Header files modularize code and facilitate reuse."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nModularize code and make reuse easier." },
+          { "description": "\nCentralize definitions, simplifying changes." },
+          { "description": "\nKeep large projects organized." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Header files can be confusing for beginners, especially if `include guards` are not used correctly."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMultiple inclusion errors can cause compilation issues."
+          },
+          {
+            "description": "\nToo many header files can make a project hard to manage."
+          },
+          {
+            "description": "\nPlacing function definitions (instead of prototypes) in headers causes errors."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Without `include guards`, multiple definition errors occur. Placing function definitions in headers instead of prototypes leads to issues.\n- **Recommendations**: Always use `include guards` in header files. Include only definitions (prototypes, constants, `struct`) in headers. Choose meaningful file names. Test code in editors like Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example includes a header file without an `include guard`, causing a multiple definition error. This code should not be run; it’s a theoretical example."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// bad_header.h\nint add(int a, int b); // No include guard\n\n// main.c\n#include <stdio.h>\n#include \"bad_header.h\"\n#include \"bad_header.h\" // Included twice\n\nint add(int a, int b) {\n  return a + b;\n}\n\nint main() {\n  printf(\"Sum: %d\\n\", add(3, 4));\n  return 0;\n}\n// Output: (Compilation error: multiple definition)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `bad_header.h`: Lacks an `include guard`, causing a multiple inclusion error.\n- Recommendation: Use `#ifndef`, `#define`, and `#endif` for `include guards`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// math_utils.h\n#ifndef MATH_UTILS_H\n#define MATH_UTILS_H\n\nint add(int a, int b);\nint subtract(int a, int b);\n\n#endif\n\n// math_utils.c\n#include \"math_utils.h\"\n\nint add(int a, int b) {\n  return a + b;\n}\n\nint subtract(int a, int b) {\n  return a - b;\n}\n\n// main.c\n#include <stdio.h>\n#include \"math_utils.h\"\n\nint main() {\n  printf(\"Sum: %d\\n\", add(5, 3));\n  printf(\"Difference: %d\\n\", subtract(5, 3));\n  return 0;\n}\n// Output:\n// Sum: 8\n// Difference: 2"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Заголовочные файлы",
+    "icon": "FiFile",
+    "language": "c",
+    "description": "Создание и использование заголовочных файлов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое заголовочные файлы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C заголовочные файлы (`.h` файлы) используются для упрощения повторного использования кода и его модульности. Заголовочные файлы обычно содержат прототипы функций, константы, макросы, определения `struct`, `enum` или `typedef`. Эти файлы включаются в другие C-файлы с помощью директивы `#include`, что позволяет разным частям программы использовать одни и те же определения. Заголовочные файлы делают код более организованным и читаемым."
+      },
+      {
+        "type": "heading",
+        "text": "Структура заголовочного файла"
+      },
+      {
+        "type": "paragraph",
+        "text": "Заголовочный файл обычно имеет расширение `.h` и может включать:\n- Прототипы функций: Объявления функций без их определений.\n- Константы и макросы: Значения, определённые с помощью `#define`.\n- Определения `struct` и `enum`: Определения структур данных.\n- Определения `typedef`: Псевдонимы для типов.\nЗаголовочные файлы используют механизм `include guard` для предотвращения многократного включения."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример заголовочного файла"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример создаёт и использует простой заголовочный файл. Код не требует ввода."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// math_utils.h\n#ifndef MATH_UTILS_H\n#define MATH_UTILS_H\n\nint add(int a, int b);\nint subtract(int a, int b);\n\n#endif\n\n// math_utils.c\n#include \"math_utils.h\"\n\nint add(int a, int b) {\n  return a + b;\n}\n\nint subtract(int a, int b) {\n  return a - b;\n}\n\n// main.c\n#include <stdio.h>\n#include \"math_utils.h\"\n\nint main() {\n  printf(\"Sum: %d\\n\", add(5, 3));\n  printf(\"Difference: %d\\n\", subtract(5, 3));\n  return 0;\n}\n// Output:\n// Sum: 8\n// Difference: 2"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `math_utils.h`: Содержит прототипы функций `add` и `subtract`. `#ifndef MATH_UTILS_H` и `#endif` используются как `include guard`.\n- `math_utils.c`: Содержит определения функций.\n- `main.c`: Включает `math_utils.h` и вызывает функции."
+      },
+      {
+        "type": "heading",
+        "text": "Механизм Include Guard"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Include guard` предотвращает многократное включение заголовочного файла. Он использует директивы `#ifndef`, `#define` и `#endif`. Каждый заголовочный файл использует уникальный идентификатор, обычно имя файла в верхнем регистре."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// config.h\n#ifndef CONFIG_H\n#define CONFIG_H\n\n#define MAX_SIZE 100\ntypedef struct {\n  int id;\n  char name[50];\n} User;\n\n#endif\n\n// main.c\n#include <stdio.h>\n#include \"config.h\"\n\nint main() {\n  User user;\n  user.id = 1;\n  user.name[0] = 'A';\n  user.name[1] = 'l';\n  user.name[2] = 'i';\n  user.name[3] = '\\0';\n  printf(\"User ID: %d, Name: %s, Max Size: %d\\n\", user.id, user.name, MAX_SIZE);\n  return 0;\n}\n// Output:\n// User ID: 1, Name: Ali, Max Size: 100"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `config.h`: Определяет константу `MAX_SIZE` и структуру `User`. `Include guard` (`CONFIG_H`) предотвращает многократное включение.\n- `main.c`: Включает `config.h` и использует его определения."
+      },
+      {
+        "type": "heading",
+        "text": "Использование Enum и Typedef в заголовочных файлах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Заголовочные файлы могут содержать определения `enum` и `typedef`, что делает код более организованным."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// types.h\n#ifndef TYPES_H\n#define TYPES_H\n\ntypedef enum {\n  Monday,\n  Tuesday,\n  Wednesday,\n  Thursday,\n  Friday,\n  Saturday,\n  Sunday\n} Day;\n\ntypedef struct {\n  int id;\n  Day day;\n} Event;\n\n#endif\n\n// main.c\n#include <stdio.h>\n#include \"types.h\"\n\nint main() {\n  Event event;\n  event.id = 101;\n  event.day = Wednesday;\n  printf(\"Event ID: %d, Day: %d\\n\", event.id, event.day);\n  return 0;\n}\n// Output:\n// Event ID: 101, Day: 2"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `types.h`: Определяет `enum` `Day` и структуру `Event` с помощью `typedef`.\n- `main.c`: Включает `types.h` и создаёт объект `Event`, используя определения."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества заголовочных файлов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Заголовочные файлы модулизируют код и упрощают повторное использование."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nМодулизируют код и упрощают повторное использование."
+          },
+          { "description": "\nЦентрализуют определения, упрощая изменения." },
+          { "description": "\nДержат крупные проекты организованными." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Заголовочные файлы могут быть запутанными для новичков, особенно если `include guard` используется неправильно."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nОшибки многократного включения могут вызвать проблемы компиляции."
+          },
+          {
+            "description": "\nСлишком много заголовочных файлов может затруднить управление проектом."
+          },
+          {
+            "description": "\nНеправильное размещение определений (например, определений функций в заголовочных файлах) вызывает ошибки."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Без `include guard` возникают ошибки множественного определения. Размещение определений функций в заголовочных файлах вместо прототипов приводит к проблемам.\n- **Рекомендации**: Всегда используйте `include guard` в заголовочных файлах. Включайте только определения (прототипы, константы, `struct`) в заголовочные файлы. Выбирайте осмысленные имена файлов. Тестируйте код в редакторах, таких как Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример включает заголовочный файл без `include guard`, что вызывает ошибку множественного определения. Код не следует запускать; это теоретический пример."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// bad_header.h\nint add(int a, int b); // Нет include guard\n\n// main.c\n#include <stdio.h>\n#include \"bad_header.h\"\n#include \"bad_header.h\" // Включено дважды\n\nint add(int a, int b) {\n  return a + b;\n}\n\nint main() {\n  printf(\"Sum: %d\\n\", add(3, 4));\n  return 0;\n}\n// Output: (Ошибка компиляции: multiple definition)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `bad_header.h`: Не содержит `include guard`, что вызывает ошибку многократного включения.\n- Рекомендация: Используйте `#ifndef`, `#define` и `#endif` для `include guard`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// math_utils.h\n#ifndef MATH_UTILS_H\n#define MATH_UTILS_H\n\nint add(int a, int b);\nint subtract(int a, int b);\n\n#endif\n\n// math_utils.c\n#include \"math_utils.h\"\n\nint add(int a, int b) {\n  return a + b;\n}\n\nint subtract(int a, int b) {\n  return a - b;\n}\n\n// main.c\n#include <stdio.h>\n#include \"math_utils.h\"\n\nint main() {\n  printf(\"Sum: %d\\n\", add(5, 3));\n  printf(\"Difference: %d\\n\", subtract(5, 3));\n  return 0;\n}\n// Output:\n// Sum: 8\n// Difference: 2"
+      }
+    ]
+  }
+}
