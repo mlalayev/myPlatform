@@ -1,0 +1,408 @@
+{
+  "id": "inline-assembly",
+  "az": {
+    "title": "Daxili Assembler",
+    "icon": "FiCpu",
+    "language": "c",
+    "description": "C proqramlarında assembler kodunun istifadəsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Daxili Assembler Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində daxili assembler (inline assembly) C kodunun içərisində birbaşa assembler dilində (maşın dilinə yaxın aşağı səviyyəli dil) yazılmış təlimatların istifadəsidir. Bu, proqramçıya prosessorun xüsusi imkanlarından (məsələn, optimallaşdırılmış hesablama və ya xüsusi cihaz idarəetməsi) istifadə etməyə imkan verir. Inline assembly adətən GCC kompilyatorunda `asm` açar sözü ilə tətbiq olunur. Bu JSON faylda inline assembly-nin nə olduğu, necə istifadə olunduğu və sadə nümunələr sadə şəkildə izah olunacaq. Kod nümunələri x86_64 arxitekturası və GCC üçün hazırlanacaq, çünki inline assembly platformaya xüsusidir. Qeyd: Inline assembly Pyodide-da dəstəklənmir, ona görə nümunələr Linux-da və ya GCC ilə kompilyasiya edilərək sınaqdan keçirilməlidir."
+      },
+      {
+        "type": "heading",
+        "text": "Niyə Inline Assembly İstifadə Edilir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inline assembly C-nin təmin edə bilmədiyi aşağı səviyyəli nəzarəti təmin edir. Məsələn, xüsusi prosessor təlimatları ilə performans optimallaşdırıla bilər və ya aparatla birbaşa işləmək mümkün olur. Bununla belə, inline assembly platformaya (məsələn, x86_64, ARM) bağlıdır və portativlik problemləri yarada bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Inline Assembly Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Aşağıdakı nümunədə iki ədədi toplamaq üçün x86_64 arxitekturasında inline assembly istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int a = 5, b = 3, result;\n\n  asm (\"movl %1, %%eax;\"\n       \"addl %2, %%eax;\"\n       \"movl %%eax, %0;\"\n       : \"=r\" (result) /* Çıxış */\n       : \"r\" (a), \"r\" (b) /* Giriş */\n       : \"%eax\" /* İstifadə olunan registr */\n  );\n\n  printf(\"Nəticə: %d\\n\", result);\n  return 0;\n}\n// Output:\n// Nəticə: 8"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `asm` bloku x86_64 assembler təlimatlarını ehtiva edir.\n- `movl %1, %%eax`: `a` dəyərini `eax` registrinə köçürür.\n- `addl %2, %%eax`: `b` dəyərini `eax`-a əlavə edir.\n- `movl %%eax, %0`: Nəticəni `result` dəyişəninə köçürür.\n- Çıxış (`=r`), giriş (`r`) və istifadə olunan registr (`%eax`) GCC-nin inline assembly sintaksisinə uyğun təyin edilir.\n- Qeyd: Bu kod Pyodide-da işləməz, çünki inline assembly dəstəklənmir. Linux-da `gcc program.c` ilə kompilyasiya edin."
+      },
+      {
+        "type": "heading",
+        "text": "Daha Mürəkkəb Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə inline assembly ilə bir dəyişəni ikiqat artırmaq üçün x86_64 təlimatları istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int value = 10;\n\n  asm (\"movl %1, %%eax;\"\n       \"addl %%eax, %%eax;\"\n       \"movl %%eax, %0;\"\n       : \"=r\" (value) /* Çıxış */\n       : \"r\" (value) /* Giriş */\n       : \"%eax\" /* İstifadə olunan registr */\n  );\n\n  printf(\"Nəticə: %d\\n\", value);\n  return 0;\n}\n// Output:\n// Nəticə: 20"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `value` dəyişəni `eax` registrinə köçürülür.\n- `addl %%eax, %%eax` ilə dəyər ikiqat artırılır (10 + 10 = 20).\n- Nəticə yenidən `value`-yə yazılır.\n- Bu sadə bir optimallaşdırma nümunəsidir, lakin real layihələrdə daha mürəkkəb təlimatlar istifadə oluna bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Inline Assembly-nin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inline assembly proqramçıya aşağı səviyyəli nəzarət imkanı verir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nPerformans: Xüsusi prosessor təlimatları ilə optimallaşdırma mümkündür."
+          },
+          {
+            "description": "\nAparatla iş: Prosessorun xüsusi funksiyalarına birbaşa daxil olmaq olar."
+          },
+          {
+            "description": "\nDəqiqlik: C-nin təmin edə bilmədiyi dəqiq nəzarət təmin edilir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inline assembly yeni başlayanlar üçün mürəkkəb ola bilər, çünki assembler dili və prosessor arxitekturasını bilmək tələb olunur."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nPlatformaya bağlılıq: Kod x86_64 üçün yazılmışsa, ARM-da işləməyəcək."
+          },
+          {
+            "description": "\nOxunma çətinliyi: Assembler kodu C koduna nisbətən daha az başa düşüləndir."
+          },
+          {
+            "description": "\nPyodide məhdudiyyəti: Inline assembly Pyodide-da dəstəklənmir, testlər Linux-da aparılmalıdır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Səhv assembler təlimatları proqramın çökməsinə səbəb ola bilər. Platformaya bağlılıq portativliyi məhdudlaşdırır. Registr idarəetməsi diqqətsiz aparılarsa, gözlənilməz nəticələr yaranar.\n- **Tövsiyələr**: Yalnız zəruri hallarda inline assembly istifadə edin. Prosessor arxitekturasını və təlimatları öyrənin. Kodunuzu GCC ilə test edin (`gcc program.c`). Mümkünsə, C-nin standart funksiyalarına üstünlük verin. Testləri kiçik nümunələrlə aparın."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə səhv registr istifadəsi proqramın qeyri-müəyyən davranışına səbəb ola bilər."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int result;\n\n  asm (\"movl $5, %eax;\"\n       \"addl $3, %eax;\"\n       // Səhv: Çıxış dəyişəni təyin edilməyib\n  );\n\n  printf(\"Nəticə: %d\\n\", result);\n  return 0;\n}\n// Output (qeyri-müəyyən davranış):\n// Nəticə: [təsadüfi dəyər]"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `asm` bloku nəticəni `result` dəyişəninə yazmır.\n- `result` təşəbbüssüz qalır, bu da qeyri-müəyyən davranışa səbəb olur.\n- Həll: Çıxış dəyişənini düzgün təyin edin (məsələn, `=r` ilə)."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nint main() {\n  int a = 7, b = 4, result;\n\n  asm (\"movl %1, %%eax;\"\n       \"addl %2, %%eax;\"\n       \"movl %%eax, %0;\"\n       : \"=r\" (result)\n       : \"r\" (a), \"r\" (b)\n       : \"%eax\"\n  );\n\n  printf(\"Nəticə: %d\\n\", result);\n  return 0;\n}\n// Output:\n// Nəticə: 11"
+      }
+    ]
+  },
+  "en": {
+    "title": "Inline Assembly",
+    "icon": "FiCpu",
+    "language": "c",
+    "description": "Using assembly code within C programs.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Inline Assembly?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, inline assembly refers to the use of assembly language (a low-level language close to machine code) directly within C code. This allows programmers to leverage specific processor capabilities, such as optimized computations or direct hardware control. Inline assembly is typically implemented using the `asm` keyword in GCC. This JSON file explains what inline assembly is, how it is used, and provides simple examples. Code examples are designed for x86_64 architecture and GCC, as inline assembly is platform-specific. Note: Inline assembly is not supported in Pyodide, so examples must be tested in Linux or with GCC."
+      },
+      {
+        "type": "heading",
+        "text": "Why Use Inline Assembly?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inline assembly provides low-level control that C cannot offer. For example, it enables performance optimization with specific processor instructions or direct hardware interaction. However, inline assembly is platform-specific (e.g., x86_64, ARM) and may reduce portability."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Inline Assembly Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "The following example uses inline assembly for x86_64 to add two numbers."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int a = 5, b = 3, result;\n\n  asm (\"movl %1, %%eax;\"\n       \"addl %2, %%eax;\"\n       \"movl %%eax, %0;\"\n       : \"=r\" (result) /* Output */\n       : \"r\" (a), \"r\" (b) /* Input */\n       : \"%eax\" /* Clobbered register */\n  );\n\n  printf(\"Result: %d\\n\", result);\n  return 0;\n}\n// Output:\n// Result: 8"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `asm` block contains x86_64 assembly instructions.\n- `movl %1, %%eax`: Moves `a` into the `eax` register.\n- `addl %2, %%eax`: Adds `b` to `eax`.\n- `movl %%eax, %0`: Stores the result in `result`.\n- Output (`=r`), input (`r`), and clobbered register (`%eax`) are specified per GCC’s inline assembly syntax.\n- Note: This code will not run in Pyodide, as inline assembly is not supported. Compile with `gcc program.c` in Linux."
+      },
+      {
+        "type": "heading",
+        "text": "More Complex Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example uses inline assembly to double a variable’s value on x86_64."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int value = 10;\n\n  asm (\"movl %1, %%eax;\"\n       \"addl %%eax, %%eax;\"\n       \"movl %%eax, %0;\"\n       : \"=r\" (value) /* Output */\n       : \"r\" (value) /* Input */\n       : \"%eax\" /* Clobbered register */\n  );\n\n  printf(\"Result: %d\\n\", value);\n  return 0;\n}\n// Output:\n// Result: 20"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `value` is moved to the `eax` register.\n- `addl %%eax, %%eax` doubles the value (10 + 10 = 20).\n- The result is stored back in `value`.\n- This is a simple optimization example, but real projects may use more complex instructions."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Inline Assembly"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inline assembly provides low-level control for programmers."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nPerformance: Enables optimization with specific processor instructions."
+          },
+          {
+            "description": "\nHardware access: Allows direct interaction with processor features."
+          },
+          {
+            "description": "\nPrecision: Offers fine-grained control not available in C."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inline assembly can be complex for beginners, as it requires knowledge of assembly language and processor architecture."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nPlatform dependency: Code written for x86_64 won’t work on ARM."
+          },
+          {
+            "description": "\nReadability: Assembly code is less readable than C code."
+          },
+          {
+            "description": "\nPyodide limitation: Inline assembly is not supported in Pyodide, so testing requires Linux."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Incorrect assembly instructions can crash the program. Platform dependency reduces portability. Improper register management can cause unexpected results.\n- **Recommendations**: Use inline assembly only when necessary. Learn the processor architecture and instructions. Test code with GCC (`gcc program.c`). Prefer C’s standard functions when possible. Test with small examples."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes undefined behavior due to improper register usage."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int result;\n\n  asm (\"movl $5, %eax;\"\n       \"addl $3, %eax;\"\n       // Error: Output variable not specified\n  );\n\n  printf(\"Result: %d\\n\", result);\n  return 0;\n}\n// Output (undefined behavior):\n// Result: [random value]"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `asm` block does not store the result in `result`.\n- `result` remains uninitialized, causing undefined behavior.\n- Solution: Properly specify the output variable (e.g., with `=r`)."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nint main() {\n  int a = 7, b = 4, result;\n\n  asm (\"movl %1, %%eax;\"\n       \"addl %2, %%eax;\"\n       \"movl %%eax, %0;\"\n       : \"=r\" (result)\n       : \"r\" (a), \"r\" (b)\n       : \"%eax\"\n  );\n\n  printf(\"Result: %d\\n\", result);\n  return 0;\n}\n// Output:\n// Result: 11"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Встроенная ассемблерная вставка",
+    "icon": "FiCpu",
+    "language": "c",
+    "description": "Использование ассемблерного кода в программах на C.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое встроенная ассемблерная вставка?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C встроенная ассемблерная вставка (inline assembly) — это использование кода на языке ассемблера (низкоуровневый язык, близкий к машинному коду) непосредственно внутри C-кода. Это позволяет программисту использовать специфические возможности процессора, такие как оптимизированные вычисления или прямое управление оборудованием. Встроенная ассемблерная вставка обычно реализуется с помощью ключевого слова `asm` в GCC. Этот JSON-файл объясняет, что такое встроенная ассемблерная вставка, как она используется, и предоставляет простые примеры. Примеры кода предназначены для архитектуры x86_64 и GCC, так как встроенная ассемблерная вставка зависит от платформы. Примечание: Встроенная ассемблерная вставка не поддерживается в Pyodide, поэтому примеры должны тестироваться в Linux или с GCC."
+      },
+      {
+        "type": "heading",
+        "text": "Зачем использовать встроенную ассемблерную вставку?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Встроенная ассемблерная вставка предоставляет низкоуровневый контроль, который недоступен в C. Например, она позволяет оптимизировать производительность с помощью специфических инструкций процессора или взаимодействовать напрямую с оборудованием. Однако встроенная ассемблерная вставка зависит от платформы (например, x86_64, ARM) и может снижать переносимость кода."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример встроенной ассемблерной вставки"
+      },
+      {
+        "type": "paragraph",
+        "text": "В следующем примере используется встроенная ассемблерная вставка для сложения двух чисел на архитектуре x86_64."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int a = 5, b = 3, result;\n\n  asm (\"movl %1, %%eax;\"\n       \"addl %2, %%eax;\"\n       \"movl %%eax, %0;\"\n       : \"=r\" (result) /* Выход */\n       : \"r\" (a), \"r\" (b) /* Вход */\n       : \"%eax\" /* Используемый регистр */\n  );\n\n  printf(\"Результат: %d\\n\", result);\n  return 0;\n}\n// Output:\n// Результат: 8"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Блок `asm` содержит инструкции ассемблера для x86_64.\n- `movl %1, %%eax`: Перемещает `a` в регистр `eax`.\n- `addl %2, %%eax`: Прибавляет `b` к `eax`.\n- `movl %%eax, %0`: Сохраняет результат в `result`.\n- Выход (`=r`), вход (`r`) и используемый регистр (`%eax`) определены в соответствии с синтаксисом встроенной ассемблерной вставки GCC.\n- Примечание: Этот код не работает в Pyodide, так как встроенная ассемблерная вставка не поддерживается. Компилируйте с `gcc program.c` в Linux."
+      },
+      {
+        "type": "heading",
+        "text": "Более сложный пример"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример использует встроенную ассемблерную вставку для удвоения значения переменной на x86_64."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int value = 10;\n\n  asm (\"movl %1, %%eax;\"\n       \"addl %%eax, %%eax;\"\n       \"movl %%eax, %0;\"\n       : \"=r\" (value) /* Выход */\n       : \"r\" (value) /* Вход */\n       : \"%eax\" /* Используемый регистр */\n  );\n\n  printf(\"Результат: %d\\n\", value);\n  return 0;\n}\n// Output:\n// Результат: 20"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `value` перемещается в регистр `eax`.\n- `addl %%eax, %%eax` удваивает значение (10 + 10 = 20).\n- Результат сохраняется обратно в `value`.\n- Это пример простой оптимизации, но в реальных проектах могут использоваться более сложные инструкции."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества встроенной ассемблерной вставки"
+      },
+      {
+        "type": "paragraph",
+        "text": "Встроенная ассемблерная вставка предоставляет программисту низкоуровневый контроль."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПроизводительность: Возможна оптимизация с использованием специфических инструкций процессора."
+          },
+          {
+            "description": "\nДоступ к оборудованию: Позволяет напрямую взаимодействовать с функциями процессора."
+          },
+          {
+            "description": "\nТочность: Обеспечивает точный контроль, недоступный в C."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Встроенная ассемблерная вставка может быть сложной для новичков, так как требует знания языка ассемблера и архитектуры процессора."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nЗависимость от платформы: Код, написанный для x86_64, не будет работать на ARM."
+          },
+          {
+            "description": "\nСложность чтения: Ассемблерный код менее читаем, чем код на C."
+          },
+          {
+            "description": "\nОграничение Pyodide: Встроенная ассемблерная вставка не поддерживается в Pyodide, тестирование требует Linux."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильные инструкции ассемблера могут привести к сбою программы. Зависимость от платформы снижает переносимость. Неправильное управление регистрами может вызвать непредсказуемые результаты.\n- **Рекомендации**: Используйте встроенную ассемблерную вставку только при необходимости. Изучите архитектуру процессора и инструкции. Тестируйте код с GCC (`gcc program.c`). По возможности предпочитайте стандартные функции C. Тестируйте с небольшими примерами."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает неопределённое поведение из-за неправильного использования регистров."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int result;\n\n  asm (\"movl $5, %eax;\"\n       \"addl $3, %eax;\"\n       // Ошибка: Выходная переменная не указана\n  );\n\n  printf(\"Результат: %d\\n\", result);\n  return 0;\n}\n// Output (неопределённое поведение):\n// Результат: [случайное значение]"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Блок `asm` не сохраняет результат в `result`.\n- `result` остаётся неинициализированным, что вызывает неопределённое поведение.\n- Решение: Правильно укажите выходную переменную (например, с помощью `=r`)."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nint main() {\n  int a = 7, b = 4, result;\n\n  asm (\"movl %1, %%eax;\"\n       \"addl %2, %%eax;\"\n       \"movl %%eax, %0;\"\n       : \"=r\" (result)\n       : \"r\" (a), \"r\" (b)\n       : \"%eax\"\n  );\n\n  printf(\"Результат: %d\\n\", result);\n  return 0;\n}\n// Output:\n// Результат: 11"
+      }
+    ]
+  }
+}

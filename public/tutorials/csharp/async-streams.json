@@ -1,0 +1,486 @@
+{
+  "id": "async-streams",
+  "az": {
+    "title": "Async Streams & Qabaqcıl Async",
+    "icon": "FiClock",
+    "language": "csharp",
+    "description": "IAsyncEnumerable, qabaqcıl async/await nümunələri.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Async Streams (IAsyncEnumerable) Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində `IAsyncEnumerable` asinxron şəkildə məlumat axınlarını (data streams) emal etmək üçün istifadə olunur. Bu, böyük həcmli məlumatları bir-bir asinxron olaraq əldə etməyə imkan verir, məsələn, verilənlər bazasından və ya şəbəkədən məlumatları oxuyarkən. `IAsyncEnumerable` C# 8.0-dan etibarən təqdim edilib və `async/await` ilə birlikdə istifadə olunur. `foreach` dövrü ilə asinxron məlumat axınlarını gəzmək mümkündür. Bu JSON faylda `IAsyncEnumerable`, ləğv etmə (`CancellationToken`), irəliləyiş izləmə (`IProgress`), paralel asinxron tapşırıqlar və digər qabaqcıl nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur və Pyodide məhdudiyyətlərinə uyğun olaraq şəbəkə çağırışları və fayl əməliyyatları əvəzinə simulyasiya edilmiş məlumatlar və `Task.Delay` istifadə edilir."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə IAsyncEnumerable Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "`IAsyncEnumerable` ilə asinxron məlumat axını yaratmaq və gəzmək mümkündür."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Asinxron axın başlayır...\");\n        await foreach (var number in GenerateNumbersAsync())\n        {\n            Console.WriteLine($\"Alınan ədəd: {number}\");\n        }\n        Console.WriteLine(\"Axın bitdi.\");\n    }\n\n    static async IAsyncEnumerable<int> GenerateNumbersAsync()\n    {\n        for (int i = 1; i <= 5; i++)\n        {\n            await Task.Delay(500); // 0.5 saniyəlik gecikmə\n            yield return i;\n        }\n    }\n}\n// Output:\n// Asinxron axın başlayır...\n// Alınan ədəd: 1\n// Alınan ədəd: 2\n// Alınan ədəd: 3\n// Alınan ədəd: 4\n// Alınan ədəd: 5\n// Axın bitdi."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `GenerateNumbersAsync` metodu `IAsyncEnumerable<int>` qaytarır və `yield return` ilə məlumat axını yaradır.\n- `await foreach` ilə axın asinxron şəkildə gəzilir.\n- `Task.Delay` real dünyada məlumat əldə etmə prosesini simulyasiya edir.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Ləğv Etmə (CancellationToken) ilə IAsyncEnumerable"
+      },
+      {
+        "type": "paragraph",
+        "text": "`CancellationToken` ilə asinxron axını ləğv etmək mümkündür, məsələn, istifadəçi prosesi dayandırmaq istədikdə."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        using var cts = new CancellationTokenSource(1500); // 1.5 saniyədən sonra ləğv et\n        Console.WriteLine(\"Asinxron axın başlayır...\");\n        try\n        {\n            await foreach (var number in GenerateNumbersAsync(cts.Token))\n            {\n                Console.WriteLine($\"Alınan ədəd: {number}\");\n            }\n        }\n        catch (OperationCanceledException)\n        {\n            Console.WriteLine(\"Axın ləğv edildi!\");\n        }\n    }\n\n    static async IAsyncEnumerable<int> GenerateNumbersAsync(CancellationToken token)\n    {\n        for (int i = 1; i <= 10; i++)\n        {\n            token.ThrowIfCancellationRequested();\n            await Task.Delay(500, token); // 0.5 saniyəlik gecikmə\n            yield return i;\n        }\n    }\n}\n// Output:\n// Asinxron axın başlayır...\n// Alınan ədəd: 1\n// Alınan ədəd: 2\n// Alınan ədəd: 3\n// Axın ləğv edildi!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `CancellationTokenSource` 1.5 saniyədən sonra ləğv siqnalı göndərir.\n- `token.ThrowIfCancellationRequested()` ləğv tələbini yoxlayır.\n- Ləğv edildikdə `OperationCanceledException` atılır və proses dayanır."
+      },
+      {
+        "type": "heading",
+        "text": "İrəliləyiş İzləmə (IProgress)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asinxron tapşırıqlarda irəliləyişi izləmək üçün `IProgress<T>` istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Hesablama başlayır...\");\n        var progress = new Progress<int>(percent =>\n        {\n            Console.WriteLine($\"İrəliləyiş: {percent}%\");\n        });\n        await ProcessDataAsync(progress);\n        Console.WriteLine(\"Hesablama bitdi.\");\n    }\n\n    static async Task ProcessDataAsync(IProgress<int> progress)\n    {\n        for (int i = 1; i <= 10; i++)\n        {\n            await Task.Delay(200); // Simulyasiya\n            progress?.Report(i * 10);\n        }\n    }\n}\n// Output:\n// Hesablama başlayır...\n// İrəliləyiş: 10%\n// İrəliləyiş: 20%\n// İrəliləyiş: 30%\n// İrəliləyiş: 40%\n// İrəliləyiş: 50%\n// İrəliləyiş: 60%\n// İrəliləyiş: 70%\n// İrəliləyiş: 80%\n// İrəliləyiş: 90%\n// İrəliləyiş: 100%\n// Hesablama bitdi."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Progress<int>` irəliləyiş haqqında məlumatları konsola yazır.\n- `progress?.Report` hər addımda irəliləyişi bildirir.\n- `Task.Delay` real dünyada uzun süren prosesi simulyasiya edir."
+      },
+      {
+        "type": "heading",
+        "text": "Paralel Asinxron Tapşırıqlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bir neçə asinxron tapşırığı paralel icra etmək üçün `Task.WhenAll` və `IAsyncEnumerable` birləşdirilə bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Paralel tapşırıqlar başlayır...\");\n        var sources = new[] { GenerateNumbersAsync(1), GenerateNumbersAsync(2) };\n        var merged = MergeStreams(sources);\n        await foreach (var number in merged)\n        {\n            Console.WriteLine($\"Alınan ədəd: {number}\");\n        }\n        Console.WriteLine(\"Paralel tapşırıqlar bitdi.\");\n    }\n\n    static async IAsyncEnumerable<int> GenerateNumbersAsync(int sourceId)\n    {\n        for (int i = 1; i <= 3; i++)\n        {\n            await Task.Delay(500);\n            yield return i * 10 + sourceId;\n        }\n    }\n\n    static async IAsyncEnumerable<int> MergeStreams(IEnumerable<IAsyncEnumerable<int>> streams)\n    {\n        var tasks = streams.Select(async stream =>\n        {\n            var results = new List<int>();\n            await foreach (var item in stream)\n            {\n                results.Add(item);\n            }\n            return results;\n        }).ToList();\n\n        var results = await Task.WhenAll(tasks);\n        foreach (var result in results.SelectMany(x => x))\n        {\n            yield return result;\n        }\n    }\n}\n// Output (mümkün ardıcıllıq):\n// Paralel tapşırıqlar başlayır...\n// Alınan ədəd: 11\n// Alınan ədəd: 21\n// Alınan ədəd: 12\n// Alınan ədəd: 22\n// Alınan ədəd: 13\n// Alınan ədəd: 23\n// Paralel tapşırıqlar bitdi."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İki `IAsyncEnumerable` axını paralel işləyir.\n- `MergeStreams` axınları birləşdirir və nəticələri qaytarır.\n- `Task.WhenAll` paralel icranı təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Async Streams-in Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asinxron axınlar və qabaqcıl async nümunələri proqramın səmərəliliyini artırır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nYaddaş Səmərəliliyi: Böyük məlumat axınları bir-bir emal olunur."
+          },
+          {
+            "description": "\nCavabdehlik: Uzun süren əməliyyatlar proqramı bloklamır."
+          },
+          {
+            "description": "\nEsneklik: Ləğv etmə və irəliləyiş izləmə istifadəçi təcrübəsini yaxşılaşdırır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asinxron axınlar yeni başlayanlar üçün çətin ola bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: `IAsyncEnumerable` və `CancellationToken` anlayışları qarışıq ola bilər."
+          },
+          {
+            "description": "\nSəhvlər: Ləğv etmə və ya irəliləyiş idarəetməsi düzgün tətbiq edilmədikdə səhvlər yarana bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# asinxron axınları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Ləğv etmə düzgün idarə edilmədikdə resurs sızmaları (leak) ola bilər. `await foreach` düzgün istifadə edilməzsə, axın tamamlanmaya bilər.\n- **Tövsiyələr**: Həmişə `CancellationToken` və `try-catch` istifadə edin. `IProgress` ilə istifadəçi təcrübəsini yaxşılaşdırın. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə ləğv etmə idarə edilmədikdə resurs sızması yarana bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Səhvə yol açan axın başlayır...\");\n        await foreach (var number in GenerateNumbersAsync())\n        {\n            Console.WriteLine($\"Alınan ədəd: {number}\");\n            if (number == 3) break; // Ləğv etmə olmadan dayandırma\n        }\n        Console.WriteLine(\"Axın bitdi.\");\n    }\n\n    static async IAsyncEnumerable<int> GenerateNumbersAsync()\n    {\n        for (int i = 1; i <= 10; i++)\n        {\n            await Task.Delay(500);\n            yield return i;\n        }\n    }\n}\n// Output:\n// Səhvə yol açan axın başlayır...\n// Alınan ədəd: 1\n// Alınan ədəd: 2\n// Alınan ədəd: 3\n// Axın bitdi."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `break` ilə axın erkən dayandırılır, lakin `CancellationToken` istifadə edilmədiyi üçün resurslar düzgün təmizlənməyə bilər.\n- Həll: `CancellationToken` ilə ləğv etmə tətbiq edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Collections.Generic;\nusing System.Threading;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        using var cts = new CancellationTokenSource(2000);\n        var progress = new Progress<int>(percent =>\n        {\n            Console.WriteLine($\"İrəliləyiş: {percent}%\");\n        });\n        Console.WriteLine(\"Asinxron axın başlayır...\");\n        try\n        {\n            await foreach (var item in GenerateDataAsync(cts.Token, progress))\n            {\n                Console.WriteLine($\"Alınan məlumat: {item}\");\n            }\n        }\n        catch (OperationCanceledException)\n        {\n            Console.WriteLine(\"Axın ləğv edildi!\");\n        }\n    }\n\n    static async IAsyncEnumerable<string> GenerateDataAsync(CancellationToken token, IProgress<int> progress)\n    {\n        for (int i = 1; i <= 5; i++)\n        {\n            token.ThrowIfCancellationRequested();\n            await Task.Delay(500, token);\n            progress?.Report(i * 20);\n            yield return $\"Məlumat {i}\";\n        }\n    }\n}\n// Output:\n// Asinxron axın başlayır...\n// İrəliləyiş: 20%\n// Alınan məlumat: Məlumat 1\n// İrəliləyiş: 40%\n// Alınan məlumat: Məlumat 2\n// İrəliləyiş: 60%\n// Alınan məlumat: Məlumat 3\n// Axın ləğv edildi!"
+      }
+    ]
+  },
+  "en": {
+    "title": "Async Streams & Advanced Async",
+    "icon": "FiClock",
+    "language": "csharp",
+    "description": "IAsyncEnumerable, advanced async/await patterns.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Async Streams (IAsyncEnumerable)?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, `IAsyncEnumerable` is used to process data streams asynchronously. It allows retrieving large datasets one-by-one asynchronously, such as reading from a database or network. Introduced in C# 8.0, `IAsyncEnumerable` integrates with `async/await` and supports asynchronous iteration using `foreach`. This JSON file explains `IAsyncEnumerable`, cancellation (`CancellationToken`), progress tracking (`IProgress`), parallel async tasks, and other advanced patterns in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values, avoid user input, and use simulated data with `Task.Delay` instead of network or file operations due to Pyodide limitations."
+      },
+      {
+        "type": "heading",
+        "text": "Simple IAsyncEnumerable Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "`IAsyncEnumerable` enables creating and iterating over an asynchronous data stream."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Async stream starting...\");\n        await foreach (var number in GenerateNumbersAsync())\n        {\n            Console.WriteLine($\"Received number: {number}\");\n        }\n        Console.WriteLine(\"Stream finished.\");\n    }\n\n    static async IAsyncEnumerable<int> GenerateNumbersAsync()\n    {\n        for (int i = 1; i <= 5; i++)\n        {\n            await Task.Delay(500); // 0.5-second delay\n            yield return i;\n        }\n    }\n}\n// Output:\n// Async stream starting...\n// Received number: 1\n// Received number: 2\n// Received number: 3\n// Received number: 4\n// Received number: 5\n// Stream finished."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `GenerateNumbersAsync` returns an `IAsyncEnumerable<int>` and uses `yield return` to produce a stream.\n- `await foreach` iterates over the stream asynchronously.\n- `Task.Delay` simulates data retrieval.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "IAsyncEnumerable with Cancellation (CancellationToken)"
+      },
+      {
+        "type": "paragraph",
+        "text": "`CancellationToken` allows canceling an async stream, for example, when a user stops the process."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        using var cts = new CancellationTokenSource(1500); // Cancel after 1.5 seconds\n        Console.WriteLine(\"Async stream starting...\");\n        try\n        {\n            await foreach (var number in GenerateNumbersAsync(cts.Token))\n            {\n                Console.WriteLine($\"Received number: {number}\");\n            }\n        }\n        catch (OperationCanceledException)\n        {\n            Console.WriteLine(\"Stream canceled!\");\n        }\n    }\n\n    static async IAsyncEnumerable<int> GenerateNumbersAsync(CancellationToken token)\n    {\n        for (int i = 1; i <= 10; i++)\n        {\n            token.ThrowIfCancellationRequested();\n            await Task.Delay(500, token); // 0.5-second delay\n            yield return i;\n        }\n    }\n}\n// Output:\n// Async stream starting...\n// Received number: 1\n// Received number: 2\n// Received number: 3\n// Stream canceled!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `CancellationTokenSource` triggers cancellation after 1.5 seconds.\n- `token.ThrowIfCancellationRequested()` checks for cancellation requests.\n- When canceled, an `OperationCanceledException` is thrown, stopping the process."
+      },
+      {
+        "type": "heading",
+        "text": "Progress Tracking (IProgress)"
+      },
+      {
+        "type": "paragraph",
+        "text": "`IProgress<T>` is used to track progress in asynchronous tasks."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Processing started...\");\n        var progress = new Progress<int>(percent =>\n        {\n            Console.WriteLine($\"Progress: {percent}%\");\n        });\n        await ProcessDataAsync(progress);\n        Console.WriteLine(\"Processing finished.\");\n    }\n\n    static async Task ProcessDataAsync(IProgress<int> progress)\n    {\n        for (int i = 1; i <= 10; i++)\n        {\n            await Task.Delay(200); // Simulation\n            progress?.Report(i * 10);\n        }\n    }\n}\n// Output:\n// Processing started...\n// Progress: 10%\n// Progress: 20%\n// Progress: 30%\n// Progress: 40%\n// Progress: 50%\n// Progress: 60%\n// Progress: 70%\n// Progress: 80%\n// Progress: 90%\n// Progress: 100%\n// Processing finished."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Progress<int>` reports progress to the console.\n- `progress?.Report` notifies progress at each step.\n- `Task.Delay` simulates a long-running process."
+      },
+      {
+        "type": "heading",
+        "text": "Parallel Async Tasks"
+      },
+      {
+        "type": "paragraph",
+        "text": "Multiple async tasks can be executed in parallel using `Task.WhenAll` combined with `IAsyncEnumerable`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Parallel tasks starting...\");\n        var sources = new[] { GenerateNumbersAsync(1), GenerateNumbersAsync(2) };\n        var merged = MergeStreams(sources);\n        await foreach (var number in merged)\n        {\n            Console.WriteLine($\"Received number: {number}\");\n        }\n        Console.WriteLine(\"Parallel tasks finished.\");\n    }\n\n    static async IAsyncEnumerable<int> GenerateNumbersAsync(int sourceId)\n    {\n        for (int i = 1; i <= 3; i++)\n        {\n            await Task.Delay(500);\n            yield return i * 10 + sourceId;\n        }\n    }\n\n    static async IAsyncEnumerable<int> MergeStreams(IEnumerable<IAsyncEnumerable<int>> streams)\n    {\n        var tasks = streams.Select(async stream =>\n        {\n            var results = new List<int>();\n            await foreach (var item in stream)\n            {\n                results.Add(item);\n            }\n            return results;\n        }).ToList();\n\n        var results = await Task.WhenAll(tasks);\n        foreach (var result in results.SelectMany(x => x))\n        {\n            yield return result;\n        }\n    }\n}\n// Output (possible order):\n// Parallel tasks starting...\n// Received number: 11\n// Received number: 21\n// Received number: 12\n// Received number: 22\n// Received number: 13\n// Received number: 23\n// Parallel tasks finished."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Two `IAsyncEnumerable` streams run in parallel.\n- `MergeStreams` combines the streams and yields results.\n- `Task.WhenAll` ensures parallel execution."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Async Streams"
+      },
+      {
+        "type": "paragraph",
+        "text": "Async streams and advanced async patterns enhance program efficiency."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMemory Efficiency: Large data streams are processed incrementally."
+          },
+          {
+            "description": "\nResponsiveness: Long-running operations don’t block the program."
+          },
+          {
+            "description": "\nFlexibility: Cancellation and progress tracking improve user experience."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Async streams can be challenging for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: `IAsyncEnumerable` and `CancellationToken` concepts can be confusing."
+          },
+          {
+            "description": "\nErrors: Improper cancellation or progress handling may cause issues."
+          },
+          {
+            "description": "\nPyodide Limitation: C# async streams are not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Improper cancellation handling can lead to resource leaks. Incorrect use of `await foreach` may prevent stream completion.\n- **Recommendations**: Always use `CancellationToken` and `try-catch`. Enhance user experience with `IProgress`. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example risks resource leaks by stopping a stream without proper cancellation."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Error-prone stream starting...\");\n        await foreach (var number in GenerateNumbersAsync())\n        {\n            Console.WriteLine($\"Received number: {number}\");\n            if (number == 3) break; // Stop without cancellation\n        }\n        Console.WriteLine(\"Stream finished.\");\n    }\n\n    static async IAsyncEnumerable<int> GenerateNumbersAsync()\n    {\n        for (int i = 1; i <= 10; i++)\n        {\n            await Task.Delay(500);\n            yield return i;\n        }\n    }\n}\n// Output:\n// Error-prone stream starting...\n// Received number: 1\n// Received number: 2\n// Received number: 3\n// Stream finished."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The stream is stopped early with `break` without using `CancellationToken`, risking resource leaks.\n- Solution: Implement cancellation with `CancellationToken`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Collections.Generic;\nusing System.Threading;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        using var cts = new CancellationTokenSource(2000);\n        var progress = new Progress<int>(percent =>\n        {\n            Console.WriteLine($\"Progress: {percent}%\");\n        });\n        Console.WriteLine(\"Async stream starting...\");\n        try\n        {\n            await foreach (var item in GenerateDataAsync(cts.Token, progress))\n            {\n                Console.WriteLine($\"Received data: {item}\");\n            }\n        }\n        catch (OperationCanceledException)\n        {\n            Console.WriteLine(\"Stream canceled!\");\n        }\n    }\n\n    static async IAsyncEnumerable<string> GenerateDataAsync(CancellationToken token, IProgress<int> progress)\n    {\n        for (int i = 1; i <= 5; i++)\n        {\n            token.ThrowIfCancellationRequested();\n            await Task.Delay(500, token);\n            progress?.Report(i * 20);\n            yield return $\"Data {i}\";\n        }\n    }\n}\n// Output:\n// Async stream starting...\n// Progress: 20%\n// Received data: Data 1\n// Progress: 40%\n// Received data: Data 2\n// Progress: 60%\n// Received data: Data 3\n// Stream canceled!"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Асинхронные потоки и продвинутый Async",
+    "icon": "FiClock",
+    "language": "csharp",
+    "description": "IAsyncEnumerable, продвинутые шаблоны async/await.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое асинхронные потоки (IAsyncEnumerable)?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# `IAsyncEnumerable` используется для асинхронной обработки потоков данных. Он позволяет получать большие наборы данных по одному асинхронно, например, при чтении из базы данных или сети. Представленный в C# 8.0, `IAsyncEnumerable` интегрируется с `async/await` и поддерживает асинхронную итерацию с помощью `foreach`. Этот JSON-файл объясняет `IAsyncEnumerable`, отмену (`CancellationToken`), отслеживание прогресса (`IProgress`), параллельные асинхронные задачи и другие продвинутые шаблоны простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения, не требуют ввода от пользователя и используют симулированные данные с `Task.Delay` вместо сетевых операций или операций с файлами из-за ограничений Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример IAsyncEnumerable"
+      },
+      {
+        "type": "paragraph",
+        "text": "`IAsyncEnumerable` позволяет создавать и итерировать асинхронный поток данных."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Асинхронный поток начинается...\");\n        await foreach (var number in GenerateNumbersAsync())\n        {\n            Console.WriteLine($\"Получено число: {number}\");\n        }\n        Console.WriteLine(\"Поток завершён.\");\n    }\n\n    static async IAsyncEnumerable<int> GenerateNumbersAsync()\n    {\n        for (int i = 1; i <= 5; i++)\n        {\n            await Task.Delay(500); // Задержка 0.5 секунды\n            yield return i;\n        }\n    }\n}\n// Output:\n// Асинхронный поток начинается...\n// Получено число: 1\n// Получено число: 2\n// Получено число: 3\n// Получено число: 4\n// Получено число: 5\n// Поток завершён."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Метод `GenerateNumbersAsync` возвращает `IAsyncEnumerable<int>` и использует `yield return` для создания потока.\n- `await foreach` асинхронно итерирует по потоку.\n- `Task.Delay` симулирует получение данных.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "IAsyncEnumerable с отменой (CancellationToken)"
+      },
+      {
+        "type": "paragraph",
+        "text": "`CancellationToken` позволяет отменить асинхронный поток, например, когда пользователь останавливает процесс."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        using var cts = new CancellationTokenSource(1500); // Отмена через 1.5 секунды\n        Console.WriteLine(\"Асинхронный поток начинается...\");\n        try\n        {\n            await foreach (var number in GenerateNumbersAsync(cts.Token))\n            {\n                Console.WriteLine($\"Получено число: {number}\");\n            }\n        }\n        catch (OperationCanceledException)\n        {\n            Console.WriteLine(\"Поток отменён!\");\n        }\n    }\n\n    static async IAsyncEnumerable<int> GenerateNumbersAsync(CancellationToken token)\n    {\n        for (int i = 1; i <= 10; i++)\n        {\n            token.ThrowIfCancellationRequested();\n            await Task.Delay(500, token); // Задержка 0.5 секунды\n            yield return i;\n        }\n    }\n}\n// Output:\n// Асинхронный поток начинается...\n// Получено число: 1\n// Получено число: 2\n// Получено число: 3\n// Поток отменён!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `CancellationTokenSource` инициирует отмену через 1.5 секунды.\n- `token.ThrowIfCancellationRequested()` проверяет запросы на отмену.\n- При отмене выбрасывается `OperationCanceledException`, останавливающее процесс."
+      },
+      {
+        "type": "heading",
+        "text": "Отслеживание прогресса (IProgress)"
+      },
+      {
+        "type": "paragraph",
+        "text": "`IProgress<T>` используется для отслеживания прогресса в асинхронных задачах."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Обработка началась...\");\n        var progress = new Progress<int>(percent =>\n        {\n            Console.WriteLine($\"Прогресс: {percent}%\");\n        });\n        await ProcessDataAsync(progress);\n        Console.WriteLine(\"Обработка завершена.\");\n    }\n\n    static async Task ProcessDataAsync(IProgress<int> progress)\n    {\n        for (int i = 1; i <= 10; i++)\n        {\n            await Task.Delay(200); // Симуляция\n            progress?.Report(i * 10);\n        }\n    }\n}\n// Output:\n// Обработка началась...\n// Прогресс: 10%\n// Прогресс: 20%\n// Прогресс: 30%\n// Прогресс: 40%\n// Прогресс: 50%\n// Прогресс: 60%\n// Прогресс: 70%\n// Прогресс: 80%\n// Прогресс: 90%\n// Прогресс: 100%\n// Обработка завершена."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Progress<int>` сообщает о прогрессе в консоль.\n- `progress?.Report` уведомляет о прогрессе на каждом шаге.\n- `Task.Delay` симулирует длительный процесс."
+      },
+      {
+        "type": "heading",
+        "text": "Параллельные асинхронные задачи"
+      },
+      {
+        "type": "paragraph",
+        "text": "Несколько асинхронных задач могут выполняться параллельно с использованием `Task.WhenAll` в сочетании с `IAsyncEnumerable`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Параллельные задачи начинаются...\");\n        var sources = new[] { GenerateNumbersAsync(1), GenerateNumbersAsync(2) };\n        var merged = MergeStreams(sources);\n        await foreach (var number in merged)\n        {\n            Console.WriteLine($\"Получено число: {number}\");\n        }\n        Console.WriteLine(\"Параллельные задачи завершены.\");\n    }\n\n    static async IAsyncEnumerable<int> GenerateNumbersAsync(int sourceId)\n    {\n        for (int i = 1; i <= 3; i++)\n        {\n            await Task.Delay(500);\n            yield return i * 10 + sourceId;\n        }\n    }\n\n    static async IAsyncEnumerable<int> MergeStreams(IEnumerable<IAsyncEnumerable<int>> streams)\n    {\n        var tasks = streams.Select(async stream =>\n        {\n            var results = new List<int>();\n            await foreach (var item in stream)\n            {\n                results.Add(item);\n            }\n            return results;\n        }).ToList();\n\n        var results = await Task.WhenAll(tasks);\n        foreach (var result in results.SelectMany(x => x))\n        {\n            yield return result;\n        }\n    }\n}\n// Output (возможный порядок):\n// Параллельные задачи начинаются...\n// Получено число: 11\n// Получено число: 21\n// Получено число: 12\n// Получено число: 22\n// Получено число: 13\n// Получено число: 23\n// Параллельные задачи завершены."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Два потока `IAsyncEnumerable` выполняются параллельно.\n- `MergeStreams` объединяет потоки и возвращает результаты.\n- `Task.WhenAll` обеспечивает параллельное выполнение."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества асинхронных потоков"
+      },
+      {
+        "type": "paragraph",
+        "text": "Асинхронные потоки и продвинутые шаблоны async повышают эффективность программы."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nЭффективность памяти: Большие потоки данных обрабатываются по частям."
+          },
+          {
+            "description": "\nОтзывчивость: Длительные операции не блокируют программу."
+          },
+          {
+            "description": "\nГибкость: Отмена и отслеживание прогресса улучшают пользовательский опыт."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Асинхронные потоки могут быть сложными для новичков."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Концепции `IAsyncEnumerable` и `CancellationToken` могут быть запутанными."
+          },
+          {
+            "description": "\nОшибки: Неправильная отмена или обработка прогресса может вызвать проблемы."
+          },
+          {
+            "description": "\nОграничение Pyodide: Асинхронные потоки C# не полностью поддерживаются в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильная обработка отмены может привести к утечкам ресурсов. Неправильное использование `await foreach` может помешать завершению потока.\n- **Рекомендации**: Всегда используйте `CancellationToken` и `try-catch`. Улучшайте пользовательский опыт с помощью `IProgress`. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример создаёт риск утечки ресурсов из-за остановки потока без правильной отмены."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Поток с ошибкой начинается...\");\n        await foreach (var number in GenerateNumbersAsync())\n        {\n            Console.WriteLine($\"Получено число: {number}\");\n            if (number == 3) break; // Остановка без отмены\n        }\n        Console.WriteLine(\"Поток завершён.\");\n    }\n\n    static async IAsyncEnumerable<int> GenerateNumbersAsync()\n    {\n        for (int i = 1; i <= 10; i++)\n        {\n            await Task.Delay(500);\n            yield return i;\n        }\n    }\n}\n// Output:\n// Поток с ошибкой начинается...\n// Получено число: 1\n// Получено число: 2\n// Получено число: 3\n// Поток завершён."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Поток прерывается с помощью `break` без использования `CancellationToken`, что создаёт риск утечки ресурсов.\n- Решение: Реализуйте отмену с помощью `CancellationToken`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Collections.Generic;\nusing System.Threading;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        using var cts = new CancellationTokenSource(2000);\n        var progress = new Progress<int>(percent =>\n        {\n            Console.WriteLine($\"Прогресс: {percent}%\");\n        });\n        Console.WriteLine(\"Асинхронный поток начинается...\");\n        try\n        {\n            await foreach (var item in GenerateDataAsync(cts.Token, progress))\n            {\n                Console.WriteLine($\"Получены данные: {item}\");\n            }\n        }\n        catch (OperationCanceledException)\n        {\n            Console.WriteLine(\"Поток отменён!\");\n        }\n    }\n\n    static async IAsyncEnumerable<string> GenerateDataAsync(CancellationToken token, IProgress<int> progress)\n    {\n        for (int i = 1; i <= 5; i++)\n        {\n            token.ThrowIfCancellationRequested();\n            await Task.Delay(500, token);\n            progress?.Report(i * 20);\n            yield return $\"Данные {i}\";\n        }\n    }\n}\n// Output:\n// Асинхронный поток начинается...\n// Прогресс: 20%\n// Получены данные: Данные 1\n// Прогресс: 40%\n// Получены данные: Данные 2\n// Прогресс: 60%\n// Получены данные: Данные 3\n// Поток отменён!"
+      }
+    ]
+  }
+}

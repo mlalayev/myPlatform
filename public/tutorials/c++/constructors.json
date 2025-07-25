@@ -1,0 +1,413 @@
+{
+  "az": {
+    "title": "C++ Konstruktorlar",
+    "language": "cpp",
+    "description": "C++-da konstruktorlar sinif obyektlərinin ilkinləşdirilməsi üçün istifadə olunur, obyektlərin düzgün qurulmasını və resursların idarə edilməsini təmin edir.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Konstruktor nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C++-da konstruktor sinif obyekti yaradıldığında avtomatik çağırılan xüsusi üzv funksiyadır. Konstruktorlar sinifin üzvlərini (dəyişənlərini) ilkinləşdirmək və obyektin düzgün qurulmasını təmin etmək üçün istifadə olunur. Konstruktorun adı sinifin adı ilə eynidir və onun heç bir qaytarma tipi olmur (hətta `void` belə). Konstruktorlar obyekt-əsaslı proqramlaşdırmada sinifin ilkin vəziyyətini təyin etmək üçün vacibdir."
+      },
+      {
+        "type": "heading",
+        "text": "Konstruktorların Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konstruktor sinif daxilində aşağıdakı kimi təyin edilir:\nclass ClassName {\npublic:\n  ClassName() {} // Default konstruktor\n  ClassName(data_type param) {} // Parametrli konstruktor\n};\n- **ClassName()**: Default konstruktor, heç bir parametr almadan obyekt yaradır.\n- **ClassName(data_type param)**: Parametrli konstruktor, xüsusi dəyərlərlə obyekt ilkinləşdirir.\nKonstruktorlar obyekt yaradılarkən avtomatik çağırılır."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  int age;\n  Student() : name(\"No name\"), age(0) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"Age: \" << age << std::endl;\n  }\n};\n\nint main() {\n  Student student;\n  student.printInfo();\n  return 0;\n}\n// Output:\n// Name: No name\n// Age: 0"
+      },
+      {
+        "type": "heading",
+        "text": "Konstruktor Növləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "C++-da bir neçə konstruktor növü var:\n- **Default Konstruktor**: Parametrsiz konstruktor, üzvləri default dəyərlərlə ilkinləşdirir.\n- **Parametrli Konstruktor**: Parametrlər qəbul edərək üzvləri xüsusi dəyərlərlə ilkinləşdirir.\n- **Kopya Konstruktoru**: Mövcud obyektin kopyasını yaradır.\nHər bir konstruktor fərqli ssenarilərdə istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  int age;\n  Student(std::string n, int a) : name(n), age(a) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"Age: \" << age << std::endl;\n  }\n};\n\nint main() {\n  Student student(\"Ali\", 20);\n  student.printInfo();\n  return 0;\n}\n// Output:\n// Name: Ali\n// Age: 20"
+      },
+      {
+        "type": "heading",
+        "text": "Kopya Konstruktoru"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kopya konstruktoru mövcud obyektin kopyasını yaratmaq üçün istifadə olunur. Sintaksis aşağıdakı kimidir:\nClassName(const ClassName& other);\nKopya konstruktoru avtomatik təmin edilir, lakin xüsusi hallarda (məsələn, dinamik yaddaşla işləyərkən) öz kopya konstruktorunuzu yazmaq lazım ola bilər."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  int age;\n  Student(std::string n, int a) : name(n), age(a) {}\n  Student(const Student& other) : name(other.name), age(other.age) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"Age: \" << age << std::endl;\n  }\n};\n\nint main() {\n  Student student1(\"Veli\", 22);\n  Student student2 = student1;\n  student2.printInfo();\n  return 0;\n}\n// Output:\n// Name: Veli\n// Age: 22"
+      },
+      {
+        "type": "heading",
+        "text": "Initializer List"
+      },
+      {
+        "type": "paragraph",
+        "text": "Initializer list konstruktorlarda üzvləri birbaşa ilkinləşdirmək üçün istifadə olunur. Bu, səmərəliliyi artırır və xüsusilə `const` üzvlər və ya istinadlar üçün vacibdir. Sintaksis:\nClassName(params) : member1(value1), member2(value2) {}\nInitializer list konstruktor gövdəsindən əvvəl işləyir."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  const int id;\n  Student(std::string n, int i) : name(n), id(i) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"ID: \" << id << std::endl;\n  }\n};\n\nint main() {\n  Student student(\"Ayşe\", 12345);\n  student.printInfo();\n  return 0;\n}\n// Output:\n// Name: Ayşe\n// ID: 12345"
+      },
+      {
+        "type": "heading",
+        "text": "Dinamik Yaddaşla Konstruktorlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konstruktorlar dinamik yaddaşla işləyərkən obyektləri düzgün ilkinləşdirmək üçün istifadə olunur. `new` ilə obyekt yaradıldıqda konstruktor çağırılır, `delete` ilə azad edildikdə isə destruktor çağırılır."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  int age;\n  Student(std::string n, int a) : name(n), age(a) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"Age: \" << age << std::endl;\n  }\n};\n\nint main() {\n  Student* ptr = new Student(\"Fatma\", 19);\n  ptr->printInfo();\n  delete ptr;\n  return 0;\n}\n// Output:\n// Name: Fatma\n// Age: 19"
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konstruktorlar C++ proqramlaşdırmasında aşağıdakı hallarda geniş istifadə olunur:\n- **Obyekt ilkinləşdirməsi**: Tələbə, məhsul və ya istifadəçi kimi obyektlərin ilkin vəziyyətini təyin etmək.\n- **Oyun inkişafı**: Oyun obyektlərinin (personajlar, silahlar) ilkin parametrlərinin qurulması.\n- **Verilənlər bazası idarəetməsi**: Məlumatların strukturlaşdırılmış formada ilkinləşdirilməsi.\n- **Sistem proqramlaşdırması**: Resursların (yaddaş, fayllar) düzgün idarə edilməsi.\nMəsələn, bir tətbiqdə tələbə məlumatlarını (ad, ID) ilkinləşdirmək üçün konstruktor istifadə oluna bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Konstruktorların Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konstruktorlar sinif obyektlərinin düzgün və təhlükəsiz ilkinləşdirilməsini təmin edir, proqramın səmərəliliyini və etibarlılığını artırır."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "İlkinləşdirmə",
+            "description": "Sinif üzvlərini ilkin dəyərlərlə qurur."
+          },
+          {
+            "term": "Növlər",
+            "description": "Default, parametrli və kopya konstruktorları."
+          },
+          {
+            "term": "Initializer List",
+            "description": "Səmərəli ilkinləşdirmə üçün istifadə olunur."
+          },
+          {
+            "term": "Dinamik Yaddaş",
+            "description": "Dinamik obyektlərin ilkinləşdirilməsi."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Dinamik yaddaşın səhv idarə edilməsi yaddaş sızmasına, kopya konstruktorunun düzgün yazılmaması səhvlərə səbəb ola bilər.\n- **Tövsiyələr**: Initializer list istifadə edin, kopya konstruktorunu diqqətlə yazın, dinamik yaddaşı düzgün azad edin, Visual Studio və ya CLion kimi IDE-lərdən istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  int age;\n  Student(std::string n, int a) : name(n), age(a) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"Age: \" << age << std::endl;\n  }\n};\n\nint main() {\n  Student student(\"Zeynep\", 21);\n  student.printInfo();\n  return 0;\n}\n// Output:\n// Name: Zeynep\n// Age: 21"
+      }
+    ]
+  },
+  "en": {
+    "title": "C++ Constructors",
+    "language": "cpp",
+    "description": "C++ constructors are used to initialize class objects, ensuring proper setup and resource management.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is a Constructor?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C++, a constructor is a special member function automatically called when a class object is created. Constructors initialize class members (variables) and ensure the object is properly set up. A constructor has the same name as the class and no return type (not even `void`). Constructors are essential in object-oriented programming to define the initial state of objects."
+      },
+      {
+        "type": "heading",
+        "text": "Constructor Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "A constructor is defined within a class as follows:\nclass ClassName {\npublic:\n  ClassName() {} // Default constructor\n  ClassName(data_type param) {} // Parameterized constructor\n};\n- **ClassName()**: Default constructor, creates an object without parameters.\n- **ClassName(data_type param)**: Parameterized constructor, initializes with specific values.\nConstructors are called automatically when an object is created."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  int age;\n  Student() : name(\"No name\"), age(0) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"Age: \" << age << std::endl;\n  }\n};\n\nint main() {\n  Student student;\n  student.printInfo();\n  return 0;\n}\n// Output:\n// Name: No name\n// Age: 0"
+      },
+      {
+        "type": "heading",
+        "text": "Types of Constructors"
+      },
+      {
+        "type": "paragraph",
+        "text": "C++ supports several constructor types:\n- **Default Constructor**: A parameterless constructor that initializes members with default values.\n- **Parameterized Constructor**: Takes parameters to initialize members with specific values.\n- **Copy Constructor**: Creates a copy of an existing object.\nEach constructor serves different use cases."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  int age;\n  Student(std::string n, int a) : name(n), age(a) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"Age: \" << age << std::endl;\n  }\n};\n\nint main() {\n  Student student(\"Ali\", 20);\n  student.printInfo();\n  return 0;\n}\n// Output:\n// Name: Ali\n// Age: 20"
+      },
+      {
+        "type": "heading",
+        "text": "Copy Constructor"
+      },
+      {
+        "type": "paragraph",
+        "text": "A copy constructor creates a copy of an existing object. Its syntax is:\nClassName(const ClassName& other);\nThe compiler provides a default copy constructor, but you may need to define your own for special cases (e.g., when using dynamic memory)."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  int age;\n  Student(std::string n, int a) : name(n), age(a) {}\n  Student(const Student& other) : name(other.name), age(other.age) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"Age: \" << age << std::endl;\n  }\n};\n\nint main() {\n  Student student1(\"Veli\", 22);\n  Student student2 = student1;\n  student2.printInfo();\n  return 0;\n}\n// Output:\n// Name: Veli\n// Age: 22"
+      },
+      {
+        "type": "heading",
+        "text": "Initializer List"
+      },
+      {
+        "type": "paragraph",
+        "text": "An initializer list is used to directly initialize class members, improving efficiency, especially for `const` members or references. Syntax:\nClassName(params) : member1(value1), member2(value2) {}\nThe initializer list runs before the constructor body."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  const int id;\n  Student(std::string n, int i) : name(n), id(i) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"ID: \" << id << std::endl;\n  }\n};\n\nint main() {\n  Student student(\"Ayşe\", 12345);\n  student.printInfo();\n  return 0;\n}\n// Output:\n// Name: Ayşe\n// ID: 12345"
+      },
+      {
+        "type": "heading",
+        "text": "Constructors with Dynamic Memory"
+      },
+      {
+        "type": "paragraph",
+        "text": "Constructors are used to properly initialize objects in dynamic memory. When an object is created with `new`, the constructor is called; when freed with `delete`, the destructor is called."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  int age;\n  Student(std::string n, int a) : name(n), age(a) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"Age: \" << age << std::endl;\n  }\n};\n\nint main() {\n  Student* ptr = new Student(\"Fatma\", 19);\n  ptr->printInfo();\n  delete ptr;\n  return 0;\n}\n// Output:\n// Name: Fatma\n// Age: 19"
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Constructors are widely used in C++ programming:\n- **Object Initialization**: Setting up objects like students, products, or users.\n- **Game Development**: Initializing game objects (characters, weapons) with starting parameters.\n- **Database Management**: Initializing structured data.\n- **System Programming**: Properly managing resources (memory, files).\nFor example, an application might use a constructor to initialize student data (name, ID)."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Constructors"
+      },
+      {
+        "type": "paragraph",
+        "text": "Constructors ensure proper and safe initialization of class objects, improving program efficiency and reliability."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Initialization",
+            "description": "Sets up class members with initial values."
+          },
+          {
+            "term": "Types",
+            "description": "Default, parameterized, and copy constructors."
+          },
+          {
+            "term": "Initializer List",
+            "description": "Used for efficient initialization."
+          },
+          {
+            "term": "Dynamic Memory",
+            "description": "Initializes dynamically allocated objects."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Improper dynamic memory management can cause memory leaks, and incorrect copy constructors can lead to errors.\n- **Recommendations**: Use initializer lists, carefully define copy constructors, free dynamic memory properly, and use IDEs like Visual Studio or CLion."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  int age;\n  Student(std::string n, int a) : name(n), age(a) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"Age: \" << age << std::endl;\n  }\n};\n\nint main() {\n  Student student(\"Zeynep\", 21);\n  student.printInfo();\n  return 0;\n}\n// Output:\n// Name: Zeynep\n// Age: 21"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Конструкторы в C++",
+    "language": "cpp",
+    "description": "Конструкторы в C++ используются для инициализации объектов класса, обеспечивая правильную настройку и управление ресурсами.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое конструктор?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В C++ конструктор — это специальная функция-член, автоматически вызываемая при создании объекта класса. Конструкторы инициализируют члены класса (переменные) и обеспечивают правильную настройку объекта. Конструктор имеет то же имя, что и класс, и не имеет возвращаемого типа (даже `void`). Конструкторы необходимы в объектно-ориентированном программировании для задания начального состояния объектов."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис конструкторов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конструктор определяется внутри класса следующим образом:\nclass ClassName {\npublic:\n  ClassName() {} // Конструктор по умолчанию\n  ClassName(data_type param) {} // Параметризованный конструктор\n};\n- **ClassName()**: Конструктор по умолчанию, создаёт объект без параметров.\n- **ClassName(data_type param)**: Параметризованный конструктор, инициализирует с заданными значениями.\nКонструкторы вызываются автоматически при создании объекта."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  int age;\n  Student() : name(\"No name\"), age(0) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"Age: \" << age << std::endl;\n  }\n};\n\nint main() {\n  Student student;\n  student.printInfo();\n  return 0;\n}\n// Output:\n// Name: No name\n// Age: 0"
+      },
+      {
+        "type": "heading",
+        "text": "Типы конструкторов"
+      },
+      {
+        "type": "paragraph",
+        "text": "C++ поддерживает несколько типов конструкторов:\n- **Конструктор по умолчанию**: Конструктор без параметров, инициализирует члены значениями по умолчанию.\n- **Параметризованный конструктор**: Принимает параметры для инициализации членов с заданными значениями.\n- **Конструктор копирования**: Создаёт копию существующего объекта.\nКаждый конструктор используется в разных сценариях."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  int age;\n  Student(std::string n, int a) : name(n), age(a) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"Age: \" << age << std::endl;\n  }\n};\n\nint main() {\n  Student student(\"Ali\", 20);\n  student.printInfo();\n  return 0;\n}\n// Output:\n// Name: Ali\n// Age: 20"
+      },
+      {
+        "type": "heading",
+        "text": "Конструктор копирования"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конструктор копирования создаёт копию существующего объекта. Его синтаксис:\nClassName(const ClassName& other);\nКомпилятор предоставляет конструктор копирования по умолчанию, но в особых случаях (например, при работе с динамической памятью) может потребоваться собственный конструктор копирования."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  int age;\n  Student(std::string n, int a) : name(n), age(a) {}\n  Student(const Student& other) : name(other.name), age(other.age) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"Age: \" << age << std::endl;\n  }\n};\n\nint main() {\n  Student student1(\"Veli\", 22);\n  Student student2 = student1;\n  student2.printInfo();\n  return 0;\n}\n// Output:\n// Name: Veli\n// Age: 22"
+      },
+      {
+        "type": "heading",
+        "text": "Список инициализации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Список инициализации используется для прямой инициализации членов класса, повышая эффективность, особенно для `const` членов или ссылок. Синтаксис:\nClassName(params) : member1(value1), member2(value2) {}\nСписок инициализации выполняется до тела конструктора."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  const int id;\n  Student(std::string n, int i) : name(n), id(i) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"ID: \" << id << std::endl;\n  }\n};\n\nint main() {\n  Student student(\"Ayşe\", 12345);\n  student.printInfo();\n  return 0;\n}\n// Output:\n// Name: Ayşe\n// ID: 12345"
+      },
+      {
+        "type": "heading",
+        "text": "Конструкторы с динамической памятью"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конструкторы используются для правильной инициализации объектов в динамической памяти. При создании объекта с помощью `new` вызывается конструктор, а при освобождении с помощью `delete` — деструктор."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  int age;\n  Student(std::string n, int a) : name(n), age(a) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"Age: \" << age << std::endl;\n  }\n};\n\nint main() {\n  Student* ptr = new Student(\"Fatma\", 19);\n  ptr->printInfo();\n  delete ptr;\n  return 0;\n}\n// Output:\n// Name: Fatma\n// Age: 19"
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конструкторы широко используются в программировании на C++:\n- **Инициализация объектов**: Настройка объектов, таких как студенты, продукты или пользователи.\n- **Разработка игр**: Инициализация игровых объектов (персонажей, оружия) с начальными параметрами.\n- **Управление базами данных**: Инициализация структурированных данных.\n- **Системное программирование**: Корректное управление ресурсами (память, файлы).\nНапример, приложение может использовать конструктор для инициализации данных студента (имя, идентификатор)."
+      },
+      {
+        "type": "heading",
+        "text": "Цель конструкторов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конструкторы обеспечивают правильную и безопасную инициализацию объектов класса, повышая эффективность и надёжность программы."
+      },
+      {
+        "type": "heading",
+        "text": "Основные характеристики"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Инициализация",
+            "description": "Настраивает члены класса с начальными значениями."
+          },
+          {
+            "term": "Типы",
+            "description": "Конструкторы по умолчанию, параметризованные и копирования."
+          },
+          {
+            "term": "Список инициализации",
+            "description": "Используется для эффективной инициализации."
+          },
+          {
+            "term": "Динамическая память",
+            "description": "Инициализация динамически выделенных объектов."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильное управление динамической памятью может привести к утечкам памяти, а неверно написанный конструктор копирования — к ошибкам.\n- **Рекомендации**: Используйте списки инициализации, тщательно определяйте конструктор копирования, правильно освобождайте динамическую память, используйте IDE, такие как Visual Studio или CLion."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n  std::string name;\n  int age;\n  Student(std::string n, int a) : name(n), age(a) {}\n  void printInfo() {\n    std::cout << \"Name: \" << name << std::endl;\n    std::cout << \"Age: \" << age << std::endl;\n  }\n};\n\nint main() {\n  Student student(\"Zeynep\", 21);\n  student.printInfo();\n  return 0;\n}\n// Output:\n// Name: Zeynep\n// Age: 21"
+      }
+    ]
+  }
+}

@@ -1,0 +1,391 @@
+{
+  "id": "skip-list",
+  "az": {
+    "title": "Skip Lists",
+    "icon": "FiList",
+    "language": "multiple",
+    "codes": {
+      "python": "import random\n\nclass SkipNode:\n    def __init__(self, value, level):\n        self.value = value\n        self.forward = [None] * (level + 1)\n\nclass SkipList:\n    def __init__(self, max_level=4):\n        self.max_level = max_level\n        self.header = SkipNode(-float('inf'), max_level)\n        self.level = 0\n\n    def random_level(self):\n        level = 0\n        while random.random() < 0.5 and level < self.max_level:\n            level += 1\n        return level\n\n    def insert(self, value):\n        update = [None] * (self.max_level + 1)\n        current = self.header\n\n        for i in range(self.level, -1, -1):\n            while current.forward[i] and current.forward[i].value < value:\n                current = current.forward[i]\n            update[i] = current\n\n        level = self.random_level()\n        if level > self.level:\n            for i in range(self.level + 1, level + 1):\n                update[i] = self.header\n            self.level = level\n\n        new_node = SkipNode(value, level)\n        for i in range(level + 1):\n            new_node.forward[i] = update[i].forward[i]\n            update[i].forward[i] = new_node\n\n    def search(self, value):\n        current = self.header\n        for i in range(self.level, -1, -1):\n            while current.forward[i] and current.forward[i].value < value:\n                current = current.forward[i]\n        current = current.forward[0]\n        return current and current.value == value\n\n# Example: Skip List operations\nsl = SkipList()\nfor value in [10, 20, 30, 40]:\n    sl.insert(value)\nprint('Search 30:', sl.search(30))\nprint('Search 50:', sl.search(50))\n# Output: Search 30: True\n# Output: Search 50: False",
+      "javascript": "class SkipNode {\n    constructor(value, level) {\n        this.value = value;\n        this.forward = Array(level + 1).fill(null);\n    }\n}\n\nclass SkipList {\n    constructor(maxLevel = 4) {\n        this.maxLevel = maxLevel;\n        this.header = new SkipNode(-Infinity, maxLevel);\n        this.level = 0;\n    }\n\n    randomLevel() {\n        let level = 0;\n        while (Math.random() < 0.5 && level < this.maxLevel) {\n            level++;\n        }\n        return level;\n    }\n\n    insert(value) {\n        const update = Array(this.maxLevel + 1).fill(null);\n        let current = this.header;\n\n        for (let i = this.level; i >= 0; i--) {\n            while (current.forward[i] && current.forward[i].value < value) {\n                current = current.forward[i];\n            }\n            update[i] = current;\n        }\n\n        const level = this.randomLevel();\n        if (level > this.level) {\n            for (let i = this.level + 1; i <= level; i++) {\n                update[i] = this.header;\n            }\n            this.level = level;\n        }\n\n        const newNode = new SkipNode(value, level);\n        for (let i = 0; i <= level; i++) {\n            newNode.forward[i] = update[i].forward[i];\n            update[i].forward[i] = newNode;\n        }\n    }\n\n    search(value) {\n        let current = this.header;\n        for (let i = this.level; i >= 0; i--) {\n            while (current.forward[i] && current.forward[i].value < value) {\n                current = current.forward[i];\n            }\n        }\n        current = current.forward[0];\n        return current && current.value === value;\n    }\n}\n\n// Example: Skip List operations\nconst sl = new SkipList();\n[10, 20, 30, 40].forEach(value => sl.insert(value));\nconsole.log('Search 30:', sl.search(30));\nconsole.log('Search 50:', sl.search(50));\n// Output: Search 30: true\n// Output: Search 50: false",
+      "typescript": "class SkipNode {\n    value: number;\n    forward: (SkipNode | null)[];\n\n    constructor(value: number, level: number) {\n        this.value = value;\n        this.forward = Array(level + 1).fill(null);\n    }\n}\n\nclass SkipList {\n    private maxLevel: number;\n    private header: SkipNode;\n    private level: number;\n\n    constructor(maxLevel: number = 4) {\n        this.maxLevel = maxLevel;\n        this.header = new SkipNode(-Infinity, maxLevel);\n        this.level = 0;\n    }\n\n    private randomLevel(): number {\n        let level = 0;\n        while (Math.random() < 0.5 && level < this.maxLevel) {\n            level++;\n        }\n        return level;\n    }\n\n    insert(value: number): void {\n        const update: (SkipNode | null)[] = Array(this.maxLevel + 1).fill(null);\n        let current: SkipNode = this.header;\n\n        for (let i = this.level; i >= 0; i--) {\n            while (current.forward[i] && current.forward[i]!.value < value) {\n                current = current.forward[i]!;\n            }\n            update[i] = current;\n        }\n\n        const level = this.randomLevel();\n        if (level > this.level) {\n            for (let i = this.level + 1; i <= level; i++) {\n                update[i] = this.header;\n            }\n            this.level = level;\n        }\n\n        const newNode = new SkipNode(value, level);\n        for (let i = 0; i <= level; i++) {\n            newNode.forward[i] = update[i]!.forward[i];\n            update[i]!.forward[i] = newNode;\n        }\n    }\n\n    search(value: number): boolean {\n        let current: SkipNode = this.header;\n        for (let i = this.level; i >= 0; i--) {\n            while (current.forward[i] && current.forward[i]!.value < value) {\n                current = current.forward[i]!;\n            }\n        }\n        current = current.forward[0]!;\n        return current && current.value === value;\n    }\n}\n\n// Example: Skip List operations\nconst sl = new SkipList();\n[10, 20, 30, 40].forEach(value => sl.insert(value));\nconsole.log('Search 30:', sl.search(30));\nconsole.log('Search 50:', sl.search(50));\n// Output: Search 30: true\n// Output: Search 50: false",
+      "java": "import java.util.Random;\n\nclass SkipNode {\n    int value;\n    SkipNode[] forward;\n\n    SkipNode(int value, int level) {\n        this.value = value;\n        this.forward = new SkipNode[level + 1];\n    }\n}\n\nclass SkipList {\n    private int maxLevel;\n    private SkipNode header;\n    private int level;\n    private Random rand = new Random();\n\n    SkipList(int maxLevel) {\n        this.maxLevel = maxLevel;\n        this.header = new SkipNode(Integer.MIN_VALUE, maxLevel);\n        this.level = 0;\n    }\n\n    private int randomLevel() {\n        int level = 0;\n        while (rand.nextDouble() < 0.5 && level < maxLevel) {\n            level++;\n        }\n        return level;\n    }\n\n    void insert(int value) {\n        SkipNode[] update = new SkipNode[maxLevel + 1];\n        SkipNode current = header;\n\n        for (int i = level; i >= 0; i--) {\n            while (current.forward[i] != null && current.forward[i].value < value) {\n                current = current.forward[i];\n            }\n            update[i] = current;\n        }\n\n        int newLevel = randomLevel();\n        if (newLevel > level) {\n            for (int i = level + 1; i <= newLevel; i++) {\n                update[i] = header;\n            }\n            level = newLevel;\n        }\n\n        SkipNode newNode = new SkipNode(value, newLevel);\n        for (int i = 0; i <= newLevel; i++) {\n            newNode.forward[i] = update[i].forward[i];\n            update[i].forward[i] = newNode;\n        }\n    }\n\n    boolean search(int value) {\n        SkipNode current = header;\n        for (int i = level; i >= 0; i--) {\n            while (current.forward[i] != null && current.forward[i].value < value) {\n                current = current.forward[i];\n            }\n        }\n        current = current.forward[0];\n        return current != null && current.value == value;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        SkipList sl = new SkipList(4);\n        int[] values = {10, 20, 30, 40};\n        for (int value : values) {\n            sl.insert(value);\n        }\n        System.out.println(\"Search 30: \" + sl.search(30));\n        System.out.println(\"Search 50: \" + sl.search(50));\n    }\n}\n// Output: Search 30: true\n// Output: Search 50: false",
+      "php": "<?php\n\nclass SkipNode {\n    public $value;\n    public $forward;\n\n    public function __construct($value, $level) {\n        $this->value = $value;\n        $this->forward = array_fill(0, $level + 1, null);\n    }\n}\n\nclass SkipList {\n    private $maxLevel;\n    private $header;\n    private $level;\n\n    public function __construct($maxLevel = 4) {\n        $this->maxLevel = $maxLevel;\n        $this->header = new SkipNode(PHP_INT_MIN, $maxLevel);\n        $this->level = 0;\n    }\n\n    private function randomLevel() {\n        $level = 0;\n        while (rand(0, 1) && $level < $this->maxLevel) {\n            $level++;\n        }\n        return $level;\n    }\n\n    public function insert($value) {\n        $update = array_fill(0, $this->maxLevel + 1, null);\n        $current = $this->header;\n\n        for ($i = $this->level; $i >= 0; $i--) {\n            while ($current->forward[$i] && $current->forward[$i]->value < $value) {\n                $current = $current->forward[$i];\n            }\n            $update[$i] = $current;\n        }\n\n        $level = $this->randomLevel();\n        if ($level > $this->level) {\n            for ($i = $this->level + 1; $i <= $level; $i++) {\n                $update[$i] = $this->header;\n            }\n            $this->level = $level;\n        }\n\n        $newNode = new SkipNode($value, $level);\n        for ($i = 0; $i <= $level; $i++) {\n            $newNode->forward[$i] = $update[$i]->forward[$i];\n            $update[$i]->forward[$i] = $newNode;\n        }\n    }\n\n    public function search($value) {\n        $current = $this->header;\n        for ($i = $this->level; $i >= 0; $i--) {\n            while ($current->forward[$i] && $current->forward[$i]->value < $value) {\n                $current = $current->forward[$i];\n            }\n        }\n        $current = $current->forward[0];\n        return $current && $current->value == $value;\n    }\n}\n\n// Example: Skip List operations\n$sl = new SkipList();\n$values = [10, 20, 30, 40];\nforeach ($values as $value) {\n    $sl->insert($value);\n}\necho \"Search 30: \" . ($sl->search(30) ? 'true' : 'false') . \"\\n\";\necho \"Search 50: \" . ($sl->search(50) ? 'true' : 'false') . \"\\n\";\n// Output: Search 30: true\n// Output: Search 50: false",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct SkipNode {\n    int value;\n    struct SkipNode** forward;\n} SkipNode;\n\ntypedef struct SkipList {\n    SkipNode* header;\n    int level;\n    int maxLevel;\n} SkipList;\n\nSkipNode* createNode(int value, int level) {\n    SkipNode* node = (SkipNode*)malloc(sizeof(SkipNode));\n    node->value = value;\n    node->forward = (SkipNode**)malloc((level + 1) * sizeof(SkipNode*));\n    for (int i = 0; i <= level; i++) node->forward[i] = NULL;\n    return node;\n}\n\nSkipList* createSkipList(int maxLevel) {\n    SkipList* sl = (SkipList*)malloc(sizeof(SkipList));\n    sl->maxLevel = maxLevel;\n    sl->header = createNode(-2147483648, maxLevel);\n    sl->level = 0;\n    return sl;\n}\n\nint randomLevel(int maxLevel) {\n    int level = 0;\n    while (rand() % 2 && level < maxLevel) level++;\n    return level;\n}\n\nvoid insert(SkipList* sl, int value) {\n    SkipNode** update = (SkipNode**)malloc((sl->maxLevel + 1) * sizeof(SkipNode*));\n    SkipNode* current = sl->header;\n\n    for (int i = sl->level; i >= 0; i--) {\n        while (current->forward[i] && current->forward[i]->value < value) {\n            current = current->forward[i];\n        }\n        update[i] = current;\n    }\n\n    int level = randomLevel(sl->maxLevel);\n    if (level > sl->level) {\n        for (int i = sl->level + 1; i <= level; i++) {\n            update[i] = sl->header;\n        }\n        sl->level = level;\n    }\n\n    SkipNode* newNode = createNode(value, level);\n    for (int i = 0; i <= level; i++) {\n        newNode->forward[i] = update[i]->forward[i];\n        update[i]->forward[i] = newNode;\n    }\n    free(update);\n}\n\nint search(SkipList* sl, int value) {\n    SkipNode* current = sl->header;\n    for (int i = sl->level; i >= 0; i--) {\n        while (current->forward[i] && current->forward[i]->value < value) {\n            current = current->forward[i];\n        }\n    }\n    current = current->forward[0];\n    return current && current->value == value;\n}\n\nvoid freeSkipList(SkipList* sl) {\n    SkipNode* current = sl->header->forward[0];\n    while (current) {\n        SkipNode* temp = current;\n        current = current->forward[0];\n        free(temp->forward);\n        free(temp);\n    }\n    free(sl->header->forward);\n    free(sl->header);\n    free(sl);\n}\n\nint main() {\n    SkipList* sl = createSkipList(4);\n    int values[] = {10, 20, 30, 40};\n    for (int i = 0; i < 4; i++) {\n        insert(sl, values[i]);\n    }\n    printf(\"Search 30: %d\\n\", search(sl, 30));\n    printf(\"Search 50: %d\\n\", search(sl, 50));\n    freeSkipList(sl);\n    return 0;\n}\n// Output: Search 30: 1\n// Output: Search 50: 0",
+      "csharp": "using System;\n\npublic class SkipNode {\n    public int Value;\n    public SkipNode[] Forward;\n\n    public SkipNode(int value, int level) {\n        Value = value;\n        Forward = new SkipNode[level + 1];\n    }\n}\n\npublic class SkipList {\n    private int maxLevel;\n    private SkipNode header;\n    private int level;\n    private Random rand = new Random();\n\n    public SkipList(int maxLevel = 4) {\n        this.maxLevel = maxLevel;\n        this.header = new SkipNode(int.MinValue, maxLevel);\n        this.level = 0;\n    }\n\n    private int RandomLevel() {\n        int level = 0;\n        while (rand.NextDouble() < 0.5 && level < maxLevel) {\n            level++;\n        }\n        return level;\n    }\n\n    public void Insert(int value) {\n        SkipNode[] update = new SkipNode[maxLevel + 1];\n        SkipNode current = header;\n\n        for (int i = level; i >= 0; i--) {\n            while (current.Forward[i] != null && current.Forward[i].Value < value) {\n                current = current.Forward[i];\n            }\n            update[i] = current;\n        }\n\n        int newLevel = RandomLevel();\n        if (newLevel > level) {\n            for (int i = level + 1; i <= newLevel; i++) {\n                update[i] = header;\n            }\n            level = newLevel;\n        }\n\n        SkipNode newNode = new SkipNode(value, newLevel);\n        for (int i = 0; i <= newLevel; i++) {\n            newNode.Forward[i] = update[i].Forward[i];\n            update[i].Forward[i] = newNode;\n        }\n    }\n\n    public bool Search(int value) {\n        SkipNode current = header;\n        for (int i = level; i >= 0; i--) {\n            while (current.Forward[i] != null && current.Forward[i].Value < value) {\n                current = current.Forward[i];\n            }\n        }\n        current = current.Forward[0];\n        return current != null && current.Value == value;\n    }\n}\n\nclass Program {\n    static void Main() {\n        SkipList sl = new SkipList();\n        int[] values = { 10, 20, 30, 40 };\n        foreach (int value in values) {\n            sl.Insert(value);\n        }\n        Console.WriteLine(\"Search 30: \" + sl.Search(30));\n        Console.WriteLine(\"Search 50: \" + sl.Search(50));\n    }\n}\n// Output: Search 30: True\n// Output: Search 50: False",
+      "cpp": "#include <iostream>\n#include <vector>\n#include <cstdlib>\n\nclass SkipNode {\npublic:\n    int value;\n    std::vector<SkipNode*> forward;\n\n    SkipNode(int value, int level) : value(value), forward(level + 1, nullptr) {}\n};\n\nclass SkipList {\nprivate:\n    int maxLevel;\n    SkipNode* header;\n    int level;\n\n    int randomLevel() {\n        int level = 0;\n        while (rand() % 2 && level < maxLevel) {\n            level++;\n        }\n        return level;\n    }\n\npublic:\n    SkipList(int maxLevel = 4) : maxLevel(maxLevel), level(0) {\n        header = new SkipNode(-2147483648, maxLevel);\n    }\n\n    void insert(int value) {\n        std::vector<SkipNode*> update(maxLevel + 1, nullptr);\n        SkipNode* current = header;\n\n        for (int i = level; i >= 0; i--) {\n            while (current->forward[i] && current->forward[i]->value < value) {\n                current = current->forward[i];\n            }\n            update[i] = current;\n        }\n\n        int newLevel = randomLevel();\n        if (newLevel > level) {\n            for (int i = level + 1; i <= newLevel; i++) {\n                update[i] = header;\n            }\n            level = newLevel;\n        }\n\n        SkipNode* newNode = new SkipNode(value, newLevel);\n        for (int i = 0; i <= newLevel; i++) {\n            newNode->forward[i] = update[i]->forward[i];\n            update[i]->forward[i] = newNode;\n        }\n    }\n\n    bool search(int value) {\n        SkipNode* current = header;\n        for (int i = level; i >= 0; i--) {\n            while (current->forward[i] && current->forward[i]->value < value) {\n                current = current->forward[i];\n            }\n        }\n        current = current->forward[0];\n        return current && current->value == value;\n    }\n\n    ~SkipList() {\n        SkipNode* current = header->forward[0];\n        while (current) {\n            SkipNode* temp = current;\n            current = current->forward[0];\n            delete temp;\n        }\n        delete header;\n    }\n};\n\nint main() {\n    SkipList sl;\n    int values[] = {10, 20, 30, 40};\n    for (int value : values) {\n        sl.insert(value);\n    }\n    std::cout << \"Search 30: \" << (sl.search(30) ? \"true\" : \"false\") << \"\\n\";\n    std::cout << \"Search 50: \" << (sl.search(50) ? \"true\" : \"false\") << \"\\n\";\n    return 0;\n}\n// Output: Search 30: true\n// Output: Search 50: false"
+    },
+    "description": "Skip Lists və ehtimal əsaslı məlumat strukturları haqqında ümumi məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Skip Lists nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Skip Lists ehtimal əsaslı (probabilistic) məlumat strukturudur ki, sıralanmış bağlı siyahının çoxsəviyyəli versiyası kimi işləyir. Hər node təsadüfi sayda səviyyəyə malikdir və bu, axtarış, daxil etmə və silmə əməliyyatlarını orta hesabla O(log n) vaxtda icra etməyə imkan verir. Yuxarıdakı nümunədə Skip List qurulur, [10, 20, 30, 40] daxil edilir, 30 tapılır, 50 tapılmır."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas Terminlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Node: Dəyər və müxtəlif səviyyələrdə sonrakı node-lara işarələri saxlayan struktur (yuxarıdakı SkipNode)."
+          },
+          {
+            "description": "Level: Node-un iştirak etdiyi səviyyələrin sayı (yuxarıdakı level)."
+          },
+          {
+            "description": "Forward: Node-un hər səviyyədəki sonrakı node-a işarəsi (yuxarıdakı forward)."
+          },
+          {
+            "description": "Random Level: Təsadüfi seçilən səviyyə (yuxarıdakı randomLevel)."
+          },
+          {
+            "description": "Header: Siyahının başlanğıc node-u (yuxarıdakı header)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Skip Lists Xüsusiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) Çoxsəviyyəli bağlı siyahı strukturuna malikdir. 2) Node-ların səviyyələri təsadüfi seçilir (yuxarıdakı randomLevel). 3) Orta hesabla O(log n) axtarış və daxil etmə performansı təmin edir. 4) Balanslaşdırma ehtimal əsaslıdır, deterministik deyil. Yuxarıdakı insert və search funksiyaları bu xüsusiyyətləri nümayiş etdirir."
+      },
+      {
+        "type": "heading",
+        "text": "Skip Lists nə üçün lazımdır?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Skip Lists sadə tətbiqi və effektiv performansı ilə dinamik məlumat strukturlarında istifadə olunur. Balanslaşdırılmış ağaclara (məsələn, AVL Tree) alternativ olaraq sürətli axtarış və daxil etmə təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Skip Lists nəyə kömək edir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Sürətli Axtarış**: Orta hesabla O(log n) vaxtda axtarış (yuxarıdakı search). 2) **Daxil Etmə**: Yeni dəyərlərin əlavə edilməsi (yuxarıdakı insert). 3) **Dinamik Strukturlar**: Verilənlər bazası indeksləri və yaddaş idarəetməsi. 4) **Rəqabətli Proqramlaşdırma**: Sadə və effektiv struktur kimi istifadə."
+      },
+      {
+        "type": "heading",
+        "text": "Skip Lists-in Səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Orta hesabla axtarış, daxil etmə və silmə əməliyyatları O(log n) vaxt aparır (n node-ların sayı). Ən pis halda O(n), lakin bu nadir hallarda baş verir. Məkan mürəkkəbliyi O(n log n). Yuxarıdakı insert və search effektiv işləyir."
+      },
+      {
+        "type": "heading",
+        "text": "Üstünlüklər və Mənfi Cəhətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Üstünlük: Orta hesabla logaritmik vaxtda əməliyyatlar (O(log n))."
+          },
+          { "description": "Üstünlük: Sadə tətbiq (AVL Tree ilə müqayisədə)." },
+          {
+            "description": "Üstünlük: Ehtimal əsaslı balanslaşdırma ilə mürəkkəb rotasiyalara ehtiyac yoxdur."
+          },
+          {
+            "description": "Mənfi cəhət: Performans təsadüfi səviyyə seçiminə bağlıdır."
+          },
+          {
+            "description": "Mənfi cəhət: Əlavə yaddaş tələb edir (çoxsəviyyəli forward massivi)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real Həyatda İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Verilənlər Bazaları**: İndeksləşdirmə və sürətli axtarış. 2) **Şəbəkə Protokolları**: Dinamik məlumat strukturları. 3) **Rəqabətli Proqramlaşdırma**: Effektiv axtarış və daxil etmə üçün. 4) **Kəş Sistemləri**: Tez-tez dəyişən məlumatların idarə edilməsi. Yuxarıdakı search funksiyası axtarışı simulyasiya edir."
+      },
+      {
+        "type": "heading",
+        "text": "Optimallaşdırma Strategiyaları"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Səviyyə Seçimi**: Təsadüfi səviyyə seçimini optimallaşdırın (məsələn, fərqli ehtimal paylanması). 2) **Kəşləmə**: Tez-tez axtarılan dəyərləri kəşləyin. 3) **Yaddaş İdarəetməsi**: Lazımsız node-ları təmizləyin. 4) **Paralel Emal**: Böyük siyahılarda paralel axtarış tətbiq edin."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əsas təhlükələr: 1) **Ehtimal Əsaslı Performans**: Təsadüfi səviyyə seçimi pis performans verə bilər. 2) **Yaddaş**: Çoxsəviyyəli struktur əlavə yaddaş tələb edir. 3) **Mürəkkəblik**: Tətbiq digər sadə strukturlara nisbətən çətindir. Tövsiyələr: 1) Sadə tətbiqlərdən başlayın. 2) Səviyyə seçimini test edin. 3) Balanslaşdırılmış ağaclarla müqayisəni nəzərdən keçirin."
+      }
+    ]
+  },
+  "en": {
+    "title": "Skip Lists",
+    "icon": "FiList",
+    "language": "multiple",
+    "codes": {
+      "python": "import random\n\nclass SkipNode:\n    def __init__(self, value, level):\n        self.value = value\n        self.forward = [None] * (level + 1)\n\nclass SkipList:\n    def __init__(self, max_level=4):\n        self.max_level = max_level\n        self.header = SkipNode(-float('inf'), max_level)\n        self.level = 0\n\n    def random_level(self):\n        level = 0\n        while random.random() < 0.5 and level < self.max_level:\n            level += 1\n        return level\n\n    def insert(self, value):\n        update = [None] * (self.max_level + 1)\n        current = self.header\n\n        for i in range(self.level, -1, -1):\n            while current.forward[i] and current.forward[i].value < value:\n                current = current.forward[i]\n            update[i] = current\n\n        level = self.random_level()\n        if level > self.level:\n            for i in range(self.level + 1, level + 1):\n                update[i] = self.header\n            self.level = level\n\n        new_node = SkipNode(value, level)\n        for i in range(level + 1):\n            new_node.forward[i] = update[i].forward[i]\n            update[i].forward[i] = new_node\n\n    def search(self, value):\n        current = self.header\n        for i in range(self.level, -1, -1):\n            while current.forward[i] and current.forward[i].value < value:\n                current = current.forward[i]\n        current = current.forward[0]\n        return current and current.value == value\n\n# Example: Skip List operations\nsl = SkipList()\nfor value in [10, 20, 30, 40]:\n    sl.insert(value)\nprint('Search 30:', sl.search(30))\nprint('Search 50:', sl.search(50))\n# Output: Search 30: True\n# Output: Search 50: False",
+      "javascript": "class SkipNode {\n    constructor(value, level) {\n        this.value = value;\n        this.forward = Array(level + 1).fill(null);\n    }\n}\n\nclass SkipList {\n    constructor(maxLevel = 4) {\n        this.maxLevel = maxLevel;\n        this.header = new SkipNode(-Infinity, maxLevel);\n        this.level = 0;\n    }\n\n    randomLevel() {\n        let level = 0;\n        while (Math.random() < 0.5 && level < this.maxLevel) {\n            level++;\n        }\n        return level;\n    }\n\n    insert(value) {\n        const update = Array(this.maxLevel + 1).fill(null);\n        let current = this.header;\n\n        for (let i = this.level; i >= 0; i--) {\n            while (current.forward[i] && current.forward[i].value < value) {\n                current = current.forward[i];\n            }\n            update[i] = current;\n        }\n\n        const level = this.randomLevel();\n        if (level > this.level) {\n            for (let i = this.level + 1; i <= level; i++) {\n                update[i] = this.header;\n            }\n            this.level = level;\n        }\n\n        const newNode = new SkipNode(value, level);\n        for (let i = 0; i <= level; i++) {\n            newNode.forward[i] = update[i].forward[i];\n            update[i].forward[i] = newNode;\n        }\n    }\n\n    search(value) {\n        let current = this.header;\n        for (let i = this.level; i >= 0; i--) {\n            while (current.forward[i] && current.forward[i].value < value) {\n                current = current.forward[i];\n            }\n        }\n        current = current.forward[0];\n        return current && current.value === value;\n    }\n}\n\n// Example: Skip List operations\nconst sl = new SkipList();\n[10, 20, 30, 40].forEach(value => sl.insert(value));\nconsole.log('Search 30:', sl.search(30));\nconsole.log('Search 50:', sl.search(50));\n// Output: Search 30: true\n// Output: Search 50: false",
+      "typescript": "class SkipNode {\n    value: number;\n    forward: (SkipNode | null)[];\n\n    constructor(value: number, level: number) {\n        this.value = value;\n        this.forward = Array(level + 1).fill(null);\n    }\n}\n\nclass SkipList {\n    private maxLevel: number;\n    private header: SkipNode;\n    private level: number;\n\n    constructor(maxLevel: number = 4) {\n        this.maxLevel = maxLevel;\n        this.header = new SkipNode(-Infinity, maxLevel);\n        this.level = 0;\n    }\n\n    private randomLevel(): number {\n        let level = 0;\n        while (Math.random() < 0.5 && level < this.maxLevel) {\n            level++;\n        }\n        return level;\n    }\n\n    insert(value: number): void {\n        const update: (SkipNode | null)[] = Array(this.maxLevel + 1).fill(null);\n        let current: SkipNode = this.header;\n\n        for (let i = this.level; i >= 0; i--) {\n            while (current.forward[i] && current.forward[i]!.value < value) {\n                current = current.forward[i]!;\n            }\n            update[i] = current;\n        }\n\n        const level = this.randomLevel();\n        if (level > this.level) {\n            for (let i = this.level + 1; i <= level; i++) {\n                update[i] = this.header;\n            }\n            this.level = level;\n        }\n\n        const newNode = new SkipNode(value, level);\n        for (let i = 0; i <= level; i++) {\n            newNode.forward[i] = update[i]!.forward[i];\n            update[i]!.forward[i] = newNode;\n        }\n    }\n\n    search(value: number): boolean {\n        let current: SkipNode = this.header;\n        for (let i = this.level; i >= 0; i--) {\n            while (current.forward[i] && current.forward[i]!.value < value) {\n                current = current.forward[i]!;\n            }\n        }\n        current = current.forward[0]!;\n        return current && current.value === value;\n    }\n}\n\n// Example: Skip List operations\nconst sl = new SkipList();\n[10, 20, 30, 40].forEach(value => sl.insert(value));\nconsole.log('Search 30:', sl.search(30));\nconsole.log('Search 50:', sl.search(50));\n// Output: Search 30: true\n// Output: Search 50: false",
+      "java": "import java.util.Random;\n\nclass SkipNode {\n    int value;\n    SkipNode[] forward;\n\n    SkipNode(int value, int level) {\n        this.value = value;\n        this.forward = new SkipNode[level + 1];\n    }\n}\n\nclass SkipList {\n    private int maxLevel;\n    private SkipNode header;\n    private int level;\n    private Random rand = new Random();\n\n    SkipList(int maxLevel) {\n        this.maxLevel = maxLevel;\n        this.header = new SkipNode(Integer.MIN_VALUE, maxLevel);\n        this.level = 0;\n    }\n\n    private int randomLevel() {\n        int level = 0;\n        while (rand.nextDouble() < 0.5 && level < maxLevel) {\n            level++;\n        }\n        return level;\n    }\n\n    void insert(int value) {\n        SkipNode[] update = new SkipNode[maxLevel + 1];\n        SkipNode current = header;\n\n        for (int i = level; i >= 0; i--) {\n            while (current.forward[i] != null && current.forward[i].value < value) {\n                current = current.forward[i];\n            }\n            update[i] = current;\n        }\n\n        int newLevel = randomLevel();\n        if (newLevel > level) {\n            for (int i = level + 1; i <= newLevel; i++) {\n                update[i] = header;\n            }\n            level = newLevel;\n        }\n\n        SkipNode newNode = new SkipNode(value, newLevel);\n        for (int i = 0; i <= newLevel; i++) {\n            newNode.forward[i] = update[i].forward[i];\n            update[i].forward[i] = newNode;\n        }\n    }\n\n    boolean search(int value) {\n        SkipNode current = header;\n        for (int i = level; i >= 0; i--) {\n            while (current.forward[i] != null && current.forward[i].value < value) {\n                current = current.forward[i];\n            }\n        }\n        current = current.forward[0];\n        return current != null && current.value == value;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        SkipList sl = new SkipList(4);\n        int[] values = {10, 20, 30, 40};\n        for (int value : values) {\n            sl.insert(value);\n        }\n        System.out.println(\"Search 30: \" + sl.search(30));\n        System.out.println(\"Search 50: \" + sl.search(50));\n    }\n}\n// Output: Search 30: true\n// Output: Search 50: false",
+      "php": "<?php\n\nclass SkipNode {\n    public $value;\n    public $forward;\n\n    public function __construct($value, $level) {\n        $this->value = $value;\n        $this->forward = array_fill(0, $level + 1, null);\n    }\n}\n\nclass SkipList {\n    private $maxLevel;\n    private $header;\n    private $level;\n\n    public function __construct($maxLevel = 4) {\n        $this->maxLevel = $maxLevel;\n        $this->header = new SkipNode(PHP_INT_MIN, $maxLevel);\n        $this->level = 0;\n    }\n\n    private function randomLevel() {\n        $level = 0;\n        while (rand(0, 1) && $level < $this->maxLevel) {\n            $level++;\n        }\n        return $level;\n    }\n\n    public function insert($value) {\n        $update = array_fill(0, $this->maxLevel + 1, null);\n        $current = $this->header;\n\n        for ($i = $this->level; $i >= 0; $i--) {\n            while ($current->forward[$i] && $current->forward[$i]->value < $value) {\n                $current = $current->forward[$i];\n            }\n            $update[$i] = $current;\n        }\n\n        $level = $this->randomLevel();\n        if ($level > $this->level) {\n            for ($i = $this->level + 1; $i <= $level; $i++) {\n                $update[$i] = $this->header;\n            }\n            $this->level = $level;\n        }\n\n        $newNode = new SkipNode($value, $level);\n        for ($i = 0; $i <= $level; $i++) {\n            $newNode->forward[$i] = $update[$i]->forward[$i];\n            $update[$i]->forward[$i] = $newNode;\n        }\n    }\n\n    public function search($value) {\n        $current = $this->header;\n        for ($i = $this->level; $i >= 0; $i--) {\n            while ($current->forward[$i] && $current->forward[$i]->value < $value) {\n                $current = $current->forward[$i];\n            }\n        }\n        $current = $current->forward[0];\n        return $current && $current->value == $value;\n    }\n}\n\n// Example: Skip List operations\n$sl = new SkipList();\n$values = [10, 20, 30, 40];\nforeach ($values as $value) {\n    $sl->insert($value);\n}\necho \"Search 30: \" . ($sl->search(30) ? 'true' : 'false') . \"\\n\";\necho \"Search 50: \" . ($sl->search(50) ? 'true' : 'false') . \"\\n\";\n// Output: Search 30: true\n// Output: Search 50: false",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct SkipNode {\n    int value;\n    struct SkipNode** forward;\n} SkipNode;\n\ntypedef struct SkipList {\n    SkipNode* header;\n    int level;\n    int maxLevel;\n} SkipList;\n\nSkipNode* createNode(int value, int level) {\n    SkipNode* node = (SkipNode*)malloc(sizeof(SkipNode));\n    node->value = value;\n    node->forward = (SkipNode**)malloc((level + 1) * sizeof(SkipNode*));\n    for (int i = 0; i <= level; i++) node->forward[i] = NULL;\n    return node;\n}\n\nSkipList* createSkipList(int maxLevel) {\n    SkipList* sl = (SkipList*)malloc(sizeof(SkipList));\n    sl->maxLevel = maxLevel;\n    sl->header = createNode(-2147483648, maxLevel);\n    sl->level = 0;\n    return sl;\n}\n\nint randomLevel(int maxLevel) {\n    int level = 0;\n    while (rand() % 2 && level < maxLevel) level++;\n    return level;\n}\n\nvoid insert(SkipList* sl, int value) {\n    SkipNode** update = (SkipNode**)malloc((sl->maxLevel + 1) * sizeof(SkipNode*));\n    SkipNode* current = sl->header;\n\n    for (int i = sl->level; i >= 0; i--) {\n        while (current->forward[i] && current->forward[i]->value < value) {\n            current = current->forward[i];\n        }\n        update[i] = current;\n    }\n\n    int level = randomLevel(sl->maxLevel);\n    if (level > sl->level) {\n        for (int i = sl->level + 1; i <= level; i++) {\n            update[i] = sl->header;\n        }\n        sl->level = level;\n    }\n\n    SkipNode* newNode = createNode(value, level);\n    for (int i = 0; i <= level; i++) {\n        newNode->forward[i] = update[i]->forward[i];\n        update[i]->forward[i] = newNode;\n    }\n    free(update);\n}\n\nint search(SkipList* sl, int value) {\n    SkipNode* current = sl->header;\n    for (int i = sl->level; i >= 0; i--) {\n        while (current->forward[i] && current->forward[i]->value < value) {\n            current = current->forward[i];\n        }\n    }\n    current = current->forward[0];\n    return current && current->value == value;\n}\n\nvoid freeSkipList(SkipList* sl) {\n    SkipNode* current = sl->header->forward[0];\n    while (current) {\n        SkipNode* temp = current;\n        current = current->forward[0];\n        free(temp->forward);\n        free(temp);\n    }\n    free(sl->header->forward);\n    free(sl->header);\n    free(sl);\n}\n\nint main() {\n    SkipList* sl = createSkipList(4);\n    int values[] = {10, 20, 30, 40};\n    for (int i = 0; i < 4; i++) {\n        insert(sl, values[i]);\n    }\n    printf(\"Search 30: %d\\n\", search(sl, 30));\n    printf(\"Search 50: %d\\n\", search(sl, 50));\n    freeSkipList(sl);\n    return 0;\n}\n// Output: Search 30: 1\n// Output: Search 50: 0",
+      "csharp": "using System;\n\npublic class SkipNode {\n    public int Value;\n    public SkipNode[] Forward;\n\n    public SkipNode(int value, int level) {\n        Value = value;\n        Forward = new SkipNode[level + 1];\n    }\n}\n\npublic class SkipList {\n    private int maxLevel;\n    private SkipNode header;\n    private int level;\n    private Random rand = new Random();\n\n    public SkipList(int maxLevel = 4) {\n        this.maxLevel = maxLevel;\n        this.header = new SkipNode(int.MinValue, maxLevel);\n        this.level = 0;\n    }\n\n    private int RandomLevel() {\n        int level = 0;\n        while (rand.NextDouble() < 0.5 && level < maxLevel) {\n            level++;\n        }\n        return level;\n    }\n\n    public void Insert(int value) {\n        SkipNode[] update = new SkipNode[maxLevel + 1];\n        SkipNode current = header;\n\n        for (int i = level; i >= 0; i--) {\n            while (current.Forward[i] != null && current.Forward[i].Value < value) {\n                current = current.Forward[i];\n            }\n            update[i] = current;\n        }\n\n        int newLevel = RandomLevel();\n        if (newLevel > level) {\n            for (int i = level + 1; i <= newLevel; i++) {\n                update[i] = header;\n            }\n            level = newLevel;\n        }\n\n        SkipNode newNode = new SkipNode(value, newLevel);\n        for (int i = 0; i <= newLevel; i++) {\n            newNode.Forward[i] = update[i].Forward[i];\n            update[i].Forward[i] = newNode;\n        }\n    }\n\n    public bool Search(int value) {\n        SkipNode current = header;\n        for (int i = level; i >= 0; i--) {\n            while (current.Forward[i] != null && current.Forward[i].Value < value) {\n                current = current.Forward[i];\n            }\n        }\n        current = current.Forward[0];\n        return current != null && current.Value == value;\n    }\n}\n\nclass Program {\n    static void Main() {\n        SkipList sl = new SkipList();\n        int[] values = { 10, 20, 30, 40 };\n        foreach (int value in values) {\n            sl.Insert(value);\n        }\n        Console.WriteLine(\"Search 30: \" + sl.Search(30));\n        Console.WriteLine(\"Search 50: \" + sl.Search(50));\n    }\n}\n// Output: Search 30: True\n// Output: Search 50: False",
+      "cpp": "#include <iostream>\n#include <vector>\n#include <cstdlib>\n\nclass SkipNode {\npublic:\n    int value;\n    std::vector<SkipNode*> forward;\n\n    SkipNode(int value, int level) : value(value), forward(level + 1, nullptr) {}\n};\n\nclass SkipList {\nprivate:\n    int maxLevel;\n    SkipNode* header;\n    int level;\n\n    int randomLevel() {\n        int level = 0;\n        while (rand() % 2 && level < maxLevel) {\n            level++;\n        }\n        return level;\n    }\n\npublic:\n    SkipList(int maxLevel = 4) : maxLevel(maxLevel), level(0) {\n        header = new SkipNode(-2147483648, maxLevel);\n    }\n\n    void insert(int value) {\n        std::vector<SkipNode*> update(maxLevel + 1, nullptr);\n        SkipNode* current = header;\n\n        for (int i = level; i >= 0; i--) {\n            while (current->forward[i] && current->forward[i]->value < value) {\n                current = current->forward[i];\n            }\n            update[i] = current;\n        }\n\n        int newLevel = randomLevel();\n        if (newLevel > level) {\n            for (int i = level + 1; i <= newLevel; i++) {\n                update[i] = header;\n            }\n            level = newLevel;\n        }\n\n        SkipNode* newNode = new SkipNode(value, newLevel);\n        for (int i = 0; i <= newLevel; i++) {\n            newNode->forward[i] = update[i]->forward[i];\n            update[i]->forward[i] = newNode;\n        }\n    }\n\n    bool search(int value) {\n        SkipNode* current = header;\n        for (int i = level; i >= 0; i--) {\n            while (current->forward[i] && current->forward[i]->value < value) {\n                current = current->forward[i];\n            }\n        }\n        current = current->forward[0];\n        return current && current->value == value;\n    }\n\n    ~SkipList() {\n        SkipNode* current = header->forward[0];\n        while (current) {\n            SkipNode* temp = current;\n            current = current->forward[0];\n            delete temp;\n        }\n        delete header;\n    }\n};\n\nint main() {\n    SkipList sl;\n    int values[] = {10, 20, 30, 40};\n    for (int value : values) {\n        sl.insert(value);\n    }\n    std::cout << \"Search 30: \" << (sl.search(30) ? \"true\" : \"false\") << \"\\n\";\n    std::cout << \"Search 50: \" << (sl.search(50) ? \"true\" : \"false\") << \"\\n\";\n    return 0;\n}\n// Output: Search 30: true\n// Output: Search 50: false"
+    },
+    "description": "Overview of Skip Lists and probabilistic data structures.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Skip Lists?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Skip Lists are probabilistic data structures that function as multi-level sorted linked lists. Each node has a random number of levels, enabling search, insertion, and deletion operations in O(log n) time on average. In the example above, a Skip List is built, [10, 20, 30, 40] are inserted, 30 is found, and 50 is not found."
+      },
+      {
+        "type": "heading",
+        "text": "Key Terminology"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Node: A structure storing a value and pointers to next nodes at various levels (used as SkipNode above)."
+          },
+          {
+            "description": "Level: The number of levels a node participates in (used as level above)."
+          },
+          {
+            "description": "Forward: Pointers to the next node at each level (used as forward above)."
+          },
+          {
+            "description": "Random Level: Randomly chosen level for a node (used as randomLevel above)."
+          },
+          {
+            "description": "Header: The starting node of the list (used as header above)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Skip Lists Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) Multi-level linked list structure. 2) Node levels are chosen randomly (used in randomLevel above). 3) Provides O(log n) average time for search and insertion. 4) Balancing is probabilistic, not deterministic. The insert and search functions above demonstrate these properties."
+      },
+      {
+        "type": "heading",
+        "text": "Why are Skip Lists Needed?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Skip Lists are used in dynamic data structures for their simplicity and efficient performance. They serve as an alternative to balanced trees (e.g., AVL Tree) for fast search and insertion."
+      },
+      {
+        "type": "heading",
+        "text": "What Do Skip Lists Help With?"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Fast Search**: O(log n) average time for lookups (shown in search above). 2) **Insertion**: Adding new values (shown in insert above). 3) **Dynamic Structures**: Database indexing and memory management. 4) **Competitive Programming**: Used for simple and efficient structures."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of Skip Lists (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "On average, search, insertion, and deletion take O(log n) time (n is the number of nodes). Worst-case is O(n), but this is rare. Space complexity is O(n log n). The insert and search operations above are efficient."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Advantage: Logarithmic average time operations (O(log n))."
+          },
+          {
+            "description": "Advantage: Simpler implementation compared to AVL Trees."
+          },
+          {
+            "description": "Advantage: Probabilistic balancing avoids complex rotations."
+          },
+          {
+            "description": "Disadvantage: Performance depends on random level selection."
+          },
+          {
+            "description": "Disadvantage: Requires extra memory for multi-level forward arrays."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real-Life Applications"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Databases**: Indexing and fast searches. 2) **Network Protocols**: Dynamic data structures. 3) **Competitive Programming**: Efficient search and insertion. 4) **Caching Systems**: Managing frequently changing data. The search function above simulates lookups."
+      },
+      {
+        "type": "heading",
+        "text": "Optimization Strategies"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Level Selection**: Optimize random level selection (e.g., different probability distributions). 2) **Caching**: Cache frequently accessed values. 3) **Memory Management**: Clean up unused nodes. 4) **Parallel Processing**: Apply parallel search in large lists."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Key risks: 1) **Probabilistic Performance**: Random level selection may lead to poor performance. 2) **Memory**: Multi-level structure requires extra memory. 3) **Complexity**: Implementation is more complex than simple structures. Recommendations: 1) Start with simple implementations. 2) Test level selection thoroughly. 3) Consider balanced trees for comparison."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Skip Lists",
+    "icon": "FiList",
+    "language": "multiple",
+    "codes": {
+      "python": "import random\n\nclass SkipNode:\n    def __init__(self, value, level):\n        self.value = value\n        self.forward = [None] * (level + 1)\n\nclass SkipList:\n    def __init__(self, max_level=4):\n        self.max_level = max_level\n        self.header = SkipNode(-float('inf'), max_level)\n        self.level = 0\n\n    def random_level(self):\n        level = 0\n        while random.random() < 0.5 and level < self.max_level:\n            level += 1\n        return level\n\n    def insert(self, value):\n        update = [None] * (self.max_level + 1)\n        current = self.header\n\n        for i in range(self.level, -1, -1):\n            while current.forward[i] and current.forward[i].value < value:\n                current = current.forward[i]\n            update[i] = current\n\n        level = self.random_level()\n        if level > self.level:\n            for i in range(self.level + 1, level + 1):\n                update[i] = self.header\n            self.level = level\n\n        new_node = SkipNode(value, level)\n        for i in range(level + 1):\n            new_node.forward[i] = update[i].forward[i]\n            update[i].forward[i] = new_node\n\n    def search(self, value):\n        current = self.header\n        for i in range(self.level, -1, -1):\n            while current.forward[i] and current.forward[i].value < value:\n                current = current.forward[i]\n        current = current.forward[0]\n        return current and current.value == value\n\n# Example: Skip List operations\nsl = SkipList()\nfor value in [10, 20, 30, 40]:\n    sl.insert(value)\nprint('Search 30:', sl.search(30))\nprint('Search 50:', sl.search(50))\n# Output: Search 30: True\n# Output: Search 50: False",
+      "javascript": "class SkipNode {\n    constructor(value, level) {\n        this.value = value;\n        this.forward = Array(level + 1).fill(null);\n    }\n}\n\nclass SkipList {\n    constructor(maxLevel = 4) {\n        this.maxLevel = maxLevel;\n        this.header = new SkipNode(-Infinity, maxLevel);\n        this.level = 0;\n    }\n\n    randomLevel() {\n        let level = 0;\n        while (Math.random() < 0.5 && level < this.maxLevel) {\n            level++;\n        }\n        return level;\n    }\n\n    insert(value) {\n        const update = Array(this.maxLevel + 1).fill(null);\n        let current = this.header;\n\n        for (let i = this.level; i >= 0; i--) {\n            while (current.forward[i] && current.forward[i].value < value) {\n                current = current.forward[i];\n            }\n            update[i] = current;\n        }\n\n        const level = this.randomLevel();\n        if (level > this.level) {\n            for (let i = this.level + 1; i <= level; i++) {\n                update[i] = this.header;\n            }\n            this.level = level;\n        }\n\n        const newNode = new SkipNode(value, level);\n        for (let i = 0; i <= level; i++) {\n            newNode.forward[i] = update[i].forward[i];\n            update[i].forward[i] = newNode;\n        }\n    }\n\n    search(value) {\n        let current = this.header;\n        for (let i = this.level; i >= 0; i--) {\n            while (current.forward[i] && current.forward[i].value < value) {\n                current = current.forward[i];\n            }\n        }\n        current = current.forward[0];\n        return current && current.value === value;\n    }\n}\n\n// Example: Skip List operations\nconst sl = new SkipList();\n[10, 20, 30, 40].forEach(value => sl.insert(value));\nconsole.log('Search 30:', sl.search(30));\nconsole.log('Search 50:', sl.search(50));\n// Output: Search 30: true\n// Output: Search 50: false",
+      "typescript": "class SkipNode {\n    value: number;\n    forward: (SkipNode | null)[];\n\n    constructor(value: number, level: number) {\n        this.value = value;\n        this.forward = Array(level + 1).fill(null);\n    }\n}\n\nclass SkipList {\n    private maxLevel: number;\n    private header: SkipNode;\n    private level: number;\n\n    constructor(maxLevel: number = 4) {\n        this.maxLevel = maxLevel;\n        this.header = new SkipNode(-Infinity, maxLevel);\n        this.level = 0;\n    }\n\n    private randomLevel(): number {\n        let level = 0;\n        while (Math.random() < 0.5 && level < this.maxLevel) {\n            level++;\n        }\n        return level;\n    }\n\n    insert(value: number): void {\n        const update: (SkipNode | null)[] = Array(this.maxLevel + 1).fill(null);\n        let current: SkipNode = this.header;\n\n        for (let i = this.level; i >= 0; i--) {\n            while (current.forward[i] && current.forward[i]!.value < value) {\n                current = current.forward[i]!;\n            }\n            update[i] = current;\n        }\n\n        const level = this.randomLevel();\n        if (level > this.level) {\n            for (let i = this.level + 1; i <= level; i++) {\n                update[i] = this.header;\n            }\n            this.level = level;\n        }\n\n        const newNode = new SkipNode(value, level);\n        for (let i = 0; i <= level; i++) {\n            newNode.forward[i] = update[i]!.forward[i];\n            update[i]!.forward[i] = newNode;\n        }\n    }\n\n    search(value: number): boolean {\n        let current: SkipNode = this.header;\n        for (let i = this.level; i >= 0; i--) {\n            while (current.forward[i] && current.forward[i]!.value < value) {\n                current = current.forward[i]!;\n            }\n        }\n        current = current.forward[0]!;\n        return current && current.value === value;\n    }\n}\n\n// Example: Skip List operations\nconst sl = new SkipList();\n[10, 20, 30, 40].forEach(value => sl.insert(value));\nconsole.log('Search 30:', sl.search(30));\nconsole.log('Search 50:', sl.search(50));\n// Output: Search 30: true\n// Output: Search 50: false",
+      "java": "import java.util.Random;\n\nclass SkipNode {\n    int value;\n    SkipNode[] forward;\n\n    SkipNode(int value, int level) {\n        this.value = value;\n        this.forward = new SkipNode[level + 1];\n    }\n}\n\nclass SkipList {\n    private int maxLevel;\n    private SkipNode header;\n    private int level;\n    private Random rand = new Random();\n\n    SkipList(int maxLevel) {\n        this.maxLevel = maxLevel;\n        this.header = new SkipNode(Integer.MIN_VALUE, maxLevel);\n        this.level = 0;\n    }\n\n    private int randomLevel() {\n        int level = 0;\n        while (rand.nextDouble() < 0.5 && level < maxLevel) {\n            level++;\n        }\n        return level;\n    }\n\n    void insert(int value) {\n        SkipNode[] update = new SkipNode[maxLevel + 1];\n        SkipNode current = header;\n\n        for (int i = level; i >= 0; i--) {\n            while (current.forward[i] != null && current.forward[i].value < value) {\n                current = current.forward[i];\n            }\n            update[i] = current;\n        }\n\n        int newLevel = randomLevel();\n        if (newLevel > level) {\n            for (int i = level + 1; i <= newLevel; i++) {\n                update[i] = header;\n            }\n            level = newLevel;\n        }\n\n        SkipNode newNode = new SkipNode(value, newLevel);\n        for (int i = 0; i <= newLevel; i++) {\n            newNode.forward[i] = update[i].forward[i];\n            update[i].forward[i] = newNode;\n        }\n    }\n\n    boolean search(int value) {\n        SkipNode current = header;\n        for (int i = level; i >= 0; i--) {\n            while (current.forward[i] != null && current.forward[i].value < value) {\n                current = current.forward[i];\n            }\n        }\n        current = current.forward[0];\n        return current != null && current.value == value;\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        SkipList sl = new SkipList(4);\n        int[] values = {10, 20, 30, 40};\n        for (int value : values) {\n            sl.insert(value);\n        }\n        System.out.println(\"Search 30: \" + sl.search(30));\n        System.out.println(\"Search 50: \" + sl.search(50));\n    }\n}\n// Output: Search 30: true\n// Output: Search 50: false",
+      "php": "<?php\n\nclass SkipNode {\n    public $value;\n    public $forward;\n\n    public function __construct($value, $level) {\n        $this->value = $value;\n        $this->forward = array_fill(0, $level + 1, null);\n    }\n}\n\nclass SkipList {\n    private $maxLevel;\n    private $header;\n    private $level;\n\n    public function __construct($maxLevel = 4) {\n        $this->maxLevel = $maxLevel;\n        $this->header = new SkipNode(PHP_INT_MIN, $maxLevel);\n        $this->level = 0;\n    }\n\n    private function randomLevel() {\n        $level = 0;\n        while (rand(0, 1) && $level < $this->maxLevel) {\n            $level++;\n        }\n        return $level;\n    }\n\n    public function insert($value) {\n        $update = array_fill(0, $this->maxLevel + 1, null);\n        $current = $this->header;\n\n        for ($i = $this->level; $i >= 0; $i--) {\n            while ($current->forward[$i] && $current->forward[$i]->value < $value) {\n                $current = $current->forward[$i];\n            }\n            $update[$i] = $current;\n        }\n\n        $level = $this->randomLevel();\n        if ($level > $this->level) {\n            for ($i = $this->level + 1; $i <= $level; $i++) {\n                $update[$i] = $this->header;\n            }\n            $this->level = $level;\n        }\n\n        $newNode = new SkipNode($value, $level);\n        for ($i = 0; $i <= $level; $i++) {\n            $newNode->forward[$i] = $update[$i]->forward[$i];\n            $update[$i]->forward[$i] = $newNode;\n        }\n    }\n\n    public function search($value) {\n        $current = $this->header;\n        for ($i = $this->level; $i >= 0; $i--) {\n            while ($current->forward[$i] && $current->forward[$i]->value < $value) {\n                $current = $current->forward[$i];\n            }\n        }\n        $current = $current->forward[0];\n        return $current && $current->value == $value;\n    }\n}\n\n// Example: Skip List operations\n$sl = new SkipList();\n$values = [10, 20, 30, 40];\nforeach ($values as $value) {\n    $sl->insert($value);\n}\necho \"Search 30: \" . ($sl->search(30) ? 'true' : 'false') . \"\\n\";\necho \"Search 50: \" . ($sl->search(50) ? 'true' : 'false') . \"\\n\";\n// Output: Search 30: true\n// Output: Search 50: false",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct SkipNode {\n    int value;\n    struct SkipNode** forward;\n} SkipNode;\n\ntypedef struct SkipList {\n    SkipNode* header;\n    int level;\n    int maxLevel;\n} SkipList;\n\nSkipNode* createNode(int value, int level) {\n    SkipNode* node = (SkipNode*)malloc(sizeof(SkipNode));\n    node->value = value;\n    node->forward = (SkipNode**)malloc((level + 1) * sizeof(SkipNode*));\n    for (int i = 0; i <= level; i++) node->forward[i] = NULL;\n    return node;\n}\n\nSkipList* createSkipList(int maxLevel) {\n    SkipList* sl = (SkipList*)malloc(sizeof(SkipList));\n    sl->maxLevel = maxLevel;\n    sl->header = createNode(-2147483648, maxLevel);\n    sl->level = 0;\n    return sl;\n}\n\nint randomLevel(int maxLevel) {\n    int level = 0;\n    while (rand() % 2 && level < maxLevel) level++;\n    return level;\n}\n\nvoid insert(SkipList* sl, int value) {\n    SkipNode** update = (SkipNode**)malloc((sl->maxLevel + 1) * sizeof(SkipNode*));\n    SkipNode* current = sl->header;\n\n    for (int i = sl->level; i >= 0; i--) {\n        while (current->forward[i] && current->forward[i]->value < value) {\n            current = current->forward[i];\n        }\n        update[i] = current;\n    }\n\n    int level = randomLevel(sl->maxLevel);\n    if (level > sl->level) {\n        for (int i = sl->level + 1; i <= level; i++) {\n            update[i] = sl->header;\n        }\n        sl->level = level;\n    }\n\n    SkipNode* newNode = createNode(value, level);\n    for (int i = 0; i <= level; i++) {\n        newNode->forward[i] = update[i]->forward[i];\n        update[i]->forward[i] = newNode;\n    }\n    free(update);\n}\n\nint search(SkipList* sl, int value) {\n    SkipNode* current = sl->header;\n    for (int i = sl->level; i >= 0; i--) {\n        while (current->forward[i] && current->forward[i]->value < value) {\n            current = current->forward[i];\n        }\n    }\n    current = current->forward[0];\n    return current && current->value == value;\n}\n\nvoid freeSkipList(SkipList* sl) {\n    SkipNode* current = sl->header->forward[0];\n    while (current) {\n        SkipNode* temp = current;\n        current = current->forward[0];\n        free(temp->forward);\n        free(temp);\n    }\n    free(sl->header->forward);\n    free(sl->header);\n    free(sl);\n}\n\nint main() {\n    SkipList* sl = createSkipList(4);\n    int values[] = {10, 20, 30, 40};\n    for (int i = 0; i < 4; i++) {\n        insert(sl, values[i]);\n    }\n    printf(\"Search 30: %d\\n\", search(sl, 30));\n    printf(\"Search 50: %d\\n\", search(sl, 50));\n    freeSkipList(sl);\n    return 0;\n}\n// Output: Search 30: 1\n// Output: Search 50: 0",
+      "csharp": "using System;\n\npublic class SkipNode {\n    public int Value;\n    public SkipNode[] Forward;\n\n    public SkipNode(int value, int level) {\n        Value = value;\n        Forward = new SkipNode[level + 1];\n    }\n}\n\npublic class SkipList {\n    private int maxLevel;\n    private SkipNode header;\n    private int level;\n    private Random rand = new Random();\n\n    public SkipList(int maxLevel = 4) {\n        this.maxLevel = maxLevel;\n        this.header = new SkipNode(int.MinValue, maxLevel);\n        this.level = 0;\n    }\n\n    private int RandomLevel() {\n        int level = 0;\n        while (rand.NextDouble() < 0.5 && level < maxLevel) {\n            level++;\n        }\n        return level;\n    }\n\n    public void Insert(int value) {\n        SkipNode[] update = new SkipNode[maxLevel + 1];\n        SkipNode current = header;\n\n        for (int i = level; i >= 0; i--) {\n            while (current.Forward[i] != null && current.Forward[i].Value < value) {\n                current = current.Forward[i];\n            }\n            update[i] = current;\n        }\n\n        int newLevel = RandomLevel();\n        if (newLevel > level) {\n            for (int i = level + 1; i <= newLevel; i++) {\n                update[i] = header;\n            }\n            level = newLevel;\n        }\n\n        SkipNode newNode = new SkipNode(value, newLevel);\n        for (int i = 0; i <= newLevel; i++) {\n            newNode.Forward[i] = update[i].Forward[i];\n            update[i].Forward[i] = newNode;\n        }\n    }\n\n    public bool Search(int value) {\n        SkipNode current = header;\n        for (int i = level; i >= 0; i--) {\n            while (current.Forward[i] != null && current.Forward[i].Value < value) {\n                current = current.Forward[i];\n            }\n        }\n        current = current.Forward[0];\n        return current != null && current.Value == value;\n    }\n}\n\nclass Program {\n    static void Main() {\n        SkipList sl = new SkipList();\n        int[] values = { 10, 20, 30, 40 };\n        foreach (int value in values) {\n            sl.Insert(value);\n        }\n        Console.WriteLine(\"Search 30: \" + sl.Search(30));\n        Console.WriteLine(\"Search 50: \" + sl.Search(50));\n    }\n}\n// Output: Search 30: True\n// Output: Search 50: False",
+      "cpp": "#include <iostream>\n#include <vector>\n#include <cstdlib>\n\nclass SkipNode {\npublic:\n    int value;\n    std::vector<SkipNode*> forward;\n\n    SkipNode(int value, int level) : value(value), forward(level + 1, nullptr) {}\n};\n\nclass SkipList {\nprivate:\n    int maxLevel;\n    SkipNode* header;\n    int level;\n\n    int randomLevel() {\n        int level = 0;\n        while (rand() % 2 && level < maxLevel) {\n            level++;\n        }\n        return level;\n    }\n\npublic:\n    SkipList(int maxLevel = 4) : maxLevel(maxLevel), level(0) {\n        header = new SkipNode(-2147483648, maxLevel);\n    }\n\n    void insert(int value) {\n        std::vector<SkipNode*> update(maxLevel + 1, nullptr);\n        SkipNode* current = header;\n\n        for (int i = level; i >= 0; i--) {\n            while (current->forward[i] && current->forward[i]->value < value) {\n                current = current->forward[i];\n            }\n            update[i] = current;\n        }\n\n        int newLevel = randomLevel();\n        if (newLevel > level) {\n            for (int i = level + 1; i <= newLevel; i++) {\n                update[i] = header;\n            }\n            level = newLevel;\n        }\n\n        SkipNode* newNode = new SkipNode(value, newLevel);\n        for (int i = 0; i <= newLevel; i++) {\n            newNode->forward[i] = update[i]->forward[i];\n            update[i]->forward[i] = newNode;\n        }\n    }\n\n    bool search(int value) {\n        SkipNode* current = header;\n        for (int i = level; i >= 0; i--) {\n            while (current->forward[i] && current->forward[i]->value < value) {\n                current = current->forward[i];\n            }\n        }\n        current = current->forward[0];\n        return current && current->value == value;\n    }\n\n    ~SkipList() {\n        SkipNode* current = header->forward[0];\n        while (current) {\n            SkipNode* temp = current;\n            current = current->forward[0];\n            delete temp;\n        }\n        delete header;\n    }\n};\n\nint main() {\n    SkipList sl;\n    int values[] = {10, 20, 30, 40};\n    for (int value : values) {\n        sl.insert(value);\n    }\n    std::cout << \"Search 30: \" << (sl.search(30) ? \"true\" : \"false\") << \"\\n\";\n    std::cout << \"Search 50: \" << (sl.search(50) ? \"true\" : \"false\") << \"\\n\";\n    return 0;\n}\n// Output: Search 30: true\n// Output: Search 50: false"
+    },
+    "description": "Обзор Skip Lists и вероятностных структур данных.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Skip Lists?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Skip Lists — это вероятностные структуры данных, функционирующие как многоуровневые отсортированные связанные списки. Каждый узел имеет случайное количество уровней, что позволяет выполнять операции поиска, вставки и удаления за O(log n) времени в среднем. В примере выше строится Skip List, вставляются [10, 20, 30, 40], 30 находится, а 50 — нет."
+      },
+      {
+        "type": "heading",
+        "text": "Основные термины"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Узел: Структура, содержащая значение и указатели на следующие узлы на разных уровнях (используется как SkipNode выше)."
+          },
+          {
+            "description": "Уровень: Количество уровней, в которых участвует узел (используется как level выше)."
+          },
+          {
+            "description": "Forward: Указатели на следующий узел на каждом уровне (используется как forward выше)."
+          },
+          {
+            "description": "Случайный уровень: Случайно выбранный уровень для узла (используется как randomLevel выше)."
+          },
+          {
+            "description": "Заголовок: Начальный узел списка (используется как header выше)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Свойства Skip Lists"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) Многоуровневая структура связного списка. 2) Уровни узлов выбираются случайно (используется в randomLevel выше). 3) Обеспечивает O(log n) среднее время для поиска и вставки. 4) Балансировка вероятностная, а не детерминированная. Функции insert и search выше демонстрируют эти свойства."
+      },
+      {
+        "type": "heading",
+        "text": "Зачем нужны Skip Lists?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Skip Lists используются в динамических структурах данных благодаря простоте реализации и эффективной производительности. Они служат альтернативой сбалансированным деревьям (например, AVL Tree) для быстрого поиска и вставки."
+      },
+      {
+        "type": "heading",
+        "text": "Для чего помогают Skip Lists?"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Быстрый поиск**: O(log n) среднее время для поиска (показано в search выше). 2) **Вставка**: Добавление новых значений (показано в insert выше). 3) **Динамические структуры**: Индексация баз данных и управление памятью. 4) **Соревновательное программирование**: Используются для простых и эффективных структур."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность Skip Lists (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В среднем поиск, вставка и удаление занимают O(log n) времени (n — количество узлов). В худшем случае — O(n), но это редко. Пространственная сложность — O(n log n). Операции insert и search выше работают эффективно."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Преимущество: Логарифмическое среднее время операций (O(log n))."
+          },
+          {
+            "description": "Преимущество: Простая реализация по сравнению с AVL Trees."
+          },
+          {
+            "description": "Преимущество: Вероятностная балансировка исключает сложные ротации."
+          },
+          {
+            "description": "Недостаток: Производительность зависит от случайного выбора уровня."
+          },
+          {
+            "description": "Недостаток: Требует дополнительной памяти для многоуровневых массивов forward."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Применение в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Базы данных**: Индексация и быстрый поиск. 2) **Сетевые протоколы**: Динамические структуры данных. 3) **Соревновательное программирование**: Эффективный поиск и вставка. 4) **Системы кэширования**: Управление часто изменяющимися данными. Функция search выше имитирует поиск."
+      },
+      {
+        "type": "heading",
+        "text": "Стратегии оптимизации"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Выбор уровня**: Оптимизация случайного выбора уровня (например, разные распределения вероятностей). 2) **Кэширование**: Кэширование часто запрашиваемых значений. 3) **Управление памятью**: Очистка ненужных узлов. 4) **Параллельная обработка**: Применение параллельного поиска в больших списках."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основные риски: 1) **Вероятностная производительность**: Случайный выбор уровня может привести к плохой производительности. 2) **Память**: Многоуровневая структура требует дополнительной памяти. 3) **Сложность**: Реализация сложнее, чем у простых структур. Рекомендации: 1) Начинайте с простых реализаций. 2) Тестируйте выбор уровня. 3) Рассмотрите сравнение с сбалансированными деревьями."
+      }
+    ]
+  }
+}

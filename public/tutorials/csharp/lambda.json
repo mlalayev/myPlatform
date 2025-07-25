@@ -1,0 +1,486 @@
+{
+  "id": "lambda",
+  "az": {
+    "title": "Lambda İfadələri",
+    "icon": "FiArrowRight",
+    "language": "csharp",
+    "description": "Lambda və funksional proqramlaşdırma.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Lambda İfadələri Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində lambda ifadələri (lambda expressions) qısa və yığcam şəkildə anonim metodlar yaratmağa imkan verən sintaktik bir vasitədir. Lambda ifadələri deleqatlara (delegates) metod təyin etmək üçün istifadə olunur və funksional proqramlaşdırma prinsiplərini tətbiq etməyi asanlaşdırır. Onlar `=>` operatoru ilə yazılır, burada sol tərəf parametrləri, sağ tərəf isə icra ediləcək kodu göstərir. Lambda ifadələri xüsusilə LINQ (Language Integrated Query) sorğuları və hadisələr (events) ilə işləyərkən faydalıdır. Bu JSON faylda lambda ifadələrinin yaradılması, istifadəsi, deleqatlarla əlaqəsi, LINQ ilə işləməsi, anonim metodlarla fərqləri və nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Lambda İfadələrinin Yaradılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "Lambda ifadələri `=>` operatoru ilə yaradılır. Sol tərəfdə parametrlər, sağ tərəfdə isə ifadə və ya kod bloku olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void DisplayHandler(string message);\n\nclass MessageProcessor\n{\n    public void ProcessMessage(DisplayHandler display)\n    {\n        display(\"Mesaj alındı!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        MessageProcessor processor = new MessageProcessor();\n\n        // Lambda ifadəsi ilə deleqata metod təyin etmək\n        processor.ProcessMessage(msg => Console.WriteLine(msg));\n    }\n}\n// Output:\n// Mesaj alındı!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `DisplayHandler` deleqatı bir string parametr qəbul edən metodu təyin edir.\n- `msg => Console.WriteLine(msg)` lambda ifadəsi deleqata təyin olunur.\n- Lambda ifadəsi qısa şəkildə metodu əvəz edir.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Lambda İfadələri və Deleqatlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Lambda ifadələri deleqatlara metod təyin etmək üçün istifadə olunur. Onlar deleqatın imzasını (parametrlər və qaytarış növü) təmin etməlidir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate int MathOperation(int a, int b);\n\nclass Calculator\n{\n    public int Compute(MathOperation operation, int x, int y)\n    {\n        return operation(x, y);\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Calculator calc = new Calculator();\n\n        // Toplama üçün lambda ifadəsi\n        int sum = calc.Compute((a, b) => a + b, 5, 3);\n        Console.WriteLine($\"Toplam: {sum}\");\n\n        // Çıxma üçün lambda ifadəsi\n        int difference = calc.Compute((a, b) => a - b, 5, 3);\n        Console.WriteLine($\"Fərq: {difference}\");\n    }\n}\n// Output:\n// Toplam: 8\n// Fərq: 2"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `MathOperation` deleqatı iki parametr qəbul edən və nəticə qaytaran metodu təyin edir.\n- `(a, b) => a + b` və `(a, b) => a - b` lambda ifadələri toplama və çıxma əməliyyatlarını təmsil edir.\n- Lambda ifadələri deleqat vasitəsilə dinamik şəkildə çağırılır."
+      },
+      {
+        "type": "heading",
+        "text": "Lambda İfadələri və LINQ"
+      },
+      {
+        "type": "paragraph",
+        "text": "Lambda ifadələri LINQ (Language Integrated Query) ilə məlumat sorğularını sadələşdirir. LINQ metodlarında (məsələn, `Where`, `Select`) lambda ifadələri tez-tez istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int[] numbers = { 1, 2, 3, 4, 5, 6 };\n\n        // Lambda ilə cüt ədədləri filtrləmək\n        var evenNumbers = numbers.Where(n => n % 2 == 0);\n        Console.WriteLine(\"Cüt ədədlər: \" + string.Join(\", \", evenNumbers));\n\n        // Lambda ilə kvadratları hesablamaq\n        var squares = numbers.Select(n => n * n);\n        Console.WriteLine(\"Kvadratlar: \" + string.Join(\", \", squares));\n    }\n}\n// Output:\n// Cüt ədədlər: 2, 4, 6\n// Kvadratlar: 1, 4, 9, 16, 25, 36"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `n => n % 2 == 0` lambda ifadəsi cüt ədədləri seçir.\n- `n => n * n` lambda ifadəsi hər ədədin kvadratını hesablayır.\n- LINQ metodları lambda ifadələri ilə məlumatların çevik işlənməsini təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Lambda İfadələri və Anonim Metodlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Lambda ifadələri anonim metodlara bənzəyir, lakin daha qısa və oxunaqlıdır. Anonim metodlar `delegate` açar sözü ilə yazılır, lambda ifadələri isə `=>` ilə."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void PrintHandler(int number);\n\nclass Printer\n{\n    public void Print(PrintHandler print)\n    {\n        print(10);\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Printer printer = new Printer();\n\n        // Anonim metod\n        printer.Print(delegate(int number) { Console.WriteLine($\"Anonim metod: {number}\"); });\n\n        // Lambda ifadəsi\n        printer.Print(n => Console.WriteLine($\"Lambda ifadəsi: {n}\"));\n    }\n}\n// Output:\n// Anonim metod: 10\n// Lambda ifadəsi: 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `delegate(int number)` anonim metod kimi istifadə olunur.\n- `n => Console.WriteLine($\"Lambda ifadəsi: {n}\")` lambda ifadəsi eyni funksiyanı daha qısa şəkildə yerinə yetirir."
+      },
+      {
+        "type": "heading",
+        "text": "Lambda İfadələrinin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Lambda ifadələri kodu daha sadə və oxunaqlı edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nQısalıq: Lambda ifadələri anonim metodlara nisbətən daha az kod tələb edir."
+          },
+          {
+            "description": "\nFunksional Proqramlaşdırma: LINQ və digər funksional metodlarla uyğun işləyir."
+          },
+          {
+            "description": "\nÇeviklik: Deleqatlara dinamik şəkildə metod təyin etməyə imkan verir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Lambda ifadələri yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: Lambda ifadələrinin sintaksisi əvvəlcə qarışıq ola bilər."
+          },
+          {
+            "description": "\nYaddaş Sızması: Hadisələrdə lambda ifadələrinin ləğv edilməməsi yaddaş sızmasına səbəb ola bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Həddindən artıq mürəkkəb lambda ifadələri kodu oxunması çətinləşdirə bilər. Hadisələrdə lambda abunəliklərinin ləğv edilməməsi yaddaş sızmasına səbəb ola bilər.\n- **Tövsiyələr**: Sadə lambda ifadələrindən başlayın. Mürəkkəb lambda ifadələrini ayrı metodlara ayırın. Hadisə abunəliklərini ləğv etməyi unutmayın. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə lambda ifadəsi ilə təyin edilmiş deleqatın null yoxlaması olmadan çağırılması səhvə səbəb ola bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void ErrorHandler(string message);\n\nclass BadProcessor\n{\n    public ErrorHandler OnError;\n\n    public void Process()\n    {\n        // Null yoxlaması yoxdur\n        OnError(\"Səhv baş verdi!\"); // NullReferenceException riski\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BadProcessor processor = new BadProcessor();\n        try\n        {\n            processor.Process();\n        }\n        catch (NullReferenceException ex)\n        {\n            Console.WriteLine(\"Səhv: Deleqata metod təyin edilməyib!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Səhv: Deleqata metod təyin edilməyib!\n// Səhv mesajı: Object reference not set to an instance of an object."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `OnError` deleqatı null yoxlaması olmadan çağırılır.\n- Əgər deleqata heç bir metod (lambda ifadəsi də daxil olmaqla) təyin edilməyibsə, `NullReferenceException` yaranır.\n- Həll: `OnError?.Invoke(...)` istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        string[] words = { \"alma\", \"armud\", \"banan\", \"çiyələk\" };\n\n        // Lambda ilə uzunluğu 5-dən böyük sözləri filtrləmək\n        var longWords = words.Where(w => w.Length > 5);\n        Console.WriteLine(\"Uzun sözlər: \" + string.Join(\", \", longWords));\n\n        // Lambda ilə sözləri böyük hərflərə çevirmək\n        var upperWords = words.Select(w => w.ToUpper());\n        Console.WriteLine(\"Böyük hərflə: \" + string.Join(\", \", upperWords));\n    }\n}\n// Output:\n// Uzun sözlər: çiyələk\n// Böyük hərflə: ALMA, ARMUD, BANAN, ÇIYƏLƏK"
+      }
+    ]
+  },
+  "en": {
+    "title": "Lambda Expressions",
+    "icon": "FiArrowRight",
+    "language": "csharp",
+    "description": "Lambda and functional programming.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Lambda Expressions?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, lambda expressions are a concise way to create anonymous methods. They are used to assign methods to delegates and support functional programming principles. Lambda expressions use the `=>` operator, where the left side specifies parameters and the right side defines the code to execute. They are particularly useful with LINQ (Language Integrated Query) and events. This JSON file explains the creation, usage, relation to delegates, use with LINQ, differences from anonymous methods, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input."
+      },
+      {
+        "type": "heading",
+        "text": "Creating Lambda Expressions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Lambda expressions are created using the `=>` operator, with parameters on the left and an expression or code block on the right."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void DisplayHandler(string message);\n\nclass MessageProcessor\n{\n    public void ProcessMessage(DisplayHandler display)\n    {\n        display(\"Message received!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        MessageProcessor processor = new MessageProcessor();\n\n        // Lambda expression assigning a method to the delegate\n        processor.ProcessMessage(msg => Console.WriteLine(msg));\n    }\n}\n// Output:\n// Message received!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `DisplayHandler` is a delegate defining a method that takes a string parameter.\n- `msg => Console.WriteLine(msg)` is a lambda expression assigned to the delegate.\n- The lambda expression replaces a method concisely.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Lambda Expressions and Delegates"
+      },
+      {
+        "type": "paragraph",
+        "text": "Lambda expressions are used to assign methods to delegates, matching the delegate's signature (parameters and return type)."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate int MathOperation(int a, int b);\n\nclass Calculator\n{\n    public int Compute(MathOperation operation, int x, int y)\n    {\n        return operation(x, y);\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Calculator calc = new Calculator();\n\n        // Lambda expression for addition\n        int sum = calc.Compute((a, b) => a + b, 5, 3);\n        Console.WriteLine($\"Sum: {sum}\");\n\n        // Lambda expression for subtraction\n        int difference = calc.Compute((a, b) => a - b, 5, 3);\n        Console.WriteLine($\"Difference: {difference}\");\n    }\n}\n// Output:\n// Sum: 8\n// Difference: 2"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `MathOperation` is a delegate defining a method that takes two parameters and returns a result.\n- `(a, b) => a + b` and `(a, b) => a - b` are lambda expressions for addition and subtraction.\n- Lambda expressions are dynamically invoked via the delegate."
+      },
+      {
+        "type": "heading",
+        "text": "Lambda Expressions and LINQ"
+      },
+      {
+        "type": "paragraph",
+        "text": "Lambda expressions simplify data queries with LINQ (Language Integrated Query). They are commonly used in LINQ methods like `Where` and `Select`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int[] numbers = { 1, 2, 3, 4, 5, 6 };\n\n        // Lambda to filter even numbers\n        var evenNumbers = numbers.Where(n => n % 2 == 0);\n        Console.WriteLine(\"Even numbers: \" + string.Join(\", \", evenNumbers));\n\n        // Lambda to calculate squares\n        var squares = numbers.Select(n => n * n);\n        Console.WriteLine(\"Squares: \" + string.Join(\", \", squares));\n    }\n}\n// Output:\n// Even numbers: 2, 4, 6\n// Squares: 1, 4, 9, 16, 25, 36"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `n => n % 2 == 0` is a lambda expression that selects even numbers.\n- `n => n * n` is a lambda expression that calculates squares.\n- LINQ methods use lambda expressions for flexible data processing."
+      },
+      {
+        "type": "heading",
+        "text": "Lambda Expressions vs. Anonymous Methods"
+      },
+      {
+        "type": "paragraph",
+        "text": "Lambda expressions are similar to anonymous methods but are more concise and readable. Anonymous methods use the `delegate` keyword, while lambda expressions use `=>`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void PrintHandler(int number);\n\nclass Printer\n{\n    public void Print(PrintHandler print)\n    {\n        print(10);\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Printer printer = new Printer();\n\n        // Anonymous method\n        printer.Print(delegate(int number) { Console.WriteLine($\"Anonymous method: {number}\"); });\n\n        // Lambda expression\n        printer.Print(n => Console.WriteLine($\"Lambda expression: {n}\"));\n    }\n}\n// Output:\n// Anonymous method: 10\n// Lambda expression: 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `delegate(int number)` is an anonymous method.\n- `n => Console.WriteLine($\"Lambda expression: {n}\")` is a lambda expression performing the same task more concisely."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Lambda Expressions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Lambda expressions make code simpler and more readable."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nConciseness: Lambda expressions require less code than anonymous methods."
+          },
+          {
+            "description": "\nFunctional Programming: They work seamlessly with LINQ and other functional methods."
+          },
+          {
+            "description": "\nFlexibility: They allow dynamic method assignment to delegates."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Lambda expressions can pose challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: The syntax of lambda expressions can be confusing initially."
+          },
+          {
+            "description": "\nMemory Leaks: Failing to unsubscribe lambda expressions in events can cause memory leaks."
+          },
+          {
+            "description": "\nPyodide Limitation: C# code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Overly complex lambda expressions can make code hard to read. Failing to unsubscribe lambda expressions in events can cause memory leaks.\n- **Recommendations**: Start with simple lambda expressions. Break complex lambdas into separate methods. Unsubscribe from events when no longer needed. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error by invoking a delegate with a lambda expression without checking for null."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void ErrorHandler(string message);\n\nclass BadProcessor\n{\n    public ErrorHandler OnError;\n\n    public void Process()\n    {\n        // No null check\n        OnError(\"Error occurred!\"); // Risk of NullReferenceException\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BadProcessor processor = new BadProcessor();\n        try\n        {\n            processor.Process();\n        }\n        catch (NullReferenceException ex)\n        {\n            Console.WriteLine(\"Error: No method assigned to delegate!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Error: No method assigned to delegate!\n// Error message: Object reference not set to an instance of an object."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `OnError` delegate is invoked without a null check.\n- If no method (including a lambda expression) is assigned, a `NullReferenceException` occurs.\n- Solution: Use `OnError?.Invoke(...)` to avoid this error."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        string[] words = { \"apple\", \"pear\", \"banana\", \"strawberry\" };\n\n        // Lambda to filter words longer than 5 characters\n        var longWords = words.Where(w => w.Length > 5);\n        Console.WriteLine(\"Long words: \" + string.Join(\", \", longWords));\n\n        // Lambda to convert words to uppercase\n        var upperWords = words.Select(w => w.ToUpper());\n        Console.WriteLine(\"Uppercase: \" + string.Join(\", \", upperWords));\n    }\n}\n// Output:\n// Long words: strawberry\n// Uppercase: APPLE, PEAR, BANANA, STRAWBERRY"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Лямбда-выражения",
+    "icon": "FiArrowRight",
+    "language": "csharp",
+    "description": "Лямбда и функциональное программирование.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое лямбда-выражения?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# лямбда-выражения — это краткий способ создания анонимных методов. Они используются для назначения методов делегатам и поддерживают принципы функционального программирования. Лямбда-выражения используют оператор `=>`, где левая часть определяет параметры, а правая — выполняемый код. Они особенно полезны в LINQ (Language Integrated Query) и событиях. Этот JSON-файл объясняет создание, использование, связь с делегатами, использование с LINQ, отличия от анонимных методов и примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Создание лямбда-выражений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Лямбда-выражения создаются с помощью оператора `=>`, с параметрами слева и выражением или блоком кода справа."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void DisplayHandler(string message);\n\nclass MessageProcessor\n{\n    public void ProcessMessage(DisplayHandler display)\n    {\n        display(\"Сообщение получено!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        MessageProcessor processor = new MessageProcessor();\n\n        // Лямбда-выражение для назначения метода делегату\n        processor.ProcessMessage(msg => Console.WriteLine(msg));\n    }\n}\n// Output:\n// Сообщение получено!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `DisplayHandler` — делегат, определяющий метод, принимающий строку.\n- `msg => Console.WriteLine(msg)` — лямбда-выражение, назначенное делегату.\n- Лямбда-выражение лаконично заменяет метод.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Лямбда-выражения и делегаты"
+      },
+      {
+        "type": "paragraph",
+        "text": "Лямбда-выражения используются для назначения методов делегатам, соответствующим сигнатуре делегата (параметры и возвращаемый тип)."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate int MathOperation(int a, int b);\n\nclass Calculator\n{\n    public int Compute(MathOperation operation, int x, int y)\n    {\n        return operation(x, y);\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Calculator calc = new Calculator();\n\n        // Лямбда-выражение для сложения\n        int sum = calc.Compute((a, b) => a + b, 5, 3);\n        Console.WriteLine($\"Сумма: {sum}\");\n\n        // Лямбда-выражение для вычитания\n        int difference = calc.Compute((a, b) => a - b, 5, 3);\n        Console.WriteLine($\"Разность: {difference}\");\n    }\n}\n// Output:\n// Сумма: 8\n// Разность: 2"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `MathOperation` — делегат, определяющий метод, принимающий два параметра и возвращающий результат.\n- `(a, b) => a + b` и `(a, b) => a - b` — лямбда-выражения для сложения и вычитания.\n- Лямбда-выражения динамически вызываются через делегат."
+      },
+      {
+        "type": "heading",
+        "text": "Лямбда-выражения и LINQ"
+      },
+      {
+        "type": "paragraph",
+        "text": "Лямбда-выражения упрощают запросы данных с помощью LINQ (Language Integrated Query). Они часто используются в методах LINQ, таких как `Where` и `Select`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int[] numbers = { 1, 2, 3, 4, 5, 6 };\n\n        // Лямбда для фильтрации четных чисел\n        var evenNumbers = numbers.Where(n => n % 2 == 0);\n        Console.WriteLine(\"Четные числа: \" + string.Join(\", \", evenNumbers));\n\n        // Лямбда для вычисления квадратов\n        var squares = numbers.Select(n => n * n);\n        Console.WriteLine(\"Квадраты: \" + string.Join(\", \", squares));\n    }\n}\n// Output:\n// Четные числа: 2, 4, 6\n// Квадраты: 1, 4, 9, 16, 25, 36"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `n => n % 2 == 0` — лямбда-выражение, выбирающее четные числа.\n- `n => n * n` — лямбда-выражение, вычисляющее квадраты.\n- Методы LINQ используют лямбда-выражения для гибкой обработки данных."
+      },
+      {
+        "type": "heading",
+        "text": "Лямбда-выражения и анонимные методы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Лямбда-выражения похожи на анонимные методы, но более лаконичны и читаемы. Анонимные методы используют ключевое слово `delegate`, а лямбда-выражения — `=>`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void PrintHandler(int number);\n\nclass Printer\n{\n    public void Print(PrintHandler print)\n    {\n        print(10);\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Printer printer = new Printer();\n\n        // Анонимный метод\n        printer.Print(delegate(int number) { Console.WriteLine($\"Анонимный метод: {number}\"); });\n\n        // Лямбда-выражение\n        printer.Print(n => Console.WriteLine($\"Лямбда-выражение: {n}\"));\n    }\n}\n// Output:\n// Анонимный метод: 10\n// Лямбда-выражение: 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `delegate(int number)` — анонимный метод.\n- `n => Console.WriteLine($\"Лямбда-выражение: {n}\")` — лямбда-выражение, выполняющее ту же задачу более кратко."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества лямбда-выражений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Лямбда-выражения делают код проще и читаемее."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nКраткость: Лямбда-выражения требуют меньше кода, чем анонимные методы."
+          },
+          {
+            "description": "\nФункциональное программирование: Они хорошо работают с LINQ и другими функциональными методами."
+          },
+          {
+            "description": "\nГибкость: Позволяют динамически назначать методы делегатам."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Лямбда-выражения могут создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Синтаксис лямбда-выражений может быть запутанным для новичков."
+          },
+          {
+            "description": "\nУтечки памяти: Неотписка лямбда-выражений в событиях может привести к утечкам памяти."
+          },
+          {
+            "description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Слишком сложные лямбда-выражения могут затруднить чтение кода. Неотписка лямбда-выражений в событиях может привести к утечкам памяти.\n- **Рекомендации**: Начинайте с простых лямбда-выражений. Разделяйте сложные лямбда-выражения на отдельные методы. Отписывайтесь от событий, когда они больше не нужны. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку из-за вызова делегата с лямбда-выражением без проверки на null."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void ErrorHandler(string message);\n\nclass BadProcessor\n{\n    public ErrorHandler OnError;\n\n    public void Process()\n    {\n        // Без проверки на null\n        OnError(\"Произошла ошибка!\"); // Риск NullReferenceException\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BadProcessor processor = new BadProcessor();\n        try\n        {\n            processor.Process();\n        }\n        catch (NullReferenceException ex)\n        {\n            Console.WriteLine(\"Ошибка: Метод не назначен делегату!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Ошибка: Метод не назначен делегату!\n// Сообщение об ошибке: Object reference not set to an instance of an object."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Делегат `OnError` вызывается без проверки на null.\n- Если метод (включая лямбда-выражение) не назначен, возникает `NullReferenceException`.\n- Решение: Используйте `OnError?.Invoke(...)` для избежания ошибки."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        string[] words = { \"яблоко\", \"груша\", \"банан\", \"клубника\" };\n\n        // Лямбда для фильтрации слов длиннее 5 символов\n        var longWords = words.Where(w => w.Length > 5);\n        Console.WriteLine(\"Длинные слова: \" + string.Join(\", \", longWords));\n\n        // Лямбда для преобразования слов в верхний регистр\n        var upperWords = words.Select(w => w.ToUpper());\n        Console.WriteLine(\"Верхний регистр: \" + string.Join(\", \", upperWords));\n    }\n}\n// Output:\n// Длинные слова: клубника\n// Верхний регистр: ЯБЛОКО, ГРУША, БАНАН, КЛУБНИКА"
+      }
+    ]
+  }
+}

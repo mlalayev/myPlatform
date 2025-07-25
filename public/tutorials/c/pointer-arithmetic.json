@@ -1,0 +1,492 @@
+{
+  "id": "pointer-arithmetic",
+  "az": {
+    "title": "Göstərici Arifmetikası",
+    "icon": "FiPlus",
+    "language": "c",
+    "description": "Göstəricilərlə arifmetik əməliyyatlar.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Göstərici Arifmetikası Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində göstərici arifmetikası, göstəricilərə ədədi əməliyyatlar tətbiq etməklə yaddaş ünvanları arasında hərəkət etməyi nəzərdə tutur. Göstəricilər yaddaş ünvanlarını saxlayır və bu ünvanlara toplama və ya çıxma kimi əməliyyatlar tətbiq edərək yaddaşda müxtəlif məlumatlara daxil olmaq mümkündür. Bu, xüsusilə massivlərlə işləyərkən faydalıdır, çünki massivin elementləri yaddaşda ardıcıl olaraq saxlanılır. Göstərici arifmetikası göstəriciləri artırma (`ptr + 1`), azaltma (`ptr - 1`) və ya digər əməliyyatlarla idarə etməyə imkan verir."
+      },
+      {
+        "type": "heading",
+        "text": "Göstərici Arifmetikasının Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Göstərici arifmetikası göstəricinin işarə etdiyi məlumat tipinin ölçüsünə əsaslanır. Məsələn, `int` göstəricisi üçün `ptr + 1` göstəricini bir `int` ölçüsü (adətən 4 bayt) qədər irəli aparır. Əsas əməliyyatlar:\n- **Toplama**: `ptr + n` göstəricini `n` element irəli aparır.\n- **Çıxma**: `ptr - n` göstəricini `n` element geri aparır.\n- **Fərq**: İki göstərici arasındakı fərq (`ptr2 - ptr1`) elementlərin sayını qaytarır.\n- **Dereference**: `*ptr` göstəricinin işarə etdiyi dəyəri əldə edir.\nMəsələn:\n```c\nint *ptr;\nptr = ptr + 1; // Növbəti int ünvanına keçir\n```"
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Göstərici Arifmetikası Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə bir massivdə göstərici arifmetikasından istifadə edilərək elementlərə müraciət edilir. Kod giriş tələb etmir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int numbers[4] = {10, 20, 30, 40};\n  int *ptr = numbers;\n  printf(\"First element: %d\\n\", *ptr);\n  ptr = ptr + 1;\n  printf(\"Second element: %d\\n\", *ptr);\n  ptr = ptr + 2;\n  printf(\"Fourth element: %d\\n\", *ptr);\n  return 0;\n}\n// Output:\n// First element: 10\n// Second element: 20\n// Fourth element: 40"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `int *ptr = numbers`: `ptr` massivin ilk elementinin ünvanını saxlayır.\n- `*ptr`: İlk elementi (10) qaytarır.\n- `ptr = ptr + 1`: Göstəricini bir `int` ölçüsü (4 bayt) irəli aparır, ikinci elementə (20) keçir.\n- `ptr = ptr + 2`: Göstəricini iki `int` ölçüsü irəli aparır, dördüncü elementə (40) keçir."
+      },
+      {
+        "type": "heading",
+        "text": "Massivlərdə Göstərici Arifmetikası"
+      },
+      {
+        "type": "paragraph",
+        "text": "Massivlər göstərici arifmetikası üçün idealdır, çünki massiv elementləri yaddaşda ardıcıl saxlanılır. Göstərici ilə massivin elementlərinə `*(ptr + i)` və ya `ptr[i]` sintaksisi ilə müraciət etmək olar."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int numbers[5] = {100, 200, 300, 400, 500};\n  int *ptr = numbers;\n  for (int i = 0; i < 5; i++) {\n    printf(\"Element %d: %d (Address: %p)\\n\", i, *(ptr + i), (void *)(ptr + i));\n  }\n  return 0;\n}\n// Output:\n// Element 0: 100 (Address: 0x...)\n// Element 1: 200 (Address: 0x... + 4)\n// Element 2: 300 (Address: 0x... + 8)\n// Element 3: 400 (Address: 0x... + 12)\n// Element 4: 500 (Address: 0x... + 16)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `int *ptr = numbers`: `ptr` massivin ilk elementinin ünvanını saxlayır.\n- `*(ptr + i)`: `i`-ci elementə müraciət edir.\n- `(ptr + i)`: Hər elementin yaddaş ünvanını göstərir, ardıcıl olaraq 4 bayt fərqlə."
+      },
+      {
+        "type": "heading",
+        "text": "Göstərici Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "İki göstərici arasındakı fərq (`ptr2 - ptr1`) yaddaşda onların arasında olan elementlərin sayını qaytarır. Bu, massivlərdə iki element arasındakı məsafəni hesablamaq üçün faydalıdır."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int numbers[5] = {1, 2, 3, 4, 5};\n  int *ptr1 = &numbers[1];\n  int *ptr2 = &numbers[4];\n  int distance = ptr2 - ptr1;\n  printf(\"Distance between ptr2 and ptr1: %d elements\\n\", distance);\n  return 0;\n}\n// Output:\n// Distance between ptr2 and ptr1: 3 elements"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ptr1` ikinci elementi (2), `ptr2` beşinci elementi (5) göstərir.\n- `ptr2 - ptr1`: Aralarındakı fərqi (3 element) qaytarır, çünki ünvanlar arasında 3 `int` məsafəsi var."
+      },
+      {
+        "type": "heading",
+        "text": "Göstərici Arifmetikası ilə Sətirlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sətirlər (char arrays) də göstərici arifmetikasından istifadə edərək işlənilə bilər, çünki sətirlər də yaddaşda ardıcıl saxlanılır. Hər simvol 1 bayt yer tutur."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  char text[] = \"Hello\";\n  char *ptr = text;\n  for (int i = 0; i < 5; i++) {\n    printf(\"Character %d: %c (Address: %p)\\n\", i, *(ptr + i), (void *)(ptr + i));\n  }\n  return 0;\n}\n// Output:\n// Character 0: H (Address: 0x...)\n// Character 1: e (Address: 0x... + 1)\n// Character 2: l (Address: 0x... + 2)\n// Character 3: l (Address: 0x... + 3)\n// Character 4: o (Address: 0x... + 4)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `char *ptr = text`: `ptr` sətirin ilk simvolunun ünvanını saxlayır.\n- `*(ptr + i)`: `i`-ci simvolu qaytarır.\n- Ünvanlar 1 bayt fərqlə ardıcıl olur, çünki `char` tipi 1 bayt tutur."
+      },
+      {
+        "type": "heading",
+        "text": "Göstərici Arifmetikasının Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Göstərici arifmetikası yaddaşda səmərəli hərəkət etməyə və məlumatlara sürətli daxil olmağa imkan verir. Xüsusilə massivlər və sətirlərlə işləyərkən faydalıdır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMassiv elementlərinə sürətli və effektiv müraciət imkanı verir."
+          },
+          {
+            "description": "\nYaddaşda ardıcıl məlumatlarla işləməyi asanlaşdırır."
+          },
+          { "description": "\nDöngülərdə sadə sintaksis təmin edir." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Göstərici arifmetikası yeni başlayanlar üçün qarışıq ola bilər. Səhv hesablamalar və ya yaddaş sərhədlərindən kənara çıxma proqramın qəzaya uğramasına səbəb ola bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nYaddaş sərhədlərindən kənara çıxma (out of bounds) səhvləri."
+          },
+          {
+            "description": "\nFərqli tiplərin ölçülərini nəzərə almamaq səhvlərə yol açır."
+          },
+          { "description": "\nMürəkkəb hesablamalar səhvə səbəb ola bilər." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Massiv sərhədlərindən kənara çıxma (buffer overflow) və ya yanlış göstərici hesablamaları proqramın qəzaya uğramasına səbəb ola bilər. Təyin edilməmiş göstəricilər də səhvlərə yol açır.\n- **Tövsiyələr**: Göstərici arifmetikasını istifadə edərkən massiv ölçüsünə diqqət et. Dəyişən tiplərinin ölçülərini nəzərə al. Kodu Visual Studio Code kimi redaktorlarda sına."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə massiv sərhədlərindən kənara çıxılır. Bu kod icra olunmamalıdır, sadəcə nəzəri nümunədir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int numbers[3] = {1, 2, 3};\n  int *ptr = numbers;\n  printf(\"Invalid element: %d\\n\", *(ptr + 5));\n  return 0;\n}\n// Output: (Gözlənilməz nəticə, çünki ptr + 5 massiv sərhədlərindən kənardır)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda `*(ptr + 5)` massivin sərhədlərindən (0-2 indeksləri) kənara çıxır. Bu, proqramın qəzaya uğramasına səbəb ola bilər. Həmişə massiv ölçüsünə uyğun hərəkət et."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nint main() {\n  int numbers[4] = {5, 10, 15, 20};\n  int *ptr = numbers;\n  for (int i = 0; i < 4; i++) {\n    printf(\"Element %d: %d\\n\", i, *(ptr + i));\n  }\n  return 0;\n}\n// Output:\n// Element 0: 5\n// Element 1: 10\n// Element 2: 15\n// Element 3: 20"
+      }
+    ]
+  },
+  "en": {
+    "title": "Pointer Arithmetic",
+    "icon": "FiPlus",
+    "language": "c",
+    "description": "Arithmetic operations with pointers.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Pointer Arithmetic?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, pointer arithmetic refers to performing arithmetic operations on pointers to navigate through memory addresses. Pointers store memory addresses, and by applying operations like addition or subtraction, you can access different data in memory. This is particularly useful with arrays, as their elements are stored contiguously in memory. Pointer arithmetic allows incrementing (`ptr + 1`), decrementing (`ptr - 1`), or other operations to move through memory."
+      },
+      {
+        "type": "heading",
+        "text": "Pointer Arithmetic Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "Pointer arithmetic is based on the size of the data type the pointer points to. For example, for an `int` pointer, `ptr + 1` moves the pointer forward by the size of an `int` (usually 4 bytes). Key operations include:\n- **Addition**: `ptr + n` moves the pointer forward by `n` elements.\n- **Subtraction**: `ptr - n` moves the pointer backward by `n` elements.\n- **Difference**: The difference between two pointers (`ptr2 - ptr1`) returns the number of elements between them.\n- **Dereference**: `*ptr` accesses the value at the pointer’s address.\nFor example:\n```c\nint *ptr;\nptr = ptr + 1; // Moves to the next int address\n```"
+      },
+      {
+        "type": "heading",
+        "text": "Simple Pointer Arithmetic Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example uses pointer arithmetic to access elements in an array. The code doesn’t require input."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int numbers[4] = {10, 20, 30, 40};\n  int *ptr = numbers;\n  printf(\"First element: %d\\n\", *ptr);\n  ptr = ptr + 1;\n  printf(\"Second element: %d\\n\", *ptr);\n  ptr = ptr + 2;\n  printf(\"Fourth element: %d\\n\", *ptr);\n  return 0;\n}\n// Output:\n// First element: 10\n// Second element: 20\n// Fourth element: 40"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `int *ptr = numbers`: `ptr` stores the address of the array’s first element.\n- `*ptr`: Returns the first element (10).\n- `ptr = ptr + 1`: Moves the pointer one `int` size (4 bytes) forward to the second element (20).\n- `ptr = ptr + 2`: Moves the pointer two `int` sizes forward to the fourth element (40)."
+      },
+      {
+        "type": "heading",
+        "text": "Pointer Arithmetic with Arrays"
+      },
+      {
+        "type": "paragraph",
+        "text": "Arrays are ideal for pointer arithmetic because their elements are stored contiguously in memory. You can access array elements using `*(ptr + i)` or `ptr[i]` syntax."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int numbers[5] = {100, 200, 300, 400, 500};\n  int *ptr = numbers;\n  for (int i = 0; i < 5; i++) {\n    printf(\"Element %d: %d (Address: %p)\\n\", i, *(ptr + i), (void *)(ptr + i));\n  }\n  return 0;\n}\n// Output:\n// Element 0: 100 (Address: 0x...)\n// Element 1: 200 (Address: 0x... + 4)\n// Element 2: 300 (Address: 0x... + 8)\n// Element 3: 400 (Address: 0x... + 12)\n// Element 4: 500 (Address: 0x... + 16)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `int *ptr = numbers`: `ptr` stores the address of the array’s first element.\n- `*(ptr + i)`: Accesses the `i`-th element.\n- `(ptr + i)`: Shows the memory address of each element, incrementing by 4 bytes (size of `int`)."
+      },
+      {
+        "type": "heading",
+        "text": "Pointer Difference"
+      },
+      {
+        "type": "paragraph",
+        "text": "The difference between two pointers (`ptr2 - ptr1`) returns the number of elements between them in memory. This is useful for calculating the distance between array elements."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int numbers[5] = {1, 2, 3, 4, 5};\n  int *ptr1 = &numbers[1];\n  int *ptr2 = &numbers[4];\n  int distance = ptr2 - ptr1;\n  printf(\"Distance between ptr2 and ptr1: %d elements\\n\", distance);\n  return 0;\n}\n// Output:\n// Distance between ptr2 and ptr1: 3 elements"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ptr1` points to the second element (2), and `ptr2` points to the fifth element (5).\n- `ptr2 - ptr1`: Returns the difference (3 elements) because there are 3 `int` spaces between them."
+      },
+      {
+        "type": "heading",
+        "text": "Pointer Arithmetic with Strings"
+      },
+      {
+        "type": "paragraph",
+        "text": "Strings (char arrays) can also be manipulated using pointer arithmetic, as they are stored contiguously in memory. Each character occupies 1 byte."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  char text[] = \"Hello\";\n  char *ptr = text;\n  for (int i = 0; i < 5; i++) {\n    printf(\"Character %d: %c (Address: %p)\\n\", i, *(ptr + i), (void *)(ptr + i));\n  }\n  return 0;\n}\n// Output:\n// Character 0: H (Address: 0x...)\n// Character 1: e (Address: 0x... + 1)\n// Character 2: l (Address: 0x... + 2)\n// Character 3: l (Address: 0x... + 3)\n// Character 4: o (Address: 0x... + 4)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `char *ptr = text`: `ptr` stores the address of the string’s first character.\n- `*(ptr + i)`: Returns the `i`-th character.\n- Addresses increment by 1 byte, as `char` is 1 byte."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Pointer Arithmetic"
+      },
+      {
+        "type": "paragraph",
+        "text": "Pointer arithmetic enables efficient navigation through memory and quick access to data. It is especially useful with arrays and strings."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nProvides fast and efficient access to array elements."
+          },
+          {
+            "description": "\nSimplifies working with contiguous memory data."
+          },
+          { "description": "\nOffers clean syntax in loops." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Pointer arithmetic can be confusing for beginners. Incorrect calculations or accessing beyond memory boundaries can crash the program."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nAccessing out-of-bounds memory causes errors." },
+          { "description": "\nIgnoring data type sizes leads to mistakes." },
+          { "description": "\nComplex calculations can introduce errors." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Accessing beyond array boundaries (buffer overflow) or incorrect pointer calculations can crash the program. Uninitialized pointers also cause errors.\n- **Recommendations**: Pay attention to array sizes when using pointer arithmetic. Account for data type sizes. Test code in editors like Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example accesses memory beyond the array’s bounds. This code should not be run; it’s a theoretical example."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int numbers[3] = {1, 2, 3};\n  int *ptr = numbers;\n  printf(\"Invalid element: %d\\n\", *(ptr + 5));\n  return 0;\n}\n// Output: (Unpredictable result, as ptr + 5 is beyond array bounds)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code, `*(ptr + 5)` accesses memory beyond the array’s bounds (indices 0-2). This can crash the program. Always stay within array bounds."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nint main() {\n  int numbers[4] = {5, 10, 15, 20};\n  int *ptr = numbers;\n  for (int i = 0; i < 4; i++) {\n    printf(\"Element %d: %d\\n\", i, *(ptr + i));\n  }\n  return 0;\n}\n// Output:\n// Element 0: 5\n// Element 1: 10\n// Element 2: 15\n// Element 3: 20"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Арифметика указателей",
+    "icon": "FiPlus",
+    "language": "c",
+    "description": "Арифметические операции с указателями.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое арифметика указателей?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C арифметика указателей — это выполнение арифметических операций с указателями для перемещения по адресам памяти. Указатели хранят адреса памяти, и с помощью операций, таких как сложение или вычитание, можно обращаться к различным данным в памяти. Это особенно полезно при работе с массивами, так как их элементы хранятся последовательно в памяти. Арифметика указателей позволяет увеличивать (`ptr + 1`), уменьшать (`ptr - 1`) или выполнять другие операции для перемещения по памяти."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис арифметики указателей"
+      },
+      {
+        "type": "paragraph",
+        "text": "Арифметика указателей основана на размере типа данных, на который указывает указатель. Например, для указателя на `int` операция `ptr + 1` перемещает указатель вперёд на размер `int` (обычно 4 байта). Основные операции:\n- **Сложение**: `ptr + n` перемещает указатель вперёд на `n` элементов.\n- **Вычитание**: `ptr - n` перемещает указатель назад на `n` элементов.\n- **Разность**: Разность между двумя указателями (`ptr2 - ptr1`) возвращает количество элементов между ними.\n- **Разыменование**: `*ptr` получает значение по адресу указателя.\nНапример:\n```c\nint *ptr;\nptr = ptr + 1; // Переходит к следующему адресу int\n```"
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример арифметики указателей"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример использует арифметику указателей для доступа к элементам массива. Код не требует ввода."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int numbers[4] = {10, 20, 30, 40};\n  int *ptr = numbers;\n  printf(\"First element: %d\\n\", *ptr);\n  ptr = ptr + 1;\n  printf(\"Second element: %d\\n\", *ptr);\n  ptr = ptr + 2;\n  printf(\"Fourth element: %d\\n\", *ptr);\n  return 0;\n}\n// Output:\n// First element: 10\n// Second element: 20\n// Fourth element: 40"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `int *ptr = numbers`: `ptr` хранит адрес первого элемента массива.\n- `*ptr`: Возвращает первый элемент (10).\n- `ptr = ptr + 1`: Перемещает указатель на один размер `int` (4 байта) вперёд к второму элементу (20).\n- `ptr = ptr + 2`: Перемещает указатель на два размера `int` вперёд к четвёртому элементу (40)."
+      },
+      {
+        "type": "heading",
+        "text": "Арифметика указателей с массивами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Массивы идеальны для арифметики указателей, так как их элементы хранятся последовательно в памяти. Доступ к элементам массива возможен через `*(ptr + i)` или `ptr[i]`."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int numbers[5] = {100, 200, 300, 400, 500};\n  int *ptr = numbers;\n  for (int i = 0; i < 5; i++) {\n    printf(\"Element %d: %d (Address: %p)\\n\", i, *(ptr + i), (void *)(ptr + i));\n  }\n  return 0;\n}\n// Output:\n// Element 0: 100 (Address: 0x...)\n// Element 1: 200 (Address: 0x... + 4)\n// Element 2: 300 (Address: 0x... + 8)\n// Element 3: 400 (Address: 0x... + 12)\n// Element 4: 500 (Address: 0x... + 16)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `int *ptr = numbers`: `ptr` хранит адрес первого элемента массива.\n- `*(ptr + i)`: Обращается к `i`-му элементу.\n- `(ptr + i)`: Показывает адрес памяти каждого элемента, увеличиваясь на 4 байта (размер `int`)."
+      },
+      {
+        "type": "heading",
+        "text": "Разность указателей"
+      },
+      {
+        "type": "paragraph",
+        "text": "Разность между двумя указателями (`ptr2 - ptr1`) возвращает количество элементов между ними в памяти. Это полезно для вычисления расстояния между элементами массива."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int numbers[5] = {1, 2, 3, 4, 5};\n  int *ptr1 = &numbers[1];\n  int *ptr2 = &numbers[4];\n  int distance = ptr2 - ptr1;\n  printf(\"Distance between ptr2 and ptr1: %d elements\\n\", distance);\n  return 0;\n}\n// Output:\n// Distance between ptr2 and ptr1: 3 elements"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ptr1` указывает на второй элемент (2), а `ptr2` — на пятый элемент (5).\n- `ptr2 - ptr1`: Возвращает разность (3 элемента), так как между ними 3 интервала `int`."
+      },
+      {
+        "type": "heading",
+        "text": "Арифметика указателей со строками"
+      },
+      {
+        "type": "paragraph",
+        "text": "Строки (массивы `char`) также могут обрабатываться с помощью арифметики указателей, так как они хранятся последовательно в памяти. Каждый символ занимает 1 байт."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  char text[] = \"Hello\";\n  char *ptr = text;\n  for (int i = 0; i < 5; i++) {\n    printf(\"Character %d: %c (Address: %p)\\n\", i, *(ptr + i), (void *)(ptr + i));\n  }\n  return 0;\n}\n// Output:\n// Character 0: H (Address: 0x...)\n// Character 1: e (Address: 0x... + 1)\n// Character 2: l (Address: 0x... + 2)\n// Character 3: l (Address: 0x... + 3)\n// Character 4: o (Address: 0x... + 4)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `char *ptr = text`: `ptr` хранит адрес первого символа строки.\n- `*(ptr + i)`: Возвращает `i`-й символ.\n- Адреса увеличиваются на 1 байт, так как `char` занимает 1 байт."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества арифметики указателей"
+      },
+      {
+        "type": "paragraph",
+        "text": "Арифметика указателей позволяет эффективно перемещаться по памяти и быстро получать доступ к данным. Она особенно полезна при работе с массивами и строками."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nОбеспечивает быстрый и эффективный доступ к элементам массива."
+          },
+          {
+            "description": "\nУпрощает работу с последовательными данными в памяти."
+          },
+          { "description": "\nПредоставляет чистый синтаксис в циклах." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Арифметика указателей может быть запутанной для новичков. Неправильные вычисления или выход за границы памяти могут привести к сбою программы."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nВыход за границы памяти вызывает ошибки." },
+          {
+            "description": "\nИгнорирование размеров типов данных приводит к ошибкам."
+          },
+          { "description": "\nСложные вычисления могут вызвать ошибки." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Выход за границы массива (buffer overflow) или неправильные вычисления указателей могут привести к сбою программы. Неинициализированные указатели также вызывают ошибки.\n- **Рекомендации**: Обращайте внимание на размеры массива при использовании арифметики указателей. Учитывайте размеры типов данных. Тестируйте код в редакторах, таких как Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример обращается к памяти за пределами массива. Код не следует запускать; это теоретический пример."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  int numbers[3] = {1, 2, 3};\n  int *ptr = numbers;\n  printf(\"Invalid element: %d\\n\", *(ptr + 5));\n  return 0;\n}\n// Output: (Непредсказуемый результат, так как ptr + 5 выходит за границы массива)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде `*(ptr + 5)` обращается к памяти за пределами массива (индексы 0-2). Это может привести к сбою программы. Всегда оставайтесь в пределах границ массива."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nint main() {\n  int numbers[4] = {5, 10, 15, 20};\n  int *ptr = numbers;\n  for (int i = 0; i < 4; i++) {\n    printf(\"Element %d: %d\\n\", i, *(ptr + i));\n  }\n  return 0;\n}\n// Output:\n// Element 0: 5\n// Element 1: 10\n// Element 2: 15\n// Element 3: 20"
+      }
+    ]
+  }
+}

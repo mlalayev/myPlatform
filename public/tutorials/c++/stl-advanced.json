@@ -1,0 +1,479 @@
+{
+    "az": {
+      "title": "Advanced STL Usage",
+      "language": "cpp",
+      "description": "C++-da qabaqcıl STL istifadəsi xüsusi yaddaş ayırıcıları, iteratorlar və alqoritmlər vasitəsilə performansı və çevikliyi artırır.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "STL nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Standart Şablon Kitabxanası (STL) C++-ın əsas komponentlərindən biridir və ümumi proqramlaşdırma tapşırıqlarını asanlaşdıran siniflər və funksiyalar toplusudur. STL konteynerlər (məsələn, `std::vector`, `std::map`), iteratorlar, alqoritmlər və yaddaş ayırıcıları kimi komponentləri əhatə edir. Qabaqcıl STL istifadəsi bu komponentləri daha effektiv və çevik şəkildə tətbiq etməyə imkan verir, xüsusilə böyük və mürəkkəb proqramlarda."
+        },
+        {
+          "type": "paragraph",
+          "text": "STL-nin əsas üstünlüyü onun ümumiləşdirilmiş (generic) və təkrar istifadəyə imkan verən strukturudur. Məsələn, bir alqoritm (`std::sort`) müxtəlif konteynerlərə (`std::vector`, `std::list`) tətbiq oluna bilər, çünki iteratorlar vasitəsilə vahid interfeys təmin edilir."
+        },
+        {
+          "type": "heading",
+          "text": "Xüsusi Yaddaş Ayırıcıları (Custom Allocators)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Yaddaş ayırıcıları STL konteynerlərinin yaddaşı necə idarə etdiyini müəyyənləşdirir. Standart yaddaş ayırıcıları (`std::allocator`) əksər hallarda kifayət olsa da, xüsusi yaddaş ayırıcıları performansı optimallaşdırmaq və ya xüsusi yaddaş idarəetmə strategiyalarını tətbiq etmək üçün istifadə olunur. Məsələn, öz yaddaş hovuzunuzu (memory pool) yaratmaq və ya yaddaşın ayrılmasını və azad edilməsini fərdiləşdirmək üçün xüsusi ayırıcı yazmaq mümkündür."
+        },
+        {
+          "type": "paragraph",
+          "text": "Xüsusi yaddaş ayırıcıları yaratmaq üçün sinif müəyyənləşdirilir və `allocate`, `deallocate`, `construct`, `destroy` kimi metodlar tətbiq edilir. Bu, xüsusilə yüksək performanslı tətbiqlərdə (məsələn, oyun inkişafı və ya real vaxt sistemləri) faydalıdır, çünki yaddaşın idarə edilməsini daha dəqiq nəzarət altına almağa imkan verir."
+        },
+        {
+          "type": "paragraph",
+          "text": "Xüsusi yaddaş ayırıcılarının üstünlükləri arasında yaddaşın fraqmentasiyasını azaltmaq, ayrılma müddətini optimallaşdırmaq və müəyyən yaddaş bölgələrindən istifadəni təmin etmək daxildir. Lakin onların yazılması mürəkkəb ola bilər və səhvlər yaddaş sızmalarına səbəb ola bilər."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <vector>\n#include <memory>\n\nclass CustomAllocator {\npublic:\n  using value_type = int;\n  CustomAllocator() = default;\n  int* allocate(std::size_t n) {\n    std::cout << \"Allocating \" << n << \" integers\\n\";\n    return static_cast<int*>(::operator new(n * sizeof(int)));\n  }\n  void deallocate(int* p, std::size_t) {\n    std::cout << \"Deallocating memory\\n\";\n    ::operator delete(p);\n  }\n};\n\nint main() {\n  std::vector<int, CustomAllocator> vec;\n  vec.push_back(1);\n  vec.push_back(2);\n  std::cout << \"Vector elements: \" << vec[0] << \", \" << vec[1] << \"\\n\";\n  return 0;\n}\n// Output:\n// Allocating 1 integers\n// Allocating 2 integers\n// Vector elements: 1, 2\n// Deallocating memory"
+        },
+        {
+          "type": "heading",
+          "text": "Iteratorlar"
+        },
+        {
+          "type": "paragraph",
+          "text": "Iteratorlar STL-də konteynerlərdəki elementlərə girişi təmin edən obyektlərdir. Onlar göstəricilərə bənzəyir, lakin daha ümumi və çevikdir. Iteratorlar konteynerlər və alqoritmlər arasında körpü rolunu oynayır, çünki alqoritmlər iteratorlar vasitəsilə konteynerlərdəki verilənlərə daxil olur."
+        },
+        {
+          "type": "paragraph",
+          "text": "Iteratorlar bir neçə kateqoriyaya bölünür:\n- **Input Iterator**: Yalnız oxumaq üçün istifadə olunur (məsələn, `std::find`).\n- **Output Iterator**: Yalnız yazmaq üçün istifadə olunur (məsələn, `std::copy`).\n- **Forward Iterator**: Bir istiqamətdə hərəkət edir, oxumaq və yazmaq mümkündür.\n- **Bidirectional Iterator**: İki istiqamətdə hərəkət edir (məsələn, `std::list`).\n- **Random Access Iterator**: Təsadüfi girişi dəstəkləyir (məsələn, `std::vector`).\nBu kateqoriyalar alqoritmlərin müxtəlif konteynerlərlə işləməsini təmin edir."
+        },
+        {
+          "type": "paragraph",
+          "text": "Iteratorlar STL alqoritmlərinin çevikliyini artırır, çünki eyni alqoritm müxtəlif konteynerlərə tətbiq oluna bilər. Məsələn, `std::sort` random access iteratorları tələb edir, buna görə `std::vector` ilə işləyir, amma `std::list` ilə işləmir."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nint main() {\n  std::vector<int> vec = {5, 2, 9, 1, 5};\n  for (auto it = vec.begin(); it != vec.end(); ++it) {\n    std::cout << *it << \" \";\n  }\n  std::cout << \"\\n\";\n  return 0;\n}\n// Output:\n// 5 2 9 1 5"
+        },
+        {
+          "type": "heading",
+          "text": "STL Alqoritmləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "STL alqoritmləri `<algorithm>` başlıq faylında yerləşir və verilənlərə müxtəlif əməliyyatlar tətbiq etmək üçün istifadə olunur. Bu alqoritmlər ümumiləşdirilmişdir və iteratorlar vasitəsilə müxtəlif konteynerlərlə işləyir. Alqoritmlər bir neçə kateqoriyaya bölünür:\n- **Dəyişdirməyən alqoritmlər**: Verilənləri dəyişdirmir (məsələn, `std::find`, `std::count`).\n- **Dəyişdirən alqoritmlər**: Verilənləri dəyişdirir (məsələn, `std::sort`, `std::transform`).\n- **Sıralama və axtarış**: Verilənləri sıralayır və ya axtarır (məsələn, `std::sort`, `std::binary_search`).\n- **Konteyner əməliyyatları**: Konteynerlərdəki elementləri idarə edir (məsələn, `std::remove`, `std::unique`)."
+        },
+        {
+          "type": "paragraph",
+          "text": "STL alqoritmlərinin əsas üstünlüyü onların təkrar istifadəyə imkan verməsi və effektivliyidir. Məsələn, `std::sort` daxili olaraq optimallaşdırılmış sıralama alqoritmlərindən (məsələn, introsort) istifadə edir və əksər hallarda əl ilə yazılmış kodlardan daha sürətlidir."
+        },
+        {
+          "type": "paragraph",
+          "text": "Alqoritmlərə misal olaraq, `std::transform` iki konteynerdəki elementləri birləşdirərək yeni nəticələr yarada bilər. Bu, funksional proqramlaşdırma tərzini dəstəkləyir və kodun oxunaqlılığını artırır."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nint main() {\n  std::vector<int> vec = {5, 2, 9, 1, 5};\n  std::sort(vec.begin(), vec.end());\n  for (int value : vec) {\n    std::cout << value << \" \";\n  }\n  std::cout << \"\\n\";\n  return 0;\n}\n// Output:\n// 1 2 5 5 9"
+        },
+        {
+          "type": "heading",
+          "text": "Performans və Çeviklik"
+        },
+        {
+          "type": "paragraph",
+          "text": "STL-nin qabaqcıl istifadəsi proqramın performansını artırır, çünki alqoritmlər və konteynerlər optimallaşdırılmışdır. Xüsusi yaddaş ayırıcıları yaddaş istifadəsini fərdiləşdirməyə imkan verir, iteratorlar isə müxtəlif konteynerlərə vahid şəkildə daxil olmağı təmin edir. Məsələn, `std::vector` ilə `std::sort` istifadə edərək böyük verilənlər dəstini sıralamaq əl ilə yazılmış koddan daha səmərəlidir."
+        },
+        {
+          "type": "paragraph",
+          "text": "STL alqoritmləri lambda ifadələri və ya funktorlarla birləşdirildikdə daha çevik olur. Məsələn, `std::sort`-a xüsusi müqayisə funksiyası ötürməklə sıralama qaydasını dəyişmək mümkündür."
+        },
+        {
+          "type": "heading",
+          "text": "Real Həyatda İstifadə Ssenariləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Qabaqcıl STL istifadəsi aşağıdakı hallarda faydalıdır:\n- **Verilənlər Emalı**: Böyük verilənlər dəstlərinin sıralanması və ya axtarışı.\n- **Yaddaş Optimizasiyası**: Xüsusi yaddaş ayırıcıları ilə yaddaşın səmərəli idarə edilməsi.\n- **Alqoritmik Tapşırıqlar**: Mürəkkəb alqoritmlərin sadələşdirilməsi (məsələn, `std::accumulate` ilə cəmləmə).\n- **Konteyner İdarəetməsi**: Müxtəlif konteynerlərdəki elementlərin effektiv idarə edilməsi.\nMəsələn, bir tətbiq böyük verilənlər dəstini `std::vector` ilə saxlayıb `std::sort` ilə sıralaya bilər."
+        },
+        {
+          "type": "paragraph",
+          "text": "Qabaqcıl STL istifadəsi kodun oxunaqlığını, təkrar istifadəsini və səmərəliliyini artırır, çünki əl ilə yazılmış həllərə ehtiyacı azaldır."
+        },
+        {
+          "type": "heading",
+          "text": "Qabaqcıl STL-nin Məqsədi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Qabaqcıl STL istifadəsi proqramın performansını optimallaşdırır, yaddaş idarəetməsini fərdiləşdirir və mürəkkəb tapşırıqları sadələşdirərək kodun çevikliyini və təkrar istifadəsini təmin edir."
+        },
+        {
+          "type": "heading",
+          "text": "Əsas Xüsusiyyətlər"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Performans",
+              "description": "Optimallaşdırılmış alqoritmlər və konteynerlər."
+            },
+            {
+              "term": "Çeviklik",
+              "description": "Iteratorlar və alqoritmlər vasitəsilə vahid interfeys."
+            },
+            {
+              "term": "Yaddaş İdarəetməsi",
+              "description": "Xüsusi yaddaş ayırıcıları ilə fərdiləşdirmə."
+            },
+            {
+              "term": "Təkrar İstifadə",
+              "description": "Ümumiləşdirilmiş alqoritmlər və konteynerlər."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Təhlükələr və Tövsiyələr"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Təhlükələr**: Xüsusi yaddaş ayırıcılarının səhv tətbiqi yaddaş sızmalarına səbəb ola bilər. Iteratorların yanlış istifadəsi (məsələn, etibarsız iteratorlar) proqramın qəzaya uğramasına yol aça bilər. Alqoritmlərin düzgün iterator kateqoriyası tələb etməməsi səhvlərə səbəb ola bilər.\n- **Tövsiyələr**: Iterator kateqoriyalarını düzgün seçin, xüsusi yaddaş ayırıcılarını sınaqdan keçirin, `std::make_unique` kimi təhlükəsiz alətlərdən istifadə edin, Visual Studio və ya CLion kimi IDE-lərdən istifadə edin."
+        },
+        {
+          "type": "paragraph",
+          "text": "Məsələn, `std::sort` istifadə edərkən yalnız random access iteratorları olan konteynerlərdən (məsələn, `std::vector`) istifadə edin."
+        },
+        {
+          "type": "heading",
+          "text": "Sınaq üçün Nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nint main() {\n  std::vector<int> vec = {5, 2, 9, 1, 5};\n  std::sort(vec.begin(), vec.end());\n  for (int value : vec) {\n    std::cout << value << \" \";\n  }\n  std::cout << \"\\n\";\n  return 0;\n}\n// Output:\n// 1 2 5 5 9"
+        }
+      ]
+    },
+    "en": {
+      "title": "Advanced STL Usage",
+      "language": "cpp",
+      "description": "In C++, advanced STL usage with custom allocators, iterators, and algorithms enhances performance and flexibility.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "What is the STL?"
+        },
+        {
+          "type": "paragraph",
+          "text": "The Standard Template Library (STL) is a core component of C++, providing a collection of classes and functions to simplify common programming tasks. It includes containers (e.g., `std::vector`, `std::map`), iterators, algorithms, and allocators. Advanced STL usage enables more efficient and flexible application of these components, especially in large and complex programs."
+        },
+        {
+          "type": "paragraph",
+          "text": "The primary advantage of the STL is its generic and reusable structure. For example, an algorithm like `std::sort` can be applied to various containers (`std::vector`, `std::list`) because iterators provide a unified interface."
+        },
+        {
+          "type": "heading",
+          "text": "Custom Allocators"
+        },
+        {
+          "type": "paragraph",
+          "text": "Allocators define how STL containers manage memory. While the default `std::allocator` is sufficient for most cases, custom allocators allow performance optimization or specialized memory management strategies. For instance, you can create a memory pool or customize memory allocation and deallocation for specific needs."
+        },
+        {
+          "type": "paragraph",
+          "text": "Custom allocators are implemented by defining a class with methods like `allocate`, `deallocate`, `construct`, and `destroy`. They are particularly useful in high-performance applications, such as game development or real-time systems, where precise memory control is critical."
+        },
+        {
+          "type": "paragraph",
+          "text": "Benefits of custom allocators include reducing memory fragmentation, optimizing allocation time, and restricting memory to specific regions. However, implementing them can be complex, and errors may lead to memory leaks."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <vector>\n#include <memory>\n\nclass CustomAllocator {\npublic:\n  using value_type = int;\n  CustomAllocator() = default;\n  int* allocate(std::size_t n) {\n    std::cout << \"Allocating \" << n << \" integers\\n\";\n    return static_cast<int*>(::operator new(n * sizeof(int)));\n  }\n  void deallocate(int* p, std::size_t) {\n    std::cout << \"Deallocating memory\\n\";\n    ::operator delete(p);\n  }\n};\n\nint main() {\n  std::vector<int, CustomAllocator> vec;\n  vec.push_back(1);\n  vec.push_back(2);\n  std::cout << \"Vector elements: \" << vec[0] << \", \" << vec[1] << \"\\n\";\n  return 0;\n}\n// Output:\n// Allocating 1 integers\n// Allocating 2 integers\n// Vector elements: 1, 2\n// Deallocating memory"
+        },
+        {
+          "type": "heading",
+          "text": "Iterators"
+        },
+        {
+          "type": "paragraph",
+          "text": "Iterators are objects in the STL that provide access to container elements. They resemble pointers but are more general and flexible. Iterators act as a bridge between containers and algorithms, allowing algorithms to access container data."
+        },
+        {
+          "type": "paragraph",
+          "text": "Iterators are categorized as:\n- **Input Iterator**: Used for reading only (e.g., `std::find`).\n- **Output Iterator**: Used for writing only (e.g., `std::copy`).\n- **Forward Iterator**: Moves in one direction, supports reading and writing.\n- **Bidirectional Iterator**: Moves in both directions (e.g., `std::list`).\n- **Random Access Iterator**: Supports random access (e.g., `std::vector`).\nThese categories enable algorithms to work with different containers."
+        },
+        {
+          "type": "paragraph",
+          "text": "Iterators enhance the flexibility of STL algorithms by allowing the same algorithm to operate on various containers. For example, `std::sort` requires random access iterators, so it works with `std::vector` but not `std::list`."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nint main() {\n  std::vector<int> vec = {5, 2, 9, 1, 5};\n  for (auto it = vec.begin(); it != vec.end(); ++it) {\n    std::cout << *it << \" \";\n  }\n  std::cout << \"\\n\";\n  return 0;\n}\n// Output:\n// 5 2 9 1 5"
+        },
+        {
+          "type": "heading",
+          "text": "STL Algorithms"
+        },
+        {
+          "type": "paragraph",
+          "text": "STL algorithms, found in the `<algorithm>` header, perform operations on data. They are generic and work with different containers via iterators. Algorithms are categorized as:\n- **Non-modifying algorithms**: Do not alter data (e.g., `std::find`, `std::count`).\n- **Modifying algorithms**: Alter data (e.g., `std::sort`, `std::transform`).\n- **Sorting and searching**: Sort or search data (e.g., `std::sort`, `std::binary_search`).\n- **Container operations**: Manage container elements (e.g., `std::remove`, `std::unique`)."
+        },
+        {
+          "type": "paragraph",
+          "text": "The key advantage of STL algorithms is their reusability and efficiency. For example, `std::sort` uses optimized sorting algorithms (e.g., introsort) and is often faster than hand-written code."
+        },
+        {
+          "type": "paragraph",
+          "text": "As an example, `std::transform` can combine elements from two containers to produce new results, supporting a functional programming style and improving code readability."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nint main() {\n  std::vector<int> vec = {5, 2, 9, 1, 5};\n  std::sort(vec.begin(), vec.end());\n  for (int value : vec) {\n    std::cout << value << \" \";\n  }\n  std::cout << \"\\n\";\n  return 0;\n}\n// Output:\n// 1 2 5 5 9"
+        },
+        {
+          "type": "heading",
+          "text": "Performance and Flexibility"
+        },
+        {
+          "type": "paragraph",
+          "text": "Advanced STL usage improves program performance due to optimized algorithms and containers. Custom allocators enable tailored memory management, while iterators provide a unified interface for accessing different containers. For example, using `std::vector` with `std::sort` to sort large datasets is more efficient than hand-written code."
+        },
+        {
+          "type": "paragraph",
+          "text": "STL algorithms become more flexible when combined with lambda expressions or functors. For instance, passing a custom comparison function to `std::sort` allows changing the sorting order."
+        },
+        {
+          "type": "heading",
+          "text": "Real-world Use Cases"
+        },
+        {
+          "type": "paragraph",
+          "text": "Advanced STL usage is beneficial in:\n- **Data Processing**: Sorting or searching large datasets.\n- **Memory Optimization**: Custom allocators for efficient memory management.\n- **Algorithmic Tasks**: Simplifying complex algorithms (e.g., `std::accumulate` for summation).\n- **Container Management**: Efficiently managing elements in various containers.\nFor example, an application can store a large dataset in `std::vector` and sort it with `std::sort`."
+        },
+        {
+          "type": "paragraph",
+          "text": "Advanced STL usage enhances code readability, reusability, and efficiency by reducing the need for hand-written solutions."
+        },
+        {
+          "type": "heading",
+          "text": "Purpose of Advanced STL"
+        },
+        {
+          "type": "paragraph",
+          "text": "Advanced STL usage optimizes performance, customizes memory management, simplifies complex tasks, and ensures code flexibility and reusability."
+        },
+        {
+          "type": "heading",
+          "text": "Key Features"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Performance",
+              "description": "Optimized algorithms and containers."
+            },
+            {
+              "term": "Flexibility",
+              "description": "Unified interface via iterators and algorithms."
+            },
+            {
+              "term": "Memory Management",
+              "description": "Customization with custom allocators."
+            },
+            {
+              "term": "Reusability",
+              "description": "Generic algorithms and containers."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Dangers and Recommendations"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Dangers**: Incorrect implementation of custom allocators can cause memory leaks. Misusing iterators (e.g., invalid iterators) may lead to program crashes. Using algorithms with incorrect iterator categories can cause errors.\n- **Recommendations**: Choose the correct iterator category, thoroughly test custom allocators, use safe tools like `std::make_unique`, and leverage IDEs like Visual Studio or CLion."
+        },
+        {
+          "type": "paragraph",
+          "text": "For example, when using `std::sort`, ensure the container provides random access iterators, such as `std::vector`."
+        },
+        {
+          "type": "heading",
+          "text": "Try it Yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nint main() {\n  std::vector<int> vec = {5, 2, 9, 1, 5};\n  std::sort(vec.begin(), vec.end());\n  for (int value : vec) {\n    std::cout << value << \" \";\n  }\n  std::cout << \"\\n\";\n  return 0;\n}\n// Output:\n// 1 2 5 5 9"
+        }
+      ]
+    },
+    "ru": {
+      "title": "Advanced STL Usage",
+      "language": "cpp",
+      "description": "В C++ продвинутое использование STL с пользовательскими аллокаторами, итераторами и алгоритмами повышает производительность и гибкость.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Что такое STL?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Стандартная библиотека шаблонов (STL) — это ключевой компонент C++, предоставляющий набор классов и функций для упрощения общих задач программирования. Она включает контейнеры (например, `std::vector`, `std::map`), итераторы, алгоритмы и аллокаторы. Продвинутое использование STL позволяет более эффективно и гибко применять эти компоненты, особенно в больших и сложных программах."
+        },
+        {
+          "type": "paragraph",
+          "text": "Основное преимущество STL — её обобщённая и повторно используемая структура. Например, алгоритм `std::sort` может применяться к различным контейнерам (`std::vector`, `std::list`), поскольку итераторы обеспечивают единый интерфейс."
+        },
+        {
+          "type": "heading",
+          "text": "Пользовательские аллокаторы"
+        },
+        {
+          "type": "paragraph",
+          "text": "Аллокаторы определяют, как контейнеры STL управляют памятью. Хотя стандартный `std::allocator` подходит для большинства случаев, пользовательские аллокаторы позволяют оптимизировать производительность или реализовать специализированные стратегии управления памятью. Например, можно создать пул памяти или настроить выделение и освобождение памяти."
+        },
+        {
+          "type": "paragraph",
+          "text": "Пользовательские аллокаторы реализуются путём определения класса с методами `allocate`, `deallocate`, `construct` и `destroy`. Они особенно полезны в высокопроизводительных приложениях, таких как разработка игр или системы реального времени, где важен точный контроль памяти."
+        },
+        {
+          "type": "paragraph",
+          "text": "Преимущества пользовательских аллокаторов включают уменьшение фрагментации памяти, оптимизацию времени выделения и использование определённых областей памяти. Однако их реализация может быть сложной, а ошибки могут привести к утечкам памяти."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <vector>\n#include <memory>\n\nclass CustomAllocator {\npublic:\n  using value_type = int;\n  CustomAllocator() = default;\n  int* allocate(std::size_t n) {\n    std::cout << \"Allocating \" << n << \" integers\\n\";\n    return static_cast<int*>(::operator new(n * sizeof(int)));\n  }\n  void deallocate(int* p, std::size_t) {\n    std::cout << \"Deallocating memory\\n\";\n    ::operator delete(p);\n  }\n};\n\nint main() {\n  std::vector<int, CustomAllocator> vec;\n  vec.push_back(1);\n  vec.push_back(2);\n  std::cout << \"Vector elements: \" << vec[0] << \", \" << vec[1] << \"\\n\";\n  return 0;\n}\n// Output:\n// Allocating 1 integers\n// Allocating 2 integers\n// Vector elements: 1, 2\n// Deallocating memory"
+        },
+        {
+          "type": "heading",
+          "text": "Итераторы"
+        },
+        {
+          "type": "paragraph",
+          "text": "Итераторы в STL — это объекты, обеспечивающие доступ к элементам контейнеров. Они похожи на указатели, но более обобщённые и гибкие. Итераторы служат мостом между контейнерами и алгоритмами, позволяя алгоритмам обращаться к данным контейнеров."
+        },
+        {
+          "type": "paragraph",
+          "text": "Итераторы делятся на категории:\n- **Input Iterator**: Используется только для чтения (например, `std::find`).\n- **Output Iterator**: Используется только для записи (например, `std::copy`).\n- **Forward Iterator**: Движется в одном направлении, поддерживает чтение и запись.\n- **Bidirectional Iterator**: Движется в обоих направлениях (например, `std::list`).\n- **Random Access Iterator**: Поддерживает произвольный доступ (например, `std::vector`).\nЭти категории позволяют алгоритмам работать с разными контейнерами."
+        },
+        {
+          "type": "paragraph",
+          "text": "Итераторы повышают гибкость алгоритмов STL, позволяя одному алгоритму работать с разными контейнерами. Например, `std::sort` требует итераторы произвольного доступа, поэтому работает с `std::vector`, но не с `std::list`."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nint main() {\n  std::vector<int> vec = {5, 2, 9, 1, 5};\n  for (auto it = vec.begin(); it != vec.end(); ++it) {\n    std::cout << *it << \" \";\n  }\n  std::cout << \"\\n\";\n  return 0;\n}\n// Output:\n// 5 2 9 1 5"
+        },
+        {
+          "type": "heading",
+          "text": "Алгоритмы STL"
+        },
+        {
+          "type": "paragraph",
+          "text": "Алгоритмы STL, находящиеся в заголовке `<algorithm>`, выполняют операции над данными. Они обобщённые и работают с разными контейнерами через итераторы. Алгоритмы делятся на категории:\n- **Немодифицирующие алгоритмы**: Не изменяют данные (например, `std::find`, `std::count`).\n- **Модифицирующие алгоритмы**: Изменяют данные (например, `std::sort`, `std::transform`).\n- **Сортировка и поиск**: Сортируют или ищут данные (например, `std::sort`, `std::binary_search`).\n- **Операции с контейнерами**: Управляют элементами контейнеров (например, `std::remove`, `std::unique`)."
+        },
+        {
+          "type": "paragraph",
+          "text": "Ключевое преимущество алгоритмов STL — их повторное использование и эффективность. Например, `std::sort` использует оптимизированные алгоритмы сортировки (например, introsort) и часто быстрее, чем рукописный код."
+        },
+        {
+          "type": "paragraph",
+          "text": "Например, `std::transform` может комбинировать элементы двух контейнеров для создания новых результатов, поддерживая стиль функционального программирования и повышая читаемость кода."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nint main() {\n  std::vector<int> vec = {5, 2, 9, 1, 5};\n  std::sort(vec.begin(), vec.end());\n  for (int value : vec) {\n    std::cout << value << \" \";\n  }\n  std::cout << \"\\n\";\n  return 0;\n}\n// Output:\n// 1 2 5 5 9"
+        },
+        {
+          "type": "heading",
+          "text": "Производительность и гибкость"
+        },
+        {
+          "type": "paragraph",
+          "text": "Продвинутое использование STL повышает производительность программы благодаря оптимизированным алгоритмам и контейнерам. Пользовательские аллокаторы позволяют настраивать управление памятью, а итераторы обеспечивают единый интерфейс для доступа к разным контейнерам. Например, использование `std::vector` с `std::sort` для сортировки больших наборов данных эффективнее рукописного кода."
+        },
+        {
+          "type": "paragraph",
+          "text": "Алгоритмы STL становятся более гибкими при использовании с лямбда-выражениями или функторами. Например, передача пользовательской функции сравнения в `std::sort` позволяет изменять порядок сортировки."
+        },
+        {
+          "type": "heading",
+          "text": "Примеры из реальной жизни"
+        },
+        {
+          "type": "paragraph",
+          "text": "Продвинутое использование STL полезно в:\n- **Обработке данных**: Сортировка или поиск в больших наборах данных.\n- **Оптимизации памяти**: Пользовательские аллокаторы для эффективного управления памятью.\n- **Алгоритмических задачах**: Упрощение сложных алгоритмов (например, `std::accumulate` для суммирования).\n- **Управлении контейнерами**: Эффективное управление элементами в различных контейнерах.\nНапример, приложение может хранить большой набор данных в `std::vector` и сортировать его с помощью `std::sort`."
+        },
+        {
+          "type": "paragraph",
+          "text": "Продвинутое использование STL повышает читаемость кода, повторное использование и эффективность, уменьшая необходимость в рукописных решениях."
+        },
+        {
+          "type": "heading",
+          "text": "Цель продвинутого STL"
+        },
+        {
+          "type": "paragraph",
+          "text": "Продвинутое использование STL оптимизирует производительность, настраивает управление памятью, упрощает сложные задачи и обеспечивает гибкость и повторное использование кода."
+        },
+        {
+          "type": "heading",
+          "text": "Основные характеристики"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Производительность",
+              "description": "Оптимизированные алгоритмы и контейнеры."
+            },
+            {
+              "term": "Гибкость",
+              "description": "Единый интерфейс через итераторы и алгоритмы."
+            },
+            {
+              "term": "Управление памятью",
+              "description": "Настройка с помощью пользовательских аллокаторов."
+            },
+            {
+              "term": "Повторное использование",
+              "description": "Обобщённые алгоритмы и контейнеры."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Опасности и рекомендации"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Опасности**: Неправильная реализация пользовательских аллокаторов может вызвать утечки памяти. Неправильное использование итераторов (например, недействительные итераторы) может привести к сбоям программы. Использование алгоритмов с неподходящими категориями итераторов может вызвать ошибки.\n- **Рекомендации**: Выбирайте правильную категорию итераторов, тщательно тестируйте пользовательские аллокаторы, используйте безопасные инструменты, такие как `std::make_unique`, и применяйте IDE, такие как Visual Studio или CLion."
+        },
+        {
+          "type": "paragraph",
+          "text": "Например, при использовании `std::sort` убедитесь, что контейнер предоставляет итераторы произвольного доступа, такие как `std::vector`."
+        },
+        {
+          "type": "heading",
+          "text": "Попробуй сам"
+        },
+        {
+          "type": "editor",
+          "initialCode": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nint main() {\n  std::vector<int> vec = {5, 2, 9, 1, 5};\n  std::sort(vec.begin(), vec.end());\n  for (int value : vec) {\n    std::cout << value << \" \";\n  }\n  std::cout << \"\\n\";\n  return 0;\n}\n// Output:\n// 1 2 5 5 9"
+        }
+      ]
+    }
+  }

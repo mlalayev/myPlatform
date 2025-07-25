@@ -1,0 +1,392 @@
+{
+  "id": "union-find",
+  "az": {
+    "title": "Union-Find (Disjoint Set Union)",
+    "icon": "FiLink2",
+    "language": "multiple",
+    "codes": {
+      "python": "class UnionFind:\n    def __init__(self, size):\n        self.parent = list(range(size))\n        self.rank = [0] * size\n        self.size = [1] * size\n\n    def find(self, x):\n        if self.parent[x] != x:\n            self.parent[x] = self.find(self.parent[x])  # Path compression\n        return self.parent[x]\n\n    def union(self, x, y):\n        px, py = self.find(x), self.find(y)\n        if px == py:\n            return\n        if self.rank[px] < self.rank[py]:\n            px, py = py, px\n        self.parent[py] = px\n        self.size[px] += self.size[py]\n        if self.rank[px] == self.rank[py]:\n            self.rank[px] += 1\n\n    def connected(self, x, y):\n        return self.find(x) == self.find(y)\n\n    def get_size(self, x):\n        return self.size[self.find(x)]\n\n# Example: Union-Find operations\nuf = UnionFind(5)\nuf.union(0, 1)\nuf.union(2, 3)\nprint('Are 1 and 3 connected?', uf.connected(1, 3))\nprint('Are 1 and 4 connected?', uf.connected(1, 4))\n# Output: Are 1 and 3 connected? False\n# Output: Are 1 and 4 connected? False",
+      "javascript": "class UnionFind {\n    constructor(size) {\n        this.parent = Array.from({ length: size }, (_, i) => i);\n        this.rank = new Array(size).fill(0);\n        this.size = new Array(size).fill(1);\n    }\n\n    find(x) {\n        if (this.parent[x] !== x) {\n            this.parent[x] = this.find(this.parent[x]);  // Path compression\n        }\n        return this.parent[x];\n    }\n\n    union(x, y) {\n        let px = this.find(x), py = this.find(y);\n        if (px === py) return;\n        if (this.rank[px] < this.rank[py]) {\n            [px, py] = [py, px];\n        }\n        this.parent[py] = px;\n        this.size[px] += this.size[py];\n        if (this.rank[px] === this.rank[py]) {\n            this.rank[px]++;\n        }\n    }\n\n    connected(x, y) {\n        return this.find(x) === this.find(y);\n    }\n\n    getSize(x) {\n        return this.size[this.find(x)];\n    }\n}\n\n// Example: Union-Find operations\nconst uf = new UnionFind(5);\nuf.union(0, 1);\nuf.union(2, 3);\nconsole.log('Are 1 and 3 connected?', uf.connected(1, 3));\nconsole.log('Are 1 and 4 connected?', uf.connected(1, 4));\n// Output: Are 1 and 3 connected? false\n// Output: Are 1 and 4 connected? false",
+      "typescript": "class UnionFind {\n    private parent: number[];\n    private rank: number[];\n    private size: number[];\n\n    constructor(size: number) {\n        this.parent = Array.from({ length: size }, (_, i) => i);\n        this.rank = new Array(size).fill(0);\n        this.size = new Array(size).fill(1);\n    }\n\n    find(x: number): number {\n        if (this.parent[x] !== x) {\n            this.parent[x] = this.find(this.parent[x]);  // Path compression\n        }\n        return this.parent[x];\n    }\n\n    union(x: number, y: number): void {\n        let px = this.find(x), py = this.find(y);\n        if (px === py) return;\n        if (this.rank[px] < this.rank[py]) {\n            [px, py] = [py, px];\n        }\n        this.parent[py] = px;\n        this.size[px] += this.size[py];\n        if (this.rank[px] === this.rank[py]) {\n            this.rank[px]++;\n        }\n    }\n\n    connected(x: number, y: number): boolean {\n        return this.find(x) === this.find(y);\n    }\n\n    getSize(x: number): number {\n        return this.size[this.find(x)];\n    }\n}\n\n// Example: Union-Find operations\nconst uf = new UnionFind(5);\nuf.union(0, 1);\nuf.union(2, 3);\nconsole.log('Are 1 and 3 connected?', uf.connected(1, 3));\nconsole.log('Are 1 and 4 connected?', uf.connected(1, 4));\n// Output: Are 1 and 3 connected? false\n// Output: Are 1 and 4 connected? false",
+      "java": "class UnionFind {\n    private int[] parent;\n    private int[] rank;\n    private int[] size;\n\n    public UnionFind(int size) {\n        this.parent = new int[size];\n        this.rank = new int[size];\n        this.size = new int[size];\n        for (int i = 0; i < size; i++) {\n            this.parent[i] = i;\n            this.size[i] = 1;\n        }\n    }\n\n    public int find(int x) {\n        if (parent[x] != x) {\n            parent[x] = find(parent[x]);  // Path compression\n        }\n        return parent[x];\n    }\n\n    public void union(int x, int y) {\n        int px = find(x), py = find(y);\n        if (px == py) return;\n        if (rank[px] < rank[py]) {\n            int temp = px; px = py; py = temp;\n        }\n        parent[py] = px;\n        size[px] += size[py];\n        if (rank[px] == rank[py]) {\n            rank[px]++;\n        }\n    }\n\n    public boolean connected(int x, int y) {\n        return find(x) == find(y);\n    }\n\n    public int getSize(int x) {\n        return size[find(x)];\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        UnionFind uf = new UnionFind(5);\n        uf.union(0, 1);\n        uf.union(2, 3);\n        System.out.println(\"Are 1 and 3 connected? \" + uf.connected(1, 3));\n        System.out.println(\"Are 1 and 4 connected? \" + uf.connected(1, 4));\n    }\n}\n// Output: Are 1 and 3 connected? false\n// Output: Are 1 and 4 connected? false",
+      "php": "<?php\n\nclass UnionFind {\n    private $parent;\n    private $rank;\n    private $size;\n\n    public function __construct($size) {\n        $this->parent = range(0, $size - 1);\n        $this->rank = array_fill(0, $size, 0);\n        $this->size = array_fill(0, $size, 1);\n    }\n\n    public function find($x) {\n        if ($this->parent[$x] != $x) {\n            $this->parent[$x] = $this->find($this->parent[$x]);  // Path compression\n        }\n        return $this->parent[$x];\n    }\n\n    public function union($x, $y) {\n        $px = $this->find($x);\n        $py = $this->find($y);\n        if ($px == $py) return;\n        if ($this->rank[$px] < $this->rank[$py]) {\n            list($px, $py) = [$py, $px];\n        }\n        $this->parent[$py] = $px;\n        $this->size[$px] += $this->size[$py];\n        if ($this->rank[$px] == $this->rank[$py]) {\n            $this->rank[$px]++;\n        }\n    }\n\n    public function connected($x, $y) {\n        return $this->find($x) == $this->find($y);\n    }\n\n    public function getSize($x) {\n        return $this->size[$this->find($x)];\n    }\n}\n\n// Example: Union-Find operations\n$uf = new UnionFind(5);\n$uf->union(0, 1);\n$uf->union(2, 3);\necho \"Are 1 and 3 connected? \" . ($uf->connected(1, 3) ? \"true\" : \"false\") . \"\\n\";\necho \"Are 1 and 4 connected? \" . ($uf->connected(1, 4) ? \"true\" : \"false\") . \"\\n\";\n// Output: Are 1 and 3 connected? false\n// Output: Are 1 and 4 connected? false",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct UnionFind {\n    int* parent;\n    int* rank;\n    int* size;\n    int n;\n} UnionFind;\n\nUnionFind* createUnionFind(int size) {\n    UnionFind* uf = (UnionFind*)malloc(sizeof(UnionFind));\n    uf->n = size;\n    uf->parent = (int*)malloc(size * sizeof(int));\n    uf->rank = (int*)calloc(size, sizeof(int));\n    uf->size = (int*)malloc(size * sizeof(int));\n    for (int i = 0; i < size; i++) {\n        uf->parent[i] = i;\n        uf->size[i] = 1;\n    }\n    return uf;\n}\n\nint find(UnionFind* uf, int x) {\n    if (uf->parent[x] != x) {\n        uf->parent[x] = find(uf, uf->parent[x]);  // Path compression\n    }\n    return uf->parent[x];\n}\n\nvoid unionSets(UnionFind* uf, int x, int y) {\n    int px = find(uf, x), py = find(uf, y);\n    if (px == py) return;\n    if (uf->rank[px] < uf->rank[py]) {\n        int temp = px; px = py; py = temp;\n    }\n    uf->parent[py] = px;\n    uf->size[px] += uf->size[py];\n    if (uf->rank[px] == uf->rank[py]) {\n        uf->rank[px]++;\n    }\n}\n\nint connected(UnionFind* uf, int x, int y) {\n    return find(uf, x) == find(uf, y);\n}\n\nint getSize(UnionFind* uf, int x) {\n    return uf->size[find(uf, x)];\n}\n\nvoid freeUnionFind(UnionFind* uf) {\n    free(uf->parent);\n    free(uf->rank);\n    free(uf->size);\n    free(uf);\n}\n\nint main() {\n    UnionFind* uf = createUnionFind(5);\n    unionSets(uf, 0, 1);\n    unionSets(uf, 2, 3);\n    printf(\"Are 1 and 3 connected? %d\\n\", connected(uf, 1, 3));\n    printf(\"Are 1 and 4 connected? %d\\n\", connected(uf, 1, 4));\n    freeUnionFind(uf);\n    return 0;\n}\n// Output: Are 1 and 3 connected? 0\n// Output: Are 1 and 4 connected? 0",
+      "csharp": "using System;\n\nclass UnionFind {\n    private int[] parent;\n    private int[] rank;\n    private int[] size;\n\n    public UnionFind(int size) {\n        this.parent = new int[size];\n        this.rank = new int[size];\n        this.size = new int[size];\n        for (int i = 0; i < size; i++) {\n            this.parent[i] = i;\n            this.size[i] = 1;\n        }\n    }\n\n    public int Find(int x) {\n        if (parent[x] != x) {\n            parent[x] = Find(parent[x]);  // Path compression\n        }\n        return parent[x];\n    }\n\n    public void Union(int x, int y) {\n        int px = Find(x), py = Find(y);\n        if (px == py) return;\n        if (rank[px] < rank[py]) {\n            int temp = px; px = py; py = temp;\n        }\n        parent[py] = px;\n        size[px] += size[py];\n        if (rank[px] == rank[py]) {\n            rank[px]++;\n        }\n    }\n\n    public bool Connected(int x, int y) {\n        return Find(x) == Find(y);\n    }\n\n    public int GetSize(int x) {\n        return size[Find(x)];\n    }\n}\n\nclass Program {\n    static void Main() {\n        UnionFind uf = new UnionFind(5);\n        uf.Union(0, 1);\n        uf.Union(2, 3);\n        Console.WriteLine(\"Are 1 and 3 connected? \" + uf.Connected(1, 3));\n        Console.WriteLine(\"Are 1 and 4 connected? \" + uf.Connected(1, 4));\n    }\n}\n// Output: Are 1 and 3 connected? False\n// Output: Are 1 and 4 connected? False",
+      "cpp": "#include <iostream>\n#include <vector>\n\nclass UnionFind {\nprivate:\n    std::vector<int> parent;\n    std::vector<int> rank;\n    std::vector<int> size;\n\npublic:\n    UnionFind(int size) : parent(size), rank(size, 0), size(size, 1) {\n        for (int i = 0; i < size; i++) {\n            parent[i] = i;\n        }\n    }\n\n    int find(int x) {\n        if (parent[x] != x) {\n            parent[x] = find(parent[x]);  // Path compression\n        }\n        return parent[x];\n    }\n\n    void unionSets(int x, int y) {\n        int px = find(x), py = find(y);\n        if (px == py) return;\n        if (rank[px] < rank[py]) {\n            std::swap(px, py);\n        }\n        parent[py] = px;\n        size[px] += size[py];\n        if (rank[px] == rank[py]) {\n            rank[px]++;\n        }\n    }\n\n    bool connected(int x, int y) {\n        return find(x) == find(y);\n    }\n\n    int getSize(int x) {\n        return size[find(x)];\n    }\n};\n\nint main() {\n    UnionFind uf(5);\n    uf.unionSets(0, 1);\n    uf.unionSets(2, 3);\n    std::cout << \"Are 1 and 3 connected? \" << (uf.connected(1, 3) ? \"true\" : \"false\") << \"\\n\";\n    std::cout << \"Are 1 and 4 connected? \" << (uf.connected(1, 4) ? \"true\" : \"false\") << \"\\n\";\n    return 0;\n}\n// Output: Are 1 and 3 connected? false\n// Output: Are 1 and 4 connected? false"
+    },
+    "description": "Disjoint Set Union strukturu və onun tətbiqləri haqqında ümumi məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Union-Find (DSU) nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find (Disjoint Set Union, DSU) elementləri qruplara (dəstələrə) bölmək və onların birləşməsini və ya eyni dəstədə olub-olmadıqlarını effektiv şəkildə yoxlamaq üçün istifadə olunan məlumat strukturudur. Yuxarıdakı nümunədə 5 elementli dəstələr qurulur, 0-1 və 2-3 birləşdirilir, 1-3 və 1-4 elementlərinin eyni dəstədə olub-olmaması yoxlanılır."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas Terminlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Parent: Hər elementin valideynini göstərən massiv (yuxarıdakı parent)."
+          },
+          {
+            "description": "Find: Elementin dəstəsinin kökünü tapmaq (yuxarıdakı find funksiyası)."
+          },
+          {
+            "description": "Union: İki dəstəni birləşdirmək (yuxarıdakı union funksiyası)."
+          },
+          {
+            "description": "Connected: İki elementin eyni dəstədə olub-olmadığını yoxlamaq (yuxarıdakı connected funksiyası)."
+          },
+          {
+            "description": "Rank: Dəstənin dərinliyini idarə etmək üçün istifadə olunur (yuxarıdakı rank)."
+          },
+          {
+            "description": "Path Compression: Find əməliyyatını sürətləndirmək üçün optimallaşdırma (yuxarıdakı find-də)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Union-Find Növləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find müxtəlif formalarda olur: 1) **Standart Union-Find**: Path compression və rank ilə optimallaşdırılmış (yuxarıdakı nümunədəki kimi). 2) **Persistent Union-Find**: Keçmiş versiyaları saxlayır. 3) **Weighted Union-Find**: Dəstə ölçülərini izləyir (yuxarıdakı getSize funksiyası kimi)."
+      },
+      {
+        "type": "heading",
+        "text": "Union-Find nə üçün lazımdır?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find dəstələri effektiv idarə etmək, elementlərin qruplarını birləşdirmək və onların əlaqələrini yoxlamaq üçün istifadə olunur. Qraf alqoritmləri və dinamik əlaqələr üçün idealdır."
+      },
+      {
+        "type": "heading",
+        "text": "Union-Find nəyə kömək edir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find aşağıdakı sahələrdə kömək edir: 1) **Qraf Alqoritmləri**: Kruskal alqoritmi ilə minimum ağac qurma. 2) **Şəbəkə Əlaqələri**: Elementlərin eyni qrupda olub-olmadığını yoxlamaq (yuxarıdakı connected funksiyası). 3) **Dinamik Sorğular**: Dəstələrin birləşməsi və yoxlanması (yuxarıdakı union funksiyası). 4) **Məlumat Təhlili**: Qruplaşdırma tapşırıqları."
+      },
+      {
+        "type": "heading",
+        "text": "Union-Find-in Səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Path compression və rank ilə optimallaşdırılmış Union-Find-də find və union əməliyyatları orta hesabla O(α(n)) vaxt aparır (α(n) tərs Ackermann funksiyasıdır, praktikada sabitə yaxındır). Qurulma O(n) vaxt tələb edir. Məkan mürəkkəbliyi O(n). Yuxarıdakı nümunədə find və union effektiv işləyir."
+      },
+      {
+        "type": "heading",
+        "text": "Üstünlüklər və Mənfi Cəhətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Üstünlük: Find və union əməliyyatları demək olar ki, sabit vaxtda işləyir."
+          },
+          { "description": "Üstünlük: Sadə və effektiv tətbiq." },
+          { "description": "Üstünlük: Dinamik qruplaşdırma üçün uyğundur." },
+          {
+            "description": "Mənfi cəhət: Path compression və rank anlaşılmasını çətinləşdirə bilər."
+          },
+          {
+            "description": "Mənfi cəhət: Yalnız dəstə əlaqələrini idarə edir, digər sorğuları dəstəkləmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real Həyatda İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find geniş tətbiq sahəsinə malikdir: 1) **Qraf Alqoritmləri**: Minimum ağac və əlaqəli komponentlər. 2) **Şəbəkə Təhlili**: Şəbəkə bağlantılarının yoxlanması. 3) **Rəqabətli Proqramlaşdırma**: Dinamik qruplaşdırma problemləri. 4) **Məlumat Təhlili**: Qruplaşdırma və klasterləşdirmə. Yuxarıdakı connected funksiyası əlaqə yoxlamasını simulyasiya edir."
+      },
+      {
+        "type": "heading",
+        "text": "Optimallaşdırma Strategiyaları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find performansını artırmaq üçün: 1) **Path Compression**: Find əməliyyatını sürətləndirin (yuxarıdakı find-də istifadə olunur). 2) **Union by Rank**: Ağacın dərinliyini azaldın (yuxarıdakı rank). 3) **Kəşləmə**: Tez-tez istifadə olunan dəstələri kəşləyin. 4) **Yaddaş İdarəetməsi**: Dinamik yaddaş ayırmadan istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əsas təhlükələrə daxildir: 1) **Mürəkkəblik**: Path compression və rank anlaşılmasını çətinləşdirə bilər. 2) **Məhdudiyyətlər**: Yalnız dəstə əlaqələri üçün uyğundur. 3) **Performans**: Böyük məlumatlarda yavaşlama riski. Tövsiyələr: 1) Path compression və rank istifadə edin. 2) Sadələşdirilmiş tətbiqlərdən başlayın. 3) Kodları böyük məlumatlarla test edin."
+      }
+    ]
+  },
+  "en": {
+    "title": "Union-Find (Disjoint Set Union)",
+    "icon": "FiLink2",
+    "language": "multiple",
+    "codes": {
+      "python": "class UnionFind:\n    def __init__(self, size):\n        self.parent = list(range(size))\n        self.rank = [0] * size\n        self.size = [1] * size\n\n    def find(self, x):\n        if self.parent[x] != x:\n            self.parent[x] = self.find(self.parent[x])  # Path compression\n        return self.parent[x]\n\n    def union(self, x, y):\n        px, py = self.find(x), self.find(y)\n        if px == py:\n            return\n        if self.rank[px] < self.rank[py]:\n            px, py = py, px\n        self.parent[py] = px\n        self.size[px] += self.size[py]\n        if self.rank[px] == self.rank[py]:\n            self.rank[px] += 1\n\n    def connected(self, x, y):\n        return self.find(x) == self.find(y)\n\n    def get_size(self, x):\n        return self.size[self.find(x)]\n\n# Example: Union-Find operations\nuf = UnionFind(5)\nuf.union(0, 1)\nuf.union(2, 3)\nprint('Are 1 and 3 connected?', uf.connected(1, 3))\nprint('Are 1 and 4 connected?', uf.connected(1, 4))\n# Output: Are 1 and 3 connected? False\n# Output: Are 1 and 4 connected? False",
+      "javascript": "class UnionFind {\n    constructor(size) {\n        this.parent = Array.from({ length: size }, (_, i) => i);\n        this.rank = new Array(size).fill(0);\n        this.size = new Array(size).fill(1);\n    }\n\n    find(x) {\n        if (this.parent[x] !== x) {\n            this.parent[x] = this.find(this.parent[x]);  // Path compression\n        }\n        return this.parent[x];\n    }\n\n    union(x, y) {\n        let px = this.find(x), py = this.find(y);\n        if (px === py) return;\n        if (this.rank[px] < this.rank[py]) {\n            [px, py] = [py, px];\n        }\n        this.parent[py] = px;\n        this.size[px] += this.size[py];\n        if (this.rank[px] === this.rank[py]) {\n            this.rank[px]++;\n        }\n    }\n\n    connected(x, y) {\n        return this.find(x) === this.find(y);\n    }\n\n    getSize(x) {\n        return this.size[this.find(x)];\n    }\n}\n\n// Example: Union-Find operations\nconst uf = new UnionFind(5);\nuf.union(0, 1);\nuf.union(2, 3);\nconsole.log('Are 1 and 3 connected?', uf.connected(1, 3));\nconsole.log('Are 1 and 4 connected?', uf.connected(1, 4));\n// Output: Are 1 and 3 connected? false\n// Output: Are 1 and 4 connected? false",
+      "typescript": "class UnionFind {\n    private parent: number[];\n    private rank: number[];\n    private size: number[];\n\n    constructor(size: number) {\n        this.parent = Array.from({ length: size }, (_, i) => i);\n        this.rank = new Array(size).fill(0);\n        this.size = new Array(size).fill(1);\n    }\n\n    find(x: number): number {\n        if (this.parent[x] !== x) {\n            this.parent[x] = this.find(this.parent[x]);  // Path compression\n        }\n        return this.parent[x];\n    }\n\n    union(x: number, y: number): void {\n        let px = this.find(x), py = this.find(y);\n        if (px === py) return;\n        if (this.rank[px] < this.rank[py]) {\n            [px, py] = [py, px];\n        }\n        this.parent[py] = px;\n        this.size[px] += this.size[py];\n        if (this.rank[px] === this.rank[py]) {\n            this.rank[px]++;\n        }\n    }\n\n    connected(x: number, y: number): boolean {\n        return this.find(x) === this.find(y);\n    }\n\n    getSize(x: number): number {\n        return this.size[this.find(x)];\n    }\n}\n\n// Example: Union-Find operations\nconst uf = new UnionFind(5);\nuf.union(0, 1);\nuf.union(2, 3);\nconsole.log('Are 1 and 3 connected?', uf.connected(1, 3));\nconsole.log('Are 1 and 4 connected?', uf.connected(1, 4));\n// Output: Are 1 and 3 connected? false\n// Output: Are 1 and 4 connected? false",
+      "java": "class UnionFind {\n    private int[] parent;\n    private int[] rank;\n    private int[] size;\n\n    public UnionFind(int size) {\n        this.parent = new int[size];\n        this.rank = new int[size];\n        this.size = new int[size];\n        for (int i = 0; i < size; i++) {\n            this.parent[i] = i;\n            this.size[i] = 1;\n        }\n    }\n\n    public int find(int x) {\n        if (parent[x] != x) {\n            parent[x] = find(parent[x]);  // Path compression\n        }\n        return parent[x];\n    }\n\n    public void union(int x, int y) {\n        int px = find(x), py = find(y);\n        if (px == py) return;\n        if (rank[px] < rank[py]) {\n            int temp = px; px = py; py = temp;\n        }\n        parent[py] = px;\n        size[px] += size[py];\n        if (rank[px] == rank[py]) {\n            rank[px]++;\n        }\n    }\n\n    public boolean connected(int x, int y) {\n        return find(x) == find(y);\n    }\n\n    public int getSize(int x) {\n        return size[find(x)];\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        UnionFind uf = new UnionFind(5);\n        uf.union(0, 1);\n        uf.union(2, 3);\n        System.out.println(\"Are 1 and 3 connected? \" + uf.connected(1, 3));\n        System.out.println(\"Are 1 and 4 connected? \" + uf.connected(1, 4));\n    }\n}\n// Output: Are 1 and 3 connected? false\n// Output: Are 1 and 4 connected? false",
+      "php": "<?php\n\nclass UnionFind {\n    private $parent;\n    private $rank;\n    private $size;\n\n    public function __construct($size) {\n        $this->parent = range(0, $size - 1);\n        $this->rank = array_fill(0, $size, 0);\n        $this->size = array_fill(0, $size, 1);\n    }\n\n    public function find($x) {\n        if ($this->parent[$x] != $x) {\n            $this->parent[$x] = $this->find($this->parent[$x]);  // Path compression\n        }\n        return $this->parent[$x];\n    }\n\n    public function union($x, $y) {\n        $px = $this->find($x);\n        $py = $this->find($y);\n        if ($px == $py) return;\n        if ($this->rank[$px] < $this->rank[$py]) {\n            list($px, $py) = [$py, $px];\n        }\n        $this->parent[$py] = $px;\n        $this->size[$px] += $this->size[$py];\n        if ($this->rank[$px] == $this->rank[$py]) {\n            $this->rank[$px]++;\n        }\n    }\n\n    public function connected($x, $y) {\n        return $this->find($x) == $this->find($y);\n    }\n\n    public function getSize($x) {\n        return $this->size[$this->find($x)];\n    }\n}\n\n// Example: Union-Find operations\n$uf = new UnionFind(5);\n$uf->union(0, 1);\n$uf->union(2, 3);\necho \"Are 1 and 3 connected? \" . ($uf->connected(1, 3) ? \"true\" : \"false\") . \"\\n\";\necho \"Are 1 and 4 connected? \" . ($uf->connected(1, 4) ? \"true\" : \"false\") . \"\\n\";\n// Output: Are 1 and 3 connected? false\n// Output: Are 1 and 4 connected? false",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct UnionFind {\n    int* parent;\n    int* rank;\n    int* size;\n    int n;\n} UnionFind;\n\nUnionFind* createUnionFind(int size) {\n    UnionFind* uf = (UnionFind*)malloc(sizeof(UnionFind));\n    uf->n = size;\n    uf->parent = (int*)malloc(size * sizeof(int));\n    uf->rank = (int*)calloc(size, sizeof(int));\n    uf->size = (int*)malloc(size * sizeof(int));\n    for (int i = 0; i < size; i++) {\n        uf->parent[i] = i;\n        uf->size[i] = 1;\n    }\n    return uf;\n}\n\nint find(UnionFind* uf, int x) {\n    if (uf->parent[x] != x) {\n        uf->parent[x] = find(uf, uf->parent[x]);  // Path compression\n    }\n    return uf->parent[x];\n}\n\nvoid unionSets(UnionFind* uf, int x, int y) {\n    int px = find(uf, x), py = find(uf, y);\n    if (px == py) return;\n    if (uf->rank[px] < uf->rank[py]) {\n        int temp = px; px = py; py = temp;\n    }\n    uf->parent[py] = px;\n    uf->size[px] += uf->size[py];\n    if (uf->rank[px] == uf->rank[py]) {\n        uf->rank[px]++;\n    }\n}\n\nint connected(UnionFind* uf, int x, int y) {\n    return find(uf, x) == find(uf, y);\n}\n\nint getSize(UnionFind* uf, int x) {\n    return uf->size[find(uf, x)];\n}\n\nvoid freeUnionFind(UnionFind* uf) {\n    free(uf->parent);\n    free(uf->rank);\n    free(uf->size);\n    free(uf);\n}\n\nint main() {\n    UnionFind* uf = createUnionFind(5);\n    unionSets(uf, 0, 1);\n    unionSets(uf, 2, 3);\n    printf(\"Are 1 and 3 connected? %d\\n\", connected(uf, 1, 3));\n    printf(\"Are 1 and 4 connected? %d\\n\", connected(uf, 1, 4));\n    freeUnionFind(uf);\n    return 0;\n}\n// Output: Are 1 and 3 connected? 0\n// Output: Are 1 and 4 connected? 0",
+      "csharp": "using System;\n\nclass UnionFind {\n    private int[] parent;\n    private int[] rank;\n    private int[] size;\n\n    public UnionFind(int size) {\n        this.parent = new int[size];\n        this.rank = new int[size];\n        this.size = new int[size];\n        for (int i = 0; i < size; i++) {\n            this.parent[i] = i;\n            this.size[i] = 1;\n        }\n    }\n\n    public int Find(int x) {\n        if (parent[x] != x) {\n            parent[x] = Find(parent[x]);  // Path compression\n        }\n        return parent[x];\n    }\n\n    public void Union(int x, int y) {\n        int px = Find(x), py = Find(y);\n        if (px == py) return;\n        if (rank[px] < rank[py]) {\n            int temp = px; px = py; py = temp;\n        }\n        parent[py] = px;\n        size[px] += size[py];\n        if (rank[px] == rank[py]) {\n            rank[px]++;\n        }\n    }\n\n    public bool Connected(int x, int y) {\n        return Find(x) == Find(y);\n    }\n\n    public int GetSize(int x) {\n        return size[Find(x)];\n    }\n}\n\nclass Program {\n    static void Main() {\n        UnionFind uf = new UnionFind(5);\n        uf.Union(0, 1);\n        uf.Union(2, 3);\n        Console.WriteLine(\"Are 1 and 3 connected? \" + uf.Connected(1, 3));\n        Console.WriteLine(\"Are 1 and 4 connected? \" + uf.Connected(1, 4));\n    }\n}\n// Output: Are 1 and 3 connected? False\n// Output: Are 1 and 4 connected? False",
+      "cpp": "#include <iostream>\n#include <vector>\n\nclass UnionFind {\nprivate:\n    std::vector<int> parent;\n    std::vector<int> rank;\n    std::vector<int> size;\n\npublic:\n    UnionFind(int size) : parent(size), rank(size, 0), size(size, 1) {\n        for (int i = 0; i < size; i++) {\n            parent[i] = i;\n        }\n    }\n\n    int find(int x) {\n        if (parent[x] != x) {\n            parent[x] = find(parent[x]);  // Path compression\n        }\n        return parent[x];\n    }\n\n    void unionSets(int x, int y) {\n        int px = find(x), py = find(y);\n        if (px == py) return;\n        if (rank[px] < rank[py]) {\n            std::swap(px, py);\n        }\n        parent[py] = px;\n        size[px] += size[py];\n        if (rank[px] == rank[py]) {\n            rank[px]++;\n        }\n    }\n\n    bool connected(int x, int y) {\n        return find(x) == find(y);\n    }\n\n    int getSize(int x) {\n        return size[find(x)];\n    }\n};\n\nint main() {\n    UnionFind uf(5);\n    uf.unionSets(0, 1);\n    uf.unionSets(2, 3);\n    std::cout << \"Are 1 and 3 connected? \" << (uf.connected(1, 3) ? \"true\" : \"false\") << \"\\n\";\n    std::cout << \"Are 1 and 4 connected? \" << (uf.connected(1, 4) ? \"true\" : \"false\") << \"\\n\";\n    return 0;\n}\n// Output: Are 1 and 3 connected? false\n// Output: Are 1 and 4 connected? false"
+    },
+    "description": "Overview of Union-Find (Disjoint Set Union) structure and its applications.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Union-Find (DSU)?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find (Disjoint Set Union, DSU) is a data structure used to partition elements into disjoint sets and efficiently perform union and connectivity queries. In the example above, a Union-Find structure is created for 5 elements, unions 0-1 and 2-3, and checks if 1-3 and 1-4 are in the same set."
+      },
+      {
+        "type": "heading",
+        "text": "Key Terminology"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Parent: Array storing the parent of each element (used as parent above)."
+          },
+          {
+            "description": "Find: Finds the root of an element’s set (shown in the find function above)."
+          },
+          {
+            "description": "Union: Merges two sets (shown in the union function above)."
+          },
+          {
+            "description": "Connected: Checks if two elements are in the same set (shown in the connected function above)."
+          },
+          {
+            "description": "Rank: Tracks the depth of the tree for balancing (used as rank above)."
+          },
+          {
+            "description": "Path Compression: Optimizes find operations (used in the find function above)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Types of Union-Find"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find comes in various forms: 1) **Standard Union-Find**: Optimized with path compression and rank (as in the example). 2) **Persistent Union-Find**: Maintains historical versions. 3) **Weighted Union-Find**: Tracks set sizes (as in the getSize function above)."
+      },
+      {
+        "type": "heading",
+        "text": "Why is Union-Find Needed?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find is used to efficiently manage disjoint sets, merge groups, and check connectivity, making it ideal for graph algorithms and dynamic connectivity problems."
+      },
+      {
+        "type": "heading",
+        "text": "What Does Union-Find Help With?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find supports various tasks: 1) **Graph Algorithms**: Building minimum spanning trees with Kruskal’s algorithm. 2) **Network Connectivity**: Checking if elements are in the same group (shown in the connected function). 3) **Dynamic Queries**: Merging and checking sets (shown in the union function). 4) **Data Analysis**: Grouping and clustering tasks."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of Union-Find (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "With path compression and union by rank, find and union operations take O(α(n)) time on average (α(n) is the inverse Ackermann function, nearly constant). Initialization takes O(n) time. Space complexity is O(n). The example’s find and union operations are efficient."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Advantage: Find and union operations are nearly constant time."
+          },
+          { "description": "Advantage: Simple and efficient implementation." },
+          { "description": "Advantage: Suitable for dynamic grouping." },
+          {
+            "description": "Disadvantage: Path compression and rank can complicate understanding."
+          },
+          {
+            "description": "Disadvantage: Limited to set connectivity queries."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real-Life Applications"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find is widely used: 1) **Graph Algorithms**: Minimum spanning trees and connected components. 2) **Network Analysis**: Checking network connectivity. 3) **Competitive Programming**: Solving dynamic grouping problems. 4) **Data Analysis**: Grouping and clustering. The connected function in the example simulates connectivity checks."
+      },
+      {
+        "type": "heading",
+        "text": "Optimization Strategies"
+      },
+      {
+        "type": "paragraph",
+        "text": "To optimize Union-Find: 1) **Path Compression**: Speed up find operations (used in find above). 2) **Union by Rank**: Reduce tree height (used in rank above). 3) **Caching**: Cache frequently accessed sets. 4) **Memory Management**: Use dynamic memory allocation."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Key risks include: 1) **Complexity**: Path compression and rank can be hard to understand. 2) **Limitations**: Only suitable for set connectivity queries. 3) **Performance**: Risk of slowdown with large datasets. Recommendations: 1) Use path compression and rank. 2) Start with simplified implementations. 3) Test code with large datasets."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Union-Find (Disjoint Set Union)",
+    "icon": "FiLink2",
+    "language": "multiple",
+    "codes": {
+      "python": "class UnionFind:\n    def __init__(self, size):\n        self.parent = list(range(size))\n        self.rank = [0] * size\n        self.size = [1] * size\n\n    def find(self, x):\n        if self.parent[x] != x:\n            self.parent[x] = self.find(self.parent[x])  # Path compression\n        return self.parent[x]\n\n    def union(self, x, y):\n        px, py = self.find(x), self.find(y)\n        if px == py:\n            return\n        if self.rank[px] < self.rank[py]:\n            px, py = py, px\n        self.parent[py] = px\n        self.size[px] += self.size[py]\n        if self.rank[px] == self.rank[py]:\n            self.rank[px] += 1\n\n    def connected(self, x, y):\n        return self.find(x) == self.find(y)\n\n    def get_size(self, x):\n        return self.size[self.find(x)]\n\n# Example: Union-Find operations\nuf = UnionFind(5)\nuf.union(0, 1)\nuf.union(2, 3)\nprint('Are 1 and 3 connected?', uf.connected(1, 3))\nprint('Are 1 and 4 connected?', uf.connected(1, 4))\n# Output: Are 1 and 3 connected? False\n# Output: Are 1 and 4 connected? False",
+      "javascript": "class UnionFind {\n    constructor(size) {\n        this.parent = Array.from({ length: size }, (_, i) => i);\n        this.rank = new Array(size).fill(0);\n        this.size = new Array(size).fill(1);\n    }\n\n    find(x) {\n        if (this.parent[x] !== x) {\n            this.parent[x] = this.find(this.parent[x]);  // Path compression\n        }\n        return this.parent[x];\n    }\n\n    union(x, y) {\n        let px = this.find(x), py = this.find(y);\n        if (px === py) return;\n        if (this.rank[px] < this.rank[py]) {\n            [px, py] = [py, px];\n        }\n        this.parent[py] = px;\n        this.size[px] += this.size[py];\n        if (this.rank[px] === this.rank[py]) {\n            this.rank[px]++;\n        }\n    }\n\n    connected(x, y) {\n        return this.find(x) === this.find(y);\n    }\n\n    getSize(x) {\n        return this.size[this.find(x)];\n    }\n}\n\n// Example: Union-Find operations\nconst uf = new UnionFind(5);\nuf.union(0, 1);\nuf.union(2, 3);\nconsole.log('Are 1 and 3 connected?', uf.connected(1, 3));\nconsole.log('Are 1 and 4 connected?', uf.connected(1, 4));\n// Output: Are 1 and 3 connected? false\n// Output: Are 1 and 4 connected? false",
+      "typescript": "class UnionFind {\n    private parent: number[];\n    private rank: number[];\n    private size: number[];\n\n    constructor(size: number) {\n        this.parent = Array.from({ length: size }, (_, i) => i);\n        this.rank = new Array(size).fill(0);\n        this.size = new Array(size).fill(1);\n    }\n\n    find(x: number): number {\n        if (this.parent[x] !== x) {\n            this.parent[x] = this.find(this.parent[x]);  // Path compression\n        }\n        return this.parent[x];\n    }\n\n    union(x: number, y: number): void {\n        let px = this.find(x), py = this.find(y);\n        if (px === py) return;\n        if (this.rank[px] < this.rank[py]) {\n            [px, py] = [py, px];\n        }\n        this.parent[py] = px;\n        this.size[px] += this.size[py];\n        if (this.rank[px] === this.rank[py]) {\n            this.rank[px]++;\n        }\n    }\n\n    connected(x: number, y: number): boolean {\n        return this.find(x) === this.find(y);\n    }\n\n    getSize(x: number): number {\n        return this.size[this.find(x)];\n    }\n}\n\n// Example: Union-Find operations\nconst uf = new UnionFind(5);\nuf.union(0, 1);\nuf.union(2, 3);\nconsole.log('Are 1 and 3 connected?', uf.connected(1, 3));\nconsole.log('Are 1 and 4 connected?', uf.connected(1, 4));\n// Output: Are 1 and 3 connected? false\n// Output: Are 1 and 4 connected? false",
+      "java": "class UnionFind {\n    private int[] parent;\n    private int[] rank;\n    private int[] size;\n\n    public UnionFind(int size) {\n        this.parent = new int[size];\n        this.rank = new int[size];\n        this.size = new int[size];\n        for (int i = 0; i < size; i++) {\n            this.parent[i] = i;\n            this.size[i] = 1;\n        }\n    }\n\n    public int find(int x) {\n        if (parent[x] != x) {\n            parent[x] = find(parent[x]);  // Path compression\n        }\n        return parent[x];\n    }\n\n    public void union(int x, int y) {\n        int px = find(x), py = find(y);\n        if (px == py) return;\n        if (rank[px] < rank[py]) {\n            int temp = px; px = py; py = temp;\n        }\n        parent[py] = px;\n        size[px] += size[py];\n        if (rank[px] == rank[py]) {\n            rank[px]++;\n        }\n    }\n\n    public boolean connected(int x, int y) {\n        return find(x) == find(y);\n    }\n\n    public int getSize(int x) {\n        return size[find(x)];\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        UnionFind uf = new UnionFind(5);\n        uf.union(0, 1);\n        uf.union(2, 3);\n        System.out.println(\"Are 1 and 3 connected? \" + uf.connected(1, 3));\n        System.out.println(\"Are 1 and 4 connected? \" + uf.connected(1, 4));\n    }\n}\n// Output: Are 1 and 3 connected? false\n// Output: Are 1 and 4 connected? false",
+      "php": "<?php\n\nclass UnionFind {\n    private $parent;\n    private $rank;\n    private $size;\n\n    public function __construct($size) {\n        $this->parent = range(0, $size - 1);\n        $this->rank = array_fill(0, $size, 0);\n        $this->size = array_fill(0, $size, 1);\n    }\n\n    public function find($x) {\n        if ($this->parent[$x] != $x) {\n            $this->parent[$x] = $this->find($this->parent[$x]);  // Path compression\n        }\n        return $this->parent[$x];\n    }\n\n    public function union($x, $y) {\n        $px = $this->find($x);\n        $py = $this->find($y);\n        if ($px == $py) return;\n        if ($this->rank[$px] < $this->rank[$py]) {\n            list($px, $py) = [$py, $px];\n        }\n        $this->parent[$py] = $px;\n        $this->size[$px] += $this->size[$py];\n        if ($this->rank[$px] == $this->rank[$py]) {\n            $this->rank[$px]++;\n        }\n    }\n\n    public function connected($x, $y) {\n        return $this->find($x) == $this->find($y);\n    }\n\n    public function getSize($x) {\n        return $this->size[$this->find($x)];\n    }\n}\n\n// Example: Union-Find operations\n$uf = new UnionFind(5);\n$uf->union(0, 1);\n$uf->union(2, 3);\necho \"Are 1 and 3 connected? \" . ($uf->connected(1, 3) ? \"true\" : \"false\") . \"\\n\";\necho \"Are 1 and 4 connected? \" . ($uf->connected(1, 4) ? \"true\" : \"false\") . \"\\n\";\n// Output: Are 1 and 3 connected? false\n// Output: Are 1 and 4 connected? false",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct UnionFind {\n    int* parent;\n    int* rank;\n    int* size;\n    int n;\n} UnionFind;\n\nUnionFind* createUnionFind(int size) {\n    UnionFind* uf = (UnionFind*)malloc(sizeof(UnionFind));\n    uf->n = size;\n    uf->parent = (int*)malloc(size * sizeof(int));\n    uf->rank = (int*)calloc(size, sizeof(int));\n    uf->size = (int*)malloc(size * sizeof(int));\n    for (int i = 0; i < size; i++) {\n        uf->parent[i] = i;\n        uf->size[i] = 1;\n    }\n    return uf;\n}\n\nint find(UnionFind* uf, int x) {\n    if (uf->parent[x] != x) {\n        uf->parent[x] = find(uf, uf->parent[x]);  // Path compression\n    }\n    return uf->parent[x];\n}\n\nvoid unionSets(UnionFind* uf, int x, int y) {\n    int px = find(uf, x), py = find(uf, y);\n    if (px == py) return;\n    if (uf->rank[px] < uf->rank[py]) {\n        int temp = px; px = py; py = temp;\n    }\n    uf->parent[py] = px;\n    uf->size[px] += uf->size[py];\n    if (uf->rank[px] == uf->rank[py]) {\n        uf->rank[px]++;\n    }\n}\n\nint connected(UnionFind* uf, int x, int y) {\n    return find(uf, x) == find(uf, y);\n}\n\nint getSize(UnionFind* uf, int x) {\n    return uf->size[find(uf, x)];\n}\n\nvoid freeUnionFind(UnionFind* uf) {\n    free(uf->parent);\n    free(uf->rank);\n    free(uf->size);\n    free(uf);\n}\n\nint main() {\n    UnionFind* uf = createUnionFind(5);\n    unionSets(uf, 0, 1);\n    unionSets(uf, 2, 3);\n    printf(\"Are 1 and 3 connected? %d\\n\", connected(uf, 1, 3));\n    printf(\"Are 1 and 4 connected? %d\\n\", connected(uf, 1, 4));\n    freeUnionFind(uf);\n    return 0;\n}\n// Output: Are 1 and 3 connected? 0\n// Output: Are 1 and 4 connected? 0",
+      "csharp": "using System;\n\nclass UnionFind {\n    private int[] parent;\n    private int[] rank;\n    private int[] size;\n\n    public UnionFind(int size) {\n        this.parent = new int[size];\n        this.rank = new int[size];\n        this.size = new int[size];\n        for (int i = 0; i < size; i++) {\n            this.parent[i] = i;\n            this.size[i] = 1;\n        }\n    }\n\n    public int Find(int x) {\n        if (parent[x] != x) {\n            parent[x] = Find(parent[x]);  // Path compression\n        }\n        return parent[x];\n    }\n\n    public void Union(int x, int y) {\n        int px = Find(x), py = Find(y);\n        if (px == py) return;\n        if (rank[px] < rank[py]) {\n            int temp = px; px = py; py = temp;\n        }\n        parent[py] = px;\n        size[px] += size[py];\n        if (rank[px] == rank[py]) {\n            rank[px]++;\n        }\n    }\n\n    public bool Connected(int x, int y) {\n        return Find(x) == Find(y);\n    }\n\n    public int GetSize(int x) {\n        return size[Find(x)];\n    }\n}\n\nclass Program {\n    static void Main() {\n        UnionFind uf = new UnionFind(5);\n        uf.Union(0, 1);\n        uf.Union(2, 3);\n        Console.WriteLine(\"Are 1 and 3 connected? \" + uf.Connected(1, 3));\n        Console.WriteLine(\"Are 1 and 4 connected? \" + uf.Connected(1, 4));\n    }\n}\n// Output: Are 1 and 3 connected? False\n// Output: Are 1 and 4 connected? False",
+      "cpp": "#include <iostream>\n#include <vector>\n\nclass UnionFind {\nprivate:\n    std::vector<int> parent;\n    std::vector<int> rank;\n    std::vector<int> size;\n\npublic:\n    UnionFind(int size) : parent(size), rank(size, 0), size(size, 1) {\n        for (int i = 0; i < size; i++) {\n            parent[i] = i;\n        }\n    }\n\n    int find(int x) {\n        if (parent[x] != x) {\n            parent[x] = find(parent[x]);  // Path compression\n        }\n        return parent[x];\n    }\n\n    void unionSets(int x, int y) {\n        int px = find(x), py = find(y);\n        if (px == py) return;\n        if (rank[px] < rank[py]) {\n            std::swap(px, py);\n        }\n        parent[py] = px;\n        size[px] += size[py];\n        if (rank[px] == rank[py]) {\n            rank[px]++;\n        }\n    }\n\n    bool connected(int x, int y) {\n        return find(x) == find(y);\n    }\n\n    int getSize(int x) {\n        return size[find(x)];\n    }\n};\n\nint main() {\n    UnionFind uf(5);\n    uf.unionSets(0, 1);\n    uf.unionSets(2, 3);\n    std::cout << \"Are 1 and 3 connected? \" << (uf.connected(1, 3) ? \"true\" : \"false\") << \"\\n\";\n    std::cout << \"Are 1 and 4 connected? \" << (uf.connected(1, 4) ? \"true\" : \"false\") << \"\\n\";\n    return 0;\n}\n// Output: Are 1 and 3 connected? false\n// Output: Are 1 and 4 connected? false"
+    },
+    "description": "Обзор структуры Union-Find (Disjoint Set Union) и её применений.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Union-Find (DSU)?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find (Disjoint Set Union, DSU) — это структура данных, используемая для разделения элементов на непересекающиеся множества и эффективного выполнения операций объединения и проверки связности. В примере выше создаётся структура Union-Find для 5 элементов, объединяются 0-1 и 2-3, проверяется, находятся ли 1-3 и 1-4 в одном множестве."
+      },
+      {
+        "type": "heading",
+        "text": "Основные термины"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Parent: Массив, хранящий родителя каждого элемента (используется как parent выше)."
+          },
+          {
+            "description": "Find: Нахождение корня множества элемента (показано в функции find выше)."
+          },
+          {
+            "description": "Union: Объединение двух множеств (показано в функции union выше)."
+          },
+          {
+            "description": "Connected: Проверка, находятся ли два элемента в одном множестве (показано в функции connected выше)."
+          },
+          {
+            "description": "Rank: Отслеживание глубины дерева для балансировки (используется как rank выше)."
+          },
+          {
+            "description": "Path Compression: Оптимизация операций find (используется в функции find выше)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Типы Union-Find"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find бывает разных видов: 1) **Стандартный Union-Find**: Оптимизирован с помощью path compression и rank (как в примере). 2) **Персистентный Union-Find**: Сохраняет исторические версии. 3) **Взвешенный Union-Find**: Отслеживает размеры множеств (как в функции getSize выше)."
+      },
+      {
+        "type": "heading",
+        "text": "Зачем нужен Union-Find?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find используется для эффективного управления непересекающимися множествами, объединения групп и проверки связности, что делает его идеальным для графовых алгоритмов и задач динамической связности."
+      },
+      {
+        "type": "heading",
+        "text": "Для чего помогает Union-Find?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find поддерживает множество задач: 1) **Графовые алгоритмы**: Построение минимального остовного дерева с помощью алгоритма Крускала. 2) **Сетевая связность**: Проверка, находятся ли элементы в одной группе (показано в функции connected). 3) **Динамические запросы**: Объединение и проверка множеств (показано в функции union). 4) **Анализ данных**: Задачи группировки и кластеризации."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность Union-Find (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "С path compression и union by rank операции find и union занимают в среднем O(α(n)) времени (α(n) — обратная функция Аккермана, практически константа). Инициализация занимает O(n) времени. Пространственная сложность — O(n). В примере операции find и union работают эффективно."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Преимущество: Операции find и union выполняются практически за константное время."
+          },
+          { "description": "Преимущество: Простая и эффективная реализация." },
+          {
+            "description": "Преимущество: Подходит для динамической группировки."
+          },
+          {
+            "description": "Недостаток: Path compression и rank могут усложнять понимание."
+          },
+          {
+            "description": "Недостаток: Ограничен запросами связности множеств."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Применение в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union-Find широко используется: 1) **Графовые алгоритмы**: Минимальные остовные деревья и связанные компоненты. 2) **Сетевой анализ**: Проверка связности сети. 3) **Соревновательное программирование**: Решение задач динамической группировки. 4) **Анализ данных**: Группировка и кластеризация. Функция connected в примере имитирует проверку связности."
+      },
+      {
+        "type": "heading",
+        "text": "Стратегии оптимизации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для оптимизации Union-Find: 1) **Path Compression**: Ускорение операций find (используется в find выше). 2) **Union by Rank**: Уменьшение высоты дерева (используется в rank выше). 3) **Кэширование**: Кэширование часто используемых множеств. 4) **Управление памятью**: Использование динамического выделения памяти."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основные риски включают: 1) **Сложность**: Path compression и rank могут быть сложны для понимания. 2) **Ограничения**: Подходит только для запросов связности. 3) **Производительность**: Риск замедления при больших данных. Рекомендации: 1) Используйте path compression и rank. 2) Начинайте с упрощённых реализаций. 3) Тестируйте код с большими данными."
+      }
+    ]
+  }
+}

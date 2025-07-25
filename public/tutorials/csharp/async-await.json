@@ -1,0 +1,486 @@
+{
+  "id": "async-await",
+  "az": {
+    "title": "Async/Await",
+    "icon": "FiClock",
+    "language": "csharp",
+    "description": "Asinxron proqramlaşdırma.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Async/Await Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində `async` və `await` açar sözləri asinxron proqramlaşdırma üçün istifadə olunur. Asinxron proqramlaşdırma proqramın uzun süren əməliyyatları (məsələn, verilənlər bazasından məlumat almaq və ya şəbəkə sorğusu) gözləyərkən donmadan işləməsinə imkan verir. `async` metodu asinxron olduğunu bildirir, `await` isə uzun süren əməliyyatın tamamlanmasını gözləyir. Bu, istifadəçi interfeyslərinin (UI) cavabdehliyini artırmaq və ya server tətbiqlərinin səmərəliliyini yaxşılaşdırmaq üçün istifadə olunur. Bu JSON faylda `async`/`await` anlayışları, `Task` sinfi, istisna idarəetməsi və nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur və Pyodide məhdudiyyətlərinə uyğun olaraq şəbəkə çağırışları və fayl əməliyyatları əvəzinə sadə gecikmələrdən (`Task.Delay`) istifadə edilir."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Async/Await Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asinxron metodlar `async` açar sözü ilə təyin edilir və adətən `Task` və ya `Task<T>` qaytarır. `await` isə asinxron əməliyyatın tamamlanmasını gözləyir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Proqram başladı.\");\n        await DoWorkAsync();\n        Console.WriteLine(\"Proqram bitdi.\");\n    }\n\n    static async Task DoWorkAsync()\n    {\n        Console.WriteLine(\"İş başlayır...\");\n        await Task.Delay(2000); // 2 saniyəlik gecikmə\n        Console.WriteLine(\"İş tamamlandı.\");\n    }\n}\n// Output:\n// Proqram başladı.\n// İş başlayır...\n// (2 saniyə gözləyir)\n// İş tamamlandı.\n// Proqram bitdi."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Main` metodu `async Task` olaraq təyin edilib, çünki asinxron metodları çağırır.\n- `DoWorkAsync` metodu 2 saniyəlik gecikməni simulyasiya etmək üçün `Task.Delay` istifadə edir.\n- `await` açar sözü `Task.Delay` tamamlanana qədər proqramın gözləməsini təmin edir, lakin əsas thread bloklanmır.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Nəticə Qaytaran Asinxron Metod"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asinxron metodlar nəticə qaytara bilər, bu zaman `Task<T>` istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Hesablama başlayır...\");\n        int result = await CalculateSumAsync(5, 10);\n        Console.WriteLine($\"Nəticə: {result}\");\n    }\n\n    static async Task<int> CalculateSumAsync(int a, int b)\n    {\n        await Task.Delay(1000); // 1 saniyəlik gecikmə\n        return a + b;\n    }\n}\n// Output:\n// Hesablama başlayır...\n// (1 saniyə gözləyir)\n// Nəticə: 15"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `CalculateSumAsync` metodu `Task<int>` qaytarır və iki ədədin cəmini hesablayır.\n- `await` nəticəni gözləyir və `int` dəyərini qaytarır.\n- `Task.Delay` real dünyada uzun süren əməliyyatı simulyasiya edir."
+      },
+      {
+        "type": "heading",
+        "text": "Bir Neçə Asinxron Tapşırıq"
+      },
+      {
+        "type": "paragraph",
+        "text": "Birdən çox asinxron tapşırığı paralel işlətmək üçün `Task.WhenAll` istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Tapşırıqlar başlayır...\");\n        await Task.WhenAll(Task1Async(), Task2Async());\n        Console.WriteLine(\"Bütün tapşırıqlar tamamlandı.\");\n    }\n\n    static async Task Task1Async()\n    {\n        Console.WriteLine(\"Tapşırıq 1 başlayır.\");\n        await Task.Delay(2000);\n        Console.WriteLine(\"Tapşırıq 1 tamamlandı.\");\n    }\n\n    static async Task Task2Async()\n    {\n        Console.WriteLine(\"Tapşırıq 2 başlayır.\");\n        await Task.Delay(1000);\n        Console.WriteLine(\"Tapşırıq 2 tamamlandı.\");\n    }\n}\n// Output (mümkün ardıcıllıq):\n// Tapşırıqlar başlayır...\n// Tapşırıq 1 başlayır.\n// Tapşırıq 2 başlayır.\n// (1 saniyə gözləyir)\n// Tapşırıq 2 tamamlandı.\n// (1 saniyə daha gözləyir)\n// Tapşırıq 1 tamamlandı.\n// Bütün tapşırıqlar tamamlandı."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Task.WhenAll` iki tapşırığın paralel icra olunmasını təmin edir.\n- Tapşırıqlar eyni vaxtda işə düşür, lakin fərqli müddətlərdə tamamlanır.\n- `await` bütün tapşırıqların tamamlanmasını gözləyir."
+      },
+      {
+        "type": "heading",
+        "text": "İstisna İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asinxron metodlarda səhvlər `try-catch` bloku ilə idarə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        try\n        {\n            await ThrowErrorAsync();\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine(\"Səhv baş verdi!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n\n    static async Task ThrowErrorAsync()\n    {\n        await Task.Delay(1000);\n        throw new Exception(\"Bu bir sınaq səhvidir.\");\n    }\n}\n// Output:\n// Səhv baş verdi!\n// Səhv mesajı: Bu bir sınaq səhvidir."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ThrowErrorAsync` metodu səhv atır.\n- `try-catch` bloku səhvi tutur və mesajı göstərir.\n- Asinxron metodlarda istisnalar adi metodlardakı kimi idarə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Async/Await-in Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asinxron proqramlaşdırma proqramın performansını və istifadəçi təcrübəsini yaxşılaşdırır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nCavabdehlik: Uzun süren əməliyyatlar zamanı proqram donmur."
+          },
+          {
+            "description": "\nOxunaqlılıq: `async`/`await` kodu sadə və başa düşülən edir."
+          },
+          {
+            "description": "\nParalellik: `Task.WhenAll` ilə birdən çox tapşırığı paralel icra etmək mümkündür."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asinxron proqramlaşdırma yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: `async`/`await` və `Task` anlayışları əvvəlcə qarışıq ola bilər."
+          },
+          {
+            "description": "\nSəhvlər: Düzgün istisna idarəetməsi olmadan səhvlər gözdən qaçır."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# asinxron kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: `await` istifadə edilmədikdə tapşırıqlar sinxron işləyə bilər, bu da performans itkilərinə səbəb olur. İstisnaların idarə edilməməsi proqramın qəzaya uğramasına yol aça bilər.\n- **Tövsiyələr**: Həmişə `try-catch` ilə səhvləri idarə edin. `async` metodlarda `Task` qaytarın. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə `await` istifadə edilmədikdə asinxron metod sinxron kimi işləyir, bu da gözlənilməz nəticələrə səbəb ola bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Proqram başladı.\");\n        DoWorkAsync(); // Səhv: await istifadə edilməyib\n        Console.WriteLine(\"Proqram bitdi.\");\n    }\n\n    static async Task DoWorkAsync()\n    {\n        Console.WriteLine(\"İş başlayır...\");\n        await Task.Delay(2000);\n        Console.WriteLine(\"İş tamamlandı.\");\n    }\n}\n// Output:\n// Proqram başladı.\n// İş başlayır...\n// Proqram bitdi.\n// (2 saniyə sonra)\n// İş tamamlandı."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `DoWorkAsync` çağırılarkən `await` istifadə edilməyib.\n- Bu, metodun tamamlanmasını gözləmədən proqramın davam etməsinə səbəb olur.\n- Həll: `await DoWorkAsync();` istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        try\n        {\n            Console.WriteLine(\"Hesablamalar başlayır...\");\n            var tasks = new[]\n            {\n                CalculateAsync(3),\n                CalculateAsync(5),\n                CalculateAsync(7)\n            };\n            int[] results = await Task.WhenAll(tasks);\n            Console.WriteLine(\"Nəticələr: \" + string.Join(\", \", results));\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine(\"Səhv: \" + ex.Message);\n        }\n    }\n\n    static async Task<int> CalculateAsync(int number)\n    {\n        await Task.Delay(1000); // 1 saniyəlik gecikmə\n        return number * number;\n    }\n}\n// Output:\n// Hesablamalar başlayır...\n// (1 saniyə gözləyir)\n// Nəticələr: 9, 25, 49"
+      }
+    ]
+  },
+  "en": {
+    "title": "Async/Await",
+    "icon": "FiClock",
+    "language": "csharp",
+    "description": "Asynchronous programming.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Is Async/Await?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, the `async` and `await` keywords are used for asynchronous programming. Asynchronous programming allows a program to perform long-running operations (e.g., fetching data from a database or making network requests) without freezing. The `async` keyword marks a method as asynchronous, and `await` waits for the completion of an asynchronous operation. This is useful for improving the responsiveness of user interfaces (UI) or the efficiency of server applications. This JSON file explains `async`/`await` concepts, the `Task` class, exception handling, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values, do not require user input, and use `Task.Delay` instead of network or file operations due to Pyodide limitations."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Async/Await Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asynchronous methods are defined with the `async` keyword and typically return `Task` or `Task<T>`. The `await` keyword waits for the asynchronous operation to complete."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Program started.\");\n        await DoWorkAsync();\n        Console.WriteLine(\"Program finished.\");\n    }\n\n    static async Task DoWorkAsync()\n    {\n        Console.WriteLine(\"Work starting...\");\n        await Task.Delay(2000); // 2-second delay\n        Console.WriteLine(\"Work completed.\");\n    }\n}\n// Output:\n// Program started.\n// Work starting...\n// (2 seconds wait)\n// Work completed.\n// Program finished."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Main` method is marked as `async Task` because it calls asynchronous methods.\n- `DoWorkAsync` uses `Task.Delay` to simulate a 2-second delay.\n- The `await` keyword ensures the program waits for `Task.Delay` to complete without blocking the main thread.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Async Method Returning a Result"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asynchronous methods can return results using `Task<T>`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Calculation starting...\");\n        int result = await CalculateSumAsync(5, 10);\n        Console.WriteLine($\"Result: {result}\");\n    }\n\n    static async Task<int> CalculateSumAsync(int a, int b)\n    {\n        await Task.Delay(1000); // 1-second delay\n        return a + b;\n    }\n}\n// Output:\n// Calculation starting...\n// (1 second wait)\n// Result: 15"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `CalculateSumAsync` returns a `Task<int>` and calculates the sum of two numbers.\n- `await` waits for the result and returns an `int`.\n- `Task.Delay` simulates a long-running operation."
+      },
+      {
+        "type": "heading",
+        "text": "Multiple Asynchronous Tasks"
+      },
+      {
+        "type": "paragraph",
+        "text": "To run multiple asynchronous tasks in parallel, use `Task.WhenAll`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Tasks starting...\");\n        await Task.WhenAll(Task1Async(), Task2Async());\n        Console.WriteLine(\"All tasks completed.\");\n    }\n\n    static async Task Task1Async()\n    {\n        Console.WriteLine(\"Task 1 starting.\");\n        await Task.Delay(2000);\n        Console.WriteLine(\"Task 1 completed.\");\n    }\n\n    static async Task Task2Async()\n    {\n        Console.WriteLine(\"Task 2 starting.\");\n        await Task.Delay(1000);\n        Console.WriteLine(\"Task 2 completed.\");\n    }\n}\n// Output (possible order):\n// Tasks starting...\n// Task 1 starting.\n// Task 2 starting.\n// (1 second wait)\n// Task 2 completed.\n// (1 more second wait)\n// Task 1 completed.\n// All tasks completed."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Task.WhenAll` ensures two tasks run in parallel.\n- The tasks start concurrently but complete at different times.\n- `await` waits for all tasks to complete."
+      },
+      {
+        "type": "heading",
+        "text": "Exception Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "Errors in asynchronous methods are handled using `try-catch` blocks."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        try\n        {\n            await ThrowErrorAsync();\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine(\"An error occurred!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n\n    static async Task ThrowErrorAsync()\n    {\n        await Task.Delay(1000);\n        throw new Exception(\"This is a test error.\");\n    }\n}\n// Output:\n// An error occurred!\n// Error message: This is a test error."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ThrowErrorAsync` throws an error.\n- The `try-catch` block catches and displays the error message.\n- Exceptions in asynchronous methods are handled like in synchronous methods."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Async/Await"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asynchronous programming improves program performance and user experience."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nResponsiveness: Prevents the program from freezing during long operations."
+          },
+          {
+            "description": "\nReadability: `async`/`await` makes code simple and clear."
+          },
+          {
+            "description": "\nParallelism: `Task.WhenAll` allows running multiple tasks concurrently."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asynchronous programming can pose challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: `async`/`await` and `Task` concepts can be confusing initially."
+          },
+          {
+            "description": "\nErrors: Without proper exception handling, errors may go unnoticed."
+          },
+          {
+            "description": "\nPyodide Limitation: C# asynchronous code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Forgetting `await` can cause tasks to run synchronously, leading to performance issues. Unhandled exceptions may crash the program.\n- **Recommendations**: Always use `try-catch` for error handling. Return `Task` in `async` methods. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example shows how omitting `await` causes an asynchronous method to behave synchronously, leading to unexpected results."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Program started.\");\n        DoWorkAsync(); // Error: await is missing\n        Console.WriteLine(\"Program finished.\");\n    }\n\n    static async Task DoWorkAsync()\n    {\n        Console.WriteLine(\"Work starting...\");\n        await Task.Delay(2000);\n        Console.WriteLine(\"Work completed.\");\n    }\n}\n// Output:\n// Program started.\n// Work starting...\n// Program finished.\n// (2 seconds later)\n// Work completed."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `DoWorkAsync` is called without `await`.\n- This causes the program to continue without waiting for the task to complete.\n- Solution: Use `await DoWorkAsync();`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        try\n        {\n            Console.WriteLine(\"Calculations starting...\");\n            var tasks = new[]\n            {\n                CalculateAsync(3),\n                CalculateAsync(5),\n                CalculateAsync(7)\n            };\n            int[] results = await Task.WhenAll(tasks);\n            Console.WriteLine(\"Results: \" + string.Join(\", \", results));\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine(\"Error: \" + ex.Message);\n        }\n    }\n\n    static async Task<int> CalculateAsync(int number)\n    {\n        await Task.Delay(1000); // 1-second delay\n        return number * number;\n    }\n}\n// Output:\n// Calculations starting...\n// (1 second wait)\n// Results: 9, 25, 49"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Async/Await",
+    "icon": "FiClock",
+    "language": "csharp",
+    "description": "Асинхронное программирование.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Async/Await?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# ключевые слова `async` и `await` используются для асинхронного программирования. Асинхронное программирование позволяет программе выполнять длительные операции (например, получение данных из базы данных или сетевые запросы) без зависания. Ключевое слово `async` обозначает метод как асинхронный, а `await` ожидает завершения асинхронной операции. Это полезно для повышения отзывчивости пользовательских интерфейсов (UI) или эффективности серверных приложений. Этот JSON-файл объясняет концепции `async`/`await`, класс `Task`, обработку исключений и примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения, не требуют ввода от пользователя и используют `Task.Delay` вместо сетевых операций или операций с файлами из-за ограничений Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример Async/Await"
+      },
+      {
+        "type": "paragraph",
+        "text": "Асинхронные методы определяются с помощью ключевого слова `async` и обычно возвращают `Task` или `Task<T>`. Ключевое слово `await` ожидает завершения асинхронной операции."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Программа началась.\");\n        await DoWorkAsync();\n        Console.WriteLine(\"Программа завершена.\");\n    }\n\n    static async Task DoWorkAsync()\n    {\n        Console.WriteLine(\"Работа начинается...\");\n        await Task.Delay(2000); // Задержка 2 секунды\n        Console.WriteLine(\"Работа завершена.\");\n    }\n}\n// Output:\n// Программа началась.\n// Работа начинается...\n// (2 секунды ожидания)\n// Работа завершена.\n// Программа завершена."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Метод `Main` помечен как `async Task`, так как вызывает асинхронные методы.\n- `DoWorkAsync` использует `Task.Delay` для имитации задержки в 2 секунды.\n- Ключевое слово `await` обеспечивает ожидание завершения `Task.Delay` без блокировки основного потока.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Асинхронный метод, возвращающий результат"
+      },
+      {
+        "type": "paragraph",
+        "text": "Асинхронные методы могут возвращать результаты с использованием `Task<T>`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Вычисления начинаются...\");\n        int result = await CalculateSumAsync(5, 10);\n        Console.WriteLine($\"Результат: {result}\");\n    }\n\n    static async Task<int> CalculateSumAsync(int a, int b)\n    {\n        await Task.Delay(1000); // Задержка 1 секунда\n        return a + b;\n    }\n}\n// Output:\n// Вычисления начинаются...\n// (1 секунда ожидания)\n// Результат: 15"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `CalculateSumAsync` возвращает `Task<int>` и вычисляет сумму двух чисел.\n- `await` ожидает результат и возвращает `int`.\n- `Task.Delay` имитирует длительную операцию."
+      },
+      {
+        "type": "heading",
+        "text": "Несколько асинхронных задач"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для параллельного выполнения нескольких асинхронных задач используется `Task.WhenAll`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Задачи начинаются...\");\n        await Task.WhenAll(Task1Async(), Task2Async());\n        Console.WriteLine(\"Все задачи завершены.\");\n    }\n\n    static async Task Task1Async()\n    {\n        Console.WriteLine(\"Задача 1 начинается.\");\n        await Task.Delay(2000);\n        Console.WriteLine(\"Задача 1 завершена.\");\n    }\n\n    static async Task Task2Async()\n    {\n        Console.WriteLine(\"Задача 2 начинается.\");\n        await Task.Delay(1000);\n        Console.WriteLine(\"Задача 2 завершена.\");\n    }\n}\n// Output (возможный порядок):\n// Задачи начинаются...\n// Задача 1 начинается.\n// Задача 2 начинается.\n// (1 секунда ожидания)\n// Задача 2 завершена.\n// (еще 1 секунда ожидания)\n// Задача 1 завершена.\n// Все задачи завершены."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Task.WhenAll` обеспечивает параллельное выполнение двух задач.\n- Задачи запускаются одновременно, но завершаются в разное время.\n- `await` ожидает завершения всех задач."
+      },
+      {
+        "type": "heading",
+        "text": "Обработка исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ошибки в асинхронных методах обрабатываются с помощью блоков `try-catch`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        try\n        {\n            await ThrowErrorAsync();\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine(\"Произошла ошибка!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n\n    static async Task ThrowErrorAsync()\n    {\n        await Task.Delay(1000);\n        throw new Exception(\"Это тестовая ошибка.\");\n    }\n}\n// Output:\n// Произошла ошибка!\n// Сообщение об ошибке: Это тестовая ошибка."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ThrowErrorAsync` выбрасывает ошибку.\n- Блок `try-catch` перехватывает и отображает сообщение об ошибке.\n- Исключения в асинхронных методах обрабатываются так же, как в синхронных."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества Async/Await"
+      },
+      {
+        "type": "paragraph",
+        "text": "Асинхронное программирование улучшает производительность программы и пользовательский опыт."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nОтзывчивость: Предотвращает зависание программы во время длительных операций."
+          },
+          {
+            "description": "\nЧитаемость: `async`/`await` делает код простым и понятным."
+          },
+          {
+            "description": "\nПараллелизм: `Task.WhenAll` позволяет выполнять несколько задач одновременно."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Асинхронное программирование может создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Концепции `async`/`await` и `Task` могут быть запутанными для новичков."
+          },
+          {
+            "description": "\nОшибки: Без правильной обработки исключений ошибки могут остаться незамеченными."
+          },
+          {
+            "description": "\nОграничение Pyodide: Асинхронный код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Пропуск `await` может привести к синхронному выполнению задач, что снижает производительность. Необработанные исключения могут привести к сбою программы.\n- **Рекомендации**: Всегда используйте `try-catch` для обработки ошибок. Возвращайте `Task` в `async`-методах. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример показывает, как пропуск `await` приводит к синхронному поведению асинхронного метода, что вызывает неожиданные результаты."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Программа началась.\");\n        DoWorkAsync(); // Ошибка: отсутствует await\n        Console.WriteLine(\"Программа завершена.\");\n    }\n\n    static async Task DoWorkAsync()\n    {\n        Console.WriteLine(\"Работа начинается...\");\n        await Task.Delay(2000);\n        Console.WriteLine(\"Работа завершена.\");\n    }\n}\n// Output:\n// Программа началась.\n// Работа начинается...\n// Программа завершена.\n// (2 секунды спустя)\n// Работа завершена."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `DoWorkAsync` вызывается без `await`.\n- Это приводит к тому, что программа продолжает выполнение, не дожидаясь завершения задачи.\n- Решение: Используйте `await DoWorkAsync();`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        try\n        {\n            Console.WriteLine(\"Вычисления начинаются...\");\n            var tasks = new[]\n            {\n                CalculateAsync(3),\n                CalculateAsync(5),\n                CalculateAsync(7)\n            };\n            int[] results = await Task.WhenAll(tasks);\n            Console.WriteLine(\"Результаты: \" + string.Join(\", \", results));\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine(\"Ошибка: \" + ex.Message);\n        }\n    }\n\n    static async Task<int> CalculateAsync(int number)\n    {\n        await Task.Delay(1000); // Задержка 1 секунда\n        return number * number;\n    }\n}\n// Output:\n// Вычисления начинаются...\n// (1 секунда ожидания)\n// Результаты: 9, 25, 49"
+      }
+    ]
+  }
+}

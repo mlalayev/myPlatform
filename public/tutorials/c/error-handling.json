@@ -1,0 +1,406 @@
+{
+  "id": "error-handling",
+  "az": {
+    "title": "Səhv İdarəetməsi",
+    "icon": "FiAlertCircle",
+    "language": "c",
+    "description": "errno və perror istifadəsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Səhv İdarəetməsi Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində səhv idarəetməsi (error handling), proqramın gözlənilməz vəziyyətlərdə (məsələn, faylın açılmaması, yaddaşın ayrılmaması) düzgün davranmasını təmin etmək üçün istifadə olunan üsullardır. Səhvləri aşkar etmək və istifadəçiyə məlumat vermək proqramın etibarlılığını artırır. C-də səhv idarəetməsi üçün standart alətlər `errno` (səhv kodlarını saxlayan dəyişən) və `perror` (səhv mesajlarını ekrana çıxaran funksiya) kimi mexanizmlərdir. Bu JSON faylda `errno` və `perror` istifadəsini sadə nümunələrlə izah edəcəyik. Kod nümunələri Pyodide mühitində işləyə biləcək şəkildə hazırlanacaq, lakin fayl əməliyyatları ilə bağlı nümunələr ümumi olacaq, çünki Pyodide fayl sisteminə birbaşa girişi dəstəkləmir."
+      },
+      {
+        "type": "heading",
+        "text": "errno Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "`errno` C-də standart kitabxanada (`errno.h`) təyin olunan qlobal bir dəyişəndir. O, proqramda baş verən səhvləri kodlaşdırılmış rəqəmlərlə (məsələn, 2 - fayl tapılmadı, 12 - yaddaş çatışmazlığı) saxlayır. Bir çox standart C funksiyası (məsələn, `fopen`, `malloc`) səhv baş verdikdə `errno` dəyərini təyin edir. Proqramçı bu dəyəri yoxlayaraq səhvin növünü müəyyənləşdirə bilər."
+      },
+      {
+        "type": "heading",
+        "text": "perror Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "`perror` funksiyası (`stdio.h`-da təyin olunur) `errno` dəyərinə uyğun səhv mesajını ekrana çıxarır. O, istifadəçi tərəfindən verilən bir mesajı və sistemin səhv mesajını birləşdirərək göstərir. Məsələn, əgər fayl açılmadısa, `perror` 'No such file or directory' kimi bir mesaj göstərə bilər."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <errno.h>\n#include <string.h>\n\nint main() {\n  FILE* file = fopen(\"nonexistent.txt\", \"r\");\n  if (file == NULL) {\n    printf(\"errno dəyəri: %d\\n\", errno);\n    perror(\"Fayl açılmadı\");\n    printf(\"Səhv mesajı: %s\\n\", strerror(errno));\n  } else {\n    printf(\"Fayl uğurla açıldı\\n\");\n    fclose(file);\n  }\n  return 0;\n}\n// Output (Pyodide-da fayl sistemi olmadığından ümumi nümunədir):\n// errno dəyəri: 2\n// Fayl açılmadı: No such file or directory\n// Səhv mesajı: No such file or directory"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fopen` ilə olmayan bir fayl (`nonexistent.txt`) açılmağa cəhd edilir.\n- `fopen` NULL qaytarır və `errno` dəyərini təyin edir (məsələn, 2 - fayl tapılmadı).\n- `perror` səhv mesajını istifadəçi mesajı ilə (\"Fayl açılmadı\") birləşdirir.\n- `strerror(errno)` (string.h-dan) `errno` dəyərinə uyğun səhv mesajını birbaşa qaytarır.\n- Qeyd: Pyodide-da fayl əməliyyatları dəstəklənmir, ona görə bu nümunə real mühitdə (məsələn, Linux) işləyər."
+      },
+      {
+        "type": "heading",
+        "text": "Dinamik Yaddaşda Səhv İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dinamik yaddaş ayırma (`malloc`) səhvləri də `errno` ilə idarə oluna bilər. Məsələn, yaddaş ayrılmadıqda `malloc` NULL qaytarır və `errno` dəyəri təyin olunur."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n\nint main() {\n  int* ptr = (int*)malloc(1000000000 * sizeof(int)); // Böyük yaddaş tələbi\n  if (ptr == NULL) {\n    printf(\"errno dəyəri: %d\\n\", errno);\n    perror(\"Yaddaş ayrılmadı\");\n    printf(\"Səhv mesajı: %s\\n\", strerror(errno));\n  } else {\n    printf(\"Yaddaş uğurla ayrıldı\\n\");\n    free(ptr);\n  }\n  return 0;\n}\n// Output (yaddaş çatışmazlığı olduqda):\n// errno dəyəri: 12\n// Yaddaş ayrılmadı: Cannot allocate memory\n// Səhv mesajı: Cannot allocate memory"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `malloc` çox böyük bir yaddaş tələb edir ki, bu, adətən səhvə səbəb olur.\n- `ptr == NULL` yoxlanılır və səhv varsa, `errno` və `perror` ilə mesaj göstərilir.\n- `free` yaddaşı azad etmək üçün istifadə olunur (əgər ayrılıbsa).\n- Bu nümunə Pyodide-da işləyə bilər, çünki yaddaş ayırma sistemdən asılı deyil."
+      },
+      {
+        "type": "heading",
+        "text": "errno və perror-un Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "`errno` və `perror` sadə və effektiv səhv idarəetməsi təmin edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nStandartlaşdırılmışdır: C-nin standart kitabxanası ilə işləyir."
+          },
+          {
+            "description": "\nİstifadəsi asandır: `perror` avtomatik olaraq səhv mesajı yaradır."
+          },
+          {
+            "description": "\nDəqiq diaqnostika: `errno` ilə səhvin konkret səbəbini öyrənmək mümkündür."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Səhv idarəetməsi yeni başlayanlar üçün çətin ola bilər, çünki hər funksiyanın səhv şərtlərini bilmək tələb olunur."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`errno` hər zaman sıfırlanmır, buna görə istifadə etməzdən əvvəl sıfırlamaq (errno = 0) tövsiyə olunur."
+          },
+          {
+            "description": "\nFayl əməliyyatları Pyodide kimi mühitlərdə məhdudlaşdırılır."
+          },
+          {
+            "description": "\nSəhv mesajları sistemə bağlıdır və fərqli platformalarda dəyişə bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: `errno` yoxlanılmadan istifadə edilərsə, köhnə səhv kodları səhvə səbəb ola bilər. `perror` çoxlu səhv mesajı çıxarsa, istifadəçi çaşqın ola bilər.\n- **Tövsiyələr**: Funksiyanı çağırmazdan əvvəl `errno = 0` təyin edin. Səhv yoxlamalarını hər vacib əməliyyatdan sonra aparın. Pyodide-da fayl əməliyyatları əvəzinə yaddaş və ya digər sistemdən asılı olmayan əməliyyatları sınaqdan keçirin. Visual Studio Code və ya Linux mühitində tam testlər aparın."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə `errno` sıfırlanmadan istifadə olunur, bu da köhnə səhv kodlarının yanlış nəticələrə səbəb olmasına yol aça bilər. Kod icra oluna bilər, lakin nəticələr etibarsız ola bilər."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <errno.h>\n#include <string.h>\n\nint main() {\n  // Səhv: errno sıfırlanmır\n  FILE* file = fopen(\"nonexistent.txt\", \"r\");\n  if (file == NULL) {\n    printf(\"errno dəyəri: %d\\n\", errno);\n    perror(\"Fayl açılmadı\");\n  } else {\n    printf(\"Fayl uğurla açıldı\\n\");\n    fclose(file);\n  }\n  return 0;\n}\n// Output (səhvə görə nəticə etibarsız ola bilər):\n// errno dəyəri: [köhnə dəyər, məsələn, 5]\n// Fayl açılmadı: [səhvə uyğun olmayan mesaj]"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `errno` sıfırlanmadan yoxlanılır, bu da köhnə səhv kodlarının oxunmasına səbəb ola bilər.\n- Bu, yanlış diaqnostikaya yol aça bilər.\n- Tövsiyə: Həmişə `errno = 0` ilə sıfırlayın və yalnız müvafiq funksiyadan sonra yoxlayın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n\nint main() {\n  errno = 0; // errno sıfırlanır\n  int* ptr = (int*)malloc(1000000000 * sizeof(int));\n  if (ptr == NULL) {\n    printf(\"errno dəyəri: %d\\n\", errno);\n    perror(\"Yaddaş ayrılmadı\");\n    printf(\"Səhv mesajı: %s\\n\", strerror(errno));\n  } else {\n    printf(\"Yaddaş uğurla ayrıldı\\n\");\n    free(ptr);\n  }\n  return 0;\n}\n// Output (yaddaş çatışmazlığı olduqda):\n// errno dəyəri: 12\n// Yaddaş ayrılmadı: Cannot allocate memory\n// Səhv mesajı: Cannot allocate memory"
+      }
+    ]
+  },
+  "en": {
+    "title": "Error Handling",
+    "icon": "FiAlertCircle",
+    "language": "c",
+    "description": "Using errno and perror.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Error Handling?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, error handling involves techniques to manage unexpected situations, such as failing to open a file or allocate memory, to ensure the program behaves reliably. Detecting and reporting errors improves program robustness. C provides standard tools like `errno` (a variable storing error codes) and `perror` (a function displaying error messages). This JSON file explains the use of `errno` and `perror` with simple examples. Code examples are designed to run in Pyodide, but file operations (e.g., `fopen`) are explained generically due to Pyodide’s lack of direct file system access."
+      },
+      {
+        "type": "heading",
+        "text": "What is errno?"
+      },
+      {
+        "type": "paragraph",
+        "text": "`errno` is a global variable defined in the C standard library (`errno.h`). It stores error codes as numbers (e.g., 2 for file not found, 12 for memory allocation failure). Many standard C functions (e.g., `fopen`, `malloc`) set `errno` when an error occurs, allowing programmers to identify the error type by checking its value."
+      },
+      {
+        "type": "heading",
+        "text": "What is perror?"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `perror` function (defined in `stdio.h`) prints an error message based on the current `errno` value. It combines a user-provided message with the system’s error description. For example, if a file fails to open, `perror` might display 'No such file or directory'."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <errno.h>\n#include <string.h>\n\nint main() {\n  FILE* file = fopen(\"nonexistent.txt\", \"r\");\n  if (file == NULL) {\n    printf(\"errno value: %d\\n\", errno);\n    perror(\"Failed to open file\");\n    printf(\"Error message: %s\\n\", strerror(errno));\n  } else {\n    printf(\"File opened successfully\\n\");\n    fclose(file);\n  }\n  return 0;\n}\n// Output (generic example, as Pyodide lacks file system):\n// errno value: 2\n// Failed to open file: No such file or directory\n// Error message: No such file or directory"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `fopen` attempts to open a nonexistent file (`nonexistent.txt`).\n- If `fopen` returns NULL, `errno` is set (e.g., 2 for file not found).\n- `perror` combines the user message (\"Failed to open file\") with the system error.\n- `strerror(errno)` (from `string.h`) directly returns the error message for `errno`.\n- Note: File operations won’t work in Pyodide due to its lack of file system access; this example is for real environments (e.g., Linux)."
+      },
+      {
+        "type": "heading",
+        "text": "Error Handling in Dynamic Memory"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dynamic memory allocation (`malloc`) errors can also be handled using `errno`. For example, if `malloc` fails to allocate memory, it returns NULL and sets `errno`."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n\nint main() {\n  int* ptr = (int*)malloc(1000000000 * sizeof(int)); // Large memory request\n  if (ptr == NULL) {\n    printf(\"errno value: %d\\n\", errno);\n    perror(\"Memory allocation failed\");\n    printf(\"Error message: %s\\n\", strerror(errno));\n  } else {\n    printf(\"Memory allocated successfully\\n\");\n    free(ptr);\n  }\n  return 0;\n}\n// Output (if memory allocation fails):\n// errno value: 12\n// Memory allocation failed: Cannot allocate memory\n// Error message: Cannot allocate memory"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `malloc` requests a large amount of memory, likely causing a failure.\n- If `ptr == NULL`, `errno` and `perror` display the error.\n- `free` releases memory if allocated.\n- This example works in Pyodide, as memory allocation is system-independent."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of errno and perror"
+      },
+      {
+        "type": "paragraph",
+        "text": "`errno` and `perror` provide simple and effective error handling."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nStandardized: Works with C’s standard library." },
+          {
+            "description": "\nEasy to use: `perror` automatically generates error messages."
+          },
+          {
+            "description": "\nPrecise diagnostics: `errno` identifies specific error causes."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Error handling can be challenging for beginners, as it requires knowing each function’s error conditions."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`errno` is not always reset, so it’s recommended to set `errno = 0` before use."
+          },
+          {
+            "description": "\nFile operations are limited in environments like Pyodide."
+          },
+          {
+            "description": "\nError messages are system-dependent and may vary across platforms."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Using `errno` without resetting it can lead to incorrect error codes. Overusing `perror` may confuse users with multiple error messages.\n- **Recommendations**: Set `errno = 0` before calling functions. Check for errors after critical operations. In Pyodide, test with memory or non-file operations. Use Visual Studio Code or Linux for full testing."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example uses `errno` without resetting it, which may lead to incorrect error codes from previous operations. The code can run but may produce unreliable results."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <errno.h>\n#include <string.h>\n\nint main() {\n  // Error: errno not reset\n  FILE* file = fopen(\"nonexistent.txt\", \"r\");\n  if (file == NULL) {\n    printf(\"errno value: %d\\n\", errno);\n    perror(\"Failed to open file\");\n  } else {\n    printf(\"File opened successfully\\n\");\n    fclose(file);\n  }\n  return 0;\n}\n// Output (may be unreliable due to error):\n// errno value: [old value, e.g., 5]\n// Failed to open file: [unrelated error message]"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `errno` is checked without being reset, potentially reading stale error codes.\n- This can lead to incorrect diagnostics.\n- Recommendation: Always reset `errno = 0` and check it only after relevant functions."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n\nint main() {\n  errno = 0; // Reset errno\n  int* ptr = (int*)malloc(1000000000 * sizeof(int));\n  if (ptr == NULL) {\n    printf(\"errno value: %d\\n\", errno);\n    perror(\"Memory allocation failed\");\n    printf(\"Error message: %s\\n\", strerror(errno));\n  } else {\n    printf(\"Memory allocated successfully\\n\");\n    free(ptr);\n  }\n  return 0;\n}\n// Output (if memory allocation fails):\n// errno value: 12\n// Memory allocation failed: Cannot allocate memory\n// Error message: Cannot allocate memory"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Обработка ошибок",
+    "icon": "FiAlertCircle",
+    "language": "c",
+    "description": "Использование errno и perror.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое обработка ошибок?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C обработка ошибок — это методы управления непредвиденными ситуациями, такими как невозможность открытия файла или выделения памяти, чтобы обеспечить надёжную работу программы. Обнаружение и сообщение об ошибках повышает надёжность программы. C предоставляет стандартные инструменты, такие как `errno` (переменная для хранения кодов ошибок) и `perror` (функция для вывода сообщений об ошибках). Этот JSON-файл объясняет использование `errno` и `perror` с простыми примерами. Примеры кода предназначены для работы в Pyodide, но операции с файлами (например, `fopen`) объясняются обобщённо из-за отсутствия прямого доступа к файловой системе в Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Что такое errno?"
+      },
+      {
+        "type": "paragraph",
+        "text": "`errno` — это глобальная переменная, определённая в стандартной библиотеке C (`errno.h`). Она хранит коды ошибок в виде чисел (например, 2 — файл не найден, 12 — нехватка памяти). Многие стандартные функции C (например, `fopen`, `malloc`) устанавливают значение `errno` при возникновении ошибки, позволяя программисту определить тип ошибки, проверив её значение."
+      },
+      {
+        "type": "heading",
+        "text": "Что такое perror?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Функция `perror` (определена в `stdio.h`) выводит сообщение об ошибке на основе текущего значения `errno`. Она объединяет пользовательское сообщение с системным описанием ошибки. Например, если файл не удалось открыть, `perror` может вывести 'No such file or directory'."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <errno.h>\n#include <string.h>\n\nint main() {\n  FILE* file = fopen(\"nonexistent.txt\", \"r\");\n  if (file == NULL) {\n    printf(\"errno value: %d\\n\", errno);\n    perror(\"Failed to open file\");\n    printf(\"Error message: %s\\n\", strerror(errno));\n  } else {\n    printf(\"File opened successfully\\n\");\n    fclose(file);\n  }\n  return 0;\n}\n// Output (generic example, as Pyodide lacks file system):\n// errno value: 2\n// Failed to open file: No such file or directory\n// Error message: No such file or directory"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `fopen` пытается открыть несуществующий файл (`nonexistent.txt`).\n- Если `fopen` возвращает NULL, устанавливается `errno` (например, 2 — файл не найден).\n- `perror` объединяет пользовательское сообщение (\"Failed to open file\") с системной ошибкой.\n- `strerror(errno)` (из `string.h`) возвращает текстовое описание ошибки для `errno`.\n- Примечание: Операции с файлами не работают в Pyodide из-за отсутствия доступа к файловой системе; этот пример предназначен для реальных сред (например, Linux)."
+      },
+      {
+        "type": "heading",
+        "text": "Обработка ошибок при динамическом выделении памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ошибки динамического выделения памяти (`malloc`) также можно обрабатывать с помощью `errno`. Например, если `malloc` не может выделить память, он возвращает NULL и устанавливает `errno`."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n\nint main() {\n  int* ptr = (int*)malloc(1000000000 * sizeof(int)); // Large memory request\n  if (ptr == NULL) {\n    printf(\"errno value: %d\\n\", errno);\n    perror(\"Memory allocation failed\");\n    printf(\"Error message: %s\\n\", strerror(errno));\n  } else {\n    printf(\"Memory allocated successfully\\n\");\n    free(ptr);\n  }\n  return 0;\n}\n// Output (if memory allocation fails):\n// errno value: 12\n// Memory allocation failed: Cannot allocate memory\n// Error message: Cannot allocate memory"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `malloc` запрашивает большой объём памяти, что, вероятно, вызовет ошибку.\n- Если `ptr == NULL`, `errno` и `perror` отображают ошибку.\n- `free` освобождает память, если она была выделена.\n- Этот пример работает в Pyodide, так как выделение памяти не зависит от системы."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества errno и perror"
+      },
+      {
+        "type": "paragraph",
+        "text": "`errno` и `perror` обеспечивают простую и эффективную обработку ошибок."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСтандартизированы: Работают со стандартной библиотекой C."
+          },
+          {
+            "description": "\nПросты в использовании: `perror` автоматически генерирует сообщения об ошибках."
+          },
+          {
+            "description": "\nТочная диагностика: `errno` позволяет определить конкретную причину ошибки."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Обработка ошибок может быть сложной для новичков, так как требуется знать условия ошибок для каждой функции."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`errno` не всегда сбрасывается, поэтому рекомендуется устанавливать `errno = 0` перед использованием."
+          },
+          {
+            "description": "\nОперации с файлами ограничены в средах вроде Pyodide."
+          },
+          {
+            "description": "\nСообщения об ошибках зависят от системы и могут различаться на разных платформах."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Использование `errno` без сброса может привести к неверным кодам ошибок. Чрезмерное использование `perror` может запутать пользователя множеством сообщений.\n- **Рекомендации**: Устанавливайте `errno = 0` перед вызовом функций. Проверяйте ошибки после критических операций. В Pyodide тестируйте с операциями памяти или другими независимыми от системы функциями. Проводите полное тестирование в Visual Studio Code или Linux."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример использует `errno` без его сброса, что может привести к чтению устаревших кодов ошибок. Код можно запустить, но результаты могут быть ненадёжными."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <errno.h>\n#include <string.h>\n\nint main() {\n  // Ошибка: errno не сбрасывается\n  FILE* file = fopen(\"nonexistent.txt\", \"r\");\n  if (file == NULL) {\n    printf(\"errno value: %d\\n\", errno);\n    perror(\"Failed to open file\");\n  } else {\n    printf(\"File opened successfully\\n\");\n    fclose(file);\n  }\n  return 0;\n}\n// Output (may be unreliable due to error):\n// errno value: [old value, e.g., 5]\n// Failed to open file: [unrelated error message]"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `errno` проверяется без сброса, что может привести к чтению устаревших кодов ошибок.\n- Это может вызвать неверную диагностику.\n- Рекомендация: Всегда сбрасывайте `errno = 0` и проверяйте его только после соответствующих функций."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n\nint main() {\n  errno = 0; // Reset errno\n  int* ptr = (int*)malloc(1000000000 * sizeof(int));\n  if (ptr == NULL) {\n    printf(\"errno value: %d\\n\", errno);\n    perror(\"Memory allocation failed\");\n    printf(\"Error message: %s\\n\", strerror(errno));\n  } else {\n    printf(\"Memory allocated successfully\\n\");\n    free(ptr);\n  }\n  return 0;\n}\n// Output (if memory allocation fails):\n// errno value: 12\n// Memory allocation failed: Cannot allocate memory\n// Error message: Cannot allocate memory"
+      }
+    ]
+  }
+}

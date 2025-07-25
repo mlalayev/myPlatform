@@ -1,0 +1,435 @@
+{
+  "id": "threading",
+  "az": {
+    "title": "Müşayiət (Threading)",
+    "icon": "FiCpu",
+    "language": "csharp",
+    "description": "Thread-lərin yaradılması və idarəsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Müşayiət (Threading) Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində müşayiət (threading) proqramın bir neçə tapşırığı eyni anda (paralel) icra etməsinə imkan verən texnikadır. Hər bir thread proqramın ayrı bir icra axınıdır. Məsələn, bir thread istifadəçi interfeysini idarə edərkən, digər thread mürəkkəb hesablamalar apara bilər. C#-da thread-lər `System.Threading` ad məkanında yerləşən `Thread` sinfi ilə yaradılır və idarə olunur. Thread-lər çoxnüvəli prosessorlardan istifadə edərək performansı artıra bilər, lakin sinxronizasiya (məlumatların paylaşılması) düzgün idarə edilmədikdə səhvlərə səbəb ola bilər. Bu JSON faylda thread-lərin yaradılması, idarəsi, sinxronizasiya (`lock`, `Monitor`), üstünlükləri və çətinlikləri sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur və Pyodide məhdudiyyətlərinə uyğun olaraq şəbəkə çağırışları və fayl əməliyyatları əvəzinə sadə hesablama tapşırıqları istifadə edilir."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Thread Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Thread` sinfi ilə yeni thread yaradıb işə sala bilərsiniz. Thread metod çağırır və ayrı bir icra axınında işləyir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Əsas thread başladı.\");\n\n        // Yeni thread yaratmaq\n        Thread workerThread = new Thread(DoWork);\n        workerThread.Start();\n\n        // Əsas thread-də iş\n        for (int i = 1; i <= 3; i++)\n        {\n            Console.WriteLine($\"Əsas thread: {i}\");\n            Thread.Sleep(500); // 0.5 saniyə gözləmə\n        }\n\n        Console.WriteLine(\"Əsas thread bitdi.\");\n    }\n\n    static void DoWork()\n    {\n        for (int i = 1; i <= 3; i++)\n        {\n            Console.WriteLine($\"İşçi thread: {i}\");\n            Thread.Sleep(700); // 0.7 saniyə gözləmə\n        }\n    }\n}\n// Output (mümkün ardıcıllıq):\n// Əsas thread başladı.\n// Əsas thread: 1\n// İşçi thread: 1\n// Əsas thread: 2\n// İşçi thread: 2\n// Əsas thread: 3\n// Əsas thread bitdi.\n// İşçi thread: 3"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Thread` sinfi ilə yeni thread (`workerThread`) yaradılır və `DoWork` metodu çağırılır.\n- `Thread.Sleep` hər iki thread-də gecikmə yaradır ki, işləmə sırası görünə bilsin.\n- Əsas thread və işçi thread paralel işləyir, buna görə çıxış sırası dəyişə bilər.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Thread-lərin Sinxronizasiyası"
+      },
+      {
+        "type": "paragraph",
+        "text": "Thread-lər paylaşılmış məlumatlara daxil olduqda, sinxronizasiya problemləri (data race) yarana bilər. `lock` açar sözü ilə sinxronizasiya təmin edilir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading;\n\nclass Program\n{\n    static int counter = 0;\n    static object lockObject = new object();\n\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Thread-lər başlayır...\");\n\n        Thread thread1 = new Thread(IncrementCounter);\n        Thread thread2 = new Thread(IncrementCounter);\n\n        thread1.Start();\n        thread2.Start();\n\n        thread1.Join(); // Thread 1-in bitməsini gözlə\n        thread2.Join(); // Thread 2-nin bitməsini gözlə\n\n        Console.WriteLine($\"Nəticə: {counter}\");\n    }\n\n    static void IncrementCounter()\n    {\n        for (int i = 0; i < 1000; i++)\n        {\n            lock (lockObject)\n            {\n                counter++;\n            }\n        }\n    }\n}\n// Output:\n// Thread-lər başlayır...\n// Nəticə: 2000"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İki thread `counter` dəyişənini artırmağa çalışır.\n- `lock` açar sözü eyni anda yalnız bir thread-in `counter`-ə daxil olmasını təmin edir.\n- `Join` metodu thread-lərin tamamlanmasını gözləyir.\n- Əgər `lock` istifadə edilməsəydi, `counter` yanlış nəticə verə bilərdi."
+      },
+      {
+        "type": "heading",
+        "text": "Thread-lərə Parametr Keçirmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Thread-lərə parametr keçirmək üçün `ParameterizedThreadStart` və ya lambda ifadələri istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Thread-lər başlayır...\");\n\n        Thread thread = new Thread(() => DoWorkWithParameter(5));\n        thread.Start();\n\n        thread.Join(); // Thread-in bitməsini gözlə\n\n        Console.WriteLine(\"Əsas thread bitdi.\");\n    }\n\n    static void DoWorkWithParameter(int count)\n    {\n        for (int i = 1; i <= count; i++)\n        {\n            Console.WriteLine($\"İşçi thread: {i}\");\n            Thread.Sleep(500);\n        }\n    }\n}\n// Output:\n// Thread-lər başlayır...\n// İşçi thread: 1\n// İşçi thread: 2\n// İşçi thread: 3\n// İşçi thread: 4\n// İşçi thread: 5\n// Əsas thread bitdi."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Lambda ifadəsi ilə thread-ə `DoWorkWithParameter` metodu və parametr (`5`) keçirilir.\n- `Join` metodu thread-in tamamlanmasını gözləyir.\n- Lambda ifadəsi sadə və çevik üsuldur."
+      },
+      {
+        "type": "heading",
+        "text": "Thread-lərin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Thread-lər proqramın performansını və cavabdehliyini artıra bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nParalellik: Çoxnüvəli prosessorlarda tapşırıqlar paralel icra olunur."
+          },
+          {
+            "description": "\nCavabdehlik: Uzun süren tapşırıqlar əsas thread-i bloklamır."
+          },
+          {
+            "description": "\nResurs İstifadəsi: CPU-dan daha səmərəli istifadə edilir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Thread-lərlə işləmək yeni başlayanlar üçün çətin ola bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nSinxronizasiya: Paylaşılmış məlumatlara daxil olan thread-lər səhvlərə səbəb ola bilər."
+          },
+          {
+            "description": "\nMürəkkəblik: Thread idarəetməsi və səhvlərin izlənilməsi çətin ola bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# thread-ləri Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Sinxronizasiya olmadan data race və ya deadlock (kilidlənmə) problemləri yarana bilər. Çox sayda thread resurs istifadəsini artıra bilər.\n- **Tövsiyələr**: Həmişə `lock` və ya digər sinxronizasiya mexanizmlərindən istifadə edin. Thread-lərin sayını məhdudlaşdırın. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə sinxronizasiya olmadan paylaşılmış dəyişənə daxil olmaq səhvə səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading;\n\nclass Program\n{\n    static int counter = 0;\n\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Thread-lər başlayır...\");\n\n        Thread thread1 = new Thread(IncrementCounter);\n        Thread thread2 = new Thread(IncrementCounter);\n\n        thread1.Start();\n        thread2.Start();\n\n        thread1.Join();\n        thread2.Join();\n\n        Console.WriteLine($\"Nəticə: {counter} (2000 gözlənilirdi)\");\n    }\n\n    static void IncrementCounter()\n    {\n        for (int i = 0; i < 1000; i++)\n        {\n            counter++; // Sinxronizasiya yoxdur\n        }\n    }\n}\n// Output (səhv nəticə, məsələn):\n// Thread-lər başlayır...\n// Nəticə: 1876 (2000 gözlənilirdi)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `lock` olmadan iki thread `counter`-i eyni anda artırmağa çalışır.\n- Bu, data race səbəbiylə yanlış nəticəyə gətirib çıxarır.\n- Həll: `lock` istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Threading;\n\nclass Program\n{\n    static int total = 0;\n    static object lockObject = new object();\n\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Hesablamalar başlayır...\");\n\n        Thread thread1 = new Thread(() => AddNumbers(100));\n        Thread thread2 = new Thread(() => AddNumbers(200));\n\n        thread1.Start();\n        thread2.Start();\n\n        thread1.Join();\n        thread2.Join();\n\n        Console.WriteLine($\"Ümumi cəm: {total}\");\n    }\n\n    static void AddNumbers(int number)\n    {\n        for (int i = 1; i <= number; i++)\n        {\n            lock (lockObject)\n            {\n                total += i;\n            }\n            Thread.Sleep(10);\n        }\n    }\n}\n// Output:\n// Hesablamalar başlayır...\n// Ümumi cəm: 15150"
+      }
+    ]
+  },
+  "en": {
+    "title": "Threading",
+    "icon": "FiCpu",
+    "language": "csharp",
+    "description": "Creating and managing threads.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Is Threading?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, threading allows a program to execute multiple tasks concurrently. Each thread is a separate execution path within the program. For example, one thread can handle the user interface while another performs complex computations. Threads in C# are created and managed using the `Thread` class from the `System.Threading` namespace. Threads can leverage multi-core processors to improve performance, but improper synchronization (e.g., sharing data) can lead to errors. This JSON file explains thread creation, management, synchronization (`lock`, `Monitor`), advantages, and challenges in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values, avoid user input, and use simple computations instead of network or file operations due to Pyodide limitations."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Thread Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `Thread` class allows you to create and start a new thread that runs a specified method."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Main thread started.\");\n\n        // Create a new thread\n        Thread workerThread = new Thread(DoWork);\n        workerThread.Start();\n\n        // Main thread work\n        for (int i = 1; i <= 3; i++)\n        {\n            Console.WriteLine($\"Main thread: {i}\");\n            Thread.Sleep(500); // 0.5-second delay\n        }\n\n        Console.WriteLine(\"Main thread finished.\");\n    }\n\n    static void DoWork()\n    {\n        for (int i = 1; i <= 3; i++)\n        {\n            Console.WriteLine($\"Worker thread: {i}\");\n            Thread.Sleep(700); // 0.7-second delay\n        }\n    }\n}\n// Output (possible order):\n// Main thread started.\n// Main thread: 1\n// Worker thread: 1\n// Main thread: 2\n// Worker thread: 2\n// Main thread: 3\n// Main thread finished.\n// Worker thread: 3"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- A new thread (`workerThread`) is created using the `Thread` class and calls the `DoWork` method.\n- `Thread.Sleep` introduces delays to show the execution order.\n- The main thread and worker thread run concurrently, so the output order may vary.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Thread Synchronization"
+      },
+      {
+        "type": "paragraph",
+        "text": "When threads access shared data, synchronization issues (data races) can occur. The `lock` keyword ensures thread-safe access."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading;\n\nclass Program\n{\n    static int counter = 0;\n    static object lockObject = new object();\n\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Threads starting...\");\n\n        Thread thread1 = new Thread(IncrementCounter);\n        Thread thread2 = new Thread(IncrementCounter);\n\n        thread1.Start();\n        thread2.Start();\n\n        thread1.Join(); // Wait for thread 1 to finish\n        thread2.Join(); // Wait for thread 2 to finish\n\n        Console.WriteLine($\"Result: {counter}\");\n    }\n\n    static void IncrementCounter()\n    {\n        for (int i = 0; i < 1000; i++)\n        {\n            lock (lockObject)\n            {\n                counter++;\n            }\n        }\n    }\n}\n// Output:\n// Threads starting...\n// Result: 2000"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Two threads increment the `counter` variable.\n- The `lock` keyword ensures only one thread accesses `counter` at a time.\n- The `Join` method waits for both threads to complete.\n- Without `lock`, the `counter` value could be incorrect due to data races."
+      },
+      {
+        "type": "heading",
+        "text": "Passing Parameters to Threads"
+      },
+      {
+        "type": "paragraph",
+        "text": "You can pass parameters to threads using `ParameterizedThreadStart` or lambda expressions."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Threads starting...\");\n\n        Thread thread = new Thread(() => DoWorkWithParameter(5));\n        thread.Start();\n\n        thread.Join(); // Wait for the thread to finish\n\n        Console.WriteLine(\"Main thread finished.\");\n    }\n\n    static void DoWorkWithParameter(int count)\n    {\n        for (int i = 1; i <= count; i++)\n        {\n            Console.WriteLine($\"Worker thread: {i}\");\n            Thread.Sleep(500);\n        }\n    }\n}\n// Output:\n// Threads starting...\n// Worker thread: 1\n// Worker thread: 2\n// Worker thread: 3\n// Worker thread: 4\n// Worker thread: 5\n// Main thread finished."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- A lambda expression passes the `DoWorkWithParameter` method and a parameter (`5`) to the thread.\n- The `Join` method waits for the thread to complete.\n- Lambda expressions provide a simple and flexible way to pass parameters."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Threading"
+      },
+      {
+        "type": "paragraph",
+        "text": "Threading improves program performance and responsiveness."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nConcurrency: Tasks can run in parallel on multi-core processors."
+          },
+          {
+            "description": "\nResponsiveness: Long-running tasks do not block the main thread."
+          },
+          {
+            "description": "\nResource Utilization: Makes better use of CPU resources."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Threading can be challenging for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nSynchronization: Threads accessing shared data can cause errors."
+          },
+          {
+            "description": "\nComplexity: Managing threads and debugging issues can be difficult."
+          },
+          {
+            "description": "\nPyodide Limitation: C# threading is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Without synchronization, data races or deadlocks can occur. Too many threads can increase resource usage.\n- **Recommendations**: Always use `lock` or other synchronization mechanisms. Limit the number of threads. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error by accessing a shared variable without synchronization."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading;\n\nclass Program\n{\n    static int counter = 0;\n\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Threads starting...\");\n\n        Thread thread1 = new Thread(IncrementCounter);\n        Thread thread2 = new Thread(IncrementCounter);\n\n        thread1.Start();\n        thread2.Start();\n\n        thread1.Join();\n        thread2.Join();\n\n        Console.WriteLine($\"Result: {counter} (expected 2000)\");\n    }\n\n    static void IncrementCounter()\n    {\n        for (int i = 0; i < 1000; i++)\n        {\n            counter++; // No synchronization\n        }\n    }\n}\n// Output (possible incorrect result):\n// Threads starting...\n// Result: 1876 (expected 2000)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Two threads increment `counter` without a `lock`.\n- This causes a data race, leading to an incorrect result.\n- Solution: Use `lock` for synchronization."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Threading;\n\nclass Program\n{\n    static int total = 0;\n    static object lockObject = new object();\n\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Calculations starting...\");\n\n        Thread thread1 = new Thread(() => AddNumbers(100));\n        Thread thread2 = new Thread(() => AddNumbers(200));\n\n        thread1.Start();\n        thread2.Start();\n\n        thread1.Join();\n        thread2.Join();\n\n        Console.WriteLine($\"Total sum: {total}\");\n    }\n\n    static void AddNumbers(int number)\n    {\n        for (int i = 1; i <= number; i++)\n        {\n            lock (lockObject)\n            {\n                total += i;\n            }\n            Thread.Sleep(10);\n        }\n    }\n}\n// Output:\n// Calculations starting...\n// Total sum: 15150"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Многопоточность (Threading)",
+    "icon": "FiCpu",
+    "language": "csharp",
+    "description": "Создание и управление потоками.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое многопоточность?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# многопоточность (threading) позволяет программе выполнять несколько задач одновременно. Каждый поток — это отдельный путь выполнения в программе. Например, один поток может управлять пользовательским интерфейсом, а другой выполнять сложные вычисления. В C# потоки создаются и управляются с помощью класса `Thread` из пространства имен `System.Threading`. Потоки могут использовать многоядерные процессоры для повышения производительности, но неправильная синхронизация (например, при доступе к общим данным) может привести к ошибкам. Этот JSON-файл объясняет создание потоков, управление ими, синхронизацию (`lock`, `Monitor`), преимущества и сложности простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения, не требуют ввода от пользователя и используют простые вычисления вместо сетевых операций или операций с файлами из-за ограничений Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример потока"
+      },
+      {
+        "type": "paragraph",
+        "text": "Класс `Thread` позволяет создавать и запускать новый поток, который выполняет указанный метод."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Основной поток начался.\");\n\n        // Создание нового потока\n        Thread workerThread = new Thread(DoWork);\n        workerThread.Start();\n\n        // Работа основного потока\n        for (int i = 1; i <= 3; i++)\n        {\n            Console.WriteLine($\"Основной поток: {i}\");\n            Thread.Sleep(500); // Задержка 0.5 секунды\n        }\n\n        Console.WriteLine(\"Основной поток завершён.\");\n    }\n\n    static void DoWork()\n    {\n        for (int i = 1; i <= 3; i++)\n        {\n            Console.WriteLine($\"Рабочий поток: {i}\");\n            Thread.Sleep(700); // Задержка 0.7 секунды\n        }\n    }\n}\n// Output (возможный порядок):\n// Основной поток начался.\n// Основной поток: 1\n// Рабочий поток: 1\n// Основной поток: 2\n// Рабочий поток: 2\n// Основной поток: 3\n// Основной поток завершён.\n// Рабочий поток: 3"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Новый поток (`workerThread`) создаётся с помощью класса `Thread` и вызывает метод `DoWork`.\n- `Thread.Sleep` добавляет задержки, чтобы показать порядок выполнения.\n- Основной и рабочий потоки выполняются параллельно, поэтому порядок вывода может варьироваться.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Синхронизация потоков"
+      },
+      {
+        "type": "paragraph",
+        "text": "Когда потоки обращаются к общим данным, могут возникнуть проблемы синхронизации (data race). Ключевое слово `lock` обеспечивает безопасный доступ."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading;\n\nclass Program\n{\n    static int counter = 0;\n    static object lockObject = new object();\n\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Потоки начинаются...\");\n\n        Thread thread1 = new Thread(IncrementCounter);\n        Thread thread2 = new Thread(IncrementCounter);\n\n        thread1.Start();\n        thread2.Start();\n\n        thread1.Join(); // Ожидание завершения потока 1\n        thread2.Join(); // Ожидание завершения потока 2\n\n        Console.WriteLine($\"Результат: {counter}\");\n    }\n\n    static void IncrementCounter()\n    {\n        for (int i = 0; i < 1000; i++)\n        {\n            lock (lockObject)\n            {\n                counter++;\n            }\n        }\n    }\n}\n// Output:\n// Потоки начинаются...\n// Результат: 2000"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Два потока увеличивают переменную `counter`.\n- Ключевое слово `lock` гарантирует, что только один поток имеет доступ к `counter` в определённый момент.\n- Метод `Join` ожидает завершения обоих потоков.\n- Без `lock` значение `counter` могло бы быть неверным из-за гонки данных."
+      },
+      {
+        "type": "heading",
+        "text": "Передача параметров в потоки"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для передачи параметров в потоки можно использовать `ParameterizedThreadStart` или лямбда-выражения."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Потоки начинаются...\");\n\n        Thread thread = new Thread(() => DoWorkWithParameter(5));\n        thread.Start();\n\n        thread.Join(); // Ожидание завершения потока\n\n        Console.WriteLine(\"Основной поток завершён.\");\n    }\n\n    static void DoWorkWithParameter(int count)\n    {\n        for (int i = 1; i <= count; i++)\n        {\n            Console.WriteLine($\"Рабочий поток: {i}\");\n            Thread.Sleep(500);\n        }\n    }\n}\n// Output:\n// Потоки начинаются...\n// Рабочий поток: 1\n// Рабочий поток: 2\n// Рабочий поток: 3\n// Рабочий поток: 4\n// Рабочий поток: 5\n// Основной поток завершён."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Лямбда-выражение передаёт метод `DoWorkWithParameter` и параметр (`5`) в поток.\n- Метод `Join` ожидает завершения потока.\n- Лямбда-выражения — это простой и гибкий способ передачи параметров."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества многопоточности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Многопоточность повышает производительность и отзывчивость программы."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПараллелизм: Задачи могут выполняться параллельно на многоядерных процессорах."
+          },
+          {
+            "description": "\nОтзывчивость: Длительные задачи не блокируют основной поток."
+          },
+          {
+            "description": "\nИспользование ресурсов: Более эффективное использование процессора."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Работа с потоками может быть сложной для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСинхронизация: Потоки, обращающиеся к общим данным, могут вызывать ошибки."
+          },
+          {
+            "description": "\nСложность: Управление потоками и отладка ошибок могут быть трудными."
+          },
+          {
+            "description": "\nОграничение Pyodide: Многопоточность C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Без синхронизации могут возникнуть гонки данных или взаимоблокировки (deadlocks). Слишком большое количество потоков может увеличить использование ресурсов.\n- **Рекомендации**: Всегда используйте `lock` или другие механизмы синхронизации. Ограничивайте количество потоков. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку из-за доступа к общей переменной без синхронизации."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading;\n\nclass Program\n{\n    static int counter = 0;\n\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Потоки начинаются...\");\n\n        Thread thread1 = new Thread(IncrementCounter);\n        Thread thread2 = new Thread(IncrementCounter);\n\n        thread1.Start();\n        thread2.Start();\n\n        thread1.Join();\n        thread2.Join();\n\n        Console.WriteLine($\"Результат: {counter} (ожидалось 2000)\");\n    }\n\n    static void IncrementCounter()\n    {\n        for (int i = 0; i < 1000; i++)\n        {\n            counter++; // Без синхронизации\n        }\n    }\n}\n// Output (возможный неверный результат):\n// Потоки начинаются...\n// Результат: 1876 (ожидалось 2000)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Два потока увеличивают `counter` без `lock`.\n- Это вызывает гонку данных, что приводит к неверному результату.\n- Решение: Используйте `lock` для синхронизации."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Threading;\n\nclass Program\n{\n    static int total = 0;\n    static object lockObject = new object();\n\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Вычисления начинаются...\");\n\n        Thread thread1 = new Thread(() => AddNumbers(100));\n        Thread thread2 = new Thread(() => AddNumbers(200));\n\n        thread1.Start();\n        thread2.Start();\n\n        thread1.Join();\n        thread2.Join();\n\n        Console.WriteLine($\"Общая сумма: {total}\");\n    }\n\n    static void AddNumbers(int number)\n    {\n        for (int i = 1; i <= number; i++)\n        {\n            lock (lockObject)\n            {\n                total += i;\n            }\n            Thread.Sleep(10);\n        }\n    }\n}\n// Output:\n// Вычисления начинаются...\n// Общая сумма: 15150"
+      }
+    ]
+  }
+}

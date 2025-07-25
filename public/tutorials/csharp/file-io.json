@@ -1,0 +1,486 @@
+{
+  "id": "file-io",
+  "az": {
+    "title": "Fayllarla İş",
+    "icon": "FiFileText",
+    "language": "csharp",
+    "description": "Fayllardan oxuma və yazma.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Fayllarla İş Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində fayllarla iş (File Input/Output və ya File I/O) fayllardan məlumat oxumaq və ya fayllara məlumat yazmaq üçün istifadə olunan prosesdir. Bu, mətn faylları, CSV faylları və ya digər fayl formatları ilə işləməyə imkan verir. C#-da fayl əməliyyatları `System.IO` ad məkanında yerləşən siniflər (məsələn, `File`, `StreamReader`, `StreamWriter`) vasitəsilə həyata keçirilir. Bu JSON faylda fayl oxuma və yazma, istisna idarəetməsi, ümumi metodlar və nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur. Fayl əməliyyatları üçün faylın mövcud olub-olmaması yoxlanılmalıdır, çünki mövcud olmayan faylla işləmək səhvə səbəb ola bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Fayl Yazma"
+      },
+      {
+        "type": "paragraph",
+        "text": "`File` sinfi və ya `StreamWriter` ilə fayla məlumat yaza bilərsiniz. `File.WriteAllText` sadə mətn yazmaq üçün istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"example.txt\";\n            string content = \"Bu bir nümunə mətndir!\\nİkinci sətir.\");\n\n            // Fayla mətn yazmaq\n            File.WriteAllText(path, content);\n            Console.WriteLine(\"Fayl uğurla yaradıldı və mətn yazıldı.\");\n        }\n        catch (IOException ex)\n        {\n            Console.WriteLine(\"Səhv: Fayl yazılarkən problem yarandı.\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Fayl uğurla yaradıldı və mətn yazıldı."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `File.WriteAllText` metodu `example.txt` faylına mətn yazır.\n- `try-catch` bloku fayl əməliyyatları zamanı mümkün səhvləri (məsələn, diskin dolu olması) idarə edir.\n- Fayl mövcud deyilsə, avtomatik yaradılır.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər. Fayl proqramın işlədiyi qovluqda yaradılacaq."
+      },
+      {
+        "type": "heading",
+        "text": "Fayldan Oxuma"
+      },
+      {
+        "type": "paragraph",
+        "text": "`File.ReadAllText` və ya `StreamReader` ilə fayldan məlumat oxuya bilərsiniz. `File.ReadAllText` bütün faylı bir sətirdə oxumaq üçün sadə bir üsuldur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"example.txt\";\n\n            // Faylın olub-olmadığını yoxlamaq\n            if (File.Exists(path))\n            {\n                // Fayldan mətn oxumaq\n                string content = File.ReadAllText(path);\n                Console.WriteLine(\"Faylın məzmunu:\");\n                Console.WriteLine(content);\n            }\n            else\n            {\n                Console.WriteLine(\"Səhv: Fayl tapılmadı.\");\n            }\n        }\n        catch (IOException ex)\n        {\n            Console.WriteLine(\"Səhv: Fayl oxunarkən problem yarandı.\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output (əgər fayl varsa):\n// Faylın məzmunu:\n// Bu bir nümunə mətndir!\n// İkinci sətir."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `File.Exists` faylın mövcudluğunu yoxlayır.\n- `File.ReadAllText` faylın bütün məzmununu oxuyur.\n- `try-catch` bloku fayl oxunarkən yaranan səhvləri idarə edir."
+      },
+      {
+        "type": "heading",
+        "text": "Sətir-sətir Oxuma və Yazma"
+      },
+      {
+        "type": "paragraph",
+        "text": "`StreamReader` və `StreamWriter` ilə faylı sətir-sətir oxumaq və ya yazmaq mümkündür. Bu, böyük fayllarla işləyərkən daha effektivdir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"lines.txt\";\n\n            // Sətir-sətir yazma\n            using (StreamWriter writer = new StreamWriter(path))\n            {\n                writer.WriteLine(\"Birinci sətir.\");\n                writer.WriteLine(\"İkinci sətir.\");\n                writer.WriteLine(\"Üçüncü sətir.\");\n            }\n            Console.WriteLine(\"Fayl uğurla yazıldı.\");\n\n            // Sətir-sətir oxuma\n            using (StreamReader reader = new StreamReader(path))\n            {\n                Console.WriteLine(\"Faylın məzmunu:\");\n                string line;\n                while ((line = reader.ReadLine()) != null)\n                {\n                    Console.WriteLine(line);\n                }\n            }\n        }\n        catch (IOException ex)\n        {\n            Console.WriteLine(\"Səhv: Fayl əməliyyatında problem yarandı.\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Fayl uğurla yazıldı.\n// Faylın məzmunu:\n// Birinci sətir.\n// İkinci sətir.\n// Üçüncü sətir."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `StreamWriter` ilə sətir-sətir yazma həyata keçirilir.\n- `StreamReader` ilə fayl sətir-sətir oxunur.\n- `using` açar sözü faylın düzgün bağlanmasını təmin edir.\n- `try-catch` səhvləri idarə edir."
+      },
+      {
+        "type": "heading",
+        "text": "Fayla Əlavə Etmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Mövcud fayla məlumat əlavə etmək üçün `File.AppendAllText` və ya `StreamWriter` istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"log.txt\";\n\n            // Fayla əlavə etmə\n            File.AppendAllText(path, \"Yeni log: \" + DateTime.Now.ToString() + \"\\n\");\n            Console.WriteLine(\"Fayla əlavə edildi.\");\n\n            // Faylın məzmununu oxumaq\n            if (File.Exists(path))\n            {\n                string content = File.ReadAllText(path);\n                Console.WriteLine(\"Faylın məzmunu:\");\n                Console.WriteLine(content);\n            }\n        }\n        catch (IOException ex)\n        {\n            Console.WriteLine(\"Səhv: Fayl əməliyyatında problem yarandı.\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output (məsələn):\n// Fayla əlavə edildi.\n// Faylın məzmunu:\n// Yeni log: 7/24/2025 7:11:00 PM"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `File.AppendAllText` mövcud fayla mətn əlavə edir.\n- Fayl yoxdursa, avtomatik yaradılır.\n- `File.ReadAllText` faylın məzmununu oxuyur."
+      },
+      {
+        "type": "heading",
+        "text": "Fayllarla İşin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayl əməliyyatları proqramlara məlumat saxlama və bərpa etmə imkanı verir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nSadəlik: `File` sinfi ilə əməliyyatlar asan və intuitivdir."
+          },
+          {
+            "description": "\nÇeviklik: Mətn, CSV və digər formatlarla işləmək mümkündür."
+          },
+          {
+            "description": "\nDavamlılıq: Məlumatlar proqram bağlandıqdan sonra da saxlanılır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayl əməliyyatları yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nSəhvlər: Faylın mövcud olmaması və ya icazə problemləri səhvlərə səbəb ola bilər."
+          },
+          {
+            "description": "\nResurs İdarəetmə: Faylların düzgün bağlanmaması yaddaş sızmasına səbəb ola bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# fayl əməliyyatları Pyodide-da dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Faylın mövcudluğunu yoxlamadan əməliyyat etmək `FileNotFoundException` səhvinə səbəb ola bilər. Faylların düzgün bağlanmaması resurs sızmasına yol aça bilər.\n- **Tövsiyələr**: Həmişə `try-catch` ilə səhvləri idarə edin. `using` açar sözündən istifadə edərək faylları avtomatik bağlayın. Faylın mövcudluğunu `File.Exists` ilə yoxlayın. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə mövcud olmayan fayldan oxumağa çalışmaq səhvə səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"nonexistent.txt\";\n\n            // Mövcud olmayan fayldan oxumaq\n            string content = File.ReadAllText(path);\n            Console.WriteLine(content);\n        }\n        catch (FileNotFoundException ex)\n        {\n            Console.WriteLine(\"Səhv: Fayl tapılmadı!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Səhv: Fayl tapılmadı!\n// Səhv mesajı: Could not find file '...\\nonexistent.txt'."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `File.ReadAllText` mövcud olmayan faylı oxumağa çalışır.\n- Bu, `FileNotFoundException` səhvinə səbəb olur.\n- Həll: `File.Exists` ilə faylın mövcudluğunu yoxlayın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"notes.txt\";\n\n            // Fayla sətir əlavə etmə\n            using (StreamWriter writer = new StreamWriter(path, append: true))\n            {\n                writer.WriteLine(\"Qeyd: \" + DateTime.Now.ToString());\n            }\n            Console.WriteLine(\"Fayla qeyd əlavə edildi.\");\n\n            // Faylı oxumaq\n            if (File.Exists(path))\n            {\n                using (StreamReader reader = new StreamReader(path))\n                {\n                    Console.WriteLine(\"Faylın məzmunu:\");\n                    string line;\n                    while ((line = reader.ReadLine()) != null)\n                    {\n                        Console.WriteLine(line);\n                    }\n                }\n            }\n            else\n            {\n                Console.WriteLine(\"Fayl tapılmadı.\");\n            }\n        }\n        catch (IOException ex)\n        {\n            Console.WriteLine(\"Səhv: Fayl əməliyyatında problem yarandı.\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output (məsələn):\n// Fayla qeyd əlavə edildi.\n// Faylın məzmunu:\n// Qeyd: 7/24/2025 7:11:00 PM"
+      }
+    ]
+  },
+  "en": {
+    "title": "File I/O",
+    "icon": "FiFileText",
+    "language": "csharp",
+    "description": "Reading from and writing to files.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Is File I/O?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, File Input/Output (File I/O) refers to the process of reading data from or writing data to files. This allows working with text files, CSV files, or other file formats. C# handles file operations through classes in the `System.IO` namespace, such as `File`, `StreamReader`, and `StreamWriter`. This JSON file explains file reading and writing, exception handling, common methods, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input. File operations require checking if a file exists to avoid errors."
+      },
+      {
+        "type": "heading",
+        "text": "Writing to a File"
+      },
+      {
+        "type": "paragraph",
+        "text": "You can write to a file using the `File` class or `StreamWriter`. `File.WriteAllText` is a simple method for writing text."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"example.txt\";\n            string content = \"This is a sample text!\\nSecond line.\";\n\n            // Write text to a file\n            File.WriteAllText(path, content);\n            Console.WriteLine(\"File created and text written successfully.\");\n        }\n        catch (IOException ex)\n        {\n            Console.WriteLine(\"Error: An issue occurred while writing to the file.\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// File created and text written successfully."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `File.WriteAllText` writes text to `example.txt`.\n- The `try-catch` block handles potential errors (e.g., disk full).\n- If the file doesn't exist, it is created automatically.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`. The file is created in the program's working directory."
+      },
+      {
+        "type": "heading",
+        "text": "Reading from a File"
+      },
+      {
+        "type": "paragraph",
+        "text": "You can read from a file using `File.ReadAllText` or `StreamReader`. `File.ReadAllText` is a simple way to read the entire file."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"example.txt\";\n\n            // Check if the file exists\n            if (File.Exists(path))\n            {\n                // Read text from the file\n                string content = File.ReadAllText(path);\n                Console.WriteLine(\"File content:\");\n                Console.WriteLine(content);\n            }\n            else\n            {\n                Console.WriteLine(\"Error: File not found.\");\n            }\n        }\n        catch (IOException ex)\n        {\n            Console.WriteLine(\"Error: An issue occurred while reading the file.\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output (if the file exists):\n// File content:\n// This is a sample text!\n// Second line."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `File.Exists` checks if the file exists.\n- `File.ReadAllText` reads the entire file content.\n- The `try-catch` block handles errors during file reading."
+      },
+      {
+        "type": "heading",
+        "text": "Reading and Writing Line by Line"
+      },
+      {
+        "type": "paragraph",
+        "text": "`StreamReader` and `StreamWriter` allow reading or writing files line by line, which is efficient for large files."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"lines.txt\";\n\n            // Write line by line\n            using (StreamWriter writer = new StreamWriter(path))\n            {\n                writer.WriteLine(\"First line.\");\n                writer.WriteLine(\"Second line.\");\n                writer.WriteLine(\"Third line.\");\n            }\n            Console.WriteLine(\"File written successfully.\");\n\n            // Read line by line\n            using (StreamReader reader = new StreamReader(path))\n            {\n                Console.WriteLine(\"File content:\");\n                string line;\n                while ((line = reader.ReadLine()) != null)\n                {\n                    Console.WriteLine(line);\n                }\n            }\n        }\n        catch (IOException ex)\n        {\n            Console.WriteLine(\"Error: An issue occurred during file operation.\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// File written successfully.\n// File content:\n// First line.\n// Second line.\n// Third line."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `StreamWriter` writes lines to the file.\n- `StreamReader` reads the file line by line.\n- The `using` keyword ensures the file is properly closed.\n- The `try-catch` block handles errors."
+      },
+      {
+        "type": "heading",
+        "text": "Appending to a File"
+      },
+      {
+        "type": "paragraph",
+        "text": "To append data to an existing file, use `File.AppendAllText` or `StreamWriter`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"log.txt\";\n\n            // Append to the file\n            File.AppendAllText(path, \"New log: \" + DateTime.Now.ToString() + \"\\n\");\n            Console.WriteLine(\"Appended to file.\");\n\n            // Read the file content\n            if (File.Exists(path))\n            {\n                string content = File.ReadAllText(path);\n                Console.WriteLine(\"File content:\");\n                Console.WriteLine(content);\n            }\n        }\n        catch (IOException ex)\n        {\n            Console.WriteLine(\"Error: An issue occurred during file operation.\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output (example):\n// Appended to file.\n// File content:\n// New log: 7/24/2025 7:11:00 PM"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `File.AppendAllText` appends text to an existing file.\n- If the file doesn't exist, it is created.\n- `File.ReadAllText` reads the file content."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of File I/O"
+      },
+      {
+        "type": "paragraph",
+        "text": "File operations allow programs to store and retrieve data."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nSimplicity: The `File` class makes operations easy and intuitive."
+          },
+          {
+            "description": "\nFlexibility: Works with text, CSV, and other file formats."
+          },
+          {
+            "description": "\nPersistence: Data is retained after the program closes."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "File operations can pose challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nErrors: Missing files or permission issues can cause errors."
+          },
+          {
+            "description": "\nResource Management: Failing to close files can lead to memory leaks."
+          },
+          {
+            "description": "\nPyodide Limitation: C# file operations are not supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Operating on a non-existent file can cause a `FileNotFoundException`. Failing to close files properly can lead to resource leaks.\n- **Recommendations**: Always use `try-catch` to handle errors. Use the `using` keyword to automatically close files. Check file existence with `File.Exists`. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error by attempting to read from a non-existent file."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"nonexistent.txt\";\n\n            // Attempt to read from a non-existent file\n            string content = File.ReadAllText(path);\n            Console.WriteLine(content);\n        }\n        catch (FileNotFoundException ex)\n        {\n            Console.WriteLine(\"Error: File not found!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Error: File not found!\n// Error message: Could not find file '...\\nonexistent.txt'."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `File.ReadAllText` tries to read a non-existent file.\n- This causes a `FileNotFoundException`.\n- Solution: Use `File.Exists` to check if the file exists."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"notes.txt\";\n\n            // Append a line to the file\n            using (StreamWriter writer = new StreamWriter(path, append: true))\n            {\n                writer.WriteLine(\"Note: \" + DateTime.Now.ToString());\n            }\n            Console.WriteLine(\"Note appended to file.\");\n\n            // Read the file\n            if (File.Exists(path))\n            {\n                using (StreamReader reader = new StreamReader(path))\n                {\n                    Console.WriteLine(\"File content:\");\n                    string line;\n                    while ((line = reader.ReadLine()) != null)\n                    {\n                        Console.WriteLine(line);\n                    }\n                }\n            }\n            else\n            {\n                Console.WriteLine(\"File not found.\");\n            }\n        }\n        catch (IOException ex)\n        {\n            Console.WriteLine(\"Error: An issue occurred during file operation.\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output (example):\n// Note appended to file.\n// File content:\n// Note: 7/24/2025 7:11:00 PM"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Работа с файлами",
+    "icon": "FiFileText",
+    "language": "csharp",
+    "description": "Чтение и запись файлов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое работа с файлами?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# работа с файлами (File Input/Output или File I/O) — это процесс чтения данных из файлов или записи данных в файлы. Это позволяет работать с текстовыми файлами, CSV-файлами или другими форматами файлов. В C# операции с файлами выполняются с использованием классов из пространства имен `System.IO`, таких как `File`, `StreamReader` и `StreamWriter`. Этот JSON-файл объясняет чтение и запись файлов, обработку исключений, общие методы и примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя. Для операций с файлами необходимо проверять существование файла, чтобы избежать ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Запись в файл"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для записи в файл можно использовать класс `File` или `StreamWriter`. `File.WriteAllText` — это простой метод для записи текста."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"example.txt\";\n            string content = \"Это пример текста!\\nВторая строка.\";\n\n            // Запись текста в файл\n            File.WriteAllText(path, content);\n            Console.WriteLine(\"Файл успешно создан и текст записан.\");\n        }\n        catch (IOException ex)\n        {\n            Console.WriteLine(\"Ошибка: Проблема при записи в файл.\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Файл успешно создан и текст записан."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `File.WriteAllText` записывает текст в `example.txt`.\n- Блок `try-catch` обрабатывает возможные ошибки (например, диск заполнен).\n- Если файл не существует, он создается автоматически.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`. Файл создается в рабочей директории программы."
+      },
+      {
+        "type": "heading",
+        "text": "Чтение из файла"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для чтения из файла можно использовать `File.ReadAllText` или `StreamReader`. `File.ReadAllText` — это простой способ прочитать весь файл."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"example.txt\";\n\n            // Проверка существования файла\n            if (File.Exists(path))\n            {\n                // Чтение текста из файла\n                string content = File.ReadAllText(path);\n                Console.WriteLine(\"Содержимое файла:\");\n                Console.WriteLine(content);\n            }\n            else\n            {\n                Console.WriteLine(\"Ошибка: Файл не найден.\");\n            }\n        }\n        catch (IOException ex)\n        {\n            Console.WriteLine(\"Ошибка: Проблема при чтении файла.\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output (если файл существует):\n// Содержимое файла:\n// Это пример текста!\n// Вторая строка."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `File.Exists` проверяет, существует ли файл.\n- `File.ReadAllText` читает все содержимое файла.\n- Блок `try-catch` обрабатывает ошибки при чтении файла."
+      },
+      {
+        "type": "heading",
+        "text": "Чтение и запись построчно"
+      },
+      {
+        "type": "paragraph",
+        "text": "`StreamReader` и `StreamWriter` позволяют читать или записывать файлы построчно, что эффективно для больших файлов."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"lines.txt\";\n\n            // Построчная запись\n            using (StreamWriter writer = new StreamWriter(path))\n            {\n                writer.WriteLine(\"Первая строка.\");\n                writer.WriteLine(\"Вторая строка.\");\n                writer.WriteLine(\"Третья строка.\");\n            }\n            Console.WriteLine(\"Файл успешно записан.\");\n\n            // Построчное чтение\n            using (StreamReader reader = new StreamReader(path))\n            {\n                Console.WriteLine(\"Содержимое файла:\");\n                string line;\n                while ((line = reader.ReadLine()) != null)\n                {\n                    Console.WriteLine(line);\n                }\n            }\n        }\n        catch (IOException ex)\n        {\n            Console.WriteLine(\"Ошибка: Проблема при операции с файлом.\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Файл успешно записан.\n// Содержимое файла:\n// Первая строка.\n// Вторая строка.\n// Третья строка."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `StreamWriter` записывает строки в файл.\n- `StreamReader` читает файл построчно.\n- Ключевое слово `using` обеспечивает правильное закрытие файла.\n- Блок `try-catch` обрабатывает ошибки."
+      },
+      {
+        "type": "heading",
+        "text": "Добавление в файл"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для добавления данных в существующий файл используйте `File.AppendAllText` или `StreamWriter`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"log.txt\";\n\n            // Добавление в файл\n            File.AppendAllText(path, \"Новый лог: \" + DateTime.Now.ToString() + \"\\n\");\n            Console.WriteLine(\"Добавлено в файл.\");\n\n            // Чтение содержимого файла\n            if (File.Exists(path))\n            {\n                string content = File.ReadAllText(path);\n                Console.WriteLine(\"Содержимое файла:\");\n                Console.WriteLine(content);\n            }\n        }\n        catch (IOException ex)\n        {\n            Console.WriteLine(\"Ошибка: Проблема при операции с файлом.\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output (пример):\n// Добавлено в файл.\n// Содержимое файла:\n// Новый лог: 7/24/2025 7:11:00 PM"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `File.AppendAllText` добавляет текст в существующий файл.\n- Если файл не существует, он создается.\n- `File.ReadAllText` читает содержимое файла."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества работы с файлами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Операции с файлами позволяют программам сохранять и восстанавливать данные."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПростота: Класс `File` делает операции простыми и интуитивными."
+          },
+          {
+            "description": "\nГибкость: Поддерживает работу с текстовыми, CSV и другими форматами файлов."
+          },
+          {
+            "description": "\nСохранность: Данные сохраняются после завершения программы."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Работа с файлами может создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nОшибки: Отсутствие файла или проблемы с правами доступа могут вызвать ошибки."
+          },
+          {
+            "description": "\nУправление ресурсами: Неправильное закрытие файлов может привести к утечкам памяти."
+          },
+          {
+            "description": "\nОграничение Pyodide: Операции с файлами в C# не поддерживаются в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Операции с несуществующим файлом могут вызвать `FileNotFoundException`. Неправильное закрытие файлов может привести к утечкам ресурсов.\n- **Рекомендации**: Всегда используйте `try-catch` для обработки ошибок. Используйте ключевое слово `using` для автоматического закрытия файлов. Проверяйте существование файла с помощью `File.Exists`. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку при попытке чтения из несуществующего файла."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"nonexistent.txt\";\n\n            // Попытка чтения из несуществующего файла\n            string content = File.ReadAllText(path);\n            Console.WriteLine(content);\n        }\n        catch (FileNotFoundException ex)\n        {\n            Console.WriteLine(\"Ошибка: Файл не найден!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Ошибка: Файл не найден!\n// Сообщение об ошибке: Could not find file '...\\nonexistent.txt'."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `File.ReadAllText` пытается прочитать несуществующий файл.\n- Это вызывает `FileNotFoundException`.\n- Решение: Используйте `File.Exists` для проверки существования файла."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            string path = \"notes.txt\";\n\n            // Добавление строки в файл\n            using (StreamWriter writer = new StreamWriter(path, append: true))\n            {\n                writer.WriteLine(\"Заметка: \" + DateTime.Now.ToString());\n            }\n            Console.WriteLine(\"Заметка добавлена в файл.\");\n\n            // Чтение файла\n            if (File.Exists(path))\n            {\n                using (StreamReader reader = new StreamReader(path))\n                {\n                    Console.WriteLine(\"Содержимое файла:\");\n                    string line;\n                    while ((line = reader.ReadLine()) != null)\n                    {\n                        Console.WriteLine(line);\n                    }\n                }\n            }\n            else\n            {\n                Console.WriteLine(\"Файл не найден.\");\n            }\n        }\n        catch (IOException ex)\n        {\n            Console.WriteLine(\"Ошибка: Проблема при операции с файлом.\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output (пример):\n// Заметка добавлена в файл.\n// Содержимое файла:\n// Заметка: 7/24/2025 7:11:00 PM"
+      }
+    ]
+  }
+}

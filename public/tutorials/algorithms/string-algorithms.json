@@ -1,0 +1,236 @@
+{
+  "id": "string-algorithms",
+  "az": {
+    "title": "Sətir Alqoritmləri",
+    "icon": "FiType",
+    "language": "multiple",
+    "description": "Sətir alqoritmləri, məsələn, KMP və Rabin-Karp, mətn daxilində nümunə axtarışı üçün istifadə olunur.",
+    "codes": {
+      "c": "#include <stdio.h>\n#include <string.h>\n\nvoid computeLPS(char* pattern, int M, int* lps) {\n  int len = 0;\n  lps[0] = 0;\n  int i = 1;\n  while (i < M) {\n    if (pattern[i] == pattern[len]) {\n      len++;\n      lps[i] = len;\n      i++;\n    } else {\n      if (len != 0) len = lps[len - 1];\n      else { lps[i] = 0; i++; }\n    }\n  }\n}\n\nvoid KMP(char* text, char* pattern) {\n  int N = strlen(text), M = strlen(pattern);\n  int lps[M];\n  computeLPS(pattern, M, lps);\n  int i = 0, j = 0;\n  while (i < N) {\n    if (pattern[j] == text[i]) { i++; j++; }\n    if (j == M) { printf(\"Pattern found at index %d\\n\", i - j); j = lps[j - 1]; }\n    else if (i < N && pattern[j] != text[i]) {\n      if (j != 0) j = lps[j - 1];\n      else i++;\n    }\n  }\n}\n\nint main() {\n  char text[] = \"AABAACAADAABAAABAA\";\n  char pattern[] = \"AABA\";\n  KMP(text, pattern);\n  return 0;\n}\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "cpp": "#include <iostream>\n#include <vector>\n#include <string>\n\nvoid computeLPS(std::string pattern, std::vector<int>& lps) {\n  int len = 0, i = 1, M = pattern.size();\n  lps[0] = 0;\n  while (i < M) {\n    if (pattern[i] == pattern[len]) { len++; lps[i] = len; i++; }\n    else {\n      if (len != 0) len = lps[len - 1];\n      else { lps[i] = 0; i++; }\n    }\n  }\n}\n\nvoid KMP(std::string text, std::string pattern) {\n  int N = text.size(), M = pattern.size();\n  std::vector<int> lps(M);\n  computeLPS(pattern, lps);\n  int i = 0, j = 0;\n  while (i < N) {\n    if (pattern[j] == text[i]) { i++; j++; }\n    if (j == M) { std::cout << \"Pattern found at index \" << i - j << std::endl; j = lps[j - 1]; }\n    else if (i < N && pattern[j] != text[i]) {\n      if (j != 0) j = lps[j - 1];\n      else i++;\n    }\n  }\n}\n\nint main() {\n  std::string text = \"AABAACAADAABAAABAA\";\n  std::string pattern = \"AABA\";\n  KMP(text, pattern);\n  return 0;\n}\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "csharp": "using System;\n\nclass KMP {\n  static void ComputeLPS(string pattern, int[] lps) {\n    int len = 0, i = 1, M = pattern.Length;\n    lps[0] = 0;\n    while (i < M) {\n      if (pattern[i] == pattern[len]) { len++; lps[i] = len; i++; }\n      else {\n        if (len != 0) len = lps[len - 1];\n        else { lps[i] = 0; i++; }\n      }\n    }\n  }\n\n  static void KMPSearch(string text, string pattern) {\n    int N = text.Length, M = pattern.Length;\n    int[] lps = new int[M];\n    ComputeLPS(pattern, lps);\n    int i = 0, j = 0;\n    while (i < N) {\n      if (pattern[j] == text[i]) { i++; j++; }\n      if (j == M) { Console.WriteLine(\"Pattern found at index \" + (i - j)); j = lps[j - 1]; }\n      else if (i < N && pattern[j] != text[i]) {\n        if (j != 0) j = lps[j - 1];\n        else i++;\n      }\n    }\n  }\n\n  static void Main() {\n    string text = \"AABAACAADAABAAABAA\";\n    string pattern = \"AABA\";\n    KMPSearch(text, pattern);\n  }\n}\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "java": "import java.util.*;\n\nclass KMP {\n  static void computeLPS(String pattern, int[] lps) {\n    int len = 0, i = 1, M = pattern.length();\n    lps[0] = 0;\n    while (i < M) {\n      if (pattern.charAt(i) == pattern.charAt(len)) { len++; lps[i] = len; i++; }\n      else {\n        if (len != 0) len = lps[len - 1];\n        else { lps[i] = 0; i++; }\n      }\n    }\n  }\n\n  static void KMPSearch(String text, String pattern) {\n    int N = text.length(), M = pattern.length();\n    int[] lps = new int[M];\n    computeLPS(pattern, lps);\n    int i = 0, j = 0;\n    while (i < N) {\n      if (pattern.charAt(j) == text.charAt(i)) { i++; j++; }\n      if (j == M) { System.out.println(\"Pattern found at index \" + (i - j)); j = lps[j - 1]; }\n      else if (i < N && pattern.charAt(j) != text.charAt(i)) {\n        if (j != 0) j = lps[j - 1];\n        else i++;\n      }\n    }\n  }\n\n  public static void main(String[] args) {\n    String text = \"AABAACAADAABAAABAA\";\n    String pattern = \"AABA\";\n    KMPSearch(text, pattern);\n  }\n}\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "javascript": "function computeLPS(pattern) {\n  let lps = Array(pattern.length).fill(0);\n  let len = 0, i = 1;\n  while (i < pattern.length) {\n    if (pattern[i] === pattern[len]) { len++; lps[i] = len; i++; }\n    else {\n      if (len !== 0) len = lps[len - 1];\n      else { lps[i] = 0; i++; }\n    }\n  }\n  return lps;\n}\n\nfunction KMP(text, pattern) {\n  let N = text.length, M = pattern.length;\n  let lps = computeLPS(pattern);\n  let i = 0, j = 0;\n  while (i < N) {\n    if (pattern[j] === text[i]) { i++; j++; }\n    if (j === M) { console.log(`Pattern found at index ${i - j}`); j = lps[j - 1]; }\n    else if (i < N && pattern[j] !== text[i]) {\n      if (j !== 0) j = lps[j - 1];\n      else i++;\n    }\n  }\n}\n\nlet text = \"AABAACAADAABAAABAA\";\nlet pattern = \"AABA\";\nKMP(text, pattern);\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "typescript": "function computeLPS(pattern: string): number[] {\n  let lps: number[] = Array(pattern.length).fill(0);\n  let len = 0, i = 1;\n  while (i < pattern.length) {\n    if (pattern[i] === pattern[len]) { len++; lps[i] = len; i++; }\n    else {\n      if (len !== 0) len = lps[len - 1];\n      else { lps[i] = 0; i++; }\n    }\n  }\n  return lps;\n}\n\nfunction KMP(text: string, pattern: string): void {\n  let N = text.length, M = pattern.length;\n  let lps = computeLPS(pattern);\n  let i = 0, j = 0;\n  while (i < N) {\n    if (pattern[j] === text[i]) { i++; j++; }\n    if (j === M) { console.log(`Pattern found at index ${i - j}`); j = lps[j - 1]; }\n    else if (i < N && pattern[j] !== text[i]) {\n      if (j !== 0) j = lps[j - 1];\n      else i++;\n    }\n  }\n}\n\nlet text = \"AABAACAADAABAAABAA\";\nlet pattern = \"AABA\";\nKMP(text, pattern);\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "python": "def compute_lps(pattern):\n    lps = [0] * len(pattern)\n    len_prev = 0\n    i = 1\n    while i < len(pattern):\n        if pattern[i] == pattern[len_prev]:\n            len_prev += 1\n            lps[i] = len_prev\n            i += 1\n        else:\n            if len_prev != 0:\n                len_prev = lps[len_prev - 1]\n            else:\n                lps[i] = 0\n                i += 1\n    return lps\n\ndef kmp_search(text, pattern):\n    N, M = len(text), len(pattern)\n    lps = compute_lps(pattern)\n    i = j = 0\n    while i < N:\n        if pattern[j] == text[i]:\n            i += 1\n            j += 1\n        if j == M:\n            print(f\"Pattern found at index {i - j}\")\n            j = lps[j - 1]\n        elif i < N and pattern[j] != text[i]:\n            if j != 0:\n                j = lps[j - 1]\n            else:\n                i += 1\n\ntext = \"AABAACAADAABAAABAA\"\npattern = \"AABA\"\nkmp_search(text, pattern)\n# Output: \n# Pattern found at index 0\n# Pattern found at index 9\n# Pattern found at index 13",
+      "php": "<?php\n\nfunction computeLPS($pattern) {\n  $lps = array_fill(0, strlen($pattern), 0);\n  $len = 0;\n  $i = 1;\n  while ($i < strlen($pattern)) {\n    if ($pattern[$i] == $pattern[$len]) {\n      $len++;\n      $lps[$i] = $len;\n      $i++;\n    } else {\n      if ($len != 0) $len = $lps[$len - 1];\n      else { $lps[$i] = 0; $i++; }\n    }\n  }\n  return $lps;\n}\n\nfunction KMP($text, $pattern) {\n  $N = strlen($text);\n  $M = strlen($pattern);\n  $lps = computeLPS($pattern);\n  $i = $j = 0;\n  while ($i < $N) {\n    if ($pattern[$j] == $text[$i]) { $i++; $j++; }\n    if ($j == $M) { echo \"Pattern found at index \" . ($i - $j) . \"\\n\"; $j = $lps[$j - 1]; }\n    else if ($i < $N && $pattern[$j] != $text[$i]) {\n      if ($j != 0) $j = $lps[$j - 1];\n      else $i++;\n    }\n  }\n}\n\n$text = \"AABAACAADAABAAABAA\";\n$pattern = \"AABA\";\nKMP($text, $pattern);\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "Sətir Alqoritmləri nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sətir alqoritmləri mətn daxilində nümunə axtarışı və ya sətir manipulyasiyası üçün istifadə olunur. Ən məşhur alqoritmlərdən ikisi KMP (Knuth-Morris-Pratt) və Rabin-Karp alqoritmləridir. KMP, nümunənin özü ilə əvvəlcədən hesablanmış uyğunluq cədvəlindən (LPS) istifadə edərək səmərəli axtarış aparır. Rabin-Karp isə hash funksiyalarından istifadə edərək sürətli müqayisələr edir. Məsələn, mətndə \"AABAACAADAABAAABAA\" içində \"AABA\" nümunəsini axtarmaq üçün KMP 0, 9 və 13-cü indekslərdə tapır. Bu alqoritmlər sadə simvol müqayisəsindən (naiv alqoritm) daha səmərəlidir, çünki naiv alqoritm O(N*M) vaxt tələb edir."
+      },
+      {
+        "type": "heading",
+        "text": "Sətir Alqoritmləri necə işləyir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "KMP alqoritmi: 1) **LPS cədvəli** - nümunənin özündəki təkrarlanan prefiks/suffiks cədvəli hesablanır. 2) **Axtarış** - mətn və nümunə simvol-simvol müqayisə edilir, lakin uyğunsuzluq zamanı LPS cədvəli ilə geri dönüş optimallaşdırılır. Məsələn, \"AABAACAADAABAAABAA\" mətnində \"AABA\" nümunəsi 0, 9, 13-cü indekslərdə tapılır. Rabin-Karp isə: 1) **Hash hesablama** - nümunə və mətnin alt sətirləri üçün hash dəyərləri hesablanır. 2) **Müqayisə** - hash dəyərləri uyğun gələrsə, simvollar yoxlanılır. KMP sabit mətnlərdə, Rabin-Karp isə çoxlu nümunə axtarışında effektivdir."
+      },
+      {
+        "type": "heading",
+        "text": "Sətir Alqoritmlərinin səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "KMP alqoritminin vaxt mürəkkəbliyi O(N + M), burada N mətnin, M isə nümunənin uzunluğudur. LPS cədvəli O(M) vaxtda hesablanır, axtarış isə O(N). Məsələn, 18 simvollu mətn və 4 simvollu nümunə üçün O(18 + 4) ≈ O(22) əməliyyat aparılır. Rabin-Karp orta hesabla O(N + M), lakin ən pis halda O(N*M) vaxt tələb edir (hash toqquşmaları səbəbindən). Məkan mürəkkəbliyi KMP üçün O(M) (LPS cədvəli), Rabin-Karp üçün isə O(1) (hash dəyərləri). Naiv alqoritmlə müqayisədə (O(N*M)) hər ikisi daha səmərəlidir."
+      },
+      {
+        "type": "heading",
+        "text": "Sətir Alqoritmlərinin üstünlükləri və mənfi cəhətləri"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "Effektivlik: KMP sabit O(N + M) vaxt təmin edir." },
+          {
+            "description": "Çox yönlülük: Rabin-Karp çoxlu nümunə axtarışında yaxşıdır."
+          },
+          {
+            "description": "Mənfi cəhət: KMP-nin LPS cədvəli əlavə yaddaş tələb edir."
+          },
+          {
+            "description": "Mənfi cəhət: Rabin-Karp-da hash toqquşmaları performansı azalda bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda Sətir Alqoritmləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sətir alqoritmləri mətn axtarış sistemlərində (məsələn, Google axtarışı), plagiat aşkarlamada və bioinformatikada (DNT ardıcıllığı axtarışı) istifadə olunur. Məsələn, KMP ilə mətndə \"AABA\" nümunəsi 0, 9, 13-cü indekslərdə tapıla bilər. KMP sabit mətnlərdə, Rabin-Karp isə dinamik axtarışlarda üstündür. Naiv alqoritmlə müqayisədə hər ikisi daha sürətlidir, lakin KMP daha az yaddaş istifadə edir."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əsas təhlükə Rabin-Karp-da hash toqquşmalarıdır, bu da performansı O(N*M)-ə qədər azalda bilər. KMP-nin LPS cədvəli böyük nümunələrdə yaddaş tələb edir. Tövsiyələr: KMP sabit mətnlərdə, Rabin-Karp isə çoxlu nümunə axtarışında istifadə edilməlidir. Hash funksiyasını diqqətlə seçin. Alqoritmləri müxtəlif ölçülü mətnlərlə sınaqdan keçirin. Böyük mətnlərdə performansı optimallaşdırmaq üçün paralel hesablama istifadə edilə bilər."
+      }
+    ]
+  },
+  "en": {
+    "title": "String Algorithms",
+    "icon": "FiType",
+    "language": "multiple",
+    "description": "String algorithms, such as KMP and Rabin-Karp, are used for pattern searching within text.",
+    "codes": {
+      "c": "#include <stdio.h>\n#include <string.h>\n\nvoid computeLPS(char* pattern, int M, int* lps) {\n  int len = 0;\n  lps[0] = 0;\n  int i = 1;\n  while (i < M) {\n    if (pattern[i] == pattern[len]) {\n      len++;\n      lps[i] = len;\n      i++;\n    } else {\n      if (len != 0) len = lps[len - 1];\n      else { lps[i] = 0; i++; }\n    }\n  }\n}\n\nvoid KMP(char* text, char* pattern) {\n  int N = strlen(text), M = strlen(pattern);\n  int lps[M];\n  computeLPS(pattern, M, lps);\n  int i = 0, j = 0;\n  while (i < N) {\n    if (pattern[j] == text[i]) { i++; j++; }\n    if (j == M) { printf(\"Pattern found at index %d\\n\", i - j); j = lps[j - 1]; }\n    else if (i < N && pattern[j] != text[i]) {\n      if (j != 0) j = lps[j - 1];\n      else i++;\n    }\n  }\n}\n\nint main() {\n  char text[] = \"AABAACAADAABAAABAA\";\n  char pattern[] = \"AABA\";\n  KMP(text, pattern);\n  return 0;\n}\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "cpp": "#include <iostream>\n#include <vector>\n#include <string>\n\nvoid computeLPS(std::string pattern, std::vector<int>& lps) {\n  int len = 0, i = 1, M = pattern.size();\n  lps[0] = 0;\n  while (i < M) {\n    if (pattern[i] == pattern[len]) { len++; lps[i] = len; i++; }\n    else {\n      if (len != 0) len = lps[len - 1];\n      else { lps[i] = 0; i++; }\n    }\n  }\n}\n\nvoid KMP(std::string text, std::string pattern) {\n  int N = text.size(), M = pattern.size();\n  std::vector<int> lps(M);\n  computeLPS(pattern, lps);\n  int i = 0, j = 0;\n  while (i < N) {\n    if (pattern[j] == text[i]) { i++; j++; }\n    if (j == M) { std::cout << \"Pattern found at index \" << i - j << std::endl; j = lps[j - 1]; }\n    else if (i < N && pattern[j] != text[i]) {\n      if (j != 0) j = lps[j - 1];\n      else i++;\n    }\n  }\n}\n\nint main() {\n  std::string text = \"AABAACAADAABAAABAA\";\n  std::string pattern = \"AABA\";\n  KMP(text, pattern);\n  return 0;\n}\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "csharp": "using System;\n\nclass KMP {\n  static void ComputeLPS(string pattern, int[] lps) {\n    int len = 0, i = 1, M = pattern.Length;\n    lps[0] = 0;\n    while (i < M) {\n      if (pattern[i] == pattern[len]) { len++; lps[i] = len; i++; }\n      else {\n        if (len != 0) len = lps[len - 1];\n        else { lps[i] = 0; i++; }\n      }\n    }\n  }\n\n  static void KMPSearch(string text, string pattern) {\n    int N = text.Length, M = pattern.Length;\n    int[] lps = new int[M];\n    ComputeLPS(pattern, lps);\n    int i = 0, j = 0;\n    while (i < N) {\n      if (pattern[j] == text[i]) { i++; j++; }\n      if (j == M) { Console.WriteLine(\"Pattern found at index \" + (i - j)); j = lps[j - 1]; }\n      else if (i < N && pattern[j] != text[i]) {\n        if (j != 0) j = lps[j - 1];\n        else i++;\n      }\n    }\n  }\n\n  static void Main() {\n    string text = \"AABAACAADAABAAABAA\";\n    string pattern = \"AABA\";\n    KMPSearch(text, pattern);\n  }\n}\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "java": "import java.util.*;\n\nclass KMP {\n  static void computeLPS(String pattern, int[] lps) {\n    int len = 0, i = 1, M = pattern.length();\n    lps[0] = 0;\n    while (i < M) {\n      if (pattern.charAt(i) == pattern.charAt(len)) { len++; lps[i] = len; i++; }antia-fraudulenta\n      else {\n        if (len != 0) len = lps[len - 1];\n        else { lps[i] = 0; i++; }\n      }\n    }\n  }\n\n  static void KMPSearch(String text, String pattern) {\n    int N = text.length(), M = pattern.length();\n    int[] lps = new int[M];\n    computeLPS(pattern, lps);\n    int i = 0, j = 0;\n    while (i < N) {\n      if (pattern.charAt(j) == text.charAt(i)) { i++; j++; }\n      if (j == M) { System.out.println(\"Pattern found at index \" + (i - j)); j = lps[j - 1]; }\n      else if (i < N && pattern.charAt(j) != text.charAt(i)) {\n        if (j != 0) j = lps[j - 1];\n        else i++;\n      }\n    }\n  }\n\n  public static void main(String[] args) {\n    String text = \"AABAACAADAABAAABAA\";\n    String pattern = \"AABA\";\n    KMPSearch(text, pattern);\n  }\n}\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "javascript": "function computeLPS(pattern) {\n  let lps = Array(pattern.length).fill(0);\n  let len = 0, i = 1;\n  while (i < pattern.length) {\n    if (pattern[i] === pattern[len]) { len++; lps[i] = len; i++; }\n    else {\n      if (len !== 0) len = lps[len - 1];\n      else { lps[i] = 0; i++; }\n    }\n  }\n  return lps;\n}\n\nfunction KMP(text, pattern) {\n  let N = text.length, M = pattern.length;\n  let lps = computeLPS(pattern);\n  let i = 0, j = 0;\n  while (i < N) {\n    if (pattern[j] === text[i]) { i++; j++; }\n    if (j === M) { console.log(`Pattern found at index ${i - j}`); j = lps[j - 1]; }\n    else if (i < N && pattern[j] !== text[i]) {\n      if (j !== 0) j = lps[j - 1];\n      else i++;\n    }\n  }\n}\n\nlet text = \"AABAACAADAABAAABAA\";\nlet pattern = \"AABA\";\nKMP(text, pattern);\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "typescript": "function computeLPS(pattern: string): number[] {\n  let lps: number[] = Array(pattern.length).fill(0);\n  let len = 0, i = 1;\n  while (i < pattern.length) {\n    if (pattern[i] === pattern[len]) { len++; lps[i] = len; i++; }\n    else {\n      if (len !== 0) len = lps[len - 1];\n      else { lps[i] = 0; i++; }\n    }\n  }\n  return lps;\n}\n\nfunction KMP(text: string, pattern: string): void {\n  let N = text.length, M = pattern.length;\n  let lps = computeLPS(pattern);\n  let i = 0, j = 0;\n  while (i < N) {\n    if (pattern[j] === text[i]) { i++; j++; }\n    if (j === M) { console.log(`Pattern found at index ${i - j}`); j = lps[j - 1]; }\n    else if (i < N && pattern[j] !== text[i]) {\n      if (j !== 0) j = lps[j - 1];\n      else i++;\n    }\n  }\n}\n\nlet text = \"AABAACAADAABAAABAA\";\nlet pattern = \"AABA\";\nKMP(text, pattern);\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "python": "def compute_lps(pattern):\n    lps = [0] * len(pattern)\n    len_prev = 0\n    i = 1\n    while i < len(pattern):\n        if pattern[i] == pattern[len_prev]:\n            len_prev += 1\n            lps[i] = len_prev\n            i += 1\n        else:\n            if len_prev != 0:\n                len_prev = lps[len_prev - 1]\n            else:\n                lps[i] = 0\n                i += 1\n    return lps\n\ndef kmp_search(text, pattern):\n    N, M = len(text), len(pattern)\n    lps = compute_lps(pattern)\n    i = j = 0\n    while i < N:\n        if pattern[j] == text[i]:\n            i += 1\n            j += 1\n        if j == M:\n            print(f\"Pattern found at index {i - j}\")\n            j = lps[j - 1]\n        elif i < N and pattern[j] != text[i]:\n            if j != 0:\n                j = lps[j - 1]\n            else:\n                i += 1\n\ntext = \"AABAACAADAABAAABAA\"\npattern = \"AABA\"\nkmp_search(text, pattern)\n# Output: \n# Pattern found at index 0\n# Pattern found at index 9\n# Pattern found at index 13",
+      "php": "<?php\n\nfunction computeLPS($pattern) {\n  $lps = array_fill(0, strlen($pattern), 0);\n  $len = 0;\n  $i = 1;\n  while ($i < strlen($pattern)) {\n    if ($pattern[$i] == $pattern[$len]) {\n      $len++;\n      $lps[$i] = $len;\n      $i++;\n    } else {\n      if ($len != 0) $len = $lps[$len - 1];\n      else { $lps[$i] = 0; $i++; }\n    }\n  }\n  return $lps;\n}\n\nfunction KMP($text, $pattern) {\n  $N = strlen($text);\n  $M = strlen($pattern);\n  $lps = computeLPS($pattern);\n  $i = $j = 0;\n  while ($i < $N) {\n    if ($pattern[$j] == $text[$i]) { $i++; $j++; }\n    if ($j == $M) { echo \"Pattern found at index \" . ($i - $j) . \"\\n\"; $j = $lps[$j - 1]; }\n    else if ($i < $N && $pattern[$j] != $text[$i]) {\n      if ($j != 0) $j = $lps[$j - 1];\n      else $i++;\n    }\n  }\n}\n\n$text = \"AABAACAADAABAAABAA\";\n$pattern = \"AABA\";\nKMP($text, $pattern);\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are String Algorithms?"
+      },
+      {
+        "type": "paragraph",
+        "text": "String algorithms, such as KMP (Knuth-Morris-Pratt) and Rabin-Karp, are used for pattern searching within text or string manipulation. KMP uses a precomputed longest prefix-suffix (LPS) table to perform efficient searches. Rabin-Karp employs hash functions for fast comparisons. For example, searching for the pattern \"AABA\" in the text \"AABAACAADAABAAABAA\" using KMP yields matches at indices 0, 9, and 13. These algorithms are more efficient than the naive approach, which has a time complexity of O(N*M)."
+      },
+      {
+        "type": "heading",
+        "text": "How Do String Algorithms Work?"
+      },
+      {
+        "type": "paragraph",
+        "text": "KMP algorithm: 1) **LPS table** - Computes a table of longest prefix-suffix matches for the pattern. 2) **Search** - Compares text and pattern character by character, using the LPS table to skip redundant comparisons. For example, in the text \"AABAACAADAABAAABAA\", the pattern \"AABA\" is found at indices 0, 9, and 13. Rabin-Karp: 1) **Hash computation** - Calculates hash values for the pattern and text substrings. 2) **Comparison** - If hashes match, characters are verified. KMP is efficient for fixed texts, while Rabin-Karp excels in multi-pattern searches."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of String Algorithms (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "KMP has a time complexity of O(N + M), where N is the text length and M is the pattern length. The LPS table takes O(M), and the search takes O(N). For example, for an 18-character text and a 4-character pattern, it takes O(18 + 4) ≈ O(22) operations. Rabin-Karp has an average time complexity of O(N + M) but can be O(N*M) in the worst case due to hash collisions. Space complexity is O(M) for KMP (LPS table) and O(1) for Rabin-Karp (hash values). Compared to the naive algorithm (O(N*M)), both are more efficient."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages of String Algorithms"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Efficiency: KMP guarantees O(N + M) time complexity."
+          },
+          {
+            "description": "Versatility: Rabin-Karp is effective for multi-pattern searches."
+          },
+          {
+            "description": "Disadvantage: KMP requires extra memory for the LPS table."
+          },
+          {
+            "description": "Disadvantage: Rabin-Karp performance can degrade due to hash collisions."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "String Algorithms in Real Life"
+      },
+      {
+        "type": "paragraph",
+        "text": "String algorithms are used in text search systems (e.g., search engines), plagiarism detection, and bioinformatics (e.g., DNA sequence matching). For instance, KMP can find the pattern \"AABA\" in \"AABAACAADAABAAABAA\" at indices 0, 9, and 13. KMP is ideal for fixed texts, while Rabin-Karp is better for dynamic searches. Compared to the naive approach, both are faster, but KMP uses less memory."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "The main risk with Rabin-Karp is hash collisions, which can degrade performance to O(N*M). KMP’s LPS table requires extra memory for large patterns. Recommendations: Use KMP for fixed texts and Rabin-Karp for multi-pattern searches. Choose hash functions carefully for Rabin-Karp. Test algorithms with different text sizes to optimize performance. For large texts, consider parallel processing to enhance efficiency."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Строковые алгоритмы",
+    "icon": "FiType",
+    "language": "multiple",
+    "description": "Строковые алгоритмы, такие как KMP и Rabin-Karp, используются для поиска подстроки в тексте.",
+    "codes": {
+      "c": "#include <stdio.h>\n#include <string.h>\n\nvoid computeLPS(char* pattern, int M, int* lps) {\n  int len = 0;\n  lps[0] = 0;\n  int i = 1;\n  while (i < M) {\n    if (pattern[i] == pattern[len]) {\n      len++;\n      lps[i] = len;\n      i++;\n    } else {\n      if (len != 0) len = lps[len - 1];\n      else { lps[i] = 0; i++; }\n    }\n  }\n}\n\nvoid KMP(char* text, char* pattern) {\n  int N = strlen(text), M = strlen(pattern);\n  int lps[M];\n  computeLPS(pattern, M, lps);\n  int i = 0, j = 0;\n  while (i < N) {\n    if (pattern[j] == text[i]) { i++; j++; }\n    if (j == M) { printf(\"Pattern found at index %d\\n\", i - j); j = lps[j - 1]; }\n    else if (i < N && pattern[j] != text[i]) {\n      if (j != 0) j = lps[j - 1];\n      else i++;\n    }\n  }\n}\n\nint main() {\n  char text[] = \"AABAACAADAABAAABAA\";\n  char pattern[] = \"AABA\";\n  KMP(text, pattern);\n  return 0;\n}\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "cpp": "#include <iostream>\n#include <vector>\n#include <string>\n\nvoid computeLPS(std::string pattern, std::vector<int>& lps) {\n  int len = 0, i = 1, M = pattern.size();\n  lps[0] = 0;\n  while (i < M) {\n    if (pattern[i] == pattern[len]) { len++; lps[i] = len; i++; }\n    else {\n      if (len != 0) len = lps[len - 1];\n      else { lps[i] = 0; i++; }\n    }\n  }\n}\n\nvoid KMP(std::string text, std::string pattern) {\n  int N = text.size(), M = pattern.size();\n  std::vector<int> lps(M);\n  computeLPS(pattern, lps);\n  int i = 0, j = 0;\n  while (i < N) {\n    if (pattern[j] == text[i]) { i++; j++; }\n    if (j == M) { std::cout << \"Pattern found at index \" << i - j << std::endl; j = lps[j - 1]; }\n    else if (i < N && pattern[j] != text[i]) {\n      if (j != 0) j = lps[j - 1];\n      else i++;\n    }\n  }\n}\n\nint main() {\n  std::string text = \"AABAACAADAABAAABAA\";\n  std::string pattern = \"AABA\";\n  KMP(text, pattern);\n  return 0;\n}\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "csharp": "using System;\n\nclass KMP {\n  static void ComputeLPS(string pattern, int[] lps) {\n    int len = 0, i = 1, M = pattern.Length;\n    lps[0] = 0;\n    while (i < M) {\n      if (pattern[i] == pattern[len]) { len++; lps[i] = len; i++; }\n      else {\n        if (len != 0) len = lps[len - 1];\n        else { lps[i] = 0; i++; }\n      }\n    }\n  }\n\n  static void KMPSearch(string text, string pattern) {\n    int N = text.Length, M = pattern.Length;\n    int[] lps = new int[M];\n    ComputeLPS(pattern, lps);\n    int i = 0, j = 0;\n    while (i < N) {\n      if (pattern[j] == text[i]) { i++; j++; }\n      if (j == M) { Console.WriteLine(\"Pattern found at index \" + (i - j)); j = lps[j - 1]; }\n      else if (i < N && pattern[j] != text[i]) {\n        if (j != 0) j = lps[j - 1];\n        else i++;\n      }\n    }\n  }\n\n  static void Main() {\n    string text = \"AABAACAADAABAAABAA\";\n    string pattern = \"AABA\";\n    KMPSearch(text, pattern);\n  }\n}\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "java": "import java.util.*;\n\nclass KMP {\n  static void computeLPS(String pattern, int[] lps) {\n    int len = 0, i = 1, M = pattern.length();\n    lps[0] = 0;\n    while (i < M) {\n      if (pattern.charAt(i) == pattern.charAt(len)) { len++; lps[i] = len; i++; }\n      else {\n        if (len != 0) len = lps[len - 1];\n        else { lps[i] = 0; i++; }\n      }\n    }\n  }\n\n  static void KMPSearch(String text, String pattern) {\n    int N = text.length(), M = pattern.length();\n    int[] lps = new int[M];\n    computeLPS(pattern, lps);\n    int i = 0, j = 0;\n    while (i < N) {\n      if (pattern.charAt(j) == text.charAt(i)) { i++; j++; }\n      if (j == M) { System.out.println(\"Pattern found at index \" + (i - j)); j = lps[j - 1]; }\n      else if (i < N && pattern.charAt(j) != text.charAt(i)) {\n        if (j != 0) j = lps[j - 1];\n        else i++;\n      }\n    }\n  }\n\n  public static void main(String[] args) {\n    String text = \"AABAACAADAABAAABAA\";\n    String pattern = \"AABA\";\n    KMPSearch(text, pattern);\n  }\n}\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "javascript": "function computeLPS(pattern) {\n  let lps = Array(pattern.length).fill(0);\n  let len = 0, i = 1;\n  while (i < pattern.length) {\n    if (pattern[i] === pattern[len]) { len++; lps[i] = len; i++; }\n    else {\n      if (len !== 0) len = lps[len - 1];\n      else { lps[i] = 0; i++; }\n    }\n  }\n  return lps;\n}\n\nfunction KMP(text, pattern) {\n  let N = text.length, M = pattern.length;\n  let lps = computeLPS(pattern);\n  let i = 0, j = 0;\n  while (i < N) {\n    if (pattern[j] === text[i]) { i++; j++; }\n    if (j === M) { console.log(`Pattern found at index ${i - j}`); j = lps[j - 1]; }\n    else if (i < N && pattern[j] !== text[i]) {\n      if (j !== 0) j = lps[j - 1];\n      else i++;\n    }\n  }\n}\n\nlet text = \"AABAACAADAABAAABAA\";\nlet pattern = \"AABA\";\nKMP(text, pattern);\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "typescript": "function computeLPS(pattern: string): number[] {\n  let lps: number[] = Array(pattern.length).fill(0);\n  let len = 0, i = 1;\n  while (i < pattern.length) {\n    if (pattern[i] === pattern[len]) { len++; lps[i] = len; i++; }\n    else {\n      if (len !== 0) len = lps[len - 1];\n      else { lps[i] = 0; i++; }\n    }\n  }\n  return lps;\n}\n\nfunction KMP(text: string, pattern: string): void {\n  let N = text.length, M = pattern.length;\n  let lps = computeLPS(pattern);\n  let i = 0, j = 0;\n  while (i < N) {\n    if (pattern[j] === text[i]) { i++; j++; }\n    if (j === M) { console.log(`Pattern found at index ${i - j}`); j = lps[j - 1]; }\n    else if (i < N && pattern[j] !== text[i]) {\n      if (j !== 0) j = lps[j - 1];\n      else i++;\n    }\n  }\n}\n\nlet text = \"AABAACAADAABAAABAA\";\nlet pattern = \"AABA\";\nKMP(text, pattern);\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13",
+      "python": "def compute_lps(pattern):\n    lps = [0] * len(pattern)\n    len_prev = 0\n    i = 1\n    while i < len(pattern):\n        if pattern[i] == pattern[len_prev]:\n            len_prev += 1\n            lps[i] = len_prev\n            i += 1\n        else:\n            if len_prev != 0:\n                len_prev = lps[len_prev - 1]\n            else:\n                lps[i] = 0\n                i += 1\n    return lps\n\ndef kmp_search(text, pattern):\n    N, M = len(text), len(pattern)\n    lps = compute_lps(pattern)\n    i = j = 0\n    while i < N:\n        if pattern[j] == text[i]:\n            i += 1\n            j += 1\n        if j == M:\n            print(f\"Pattern found at index {i - j}\")\n            j = lps[j - 1]\n        elif i < N and pattern[j] != text[i]:\n            if j != 0:\n                j = lps[j - 1]\n            else:\n                i += 1\n\ntext = \"AABAACAADAABAAABAA\"\npattern = \"AABA\"\nkmp_search(text, pattern)\n# Output: \n# Pattern found at index 0\n# Pattern found at index 9\n# Pattern found at index 13",
+      "php": "<?php\n\nfunction computeLPS($pattern) {\n  $lps = array_fill(0, strlen($pattern), 0);\n  $len = 0;\n  $i = 1;\n  while ($i < strlen($pattern)) {\n    if ($pattern[$i] == $pattern[$len]) {\n      $len++;\n      $lps[$i] = $len;\n      $i++;\n    } else {\n      if ($len != 0) $len = $lps[$len - 1];\n      else { $lps[$i] = 0; $i++; }\n    }\n  }\n  return $lps;\n}\n\nfunction KMP($text, $pattern) {\n  $N = strlen($text);\n  $M = strlen($pattern);\n  $lps = computeLPS($pattern);\n  $i = $j = 0;\n  while ($i < $N) {\n    if ($pattern[$j] == $text[$i]) { $i++; $j++; }\n    if ($j == $M) { echo \"Pattern found at index \" . ($i - $j) . \"\\n\"; $j = $lps[$j - 1]; }\n    else if ($i < $N && $pattern[$j] != $text[$i]) {\n      if ($j != 0) $j = $lps[$j - 1];\n      else $i++;\n    }\n  }\n}\n\n$text = \"AABAACAADAABAAABAA\";\n$pattern = \"AABA\";\nKMP($text, $pattern);\n// Output: \n// Pattern found at index 0\n// Pattern found at index 9\n// Pattern found at index 13"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое строковые алгоритмы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Строковые алгоритмы, такие как KMP (Knuth-Morris-Pratt) и Rabin-Karp, используются для поиска подстроки в тексте или манипуляции строками. KMP использует предварительно вычисленную таблицу наибольших префиксов-суффиксов (LPS) для эффективного поиска. Rabin-Karp применяет хэш-функции для быстрых сравнений. Например, поиск подстроки \"AABA\" в тексте \"AABAACAADAABAAABAA\" с помощью KMP даёт совпадения на индексах 0, 9 и 13. Эти алгоритмы эффективнее наивного подхода, который имеет временную сложность O(N*M)."
+      },
+      {
+        "type": "heading",
+        "text": "Как работают строковые алгоритмы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Алгоритм KMP: 1) **Таблица LPS** - вычисляется таблица наибольших префиксов-суффиксов для подстроки. 2) **Поиск** - текст и подстрока сравниваются посимвольно, а таблица LPS используется для оптимизации при несовпадениях. Например, в тексте \"AABAACAADAABAAABAA\" подстрока \"AABA\" находится на индексах 0, 9 и 13. Rabin-Karp: 1) **Вычисление хэша** - хэш-значения вычисляются для подстроки и подстрок текста. 2) **Сравнение** - при совпадении хэшей проверяются символы. KMP эффективен для фиксированных текстов, а Rabin-Karp — для поиска множества подстрок."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность строковых алгоритмов (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "KMP имеет временную сложность O(N + M), где N — длина текста, M — длина подстроки. Таблица LPS вычисляется за O(M), а поиск занимает O(N). Например, для текста из 18 символов и подстроки из 4 символов требуется O(18 + 4) ≈ O(22) операций. Rabin-Karp в среднем имеет сложность O(N + M), но в худшем случае — O(N*M) из-за коллизий хэшей. Пространственная сложность: O(M) для KMP (таблица LPS), O(1) для Rabin-Karp (хэш-значения). По сравнению с наивным алгоритмом (O(N*M)) оба алгоритма эффективнее."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки строковых алгоритмов"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "Эффективность: KMP гарантирует время O(N + M)." },
+          {
+            "description": "Универсальность: Rabin-Karp хорош для поиска множества подстрок."
+          },
+          {
+            "description": "Недостаток: KMP требует дополнительной памяти для таблицы LPS."
+          },
+          {
+            "description": "Недостаток: Производительность Rabin-Karp может ухудшаться из-за коллизий хэшей."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Строковые алгоритмы в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Строковые алгоритмы используются в поисковых системах (например, Google), системах обнаружения плагиата и биоинформатике (поиск последовательностей ДНК). Например, KMP может найти подстроку \"AABA\" в \"AABAACAADAABAAABAA\" на индексах 0, 9 и 13. KMP подходит для фиксированных текстов, а Rabin-Karp — для динамических поисков. По сравнению с наивным подходом оба алгоритма быстрее, но KMP требует меньше памяти."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основной риск для Rabin-Karp — коллизии хэшей, из-за которых производительность может упасть до O(N*M). Для KMP таблица LPS требует дополнительной памяти при больших подстроках. Рекомендации: используйте KMP для фиксированных текстов, а Rabin-Karp для поиска множества подстрок. Тщательно выбирайте хэш-функцию для Rabin-Karp. Проверяйте производительность на текстах разного размера. Для больших текстов можно использовать параллельные вычисления для оптимизации."
+      }
+    ]
+  }
+}

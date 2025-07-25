@@ -3,7 +3,8 @@ import path from 'path';
 import fs from 'fs/promises';
 
 export async function GET(req, context) {
-  const { language } = context.params;
+  const params = await context.params;
+  const { language } = params;
   const filePath = path.join(
     process.cwd(),
     "public",

@@ -1,0 +1,484 @@
+{
+  "id": "memory-management",
+  "az": {
+    "title": "Yaddaş İdarəetməsi və Span<T>",
+    "icon": "FiCpu",
+    "language": "csharp",
+    "description": "Zibil toplama, Span<T> və yaddaş optimizasiyası.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Yaddaş İdarəetməsi və Span<T> Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində yaddaş idarəetməsi proqramın yaddaşdan necə istifadə etdiyini və optimallaşdırdığını müəyyənləşdirir. Zibil toplama (garbage collection) istifadə olunmayan obyektləri avtomatik olaraq yaddaşdan silir. `Span<T>` isə yaddaşa təhlükəsiz və səmərəli şəkildə daxil olmağa imkan verən müasir bir strukturadır. Bu JSON faylda zibil toplamanın əsasları, `Span<T>` və `Memory<T>`-nin istifadəsi, yaddaş optimizasiyası üsulları, üstünlükləri və çətinlikləri sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur və Pyodide məhdudiyyətlərinə uyğun olaraq şəbəkə çağırışları və fayl əməliyyatları əvəzinə sadə massivlər üzərində əməliyyatlar icra edilir."
+      },
+      {
+        "type": "heading",
+        "text": "Zibil Toplama (Garbage Collection)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Zibil toplama C#-da yaddaşı avtomatik idarə edir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Zibil toplama nümunəsi...\");\n        CreateObjects();\n        Console.WriteLine(\"Obyektlər yaradıldı.\");\n        GC.Collect();\n        GC.WaitForPendingFinalizers();\n        Console.WriteLine(\"Zibil toplama işə salındı.\");\n    }\n\n    static void CreateObjects()\n    {\n        for (int i = 0; i < 1000; i++)\n        {\n            var obj = new object();\n        }\n    }\n}\n// Output:\n// Zibil toplama nümunəsi...\n// Obyektlər yaradıldı.\n// Zibil toplama işə salındı."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `CreateObjects` metodunda çox sayda obyekt yaradılır.\n- `GC.Collect` zibil toplayıcını işə salır və istifadə olunmayan obyektləri silir.\n- `GC.WaitForPendingFinalizers` gözləyən finallaşdırma proseslərinin tamamlanmasını təmin edir.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "`Span<T>` ilə Yaddaş Səmərəliliyi"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Span<T>` yaddaşa təhlükəsiz və səmərəli daxil olmağa imkan verir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Span<T> istifadəsi...\");\n        int[] numbers = new[] { 1, 2, 3, 4, 5 };\n        Span<int> span = numbers.AsSpan(1, 3);\n\n        int sum = 0;\n        foreach (var num in span)\n        {\n            sum += num;\n        }\n        Console.WriteLine($\"Massivin 1-3 indekslərinin cəmi: {sum}\");\n    }\n}\n// Output:\n// Span<T> istifadəsi...\n// Massivin 1-3 indekslərinin cəmi: 9"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `AsSpan` ilə massivin bir hissəsinə `Span<T>` yaradılır.\n- `Span<T>` yaddaşda əlavə kopya yaratmadan massivə daxil olur.\n- Yaddaş istifadəsi optimallaşdırılır."
+      },
+      {
+        "type": "heading",
+        "text": "`Memory<T>` ilə Yaddaş İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Memory<T>` `Span<T>`-ə bənzər, lakin asinxron əməliyyatlar üçün daha uyğundur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Memory<T> istifadəsi...\");\n        int[] numbers = new[] { 1, 2, 3, 4, 5 };\n        Memory<int> memory = numbers.AsMemory(1, 3);\n\n        int sum = await CalculateSumAsync(memory);\n        Console.WriteLine($\"Massivin 1-3 indekslərinin cəmi: {sum}\");\n    }\n\n    static async Task<int> CalculateSumAsync(Memory<int> memory)\n    {\n        await Task.Delay(100); // Simulyasiya üçün gecikmə\n        int sum = 0;\n        foreach (var num in memory.Span)\n        {\n            sum += num;\n        }\n        return sum;\n    }\n}\n// Output:\n// Memory<T> istifadəsi...\n// Massivin 1-3 indekslərinin cəmi: 9"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `AsMemory` ilə `Memory<T>` yaradılır.\n- Asinxron metodda `Memory<T>`-nin `Span` xassəsi istifadə olunur.\n- Yaddaş səmərəliliyi təmin edilir."
+      },
+      {
+        "type": "heading",
+        "text": "İstisna İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Span<T>` və yaddaş idarəetməsində səhvlər, məsələn, massiv sərhədlərini aşma, `try-catch` ilə idarə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Span<T> səhv idarəetməsi...\");\n        int[] numbers = new[] { 1, 2, 3 };\n        try\n        {\n            Span<int> span = numbers.AsSpan(0, 5);\n            Console.WriteLine(span[0]);\n        }\n        catch (ArgumentOutOfRangeException ex)\n        {\n            Console.WriteLine(\"Səhv: Massiv sərhədləri aşılıb!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Span<T> səhv idarəetməsi...\n// Səhv: Massiv sərhədləri aşılıb!\n// Səhv mesajı: Length cannot exceed the length of the array."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `AsSpan` ilə massivin sərhədlərindən kənarda span yaradılmağa cəhd edilir.\n- `ArgumentOutOfRangeException` yaranır və `try-catch` ilə idarə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Yaddaş Optimizasiyasının Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Zibil toplama və `Span<T>` yaddaşdan səmərəli istifadəni təmin edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nSəmərəlilik: `Span<T>` əlavə yaddaş kopyalanmasını azaldır."
+          },
+          {
+            "description": "\nPerformans: Yaddaş istifadəsi optimallaşdırılır, xüsusilə böyük məlumatlarla işləyərkən."
+          },
+          {
+            "description": "\nTəhlükəsizlik: `Span<T>` yaddaşa təhlükəsiz daxil olmağı təmin edir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yaddaş idarəetməsi yeni başlayanlar üçün mürəkkəb ola bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: `Span<T>` və `Memory<T>`-nin düzgün istifadəsi təcrübə tələb edir."
+          },
+          {
+            "description": "\nSərhəd Səhvləri: Massiv sərhədlərinin aşılması səhvlərə səbəb ola bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: `Span<T>` Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Səhv yaddaş əməliyyatları (məsələn, sərhədləri aşma) icra zamanı səhvlərə səbəb ola bilər.\n- **Tövsiyələr**: `Span<T>` və `Memory<T>`-ni sadə saxlayın. Səhvləri `try-catch` ilə idarə edin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə sərhədləri aşma səhvə səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Səhvə yol açan Span<T>...\");\n        int[] numbers = new[] { 1, 2, 3 };\n        try\n        {\n            Span<int> span = numbers.AsSpan(0, 10);\n            Console.WriteLine(span[0]);\n        }\n        catch (ArgumentOutOfRangeException ex)\n        {\n            Console.WriteLine(\"Səhv: Massiv sərhədləri aşılıb!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Səhvə yol açan Span<T>...\n// Səhv: Massiv sərhədləri aşılıb!\n// Səhv mesajı: Length cannot exceed the length of the array."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `AsSpan` ilə massivin sərhədlərindən kənarda span yaradılır.\n- `ArgumentOutOfRangeException` yaranır və `try-catch` ilə idarə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Span<T> sınağı...\");\n        try\n        {\n            int[] numbers = new[] { 10, 20, 30, 40, 50 };\n            Span<int> span = numbers.AsSpan(2, 2);\n            int sum = 0;\n            foreach (var num in span)\n            {\n                sum += num;\n            }\n            Console.WriteLine($\"Massivin 2-3 indekslərinin cəmi: {sum}\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Səhv: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Span<T> sınağı...\n// Massivin 2-3 indekslərinin cəmi: 70"
+      }
+    ]
+  },
+  "en": {
+    "title": "Memory Management & Span<T>",
+    "icon": "FiCpu",
+    "language": "csharp",
+    "description": "Garbage collection, Span<T>, and memory optimization.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Memory Management and Span<T>?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, memory management determines how a program uses and optimizes memory. Garbage collection automatically reclaims memory from unused objects. `Span<T>` is a modern structure that allows safe and efficient memory access. This JSON file explains the basics of garbage collection, the use of `Span<T>` and `Memory<T>`, memory optimization techniques, advantages, and challenges in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values, avoid user input, and perform operations on simple arrays instead of network or file operations due to Pyodide limitations."
+      },
+      {
+        "type": "heading",
+        "text": "Garbage Collection"
+      },
+      {
+        "type": "paragraph",
+        "text": "Garbage collection in C# automatically manages memory."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Garbage collection example...\");\n        CreateObjects();\n        Console.WriteLine(\"Objects created.\");\n        GC.Collect();\n        GC.WaitForPendingFinalizers();\n        Console.WriteLine(\"Garbage collection triggered.\");\n    }\n\n    static void CreateObjects()\n    {\n        for (int i = 0; i < 1000; i++)\n        {\n            var obj = new object();\n        }\n    }\n}\n// Output:\n// Garbage collection example...\n// Objects created.\n// Garbage collection triggered."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `CreateObjects` method creates many objects.\n- `GC.Collect` triggers the garbage collector to reclaim unused objects.\n- `GC.WaitForPendingFinalizers` ensures finalization processes complete.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Memory Efficiency with `Span<T>`"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Span<T>` enables safe and efficient memory access."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Using Span<T>...\");\n        int[] numbers = new[] { 1, 2, 3, 4, 5 };\n        Span<int> span = numbers.AsSpan(1, 3);\n\n        int sum = 0;\n        foreach (var num in span)\n        {\n            sum += num;\n        }\n        Console.WriteLine($\"Sum of indices 1-3: {sum}\");\n    }\n}\n// Output:\n// Using Span<T>...\n// Sum of indices 1-3: 9"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `AsSpan` creates a `Span<T>` over a portion of an array.\n- `Span<T>` accesses the array without creating extra copies.\n- Memory usage is optimized."
+      },
+      {
+        "type": "heading",
+        "text": "Memory Management with `Memory<T>`"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Memory<T>` is similar to `Span<T>` but better suited for asynchronous operations."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Using Memory<T>...\");\n        int[] numbers = new[] { 1, 2, 3, 4, 5 };\n        Memory<int> memory = numbers.AsMemory(1, 3);\n\n        int sum = await CalculateSumAsync(memory);\n        Console.WriteLine($\"Sum of indices 1-3: {sum}\");\n    }\n\n    static async Task<int> CalculateSumAsync(Memory<int> memory)\n    {\n        await Task.Delay(100); // Simulated delay\n        int sum = 0;\n        foreach (var num in memory.Span)\n        {\n            sum += num;\n        }\n        return sum;\n    }\n}\n// Output:\n// Using Memory<T>...\n// Sum of indices 1-3: 9"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `AsMemory` creates a `Memory<T>` instance.\n- The asynchronous method uses `Memory<T>`'s `Span` property.\n- Memory efficiency is maintained."
+      },
+      {
+        "type": "heading",
+        "text": "Exception Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "Errors in `Span<T>` and memory management, such as accessing beyond array bounds, are handled with `try-catch`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Span<T> error handling...\");\n        int[] numbers = new[] { 1, 2, 3 };\n        try\n        {\n            Span<int> span = numbers.AsSpan(0, 5);\n            Console.WriteLine(span[0]);\n        }\n        catch (ArgumentOutOfRangeException ex)\n        {\n            Console.WriteLine(\"Error: Array bounds exceeded!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Span<T> error handling...\n// Error: Array bounds exceeded!\n// Error message: Length cannot exceed the length of the array."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `AsSpan` attempts to create a span beyond the array’s bounds.\n- An `ArgumentOutOfRangeException` is triggered and handled with `try-catch`."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Memory Optimization"
+      },
+      {
+        "type": "paragraph",
+        "text": "Garbage collection and `Span<T>` enable efficient memory use."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nEfficiency: `Span<T>` reduces unnecessary memory copying."
+          },
+          {
+            "description": "\nPerformance: Optimizes memory usage, especially with large datasets."
+          },
+          { "description": "\nSafety: `Span<T>` ensures safe memory access." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Memory management can be complex for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: Proper use of `Span<T>` and `Memory<T>` requires experience."
+          },
+          {
+            "description": "\nBounds Errors: Exceeding array bounds can cause errors."
+          },
+          {
+            "description": "\nPyodide Limitation: `Span<T>` is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Incorrect memory operations (e.g., exceeding bounds) can cause runtime errors.\n- **Recommendations**: Keep `Span<T>` and `Memory<T>` usage simple. Handle errors with `try-catch`. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error by exceeding array bounds."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Error-prone Span<T>...\");\n        int[] numbers = new[] { 1, 2, 3 };\n        try\n        {\n            Span<int> span = numbers.AsSpan(0, 10);\n            Console.WriteLine(span[0]);\n        }\n        catch (ArgumentOutOfRangeException ex)\n        {\n            Console.WriteLine(\"Error: Array bounds exceeded!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Error-prone Span<T>...\n// Error: Array bounds exceeded!\n// Error message: Length cannot exceed the length of the array."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `AsSpan` attempts to create a span beyond the array’s bounds.\n- An `ArgumentOutOfRangeException` is triggered and handled with `try-catch`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Span<T> test...\");\n        try\n        {\n            int[] numbers = new[] { 10, 20, 30, 40, 50 };\n            Span<int> span = numbers.AsSpan(2, 2);\n            int sum = 0;\n            foreach (var num in span)\n            {\n                sum += num;\n            }\n            Console.WriteLine($\"Sum of indices 2-3: {sum}\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Error: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Span<T> test...\n// Sum of indices 2-3: 70"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Управление памятью и Span<T>",
+    "icon": "FiCpu",
+    "language": "csharp",
+    "description": "Сборка мусора, Span<T> и оптимизация памяти.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое управление памятью и Span<T>?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# управление памятью определяет, как программа использует и оптимизирует память. Сборка мусора (garbage collection) автоматически освобождает память от неиспользуемых объектов. `Span<T>` — это современная структура, которая позволяет безопасно и эффективно обращаться к памяти. Этот JSON-файл объясняет основы сборки мусора, использование `Span<T>` и `Memory<T>`, методы оптимизации памяти, преимущества и сложности простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения, не требуют ввода от пользователя и выполняют операции на простых массивах вместо сетевых операций или операций с файлами из-за ограничений Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Сборка мусора"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сборка мусора в C# автоматически управляет памятью."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Пример сборки мусора...\");\n        CreateObjects();\n        Console.WriteLine(\"Объекты созданы.\");\n        GC.Collect();\n        GC.WaitForPendingFinalizers();\n        Console.WriteLine(\"Сборка мусора запущена.\");\n    }\n\n    static void CreateObjects()\n    {\n        for (int i = 0; i < 1000; i++)\n        {\n            var obj = new object();\n        }\n    }\n}\n// Output:\n// Пример сборки мусора...\n// Объекты созданы.\n// Сборка мусора запущена."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Метод `CreateObjects` создаёт множество объектов.\n- `GC.Collect` запускает сборщик мусора для освобождения неиспользуемых объектов.\n- `GC.WaitForPendingFinalizers` обеспечивает завершение процессов финализации.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность памяти с `Span<T>`"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Span<T>` обеспечивает безопасный и эффективный доступ к памяти."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Использование Span<T>...\");\n        int[] numbers = new[] { 1, 2, 3, 4, 5 };\n        Span<int> span = numbers.AsSpan(1, 3);\n\n        int sum = 0;\n        foreach (var num in span)\n        {\n            sum += num;\n        }\n        Console.WriteLine($\"Сумма элементов с индексов 1-3: {sum}\");\n    }\n}\n// Output:\n// Использование Span<T>...\n// Сумма элементов с индексов 1-3: 9"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `AsSpan` создаёт `Span<T>` для части массива.\n- `Span<T>` обращается к массиву без создания дополнительных копий.\n- Использование памяти оптимизировано."
+      },
+      {
+        "type": "heading",
+        "text": "Управление памятью с `Memory<T>`"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Memory<T>` похож на `Span<T>`, но лучше подходит для асинхронных операций."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Threading.Tasks;\n\nclass Program\n{\n    static async Task Main(string[] args)\n    {\n        Console.WriteLine(\"Использование Memory<T>...\");\n        int[] numbers = new[] { 1, 2, 3, 4, 5 };\n        Memory<int> memory = numbers.AsMemory(1, 3);\n\n        int sum = await CalculateSumAsync(memory);\n        Console.WriteLine($\"Сумма элементов с индексов 1-3: {sum}\");\n    }\n\n    static async Task<int> CalculateSumAsync(Memory<int> memory)\n    {\n        await Task.Delay(100); // Симуляция задержки\n        int sum = 0;\n        foreach (var num in memory.Span)\n        {\n            sum += num;\n        }\n        return sum;\n    }\n}\n// Output:\n// Использование Memory<T>...\n// Сумма элементов с индексов 1-3: 9"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `AsMemory` создаёт экземпляр `Memory<T>`.\n- Асинхронный метод использует свойство `Span` объекта `Memory<T>`.\n- Эффективность памяти сохраняется."
+      },
+      {
+        "type": "heading",
+        "text": "Обработка исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ошибки в `Span<T>` и управлении памятью, такие как выход за границы массива, обрабатываются с помощью `try-catch`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Обработка ошибок Span<T>...\");\n        int[] numbers = new[] { 1, 2, 3 };\n        try\n        {\n            Span<int> span = numbers.AsSpan(0, 5);\n            Console.WriteLine(span[0]);\n        }\n        catch (ArgumentOutOfRangeException ex)\n        {\n            Console.WriteLine(\"Ошибка: Превышены границы массива!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Обработка ошибок Span<T>...\n// Ошибка: Превышены границы массива!\n// Сообщение об ошибке: Length cannot exceed the length of the array."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `AsSpan` пытается создать span за пределами границ массива.\n- Возникает `ArgumentOutOfRangeException`, которое обрабатывается с помощью `try-catch`."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества оптимизации памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сборка мусора и `Span<T>` обеспечивают эффективное использование памяти."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nЭффективность: `Span<T>` уменьшает ненужное копирование памяти."
+          },
+          {
+            "description": "\nПроизводительность: Оптимизирует использование памяти, особенно при работе с большими данными."
+          },
+          {
+            "description": "\nБезопасность: `Span<T>` обеспечивает безопасный доступ к памяти."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Управление памятью может быть сложным для новичков."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Корректное использование `Span<T>` и `Memory<T>` требует опыта."
+          },
+          {
+            "description": "\nОшибки границ: Выход за границы массива может вызвать ошибки."
+          },
+          {
+            "description": "\nОграничение Pyodide: `Span<T>` не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильные операции с памятью (например, выход за границы) могут вызвать ошибки во время выполнения.\n- **Рекомендации**: Используйте `Span<T>` и `Memory<T>` просто. Обрабатывайте ошибки с помощью `try-catch`. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку из-за превышения границ массива."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Span<T> с ошибкой...\");\n        int[] numbers = new[] { 1, 2, 3 };\n        try\n        {\n            Span<int> span = numbers.AsSpan(0, 10);\n            Console.WriteLine(span[0]);\n        }\n        catch (ArgumentOutOfRangeException ex)\n        {\n            Console.WriteLine(\"Ошибка: Превышены границы массива!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Span<T> с ошибкой...\n// Ошибка: Превышены границы массива!\n// Сообщение об ошибке: Length cannot exceed the length of the array."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `AsSpan` пытается создать span за пределами границ массива.\n- Возникает `ArgumentOutOfRangeException`, которое обрабатывается с помощью `try-catch`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Тест Span<T>...\");\n        try\n        {\n            int[] numbers = new[] { 10, 20, 30, 40, 50 };\n            Span<int> span = numbers.AsSpan(2, 2);\n            int sum = 0;\n            foreach (var num in span)\n            {\n                sum += num;\n            }\n            Console.WriteLine($\"Сумма элементов с индексов 2-3: {sum}\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Ошибка: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Тест Span<T>...\n// Сумма элементов с индексов 2-3: 70"
+      }
+    ]
+  }
+}

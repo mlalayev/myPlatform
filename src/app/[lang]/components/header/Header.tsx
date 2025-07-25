@@ -182,13 +182,15 @@ const Header: React.FC = () => {
               aria-label="Profil"
             >
               {(() => {
-                const avatarUrl = (session.user as unknown as { avatarUrl: string }).avatarUrl;
+                const avatarUrl = (session.user as unknown as { avatarUrl: string })?.avatarUrl;
                 
                 if (avatarUrl) {
                   return (
                     <Image 
                       src={avatarUrl} 
                       alt="avatar" 
+                      width={32}
+                      height={32}
                       className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm" 
                     />
                   );
@@ -204,10 +206,12 @@ const Header: React.FC = () => {
             {isProfileDropdownOpen && (
               <div className={HeaderStyle.profileMenu}>
                 <div className={HeaderStyle.profileMenuUser}>
-                  {(session.user as unknown as { avatarUrl: string }) ? (
+                  {(session.user as unknown as { avatarUrl: string })?.avatarUrl ? (
                     <Image 
                       src={(session.user as unknown as { avatarUrl: string }).avatarUrl} 
                       alt="avatar" 
+                      width={40}
+                      height={40}
                       className={HeaderStyle.profileMenuAvatar} 
                     />
                   ) : (

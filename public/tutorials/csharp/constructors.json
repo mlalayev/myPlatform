@@ -1,0 +1,537 @@
+{
+  "id": "constructors",
+  "az": {
+    "title": "Konstruktorlar",
+    "icon": "FiTool",
+    "language": "csharp",
+    "description": "Sinifin yaradılması.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Konstruktorlar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində konstruktorlar sinifdən obyekt yaradılarkən avtomatik çağırılan xüsusi metodlardır. Onlar obyektin ilkin vəziyyətini (məsələn, xassələrin dəyərlərini) təyin etmək üçün istifadə olunur. Konstruktorun adı sinfin adı ilə eyni olur və heç bir qaytarma tipi olmur (hətta `void` belə). Bu JSON faylda konstruktorların növləri (parametrsiz, parametrlə, statik), istifadəsi və nümunələri sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Parametrsiz Konstruktor"
+      },
+      {
+        "type": "paragraph",
+        "text": "Parametrsiz konstruktor heç bir parametr qəbul etməyən və obyektə standart dəyərlər təyin edən konstruktordur. Əgər sinifdə konstruktor təyin edilməyibsə, C# avtomatik olaraq parametrsiz konstruktor yaradır."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n\n    public Person()\n    {\n        Name = \"Adsız\";\n        Age = 18;\n    }\n\n    public void Introduce()\n    {\n        Console.WriteLine($\"Salam, mən {Name}, {Age} yaşım var.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person();\n        person.Introduce();\n    }\n}\n// Output:\n// Salam, mən Adsız, 18 yaşım var."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Person` sinfi parametrsiz konstruktor ilə `Name` və `Age` xassələrinə standart dəyərlər təyin edir.\n- Obyekt yaradılarkən (`new Person()`) konstruktor avtomatik çağırılır.\n- `Introduce` metodu xassələri çap edir.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Parametrlə Konstruktor"
+      },
+      {
+        "type": "paragraph",
+        "text": "Parametrlə konstruktor obyekt yaradılarkən xarici dəyərləri qəbul edir və onları sinfin xassələrinə təyin edir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Student\n{\n    public string Name { get; set; }\n    public int Grade { get; set; }\n\n    public Student(string name, int grade)\n    {\n        Name = name;\n        Grade = grade;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Tələbə: {Name}, Səviyyə: {Grade}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Student student = new Student(\"Aysel\", 9);\n        student.DisplayInfo();\n    }\n}\n// Output:\n// Tələbə: Aysel, Səviyyə: 9"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Student` sinfi parametrlə konstruktor ilə `Name` və `Grade` dəyərlərini qəbul edir.\n- Obyekt yaradılarkən dəyərlər konstruktor vasitəsilə təyin olunur.\n- `DisplayInfo` metodu məlumatları çap edir."
+      },
+      {
+        "type": "heading",
+        "text": "Statik Konstruktor"
+      },
+      {
+        "type": "paragraph",
+        "text": "Statik konstruktor sinfin statik üzvlərini (məsələn, statik sahələri) ilkinləşdirmək üçün istifadə olunur. O, avtomatik olaraq sinfin ilk istifadəsində bir dəfə çağırılır və parametrləri ola bilməz."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Logger\n{\n    public static int LogCount { get; private set; }\n\n    static Logger()\n    {\n        LogCount = 0;\n        Console.WriteLine(\"Statik konstruktor çağırıldı.\");\n    }\n\n    public void Log(string message)\n    {\n        LogCount++;\n        Console.WriteLine($\"Log #{LogCount}: {message}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Logger logger = new Logger();\n        logger.Log(\"İlk mesaj\");\n        logger.Log(\"İkinci mesaj\");\n    }\n}\n// Output:\n// Statik konstruktor çağırıldı.\n// Log #1: İlk mesaj\n// Log #2: İkinci mesaj"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Logger` sinfi statik konstruktor ilə `LogCount` dəyərini ilkinləşdirir.\n- Statik konstruktor sinfin ilk istifadəsində avtomatik çağırılır.\n- `Log` metodu hər çağırışda `LogCount` dəyərini artırır."
+      },
+      {
+        "type": "heading",
+        "text": "Konstruktor Overloading"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bir sinifdə birdən çox konstruktor təyin etmək mümkündür, bu konstruktor overloading adlanır. Hər konstruktor fərqli parametrlər qəbul edir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Car\n{\n    public string Brand { get; set; }\n    public string Color { get; set; }\n\n    public Car()\n    {\n        Brand = \"Bilinməyən\";\n        Color = \"Bilinməyən\";\n    }\n\n    public Car(string brand)\n    {\n        Brand = brand;\n        Color = \"Bilinməyən\";\n    }\n\n    public Car(string brand, string color)\n    {\n        Brand = brand;\n        Color = color;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Avtomobil: {Brand}, Rəng: {Color}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Car car1 = new Car();\n        Car car2 = new Car(\"BMW\");\n        Car car3 = new Car(\"Toyota\", \"Qırmızı\");\n\n        car1.DisplayInfo();\n        car2.DisplayInfo();\n        car3.DisplayInfo();\n    }\n}\n// Output:\n// Avtomobil: Bilinməyən, Rəng: Bilinməyən\n// Avtomobil: BMW, Rəng: Bilinməyən\n// Avtomobil: Toyota, Rəng: Qırmızı"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Car` sinfi üç fərqli konstruktor təyin edir: parametrsiz, bir parametrli və iki parametrli.\n- Hər konstruktor obyekti fərqli şəkildə ilkinləşdirir.\n- `DisplayInfo` metodu obyektin məlumatlarını çap edir."
+      },
+      {
+        "type": "heading",
+        "text": "Konstruktorlar və Enkapsulyasiya"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konstruktorlar enkapsulyasiyanı dəstəkləyir, çünki obyektin ilkin vəziyyətini təhlükəsiz şəkildə təyin etməyə imkan verir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    private decimal balance;\n\n    public decimal Balance\n    {\n        get { return balance; }\n        private set { if (value >= 0) balance = value; }\n    }\n\n    public BankAccount(decimal initialBalance)\n    {\n        Balance = initialBalance;\n    }\n\n    public void Deposit(decimal amount)\n    {\n        if (amount > 0)\n            Balance += amount;\n        Console.WriteLine($\"{amount} əlavə edildi. Yeni balans: {Balance}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount(1000);\n        account.Deposit(500);\n        Console.WriteLine($\"Cari balans: {account.Balance}\");\n    }\n}\n// Output:\n// 500 əlavə edildi. Yeni balans: 1500\n// Cari balans: 1500"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `BankAccount` sinfi konstruktor vasitəsilə `Balance` xassəsini ilkinləşdirir.\n- `Balance` xassəsinin `set` metodu yalnız sinif daxilində dəyişdirilə bilər.\n- `Deposit` metodu balansın təhlükəsiz artırılmasını təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Konstruktorların Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konstruktorlar obyektlərin düzgün ilkinləşdirilməsini təmin edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nİlkinləşdirmə: Obyektlərə başlanğıc dəyərlər təyin edir."
+          },
+          {
+            "description": "\nTəhlükəsizlik: Enkapsulyasiya ilə məlumatları qoruyur."
+          },
+          {
+            "description": "\nÇeviklik: Overloading ilə müxtəlif ilkinləşdirmə variantları təklif edir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konstruktorlar yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: Overloading və statik konstruktorlar qarışıq ola bilər."
+          },
+          {
+            "description": "\nSəhv İdarəetmə: Yanlış parametr dəyərləri xətalara səbəb ola bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Konstruktorlarda səhv parametr yoxlamaları və ya `null` dəyərləri xətalara səbəb ola bilər. Həddindən artıq overloading kodu mürəkkəbləşdirə bilər.\n- **Tövsiyələr**: Parametrləri diqqətlə yoxlayın, standart dəyərlər təyin edin. Sadə konstruktor dizaynlarına üstünlük verin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə səhv parametr dəyəri xətaya səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    public decimal Balance { get; private set; }\n\n    public BankAccount(decimal initialBalance)\n    {\n        if (initialBalance < 0)\n            throw new ArgumentException(\"Başlanğıc balans mənfi ola bilməz.\");\n        Balance = initialBalance;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount(-100); // Xəta: ArgumentException\n    }\n}\n// Xəta: System.ArgumentException"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `BankAccount` sinfi mənfi balans dəyərini qəbul etmir.\n- Konstruktor `initialBalance` parametrini yoxlayır və mənfi dəyər üçün xəta atır.\n- Həll: Parametrləri yoxlayın və düzgün dəyərlər istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Book\n{\n    public string Title { get; set; }\n    public string Author { get; set; }\n\n    public Book(string title, string author)\n    {\n        Title = title;\n        Author = author;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Kitab: {Title}, Müəllif: {Author}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Book book = new Book(\"1984\", \"George Orwell\");\n        book.DisplayInfo();\n    }\n}\n// Output:\n// Kitab: 1984, Müəllif: George Orwell"
+      }
+    ]
+  },
+  "en": {
+    "title": "Constructors",
+    "icon": "FiTool",
+    "language": "csharp",
+    "description": "Class instantiation.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Constructors?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, constructors are special methods automatically called when an object is created from a class. They initialize the object’s initial state (e.g., setting property values). A constructor has the same name as the class and does not have a return type (not even `void`). This JSON file explains the types of constructors (default, parameterized, static), their usage, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input."
+      },
+      {
+        "type": "heading",
+        "text": "Default Constructor"
+      },
+      {
+        "type": "paragraph",
+        "text": "A default constructor takes no parameters and sets default values for an object. If no constructor is defined in a class, C# automatically provides a default constructor."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n\n    public Person()\n    {\n        Name = \"Unknown\";\n        Age = 18;\n    }\n\n    public void Introduce()\n    {\n        Console.WriteLine($\"Hello, I'm {Name}, {Age} years old.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person();\n        person.Introduce();\n    }\n}\n// Output:\n// Hello, I'm Unknown, 18 years old."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Person` class uses a default constructor to set default values for `Name` and `Age`.\n- The constructor is automatically called when creating an object (`new Person()`).\n- The `Introduce` method prints the properties.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Parameterized Constructor"
+      },
+      {
+        "type": "paragraph",
+        "text": "A parameterized constructor accepts external values and assigns them to the class’s properties during object creation."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Student\n{\n    public string Name { get; set; }\n    public int Grade { get; set; }\n\n    public Student(string name, int grade)\n    {\n        Name = name;\n        Grade = grade;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Student: {Name}, Grade: {Grade}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Student student = new Student(\"Alice\", 9);\n        student.DisplayInfo();\n    }\n}\n// Output:\n// Student: Alice, Grade: 9"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Student` class uses a parameterized constructor to accept `Name` and `Grade` values.\n- Values are set during object creation.\n- The `DisplayInfo` method prints the information."
+      },
+      {
+        "type": "heading",
+        "text": "Static Constructor"
+      },
+      {
+        "type": "paragraph",
+        "text": "A static constructor initializes static members of a class (e.g., static fields). It is called automatically once when the class is first used and cannot have parameters."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Logger\n{\n    public static int LogCount { get; private set; }\n\n    static Logger()\n    {\n        LogCount = 0;\n        Console.WriteLine(\"Static constructor called.\");\n    }\n\n    public void Log(string message)\n    {\n        LogCount++;\n        Console.WriteLine($\"Log #{LogCount}: {message}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Logger logger = new Logger();\n        logger.Log(\"First message\");\n        logger.Log(\"Second message\");\n    }\n}\n// Output:\n// Static constructor called.\n// Log #1: First message\n// Log #2: Second message"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Logger` class uses a static constructor to initialize `LogCount`.\n- The static constructor is called automatically when the class is first used.\n- The `Log` method increments `LogCount` for each call."
+      },
+      {
+        "type": "heading",
+        "text": "Constructor Overloading"
+      },
+      {
+        "type": "paragraph",
+        "text": "A class can have multiple constructors with different parameters, known as constructor overloading."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Car\n{\n    public string Brand { get; set; }\n    public string Color { get; set; }\n\n    public Car()\n    {\n        Brand = \"Unknown\";\n        Color = \"Unknown\";\n    }\n\n    public Car(string brand)\n    {\n        Brand = brand;\n        Color = \"Unknown\";\n    }\n\n    public Car(string brand, string color)\n    {\n        Brand = brand;\n        Color = color;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Car: {Brand}, Color: {Color}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Car car1 = new Car();\n        Car car2 = new Car(\"BMW\");\n        Car car3 = new Car(\"Toyota\", \"Red\");\n\n        car1.DisplayInfo();\n        car2.DisplayInfo();\n        car3.DisplayInfo();\n    }\n}\n// Output:\n// Car: Unknown, Color: Unknown\n// Car: BMW, Color: Unknown\n// Car: Toyota, Color: Red"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Car` class defines three constructors: default, one-parameter, and two-parameter.\n- Each constructor initializes the object differently.\n- The `DisplayInfo` method prints the object’s information."
+      },
+      {
+        "type": "heading",
+        "text": "Constructors and Encapsulation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Constructors support encapsulation by safely initializing an object’s state."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    private decimal balance;\n\n    public decimal Balance\n    {\n        get { return balance; }\n        private set { if (value >= 0) balance = value; }\n    }\n\n    public BankAccount(decimal initialBalance)\n    {\n        Balance = initialBalance;\n    }\n\n    public void Deposit(decimal amount)\n    {\n        if (amount > 0)\n            Balance += amount;\n        Console.WriteLine($\"Deposited {amount}. New balance: {Balance}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount(1000);\n        account.Deposit(500);\n        Console.WriteLine($\"Current balance: {account.Balance}\");\n    }\n}\n// Output:\n// Deposited 500. New balance: 1500\n// Current balance: 1500"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `BankAccount` class initializes the `Balance` property via a constructor.\n- The `Balance` property’s `set` method is private, restricting external changes.\n- The `Deposit` method safely increases the balance."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Constructors"
+      },
+      {
+        "type": "paragraph",
+        "text": "Constructors ensure proper object initialization."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nInitialization: Sets initial values for objects."
+          },
+          {
+            "description": "\nSafety: Supports encapsulation to protect data."
+          },
+          {
+            "description": "\nFlexibility: Overloading allows multiple initialization options."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Constructors can present challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: Overloading and static constructors can be confusing."
+          },
+          {
+            "description": "\nError Handling: Incorrect parameter values can cause errors."
+          },
+          {
+            "description": "\nPyodide Limitation: C# code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Incorrect parameter validation or `null` values in constructors can cause errors. Excessive overloading can complicate code.\n- **Recommendations**: Validate parameters carefully and set default values. Prefer simple constructor designs. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error due to an invalid parameter value."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    public decimal Balance { get; private set; }\n\n    public BankAccount(decimal initialBalance)\n    {\n        if (initialBalance < 0)\n            throw new ArgumentException(\"Initial balance cannot be negative.\");\n        Balance = initialBalance;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount(-100); // Error: ArgumentException\n    }\n}\n// Error: System.ArgumentException"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `BankAccount` class does not allow a negative balance.\n- The constructor checks `initialBalance` and throws an error for negative values.\n- Solution: Validate parameters and use correct values."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Book\n{\n    public string Title { get; set; }\n    public string Author { get; set; }\n\n    public Book(string title, string author)\n    {\n        Title = title;\n        Author = author;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Book: {Title}, Author: {Author}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Book book = new Book(\"1984\", \"George Orwell\");\n        book.DisplayInfo();\n    }\n}\n// Output:\n// Book: 1984, Author: George Orwell"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Конструкторы",
+    "icon": "FiTool",
+    "language": "csharp",
+    "description": "Создание класса.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое конструкторы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# конструкторы — это специальные методы, которые автоматически вызываются при создании объекта из класса. Они используются для инициализации начального состояния объекта (например, значений свойств). Конструктор имеет то же имя, что и класс, и не имеет возвращаемого типа (даже `void`). Этот JSON-файл объясняет типы конструкторов (без параметров, с параметрами, статические), их использование и примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Конструктор по умолчанию"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конструктор по умолчанию не принимает параметров и задаёт стандартные значения для объекта. Если в классе не определён конструктор, C# автоматически предоставляет конструктор по умолчанию."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n\n    public Person()\n    {\n        Name = \"Неизвестно\";\n        Age = 18;\n    }\n\n    public void Introduce()\n    {\n        Console.WriteLine($\"Привет, я {Name}, мне {Age} лет.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person();\n        person.Introduce();\n    }\n}\n// Output:\n// Привет, я Неизвестно, мне 18 лет."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Person` использует конструктор по умолчанию для установки начальных значений `Name` и `Age`.\n- Конструктор автоматически вызывается при создании объекта (`new Person()`).\n- Метод `Introduce` выводит свойства.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Параметризованный конструктор"
+      },
+      {
+        "type": "paragraph",
+        "text": "Параметризованный конструктор принимает внешние значения и присваивает их свойствам класса при создании объекта."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Student\n{\n    public string Name { get; set; }\n    public int Grade { get; set; }\n\n    public Student(string name, int grade)\n    {\n        Name = name;\n        Grade = grade;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Студент: {Name}, Класс: {Grade}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Student student = new Student(\"Алиса\", 9);\n        student.DisplayInfo();\n    }\n}\n// Output:\n// Студент: Алиса, Класс: 9"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Student` использует параметризованный конструктор для принятия значений `Name` и `Grade`.\n- Значения устанавливаются при создании объекта.\n- Метод `DisplayInfo` выводит информацию."
+      },
+      {
+        "type": "heading",
+        "text": "Статический конструктор"
+      },
+      {
+        "type": "paragraph",
+        "text": "Статический конструктор используется для инициализации статических членов класса (например, статических полей). Он автоматически вызывается один раз при первом использовании класса и не может принимать параметры."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Logger\n{\n    public static int LogCount { get; private set; }\n\n    static Logger()\n    {\n        LogCount = 0;\n        Console.WriteLine(\"Статический конструктор вызван.\");\n    }\n\n    public void Log(string message)\n    {\n        LogCount++;\n        Console.WriteLine($\"Лог #{LogCount}: {message}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Logger logger = new Logger();\n        logger.Log(\"Первое сообщение\");\n        logger.Log(\"Второе сообщение\");\n    }\n}\n// Output:\n// Статический конструктор вызван.\n// Лог #1: Первое сообщение\n// Лог #2: Второе сообщение"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Logger` использует статический конструктор для инициализации `LogCount`.\n- Статический конструктор вызывается автоматически при первом использовании класса.\n- Метод `Log` увеличивает `LogCount` при каждом вызове."
+      },
+      {
+        "type": "heading",
+        "text": "Перегрузка конструкторов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Класс может иметь несколько конструкторов с разными параметрами, что называется перегрузкой конструкторов."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Car\n{\n    public string Brand { get; set; }\n    public string Color { get; set; }\n\n    public Car()\n    {\n        Brand = \"Неизвестно\";\n        Color = \"Неизвестно\";\n    }\n\n    public Car(string brand)\n    {\n        Brand = brand;\n        Color = \"Неизвестно\";\n    }\n\n    public Car(string brand, string color)\n    {\n        Brand = brand;\n        Color = color;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Автомобиль: {Brand}, Цвет: {Color}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Car car1 = new Car();\n        Car car2 = new Car(\"BMW\");\n        Car car3 = new Car(\"Toyota\", \"Красный\");\n\n        car1.DisplayInfo();\n        car2.DisplayInfo();\n        car3.DisplayInfo();\n    }\n}\n// Output:\n// Автомобиль: Неизвестно, Цвет: Неизвестно\n// Автомобиль: BMW, Цвет: Неизвестно\n// Автомобиль: Toyota, Цвет: Красный"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Car` определяет три конструктора: без параметров, с одним параметром и с двумя параметрами.\n- Каждый конструктор по-разному инициализирует объект.\n- Метод `DisplayInfo` выводит информацию об объекте."
+      },
+      {
+        "type": "heading",
+        "text": "Конструкторы и инкапсуляция"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конструкторы поддерживают инкапсуляцию, позволяя безопасно инициализировать состояние объекта."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    private decimal balance;\n\n    public decimal Balance\n    {\n        get { return balance; }\n        private set { if (value >= 0) balance = value; }\n    }\n\n    public BankAccount(decimal initialBalance)\n    {\n        Balance = initialBalance;\n    }\n\n    public void Deposit(decimal amount)\n    {\n        if (amount > 0)\n            Balance += amount;\n        Console.WriteLine($\"Внесено {amount}. Новый баланс: {Balance}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount(1000);\n        account.Deposit(500);\n        Console.WriteLine($\"Текущий баланс: {account.Balance}\");\n    }\n}\n// Output:\n// Внесено 500. Новый баланс: 1500\n// Текущий баланс: 1500"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `BankAccount` инициализирует свойство `Balance` через конструктор.\n- Метод `set` свойства `Balance` доступен только внутри класса.\n- Метод `Deposit` безопасно увеличивает баланс."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества конструкторов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конструкторы обеспечивают правильную инициализацию объектов."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nИнициализация: Задают начальные значения для объектов."
+          },
+          {
+            "description": "\nБезопасность: Поддерживают инкапсуляцию для защиты данных."
+          },
+          {
+            "description": "\nГибкость: Перегрузка позволяет использовать разные варианты инициализации."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конструкторы могут создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Перегрузка и статические конструкторы могут быть запутанными."
+          },
+          {
+            "description": "\nОбработка ошибок: Неправильные значения параметров могут вызывать ошибки."
+          },
+          {
+            "description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильная проверка параметров или значения `null` в конструкторах могут вызывать ошибки. Чрезмерная перегрузка может усложнить код.\n- **Рекомендации**: Тщательно проверяйте параметры и устанавливайте значения по умолчанию. Предпочитайте простые конструкции. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку из-за неверного значения параметра."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    public decimal Balance { get; private set; }\n\n    public BankAccount(decimal initialBalance)\n    {\n        if (initialBalance < 0)\n            throw new ArgumentException(\"Начальный баланс не может быть отрицательным.\");\n        Balance = initialBalance;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount(-100); // Ошибка: ArgumentException\n    }\n}\n// Ошибка: System.ArgumentException"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `BankAccount` не допускает отрицательный баланс.\n- Конструктор проверяет `initialBalance` и выбрасывает ошибку для отрицательных значений.\n- Решение: Проверяйте параметры и используйте корректные значения."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Book\n{\n    public string Title { get; set; }\n    public string Author { get; set; }\n\n    public Book(string title, string author)\n    {\n        Title = title;\n        Author = author;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Книга: {Title}, Автор: {Author}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Book book = new Book(\"1984\", \"Джордж Оруэлл\");\n        book.DisplayInfo();\n    }\n}\n// Output:\n// Книга: 1984, Автор: Джордж Оруэлл"
+      }
+    ]
+  }
+}

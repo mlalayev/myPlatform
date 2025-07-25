@@ -1,0 +1,486 @@
+{
+  "id": "recursion",
+  "az": {
+    "title": "Rekursiya",
+    "icon": "FiRefreshCw",
+    "language": "csharp",
+    "description": "Özünü çağıran funksiyalar.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Rekursiya Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində rekursiya bir funksiyanın özünü çağırması prosesidir. Bu, mürəkkəb problemləri daha kiçik alt problemlərə bölərək həll etmək üçün istifadə olunur. Rekursiyanın əsas komponentləri bunlardır: **əsas şərt** (rekursiyanın dayandığı nöqtə) və **rekursiv çağırış** (funksiyanın özünü çağırması). Rekursiya, məsələn, faktorial hesablama və ya ağac strukturunda axtarış kimi tapşırıqlar üçün faydalıdır. Ancaq yanlış istifadə stack overflow (yığın daşması) kimi səhvlərə səbəb ola bilər. Bu JSON faylda rekursiyanın əsasları, əsas və quyruq rekursiyası, üstünlükləri və çətinlikləri sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur və Pyodide məhdudiyyətlərinə uyğun olaraq şəbəkə çağırışları və fayl əməliyyatları əvəzinə sadə riyazi hesablamalar istifadə edilir."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Rekursiya Nümunəsi: Faktorial"
+      },
+      {
+        "type": "paragraph",
+        "text": "Faktorial hesablama rekursiyanın klassik nümunəsidir. Məsələn, 5! = 5 * 4 * 3 * 2 * 1 = 120."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Faktorial hesablanır...\");\n        int result = CalculateFactorial(5);\n        Console.WriteLine($\"5! = {result}\");\n    }\n\n    static int CalculateFactorial(int n)\n    {\n        // Əsas şərt\n        if (n <= 1)\n            return 1;\n        // Rekursiv çağırış\n        return n * CalculateFactorial(n - 1);\n    }\n}\n// Output:\n// Faktorial hesablanır...\n// 5! = 120"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `CalculateFactorial` funksiyası özünü çağırır.\n- Əsas şərt: `n <= 1` olduqda rekursiya dayanır və 1 qaytarılır.\n- Rekursiv çağırış: `n * CalculateFactorial(n - 1)` hər dəfə kiçik bir problem həll edir.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Fibonacci Sırası"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fibonacci sırası rekursiyanın digər məşhur nümunəsidir. Hər sayının əvvəlki iki sayının cəmi olduğu bir sıra: 0, 1, 1, 2, 3, 5, 8..."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Fibonacci sayı hesablanır...\");\n        int result = CalculateFibonacci(6);\n        Console.WriteLine($\"Fibonacci(6) = {result}\");\n    }\n\n    static int CalculateFibonacci(int n)\n    {\n        // Əsas şərt\n        if (n <= 1)\n            return n;\n        // Rekursiv çağırış\n        return CalculateFibonacci(n - 1) + CalculateFibonacci(n - 2);\n    }\n}\n// Output:\n// Fibonacci sayı hesablanır...\n// Fibonacci(6) = 8"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `CalculateFibonacci` funksiyası iki rekursiv çağırış edir: `n-1` və `n-2`.\n- Əsas şərt: `n <= 1` olduqda n qaytarılır.\n- Bu rekursiya performans baxımından səmərəsizdir, çünki eyni hesablamalar təkrar edilir (buna aşağıda baxılacaq)."
+      },
+      {
+        "type": "heading",
+        "text": "Quyruq Rekursiyası"
+      },
+      {
+        "type": "paragraph",
+        "text": "Quyruq rekursiyası rekursiv çağırışın funksiyanın son əməliyyatı olduğu vəziyyətdir. C# quyruq rekursiyasını optimallaşdırmasa da, bu üsul yığının daşmasını azaltmaq üçün faydalı ola bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Faktorial (quyruq rekursiyası) hesablanır...\");\n        int result = CalculateFactorialTail(5, 1);\n        Console.WriteLine($\"5! = {result}\");\n    }\n\n    static int CalculateFactorialTail(int n, int accumulator)\n    {\n        // Əsas şərt\n        if (n <= 1)\n            return accumulator;\n        // Quyruq rekursiyası\n        return CalculateFactorialTail(n - 1, n * accumulator);\n    }\n}\n// Output:\n// Faktorial (quyruq rekursiyası) hesablanır...\n// 5! = 120"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `accumulator` parametri nəticəni saxlayır.\n- Rekursiv çağırış funksiyanın sonunda edilir, bu da yığının istifadəsini optimallaşdıra bilər.\n- C# quyruq rekursiyasını avtomatik optimallaşdırmır, buna görə böyük girişlər üçün diqqətli olmaq lazımdır."
+      },
+      {
+        "type": "heading",
+        "text": "İstisna İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Rekursiyada səhvlər (məsələn, mənfi giriş) `try-catch` bloku ilə idarə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            Console.WriteLine(\"Faktorial hesablanır...\");\n            int result = CalculateFactorial(-1);\n            Console.WriteLine($\"Nəticə: {result}\");\n        }\n        catch (ArgumentException ex)\n        {\n            Console.WriteLine(\"Səhv baş verdi!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n\n    static int CalculateFactorial(int n)\n    {\n        if (n < 0)\n            throw new ArgumentException(\"Mənfi ədədlər üçün faktorial hesablana bilməz.\");\n        if (n <= 1)\n            return 1;\n        return n * CalculateFactorial(n - 1);\n    }\n}\n// Output:\n// Faktorial hesablanır...\n// Səhv baş verdi!\n// Səhv mesajı: Mənfi ədədlər üçün faktorial hesablana bilməz."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Mənfi giriş üçün səhv atılır.\n- `try-catch` bloku səhvi tutur və mesajı göstərir."
+      },
+      {
+        "type": "heading",
+        "text": "Rekursiyanın Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Rekursiya bəzi problemləri sadə və zərif şəkildə həll edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nSadəlik: Mürəkkəb problemləri kiçik hissələrə bölmək asanlaşır."
+          },
+          {
+            "description": "\nOxunaqlılıq: Kod strukturu bəzi hallarda daha aydın olur."
+          },
+          {
+            "description": "\nStruktur Uyğunluğu: Ağac və ya qraf kimi strukturlarla işləmək üçün idealdır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Rekursiya yeni başlayanlar üçün çətin ola bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nPerformans: Təkrar çağırışlar (məsələn, Fibonacci) səmərəsiz ola bilər."
+          },
+          {
+            "description": "\nYığın Daşması: Böyük girişlər stack overflow səhvinə səbəb ola bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# rekursiv kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Əsas şərtin olmaması və ya yanlış təyin edilməsi stack overflow-a səbəb ola bilər. Səmərəsiz rekursiya performans problemləri yaradır.\n- **Tövsiyələr**: Həmişə əsas şərti dəqiq təyin edin. Böyük girişlər üçün iterativ həlləri və ya quyruq rekursiyasını nəzərdən keçirin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə əsas şərtin olmaması stack overflow səhvinə səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            Console.WriteLine(\"Səhvə yol açan rekursiya...\");\n            InfiniteRecursion(5);\n        }\n        catch (StackOverflowException)\n        {\n            Console.WriteLine(\"Səhv: Stack overflow!\");\n        }\n    }\n\n    static void InfiniteRecursion(int n)\n    {\n        // Əsas şərt yoxdur\n        InfiniteRecursion(n - 1);\n    }\n}\n// Output:\n// Səhvə yol açan rekursiya...\n// Səhv: Stack overflow!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `InfiniteRecursion` funksiyasında əsas şərt yoxdur.\n- Bu, yığının daşmasına səbəb olur.\n- Həll: Əsas şərt əlavə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            Console.WriteLine(\"Rekursiv cəm hesablanır...\");\n            int result = CalculateSum(10);\n            Console.WriteLine($\"1-dən 10-a qədər cəm: {result}\");\n        }\n        catch (ArgumentException ex)\n        {\n            Console.WriteLine($\"Səhv: {ex.Message}\");\n        }\n    }\n\n    static int CalculateSum(int n)\n    {\n        if (n < 0)\n            throw new ArgumentException(\"Mənfi ədədlər qəbul edilmir.\");\n        if (n == 0)\n            return 0;\n        return n + CalculateSum(n - 1);\n    }\n}\n// Output:\n// Rekursiv cəm hesablanır...\n// 1-dən 10-a qədər cəm: 55"
+      }
+    ]
+  },
+  "en": {
+    "title": "Recursion",
+    "icon": "FiRefreshCw",
+    "language": "csharp",
+    "description": "Self-calling functions.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Is Recursion?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, recursion is the process of a function calling itself to solve a problem by breaking it into smaller subproblems. Recursion consists of two main components: the **base case** (where recursion stops) and the **recursive call** (where the function calls itself). Recursion is useful for tasks like calculating factorials or traversing tree structures. However, incorrect use can lead to errors like stack overflow. This JSON file explains recursion basics, base and tail recursion, advantages, and challenges in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values, avoid user input, and use simple mathematical computations instead of network or file operations due to Pyodide limitations."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Recursion Example: Factorial"
+      },
+      {
+        "type": "paragraph",
+        "text": "Calculating a factorial is a classic example of recursion. For example, 5! = 5 * 4 * 3 * 2 * 1 = 120."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Calculating factorial...\");\n        int result = CalculateFactorial(5);\n        Console.WriteLine($\"5! = {result}\");\n    }\n\n    static int CalculateFactorial(int n)\n    {\n        // Base case\n        if (n <= 1)\n            return 1;\n        // Recursive call\n        return n * CalculateFactorial(n - 1);\n    }\n}\n// Output:\n// Calculating factorial...\n// 5! = 120"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `CalculateFactorial` function calls itself.\n- Base case: When `n <= 1`, it returns 1 to stop recursion.\n- Recursive call: `n * CalculateFactorial(n - 1)` solves a smaller problem each time.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Fibonacci Sequence"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Fibonacci sequence is another common recursion example. Each number is the sum of the two preceding ones: 0, 1, 1, 2, 3, 5, 8..."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Calculating Fibonacci number...\");\n        int result = CalculateFibonacci(6);\n        Console.WriteLine($\"Fibonacci(6) = {result}\");\n    }\n\n    static int CalculateFibonacci(int n)\n    {\n        // Base case\n        if (n <= 1)\n            return n;\n        // Recursive call\n        return CalculateFibonacci(n - 1) + CalculateFibonacci(n - 2);\n    }\n}\n// Output:\n// Calculating Fibonacci number...\n// Fibonacci(6) = 8"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `CalculateFibonacci` function makes two recursive calls: `n-1` and `n-2`.\n- Base case: When `n <= 1`, it returns `n`.\n- This recursion is inefficient due to repeated calculations (addressed below)."
+      },
+      {
+        "type": "heading",
+        "text": "Tail Recursion"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tail recursion occurs when the recursive call is the last operation in the function. While C# does not optimize tail recursion, it can help reduce stack usage."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Calculating factorial (tail recursion)...\");\n        int result = CalculateFactorialTail(5, 1);\n        Console.WriteLine($\"5! = {result}\");\n    }\n\n    static int CalculateFactorialTail(int n, int accumulator)\n    {\n        // Base case\n        if (n <= 1)\n            return accumulator;\n        // Tail recursion\n        return CalculateFactorialTail(n - 1, n * accumulator);\n    }\n}\n// Output:\n// Calculating factorial (tail recursion)...\n// 5! = 120"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `accumulator` parameter stores the intermediate result.\n- The recursive call is the last operation, potentially reducing stack usage.\n- C# does not automatically optimize tail recursion, so large inputs require caution."
+      },
+      {
+        "type": "heading",
+        "text": "Exception Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "Errors in recursion (e.g., negative input) are handled using `try-catch` blocks."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            Console.WriteLine(\"Calculating factorial...\");\n            int result = CalculateFactorial(-1);\n            Console.WriteLine($\"Result: {result}\");\n        }\n        catch (ArgumentException ex)\n        {\n            Console.WriteLine(\"An error occurred!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n\n    static int CalculateFactorial(int n)\n    {\n        if (n < 0)\n            throw new ArgumentException(\"Factorial cannot be calculated for negative numbers.\");\n        if (n <= 1)\n            return 1;\n        return n * CalculateFactorial(n - 1);\n    }\n}\n// Output:\n// Calculating factorial...\n// An error occurred!\n// Error message: Factorial cannot be calculated for negative numbers."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- An error is thrown for negative input.\n- The `try-catch` block catches and displays the error message."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Recursion"
+      },
+      {
+        "type": "paragraph",
+        "text": "Recursion provides elegant solutions for certain problems."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nSimplicity: Breaks complex problems into smaller parts."
+          },
+          {
+            "description": "\nReadability: Code structure can be clearer in some cases."
+          },
+          {
+            "description": "\nStructural Fit: Ideal for tree or graph-like structures."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Recursion can be challenging for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nPerformance: Repeated calls (e.g., Fibonacci) can be inefficient."
+          },
+          {
+            "description": "\nStack Overflow: Large inputs may cause stack overflow errors."
+          },
+          {
+            "description": "\nPyodide Limitation: C# recursive code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Missing or incorrect base cases can cause stack overflow. Inefficient recursion leads to performance issues.\n- **Recommendations**: Always define a clear base case. Consider iterative solutions or tail recursion for large inputs. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes a stack overflow due to a missing base case."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            Console.WriteLine(\"Causing recursion error...\");\n            InfiniteRecursion(5);\n        }\n        catch (StackOverflowException)\n        {\n            Console.WriteLine(\"Error: Stack overflow!\");\n        }\n    }\n\n    static void InfiniteRecursion(int n)\n    {\n        // No base case\n        InfiniteRecursion(n - 1);\n    }\n}\n// Output:\n// Causing recursion error...\n// Error: Stack overflow!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `InfiniteRecursion` function lacks a base case.\n- This causes a stack overflow error.\n- Solution: Add a base case."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            Console.WriteLine(\"Calculating recursive sum...\");\n            int result = CalculateSum(10);\n            Console.WriteLine($\"Sum from 1 to 10: {result}\");\n        }\n        catch (ArgumentException ex)\n        {\n            Console.WriteLine($\"Error: {ex.Message}\");\n        }\n    }\n\n    static int CalculateSum(int n)\n    {\n        if (n < 0)\n            throw new ArgumentException(\"Negative numbers are not allowed.\");\n        if (n == 0)\n            return 0;\n        return n + CalculateSum(n - 1);\n    }\n}\n// Output:\n// Calculating recursive sum...\n// Sum from 1 to 10: 55"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Рекурсия",
+    "icon": "FiRefreshCw",
+    "language": "csharp",
+    "description": "Функции, вызывающие сами себя.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое рекурсия?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# рекурсия — это процесс, при котором функция вызывает саму себя для решения задачи путём разбиения её на меньшие подзадачи. Рекурсия состоит из двух основных компонентов: **базового случая** (условие, при котором рекурсия останавливается) и **рекурсивного вызова** (вызов функции самой себя). Рекурсия полезна для таких задач, как вычисление факториала или обход древовидных структур. Однако неправильное использование может привести к ошибкам, например, переполнению стека. Этот JSON-файл объясняет основы рекурсии, базовую и хвостовую рекурсию, преимущества и сложности простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения, не требуют ввода от пользователя и используют простые математические вычисления вместо сетевых операций или операций с файлами из-за ограничений Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример рекурсии: Факториал"
+      },
+      {
+        "type": "paragraph",
+        "text": "Вычисление факториала — классический пример рекурсии. Например, 5! = 5 * 4 * 3 * 2 * 1 = 120."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Вычисление факториала...\");\n        int result = CalculateFactorial(5);\n        Console.WriteLine($\"5! = {result}\");\n    }\n\n    static int CalculateFactorial(int n)\n    {\n        // Базовый случай\n        if (n <= 1)\n            return 1;\n        // Рекурсивный вызов\n        return n * CalculateFactorial(n - 1);\n    }\n}\n// Output:\n// Вычисление факториала...\n// 5! = 120"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `CalculateFactorial` вызывает саму себя.\n- Базовый случай: Когда `n <= 1`, возвращается 1, чтобы остановить рекурсию.\n- Рекурсивный вызов: `n * CalculateFactorial(n - 1)` решает меньшую задачу на каждом шаге.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Последовательность Фибоначчи"
+      },
+      {
+        "type": "paragraph",
+        "text": "Последовательность Фибоначчи — ещё один популярный пример рекурсии. Каждое число является суммой двух предыдущих: 0, 1, 1, 2, 3, 5, 8..."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Вычисление числа Фибоначчи...\");\n        int result = CalculateFibonacci(6);\n        Console.WriteLine($\"Fibonacci(6) = {result}\");\n    }\n\n    static int CalculateFibonacci(int n)\n    {\n        // Базовый случай\n        if (n <= 1)\n            return n;\n        // Рекурсивный вызов\n        return CalculateFibonacci(n - 1) + CalculateFibonacci(n - 2);\n    }\n}\n// Output:\n// Вычисление числа Фибоначчи...\n// Fibonacci(6) = 8"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `CalculateFibonacci` выполняет два рекурсивных вызова: `n-1` и `n-2`.\n- Базовый случай: Когда `n <= 1`, возвращается `n`.\n- Эта рекурсия неэффективна из-за повторяющихся вычислений (рассматривается ниже)."
+      },
+      {
+        "type": "heading",
+        "text": "Хвостовая рекурсия"
+      },
+      {
+        "type": "paragraph",
+        "text": "Хвостовая рекурсия происходит, когда рекурсивный вызов является последней операцией в функции. Хотя C# не оптимизирует хвостовую рекурсию, она может помочь уменьшить использование стека."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Вычисление факториала (хвостовая рекурсия)...\");\n        int result = CalculateFactorialTail(5, 1);\n        Console.WriteLine($\"5! = {result}\");\n    }\n\n    static int CalculateFactorialTail(int n, int accumulator)\n    {\n        // Базовый случай\n        if (n <= 1)\n            return accumulator;\n        // Хвостовая рекурсия\n        return CalculateFactorialTail(n - 1, n * accumulator);\n    }\n}\n// Output:\n// Вычисление факториала (хвостовая рекурсия)...\n// 5! = 120"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Параметр `accumulator` сохраняет промежуточный результат.\n- Рекурсивный вызов является последней операцией, что потенциально уменьшает использование стека.\n- C# не оптимизирует хвостовую рекурсию автоматически, поэтому для больших входных данных нужна осторожность."
+      },
+      {
+        "type": "heading",
+        "text": "Обработка исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ошибки в рекурсии (например, отрицательный ввод) обрабатываются с помощью блоков `try-catch`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            Console.WriteLine(\"Вычисление факториала...\");\n            int result = CalculateFactorial(-1);\n            Console.WriteLine($\"Результат: {result}\");\n        }\n        catch (ArgumentException ex)\n        {\n            Console.WriteLine(\"Произошла ошибка!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n\n    static int CalculateFactorial(int n)\n    {\n        if (n < 0)\n            throw new ArgumentException(\"Факториал не может быть вычислен для отрицательных чисел.\");\n        if (n <= 1)\n            return 1;\n        return n * CalculateFactorial(n - 1);\n    }\n}\n// Output:\n// Вычисление факториала...\n// Произошла ошибка!\n// Сообщение об ошибке: Факториал не может быть вычислен для отрицательных чисел."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Для отрицательного ввода выбрасывается ошибка.\n- Блок `try-catch` перехватывает и отображает сообщение об ошибке."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества рекурсии"
+      },
+      {
+        "type": "paragraph",
+        "text": "Рекурсия позволяет элегантно решать некоторые задачи."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПростота: Разбиение сложных задач на меньшие части."
+          },
+          {
+            "description": "\nЧитаемость: Структура кода в некоторых случаях более понятна."
+          },
+          {
+            "description": "\nСоответствие структуре: Идеально подходит для работы с древовидными или графовыми структурами."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Рекурсия может быть сложной для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПроизводительность: Повторяющиеся вызовы (например, для Фибоначчи) могут быть неэффективными."
+          },
+          {
+            "description": "\nПереполнение стека: Большие входные данные могут вызвать ошибку переполнения стека."
+          },
+          {
+            "description": "\nОграничение Pyodide: Рекурсивный код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Отсутствие или неправильное определение базового случая может вызвать переполнение стека. Неэффективная рекурсия приводит к проблемам с производительностью.\n- **Рекомендации**: Всегда чётко определяйте базовый случай. Для больших входных данных рассмотрите итеративные решения или хвостовую рекурсию. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает переполнение стека из-за отсутствия базового случая."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            Console.WriteLine(\"Вызов рекурсии с ошибкой...\");\n            InfiniteRecursion(5);\n        }\n        catch (StackOverflowException)\n        {\n            Console.WriteLine(\"Ошибка: Переполнение стека!\");\n        }\n    }\n\n    static void InfiniteRecursion(int n)\n    {\n        // Нет базового случая\n        InfiniteRecursion(n - 1);\n    }\n}\n// Output:\n// Вызов рекурсии с ошибкой...\n// Ошибка: Переполнение стека!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `InfiniteRecursion` не имеет базового случая.\n- Это вызывает ошибку переполнения стека.\n- Решение: Добавьте базовый случай."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        try\n        {\n            Console.WriteLine(\"Вычисление рекурсивной суммы...\");\n            int result = CalculateSum(10);\n            Console.WriteLine($\"Сумма от 1 до 10: {result}\");\n        }\n        catch (ArgumentException ex)\n        {\n            Console.WriteLine($\"Ошибка: {ex.Message}\");\n        }\n    }\n\n    static int CalculateSum(int n)\n    {\n        if (n < 0)\n            throw new ArgumentException(\"Отрицательные числа не допускаются.\");\n        if (n == 0)\n            return 0;\n        return n + CalculateSum(n - 1);\n    }\n}\n// Output:\n// Вычисление рекурсивной суммы...\n// Сумма от 1 до 10: 55"
+      }
+    ]
+  }
+}

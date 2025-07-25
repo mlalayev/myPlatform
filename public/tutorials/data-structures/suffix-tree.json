@@ -1,0 +1,389 @@
+{
+  "id": "suffix-tree",
+  "az": {
+    "title": "Suffix Trees & Arrays",
+    "icon": "FiType",
+    "language": "multiple",
+    "codes": {
+      "python": "def build_suffix_array(s):\n    suffixes = [(s[i:], i) for i in range(len(s))]\n    suffixes.sort()\n    return [i for _, i in suffixes]\n\ndef longest_common_substring(s1, s2):\n    s = s1 + '#' + s2\n    sa = build_suffix_array(s)\n    n1, n2 = len(s1), len(s2)\n    max_len = 0\n    result = ''\n    for i in range(1, len(s)):\n        if (sa[i-1] < n1 and sa[i] > n1) or (sa[i-1] > n1 and sa[i] < n1):\n            j, k = sa[i-1], sa[i]\n            l = 0\n            while j + l < len(s) and k + l < len(s) and s[j + l] == s[k + l]:\n                l += 1\n            if l > max_len:\n                max_len = l\n                result = s[j:j + l]\n    return result\n\n# Example: Suffix Array for Longest Common Substring\ns1, s2 = 'hello', 'world'\nprint('Longest Common Substring:', longest_common_substring(s1, s2))\n# Output: Longest Common Substring: l",
+      "javascript": "function buildSuffixArray(s) {\n    const suffixes = Array.from({ length: s.length }, (_, i) => [s.slice(i), i]);\n    suffixes.sort((a, b) => a[0].localeCompare(b[0]));\n    return suffixes.map(suffix => suffix[1]);\n}\n\nfunction longestCommonSubstring(s1, s2) {\n    const s = s1 + '#' + s2;\n    const sa = buildSuffixArray(s);\n    const n1 = s1.length, n2 = s2.length;\n    let maxLen = 0, result = '';\n    for (let i = 1; i < s.length; i++) {\n        if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n            let j = sa[i-1], k = sa[i], l = 0;\n            while (j + l < s.length && k + l < s.length && s[j + l] === s[k + l]) {\n                l++;\n            }\n            if (l > maxLen) {\n                maxLen = l;\n                result = s.slice(j, j + l);\n            }\n        }\n    }\n    return result;\n}\n\n// Example: Suffix Array for Longest Common Substring\nconst s1 = 'hello', s2 = 'world';\nconsole.log('Longest Common Substring:', longestCommonSubstring(s1, s2));\n// Output: Longest Common Substring: l",
+      "typescript": "function buildSuffixArray(s: string): number[] {\n    const suffixes: [string, number][] = Array.from({ length: s.length }, (_, i) => [s.slice(i), i]);\n    suffixes.sort((a, b) => a[0].localeCompare(b[0]));\n    return suffixes.map(suffix => suffix[1]);\n}\n\nfunction longestCommonSubstring(s1: string, s2: string): string {\n    const s: string = s1 + '#' + s2;\n    const sa: number[] = buildSuffixArray(s);\n    const n1: number = s1.length, n2: number = s2.length;\n    let maxLen: number = 0, result: string = '';\n    for (let i = 1; i < s.length; i++) {\n        if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n            let j = sa[i-1], k = sa[i], l = 0;\n            while (j + l < s.length && k + l < s.length && s[j + l] === s[k + l]) {\n                l++;\n            }\n            if (l > maxLen) {\n                maxLen = l;\n                result = s.slice(j, j + l);\n            }\n        }\n    }\n    return result;\n}\n\n// Example: Suffix Array for Longest Common Substring\nconst s1: string = 'hello', s2: string = 'world';\nconsole.log('Longest Common Substring:', longestCommonSubstring(s1, s2));\n// Output: Longest Common Substring: l",
+      "java": "import java.util.Arrays;\n\nclass SuffixArray {\n    public static int[] buildSuffixArray(String s) {\n        int n = s.length();\n        Integer[] suffixes = new Integer[n];\n        for (int i = 0; i < n; i++) suffixes[i] = i;\n        Arrays.sort(suffixes, (a, b) -> s.substring(a).compareTo(s.substring(b)));\n        int[] sa = new int[n];\n        for (int i = 0; i < n; i++) sa[i] = suffixes[i];\n        return sa;\n    }\n\n    public static String longestCommonSubstring(String s1, String s2) {\n        String s = s1 + \"#\" + s2;\n        int[] sa = buildSuffixArray(s);\n        int n1 = s1.length(), n2 = s2.length();\n        int maxLen = 0;\n        String result = \"\";\n        for (int i = 1; i < s.length(); i++) {\n            if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n                int j = sa[i-1], k = sa[i], l = 0;\n                while (j + l < s.length() && k + l < s.length() && s.charAt(j + l) == s.charAt(k + l)) {\n                    l++;\n                }\n                if (l > maxLen) {\n                    maxLen = l;\n                    result = s.substring(j, j + l);\n                }\n            }\n        }\n        return result;\n    }\n\n    public static void main(String[] args) {\n        String s1 = \"hello\", s2 = \"world\";\n        System.out.println(\"Longest Common Substring: \" + longestCommonSubstring(s1, s2));\n    }\n}\n// Output: Longest Common Substring: l",
+      "php": "<?php\n\nfunction buildSuffixArray($s) {\n    $n = strlen($s);\n    $suffixes = array();\n    for ($i = 0; $i < $n; $i++) {\n        $suffixes[] = [$s, $i];\n    }\n    usort($suffixes, function($a, $b) use ($s) {\n        return strcmp(substr($s, $a[1]), substr($s, $b[1]));\n    });\n    return array_map(function($suffix) { return $suffix[1]; }, $suffixes);\n}\n\nfunction longestCommonSubstring($s1, $s2) {\n    $s = $s1 . '#' . $s2;\n    $sa = buildSuffixArray($s);\n    $n1 = strlen($s1);\n    $n2 = strlen($s2);\n    $maxLen = 0;\n    $result = '';\n    for ($i = 1; $i < strlen($s); $i++) {\n        if (($sa[$i-1] < $n1 && $sa[$i] > $n1) || ($sa[$i-1] > $n1 && $sa[$i] < $n1)) {\n            $j = $sa[$i-1];\n            $k = $sa[$i];\n            $l = 0;\n            while ($j + $l < strlen($s) && $k + $l < strlen($s) && $s[$j + $l] == $s[$k + $l]) {\n                $l++;\n            }\n            if ($l > $maxLen) {\n                $maxLen = $l;\n                $result = substr($s, $j, $l);\n            }\n        }\n    }\n    return $result;\n}\n\n// Example: Suffix Array for Longest Common Substring\n$s1 = 'hello';\n$s2 = 'world';\necho 'Longest Common Substring: ' . longestCommonSubstring($s1, $s2) . \"\\n\";\n// Output: Longest Common Substring: l",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct Suffix {\n    const char* str;\n    int index;\n} Suffix;\n\nint cmp(const void* a, const void* b) {\n    Suffix* sa = (Suffix*)a;\n    Suffix* sb = (Suffix*)b;\n    return strcmp(sa->str + sa->index, sb->str + sb->index);\n}\n\nint* buildSuffixArray(const char* s, int n) {\n    Suffix* suffixes = (Suffix*)malloc(n * sizeof(Suffix));\n    for (int i = 0; i < n; i++) {\n        suffixes[i].str = s;\n        suffixes[i].index = i;\n    }\n    qsort(suffixes, n, sizeof(Suffix), cmp);\n    int* sa = (int*)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) sa[i] = suffixes[i].index;\n    free(suffixes);\n    return sa;\n}\n\nchar* longestCommonSubstring(const char* s1, const char* s2) {\n    int n1 = strlen(s1), n2 = strlen(s2);\n    char* s = (char*)malloc(n1 + n2 + 2);\n    strcpy(s, s1);\n    s[n1] = '#';\n    strcpy(s + n1 + 1, s2);\n    s[n1 + n2 + 1] = '\\0';\n    int* sa = buildSuffixArray(s, n1 + n2 + 1);\n    int maxLen = 0, start = 0;\n    for (int i = 1; i < n1 + n2 + 1; i++) {\n        if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n            int j = sa[i-1], k = sa[i], l = 0;\n            while (j + l < n1 + n2 + 1 && k + l < n1 + n2 + 1 && s[j + l] == s[k + l]) {\n                l++;\n            }\n            if (l > maxLen) {\n                maxLen = l;\n                start = j;\n            }\n        }\n    }\n    char* result = (char*)malloc(maxLen + 1);\n    strncpy(result, s + start, maxLen);\n    result[maxLen] = '\\0';\n    free(s);\n    free(sa);\n    return result;\n}\n\nint main() {\n    const char* s1 = \"hello\";\n    const char* s2 = \"world\";\n    char* result = longestCommonSubstring(s1, s2);\n    printf(\"Longest Common Substring: %s\\n\", result);\n    free(result);\n    return 0;\n}\n// Output: Longest Common Substring: l",
+      "csharp": "using System;\nusing System.Linq;\n\nclass SuffixArray {\n    public static int[] BuildSuffixArray(string s) {\n        int n = s.Length;\n        var suffixes = Enumerable.Range(0, n).Select(i => (str: s.Substring(i), index: i)).ToArray();\n        Array.Sort(suffixes, (a, b) => a.str.CompareTo(b.str));\n        return suffixes.Select(s => s.index).ToArray();\n    }\n\n    public static string LongestCommonSubstring(string s1, string s2) {\n        string s = s1 + \"#\" + s2;\n        int[] sa = BuildSuffixArray(s);\n        int n1 = s1.Length, n2 = s2.Length;\n        int maxLen = 0;\n        string result = \"\";\n        for (int i = 1; i < s.Length; i++) {\n            if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n                int j = sa[i-1], k = sa[i], l = 0;\n                while (j + l < s.Length && k + l < s.Length && s[j + l] == s[k + l]) {\n                    l++;\n                }\n                if (l > maxLen) {\n                    maxLen = l;\n                    result = s.Substring(j, l);\n                }\n            }\n        }\n        return result;\n    }\n}\n\nclass Program {\n    static void Main() {\n        string s1 = \"hello\", s2 = \"world\";\n        Console.WriteLine(\"Longest Common Substring: \" + SuffixArray.LongestCommonSubstring(s1, s2));\n    }\n}\n// Output: Longest Common Substring: l",
+      "cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n\nstd::vector<int> buildSuffixArray(const std::string& s) {\n    int n = s.size();\n    std::vector<std::pair<std::string, int>> suffixes(n);\n    for (int i = 0; i < n; i++) {\n        suffixes[i] = {s.substr(i), i};\n    }\n    std::sort(suffixes.begin(), suffixes.end());\n    std::vector<int> sa(n);\n    for (int i = 0; i < n; i++) sa[i] = suffixes[i].second;\n    return sa;\n}\n\nstd::string longestCommonSubstring(const std::string& s1, const std::string& s2) {\n    std::string s = s1 + '#' + s2;\n    std::vector<int> sa = buildSuffixArray(s);\n    int n1 = s1.size(), n2 = s2.size();\n    int maxLen = 0, start = 0;\n    for (int i = 1; i < s.size(); i++) {\n        if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n            int j = sa[i-1], k = sa[i], l = 0;\n            while (j + l < s.size() && k + l < s.size() && s[j + l] == s[k + l]) {\n                l++;\n            }\n            if (l > maxLen) {\n                maxLen = l;\n                start = j;\n            }\n        }\n    }\n    return s.substr(start, maxLen);\n}\n\nint main() {\n    std::string s1 = \"hello\", s2 = \"world\";\n    std::cout << \"Longest Common Substring: \" << longestCommonSubstring(s1, s2) << \"\\n\";\n    return 0;\n}\n// Output: Longest Common Substring: l"
+    },
+    "description": "Suffix ağacları, suffix massivləri və onların tətbiqləri haqqında ümumi məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Suffix Tree və Suffix Array nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Tree sətirin bütün suffixlərini saxlayan sıxılmış trie strukturudur. Suffix Array isə sətirin suffixlərinin sıralanmış indekslərini saxlayan massivdir. Suffix Array daha sadə və yaddaş baxımından daha səmərəlidir. Yuxarıdakı nümunədə 'hello' və 'world' sətirləri üçün Suffix Array qurulur və ən uzun ümumi alt sətir ('l') tapılır."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas Terminlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Suffix: Sətirin i-dən sonuna qədər olan hissəsi (məsələn, 'hello'-nun suffixləri: 'hello', 'ello', 'llo', 'lo', 'o')."
+          },
+          {
+            "description": "Suffix Array: Suffixlərin leksikoqrafik sıralanmış indeksləri (yuxarıdakı buildSuffixArray)."
+          },
+          {
+            "description": "Longest Common Substring (LCS): İki sətirin ən uzun ümumi alt sətri (yuxarıdakı longestCommonSubstring)."
+          },
+          {
+            "description": "Trie: Suffix Tree-nin əsasını təşkil edən ağac strukturu."
+          },
+          {
+            "description": "LCP (Longest Common Prefix): İki suffixin ən uzun ümumi prefiksi."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Suffix Tree və Array Növləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Standart Suffix Tree**: Sətirin bütün suffixlərini saxlayır, Ukkonen alqoritmi ilə qurulur. 2) **Compressed Suffix Tree**: Yaddaş istifadəsini azaltmaq üçün sıxılır. 3) **Suffix Array**: Sıralanmış suffix indeksləri, LCP massivi ilə tamamlanır (yuxarıdakı nümunədəki kimi). 4) **Enhanced Suffix Array**: LCP ilə birlikdə daha çox funksionallıq təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Suffix Tree və Array nə üçün lazımdır?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Tree və Array sətirlərlə işləyən alqoritmlərdə, xüsusilə sətir axtarışı, uyğunlaşdırma və təkrarlanan nümunələrin tapılmasında istifadə olunur. Suffix Array yaddaş baxımından daha effektivdir."
+      },
+      {
+        "type": "heading",
+        "text": "Suffix Tree və Array nəyə kömək edir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Sətir Axtarışı**: Sətirdə alt sətirləri tapmaq. 2) **Longest Common Substring**: İki və ya daha çox sətirin ümumi alt sətrini tapmaq (yuxarıdakı longestCommonSubstring). 3) **Təkrarlanan Nümunələr**: Sətirdə təkrarlanan hissələri tapmaq. 4) **Məlumat Sıxışdırma**: Lempel-Ziv alqoritmlərində istifadə."
+      },
+      {
+        "type": "heading",
+        "text": "Suffix Tree və Array-nin Səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Tree qurulması O(n) vaxt tələb edir (Ukkonen alqoritmi ilə), lakin çox yaddaş istifadə edir (O(n)). Suffix Array qurulması O(n log n) vaxt tələb edir, LCP ilə istifadə edildikdə O(n) yaddaşa malikdir. LCS tapılması O(n) vaxt aparır. Yuxarıdakı nümunədə Suffix Array effektiv işləyir."
+      },
+      {
+        "type": "heading",
+        "text": "Üstünlüklər və Mənfi Cəhətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Üstünlük: Sətir əməliyyatlarını sürətlə icra edir (O(n) və ya O(n log n))."
+          },
+          {
+            "description": "Üstünlük: Suffix Array yaddaş baxımından səmərəlidir."
+          },
+          {
+            "description": "Üstünlük: Çoxsaylı sətir problemlərini həll edir."
+          },
+          {
+            "description": "Mənfi cəhət: Suffix Tree-nin tətbiqi mürəkkəbdir."
+          },
+          {
+            "description": "Mənfi cəhət: Böyük sətirlərdə yaddaş istifadəsi problem yarada bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real Həyatda İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Bioinformatika**: DNT ardıcıllıqlarının təhlili. 2) **Mətn Axtarışı**: Axtarış motorlarında alt sətir axtarışı. 3) **Məlumat Sıxışdırma**: Sətirlərin təkrarlanan hissələrinin tapılması. 4) **Rəqabətli Proqramlaşdırma**: Sətir problemlərinin həlli. Yuxarıdakı longestCommonSubstring funksiyası LCS tapılmasını simulyasiya edir."
+      },
+      {
+        "type": "heading",
+        "text": "Optimallaşdırma Strategiyaları"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **DC3/Skew Alqoritmi**: Suffix Array qurulmasını O(n) vaxta endirmək. 2) **LCP Massivi**: Sətir müqayisələrini sürətləndirmək. 3) **Yaddaş İdarəetməsi**: Dinamik yaddaş ayırmadan istifadə. 4) **Paralel Emal**: Böyük sətirlərdə paralel qurulma tətbiq edin."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əsas təhlükələr: 1) **Mürəkkəblik**: Suffix Tree qurulması və debugging çətindir. 2) **Yaddaş**: Böyük sətirlərdə çox yaddaş tələb edir. 3) **Performans**: Böyük məlumatlarda yavaşlama riski. Tövsiyələr: 1) Suffix Array istifadə edin. 2) LCP massivindən faydalanın. 3) Kodları böyük sətirlərlə test edin."
+      }
+    ]
+  },
+  "en": {
+    "title": "Suffix Trees & Arrays",
+    "icon": "FiType",
+    "language": "multiple",
+    "codes": {
+      "python": "def build_suffix_array(s):\n    suffixes = [(s[i:], i) for i in range(len(s))]\n    suffixes.sort()\n    return [i for _, i in suffixes]\n\ndef longest_common_substring(s1, s2):\n    s = s1 + '#' + s2\n    sa = build_suffix_array(s)\n    n1, n2 = len(s1), len(s2)\n    max_len = 0\n    result = ''\n    for i in range(1, len(s)):\n        if (sa[i-1] < n1 and sa[i] > n1) or (sa[i-1] > n1 and sa[i] < n1):\n            j, k = sa[i-1], sa[i]\n            l = 0\n            while j + l < len(s) and k + l < len(s) and s[j + l] == s[k + l]:\n                l += 1\n            if l > max_len:\n                max_len = l\n                result = s[j:j + l]\n    return result\n\n# Example: Suffix Array for Longest Common Substring\ns1, s2 = 'hello', 'world'\nprint('Longest Common Substring:', longest_common_substring(s1, s2))\n# Output: Longest Common Substring: l",
+      "javascript": "function buildSuffixArray(s) {\n    const suffixes = Array.from({ length: s.length }, (_, i) => [s.slice(i), i]);\n    suffixes.sort((a, b) => a[0].localeCompare(b[0]));\n    return suffixes.map(suffix => suffix[1]);\n}\n\nfunction longestCommonSubstring(s1, s2) {\n    const s = s1 + '#' + s2;\n    const sa = buildSuffixArray(s);\n    const n1 = s1.length, n2 = s2.length;\n    let maxLen = 0, result = '';\n    for (let i = 1; i < s.length; i++) {\n        if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n            let j = sa[i-1], k = sa[i], l = 0;\n            while (j + l < s.length && k + l < s.length && s[j + l] === s[k + l]) {\n                l++;\n            }\n            if (l > maxLen) {\n                maxLen = l;\n                result = s.slice(j, j + l);\n            }\n        }\n    }\n    return result;\n}\n\n// Example: Suffix Array for Longest Common Substring\nconst s1 = 'hello', s2 = 'world';\nconsole.log('Longest Common Substring:', longestCommonSubstring(s1, s2));\n// Output: Longest Common Substring: l",
+      "typescript": "function buildSuffixArray(s: string): number[] {\n    const suffixes: [string, number][] = Array.from({ length: s.length }, (_, i) => [s.slice(i), i]);\n    suffixes.sort((a, b) => a[0].localeCompare(b[0]));\n    return suffixes.map(suffix => suffix[1]);\n}\n\nfunction longestCommonSubstring(s1: string, s2: string): string {\n    const s: string = s1 + '#' + s2;\n    const sa: number[] = buildSuffixArray(s);\n    const n1: number = s1.length, n2: number = s2.length;\n    let maxLen: number = 0, result: string = '';\n    for (let i = 1; i < s.length; i++) {\n        if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n            let j = sa[i-1], k = sa[i], l = 0;\n            while (j + l < s.length && k + l < s.length && s[j + l] === s[k + l]) {\n                l++;\n            }\n            if (l > maxLen) {\n                maxLen = l;\n                result = s.slice(j, j + l);\n            }\n        }\n    }\n    return result;\n}\n\n// Example: Suffix Array for Longest Common Substring\nconst s1: string = 'hello', s2: string = 'world';\nconsole.log('Longest Common Substring:', longestCommonSubstring(s1, s2));\n// Output: Longest Common Substring: l",
+      "java": "import java.util.Arrays;\n\nclass SuffixArray {\n    public static int[] buildSuffixArray(String s) {\n        int n = s.length();\n        Integer[] suffixes = new Integer[n];\n        for (int i = 0; i < n; i++) suffixes[i] = i;\n        Arrays.sort(suffixes, (a, b) -> s.substring(a).compareTo(s.substring(b)));\n        int[] sa = new int[n];\n        for (int i = 0; i < n; i++) sa[i] = suffixes[i];\n        return sa;\n    }\n\n    public static String longestCommonSubstring(String s1, String s2) {\n        String s = s1 + \"#\" + s2;\n        int[] sa = buildSuffixArray(s);\n        int n1 = s1.length(), n2 = s2.length();\n        int maxLen = 0;\n        String result = \"\";\n        for (int i = 1; i < s.length(); i++) {\n            if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n                int j = sa[i-1], k = sa[i], l = 0;\n                while (j + l < s.length() && k + l < s.length() && s.charAt(j + l) == s.charAt(k + l)) {\n                    l++;\n                }\n                if (l > maxLen) {\n                    maxLen = l;\n                    result = s.substring(j, j + l);\n                }\n            }\n        }\n        return result;\n    }\n\n    public static void main(String[] args) {\n        String s1 = \"hello\", s2 = \"world\";\n        System.out.println(\"Longest Common Substring: \" + longestCommonSubstring(s1, s2));\n    }\n}\n// Output: Longest Common Substring: l",
+      "php": "<?php\n\nfunction buildSuffixArray($s) {\n    $n = strlen($s);\n    $suffixes = array();\n    for ($i = 0; $i < $n; $i++) {\n        $suffixes[] = [$s, $i];\n    }\n    usort($suffixes, function($a, $b) use ($s) {\n        return strcmp(substr($s, $a[1]), substr($s, $b[1]));\n    });\n    return array_map(function($suffix) { return $suffix[1]; }, $suffixes);\n}\n\nfunction longestCommonSubstring($s1, $s2) {\n    $s = $s1 . '#' . $s2;\n    $sa = buildSuffixArray($s);\n    $n1 = strlen($s1);\n    $n2 = strlen($s2);\n    $maxLen = 0;\n    $result = '';\n    for ($i = 1; $i < strlen($s); $i++) {\n        if (($sa[$i-1] < $n1 && $sa[$i] > $n1) || ($sa[$i-1] > $n1 && $sa[$i] < $n1)) {\n            $j = $sa[$i-1];\n            $k = $sa[$i];\n            $l = 0;\n            while ($j + $l < strlen($s) && $k + $l < strlen($s) && $s[$j + $l] == $s[$k + $l]) {\n                $l++;\n            }\n            if ($l > $maxLen) {\n                $maxLen = $l;\n                $result = substr($s, $j, $l);\n            }\n        }\n    }\n    return $result;\n}\n\n// Example: Suffix Array for Longest Common Substring\n$s1 = 'hello';\n$s2 = 'world';\necho 'Longest Common Substring: ' . longestCommonSubstring($s1, $s2) . \"\\n\";\n// Output: Longest Common Substring: l",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct Suffix {\n    const char* str;\n    int index;\n} Suffix;\n\nint cmp(const void* a, const void* b) {\n    Suffix* sa = (Suffix*)a;\n    Suffix* sb = (Suffix*)b;\n    return strcmp(sa->str + sa->index, sb->str + sb->index);\n}\n\nint* buildSuffixArray(const char* s, int n) {\n    Suffix* suffixes = (Suffix*)malloc(n * sizeof(Suffix));\n    for (int i = 0; i < n; i++) {\n        suffixes[i].str = s;\n        suffixes[i].index = i;\n    }\n    qsort(suffixes, n, sizeof(Suffix), cmp);\n    int* sa = (int*)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) sa[i] = suffixes[i].index;\n    free(suffixes);\n    return sa;\n}\n\nchar* longestCommonSubstring(const char* s1, const char* s2) {\n    int n1 = strlen(s1), n2 = strlen(s2);\n    char* s = (char*)malloc(n1 + n2 + 2);\n    strcpy(s, s1);\n    s[n1] = '#';\n    strcpy(s + n1 + 1, s2);\n    s[n1 + n2 + 1] = '\\0';\n    int* sa = buildSuffixArray(s, n1 + n2 + 1);\n    int maxLen = 0, start = 0;\n    for (int i = 1; i < n1 + n2 + 1; i++) {\n        if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n            int j = sa[i-1], k = sa[i], l = 0;\n            while (j + l < n1 + n2 + 1 && k + l < n1 + n2 + 1 && s[j + l] == s[k + l]) {\n                l++;\n            }\n            if (l > maxLen) {\n                maxLen = l;\n                start = j;\n            }\n        }\n    }\n    char* result = (char*)malloc(maxLen + 1);\n    strncpy(result, s + start, maxLen);\n    result[maxLen] = '\\0';\n    free(s);\n    free(sa);\n    return result;\n}\n\nint main() {\n    const char* s1 = \"hello\";\n    const char* s2 = \"world\";\n    char* result = longestCommonSubstring(s1, s2);\n    printf(\"Longest Common Substring: %s\\n\", result);\n    free(result);\n    return 0;\n}\n// Output: Longest Common Substring: l",
+      "csharp": "using System;\nusing System.Linq;\n\nclass SuffixArray {\n    public static int[] BuildSuffixArray(string s) {\n        int n = s.Length;\n        var suffixes = Enumerable.Range(0, n).Select(i => (str: s.Substring(i), index: i)).ToArray();\n        Array.Sort(suffixes, (a, b) => a.str.CompareTo(b.str));\n        return suffixes.Select(s => s.index).ToArray();\n    }\n\n    public static string LongestCommonSubstring(string s1, string s2) {\n        string s = s1 + \"#\" + s2;\n        int[] sa = BuildSuffixArray(s);\n        int n1 = s1.Length, n2 = s2.Length;\n        int maxLen = 0;\n        string result = \"\";\n        for (int i = 1; i < s.Length; i++) {\n            if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n                int j = sa[i-1], k = sa[i], l = 0;\n                while (j + l < s.Length && k + l < s.Length && s[j + l] == s[k + l]) {\n                    l++;\n                }\n                if (l > maxLen) {\n                    maxLen = l;\n                    result = s.Substring(j, l);\n                }\n            }\n        }\n        return result;\n    }\n}\n\nclass Program {\n    static void Main() {\n        string s1 = \"hello\", s2 = \"world\";\n        Console.WriteLine(\"Longest Common Substring: \" + SuffixArray.LongestCommonSubstring(s1, s2));\n    }\n}\n// Output: Longest Common Substring: l",
+      "cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n\nstd::vector<int> buildSuffixArray(const std::string& s) {\n    int n = s.size();\n    std::vector<std::pair<std::string, int>> suffixes(n);\n    for (int i = 0; i < n; i++) {\n        suffixes[i] = {s.substr(i), i};\n    }\n    std::sort(suffixes.begin(), suffixes.end());\n    std::vector<int> sa(n);\n    for (int i = 0; i < n; i++) sa[i] = suffixes[i].second;\n    return sa;\n}\n\nstd::string longestCommonSubstring(const std::string& s1, const std::string& s2) {\n    std::string s = s1 + '#' + s2;\n    std::vector<int> sa = buildSuffixArray(s);\n    int n1 = s1.size(), n2 = s2.size();\n    int maxLen = 0, start = 0;\n    for (int i = 1; i < s.size(); i++) {\n        if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n            int j = sa[i-1], k = sa[i], l = 0;\n            while (j + l < s.size() && k + l < s.size() && s[j + l] == s[k + l]) {\n                l++;\n            }\n            if (l > maxLen) {\n                maxLen = l;\n                start = j;\n            }\n        }\n    }\n    return s.substr(start, maxLen);\n}\n\nint main() {\n    std::string s1 = \"hello\", s2 = \"world\";\n    std::cout << \"Longest Common Substring: \" << longestCommonSubstring(s1, s2) << \"\\n\";\n    return 0;\n}\n// Output: Longest Common Substring: l"
+    },
+    "description": "Overview of Suffix Trees, Suffix Arrays, and their applications.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Suffix Trees and Suffix Arrays?"
+      },
+      {
+        "type": "paragraph",
+        "text": "A Suffix Tree is a compressed trie containing all suffixes of a string. A Suffix Array is an array of sorted suffix indices of a string, more memory-efficient than a Suffix Tree. In the example above, a Suffix Array is built for 'hello' and 'world' to find the longest common substring ('l')."
+      },
+      {
+        "type": "heading",
+        "text": "Key Terminology"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Suffix: A substring from index i to the end of the string (e.g., 'hello' suffixes: 'hello', 'ello', 'llo', 'lo', 'o')."
+          },
+          {
+            "description": "Suffix Array: Sorted indices of suffixes (shown in buildSuffixArray above)."
+          },
+          {
+            "description": "Longest Common Substring (LCS): The longest substring common to two strings (shown in longestCommonSubstring above)."
+          },
+          {
+            "description": "Trie: The tree structure underlying a Suffix Tree."
+          },
+          {
+            "description": "LCP (Longest Common Prefix): The longest common prefix of two suffixes."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Types of Suffix Trees and Arrays"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Standard Suffix Tree**: Stores all suffixes, built with Ukkonen’s algorithm. 2) **Compressed Suffix Tree**: Reduces memory usage. 3) **Suffix Array**: Sorted suffix indices, often used with LCP array (as in the example). 4) **Enhanced Suffix Array**: Combines Suffix Array with LCP for extended functionality."
+      },
+      {
+        "type": "heading",
+        "text": "Why are Suffix Trees and Arrays Needed?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Trees and Arrays are used in string processing algorithms, particularly for searching, matching, and finding repeated patterns. Suffix Arrays are more memory-efficient."
+      },
+      {
+        "type": "heading",
+        "text": "What Do Suffix Trees and Arrays Help With?"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **String Search**: Finding substrings in a string. 2) **Longest Common Substring**: Finding the longest common substring of multiple strings (shown in longestCommonSubstring). 3) **Repeated Patterns**: Identifying repeating substrings. 4) **Data Compression**: Used in Lempel-Ziv algorithms."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of Suffix Trees and Arrays (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Tree construction takes O(n) time (with Ukkonen’s algorithm) but uses O(n) memory. Suffix Array construction takes O(n log n) time, and with LCP, uses O(n) space. LCS finding takes O(n) time. The example’s Suffix Array is efficient."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Advantage: Performs string operations efficiently (O(n) or O(n log n))."
+          },
+          { "description": "Advantage: Suffix Arrays are memory-efficient." },
+          {
+            "description": "Advantage: Solves a wide range of string problems."
+          },
+          {
+            "description": "Disadvantage: Suffix Tree implementation is complex."
+          },
+          {
+            "description": "Disadvantage: Large strings may require significant memory."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real-Life Applications"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Bioinformatics**: Analyzing DNA sequences. 2) **Text Search**: Substring search in search engines. 3) **Data Compression**: Finding repeating substrings. 4) **Competitive Programming**: Solving string-related problems. The longestCommonSubstring function simulates LCS finding."
+      },
+      {
+        "type": "heading",
+        "text": "Optimization Strategies"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **DC3/Skew Algorithm**: Build Suffix Array in O(n) time. 2) **LCP Array**: Speed up string comparisons. 3) **Memory Management**: Use dynamic memory allocation. 4) **Parallel Processing**: Apply parallel construction for large strings."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Key risks: 1) **Complexity**: Suffix Tree construction and debugging are challenging. 2) **Memory**: Large strings require significant memory. 3) **Performance**: Risk of slowdown with large data. Recommendations: 1) Prefer Suffix Arrays. 2) Use LCP arrays. 3) Test with large strings."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Suffix Trees & Arrays",
+    "icon": "FiType",
+    "language": "multiple",
+    "codes": {
+      "python": "def build_suffix_array(s):\n    suffixes = [(s[i:], i) for i in range(len(s))]\n    suffixes.sort()\n    return [i for _, i in suffixes]\n\ndef longest_common_substring(s1, s2):\n    s = s1 + '#' + s2\n    sa = build_suffix_array(s)\n    n1, n2 = len(s1), len(s2)\n    max_len = 0\n    result = ''\n    for i in range(1, len(s)):\n        if (sa[i-1] < n1 and sa[i] > n1) or (sa[i-1] > n1 and sa[i] < n1):\n            j, k = sa[i-1], sa[i]\n            l = 0\n            while j + l < len(s) and k + l < len(s) and s[j + l] == s[k + l]:\n                l += 1\n            if l > max_len:\n                max_len = l\n                result = s[j:j + l]\n    return result\n\n# Example: Suffix Array for Longest Common Substring\ns1, s2 = 'hello', 'world'\nprint('Longest Common Substring:', longest_common_substring(s1, s2))\n# Output: Longest Common Substring: l",
+      "javascript": "function buildSuffixArray(s) {\n    const suffixes = Array.from({ length: s.length }, (_, i) => [s.slice(i), i]);\n    suffixes.sort((a, b) => a[0].localeCompare(b[0]));\n    return suffixes.map(suffix => suffix[1]);\n}\n\nfunction longestCommonSubstring(s1, s2) {\n    const s = s1 + '#' + s2;\n    const sa = buildSuffixArray(s);\n    const n1 = s1.length, n2 = s2.length;\n    let maxLen = 0, result = '';\n    for (let i = 1; i < s.length; i++) {\n        if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n            let j = sa[i-1], k = sa[i], l = 0;\n            while (j + l < s.length && k + l < s.length && s[j + l] === s[k + l]) {\n                l++;\n            }\n            if (l > maxLen) {\n                maxLen = l;\n                result = s.slice(j, j + l);\n            }\n        }\n    }\n    return result;\n}\n\n// Example: Suffix Array for Longest Common Substring\nconst s1 = 'hello', s2 = 'world';\nconsole.log('Longest Common Substring:', longestCommonSubstring(s1, s2));\n// Output: Longest Common Substring: l",
+      "typescript": "function buildSuffixArray(s: string): number[] {\n    const suffixes: [string, number][] = Array.from({ length: s.length }, (_, i) => [s.slice(i), i]);\n    suffixes.sort((a, b) => a[0].localeCompare(b[0]));\n    return suffixes.map(suffix => suffix[1]);\n}\n\nfunction longestCommonSubstring(s1: string, s2: string): string {\n    const s: string = s1 + '#' + s2;\n    const sa: number[] = buildSuffixArray(s);\n    const n1: number = s1.length, n2: number = s2.length;\n    let maxLen: number = 0, result: string = '';\n    for (let i = 1; i < s.length; i++) {\n        if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n            let j = sa[i-1], k = sa[i], l = 0;\n            while (j + l < s.length && k + l < s.length && s[j + l] === s[k + l]) {\n                l++;\n            }\n            if (l > maxLen) {\n                maxLen = l;\n                result = s.slice(j, j + l);\n            }\n        }\n    }\n    return result;\n}\n\n// Example: Suffix Array for Longest Common Substring\nconst s1: string = 'hello', s2: string = 'world';\nconsole.log('Longest Common Substring:', longestCommonSubstring(s1, s2));\n// Output: Longest Common Substring: l",
+      "java": "import java.util.Arrays;\n\nclass SuffixArray {\n    public static int[] buildSuffixArray(String s) {\n        int n = s.length();\n        Integer[] suffixes = new Integer[n];\n        for (int i = 0; i < n; i++) suffixes[i] = i;\n        Arrays.sort(suffixes, (a, b) -> s.substring(a).compareTo(s.substring(b)));\n        int[] sa = new int[n];\n        for (int i = 0; i < n; i++) sa[i] = suffixes[i];\n        return sa;\n    }\n\n    public static String longestCommonSubstring(String s1, String s2) {\n        String s = s1 + \"#\" + s2;\n        int[] sa = buildSuffixArray(s);\n        int n1 = s1.length(), n2 = s2.length();\n        int maxLen = 0;\n        String result = \"\";\n        for (int i = 1; i < s.length(); i++) {\n            if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n                int j = sa[i-1], k = sa[i], l = 0;\n                while (j + l < s.length() && k + l < s.length() && s.charAt(j + l) == s.charAt(k + l)) {\n                    l++;\n                }\n                if (l > maxLen) {\n                    maxLen = l;\n                    result = s.substring(j, j + l);\n                }\n            }\n        }\n        return result;\n    }\n\n    public static void main(String[] args) {\n        String s1 = \"hello\", s2 = \"world\";\n        System.out.println(\"Longest Common Substring: \" + longestCommonSubstring(s1, s2));\n    }\n}\n// Output: Longest Common Substring: l",
+      "php": "<?php\n\nfunction buildSuffixArray($s) {\n    $n = strlen($s);\n    $suffixes = array();\n    for ($i = 0; $i < $n; $i++) {\n        $suffixes[] = [$s, $i];\n    }\n    usort($suffixes, function($a, $b) use ($s) {\n        return strcmp(substr($s, $a[1]), substr($s, $b[1]));\n    });\n    return array_map(function($suffix) { return $suffix[1]; }, $suffixes);\n}\n\nfunction longestCommonSubstring($s1, $s2) {\n    $s = $s1 . '#' . $s2;\n    $sa = buildSuffixArray($s);\n    $n1 = strlen($s1);\n    $n2 = strlen($s2);\n    $maxLen = 0;\n    $result = '';\n    for ($i = 1; $i < strlen($s); $i++) {\n        if (($sa[$i-1] < $n1 && $sa[$i] > $n1) || ($sa[$i-1] > $n1 && $sa[$i] < $n1)) {\n            $j = $sa[$i-1];\n            $k = $sa[$i];\n            $l = 0;\n            while ($j + $l < strlen($s) && $k + $l < strlen($s) && $s[$j + $l] == $s[$k + $l]) {\n                $l++;\n            }\n            if ($l > $maxLen) {\n                $maxLen = $l;\n                $result = substr($s, $j, $l);\n            }\n        }\n    }\n    return $result;\n}\n\n// Example: Suffix Array for Longest Common Substring\n$s1 = 'hello';\n$s2 = 'world';\necho 'Longest Common Substring: ' . longestCommonSubstring($s1, $s2) . \"\\n\";\n// Output: Longest Common Substring: l",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct Suffix {\n    const char* str;\n    int index;\n} Suffix;\n\nint cmp(const void* a, const void* b) {\n    Suffix* sa = (Suffix*)a;\n    Suffix* sb = (Suffix*)b;\n    return strcmp(sa->str + sa->index, sb->str + sb->index);\n}\n\nint* buildSuffixArray(const char* s, int n) {\n    Suffix* suffixes = (Suffix*)malloc(n * sizeof(Suffix));\n    for (int i = 0; i < n; i++) {\n        suffixes[i].str = s;\n        suffixes[i].index = i;\n    }\n    qsort(suffixes, n, sizeof(Suffix), cmp);\n    int* sa = (int*)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) sa[i] = suffixes[i].index;\n    free(suffixes);\n    return sa;\n}\n\nchar* longestCommonSubstring(const char* s1, const char* s2) {\n    int n1 = strlen(s1), n2 = strlen(s2);\n    char* s = (char*)malloc(n1 + n2 + 2);\n    strcpy(s, s1);\n    s[n1] = '#';\n    strcpy(s + n1 + 1, s2);\n    s[n1 + n2 + 1] = '\\0';\n    int* sa = buildSuffixArray(s, n1 + n2 + 1);\n    int maxLen = 0, start = 0;\n    for (int i = 1; i < n1 + n2 + 1; i++) {\n        if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n            int j = sa[i-1], k = sa[i], l = 0;\n            while (j + l < n1 + n2 + 1 && k + l < n1 + n2 + 1 && s[j + l] == s[k + l]) {\n                l++;\n            }\n            if (l > maxLen) {\n                maxLen = l;\n                start = j;\n            }\n        }\n    }\n    char* result = (char*)malloc(maxLen + 1);\n    strncpy(result, s + start, maxLen);\n    result[maxLen] = '\\0';\n    free(s);\n    free(sa);\n    return result;\n}\n\nint main() {\n    const char* s1 = \"hello\";\n    const char* s2 = \"world\";\n    char* result = longestCommonSubstring(s1, s2);\n    printf(\"Longest Common Substring: %s\\n\", result);\n    free(result);\n    return 0;\n}\n// Output: Longest Common Substring: l",
+      "csharp": "using System;\nusing System.Linq;\n\nclass SuffixArray {\n    public static int[] BuildSuffixArray(string s) {\n        int n = s.Length;\n        var suffixes = Enumerable.Range(0, n).Select(i => (str: s.Substring(i), index: i)).ToArray();\n        Array.Sort(suffixes, (a, b) => a.str.CompareTo(b.str));\n        return suffixes.Select(s => s.index).ToArray();\n    }\n\n    public static string LongestCommonSubstring(string s1, string s2) {\n        string s = s1 + \"#\" + s2;\n        int[] sa = BuildSuffixArray(s);\n        int n1 = s1.Length, n2 = s2.Length;\n        int maxLen = 0;\n        string result = \"\";\n        for (int i = 1; i < s.Length; i++) {\n            if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n                int j = sa[i-1], k = sa[i], l = 0;\n                while (j + l < s.Length && k + l < s.Length && s[j + l] == s[k + l]) {\n                    l++;\n                }\n                if (l > maxLen) {\n                    maxLen = l;\n                    result = s.Substring(j, l);\n                }\n            }\n        }\n        return result;\n    }\n}\n\nclass Program {\n    static void Main() {\n        string s1 = \"hello\", s2 = \"world\";\n        Console.WriteLine(\"Longest Common Substring: \" + SuffixArray.LongestCommonSubstring(s1, s2));\n    }\n}\n// Output: Longest Common Substring: l",
+      "cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n\nstd::vector<int> buildSuffixArray(const std::string& s) {\n    int n = s.size();\n    std::vector<std::pair<std::string, int>> suffixes(n);\n    for (int i = 0; i < n; i++) {\n        suffixes[i] = {s.substr(i), i};\n    }\n    std::sort(suffixes.begin(), suffixes.end());\n    std::vector<int> sa(n);\n    for (int i = 0; i < n; i++) sa[i] = suffixes[i].second;\n    return sa;\n}\n\nstd::string longestCommonSubstring(const std::string& s1, const std::string& s2) {\n    std::string s = s1 + '#' + s2;\n    std::vector<int> sa = buildSuffixArray(s);\n    int n1 = s1.size(), n2 = s2.size();\n    int maxLen = 0, start = 0;\n    for (int i = 1; i < s.size(); i++) {\n        if ((sa[i-1] < n1 && sa[i] > n1) || (sa[i-1] > n1 && sa[i] < n1)) {\n            int j = sa[i-1], k = sa[i], l = 0;\n            while (j + l < s.size() && k + l < s.size() && s[j + l] == s[k + l]) {\n                l++;\n            }\n            if (l > maxLen) {\n                maxLen = l;\n                start = j;\n            }\n        }\n    }\n    return s.substr(start, maxLen);\n}\n\nint main() {\n    std::string s1 = \"hello\", s2 = \"world\";\n    std::cout << \"Longest Common Substring: \" << longestCommonSubstring(s1, s2) << \"\\n\";\n    return 0;\n}\n// Output: Longest Common Substring: l"
+    },
+    "description": "Обзор суффиксных деревьев, суффиксных массивов и их применений.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Suffix Tree и Suffix Array?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Tree — это сжатое три, содержащее все суффиксы строки. Suffix Array — это массив отсортированных индексов суффиксов строки, более эффективный по памяти. В примере выше Suffix Array строится для строк 'hello' и 'world' для нахождения самой длинной общей подстроки ('l')."
+      },
+      {
+        "type": "heading",
+        "text": "Основные термины"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Суффикс: Подстрока от индекса i до конца строки (например, суффиксы 'hello': 'hello', 'ello', 'llo', 'lo', 'o')."
+          },
+          {
+            "description": "Suffix Array: Отсортированные индексы суффиксов (показано в buildSuffixArray выше)."
+          },
+          {
+            "description": "Longest Common Substring (LCS): Самая длинная общая подстрока двух строк (показано в longestCommonSubstring выше)."
+          },
+          {
+            "description": "Trie: Древовидная структура, лежащая в основе Suffix Tree."
+          },
+          {
+            "description": "LCP (Longest Common Prefix): Самый длинный общий префикс двух суффиксов."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Типы Suffix Trees и Arrays"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Стандартное Suffix Tree**: Хранит все суффиксы, строится с помощью алгоритма Укконена. 2) **Сжатое Suffix Tree**: Уменьшает использование памяти. 3) **Suffix Array**: Отсортированные индексы суффиксов, часто используется с LCP-массивом (как в примере). 4) **Улучшенный Suffix Array**: Комбинирует Suffix Array с LCP для расширенной функциональности."
+      },
+      {
+        "type": "heading",
+        "text": "Зачем нужны Suffix Trees и Arrays?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Suffix Trees и Arrays используются в алгоритмах обработки строк, особенно для поиска, сопоставления и нахождения повторяющихся узоров. Suffix Arrays более эффективны по памяти."
+      },
+      {
+        "type": "heading",
+        "text": "Для чего помогают Suffix Trees и Arrays?"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Поиск строк**: Нахождение подстрок в строке. 2) **Longest Common Substring**: Нахождение самой длинной общей подстроки нескольких строк (показано в longestCommonSubstring). 3) **Повторяющиеся узоры**: Выявление повторяющихся подстрок. 4) **Сжатие данных**: Используется в алгоритмах Лемпеля-Зива."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность Suffix Trees и Arrays (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Построение Suffix Tree занимает O(n) времени (с алгоритмом Укконена), но использует O(n) памяти. Построение Suffix Array занимает O(n log n) времени, с LCP использует O(n) памяти. Нахождение LCS занимает O(n) времени. Suffix Array в примере работает эффективно."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Преимущество: Эффективно выполняет операции со строками (O(n) или O(n log n))."
+          },
+          {
+            "description": "Преимущество: Suffix Arrays эффективны по памяти."
+          },
+          {
+            "description": "Преимущество: Решает широкий спектр задач со строками."
+          },
+          { "description": "Недостаток: Реализация Suffix Tree сложна." },
+          {
+            "description": "Недостаток: Большие строки могут требовать значительной памяти."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Применение в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Биоинформатика**: Анализ последовательностей ДНК. 2) **Поиск текста**: Поиск подстрок в поисковых системах. 3) **Сжатие данных**: Нахождение повторяющихся подстрок. 4) **Соревновательное программирование**: Решение задач со строками. Функция longestCommonSubstring имитирует нахождение LCS."
+      },
+      {
+        "type": "heading",
+        "text": "Стратегии оптимизации"
+      },
+      {
+        "type": "paragraph",
+        "text": "1) **Алгоритм DC3/Skew**: Построение Suffix Array за O(n) времени. 2) **LCP-массив**: Ускорение сравнений строк. 3) **Управление памятью**: Использование динамического выделения памяти. 4) **Параллельная обработка**: Применение параллельного построения для больших строк."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основные риски: 1) **Сложность**: Построение и отладка Suffix Tree сложны. 2) **Память**: Большие строки требуют значительной памяти. 3) **Производительность**: Риск замедления при больших данных. Рекомендации: 1) Предпочитайте Suffix Arrays. 2) Используйте LCP-массивы. 3) Тестируйте с большими строками."
+      }
+    ]
+  }
+}

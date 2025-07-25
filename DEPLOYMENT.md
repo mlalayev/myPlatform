@@ -199,3 +199,26 @@ docker-compose down
 - Set up automated backups
 
 Your application is now ready for production deployment! 🚀 
+
+## Docker konteynerində Python və digər dillər üçün düzgün kod icrası
+
+Python (və digər dillər) üçün kodun konteynerdə problemsiz icra olunması üçün, əsas app konteynerini run edəndə hostun `/tmp` qovluğunu mount etmək lazımdır:
+
+```
+docker run -v /tmp:/tmp ... myplatform-app
+```
+
+Beləliklə, app konteynerində yaradılan `/tmp/sandbox_xxx` qovluğu real hostda da mövcud olacaq və Python konteyneri onu həmişə görəcək.
+
+Docker Compose istifadə edirsənsə, `docker-compose.yml` faylında belə əlavə et:
+
+```yaml
+services:
+  myplatform-app:
+    image: myplatform-app:latest
+    volumes:
+      - /tmp:/tmp
+    # ... digər ayarlar ...
+```
+
+Bu addım olmadan Python kodları "can't open file '/code/main.py'" xətası verə bilər. 

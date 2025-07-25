@@ -1,0 +1,482 @@
+{
+  "id": "classes",
+  "az": {
+    "title": "Siniflər və OOP",
+    "icon": "FiBox",
+    "language": "csharp",
+    "description": "Obyekt yönümlü proqramlaşdırma əsasları.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Siniflər və Obyekt Yönümlü Proqramlaşdırma Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində siniflər obyekt yönümlü proqramlaşdırmanın (OOP) əsasını təşkil edir. Sinif, real dünyadakı bir obyektin planı və ya şablonudur. Məsələn, bir avtomobil sinfi avtomobilin xüsusiyyətlərini (rəng, model) və davranışlarını (sürmə, dayanma) təsvir edir. Obyekt isə bu sinifdən yaradılmış konkret bir nümunədir. OOP-nin əsas prinsipləri (enkapsulyasiya, miras, polimorfizm, abstraksiya) proqramları daha təşkil edilmiş və idarəolunan edir. Bu JSON faylda siniflər, obyektlər və OOP-nin sadə bir tətbiqi izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Sinif və Obyekt"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sinif təyin etmək üçün `class` açar sözündən istifadə olunur. Obyektlər isə bu sinifdən `new` açar sözü ilə yaradılır."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Car\n{\n    public string Brand;\n    public string Color;\n\n    public void Drive()\n    {\n        Console.WriteLine($\"{Color} rəngli {Brand} sürülür.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Car myCar = new Car();\n        myCar.Brand = \"Toyota\";\n        myCar.Color = \"Qırmızı\";\n\n        Console.WriteLine($\"Avtomobil: {myCar.Brand}, Rəng: {myCar.Color}\");\n        myCar.Drive();\n    }\n}\n// Output:\n// Avtomobil: Toyota, Rəng: Qırmızı\n// Qırmızı rəngli Toyota sürülür."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Car` sinfi avtomobilin xüsusiyyətlərini (`Brand`, `Color`) və davranışını (`Drive`) təyin edir.\n- `myCar` obyekti `Car` sinfindən yaradılır.\n- Obyektin xassələri təyin olunur və metodu çağırılır.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Xassələr (Properties) ilə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xassələr sinfin məlumatlarını daha təhlükəsiz idarə etmək üçün istifadə olunur. `get` və `set` metodları ilə məlumatlara nəzarət edilir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    private string name;\n\n    public string Name\n    {\n        get { return name; }\n        set { name = value ?? \"Adsız\"; }\n    }\n\n    public int Age { get; set; }\n\n    public void Introduce()\n    {\n        Console.WriteLine($\"Salam, mən {Name}, {Age} yaşım var.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person();\n        person.Name = \"Aysel\";\n        person.Age = 25;\n        person.Introduce();\n\n        Person anotherPerson = new Person();\n        anotherPerson.Name = null; // Adsız olacaq\n        anotherPerson.Age = 30;\n        anotherPerson.Introduce();\n    }\n}\n// Output:\n// Salam, mən Aysel, 25 yaşım var.\n// Salam, mən Adsız, 30 yaşım var."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Person` sinfi `Name` və `Age` xassələrinə malikdir.\n- `Name` xassəsi `null` dəyəri yoxlayır və standart dəyər təyin edir.\n- `Age` avtomatik xassədir (`get; set;`).\n- `Introduce` metodu xassələrdən istifadə edərək məlumat çap edir."
+      },
+      {
+        "type": "heading",
+        "text": "Konstruktorlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konstruktorlar obyekt yaradılarkən ilkin dəyərləri təyin etmək üçün istifadə olunur. Konstruktor sinfin adı ilə eyni olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Student\n{\n    public string Name { get; set; }\n    public int Grade { get; set; }\n\n    public Student(string name, int grade)\n    {\n        Name = name;\n        Grade = grade;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Tələbə: {Name}, Səviyyə: {Grade}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Student student = new Student(\"Vəli\", 10);\n        student.DisplayInfo();\n    }\n}\n// Output:\n// Tələbə: Vəli, Səviyyə: 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Student` sinfi konstruktor vasitəsilə `Name` və `Grade` dəyərlərini təyin edir.\n- Obyekt yaradılarkən konstruktor çağırılır.\n- `DisplayInfo` metodu məlumatları çap edir."
+      },
+      {
+        "type": "heading",
+        "text": "Enkapsulyasiya"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enkapsulyasiya sinfin daxili məlumatlarını qorumaq üçün xassələr və `private` sahələrdən istifadəni nəzərdə tutur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    private decimal balance;\n\n    public decimal Balance\n    {\n        get { return balance; }\n        private set { if (value >= 0) balance = value; }\n    }\n\n    public BankAccount(decimal initialBalance)\n    {\n        Balance = initialBalance;\n    }\n\n    public void Deposit(decimal amount)\n    {\n        if (amount > 0)\n            Balance += amount;\n        Console.WriteLine($\"{amount} əlavə edildi. Yeni balans: {Balance}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount(1000);\n        account.Deposit(500);\n        // account.Balance = -100; // Xəta: Balance yalnız sinif daxilində dəyişdirilə bilər\n        Console.WriteLine($\"Cari balans: {account.Balance}\");\n    }\n}\n// Output:\n// 500 əlavə edildi. Yeni balans: 1500\n// Cari balans: 1500"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `BankAccount` sinfi `balance` sahəsini `private` edir və `Balance` xassəsi ilə idarə olunur.\n- `Balance` xassəsinin `set` metodu yalnız sinif daxilində dəyişdirilə bilər.\n- `Deposit` metodu balansın təhlükəsiz artırılmasını təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "OOP-nin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "OOP proqramları daha təşkil edilmiş və təkrar istifadə edilə bilən edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nModulluqluq: Siniflər kodu ayrı-ayrı hissələrə bölür."
+          },
+          {
+            "description": "\nTəkrar İstifadə: Obyektlər eyni sinifdən çoxsaylı nümunələr yarada bilər."
+          },
+          {
+            "description": "\nTəhlükəsizlik: Enkapsulyasiya məlumatları qoruyur."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "OOP öyrənmək yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: Siniflər və obyektlər konsepsiyası yeni başlayanlar üçün qarışıq ola bilər."
+          },
+          {
+            "description": "\nDizayn: Düzgün sinif strukturları yaratmaq təcrübə tələb edir."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Səhv xassə idarəetməsi və ya açıq `public` sahələr məlumatların təhlükəsizliyini poza bilər. Həddindən artıq mürəkkəb sinif strukturları kodu çətinləşdirir.\n- **Tövsiyələr**: Enkapsulyasiyanı təmin etmək üçün `private` sahələr və xassələrdən istifadə edin. Sadə və mənalı sinif dizaynına üstünlük verin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə `null` obyektə müraciət xətaya səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    public string Name { get; set; }\n    public void Introduce()\n    {\n        Console.WriteLine($\"Salam, mən {Name}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = null;\n        person.Introduce(); // Xəta: NullReferenceException\n    }\n}\n// Xəta: System.NullReferenceException"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `person` obyekti `null` olaraq qalır, çünki `new` ilə yaradılmayıb.\n- `Introduce` metodunun çağırılması xətaya səbəb olur.\n- Həll: Obyektin `null` olmadığını yoxlayın və ya `new` ilə obyekt yaradın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Book\n{\n    public string Title { get; set; }\n    public string Author { get; set; }\n\n    public Book(string title, string author)\n    {\n        Title = title;\n        Author = author;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Kitab: {Title}, Müəllif: {Author}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Book book = new Book(\"1984\", \"George Orwell\");\n        book.DisplayInfo();\n    }\n}\n// Output:\n// Kitab: 1984, Müəllif: George Orwell"
+      }
+    ]
+  },
+  "en": {
+    "title": "Classes and OOP",
+    "icon": "FiBox",
+    "language": "csharp",
+    "description": "Fundamentals of object-oriented programming.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Classes and Object-Oriented Programming?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, classes are the foundation of object-oriented programming (OOP). A class is a blueprint or template for real-world entities. For example, a car class describes a car’s attributes (color, model) and behaviors (driving, stopping). An object is a specific instance created from a class. OOP principles (encapsulation, inheritance, polymorphism, abstraction) make programs more organized and manageable. This JSON file explains classes, objects, and a simple application of OOP. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Class and Object"
+      },
+      {
+        "type": "paragraph",
+        "text": "A class is defined using the `class` keyword. Objects are created from a class using the `new` keyword."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Car\n{\n    public string Brand;\n    public string Color;\n\n    public void Drive()\n    {\n        Console.WriteLine($\"{Color} {Brand} is driving.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Car myCar = new Car();\n        myCar.Brand = \"Toyota\";\n        myCar.Color = \"Red\";\n\n        Console.WriteLine($\"Car: {myCar.Brand}, Color: {myCar.Color}\");\n        myCar.Drive();\n    }\n}\n// Output:\n// Car: Toyota, Color: Red\n// Red Toyota is driving."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Car` class defines the properties (`Brand`, `Color`) and behavior (`Drive`) of a car.\n- `myCar` is an object created from the `Car` class.\n- The object’s properties are set, and its method is called.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Working with Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Properties are used to manage a class’s data safely, using `get` and `set` methods for control."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    private string name;\n\n    public string Name\n    {\n        get { return name; }\n        set { name = value ?? \"Unknown\"; }\n    }\n\n    public int Age { get; set; }\n\n    public void Introduce()\n    {\n        Console.WriteLine($\"Hello, I'm {Name}, {Age} years old.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person();\n        person.Name = \"Alice\";\n        person.Age = 25;\n        person.Introduce();\n\n        Person anotherPerson = new Person();\n        anotherPerson.Name = null; // Will be set to Unknown\n        anotherPerson.Age = 30;\n        anotherPerson.Introduce();\n    }\n}\n// Output:\n// Hello, I'm Alice, 25 years old.\n// Hello, I'm Unknown, 30 years old."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Person` class has `Name` and `Age` properties.\n- The `Name` property checks for `null` and sets a default value.\n- `Age` is an auto-implemented property (`get; set;`).\n- The `Introduce` method uses properties to display information."
+      },
+      {
+        "type": "heading",
+        "text": "Constructors"
+      },
+      {
+        "type": "paragraph",
+        "text": "Constructors are used to initialize objects with values when they are created. A constructor has the same name as the class."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Student\n{\n    public string Name { get; set; }\n    public int Grade { get; set; }\n\n    public Student(string name, int grade)\n    {\n        Name = name;\n        Grade = grade;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Student: {Name}, Grade: {Grade}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Student student = new Student(\"Bob\", 10);\n        student.DisplayInfo();\n    }\n}\n// Output:\n// Student: Bob, Grade: 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Student` class uses a constructor to set `Name` and `Grade`.\n- The constructor is called when the object is created.\n- The `DisplayInfo` method prints the information."
+      },
+      {
+        "type": "heading",
+        "text": "Encapsulation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Encapsulation protects a class’s internal data using properties and private fields."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    private decimal balance;\n\n    public decimal Balance\n    {\n        get { return balance; }\n        private set { if (value >= 0) balance = value; }\n    }\n\n    public BankAccount(decimal initialBalance)\n    {\n        Balance = initialBalance;\n    }\n\n    public void Deposit(decimal amount)\n    {\n        if (amount > 0)\n            Balance += amount;\n        Console.WriteLine($\"Deposited {amount}. New balance: {Balance}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount(1000);\n        account.Deposit(500);\n        // account.Balance = -100; // Error: Balance can only be set internally\n        Console.WriteLine($\"Current balance: {account.Balance}\");\n    }\n}\n// Output:\n// Deposited 500. New balance: 1500\n// Current balance: 1500"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `BankAccount` class keeps the `balance` field private and manages it via the `Balance` property.\n- The `Balance` property’s `set` method is private, restricting external changes.\n- The `Deposit` method safely increases the balance."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of OOP"
+      },
+      {
+        "type": "paragraph",
+        "text": "OOP makes programs more organized and reusable."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nModularity: Classes divide code into separate parts."
+          },
+          {
+            "description": "\nReusability: Objects can create multiple instances from the same class."
+          },
+          { "description": "\nSafety: Encapsulation protects data." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Learning OOP can present challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: The concept of classes and objects can be confusing for beginners."
+          },
+          {
+            "description": "\nDesign: Creating proper class structures requires experience."
+          },
+          {
+            "description": "\nPyodide Limitation: C# code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Improper property management or exposed public fields can compromise data safety. Overly complex class structures can make code harder to manage.\n- **Recommendations**: Use private fields and properties for encapsulation. Prefer simple and meaningful class designs. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error by accessing a null object."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    public string Name { get; set; }\n    public void Introduce()\n    {\n        Console.WriteLine($\"Hello, I'm {Name}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = null;\n        person.Introduce(); // Error: NullReferenceException\n    }\n}\n// Error: System.NullReferenceException"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `person` object is `null` because it was not created with `new`.\n- Calling `Introduce` causes an error.\n- Solution: Ensure the object is not `null` or create it with `new`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Book\n{\n    public string Title { get; set; }\n    public string Author { get; set; }\n\n    public Book(string title, string author)\n    {\n        Title = title;\n        Author = author;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Book: {Title}, Author: {Author}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Book book = new Book(\"1984\", \"George Orwell\");\n        book.DisplayInfo();\n    }\n}\n// Output:\n// Book: 1984, Author: George Orwell"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Классы и ООП",
+    "icon": "FiBox",
+    "language": "csharp",
+    "description": "Основы объектно-ориентированного программирования.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое классы и объектно-ориентированное программирование?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# классы составляют основу объектно-ориентированного программирования (ООП). Класс — это шаблон или чертеж для объектов реального мира. Например, класс автомобиля описывает его характеристики (цвет, модель) и поведение (движение, остановка). Объект — это конкретный экземпляр, созданный на основе класса. Принципы ООП (инкапсуляция, наследование, полиморфизм, абстракция) делают программы более организованными и управляемыми. Этот JSON-файл объясняет классы, объекты и простое применение ООП. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Простой класс и объект"
+      },
+      {
+        "type": "paragraph",
+        "text": "Класс определяется с помощью ключевого слова `class`. Объекты создаются из класса с использованием ключевого слова `new`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Car\n{\n    public string Brand;\n    public string Color;\n\n    public void Drive()\n    {\n        Console.WriteLine($\"{Color} {Brand} едет.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Car myCar = new Car();\n        myCar.Brand = \"Toyota\";\n        myCar.Color = \"Красный\";\n\n        Console.WriteLine($\"Автомобиль: {myCar.Brand}, Цвет: {myCar.Color}\");\n        myCar.Drive();\n    }\n}\n// Output:\n// Автомобиль: Toyota, Цвет: Красный\n// Красный Toyota едет."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Car` определяет свойства (`Brand`, `Color`) и поведение (`Drive`) автомобиля.\n- `myCar` — объект, созданный из класса `Car`.\n- Свойства объекта устанавливаются, а его метод вызывается.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Работа со свойствами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства используются для безопасного управления данными класса с помощью методов `get` и `set`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    private string name;\n\n    public string Name\n    {\n        get { return name; }\n        set { name = value ?? \"Неизвестно\"; }\n    }\n\n    public int Age { get; set; }\n\n    public void Introduce()\n    {\n        Console.WriteLine($\"Привет, я {Name}, мне {Age} лет.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person();\n        person.Name = \"Алиса\";\n        person.Age = 25;\n        person.Introduce();\n\n        Person anotherPerson = new Person();\n        anotherPerson.Name = null; // Будет установлено Неизвестно\n        anotherPerson.Age = 30;\n        anotherPerson.Introduce();\n    }\n}\n// Output:\n// Привет, я Алиса, мне 25 лет.\n// Привет, я Неизвестно, мне 30 лет."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Person` имеет свойства `Name` и `Age`.\n- Свойство `Name` проверяет `null` и устанавливает значение по умолчанию.\n- `Age` — это автоматически реализованное свойство (`get; set;`).\n- Метод `Introduce` использует свойства для отображения информации."
+      },
+      {
+        "type": "heading",
+        "text": "Конструкторы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конструкторы используются для инициализации объектов при их создании. Конструктор имеет то же имя, что и класс."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Student\n{\n    public string Name { get; set; }\n    public int Grade { get; set; }\n\n    public Student(string name, int grade)\n    {\n        Name = name;\n        Grade = grade;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Студент: {Name}, Класс: {Grade}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Student student = new Student(\"Боб\", 10);\n        student.DisplayInfo();\n    }\n}\n// Output:\n// Студент: Боб, Класс: 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Student` использует конструктор для установки значений `Name` и `Grade`.\n- Конструктор вызывается при создании объекта.\n- Метод `DisplayInfo` выводит информацию."
+      },
+      {
+        "type": "heading",
+        "text": "Инкапсуляция"
+      },
+      {
+        "type": "paragraph",
+        "text": "Инкапсуляция защищает внутренние данные класса с помощью свойств и приватных полей."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    private decimal balance;\n\n    public decimal Balance\n    {\n        get { return balance; }\n        private set { if (value >= 0) balance = value; }\n    }\n\n    public BankAccount(decimal initialBalance)\n    {\n        Balance = initialBalance;\n    }\n\n    public void Deposit(decimal amount)\n    {\n        if (amount > 0)\n            Balance += amount;\n        Console.WriteLine($\"Внесено {amount}. Новый баланс: {Balance}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount(1000);\n        account.Deposit(500);\n        // account.Balance = -100; // Ошибка: Balance можно изменить только внутри класса\n        Console.WriteLine($\"Текущий баланс: {account.Balance}\");\n    }\n}\n// Output:\n// Внесено 500. Новый баланс: 1500\n// Текущий баланс: 1500"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `BankAccount` делает поле `balance` приватным и управляет им через свойство `Balance`.\n- Метод `set` свойства `Balance` доступен только внутри класса.\n- Метод `Deposit` безопасно увеличивает баланс."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества ООП"
+      },
+      {
+        "type": "paragraph",
+        "text": "ООП делает программы более организованными и повторно используемыми."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nМодульность: Классы разделяют код на отдельные части."
+          },
+          {
+            "description": "\nПовторное использование: Объекты могут создавать несколько экземпляров одного класса."
+          },
+          { "description": "\nБезопасность: Инкапсуляция защищает данные." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Изучение ООП может создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Концепция классов и объектов может быть запутанной для новичков."
+          },
+          {
+            "description": "\nДизайн: Создание правильных структур классов требует опыта."
+          },
+          {
+            "description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильное управление свойствами или открытые публичные поля могут нарушить безопасность данных. Чрезмерно сложные структуры классов усложняют код.\n- **Рекомендации**: Используйте приватные поля и свойства для инкапсуляции. Предпочитайте простые и осмысленные дизайны классов. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку при обращении к null-объекту."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    public string Name { get; set; }\n    public void Introduce()\n    {\n        Console.WriteLine($\"Привет, я {Name}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = null;\n        person.Introduce(); // Ошибка: NullReferenceException\n    }\n}\n// Ошибка: System.NullReferenceException"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Объект `person` равен `null`, так как не был создан с помощью `new`.\n- Вызов метода `Introduce` вызывает ошибку.\n- Решение: Убедитесь, что объект не равен `null`, или создайте его с помощью `new`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Book\n{\n    public string Title { get; set; }\n    public string Author { get; set; }\n\n    public Book(string title, string author)\n    {\n        Title = title;\n        Author = author;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Книга: {Title}, Автор: {Author}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Book book = new Book(\"1984\", \"Джордж Оруэлл\");\n        book.DisplayInfo();\n    }\n}\n// Output:\n// Книга: 1984, Автор: Джордж Оруэлл"
+      }
+    ]
+  }
+}

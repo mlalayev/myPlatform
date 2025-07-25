@@ -13,6 +13,7 @@ interface JsTryEditorProps {
   showRunButton?: boolean;
   showCopyButton?: boolean;
   language?: string;
+  onRun?: () => void;
 }
 
 const languageSamples = {
@@ -169,6 +170,22 @@ export default function JsTryEditor({
   const [error, setError] = useState("");
   const [showOutput, setShowOutput] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [parsedOutput, setParsedOutput] = useState<Array<{type: string, content: string, key: string}>>([]);
+
+  // Parse colored console output
+  const parseColoredOutput = (logs: string[]) => {
+    return logs.map((log, index) => {
+      if (log.startsWith('[LOG]')) {
+        return { type: 'log', content: log.substring(5), key: `log-${index}` };
+      } else if (log.startsWith('[ERROR]')) {
+        return { type: 'error', content: log.substring(7), key: `error-${index}` };
+      } else if (log.startsWith('[WARN]')) {
+        return { type: 'warn', content: log.substring(6), key: `warn-${index}` };
+      } else {
+        return { type: 'log', content: log, key: `log-${index}` };
+      }
+    });
+  };
   const workerRef = useRef<Worker | null>(null);
 
   console.log(language);
@@ -271,14 +288,13 @@ export default function JsTryEditor({
               self.close();
             }
 
-            // Override console.log to capture output with better object formatting
+            // Override console methods to capture output with colors
             const originalLog = console.log;
-            console.log = function(...args) {
-              logCount++;
-              if (logCount > maxLogs) {
-                throw new Error('Too many console.log calls');
-              }
-              const formattedArgs = args.map(arg => {
+            const originalError = console.error;
+            const originalWarn = console.warn;
+
+            function formatArgs(args) {
+              return args.map(arg => {
                 if (typeof arg === 'object' && arg !== null) {
                   try {
                     return JSON.stringify(arg, null, 2);
@@ -288,7 +304,37 @@ export default function JsTryEditor({
                 }
                 return String(arg);
               });
-              logs.push(formattedArgs.join(' '));
+            }
+
+            console.log = function(...args) {
+              logCount++;
+              if (logCount > maxLogs) {
+                throw new Error('Too many console.log calls');
+              }
+              const formattedArgs = formatArgs(args);
+              logs.push('[LOG]' + formattedArgs.join(' '));
+              if (logTimer) clearTimeout(logTimer);
+              logTimer = setTimeout(sendLogsAndExit, logDelay);
+            };
+
+            console.error = function(...args) {
+              logCount++;
+              if (logCount > maxLogs) {
+                throw new Error('Too many console calls');
+              }
+              const formattedArgs = formatArgs(args);
+              logs.push('[ERROR]' + formattedArgs.join(' '));
+              if (logTimer) clearTimeout(logTimer);
+              logTimer = setTimeout(sendLogsAndExit, logDelay);
+            };
+
+            console.warn = function(...args) {
+              logCount++;
+              if (logCount > maxLogs) {
+                throw new Error('Too many console calls');
+              }
+              const formattedArgs = formatArgs(args);
+              logs.push('[WARN]' + formattedArgs.join(' '));
               if (logTimer) clearTimeout(logTimer);
               logTimer = setTimeout(sendLogsAndExit, logDelay);
             };
@@ -326,15 +372,19 @@ export default function JsTryEditor({
             if (e.data.type === "success") {
               if (e.data.logs.length === 0) {
                 setOutput("");
+                setParsedOutput([]);
                 setError(t("tryeditor.noOutput"));
               } else {
-                setOutput(e.data.logs.join("\n"));
+                const parsed = parseColoredOutput(e.data.logs);
+                setParsedOutput(parsed);
+                setOutput(e.data.logs.join("\n")); // Keep original for backward compatibility
                 setError("");
               }
               setShowOutput(true);
               setIsLoading(false);
             } else if (e.data.type === "error") {
               setError(e.data.error);
+              setParsedOutput([]);
               setShowOutput(true);
               setIsLoading(false);
             }
@@ -352,7 +402,10 @@ export default function JsTryEditor({
           return;
         } catch (err: unknown) {
           setError(
-            t("tryeditor.jsInterpreter").replace("{{message}}", err instanceof Error ? err.message : String(err))
+            t("tryeditor.jsInterpreter").replace(
+              "{{message}}",
+              err instanceof Error ? err.message : String(err)
+            )
           );
           setShowOutput(true);
           setIsLoading(false);
@@ -360,7 +413,17 @@ export default function JsTryEditor({
         return;
       }
       // Bütün backend dilləri üçün:
-      const backendLangs = ["python", "python3", "cpp", "c", "java", "csharp", "php", "go", "rust"];
+      const backendLangs = [
+        "python",
+        "python3",
+        "cpp",
+        "c",
+        "java",
+        "csharp",
+        "php",
+        "go",
+        "rust",
+      ];
       if (backendLangs.includes(lang)) {
         try {
           const response = await fetch("/api/execute", {
@@ -371,7 +434,10 @@ export default function JsTryEditor({
           const result = await response.json();
           if (result.error) {
             // Retry only if image loading (not file error)
-            if (result.error.includes("Docker image yüklənir") && retryCount < 2) {
+            if (
+              result.error.includes("Docker image yüklənir") &&
+              retryCount < 2
+            ) {
               setTimeout(() => runCode(retryCount + 1), 2000); // 2 saniyə sonra retry
               return;
             }
@@ -383,7 +449,10 @@ export default function JsTryEditor({
           }
           setShowOutput(true);
         } catch (err: unknown) {
-          setError("Server error: " + (err instanceof Error ? err.message : String(err)));
+          setError(
+            "Server error: " +
+              (err instanceof Error ? err.message : String(err))
+          );
           setShowOutput(true);
         } finally {
           setIsLoading(false);
@@ -394,7 +463,12 @@ export default function JsTryEditor({
       setShowOutput(true);
       setIsLoading(false);
     } catch (err: unknown) {
-      setError(t("tryeditor.general").replace("{{message}}", err instanceof Error ? err.message : String(err)));
+      setError(
+        t("tryeditor.general").replace(
+          "{{message}}",
+          err instanceof Error ? err.message : String(err)
+        )
+      );
       setShowOutput(true);
       setIsLoading(false);
     }
@@ -427,7 +501,7 @@ export default function JsTryEditor({
             scrollBeyondLastLine: false,
             wordWrap: "on",
           }}
-          onMount={(editor, monaco) => {
+          onMount={(editor: any, monaco: any) => {
             if (language === "javascript") {
               monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(
                 {
@@ -464,9 +538,24 @@ export default function JsTryEditor({
           ></CopyButton>
         )}
       </div>
-      {showOutput && (output || error) && (
+      {showOutput && (parsedOutput.length > 0 || output || error) && (
         <div className={styles.tryOutputBox}>
-          {output && (
+          {parsedOutput.length > 0 && (
+            <div className={styles.outputSection}>
+              <div className={styles.outputLabel}>Nəticə:</div>
+              <div className={styles.coloredOutput}>
+                {parsedOutput.map((logItem) => (
+                  <div 
+                    key={logItem.key} 
+                    className={`${styles.logLine} ${styles[`log-${logItem.type}`]}`}
+                  >
+                    {logItem.content}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {!parsedOutput.length && output && (
             <div className={styles.outputSection}>
               <div className={styles.outputLabel}>Nəticə:</div>
               <pre className={styles.output}>{output}</pre>

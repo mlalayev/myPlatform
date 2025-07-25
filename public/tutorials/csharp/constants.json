@@ -1,0 +1,510 @@
+{
+  "id": "constants",
+  "az": {
+    "title": "Konstantlar (const, readonly)",
+    "icon": "FiLock",
+    "language": "csharp",
+    "description": "Sabit dəyərlər və const/readonly açar sözləri.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Konstantlar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində konstantlar dəyəri dəyişdirilə bilməyən dəyişənlərdir. Bunlar proqramın icrası boyunca sabit qalan dəyərləri saxlamaq üçün istifadə olunur. C#-da konstantlar `const` və `readonly` açar sözləri ilə təyin edilir. Bu JSON faylda `const` və `readonly` anlayışları, onların istifadəsi, fərqləri və nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "`const` Açar Sözü"
+      },
+      {
+        "type": "paragraph",
+        "text": "`const` açar sözü ilə təyin olunan dəyişənlər proqramın tərtib zamanı (compile-time) dəyəri müəyyənləşdirilən və sonradan dəyişdirilə bilməyən sabitlərdir. `const` dəyişənləri yalnız sinif səviyyəsində və ya metod daxilində təyin edilə bilər və onların dəyəri təyin olunduğu anda sabitləşir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    const double Pi = 3.14159;\n\n    static void Main(string[] args)\n    {\n        const int MaxAttempts = 3;\n        Console.WriteLine($\"Pi dəyəri: {Pi}\");\n        Console.WriteLine($\"Maksimum cəhd sayı: {MaxAttempts}\");\n        // Pi = 3.14; // Xəta: const dəyəri dəyişdirilə bilməz\n    }\n}\n// Output:\n// Pi dəyəri: 3.14159\n// Maksimum cəhd sayı: 3"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `const double Pi` sinif səviyyəsində sabit bir dəyər təyin edir.\n- `const int MaxAttempts` metod daxilində sabit dəyər təyin edir.\n- `const` dəyərləri dəyişdirilə bilməz, buna cəhd etsəniz kompilyasiya xətası alacaqsınız.\n- Qeyd: `const` dəyərləri yalnız sabit ifadələrlə təyin oluna bilər (məsələn, riyazi sabitlər və ya ədədlər)."
+      },
+      {
+        "type": "heading",
+        "text": "`readonly` Açar Sözü"
+      },
+      {
+        "type": "paragraph",
+        "text": "`readonly` açar sözü ilə təyin olunan dəyişənlər yalnız təyin olunduğu yerdə və ya konstruktor daxilində dəyər ala bilər. `const`-dan fərqli olaraq, `readonly` dəyişənləri icra zamanı (runtime) dəyər ala bilər və yalnız sinif səviyyəsində təyin edilə bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    readonly int CreationYear;\n\n    public Program()\n    {\n        CreationYear = 2025;\n    }\n\n    static void Main(string[] args)\n    {\n        Program program = new Program();\n        Console.WriteLine($\"Yaradılma ili: {program.CreationYear}\");\n        // program.CreationYear = 2026; // Xəta: readonly dəyəri dəyişdirilə bilməz\n    }\n}\n// Output:\n// Yaradılma ili: 2025"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `readonly int CreationYear` sinif səviyyəsində təyin edilir.\n- Dəyər konstruktor (`Program()`) daxilində təyin olunur.\n- `readonly` dəyişəni konstruktordan kənarda dəyişdirilə bilməz.\n- Qeyd: `readonly` dəyərləri icra zamanı dinamik olaraq təyin oluna bilər (məsələn, cari tarix və ya fayldan oxunan dəyər)."
+      },
+      {
+        "type": "heading",
+        "text": "`const` və `readonly` Arasındakı Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "`const` və `readonly` oxşar görünsə də, onların fərqli xüsusiyyətləri var:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`const` tərtib zamanı (compile-time) dəyər almalıdır, `readonly` isə icra zamanı (runtime) dəyər ala bilər."
+          },
+          {
+            "description": "\n`const` yalnız sinif səviyyəsində və ya metod daxilində təyin edilə bilər, `readonly` yalnız sinif səviyyəsində təyin edilir."
+          },
+          {
+            "description": "\n`const` statikdir və obyekt yaratmadan istifadə olunur, `readonly` isə obyektə bağlıdır."
+          },
+          {
+            "description": "\n`const` dəyərləri yalnız sabit ifadələrlə təyin oluna bilər, `readonly` isə dinamik dəyərlər ala bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Nümunə: `const` və `readonly` Birgə İstifadə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Aşağıdakı nümunədə həm `const`, həm də `readonly` istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Circle\n{\n    const double Pi = 3.14159;\n    readonly double Radius;\n\n    public Circle(double radius)\n    {\n        Radius = radius;\n    }\n\n    public double CalculateArea()\n    {\n        return Pi * Radius * Radius;\n    }\n\n    static void Main(string[] args)\n    {\n        Circle circle = new Circle(5.0);\n        Console.WriteLine($\"Dairənin sahəsi: {circle.CalculateArea()}\");\n    }\n}\n// Output:\n// Dairənin sahəsi: 78.53975"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `const double Pi` sabit bir riyazi dəyər təyin edir.\n- `readonly double Radius` konstruktor vasitəsilə təyin olunur.\n- `CalculateArea` metodu dairənin sahəsini hesablayır.\n- Kod .NET ilə hər platformada işləyir."
+      },
+      {
+        "type": "heading",
+        "text": "Konstantların Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konstantlar proqramlaşdırmanı daha təhlükəsiz və oxunaqlı edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nDəyişməzlik: Dəyərlər səhvən dəyişdirilə bilməz."
+          },
+          {
+            "description": "\nOxunaqlılıq: Mənalı sabit adlar kodu başa düşülən edir."
+          },
+          {
+            "description": "\nPerformans: `const` dəyərləri tərtib zamanı optimallaşdırılır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konstantları öyrənmək yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`const` və `readonly` fərqləri: Hansı açar sözün harada istifadə olunacağını başa düşmək vaxt tələb edir."
+          },
+          {
+            "description": "\nMəhdudiyyətlər: `const` yalnız sabit ifadələrlə işləyir, `readonly` isə yalnız konstruktorlarda dəyişdirilə bilər."
+          },
+          {
+            "description": "\nPyodide məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: `const` üçün dinamik dəyərlər istifadə etməyə çalışmaq xəta yaradır. `readonly` dəyərlərinin konstruktordan kənarda dəyişdirilməsi kompilyasiya xətasına səbəb olur. Platformaya xüsusi kod portativliyi poza bilər.\n- **Tövsiyələr**: Sabit dəyərlər üçün `const`, dinamik dəyərlər üçün `readonly` istifadə edin. Mənalı adlar seçin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə `const` üçün dinamik dəyər istifadəsi xətaya səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        const int CurrentYear = DateTime.Now.Year; // Xəta: const dinamik dəyər ala bilməz\n        Console.WriteLine(CurrentYear);\n    }\n}\n// Xəta: Sabit ifadə tələb olunur"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `DateTime.Now.Year` icra zamanı dəyər aldığı üçün `const` ilə istifadə oluna bilməz.\n- Həll: Dinamik dəyərlər üçün `readonly` və ya adi dəyişən istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Program\n{\n    const double TaxRate = 0.18;\n    readonly double Price;\n\n    public Program(double price)\n    {\n        Price = price;\n    }\n\n    public double CalculateTotal()\n    {\n        return Price + (Price * TaxRate);\n    }\n\n    static void Main(string[] args)\n    {\n        Program item = new Program(100.0);\n        Console.WriteLine($\"Ümumi qiymət (vergi daxil): {item.CalculateTotal()}\");\n    }\n}\n// Output:\n// Ümumi qiymət (vergi daxil): 118"
+      }
+    ]
+  },
+  "en": {
+    "title": "Constants (const, readonly)",
+    "icon": "FiLock",
+    "language": "csharp",
+    "description": "Immutable values and the const/readonly keywords.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Constants?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, constants are variables whose values cannot be changed once set. They are used to store fixed values throughout a program’s execution. C# provides two keywords for constants: `const` and `readonly`. This JSON file explains `const` and `readonly`, their usage, differences, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command."
+      },
+      {
+        "type": "heading",
+        "text": "`const` Keyword"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `const` keyword defines variables with values determined at compile-time that cannot be changed later. `const` variables can be declared at the class level or within a method, and their value is fixed at declaration."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    const double Pi = 3.14159;\n\n    static void Main(string[] args)\n    {\n        const int MaxAttempts = 3;\n        Console.WriteLine($\"Pi value: {Pi}\");\n        Console.WriteLine($\"Maximum attempts: {MaxAttempts}\");\n        // Pi = 3.14; // Error: const value cannot be changed\n    }\n}\n// Output:\n// Pi value: 3.14159\n// Maximum attempts: 3"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `const double Pi` defines a constant at the class level.\n- `const int MaxAttempts` defines a constant within a method.\n- `const` values cannot be modified, and attempting to do so causes a compilation error.\n- Note: `const` values must be set with constant expressions (e.g., literals or numbers)."
+      },
+      {
+        "type": "heading",
+        "text": "`readonly` Keyword"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `readonly` keyword defines variables that can only be assigned a value at declaration or in a constructor. Unlike `const`, `readonly` variables can take values at runtime and are declared only at the class level."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    readonly int CreationYear;\n\n    public Program()\n    {\n        CreationYear = 2025;\n    }\n\n    static void Main(string[] args)\n    {\n        Program program = new Program();\n        Console.WriteLine($\"Creation year: {program.CreationYear}\");\n        // program.CreationYear = 2026; // Error: readonly value cannot be changed\n    }\n}\n// Output:\n// Creation year: 2025"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `readonly int CreationYear` is defined at the class level.\n- The value is set in the constructor (`Program()`).\n- `readonly` variables cannot be modified outside the constructor.\n- Note: `readonly` can take dynamic values at runtime (e.g., current date or data from a file)."
+      },
+      {
+        "type": "heading",
+        "text": "Differences Between `const` and `readonly`"
+      },
+      {
+        "type": "paragraph",
+        "text": "`const` and `readonly` may seem similar, but they have distinct features:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`const` must be set at compile-time, while `readonly` can be set at runtime."
+          },
+          {
+            "description": "\n`const` can be declared at class or method level, while `readonly` is only at class level."
+          },
+          {
+            "description": "\n`const` is static and used without an object, while `readonly` is instance-specific."
+          },
+          {
+            "description": "\n`const` is limited to constant expressions, while `readonly` can take dynamic values."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Example: Using `const` and `readonly` Together"
+      },
+      {
+        "type": "paragraph",
+        "text": "The following example uses both `const` and `readonly`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Circle\n{\n    const double Pi = 3.14159;\n    readonly double Radius;\n\n    public Circle(double radius)\n    {\n        Radius = radius;\n    }\n\n    public double CalculateArea()\n    {\n        return Pi * Radius * Radius;\n    }\n\n    static void Main(string[] args)\n    {\n        Circle circle = new Circle(5.0);\n        Console.WriteLine($\"Circle area: {circle.CalculateArea()}\");\n    }\n}\n// Output:\n// Circle area: 78.53975"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `const double Pi` defines a fixed mathematical constant.\n- `readonly double Radius` is set via the constructor.\n- `CalculateArea` computes the circle’s area.\n- The code runs on any platform with .NET."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Constants"
+      },
+      {
+        "type": "paragraph",
+        "text": "Constants make programming safer and more readable."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nImmutability: Values cannot be accidentally changed."
+          },
+          {
+            "description": "\nReadability: Meaningful constant names improve code clarity."
+          },
+          {
+            "description": "\nPerformance: `const` values are optimized at compile-time."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Learning constants can present challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`const` vs `readonly`: Understanding when to use each takes time."
+          },
+          {
+            "description": "\nLimitations: `const` is restricted to constant expressions, and `readonly` can only be set in constructors."
+          },
+          {
+            "description": "\nPyodide limitation: C# code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Using dynamic values with `const` causes errors. Modifying `readonly` outside constructors leads to compilation errors. Platform-specific code may break portability.\n- **Recommendations**: Use `const` for fixed values and `readonly` for dynamic values. Choose meaningful names. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error by using a dynamic value with `const`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        const int CurrentYear = DateTime.Now.Year; // Error: const cannot take dynamic value\n        Console.WriteLine(CurrentYear);\n    }\n}\n// Error: Constant expression required"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `DateTime.Now.Year` is a runtime value, so it cannot be used with `const`.\n- Solution: Use `readonly` or a regular variable for dynamic values."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Program\n{\n    const double TaxRate = 0.18;\n    readonly double Price;\n\n    public Program(double price)\n    {\n        Price = price;\n    }\n\n    public double CalculateTotal()\n    {\n        return Price + (Price * TaxRate);\n    }\n\n    static void Main(string[] args)\n    {\n        Program item = new Program(100.0);\n        Console.WriteLine($\"Total price (including tax): {item.CalculateTotal()}\");\n    }\n}\n// Output:\n// Total price (including tax): 118"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Константы (const, readonly)",
+    "icon": "FiLock",
+    "language": "csharp",
+    "description": "Неизменяемые значения и ключевые слова const/readonly.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое константы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# константы — это переменные, значения которых не могут быть изменены после установки. Они используются для хранения фиксированных значений на протяжении выполнения программы. В C# для констант используются ключевые слова `const` и `readonly`. Этот JSON-файл объясняет `const` и `readonly`, их использование, различия и примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Ключевое слово `const`"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ключевое слово `const` определяет переменные, значения которых задаются во время компиляции и не могут быть изменены позже. Переменные `const` могут быть объявлены на уровне класса или внутри метода, и их значение фиксируется при объявлении."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    const double Pi = 3.14159;\n\n    static void Main(string[] args)\n    {\n        const int MaxAttempts = 3;\n        Console.WriteLine($\"Значение Pi: {Pi}\");\n        Console.WriteLine($\"Максимальное количество попыток: {MaxAttempts}\");\n        // Pi = 3.14; // Ошибка: значение const не может быть изменено\n    }\n}\n// Output:\n// Значение Pi: 3.14159\n// Максимальное количество попыток: 3"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `const double Pi` определяет константу на уровне класса.\n- `const int MaxAttempts` определяет константу внутри метода.\n- Значения `const` не могут быть изменены, попытка это сделать вызовет ошибку компиляции.\n- Примечание: Значения `const` должны быть установлены с помощью константных выражений (например, литералов или чисел)."
+      },
+      {
+        "type": "heading",
+        "text": "Ключевое слово `readonly`"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ключевое слово `readonly` определяет переменные, которые могут быть присвоены только при объявлении или в конструкторе. В отличие от `const`, переменные `readonly` могут принимать значения во время выполнения и объявляются только на уровне класса."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    readonly int CreationYear;\n\n    public Program()\n    {\n        CreationYear = 2025;\n    }\n\n    static void Main(string[] args)\n    {\n        Program program = new Program();\n        Console.WriteLine($\"Год создания: {program.CreationYear}\");\n        // program.CreationYear = 2026; // Ошибка: значение readonly не может быть изменено\n    }\n}\n// Output:\n// Год создания: 2025"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `readonly int CreationYear` определяется на уровне класса.\n- Значение устанавливается в конструкторе (`Program()`).\n- Переменные `readonly` не могут быть изменены вне конструктора.\n- Примечание: `readonly` может принимать динамические значения во время выполнения (например, текущую дату или данные из файла)."
+      },
+      {
+        "type": "heading",
+        "text": "Различия между `const` и `readonly`"
+      },
+      {
+        "type": "paragraph",
+        "text": "`const` и `readonly` кажутся похожими, но имеют разные характеристики:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`const` должен быть установлен во время компиляции, тогда как `readonly` может быть установлен во время выполнения."
+          },
+          {
+            "description": "\n`const` может быть объявлен на уровне класса или метода, тогда как `readonly` только на уровне класса."
+          },
+          {
+            "description": "\n`const` статичен и используется без создания объекта, тогда как `readonly` привязан к экземпляру."
+          },
+          {
+            "description": "\n`const` ограничен константными выражениями, тогда как `readonly` может принимать динамические значения."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Пример: Использование `const` и `readonly` вместе"
+      },
+      {
+        "type": "paragraph",
+        "text": "Следующий пример использует как `const`, так и `readonly`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Circle\n{\n    const double Pi = 3.14159;\n    readonly double Radius;\n\n    public Circle(double radius)\n    {\n        Radius = radius;\n    }\n\n    public double CalculateArea()\n    {\n        return Pi * Radius * Radius;\n    }\n\n    static void Main(string[] args)\n    {\n        Circle circle = new Circle(5.0);\n        Console.WriteLine($\"Площадь круга: {circle.CalculateArea()}\");\n    }\n}\n// Output:\n// Площадь круга: 78.53975"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `const double Pi` определяет фиксированную математическую константу.\n- `readonly double Radius` устанавливается через конструктор.\n- `CalculateArea` вычисляет площадь круга.\n- Код работает на любой платформе с .NET."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества констант"
+      },
+      {
+        "type": "paragraph",
+        "text": "Константы делают программирование безопаснее и читаемее."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nНеизменяемость: Значения не могут быть случайно изменены."
+          },
+          {
+            "description": "\nЧитаемость: Осмысленные имена констант улучшают ясность кода."
+          },
+          {
+            "description": "\nПроизводительность: Значения `const` оптимизируются во время компиляции."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Изучение констант может создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`const` vs `readonly`: Понимание, когда использовать каждое, требует времени."
+          },
+          {
+            "description": "\nОграничения: `const` ограничен константными выражениями, а `readonly` может быть установлен только в конструкторах."
+          },
+          {
+            "description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Попытка использовать динамические значения с `const` вызывает ошибки. Изменение `readonly` вне конструкторов приводит к ошибкам компиляции. Платформозависимый код может нарушить переносимость.\n- **Рекомендации**: Используйте `const` для фиксированных значений и `readonly` для динамических. Выбирайте осмысленные имена. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку из-за использования динамического значения с `const`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        const int CurrentYear = DateTime.Now.Year; // Ошибка: const не может принимать динамическое значение\n        Console.WriteLine(CurrentYear);\n    }\n}\n// Ошибка: Требуется константное выражение"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `DateTime.Now.Year` — это значение времени выполнения, поэтому его нельзя использовать с `const`.\n- Решение: Используйте `readonly` или обычную переменную для динамических значений."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Program\n{\n    const double TaxRate = 0.18;\n    readonly double Price;\n\n    public Program(double price)\n    {\n        Price = price;\n    }\n\n    public double CalculateTotal()\n    {\n        return Price + (Price * TaxRate);\n    }\n\n    static void Main(string[] args)\n    {\n        Program item = new Program(100.0);\n        Console.WriteLine($\"Итоговая цена (с учётом налога): {item.CalculateTotal()}\");\n    }\n}\n// Output:\n// Итоговая цена (с учётом налога): 118"
+      }
+    ]
+  }
+}

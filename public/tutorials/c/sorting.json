@@ -1,0 +1,398 @@
+{
+  "id": "sorting",
+  "az": {
+    "title": "Çeşidləmə Alqoritmləri",
+    "icon": "FiArrowUpDown",
+    "language": "c",
+    "description": "Bubble sort, quick sort və s.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Çeşidləmə Alqoritmləri Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində çeşidləmə alqoritmləri, bir sıra və ya massivi (məsələn, ədədlər siyahısını) müəyyən bir qaydada (artan və ya azalan) sıralamaq üçün istifadə olunan metodlardır. Çeşidləmə alqoritmləri verilənləri təşkil etmək, axtarışı asanlaşdırmaq və ya məlumatları daha oxunaqlı etmək üçün vacibdir. Bu JSON faylda iki əsas alqoritmə baxacağıq: **Bubble Sort** (Köpük Çeşidləmə) və **Quick Sort** (Sürətli Çeşidləmə). Bu alqoritmlər fərqli səmərəliliyə malikdir və müxtəlif ssenarilərdə istifadə olunur. Kod nümunələri Pyodide mühitində işləyə bilər, çünki xarici resurslara ehtiyac yoxdur."
+      },
+      {
+        "type": "heading",
+        "text": "Bubble Sort (Köpük Çeşidləmə)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bubble Sort sadə bir alqoritmdir. O, massivdəki elementləri cüt-cüt müqayisə edir və yanlış sırayla olanları dəyişdirir. Bu proses massiv tam sıralanana qədər təkrarlanır, sanki baloncuklar səthə çıxır (buna görə 'bubble' adlanır). Bubble Sort yavaş olsa da, başa düşülməsi asandır."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nvoid bubble_sort(int arr[], int size) {\n  for (int i = 0; i < size - 1; i++) {\n    for (int j = 0; j < size - i - 1; j++) {\n      if (arr[j] > arr[j + 1]) {\n        // Swap\n        int temp = arr[j];\n        arr[j] = arr[j + 1];\n        arr[j + 1] = temp;\n      }\n    }\n  }\n}\n\nint main() {\n  int arr[] = {64, 34, 25, 12, 22};\n  int size = 5;\n\n  printf(\"Əvvəlki massiv: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n\n  bubble_sort(arr, size);\n\n  printf(\"Sıralanmış massiv: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n  return 0;\n}\n// Output:\n// Əvvəlki massiv: 64 34 25 12 22\n// Sıralanmış massiv: 12 22 25 34 64"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `bubble_sort` funksiyası massivi sıralayır.\n- Xarici döngü (`i`) hər keçiddə sıralanmış elementləri nəzərə alaraq azalır.\n- Daxili döngü (`j`) cüt-cüt müqayisə edir və böyük elementi sağa daşıyır.\n- `swap` (dəyişmə): `temp` dəyişəni ilə iki elementi yer dəyişdirir.\n- Məsələn, `[64, 34, 25, 12, 22]` → `[12, 22, 25, 34, 64]`."
+      },
+      {
+        "type": "heading",
+        "text": "Quick Sort (Sürətli Çeşidləmə)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Quick Sort daha səmərəli alqoritmdir və 'böl və hökm et' (divide and conquer) strategiyasından istifadə edir. O, bir pivot elementi seçir, massivi pivotdan kiçik və böyük elementlərə ayırır, sonra hər iki hissəni rekursiv olaraq sıralayır. Quick Sort adətən Bubble Sort-dan daha sürətlidir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nvoid swap(int* a, int* b) {\n  int temp = *a;\n  *a = *b;\n  *b = temp;\n}\n\nint partition(int arr[], int low, int high) {\n  int pivot = arr[high];\n  int i = low - 1;\n\n  for (int j = low; j < high; j++) {\n    if (arr[j] <= pivot) {\n      i++;\n      swap(&arr[i], &arr[j]);\n    }\n  }\n  swap(&arr[i + 1], &arr[high]);\n  return i + 1;\n}\n\nvoid quick_sort(int arr[], int low, int high) {\n  if (low < high) {\n    int pi = partition(arr, low, high);\n    quick_sort(arr, low, pi - 1);\n    quick_sort(arr, pi + 1, high);\n  }\n}\n\nint main() {\n  int arr[] = {64, 34, 25, 12, 22};\n  int size = 5;\n\n  printf(\"Əvvəlki massiv: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n\n  quick_sort(arr, 0, size - 1);\n\n  printf(\"Sıralanmış massiv: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n  return 0;\n}\n// Output:\n// Əvvəlki massiv: 64 34 25 12 22\n// Sıralanmış massiv: 12 22 25 34 64"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `swap` funksiyası iki elementi yer dəyişdirir.\n- `partition` funksiyası pivotu (son elementi) seçir və massivi pivotdan kiçik və böyük hissələrə ayırır.\n- `quick_sort` funksiyası rekursiv olaraq alt massivləri sıralayır.\n- Məsələn, `[64, 34, 25, 12, 22]` pivot 22 seçildikdə → `[12, 22, 25, 34, 64]`."
+      },
+      {
+        "type": "heading",
+        "text": "Bubble Sort və Quick Sort-un Müqayisəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bubble Sort və Quick Sort fərqli səmərəliliyə malikdir:\n- **Bubble Sort**: Sadədir, lakin yavaşdır (vaxt mürəkkəbliyi O(n²)). Kiçik massivlər üçün uyğundur.\n- **Quick Sort**: Daha sürətlidir (orta hesabla O(n log n)), lakin rekursiya səbəbindən daha mürəkkəbdir. Böyük massivlər üçün idealdır."
+      },
+      {
+        "type": "heading",
+        "text": "Çeşidləmə Alqoritmlərinin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Çeşidləmə alqoritmləri verilənləri təşkil etmək üçün vacibdir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nAxtarışı və məlumatların işlənməsini asanlaşdırır."
+          },
+          {
+            "description": "\nMüxtəlif ssenarilərə uyğun fərqli alqoritmlər mövcuddur."
+          },
+          {
+            "description": "\nSıralanmış verilənlər proqramın oxunaqlığını artırır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Çeşidləmə alqoritmləri yeni başlayanlar üçün çətin ola bilər, xüsusilə Quick Sort-un rekursiv təbiəti."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nBubble Sort yavaşdır və böyük massivlərdə səmərəsizdir."
+          },
+          {
+            "description": "\nQuick Sort-un pivot seçimi nəticələri təsir edir (pis pivot O(n²) səmərəsizliyə səbəb ola bilər)."
+          },
+          {
+            "description": "\nRekursiya və göstəricilər Quick Sort-u mürəkkəbləşdirir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Səhv döngü və ya pivot seçimi alqoritmin düzgün işləməməsinə səbəb ola bilər. Böyük massivlərdə Bubble Sort istifadəsi performansı aşağı salır.\n- **Tövsiyələr**: Bubble Sort-u kiçik massivlər üçün, Quick Sort-u isə böyük massivlər üçün istifadə edin. Quick Sort-da yaxşı pivot seçimi üçün son elementi və ya random elementi seçin. Kodu kiçik testlərlə yoxlayın. Pyodide və ya Visual Studio Code-da sınaqdan keçirin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə Bubble Sort-da səhv döngü şərti proqramın yanlış işləməsinə səbəb olur. Bu kodu icra etmək olar, lakin nəticələr düzgün olmayacaq."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nvoid wrong_bubble_sort(int arr[], int size) {\n  for (int i = 0; i < size; i++) { // Səhv: size - 1 olmalı\n    for (int j = 0; j < size; j++) { // Səhv: size - i - 1 olmalı\n      if (arr[j] > arr[j + 1]) { // Səhv: j + 1 massiv hüdudlarından kənara çıxır\n        int temp = arr[j];\n        arr[j] = arr[j + 1];\n        arr[j + 1] = temp;\n      }\n    }\n  }\n}\n\nint main() {\n  int arr[] = {64, 34, 25, 12, 22};\n  int size = 5;\n\n  printf(\"Əvvəlki massiv: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n\n  wrong_bubble_sort(arr, size);\n\n  printf(\"Sıralanmış massiv: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n  return 0;\n}\n// Output: (Nəticə səhv ola bilər, çünki massiv hüdudlarından kənara çıxılır)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `i < size` və `j < size`: Döngü şərtləri səhvdir, `size - 1` və `size - i - 1` olmalıdır.\n- `arr[j + 1]`: Massiv hüdudlarından kənara çıxır, bu da proqramın çökməsinə səbəb ola bilər.\n- Tövsiyə: Döngü şərtlərini düzgün təyin edin (`j < size - i - 1`)."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nvoid bubble_sort(int arr[], int size) {\n  for (int i = 0; i < size - 1; i++) {\n    for (int j = 0; j < size - i - 1; j++) {\n      if (arr[j] > arr[j + 1]) {\n        int temp = arr[j];\n        arr[j] = arr[j + 1];\n        arr[j + 1] = temp;\n      }\n    }\n  }\n}\n\nint main() {\n  int arr[] = {64, 34, 25, 12, 22};\n  int size = 5;\n\n  printf(\"Əvvəlki massiv: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n\n  bubble_sort(arr, size);\n\n  printf(\"Sıralanmış massiv: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n  return 0;\n}\n// Output:\n// Əvvəlki massiv: 64 34 25 12 22\n// Sıralanmış massiv: 12 22 25 34 64"
+      }
+    ]
+  },
+  "en": {
+    "title": "Sorting Algorithms",
+    "icon": "FiArrowUpDown",
+    "language": "c",
+    "description": "Bubble sort, quick sort, and more.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Sorting Algorithms?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, sorting algorithms are methods used to arrange a list or array (e.g., a list of numbers) in a specific order, such as ascending or descending. Sorting algorithms are essential for organizing data, making searches easier, or improving data readability. This JSON file focuses on two main algorithms: **Bubble Sort** and **Quick Sort**. These algorithms have different efficiencies and are used in various scenarios. The code examples can run in Pyodide, as they do not require external resources."
+      },
+      {
+        "type": "heading",
+        "text": "Bubble Sort"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bubble Sort is a simple algorithm that compares adjacent elements in an array and swaps them if they are in the wrong order. This process repeats until the array is fully sorted, like bubbles rising to the surface (hence the name 'bubble'). While Bubble Sort is slow, it is easy to understand."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nvoid bubble_sort(int arr[], int size) {\n  for (int i = 0; i < size - 1; i++) {\n    for (int j = 0; j < size - i - 1; j++) {\n      if (arr[j] > arr[j + 1]) {\n        // Swap\n        int temp = arr[j];\n        arr[j] = arr[j + 1];\n        arr[j + 1] = temp;\n      }\n    }\n  }\n}\n\nint main() {\n  int arr[] = {64, 34, 25, 12, 22};\n  int size = 5;\n\n  printf(\"Original array: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n\n  bubble_sort(arr, size);\n\n  printf(\"Sorted array: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n  return 0;\n}\n// Output:\n// Original array: 64 34 25 12 22\n// Sorted array: 12 22 25 34 64"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `bubble_sort` function sorts the array.\n- The outer loop (`i`) reduces the range as sorted elements accumulate.\n- The inner loop (`j`) compares adjacent elements and swaps them if needed.\n- `swap`: Uses a `temp` variable to exchange elements.\n- For example, `[64, 34, 25, 12, 22]` → `[12, 22, 25, 34, 64]`."
+      },
+      {
+        "type": "heading",
+        "text": "Quick Sort"
+      },
+      {
+        "type": "paragraph",
+        "text": "Quick Sort is a more efficient algorithm that uses a 'divide and conquer' strategy. It selects a pivot element, partitions the array into elements smaller and larger than the pivot, and recursively sorts the partitions. Quick Sort is typically faster than Bubble Sort."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nvoid swap(int* a, int* b) {\n  int temp = *a;\n  *a = *b;\n  *b = temp;\n}\n\nint partition(int arr[], int low, int high) {\n  int pivot = arr[high];\n  int i = low - 1;\n\n  for (int j = low; j < high; j++) {\n    if (arr[j] <= pivot) {\n      i++;\n      swap(&arr[i], &arr[j]);\n    }\n  }\n  swap(&arr[i + 1], &arr[high]);\n  return i + 1;\n}\n\nvoid quick_sort(int arr[], int low, int high) {\n  if (low < high) {\n    int pi = partition(arr, low, high);\n    quick_sort(arr, low, pi - 1);\n    quick_sort(arr, pi + 1, high);\n  }\n}\n\nint main() {\n  int arr[] = {64, 34, 25, 12, 22};\n  int size = 5;\n\n  printf(\"Original array: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n\n  quick_sort(arr, 0, size - 1);\n\n  printf(\"Sorted array: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n  return 0;\n}\n// Output:\n// Original array: 64 34 25 12 22\n// Sorted array: 12 22 25 34 64"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `swap` function exchanges two elements.\n- The `partition` function selects the last element as the pivot and divides the array.\n- The `quick_sort` function recursively sorts the subarrays.\n- For example, `[64, 34, 25, 12, 22]` with pivot 22 → `[12, 22, 25, 34, 64]`."
+      },
+      {
+        "type": "heading",
+        "text": "Comparison of Bubble Sort and Quick Sort"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bubble Sort and Quick Sort have different efficiencies:\n- **Bubble Sort**: Simple but slow (time complexity O(n²)). Suitable for small arrays.\n- **Quick Sort**: Faster (average O(n log n)) but more complex due to recursion. Ideal for large arrays."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Sorting Algorithms"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sorting algorithms are crucial for organizing data."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nFacilitate searching and data processing." },
+          { "description": "\nDifferent algorithms suit different scenarios." },
+          { "description": "\nSorted data improves program readability." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sorting algorithms can be challenging for beginners, especially Quick Sort’s recursive nature."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nBubble Sort is slow and inefficient for large arrays."
+          },
+          {
+            "description": "\nQuick Sort’s pivot choice affects performance (bad pivot can lead to O(n²))."
+          },
+          { "description": "\nRecursion and pointers make Quick Sort complex." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Incorrect loop conditions or pivot selection can cause errors. Using Bubble Sort on large arrays reduces performance.\n- **Recommendations**: Use Bubble Sort for small arrays and Quick Sort for large ones. Choose a good pivot (e.g., last or random element) for Quick Sort. Test with small inputs. Run code in Pyodide or Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example shows an incorrect Bubble Sort implementation with wrong loop conditions, leading to incorrect results. The code can be run but will produce errors."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nvoid wrong_bubble_sort(int arr[], int size) {\n  for (int i = 0; i < size; i++) { // Error: Should be size - 1\n    for (int j = 0; j < size; j++) { // Error: Should be size - i - 1\n      if (arr[j] > arr[j + 1]) { // Error: j + 1 accesses out of bounds\n        int temp = arr[j];\n        arr[j] = arr[j + 1];\n        arr[j + 1] = temp;\n      }\n    }\n  }\n}\n\nint main() {\n  int arr[] = {64, 34, 25, 12, 22};\n  int size = 5;\n\n  printf(\"Original array: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n\n  wrong_bubble_sort(arr, size);\n\n  printf(\"Sorted array: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n  return 0;\n}\n// Output: (Result may be incorrect due to out-of-bounds access)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `i < size` and `j < size`: Incorrect loop conditions; should be `size - 1` and `size - i - 1`.\n- `arr[j + 1]`: Accesses out of bounds, potentially crashing the program.\n- Recommendation: Use correct loop bounds (`j < size - i - 1`)."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nvoid bubble_sort(int arr[], int size) {\n  for (int i = 0; i < size - 1; i++) {\n    for (int j = 0; j < size - i - 1; j++) {\n      if (arr[j] > arr[j + 1]) {\n        int temp = arr[j];\n        arr[j] = arr[j + 1];\n        arr[j + 1] = temp;\n      }\n    }\n  }\n}\n\nint main() {\n  int arr[] = {64, 34, 25, 12, 22};\n  int size = 5;\n\n  printf(\"Original array: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n\n  bubble_sort(arr, size);\n\n  printf(\"Sorted array: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n  return 0;\n}\n// Output:\n// Original array: 64 34 25 12 22\n// Sorted array: 12 22 25 34 64"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Алгоритмы сортировки",
+    "icon": "FiArrowUpDown",
+    "language": "c",
+    "description": "Пузырьковая сортировка, быстрая сортировка и др.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое алгоритмы сортировки?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C алгоритмы сортировки — это методы, используемые для упорядочивания списка или массива (например, списка чисел) в определённом порядке, таком как по возрастанию или убыванию. Алгоритмы сортировки важны для организации данных, упрощения поиска или улучшения читаемости данных. Этот JSON-файл фокусируется на двух основных алгоритмах: **Пузырьковая сортировка (Bubble Sort)** и **Быстрая сортировка (Quick Sort)**. Эти алгоритмы имеют разную эффективность и используются в разных сценариях. Примеры кода могут работать в Pyodide, так как не требуют внешних ресурсов."
+      },
+      {
+        "type": "heading",
+        "text": "Пузырьковая сортировка (Bubble Sort)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Пузырьковая сортировка — это простой алгоритм, который сравнивает соседние элементы массива и меняет их местами, если они находятся в неправильном порядке. Процесс повторяется, пока массив полностью не отсортирован, словно пузырьки всплывают на поверхность (отсюда название 'bubble'). Хотя пузырьковая сортировка медленная, её легко понять."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nvoid bubble_sort(int arr[], int size) {\n  for (int i = 0; i < size - 1; i++) {\n    for (int j = 0; j < size - i - 1; j++) {\n      if (arr[j] > arr[j + 1]) {\n        // Swap\n        int temp = arr[j];\n        arr[j] = arr[j + 1];\n        arr[j + 1] = temp;\n      }\n    }\n  }\n}\n\nint main() {\n  int arr[] = {64, 34, 25, 12, 22};\n  int size = 5;\n\n  printf(\"Исходный массив: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n\n  bubble_sort(arr, size);\n\n  printf(\"Отсортированный массив: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n  return 0;\n}\n// Output:\n// Исходный массив: 64 34 25 12 22\n// Отсортированный массив: 12 22 25 34 64"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `bubble_sort` сортирует массив.\n- Внешний цикл (`i`) уменьшает диапазон, учитывая отсортированные элементы.\n- Внутренний цикл (`j`) сравнивает соседние элементы и меняет их местами при необходимости.\n- `swap`: Использует временную переменную `temp` для обмена элементов.\n- Например, `[64, 34, 25, 12, 22]` → `[12, 22, 25, 34, 64]`."
+      },
+      {
+        "type": "heading",
+        "text": "Быстрая сортировка (Quick Sort)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Быстрая сортировка — более эффективный алгоритм, использующий стратегию 'разделяй и властвуй'. Он выбирает опорный элемент (pivot), разделяет массив на элементы меньше и больше опорного, а затем рекурсивно сортирует эти части. Быстрая сортировка обычно быстрее пузырьковой."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nvoid swap(int* a, int* b) {\n  int temp = *a;\n  *a = *b;\n  *b = temp;\n}\n\nint partition(int arr[], int low, int high) {\n  int pivot = arr[high];\n  int i = low - 1;\n\n  for (int j = low; j < high; j++) {\n    if (arr[j] <= pivot) {\n      i++;\n      swap(&arr[i], &arr[j]);\n    }\n  }\n  swap(&arr[i + 1], &arr[high]);\n  return i + 1;\n}\n\nvoid quick_sort(int arr[], int low, int high) {\n  if (low < high) {\n    int pi = partition(arr, low, high);\n    quick_sort(arr, low, pi - 1);\n    quick_sort(arr, pi + 1, high);\n  }\n}\n\nint main() {\n  int arr[] = {64, 34, 25, 12, 22};\n  int size = 5;\n\n  printf(\"Исходный массив: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n\n  quick_sort(arr, 0, size - 1);\n\n  printf(\"Отсортированный массив: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n  return 0;\n}\n// Output:\n// Исходный массив: 64 34 25 12 22\n// Отсортированный массив: 12 22 25 34 64"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `swap` меняет местами два элемента.\n- Функция `partition` выбирает последний элемент как опорный и разделяет массив.\n- Функция `quick_sort` рекурсивно сортирует подмассивы.\n- Например, `[64, 34, 25, 12, 22]` с опорным 22 → `[12, 22, 25, 34, 64]`."
+      },
+      {
+        "type": "heading",
+        "text": "Сравнение пузырьковой и быстрой сортировки"
+      },
+      {
+        "type": "paragraph",
+        "text": "Пузырьковая и быстрая сортировки имеют разную эффективность:\n- **Пузырьковая сортировка**: Простая, но медленная (временная сложность O(n²)). Подходит для маленьких массивов.\n- **Быстрая сортировка**: Быстрее (в среднем O(n log n)), но сложнее из-за рекурсии. Идеальна для больших массивов."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества алгоритмов сортировки"
+      },
+      {
+        "type": "paragraph",
+        "text": "Алгоритмы сортировки необходимы для организации данных."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nУпрощают поиск и обработку данных." },
+          {
+            "description": "\nРазные алгоритмы подходят для разных сценариев."
+          },
+          {
+            "description": "\nОтсортированные данные улучшают читаемость программы."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Алгоритмы сортировки могут быть сложными для новичков, особенно рекурсивная природа быстрой сортировки."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПузырьковая сортировка медленная и неэффективна для больших массивов."
+          },
+          {
+            "description": "\nВыбор опорного элемента в быстрой сортировке влияет на производительность (плохой выбор может привести к O(n²))."
+          },
+          {
+            "description": "\nРекурсия и указатели усложняют быструю сортировку."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильные условия цикла или выбор опорного элемента могут привести к ошибкам. Использование пузырьковой сортировки для больших массивов снижает производительность.\n- **Рекомендации**: Используйте пузырьковую сортировку для маленьких массивов, а быструю — для больших. Выбирайте хороший опорный элемент (например, последний или случайный) для быстрой сортировки. Тестируйте с небольшими данными. Запускайте код в Pyodide или Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример показывает неправильную реализацию пузырьковой сортировки с неверными условиями цикла, что приводит к некорректным результатам. Код можно запустить, но результаты будут ошибочными."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nvoid wrong_bubble_sort(int arr[], int size) {\n  for (int i = 0; i < size; i++) { // Ошибка: Должно быть size - 1\n    for (int j = 0; j < size; j++) { // Ошибка: Должно быть size - i - 1\n      if (arr[j] > arr[j + 1]) { // Ошибка: j + 1 выходит за границы массива\n        int temp = arr[j];\n        arr[j] = arr[j + 1];\n        arr[j + 1] = temp;\n      }\n    }\n  }\n}\n\nint main() {\n  int arr[] = {64, 34, 25, 12, 22};\n  int size = 5;\n\n  printf(\"Исходный массив: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n\n  wrong_bubble_sort(arr, size);\n\n  printf(\"Отсортированный массив: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n  return 0;\n}\n// Output: (Результат может быть некорректным из-за выхода за границы массива)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `i < size` и `j < size`: Неправильные условия цикла; должны быть `size - 1` и `size - i - 1`.\n- `arr[j + 1]`: Выходит за границы массива, что может вызвать сбой программы.\n- Рекомендация: Используйте правильные границы цикла (`j < size - i - 1`)."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nvoid bubble_sort(int arr[], int size) {\n  for (int i = 0; i < size - 1; i++) {\n    for (int j = 0; j < size - i - 1; j++) {\n      if (arr[j] > arr[j + 1]) {\n        int temp = arr[j];\n        arr[j] = arr[j + 1];\n        arr[j + 1] = temp;\n      }\n    }\n  }\n}\n\nint main() {\n  int arr[] = {64, 34, 25, 12, 22};\n  int size = 5;\n\n  printf(\"Исходный массив: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n\n  bubble_sort(arr, size);\n\n  printf(\"Отсортированный массив: \");\n  for (int i = 0; i < size; i++) {\n    printf(\"%d \", arr[i]);\n  }\n  printf(\"\\n\");\n  return 0;\n}\n// Output:\n// Исходный массив: 64 34 25 12 22\n// Отсортированный массив: 12 22 25 34 64"
+      }
+    ]
+  }
+}

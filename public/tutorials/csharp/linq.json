@@ -1,0 +1,529 @@
+{
+  "id": "linq",
+  "az": {
+    "title": "LINQ",
+    "icon": "FiSearch",
+    "language": "csharp",
+    "description": "Language Integrated Query.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "LINQ Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində LINQ (Language Integrated Query) məlumat sorğularını asanlaşdırmaq üçün istifadə olunan güclü bir vasitədir. LINQ ilə massivlər, siyahılar, verilənlər bazaları və ya digər məlumat mənbələri üzərində filtrləmə, sıralama və çevrilmə kimi əməliyyatlar sadə və oxunaqlı şəkildə yerinə yetirilə bilər. LINQ iki formada istifadə olunur: sorğu sintaksisi (SQL-ə bənzər) və metod sintaksisi (lambda ifadələri ilə). LINQ xüsusilə lambda ifadələri ilə sıx bağlıdır. Bu JSON faylda LINQ-nun yaradılması, istifadəsi, lambda ifadələri ilə əlaqəsi, ümumi metodlar və nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "LINQ-nun Sorğu Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sorğu sintaksisi SQL-ə bənzər bir üslubda yazılır və məlumatlar üzərində oxunaqlı sorğular yaratmağa imkan verir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int[] numbers = { 1, 2, 3, 4, 5, 6 };\n\n        // Sorğu sintaksisi ilə cüt ədədləri seçmək\n        var evenNumbers = from n in numbers\n                         where n % 2 == 0\n                         select n;\n\n        Console.WriteLine(\"Cüt ədədlər: \" + string.Join(\", \", evenNumbers));\n    }\n}\n// Output:\n// Cüt ədədlər: 2, 4, 6"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `from n in numbers` məlumat mənbəyini (massivi) təyin edir.\n- `where n % 2 == 0` cüt ədədləri filtrləyir.\n- `select n` nəticəni qaytarır.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "LINQ-nun Metod Sintaksisi və Lambda İfadələri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metod sintaksisi lambda ifadələri ilə birbaşa LINQ metodlarını çağırır. Bu, daha çevik və qısa kod yazmağa imkan verir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int[] numbers = { 1, 2, 3, 4, 5, 6 };\n\n        // Metod sintaksisi ilə cüt ədədləri seçmək\n        var evenNumbers = numbers.Where(n => n % 2 == 0);\n        Console.WriteLine(\"Cüt ədədlər: \" + string.Join(\", \", evenNumbers));\n\n        // Kvadratları hesablamaq\n        var squares = numbers.Select(n => n * n);\n        Console.WriteLine(\"Kvadratlar: \" + string.Join(\", \", squares));\n    }\n}\n// Output:\n// Cüt ədədlər: 2, 4, 6\n// Kvadratlar: 1, 4, 9, 16, 25, 36"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Where(n => n % 2 == 0)` lambda ifadəsi ilə cüt ədədləri filtrləyir.\n- `Select(n => n * n)` hər ədədin kvadratını hesablayır.\n- Metod sintaksisi lambda ifadələri ilə daha qısa və çevikdir."
+      },
+      {
+        "type": "heading",
+        "text": "Ümumi LINQ Metodları"
+      },
+      {
+        "type": "paragraph",
+        "text": "LINQ bir çox metod təklif edir. Ən çox istifadə olunanlardan bəziləri bunlardır."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\n`Where`: Şərtə uyğun elementləri filtrləyir." },
+          { "description": "\n`Select`: Elementləri çevirir və ya seçir." },
+          {
+            "description": "\n`OrderBy`: Elementləri sıralayır (artma sırası ilə)."
+          },
+          {
+            "description": "\n`OrderByDescending`: Elementləri azalma sırası ilə sıralayır."
+          },
+          { "description": "\n`First`: İlk uyğun elementi qaytarır." },
+          { "description": "\n`Count`: Elementlərin sayını qaytarır." }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        string[] fruits = { \"alma\", \"armud\", \"banan\", \"çiyələk\" };\n\n        // Uzunluğu 5-dən böyük sözləri sıralamaq\n        var longFruits = fruits.Where(f => f.Length > 4)\n                               .OrderBy(f => f);\n        Console.WriteLine(\"Uzun və sıralanmış sözlər: \" + string.Join(\", \", longFruits));\n\n        // İlk elementi seçmək\n        var firstFruit = fruits.First();\n        Console.WriteLine(\"İlk meyvə: \" + firstFruit);\n\n        // Elementlərin sayını hesablamaq\n        var count = fruits.Count();\n        Console.WriteLine(\"Meyvələrin sayı: \" + count);\n    }\n}\n// Output:\n// Uzun və sıralanmış sözlər: armud, çiyələk\n// İlk meyvə: alma\n// Meyvələrin sayı: 4"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Where(f => f.Length > 4)` uzunluğu 4 simvoldan böyük sözləri filtrləyir.\n- `OrderBy(f => f)` sözləri əlifba sırası ilə sıralayır.\n- `First()` ilk elementi, `Count()` isə elementlərin sayını qaytarır."
+      },
+      {
+        "type": "heading",
+        "text": "LINQ ilə Obyektlər üzərində İş"
+      },
+      {
+        "type": "paragraph",
+        "text": "LINQ sadə tiplərlə yanaşı, öz siniflərinizlə də işləyə bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person[] people = {\n            new Person { Name = \"Ali\", Age = 25 },\n            new Person { Name = \"Aygün\", Age = 30 },\n            new Person { Name = \"Cavid\", Age = 20 }\n        };\n\n        // 25 yaşdan böyük insanları seçmək və sıralamaq\n        var adults = from p in people\n                     where p.Age > 25\n                     orderby p.Name\n                     select p.Name;\n\n        Console.WriteLine(\"Yetkinlər: \" + string.Join(\", \", adults));\n    }\n}\n// Output:\n// Yetkinlər: Aygün"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Person` sinfi ad və yaş xüsusiyyətlərinə malikdir.\n- Sorğu sintaksisi ilə 25 yaşdan böyük insanlar filtrlənir və adlarına görə sıralanır.\n- Nəticə yalnız adları qaytarır."
+      },
+      {
+        "type": "heading",
+        "text": "LINQ-nun Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "LINQ məlumat işlənməsini asanlaşdırır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nOxunaqlılıq: Sorğu sintaksisi SQL-ə bənzəyir və başa düşüləndir."
+          },
+          {
+            "description": "\nÇeviklik: Lambda ifadələri ilə metod sintaksisi dinamikdir."
+          },
+          {
+            "description": "\nÇoxsaylı Mənbələr: Massivlər, siyahılar və verilənlər bazaları ilə işləyir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "LINQ yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: Lambda ifadələri və sorğu sintaksisi əvvəlcə qarışıq ola bilər."
+          },
+          {
+            "description": "\nPerformans: Böyük məlumat dəstləri ilə düzgün optimallaşdırma tələb olunur."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Mürəkkəb LINQ sorğuları kodu çətinləşdirə bilər. Böyük məlumat dəstləri ilə performans problemləri yarana bilər.\n- **Tövsiyələr**: Sadə sorğulardan başlayın. Böyük məlumat dəstləri üçün indekslərdən və optimallaşdırmadan istifadə edin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə boş bir kolleksiyadan `First()` metodu ilə element alınmağa çalışılır ki, bu səhvə səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int[] numbers = { };\n\n        try\n        {\n            // Boş kolleksiyadan ilk elementi almağa çalışmaq\n            var first = numbers.First();\n            Console.WriteLine(first);\n        }\n        catch (InvalidOperationException ex)\n        {\n            Console.WriteLine(\"Səhv: Kolleksiya boşdur!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Səhv: Kolleksiya boşdur!\n// Səhv mesajı: Sequence contains no elements"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `First()` metodu boş bir kolleksiyada çağırılır.\n- Bu, `InvalidOperationException` səhvinə səbəb olur.\n- Həll: `FirstOrDefault()` istifadə edin və ya kolleksiyanın boş olub-olmadığını yoxlayın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Linq;\n\nclass Student\n{\n    public string Name { get; set; }\n    public int Grade { get; set; }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Student[] students = {\n            new Student { Name = \"Ali\", Grade = 85 },\n            new Student { Name = \"Aygün\", Grade = 90 },\n            new Student { Name = \"Cavid\", Grade = 70 }\n        };\n\n        // 80-dən yuxarı qiymətləri olan tələbələri sıralamaq\n        var highGrades = students.Where(s => s.Grade > 80)\n                                .OrderBy(s => s.Grade)\n                                .Select(s => s.Name);\n        Console.WriteLine(\"Yüksək qiymətlər: \" + string.Join(\", \", highGrades));\n\n        // Orta qiyməti hesablamaq\n        var averageGrade = students.Average(s => s.Grade);\n        Console.WriteLine($\"Orta qiymət: {averageGrade}\");\n    }\n}\n// Output:\n// Yüksək qiymətlər: Ali, Aygün\n// Orta qiymət: 81.66666666666667"
+      }
+    ]
+  },
+  "en": {
+    "title": "LINQ",
+    "icon": "FiSearch",
+    "language": "csharp",
+    "description": "Language Integrated Query.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Is LINQ?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, LINQ (Language Integrated Query) is a powerful tool for simplifying data queries. With LINQ, you can perform operations like filtering, sorting, and transforming on arrays, lists, databases, or other data sources in a readable way. LINQ has two forms: query syntax (SQL-like) and method syntax (using lambda expressions). LINQ is closely tied to lambda expressions. This JSON file explains LINQ's creation, usage, relation to lambda expressions, common methods, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input."
+      },
+      {
+        "type": "heading",
+        "text": "LINQ Query Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "Query syntax is written in a SQL-like style, making it easy to create readable queries on data."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int[] numbers = { 1, 2, 3, 4, 5, 6 };\n\n        // Query syntax to select even numbers\n        var evenNumbers = from n in numbers\n                         where n % 2 == 0\n                         select n;\n\n        Console.WriteLine(\"Even numbers: \" + string.Join(\", \", evenNumbers));\n    }\n}\n// Output:\n// Even numbers: 2, 4, 6"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `from n in numbers` specifies the data source (array).\n- `where n % 2 == 0` filters even numbers.\n- `select n` returns the result.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "LINQ Method Syntax and Lambda Expressions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Method syntax uses lambda expressions to directly call LINQ methods, offering concise and flexible code."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int[] numbers = { 1, 2, 3, 4, 5, 6 };\n\n        // Method syntax to select even numbers\n        var evenNumbers = numbers.Where(n => n % 2 == 0);\n        Console.WriteLine(\"Even numbers: \" + string.Join(\", \", evenNumbers));\n\n        // Calculate squares\n        var squares = numbers.Select(n => n * n);\n        Console.WriteLine(\"Squares: \" + string.Join(\", \", squares));\n    }\n}\n// Output:\n// Even numbers: 2, 4, 6\n// Squares: 1, 4, 9, 16, 25, 36"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Where(n => n % 2 == 0)` uses a lambda expression to filter even numbers.\n- `Select(n => n * n)` calculates the square of each number.\n- Method syntax with lambda expressions is concise and flexible."
+      },
+      {
+        "type": "heading",
+        "text": "Common LINQ Methods"
+      },
+      {
+        "type": "paragraph",
+        "text": "LINQ offers many methods. Some of the most commonly used ones are listed below."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`Where`: Filters elements based on a condition."
+          },
+          { "description": "\n`Select`: Transforms or selects elements." },
+          { "description": "\n`OrderBy`: Sorts elements in ascending order." },
+          {
+            "description": "\n`OrderByDescending`: Sorts elements in descending order."
+          },
+          { "description": "\n`First`: Returns the first matching element." },
+          { "description": "\n`Count`: Returns the number of elements." }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        string[] fruits = { \"apple\", \"pear\", \"banana\", \"strawberry\" };\n\n        // Filter words longer than 4 characters and sort\n        var longFruits = fruits.Where(f => f.Length > 4)\n                               .OrderBy(f => f);\n        Console.WriteLine(\"Long and sorted words: \" + string.Join(\", \", longFruits));\n\n        // Select the first element\n        var firstFruit = fruits.First();\n        Console.WriteLine(\"First fruit: \" + firstFruit);\n\n        // Count the elements\n        var count = fruits.Count();\n        Console.WriteLine(\"Number of fruits: \" + count);\n    }\n}\n// Output:\n// Long and sorted words: banana, strawberry\n// First fruit: apple\n// Number of fruits: 4"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Where(f => f.Length > 4)` filters words longer than 4 characters.\n- `OrderBy(f => f)` sorts the words alphabetically.\n- `First()` returns the first element, and `Count()` returns the number of elements."
+      },
+      {
+        "type": "heading",
+        "text": "Working with Objects in LINQ"
+      },
+      {
+        "type": "paragraph",
+        "text": "LINQ can work with custom classes as well as simple types."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person[] people = {\n            new Person { Name = \"Ali\", Age = 25 },\n            new Person { Name = \"Aygun\", Age = 30 },\n            new Person { Name = \"Javid\", Age = 20 }\n        };\n\n        // Select people older than 25 and sort by name\n        var adults = from p in people\n                     where p.Age > 25\n                     orderby p.Name\n                     select p.Name;\n\n        Console.WriteLine(\"Adults: \" + string.Join(\", \", adults));\n    }\n}\n// Output:\n// Adults: Aygun"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Person` class has name and age properties.\n- Query syntax filters people older than 25 and sorts them by name.\n- The result returns only the names."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of LINQ"
+      },
+      {
+        "type": "paragraph",
+        "text": "LINQ simplifies data processing."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nReadability: Query syntax is SQL-like and easy to understand."
+          },
+          {
+            "description": "\nFlexibility: Method syntax with lambda expressions is dynamic."
+          },
+          {
+            "description": "\nMultiple Sources: Works with arrays, lists, and databases."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "LINQ can pose challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: Lambda expressions and query syntax can be confusing initially."
+          },
+          {
+            "description": "\nPerformance: Large datasets require proper optimization."
+          },
+          {
+            "description": "\nPyodide Limitation: C# code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Complex LINQ queries can make code harder to read. Large datasets may cause performance issues.\n- **Recommendations**: Start with simple queries. Use indexes and optimization for large datasets. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error by attempting to retrieve the first element from an empty collection using `First()`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int[] numbers = { };\n\n        try\n        {\n            // Attempt to get the first element from an empty collection\n            var first = numbers.First();\n            Console.WriteLine(first);\n        }\n        catch (InvalidOperationException ex)\n        {\n            Console.WriteLine(\"Error: Collection is empty!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Error: Collection is empty!\n// Error message: Sequence contains no elements"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `First()` method is called on an empty collection.\n- This causes an `InvalidOperationException`.\n- Solution: Use `FirstOrDefault()` or check if the collection is empty."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Linq;\n\nclass Student\n{\n    public string Name { get; set; }\n    public int Grade { get; set; }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Student[] students = {\n            new Student { Name = \"Ali\", Grade = 85 },\n            new Student { Name = \"Aygun\", Grade = 90 },\n            new Student { Name = \"Javid\", Grade = 70 }\n        };\n\n        // Filter students with grades above 80 and sort by grade\n        var highGrades = students.Where(s => s.Grade > 80)\n                                .OrderBy(s => s.Grade)\n                                .Select(s => s.Name);\n        Console.WriteLine(\"High grades: \" + string.Join(\", \", highGrades));\n\n        // Calculate average grade\n        var averageGrade = students.Average(s => s.Grade);\n        Console.WriteLine($\"Average grade: {averageGrade}\");\n    }\n}\n// Output:\n// High grades: Ali, Aygun\n// Average grade: 81.66666666666667"
+      }
+    ]
+  },
+  "ru": {
+    "title": "LINQ",
+    "icon": "FiSearch",
+    "language": "csharp",
+    "description": "Language Integrated Query.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое LINQ?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# LINQ (Language Integrated Query) — это мощный инструмент для упрощения запросов к данным. С помощью LINQ можно выполнять операции фильтрации, сортировки и преобразования над массивами, списками, базами данных или другими источниками данных в читаемом виде. LINQ используется в двух формах: синтаксис запросов (похожий на SQL) и синтаксис методов (с использованием лямбда-выражений). LINQ тесно связан с лямбда-выражениями. Этот JSON-файл объясняет создание, использование, связь с лямбда-выражениями, общие методы и примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис запросов LINQ"
+      },
+      {
+        "type": "paragraph",
+        "text": "Синтаксис запросов написан в стиле, похожем на SQL, что позволяет создавать читаемые запросы к данным."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int[] numbers = { 1, 2, 3, 4, 5, 6 };\n\n        // Синтаксис запросов для выбора четных чисел\n        var evenNumbers = from n in numbers\n                         where n % 2 == 0\n                         select n;\n\n        Console.WriteLine(\"Четные числа: \" + string.Join(\", \", evenNumbers));\n    }\n}\n// Output:\n// Четные числа: 2, 4, 6"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `from n in numbers` указывает источник данных (массив).\n- `where n % 2 == 0` фильтрует четные числа.\n- `select n` возвращает результат.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис методов LINQ и лямбда-выражения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Синтаксис методов использует лямбда-выражения для прямого вызова методов LINQ, что обеспечивает краткий и гибкий код."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int[] numbers = { 1, 2, 3, 4, 5, 6 };\n\n        // Синтаксис методов для выбора четных чисел\n        var evenNumbers = numbers.Where(n => n % 2 == 0);\n        Console.WriteLine(\"Четные числа: \" + string.Join(\", \", evenNumbers));\n\n        // Вычисление квадратов\n        var squares = numbers.Select(n => n * n);\n        Console.WriteLine(\"Квадраты: \" + string.Join(\", \", squares));\n    }\n}\n// Output:\n// Четные числа: 2, 4, 6\n// Квадраты: 1, 4, 9, 16, 25, 36"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Where(n => n % 2 == 0)` использует лямбда-выражение для фильтрации четных чисел.\n- `Select(n => n * n)` вычисляет квадрат каждого числа.\n- Синтаксис методов с лямбда-выражениями краток и гибок."
+      },
+      {
+        "type": "heading",
+        "text": "Общие методы LINQ"
+      },
+      {
+        "type": "paragraph",
+        "text": "LINQ предлагает множество методов. Некоторые из наиболее часто используемых перечислены ниже."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\n`Where`: Фильтрует элементы по условию." },
+          { "description": "\n`Select`: Преобразует или выбирает элементы." },
+          { "description": "\n`OrderBy`: Сортирует элементы по возрастанию." },
+          {
+            "description": "\n`OrderByDescending`: Сортирует элементы по убыванию."
+          },
+          { "description": "\n`First`: Возвращает первый подходящий элемент." },
+          { "description": "\n`Count`: Возвращает количество элементов." }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        string[] fruits = { \"яблоко\", \"груша\", \"банан\", \"клубника\" };\n\n        // Фильтрация слов длиннее 4 символов и сортировка\n        var longFruits = fruits.Where(f => f.Length > 4)\n                               .OrderBy(f => f);\n        Console.WriteLine(\"Длинные и отсортированные слова: \" + string.Join(\", \", longFruits));\n\n        // Выбор первого элемента\n        var firstFruit = fruits.First();\n        Console.WriteLine(\"Первый фрукт: \" + firstFruit);\n\n        // Подсчет элементов\n        var count = fruits.Count();\n        Console.WriteLine(\"Количество фруктов: \" + count);\n    }\n}\n// Output:\n// Длинные и отсортированные слова: банан, клубника\n// Первый фрукт: яблоко\n// Количество фруктов: 4"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Where(f => f.Length > 4)` фильтрует слова длиннее 4 символов.\n- `OrderBy(f => f)` сортирует слова по алфавиту.\n- `First()` возвращает первый элемент, а `Count()` — количество элементов."
+      },
+      {
+        "type": "heading",
+        "text": "Работа с объектами в LINQ"
+      },
+      {
+        "type": "paragraph",
+        "text": "LINQ может работать как с простыми типами, так и с пользовательскими классами."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person[] people = {\n            new Person { Name = \"Али\", Age = 25 },\n            new Person { Name = \"Айгюн\", Age = 30 },\n            new Person { Name = \"Джамид\", Age = 20 }\n        };\n\n        // Выбор людей старше 25 и сортировка по имени\n        var adults = from p in people\n                     where p.Age > 25\n                     orderby p.Name\n                     select p.Name;\n\n        Console.WriteLine(\"Взрослые: \" + string.Join(\", \", adults));\n    }\n}\n// Output:\n// Взрослые: Айгюн"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Person` имеет свойства имени и возраста.\n- Синтаксис запросов фильтрует людей старше 25 лет и сортирует их по имени.\n- Результат возвращает только имена."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества LINQ"
+      },
+      {
+        "type": "paragraph",
+        "text": "LINQ упрощает обработку данных."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nЧитаемость: Синтаксис запросов похож на SQL и понятен."
+          },
+          {
+            "description": "\nГибкость: Синтаксис методов с лямбда-выражениями динамичен."
+          },
+          {
+            "description": "\nМножественные источники: Работает с массивами, списками и базами данных."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "LINQ может создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Лямбда-выражения и синтаксис запросов могут быть запутанными для новичков."
+          },
+          {
+            "description": "\nПроизводительность: Большие наборы данных требуют правильной оптимизации."
+          },
+          {
+            "description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Сложные запросы LINQ могут затруднить чтение кода. Большие наборы данных могут вызвать проблемы с производительностью.\n- **Рекомендации**: Начинайте с простых запросов. Используйте индексы и оптимизацию для больших наборов данных. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку при попытке получить первый элемент из пустой коллекции с помощью `First()`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int[] numbers = { };\n\n        try\n        {\n            // Попытка получить первый элемент из пустой коллекции\n            var first = numbers.First();\n            Console.WriteLine(first);\n        }\n        catch (InvalidOperationException ex)\n        {\n            Console.WriteLine(\"Ошибка: Коллекция пуста!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Ошибка: Коллекция пуста!\n// Сообщение об ошибке: Sequence contains no elements"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Метод `First()` вызывается на пустой коллекции.\n- Это вызывает `InvalidOperationException`.\n- Решение: Используйте `FirstOrDefault()` или проверяйте, пуста ли коллекция."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Linq;\n\nclass Student\n{\n    public string Name { get; set; }\n    public int Grade { get; set; }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Student[] students = {\n            new Student { Name = \"Али\", Grade = 85 },\n            new Student { Name = \"Айгюн\", Grade = 90 },\n            new Student { Name = \"Джамид\", Grade = 70 }\n        };\n\n        // Фильтрация студентов с оценками выше 80 и сортировка по оценке\n        var highGrades = students.Where(s => s.Grade > 80)\n                                .OrderBy(s => s.Grade)\n                                .Select(s => s.Name);\n        Console.WriteLine(\"Высокие оценки: \" + string.Join(\", \", highGrades));\n\n        // Вычисление средней оценки\n        var averageGrade = students.Average(s => s.Grade);\n        Console.WriteLine($\"Средняя оценка: {averageGrade}\");\n    }\n}\n// Output:\n// Высокие оценки: Али, Айгюн\n// Средняя оценка: 81.66666666666667"
+      }
+    ]
+  }
+}

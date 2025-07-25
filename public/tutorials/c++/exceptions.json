@@ -1,0 +1,434 @@
+{
+  "az": {
+    "title": "İstisnalar və Səhvlər",
+    "language": "cpp",
+    "description": "C++-da try-catch bloku və istisnalar proqram səhvlərini idarə etmək üçün istifadə olunur, proqramın dayanıqlığını artırır.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "İstisnalar nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C++-da istisnalar (exceptions) proqramın normal işləməsini poza biləcək səhvləri və ya gözlənilməz vəziyyətləri idarə etmək üçün istifadə olunan mexanizmdir. Məsələn, sıfıra bölmə, faylın açılmaması və ya yaddaşın yetərsiz olması kimi hallar istisna ola bilər. İstisnalar proqramın qəzaya uğramasının qarşısını almaq üçün səhvləri tutmağa və idarə etməyə imkan verir."
+      },
+      {
+        "type": "paragraph",
+        "text": "İstisnalar `try`, `catch` və `throw` açar sözləri ilə idarə olunur. `try` bloku potensial səhvləri olan kodu əhatə edir, `catch` bloku isə istisnaları tutub idarə edir, `throw` isə istisnanın yaradılmasını və atılmasını təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Try-Catch Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Try-catch bloku aşağıdakı kimi yazılır:\ntry {\n  // Potensial səhv yarada biləcək kod\n}\ncatch (exception_type variable) {\n  // İstisnanın idarə edilməsi\n}\n`exception_type` istisnanın tipini (məsələn, `std::exception`, `int`, `std::string`) göstərir, `variable` isə istisnanın məzmununu saxlayır."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <stdexcept>\n\nint main() {\n  try {\n    int number = 10;\n    if(number == 10) {\n      throw \"Error: Number is 10\";\n    }\n    std::cout << \"No error occurred\\n\";\n  } catch(const char* msg) {\n    std::cout << \"Caught: \" << msg << std::endl;\n  }\n  return 0;\n}\n// Output:\n// Caught: Error: Number is 10"
+      },
+      {
+        "type": "heading",
+        "text": "İstisnaların Atılması (Throw)"
+      },
+      {
+        "type": "paragraph",
+        "text": "`throw` açar sözü istisna yaratmaq və atmaq üçün istifadə olunur. İstisna olaraq istənilən tip (məsələn, `int`, `std::string`, `std::exception`) istifadə edilə bilər. Adətən, standart istisna sinifləri (`std::runtime_error`, `std::invalid_argument`) istifadə olunur, çünki onlar daha təhlükəsiz və strukturlaşdırılmışdır."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <stdexcept>\n\nint main() {\n  try {\n    int divisor = 0;\n    if(divisor == 0) {\n      throw std::runtime_error(\"Division by zero!\");\n    }\n    int result = 10 / divisor;\n  } catch(const std::runtime_error& e) {\n    std::cout << \"Caught: \" << e.what() << std::endl;\n  }\n  return 0;\n}\n// Output:\n// Caught: Division by zero!"
+      },
+      {
+        "type": "heading",
+        "text": "Standart İstisna Sinifləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "C++ `<stdexcept>` başlıq faylında standart istisna sinifləri təmin edir:\n- **std::exception**: Bütün standart istisnaların əsasını təşkil edir, `what()` funksiyası ilə səhv mesajını qaytarır.\n- **std::runtime_error**: Çalışma zamanı səhvləri üçün (məsələn, sıfıra bölmə).\n- **std::invalid_argument**: Səhv arqumentlər üçün.\n- **std::out_of_range**: Aralığın xaricindəki dəyərlər üçün.\nBu siniflər proqramın səhvləri strukturlaşdırılmış şəkildə idarə etməsinə kömək edir."
+      },
+      {
+        "type": "heading",
+        "text": "Birden Çox Catch Bloku"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fərqli tip istisnaları idarə etmək üçün bir neçə `catch` bloku istifadə edilə bilər. Əgər hansı istisna atılacağı bilinmirsə, `catch(...)` bütün istisnaları tutur."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <stdexcept>\n\nint main() {\n  try {\n    int value = -1;\n    if(value < 0) {\n      throw std::invalid_argument(\"Negative value!\");\n    }\n    if(value == 0) {\n      throw std::runtime_error(\"Zero value!\");\n    }\n  } catch(const std::invalid_argument& e) {\n    std::cout << \"Invalid argument: \" << e.what() << std::endl;\n  } catch(const std::runtime_error& e) {\n    std::cout << \"Runtime error: \" << e.what() << std::endl;\n  } catch(...) {\n    std::cout << \"Unknown error\\n\";\n  }\n  return 0;\n}\n// Output:\n// Invalid argument: Negative value!"
+      },
+      {
+        "type": "heading",
+        "text": "Öz İstisna Sinifləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "C++-da öz istisna siniflərinizi yarada bilərsiniz. Adətən, `std::exception`-dan irsiyyət alınır və `what()` funksiyası yenidən təyin edilir."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <stdexcept>\n#include <string>\n\nclass CustomError : public std::exception {\npublic:\n  const char* what() const noexcept override {\n    return \"Custom error occurred!\";\n  }\n};\n\nint main() {\n  try {\n    throw CustomError();\n  } catch(const std::exception& e) {\n    std::cout << \"Caught: \" << e.what() << std::endl;\n  }\n  return 0;\n}\n// Output:\n// Caught: Custom error occurred!"
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "İstisnalar aşağıdakı hallarda geniş istifadə olunur:\n- **Fayl əməliyyatları**: Faylın açılmaması və ya zədələnməsi.\n- **Yaddaş idarəetməsi**: Yaddaşın ayrılmaması (`std::bad_alloc`).\n- **Giriş yoxlaması**: Səhv istifadəçi girişləri (məsələn, yanlış rəqəm).\n- **Şəbəkə əməliyyatları**: Bağlantı problemləri.\nMəsələn, bir tətbiq faylı oxuyarkən səhv baş verərsə, istisna ilə istifadəçiyə məlumat verilə bilər."
+      },
+      {
+        "type": "paragraph",
+        "text": "İstisnalar proqramın dayanıqlığını artırır, çünki səhvlər proqramın qəzaya uğramasına səbəb olmadan idarə olunur. Məsələn, bir kalkulyator tətbiqi sıfıra bölmə səhvini istisna ilə tutub istifadəçiyə xəbərdarlıq göstərə bilər."
+      },
+      {
+        "type": "heading",
+        "text": "İstisnaların Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "İstisnalar proqramın səhvlərə qarşı dayanıqlı olmasını təmin edir, səhvləri strukturlaşdırılmış şəkildə idarə edir və kodun oxunaqlığını artırır."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Səhvlərin İdarə Edilməsi",
+            "description": "Proqramın qəzaya uğramasının qarşısını alır."
+          },
+          {
+            "term": "Strukturlaşdırılmış Mexanizm",
+            "description": "Try-catch ilə səhvləri asan idarə etmək mümkündür."
+          },
+          {
+            "term": "Standart Siniflər",
+            "description": "std::exception və törəmələri səhvləri strukturlaşdırır."
+          },
+          {
+            "term": "Özelleştirme",
+            "description": "Öz istisna sinifləri yaradıla bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Həddindən artıq istisna istifadəsi performansı azalda bilər. `catch(...)` ilə bütün istisnaları tutmaq səhvin səbəbini gizlədə bilər. Resursların sızması (məsələn, faylların bağlanmaması) baş verə bilər.\n- **Tövsiyələr**: Xüsusi istisna tipləri istifadə edin, resursları RAII (Resource Acquisition Is Initialization) ilə idarə edin, `noexcept` ilə performansı optimallaşdırın, Visual Studio və ya CLion kimi IDE-lərdən istifadə edin."
+      },
+      {
+        "type": "paragraph",
+        "text": "Məsələn, istisnalar fayl əməliyyatlarında istifadə edilərkən faylın bağlanmasını təmin etmək üçün `std::unique_ptr` və ya `std::fstream` obyektləri ilə RAII istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <iostream>\n#include <stdexcept>\n#include <string>\n\nint main() {\n  try {\n    int number = -5;\n    if(number < 0) {\n      throw std::invalid_argument(\"Negative number not allowed!\");\n    }\n    std::cout << \"Number: \" << number << std::endl;\n  } catch(const std::invalid_argument& e) {\n    std::cout << \"Error: \" << e.what() << std::endl;\n  } catch(...) {\n    std::cout << \"Unknown error occurred\\n\";\n  }\n  return 0;\n}\n// Output:\n// Error: Negative number not allowed!"
+      }
+    ]
+  },
+  "en": {
+    "title": "Exceptions and Error Handling",
+    "language": "cpp",
+    "description": "In C++, try-catch blocks and exceptions are used to handle program errors, improving program stability.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Exceptions?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C++, exceptions are a mechanism for handling errors or unexpected conditions that disrupt normal program execution. Examples include division by zero, file access failures, or insufficient memory. Exceptions allow errors to be caught and handled without crashing the program."
+      },
+      {
+        "type": "paragraph",
+        "text": "Exceptions are managed using `try`, `catch`, and `throw` keywords. The `try` block encloses code that might cause errors, `catch` handles the exceptions, and `throw` creates and throws an exception."
+      },
+      {
+        "type": "heading",
+        "text": "Try-Catch Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "A try-catch block is written as follows:\ntry {\n  // Code that might cause an error\n}\ncatch (exception_type variable) {\n  // Handle the exception\n}\n`exception_type` specifies the type of exception (e.g., `std::exception`, `int`, `std::string`), and `variable` holds the exception's content."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <stdexcept>\n\nint main() {\n  try {\n    int number = 10;\n    if(number == 10) {\n      throw \"Error: Number is 10\";\n    }\n    std::cout << \"No error occurred\\n\";\n  } catch(const char* msg) {\n    std::cout << \"Caught: \" << msg << std::endl;\n  }\n  return 0;\n}\n// Output:\n// Caught: Error: Number is 10"
+      },
+      {
+        "type": "heading",
+        "text": "Throwing Exceptions"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `throw` keyword creates and throws an exception. Any type (e.g., `int`, `std::string`, `std::exception`) can be thrown. Standard exception classes (`std::runtime_error`, `std::invalid_argument`) are preferred for safety and structure."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <stdexcept>\n\nint main() {\n  try {\n    int divisor = 0;\n    if(divisor == 0) {\n      throw std::runtime_error(\"Division by zero!\");\n    }\n    int result = 10 / divisor;\n  } catch(const std::runtime_error& e) {\n    std::cout << \"Caught: \" << e.what() << std::endl;\n  }\n  return 0;\n}\n// Output:\n// Caught: Division by zero!"
+      },
+      {
+        "type": "heading",
+        "text": "Standard Exception Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "C++ provides standard exception classes in `<stdexcept>`:\n- **std::exception**: The base class for all standard exceptions, provides `what()` for error messages.\n- **std::runtime_error**: For runtime errors (e.g., division by zero).\n- **std::invalid_argument**: For invalid arguments.\n- **std::out_of_range**: For out-of-bounds values.\nThese classes help structure error handling in programs."
+      },
+      {
+        "type": "heading",
+        "text": "Multiple Catch Blocks"
+      },
+      {
+        "type": "paragraph",
+        "text": "Multiple `catch` blocks can handle different exception types. A `catch(...)` block catches all exceptions if the type is unknown."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <stdexcept>\n\nint main() {\n  try {\n    int value = -1;\n    if(value < 0) {\n      throw std::invalid_argument(\"Negative value!\");\n    }\n    if(value == 0) {\n      throw std::runtime_error(\"Zero value!\");\n    }\n  } catch(const std::invalid_argument& e) {\n    std::cout << \"Invalid argument: \" << e.what() << std::endl;\n  } catch(const std::runtime_error& e) {\n    std::cout << \"Runtime error: \" << e.what() << std::endl;\n  } catch(...) {\n    std::cout << \"Unknown error\\n\";\n  }\n  return 0;\n}\n// Output:\n// Invalid argument: Negative value!"
+      },
+      {
+        "type": "heading",
+        "text": "Custom Exception Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "You can create custom exception classes in C++, typically by inheriting from `std::exception` and overriding the `what()` function."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <stdexcept>\n#include <string>\n\nclass CustomError : public std::exception {\npublic:\n  const char* what() const noexcept override {\n    return \"Custom error occurred!\";\n  }\n};\n\nint main() {\n  try {\n    throw CustomError();\n  } catch(const std::exception& e) {\n    std::cout << \"Caught: \" << e.what() << std::endl;\n  }\n  return 0;\n}\n// Output:\n// Caught: Custom error occurred!"
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Exceptions are widely used in:\n- **File Operations**: Handling file access or corruption issues.\n- **Memory Management**: Handling memory allocation failures (`std::bad_alloc`).\n- **Input Validation**: Managing invalid user inputs (e.g., incorrect numbers).\n- **Network Operations**: Handling connection issues.\nFor example, an application can use exceptions to inform the user of a file read error."
+      },
+      {
+        "type": "paragraph",
+        "text": "Exceptions enhance program stability by handling errors without crashing. For instance, a calculator app can catch a division-by-zero error and display a warning."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Exceptions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Exceptions ensure program robustness, handle errors in a structured way, and improve code readability."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Error Handling",
+            "description": "Prevents program crashes."
+          },
+          {
+            "term": "Structured Mechanism",
+            "description": "Try-catch simplifies error management."
+          },
+          {
+            "term": "Standard Classes",
+            "description": "std::exception and derivatives structure errors."
+          },
+          {
+            "term": "Customization",
+            "description": "Custom exception classes can be created."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Overusing exceptions can reduce performance. Using `catch(...)` may hide error causes. Resource leaks (e.g., unclosed files) can occur.\n- **Recommendations**: Use specific exception types, manage resources with RAII, optimize with `noexcept`, and use IDEs like Visual Studio or CLion."
+      },
+      {
+        "type": "paragraph",
+        "text": "For example, when using exceptions in file operations, ensure files are closed using RAII with `std::unique_ptr` or `std::fstream` objects."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <iostream>\n#include <stdexcept>\n#include <string>\n\nint main() {\n  try {\n    int number = -5;\n    if(number < 0) {\n      throw std::invalid_argument(\"Negative number not allowed!\");\n    }\n    std::cout << \"Number: \" << number << std::endl;\n  } catch(const std::invalid_argument& e) {\n    std::cout << \"Error: \" << e.what() << std::endl;\n  } catch(...) {\n    std::cout << \"Unknown error occurred\\n\";\n  }\n  return 0;\n}\n// Output:\n// Error: Negative number not allowed!"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Исключения и обработка ошибок",
+    "language": "cpp",
+    "description": "В C++ блоки try-catch и исключения используются для обработки ошибок программы, повышая её стабильность.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое исключения?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В C++ исключения (exceptions) — это механизм для обработки ошибок или неожиданных ситуаций, которые нарушают нормальное выполнение программы. Примеры включают деление на ноль, невозможность открытия файла или нехватку памяти. Исключения позволяют перехватывать и обрабатывать ошибки без сбоя программы."
+      },
+      {
+        "type": "paragraph",
+        "text": "Исключения управляются с помощью ключевых слов `try`, `catch` и `throw`. Блок `try` окружает код, который может вызвать ошибки, `catch` обрабатывает исключения, а `throw` создаёт и выбрасывает исключение."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис Try-Catch"
+      },
+      {
+        "type": "paragraph",
+        "text": "Блок try-catch записывается следующим образом:\ntry {\n  // Код, который может вызвать ошибку\n}\ncatch (exception_type variable) {\n  // Обработка исключения\n}\n`exception_type` указывает тип исключения (например, `std::exception`, `int`, `std::string`), а `variable` содержит содержимое исключения."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <stdexcept>\n\nint main() {\n  try {\n    int number = 10;\n    if(number == 10) {\n      throw \"Error: Number is 10\";\n    }\n    std::cout << \"No error occurred\\n\";\n  } catch(const char* msg) {\n    std::cout << \"Caught: \" << msg << std::endl;\n  }\n  return 0;\n}\n// Output:\n// Caught: Error: Number is 10"
+      },
+      {
+        "type": "heading",
+        "text": "Выбрасывание исключений (Throw)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ключевое слово `throw` создаёт и выбрасывает исключение. Можно выбросить любой тип (например, `int`, `std::string`, `std::exception`). Стандартные классы исключений (`std::runtime_error`, `std::invalid_argument`) предпочтительны для безопасности и структурированности."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <stdexcept>\n\nint main() {\n  try {\n    int divisor = 0;\n    if(divisor == 0) {\n      throw std::runtime_error(\"Division by zero!\");\n    }\n    int result = 10 / divisor;\n  } catch(const std::runtime_error& e) {\n    std::cout << \"Caught: \" << e.what() << std::endl;\n  }\n  return 0;\n}\n// Output:\n// Caught: Division by zero!"
+      },
+      {
+        "type": "heading",
+        "text": "Стандартные классы исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "C++ предоставляет стандартные классы исключений в `<stdexcept>`:\n- **std::exception**: Базовый класс для всех стандартных исключений, предоставляет метод `what()` для получения сообщения об ошибке.\n- **std::runtime_error**: Для ошибок времени выполнения (например, деление на ноль).\n- **std::invalid_argument**: Для некорректных аргументов.\n- **std::out_of_range**: Для значений вне допустимого диапазона.\nЭти классы помогают структурировать обработку ошибок."
+      },
+      {
+        "type": "heading",
+        "text": "Несколько блоков Catch"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для обработки разных типов исключений можно использовать несколько блоков `catch`. Блок `catch(...)` перехватывает все исключения, если тип неизвестен."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <stdexcept>\n\nint main() {\n  try {\n    int value = -1;\n    if(value < 0) {\n      throw std::invalid_argument(\"Negative value!\");\n    }\n    if(value == 0) {\n      throw std::runtime_error(\"Zero value!\");\n    }\n  } catch(const std::invalid_argument& e) {\n    std::cout << \"Invalid argument: \" << e.what() << std::endl;\n  } catch(const std::runtime_error& e) {\n    std::cout << \"Runtime error: \" << e.what() << std::endl;\n  } catch(...) {\n    std::cout << \"Unknown error\\n\";\n  }\n  return 0;\n}\n// Output:\n// Invalid argument: Negative value!"
+      },
+      {
+        "type": "heading",
+        "text": "Пользовательские классы исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "В C++ можно создавать собственные классы исключений, обычно наследуя от `std::exception` и переопределяя метод `what()`."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <stdexcept>\n#include <string>\n\nclass CustomError : public std::exception {\npublic:\n  const char* what() const noexcept override {\n    return \"Custom error occurred!\";\n  }\n};\n\nint main() {\n  try {\n    throw CustomError();\n  } catch(const std::exception& e) {\n    std::cout << \"Caught: \" << e.what() << std::endl;\n  }\n  return 0;\n}\n// Output:\n// Caught: Custom error occurred!"
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Исключения широко используются в:\n- **Операциях с файлами**: Обработка ошибок доступа или повреждения файлов.\n- **Управлении памятью**: Обработка ошибок выделения памяти (`std::bad_alloc`).\n- **Проверке ввода**: Управление некорректными пользовательскими данными.\n- **Сетевых операциях**: Обработка проблем с соединением.\nНапример, приложение может использовать исключения для информирования пользователя об ошибке чтения файла."
+      },
+      {
+        "type": "paragraph",
+        "text": "Исключения повышают стабильность программы, позволяя обрабатывать ошибки без её аварийного завершения. Например, калькулятор может перехватить ошибку деления на ноль и вывести предупреждение."
+      },
+      {
+        "type": "heading",
+        "text": "Цель исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Исключения обеспечивают устойчивость программы, структурированно обрабатывают ошибки и улучшают читаемость кода."
+      },
+      {
+        "type": "heading",
+        "text": "Основные характеристики"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Обработка ошибок",
+            "description": "Предотвращает сбои программы."
+          },
+          {
+            "term": "Структурированный механизм",
+            "description": "Try-catch упрощает управление ошибками."
+          },
+          {
+            "term": "Стандартные классы",
+            "description": "std::exception и производные структурируют ошибки."
+          },
+          {
+            "term": "Кастомизация",
+            "description": "Можно создавать собственные классы исключений."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Чрезмерное использование исключений может снизить производительность. Использование `catch(...)` может скрыть причину ошибки. Возможны утечки ресурсов (например, незакрытые файлы).\n- **Рекомендации**: Используйте конкретные типы исключений, управляйте ресурсами с помощью RAII, оптимизируйте с помощью `noexcept`, используйте IDE, такие как Visual Studio или CLion."
+      },
+      {
+        "type": "paragraph",
+        "text": "Например, при использовании исключений в операциях с файлами обеспечьте закрытие файлов с помощью RAII через `std::unique_ptr` или объекты `std::fstream`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <iostream>\n#include <stdexcept>\n#include <string>\n\nint main() {\n  try {\n    int number = -5;\n    if(number < 0) {\n      throw std::invalid_argument(\"Negative number not allowed!\");\n    }\n    std::cout << \"Number: \" << number << std::endl;\n  } catch(const std::invalid_argument& e) {\n    std::cout << \"Error: \" << e.what() << std::endl;\n  } catch(...) {\n    std::cout << \"Unknown error occurred\\n\";\n  }\n  return 0;\n}\n// Output:\n// Error: Negative number not allowed!"
+      }
+    ]
+  }
+}

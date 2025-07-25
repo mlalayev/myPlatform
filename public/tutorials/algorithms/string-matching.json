@@ -1,0 +1,234 @@
+{
+  "id": "string-matching",
+  "az": {
+    "title": "Qabaqcıl Simli Uyğunlaşdırma",
+    "icon": "FiType",
+    "language": "multiple",
+    "description": "Suffix ağacları, Aho-Corasick və Z-alqoritm kimi simli uyğunlaşdırma alqoritmləri.",
+    "codes": {
+      "python": "def z_algorithm(text):\n    n = len(text)\n    Z = [0] * n\n    l, r = 0, 0\n    for i in range(1, n):\n        if i <= r:\n            Z[i] = min(r - i + 1, Z[i - l])\n        while i + Z[i] < n and text[Z[i]] == text[i + Z[i]]:\n            Z[i] += 1\n        if i + Z[i] - 1 > r:\n            l, r = i, i + Z[i] - 1\n    return Z\n\n# Nümunə: Şablon axtarışı\ntext = 'aaababa'\npattern = 'aba'\ncombined = pattern + '$' + text\nz = z_algorithm(combined)\nmatches = [i - len(pattern) - 1 for i in range(len(combined)) if z[i] == len(pattern)]\nprint('Pattern found at indices:', matches)\n# Çıxış: Pattern found at indices: [2, 4]",
+      "javascript": "function zAlgorithm(text) {\n    const n = text.length;\n    const Z = Array(n).fill(0);\n    let l = 0, r = 0;\n    for (let i = 1; i < n; i++) {\n        if (i <= r) {\n            Z[i] = Math.min(r - i + 1, Z[i - l]);\n        }\n        while (i + Z[i] < n && text[Z[i]] === text[i + Z[i]]) {\n            Z[i]++;\n        }\n        if (i + Z[i] - 1 > r) {\n            l = i;\n            r = i + Z[i] - 1;\n        }\n    }\n    return Z;\n}\n\n// Nümunə: Şablon axtarışı\nconst text = 'aaababa';\nconst pattern = 'aba';\nconst combined = pattern + '$' + text;\nconst z = zAlgorithm(combined);\nconst matches = [];\nfor (let i = 0; i < combined.length; i++) {\n    if (z[i] === pattern.length) matches.push(i - pattern.length - 1);\n}\nconsole.log('Pattern found at indices:', matches);\n// Çıxış: Pattern found at indices: [2, 4]",
+      "typescript": "function zAlgorithm(text: string): number[] {\n    const n: number = text.length;\n    const Z: number[] = Array(n).fill(0);\n    let l: number = 0, r: number = 0;\n    for (let i = 1; i < n; i++) {\n        if (i <= r) {\n            Z[i] = Math.min(r - i + 1, Z[i - l]);\n        }\n        while (i + Z[i] < n && text[Z[i]] === text[i + Z[i]]) {\n            Z[i]++;\n        }\n        if (i + Z[i] - 1 > r) {\n            l = i;\n            r = i + Z[i] - 1;\n        }\n    }\n    return Z;\n}\n\n// Nümunə: Şablon axtarışı\nconst text: string = 'aaababa';\nconst pattern: string = 'aba';\nconst combined: string = pattern + '$' + text;\nconst z: number[] = zAlgorithm(combined);\nconst matches: number[] = [];\nfor (let i = 0; i < combined.length; i++) {\n    if (z[i] === pattern.length) matches.push(i - pattern.length - 1);\n}\nconsole.log('Pattern found at indices:', matches);\n// Çıxış: Pattern found at indices: [2, 4]",
+      "java": "import java.util.ArrayList;\n\npublic class ZAlgorithm {\n    public static int[] zAlgorithm(String text) {\n        int n = text.length();\n        int[] Z = new int[n];\n        int l = 0, r = 0;\n        for (int i = 1; i < n; i++) {\n            if (i <= r) {\n                Z[i] = Math.min(r - i + 1, Z[i - l]);\n            }\n            while (i + Z[i] < n && text.charAt(Z[i]) == text.charAt(i + Z[i])) {\n                Z[i]++;\n            }\n            if (i + Z[i] - 1 > r) {\n                l = i;\n                r = i + Z[i] - 1;\n            }\n        }\n        return Z;\n    }\n\n    public static void main(String[] args) {\n        String text = \"aaababa\";\n        String pattern = \"aba\";\n        String combined = pattern + \"$\" + text;\n        int[] z = zAlgorithm(combined);\n        ArrayList<Integer> matches = new ArrayList<>();\n        for (int i = 0; i < combined.length(); i++) {\n            if (z[i] == pattern.length()) matches.add(i - pattern.length() - 1);\n        }\n        System.out.println(\"Pattern found at indices: \" + matches);\n    }\n}\n// Çıxış: Pattern found at indices: [2, 4]",
+      "php": "<?php\n\nfunction zAlgorithm($text) {\n    $n = strlen($text);\n    $Z = array_fill(0, $n, 0);\n    $l = 0;\n    $r = 0;\n    for ($i = 1; $i < $n; $i++) {\n        if ($i <= $r) {\n            $Z[$i] = min($r - $i + 1, $Z[$i - $l]);\n        }\n        while ($i + $Z[$i] < $n && $text[$Z[$i]] === $text[$i + $Z[$i]]) {\n            $Z[$i]++;\n        }\n        if ($i + $Z[$i] - 1 > $r) {\n            $l = $i;\n            $r = $i + $Z[$i] - 1;\n        }\n    }\n    return $Z;\n}\n\n// Nümunə: Şablon axtarışı\n$text = 'aaababa';\n$pattern = 'aba';\n$combined = $pattern . '$' . $text;\n$z = zAlgorithm($combined);\n$matches = [];\nfor ($i = 0; $i < strlen($combined); $i++) {\n    if ($z[$i] === strlen($pattern)) {\n        $matches[] = $i - strlen($pattern) - 1;\n    }\n}\necho 'Pattern found at indices: [' . implode(', ', $matches) . ']';\n// Çıxış: Pattern found at indices: [2, 4]\n?>",
+      "c": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint* zAlgorithm(const char* text, int n) {\n    int* Z = (int*)calloc(n, sizeof(int));\n    int l = 0, r = 0;\n    for (int i = 1; i < n; i++) {\n        if (i <= r) {\n            Z[i] = (r - i + 1 < Z[i - l]) ? r - i + 1 : Z[i - l];\n        }\n        while (i + Z[i] < n && text[Z[i]] == text[i + Z[i]]) {\n            Z[i]++;\n        }\n        if (i + Z[i] - 1 > r) {\n            l = i;\n            r = i + Z[i] - 1;\n        }\n    }\n    return Z;\n}\n\nint main() {\n    const char* text = \"aaababa\";\n    const char* pattern = \"aba\";\n    char* combined = (char*)malloc(strlen(pattern) + strlen(text) + 2);\n    strcpy(combined, pattern);\n    strcat(combined, \"$\");\n    strcat(combined, text);\n    int n = strlen(combined);\n    int* z = zAlgorithm(combined, n);\n    printf(\"Pattern found at indices: [\");\n    int first = 1;\n    for (int i = 0; i < n; i++) {\n        if (z[i] == strlen(pattern)) {\n            if (!first) printf(\", \");\n            printf(\"%d\", i - strlen(pattern) - 1);\n            first = 0;\n        }\n    }\n    printf(\"]\\n\");\n    free(z);\n    free(combined);\n    return 0;\n}\n// Çıxış: Pattern found at indices: [2, 4]",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass Program {\n    static int[] ZAlgorithm(string text) {\n        int n = text.Length;\n        int[] Z = new int[n];\n        int l = 0, r = 0;\n        for (int i = 1; i < n; i++) {\n            if (i <= r) {\n                Z[i] = Math.Min(r - i + 1, Z[i - l]);\n            }\n            while (i + Z[i] < n && text[Z[i]] == text[i + Z[i]]) {\n                Z[i]++;\n            }\n            if (i + Z[i] - 1 > r) {\n                l = i;\n                r = i + Z[i] - 1;\n            }\n        }\n        return Z;\n    }\n\n    static void Main() {\n        string text = \"aaababa\";\n        string pattern = \"aba\";\n        string combined = pattern + \"$\" + text;\n        int[] z = ZAlgorithm(combined);\n        List<int> matches = new List<int>();\n        for (int i = 0; i < combined.Length; i++) {\n            if (z[i] == pattern.Length) matches.Add(i - pattern.Length - 1);\n        }\n        Console.WriteLine(\"Pattern found at indices: [\" + string.Join(\", \", matches) + \"]\");\n    }\n}\n// Çıxış: Pattern found at indices: [2, 4]",
+      "cpp": "#include <iostream>\n#include <vector>\n#include <string>\n\nstd::vector<int> zAlgorithm(const std::string& text) {\n    int n = text.length();\n    std::vector<int> Z(n, 0);\n    int l = 0, r = 0;\n    for (int i = 1; i < n; i++) {\n        if (i <= r) {\n            Z[i] = std::min(r - i + 1, Z[i - l]);\n        }\n        while (i + Z[i] < n && text[Z[i]] == text[i + Z[i]]) {\n            Z[i]++;\n        }\n        if (i + Z[i] - 1 > r) {\n            l = i;\n            r = i + Z[i] - 1;\n        }\n    }\n    return Z;\n}\n\nint main() {\n    std::string text = \"aaababa\";\n    std::string pattern = \"aba\";\n    std::string combined = pattern + \"$\" + text;\n    std::vector<int> z = zAlgorithm(combined);\n    std::vector<int> matches;\n    for (int i = 0; i < combined.length(); i++) {\n        if (z[i] == pattern.length()) matches.push_back(i - pattern.length() - 1);\n    }\n    std::cout << \"Pattern found at indices: [\";\n    for (size_t i = 0; i < matches.size(); i++) {\n        std::cout << matches[i];\n        if (i < matches.size() - 1) std::cout << \", \";\n    }\n    std::cout << \"]\" << std::endl;\n    return 0;\n}\n// Çıxış: Pattern found at indices: [2, 4]"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Simli Uyğunlaşdırma nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Qabaqcıl simli uyğunlaşdırma alqoritmləri mətndə şablon axtarışını sürətləndirir. **Suffix ağacları** mətnin bütün mümkün alt simlərini saxlayır və axtarışı sürətləndirir. **Aho-Corasick** bir neçə şablonu eyni anda axtarmaq üçün istifadə olunur, məsələn, virus skanerlərində. **Z-alqoritm** isə mətndə şablonun harada olduğunu tapır, hər bir mövqe üçün uyğunlaşan prefiksi hesablayır. Məsələn, 'aaababa' mətnində 'aba' şablonu 2-ci və 4-cü indekslərdə tapılır."
+      },
+      {
+        "type": "heading",
+        "text": "Bu alqoritmlər necə işləyir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Z-alqoritm: 1) Mətn və şablon '$' ilə birləşdirilir (məsələn, 'aba$aaababa'). 2) Hər mövqe üçün Z-dəyəri hesablanır: bu, o mövqedən başlayan alt simin neçə simvolunun mətnin başlanğıcı ilə uyğun olduğunu göstərir. 3) Z-dəyəri şablon uzunluğuna bərabərdirsə, uyğunlaşma tapılır. Aho-Corasick bir trie qurur və bütün şablonları eyni anda axtarır. Suffix ağacları isə mətnin bütün suffixlərini saxlayır və axtarışı O(m) vaxtda edir (m - şablon uzunluğu). Məsələn, Z-alqoritm 'aba' şablonunu 'aaababa'da 2-ci və 4-cü indekslərdə tapır."
+      },
+      {
+        "type": "heading",
+        "text": "Simli Uyğunlaşdırma Alqoritmlərinin Səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Z-alqoritm O(n) vaxtda işləyir (n - mətn uzunluğu). Aho-Corasick O(n + m + z) vaxt tələb edir (m - şablonların ümumi uzunluğu, z - uyğunlaşmaların sayı). Suffix ağacları qurmaq üçün O(n), axtarış üçün O(m) vaxt tələb edir. Məsələn, 'aaababa' mətnində 'aba' üçün Z-alqoritm O(10) əməliyyat aparır. Məkan mürəkkəbliyi Z-alqoritm üçün O(n), suffix ağacları üçün O(n)-dir. KMP alqoritmi (O(n + m)) ilə müqayisədə Z-alqoritm daha sadədir, lakin Aho-Corasick çoxşablonlu axtarışda daha yaxşıdır."
+      },
+      {
+        "type": "heading",
+        "text": "Üstünlüklər və mənfi cəhətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "Üstünlük: Z-alqoritm sadə və sürətlidir." },
+          {
+            "description": "Üstünlük: Aho-Corasick çoxşablonlu axtarışda effektivdir."
+          },
+          {
+            "description": "Mənfi cəhət: Suffix ağacları çox yaddaş tələb edir."
+          },
+          {
+            "description": "Mənfi cəhət: Böyük mətnlərdə hazırlıq mərhələsi yavaş ola bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Z-alqoritm mətn axtarışlarında (məsələn, redaktorlarda söz axtarışı), Aho-Corasick virus skanerlərində və plagiat yoxlamasında, suffix ağacları isə bioinformatikada (DNT ardıcıllıqlarının axtarışı) istifadə olunur. Məsələn, 'aaababa' mətnində 'aba' tapmaq redaktorlarda axtarışa bənzəyir. KMP ilə müqayisədə Z-alqoritm daha sadədir, lakin suffix ağacları daha böyük mətnlərdə səmərəlidir."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əsas təhlükə suffix ağaclarının böyük yaddaş tələbidir. Böyük mətnlərdə hazırlıq mərhələsi (trie və ya ağac qurma) yavaş ola bilər. Tövsiyələr: Kiçik mətnlər üçün Z-alqoritm, çoxşablonlu axtarış üçün Aho-Corasick, böyük mətnlər üçün isə suffix ağacları istifadə edin. Mətn ölçüsünü əvvəlcədən qiymətləndirin və alqoritmləri test edin."
+      }
+    ]
+  },
+  "en": {
+    "title": "Advanced String Matching",
+    "icon": "FiType",
+    "language": "multiple",
+    "description": "Algorithms like suffix trees, Aho-Corasick, and Z-algorithm for string matching.",
+    "codes": {
+      "python": "def z_algorithm(text):\n    n = len(text)\n    Z = [0] * n\n    l, r = 0, 0\n    for i in range(1, n):\n        if i <= r:\n            Z[i] = min(r - i + 1, Z[i - l])\n        while i + Z[i] < n and text[Z[i]] == text[i + Z[i]]:\n            Z[i] += 1\n        if i + Z[i] - 1 > r:\n            l, r = i, i + Z[i] - 1\n    return Z\n\n# Nümunə: Şablon axtarışı\ntext = 'aaababa'\npattern = 'aba'\ncombined = pattern + '$' + text\nz = z_algorithm(combined)\nmatches = [i - len(pattern) - 1 for i in range(len(combined)) if z[i] == len(pattern)]\nprint('Pattern found at indices:', matches)\n# Çıxış: Pattern found at indices: [2, 4]",
+      "javascript": "function zAlgorithm(text) {\n    const n = text.length;\n    const Z = Array(n).fill(0);\n    let l = 0, r = 0;\n    for (let i = 1; i < n; i++) {\n        if (i <= r) {\n            Z[i] = Math.min(r - i + 1, Z[i - l]);\n        }\n        while (i + Z[i] < n && text[Z[i]] === text[i + Z[i]]) {\n            Z[i]++;\n        }\n        if (i + Z[i] - 1 > r) {\n            l = i;\n            r = i + Z[i] - 1;\n        }\n    }\n    return Z;\n}\n\n// Nümunə: Şablon axtarışı\nconst text = 'aaababa';\nconst pattern = 'aba';\nconst combined = pattern + '$' + text;\nconst z = zAlgorithm(combined);\nconst matches = [];\nfor (let i = 0; i < combined.length; i++) {\n    if (z[i] === pattern.length) matches.push(i - pattern.length - 1);\n}\nconsole.log('Pattern found at indices:', matches);\n// Çıxış: Pattern found at indices: [2, 4]",
+      "typescript": "function zAlgorithm(text: string): number[] {\n    const n: number = text.length;\n    const Z: number[] = Array(n).fill(0);\n    let l: number = 0, r: number = 0;\n    for (let i = 1; i < n; i++) {\n        if (i <= r) {\n            Z[i] = Math.min(r - i + 1, Z[i - l]);\n        }\n        while (i + Z[i] < n && text[Z[i]] === text[i + Z[i]]) {\n            Z[i]++;\n        }\n        if (i + Z[i] - 1 > r) {\n            l = i;\n            r = i + Z[i] - 1;\n        }\n    }\n    return Z;\n}\n\n// Nümunə: Şablon axtarışı\nconst text: string = 'aaababa';\nconst pattern: string = 'aba';\nconst combined: string = pattern + '$' + text;\nconst z: number[] = zAlgorithm(combined);\nconst matches: number[] = [];\nfor (let i = 0; i < combined.length; i++) {\n    if (z[i] === pattern.length) matches.push(i - pattern.length - 1);\n}\nconsole.log('Pattern found at indices:', matches);\n// Çıxış: Pattern found at indices: [2, 4]",
+      "java": "import java.util.ArrayList;\n\npublic class ZAlgorithm {\n    public static int[] zAlgorithm(String text) {\n        int n = text.length();\n        int[] Z = new int[n];\n        int l = 0, r = 0;\n        for (int i = 1; i < n; i++) {\n            if (i <= r) {\n                Z[i] = Math.min(r - i + 1, Z[i - l]);\n            }\n            while (i + Z[i] < n && text.charAt(Z[i]) == text.charAt(i + Z[i])) {\n                Z[i]++;\n            }\n            if (i + Z[i] - 1 > r) {\n                l = i;\n                r = i + Z[i] - 1;\n            }\n        }\n        return Z;\n    }\n\n    public static void main(String[] args) {\n        String text = \"aaababa\";\n        String pattern = \"aba\";\n        String combined = pattern + \"$\" + text;\n        int[] z = zAlgorithm(combined);\n        ArrayList<Integer> matches = new ArrayList<>();\n        for (int i = 0; i < combined.length(); i++) {\n            if (z[i] == pattern.length()) matches.add(i - pattern.length() - 1);\n        }\n        System.out.println(\"Pattern found at indices: \" + matches);\n    }\n}\n// Çıxış: Pattern found at indices: [2, 4]",
+      "php": "<?php\n\nfunction zAlgorithm($text) {\n    $n = strlen($text);\n    $Z = array_fill(0, $n, 0);\n    $l = 0;\n    $r = 0;\n    for ($i = 1; $i < $n; $i++) {\n        if ($i <= $r) {\n            $Z[$i] = min($r - $i + 1, $Z[$i - $l]);\n        }\n        while ($i + $Z[$i] < $n && $text[$Z[$i]] === $text[$i + $Z[$i]]) {\n            $Z[$i]++;\n        }\n        if ($i + $Z[$i] - 1 > $r) {\n            $l = $i;\n            $r = $i + $Z[$i] - 1;\n        }\n    }\n    return $Z;\n}\n\n// Nümunə: Şablon axtarışı\n$text = 'aaababa';\n$pattern = 'aba';\n$combined = $pattern . '$' . $text;\n$z = zAlgorithm($combined);\n$matches = [];\nfor ($i = 0; $i < strlen($combined); $i++) {\n    if ($z[$i] === strlen($pattern)) {\n        $matches[] = $i - strlen($pattern) - 1;\n    }\n}\necho 'Pattern found at indices: [' . implode(', ', $matches) . ']';\n// Çıxış: Pattern found at indices: [2, 4]\n?>",
+      "c": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint* zAlgorithm(const char* text, int n) {\n    int* Z = (int*)calloc(n, sizeof(int));\n    int l = 0, r = 0;\n    for (int i = 1; i < n; i++) {\n        if (i <= r) {\n            Z[i] = (r - i + 1 < Z[i - l]) ? r - i + 1 : Z[i - l];\n        }\n        while (i + Z[i] < n && text[Z[i]] == text[i + Z[i]]) {\n            Z[i]++;\n        }\n        if (i + Z[i] - 1 > r) {\n            l = i;\n            r = i + Z[i] - 1;\n        }\n    }\n    return Z;\n}\n\nint main() {\n    const char* text = \"aaababa\";\n    const char* pattern = \"aba\";\n    char* combined = (char*)malloc(strlen(pattern) + strlen(text) + 2);\n    strcpy(combined, pattern);\n    strcat(combined, \"$\");\n    strcat(combined, text);\n    int n = strlen(combined);\n    int* z = zAlgorithm(combined, n);\n    printf(\"Pattern found at indices: [\");\n    int first = 1;\n    for (int i = 0; i < n; i++) {\n        if (z[i] == strlen(pattern)) {\n            if (!first) printf(\", \");\n            printf(\"%d\", i - strlen(pattern) - 1);\n            first = 0;\n        }\n    }\n    printf(\"]\\n\");\n    free(z);\n    free(combined);\n    return 0;\n}\n// Çıxış: Pattern found at indices: [2, 4]",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass Program {\n    static int[] ZAlgorithm(string text) {\n        int n = text.Length;\n        int[] Z = new int[n];\n        int l = 0, r = 0;\n        for (int i = 1; i < n; i++) {\n            if (i <= r) {\n                Z[i] = Math.Min(r - i + 1, Z[i - l]);\n            }\n            while (i + Z[i] < n && text[Z[i]] == text[i + Z[i]]) {\n                Z[i]++;\n            }\n            if (i + Z[i] - 1 > r) {\n                l = i;\n                r = i + Z[i] - 1;\n            }\n        }\n        return Z;\n    }\n\n    static void Main() {\n        string text = \"aaababa\";\n        string pattern = \"aba\";\n        string combined = pattern + \"$\" + text;\n        int[] z = ZAlgorithm(combined);\n        List<int> matches = new List<int>();\n        for (int i = 0; i < combined.Length; i++) {\n            if (z[i] == pattern.Length) matches.Add(i - pattern.Length - 1);\n        }\n        Console.WriteLine(\"Pattern found at indices: [\" + string.Join(\", \", matches) + \"]\");\n    }\n}\n// Çıxış: Pattern found at indices: [2, 4]",
+      "cpp": "#include <iostream>\n#include <vector>\n#include <string>\n\nstd::vector<int> zAlgorithm(const std::string& text) {\n    int n = text.length();\n    std::vector<int> Z(n, 0);\n    int l = 0, r = 0;\n    for (int i = 1; i < n; i++) {\n        if (i <= r) {\n            Z[i] = std::min(r - i + 1, Z[i - l]);\n        }\n        while (i + Z[i] < n && text[Z[i]] == text[i + Z[i]]) {\n            Z[i]++;\n        }\n        if (i + Z[i] - 1 > r) {\n            l = i;\n            r = i + Z[i] - 1;\n        }\n    }\n    return Z;\n}\n\nint main() {\n    std::string text = \"aaababa\";\n    std::string pattern = \"aba\";\n    std::string combined = pattern + \"$\" + text;\n    std::vector<int> z = zAlgorithm(combined);\n    std::vector<int> matches;\n    for (int i = 0; i < combined.length(); i++) {\n        if (z[i] == pattern.length()) matches.push_back(i - pattern.length() - 1);\n    }\n    std::cout << \"Pattern found at indices: [\";\n    for (size_t i = 0; i < matches.size(); i++) {\n        std::cout << matches[i];\n        if (i < matches.size() - 1) std::cout << \", \";\n    }\n    std::cout << \"]\" << std::endl;\n    return 0;\n}\n// Çıxış: Pattern found at indices: [2, 4]"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Advanced String Matching?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advanced string matching algorithms speed up pattern searching in text. **Suffix trees** store all possible substrings of a text for fast searching. **Aho-Corasick** finds multiple patterns simultaneously, used in applications like virus scanners. The **Z-algorithm** finds where a pattern occurs in a text by calculating the length of matching prefixes for each position. For example, in the text 'aaababa', the pattern 'aba' is found at indices 2 and 4."
+      },
+      {
+        "type": "heading",
+        "text": "How Do These Algorithms Work?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Z-algorithm: 1) Combine the pattern and text with a separator (e.g., 'aba$aaababa'). 2) For each position, compute the Z-value: the length of the substring starting at that position that matches a prefix of the text. 3) If the Z-value equals the pattern length, a match is found. Aho-Corasick builds a trie of patterns and searches for all patterns at once. Suffix trees store all suffixes of a text and allow searches in O(m) time (m is pattern length). For example, Z-algorithm finds 'aba' in 'aaababa' at indices 2 and 4."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of String Matching Algorithms (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Z-algorithm runs in O(n) time (n is text length). Aho-Corasick takes O(n + m + z) time (m is total pattern length, z is number of matches). Suffix trees take O(n) to build and O(m) to search. For example, in 'aaababa' with pattern 'aba', Z-algorithm performs O(10) operations. Space complexity is O(n) for Z-algorithm and suffix trees. Compared to KMP (O(n + m)), Z-algorithm is simpler, but Aho-Corasick is better for multiple patterns."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "Advantage: Z-algorithm is simple and fast." },
+          {
+            "description": "Advantage: Aho-Corasick is efficient for multiple patterns."
+          },
+          {
+            "description": "Disadvantage: Suffix trees require significant memory."
+          },
+          {
+            "description": "Disadvantage: Preprocessing for large texts can be slow."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real-Life Applications"
+      },
+      {
+        "type": "paragraph",
+        "text": "Z-algorithm is used in text search (e.g., word search in editors), Aho-Corasick in virus scanners and plagiarism detection, and suffix trees in bioinformatics (e.g., DNA sequence matching). For example, finding 'aba' in 'aaababa' resembles search in editors. Compared to KMP, Z-algorithm is simpler, but suffix trees are more efficient for large texts."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "The main risk is the high memory usage of suffix trees. Preprocessing (building tries or trees) can be slow for large texts. Recommendations: Use Z-algorithm for small texts, Aho-Corasick for multiple patterns, and suffix trees for large texts. Estimate text size beforehand and test algorithms."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Продвинутые алгоритмы поиска подстрок",
+    "icon": "FiType",
+    "language": "multiple",
+    "description": "Суффиксные деревья, алгоритм Ахо-Корасика и Z-алгоритм.",
+    "codes": {
+      "python": "def z_algorithm(text):\n    n = len(text)\n    Z = [0] * n\n    l, r = 0, 0\n    for i in range(1, n):\n        if i <= r:\n            Z[i] = min(r - i + 1, Z[i - l])\n        while i + Z[i] < n and text[Z[i]] == text[i + Z[i]]:\n            Z[i] += 1\n        if i + Z[i] - 1 > r:\n            l, r = i, i + Z[i] - 1\n    return Z\n\n# Nümunə: Şablon axtarışı\ntext = 'aaababa'\npattern = 'aba'\ncombined = pattern + '$' + text\nz = z_algorithm(combined)\nmatches = [i - len(pattern) - 1 for i in range(len(combined)) if z[i] == len(pattern)]\nprint('Pattern found at indices:', matches)\n# Çıxış: Pattern found at indices: [2, 4]",
+      "javascript": "function zAlgorithm(text) {\n    const n = text.length;\n    const Z = Array(n).fill(0);\n    let l = 0, r = 0;\n    for (let i = 1; i < n; i++) {\n        if (i <= r) {\n            Z[i] = Math.min(r - i + 1, Z[i - l]);\n        }\n        while (i + Z[i] < n && text[Z[i]] === text[i + Z[i]]) {\n            Z[i]++;\n        }\n        if (i + Z[i] - 1 > r) {\n            l = i;\n            r = i + Z[i] - 1;\n        }\n    }\n    return Z;\n}\n\n// Nümunə: Şablon axtarışı\nconst text = 'aaababa';\nconst pattern = 'aba';\nconst combined = pattern + '$' + text;\nconst z = zAlgorithm(combined);\nconst matches = [];\nfor (let i = 0; i < combined.length; i++) {\n    if (z[i] === pattern.length) matches.push(i - pattern.length - 1);\n}\nconsole.log('Pattern found at indices:', matches);\n// Çıxış: Pattern found at indices: [2, 4]",
+      "typescript": "function zAlgorithm(text: string): number[] {\n    const n: number = text.length;\n    const Z: number[] = Array(n).fill(0);\n    let l: number = 0, r: number = 0;\n    for (let i = 1; i < n; i++) {\n        if (i <= r) {\n            Z[i] = Math.min(r - i + 1, Z[i - l]);\n        }\n        while (i + Z[i] < n && text[Z[i]] === text[i + Z[i]]) {\n            Z[i]++;\n        }\n        if (i + Z[i] - 1 > r) {\n            l = i;\n            r = i + Z[i] - 1;\n        }\n    }\n    return Z;\n}\n\n// Nümunə: Şablon axtarışı\nconst text: string = 'aaababa';\nconst pattern: string = 'aba';\nconst combined: string = pattern + '$' + text;\nconst z: number[] = zAlgorithm(combined);\nconst matches: number[] = [];\nfor (let i = 0; i < combined.length; i++) {\n    if (z[i] === pattern.length) matches.push(i - pattern.length - 1);\n}\nconsole.log('Pattern found at indices:', matches);\n// Çıxış: Pattern found at indices: [2, 4]",
+      "java": "import java.util.ArrayList;\n\npublic class ZAlgorithm {\n    public static int[] zAlgorithm(String text) {\n        int n = text.length();\n        int[] Z = new int[n];\n        int l = 0, r = 0;\n        for (int i = 1; i < n; i++) {\n            if (i <= r) {\n                Z[i] = Math.min(r - i + 1, Z[i - l]);\n            }\n            while (i + Z[i] < n && text.charAt(Z[i]) == text.charAt(i + Z[i])) {\n                Z[i]++;\n            }\n            if (i + Z[i] - 1 > r) {\n                l = i;\n                r = i + Z[i] - 1;\n            }\n        }\n        return Z;\n    }\n\n    public static void main(String[] args) {\n        String text = \"aaababa\";\n        String pattern = \"aba\";\n        String combined = pattern + \"$\" + text;\n        int[] z = zAlgorithm(combined);\n        ArrayList<Integer> matches = new ArrayList<>();\n        for (int i = 0; i < combined.length(); i++) {\n            if (z[i] == pattern.length()) matches.add(i - pattern.length() - 1);\n        }\n        System.out.println(\"Pattern found at indices: \" + matches);\n    }\n}\n// Çıxış: Pattern found at indices: [2, 4]",
+      "php": "<?php\n\nfunction zAlgorithm($text) {\n    $n = strlen($text);\n    $Z = array_fill(0, $n, 0);\n    $l = 0;\n    $r = 0;\n    for ($i = 1; $i < $n; $i++) {\n        if ($i <= $r) {\n            $Z[$i] = min($r - $i + 1, $Z[$i - $l]);\n        }\n        while ($i + $Z[$i] < $n && $text[$Z[$i]] === $text[$i + $Z[$i]]) {\n            $Z[$i]++;\n        }\n        if ($i + $Z[$i] - 1 > $r) {\n            $l = $i;\n            $r = $i + $Z[$i] - 1;\n        }\n    }\n    return $Z;\n}\n\n// Nümunə: Şablon axtarışı\n$text = 'aaababa';\n$pattern = 'aba';\n$combined = $pattern . '$' . $text;\n$z = zAlgorithm($combined);\n$matches = [];\nfor ($i = 0; $i < strlen($combined); $i++) {\n    if ($z[$i] === strlen($pattern)) {\n        $matches[] = $i - strlen($pattern) - 1;\n    }\n}\necho 'Pattern found at indices: [' . implode(', ', $matches) . ']';\n// Çıxış: Pattern found at indices: [2, 4]\n?>",
+      "c": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint* zAlgorithm(const char* text, int n) {\n    int* Z = (int*)calloc(n, sizeof(int));\n    int l = 0, r = 0;\n    for (int i = 1; i < n; i++) {\n        if (i <= r) {\n            Z[i] = (r - i + 1 < Z[i - l]) ? r - i + 1 : Z[i - l];\n        }\n        while (i + Z[i] < n && text[Z[i]] == text[i + Z[i]]) {\n            Z[i]++;\n        }\n        if (i + Z[i] - 1 > r) {\n            l = i;\n            r = i + Z[i] - 1;\n        }\n    }\n    return Z;\n}\n\nint main() {\n    const char* text = \"aaababa\";\n    const char* pattern = \"aba\";\n    char* combined = (char*)malloc(strlen(pattern) + strlen(text) + 2);\n    strcpy(combined, pattern);\n    strcat(combined, \"$\");\n    strcat(combined, text);\n    int n = strlen(combined);\n    int* z = zAlgorithm(combined, n);\n    printf(\"Pattern found at indices: [\");\n    int first = 1;\n    for (int i = 0; i < n; i++) {\n        if (z[i] == strlen(pattern)) {\n            if (!first) printf(\", \");\n            printf(\"%d\", i - strlen(pattern) - 1);\n            first = 0;\n        }\n    }\n    printf(\"]\\n\");\n    free(z);\n    free(combined);\n    return 0;\n}\n// Çıxış: Pattern found at indices: [2, 4]",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass Program {\n    static int[] ZAlgorithm(string text) {\n        int n = text.Length;\n        int[] Z = new int[n];\n        int l = 0, r = 0;\n        for (int i = 1; i < n; i++) {\n            if (i <= r) {\n                Z[i] = Math.Min(r - i + 1, Z[i - l]);\n            }\n            while (i + Z[i] < n && text[Z[i]] == text[i + Z[i]]) {\n                Z[i]++;\n            }\n            if (i + Z[i] - 1 > r) {\n                l = i;\n                r = i + Z[i] - 1;\n            }\n        }\n        return Z;\n    }\n\n    static void Main() {\n        string text = \"aaababa\";\n        string pattern = \"aba\";\n        string combined = pattern + \"$\" + text;\n        int[] z = ZAlgorithm(combined);\n        List<int> matches = new List<int>();\n        for (int i = 0; i < combined.Length; i++) {\n            if (z[i] == pattern.Length) matches.Add(i - pattern.Length - 1);\n        }\n        Console.WriteLine(\"Pattern found at indices: [\" + string.Join(\", \", matches) + \"]\");\n    }\n}\n// Çıxış: Pattern found at indices: [2, 4]",
+      "cpp": "#include <iostream>\n#include <vector>\n#include <string>\n\nstd::vector<int> zAlgorithm(const std::string& text) {\n    int n = text.length();\n    std::vector<int> Z(n, 0);\n    int l = 0, r = 0;\n    for (int i = 1; i < n; i++) {\n        if (i <= r) {\n            Z[i] = std::min(r - i + 1, Z[i - l]);\n        }\n        while (i + Z[i] < n && text[Z[i]] == text[i + Z[i]]) {\n            Z[i]++;\n        }\n        if (i + Z[i] - 1 > r) {\n            l = i;\n            r = i + Z[i] - 1;\n        }\n    }\n    return Z;\n}\n\nint main() {\n    std::string text = \"aaababa\";\n    std::string pattern = \"aba\";\n    std::string combined = pattern + \"$\" + text;\n    std::vector<int> z = zAlgorithm(combined);\n    std::vector<int> matches;\n    for (int i = 0; i < combined.length(); i++) {\n        if (z[i] == pattern.length()) matches.push_back(i - pattern.length() - 1);\n    }\n    std::cout << \"Pattern found at indices: [\";\n    for (size_t i = 0; i < matches.size(); i++) {\n        std::cout << matches[i];\n        if (i < matches.size() - 1) std::cout << \", \";\n    }\n    std::cout << \"]\" << std::endl;\n    return 0;\n}\n// Çıxış: Pattern found at indices: [2, 4]"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое продвинутые алгоритмы поиска подстрок?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Продвинутые алгоритмы поиска подстрок ускоряют поиск шаблонов в тексте. **Суффиксные деревья** хранят все возможные подстроки текста для быстрого поиска. **Алгоритм Ахо-Корасика** ищет несколько шаблонов одновременно, используется, например, в антивирусах. **Z-алгоритм** определяет, где шаблон встречается в тексте, вычисляя длину совпадающих префиксов для каждой позиции. Например, в тексте 'aaababa' шаблон 'aba' находится на индексах 2 и 4."
+      },
+      {
+        "type": "heading",
+        "text": "Как работают эти алгоритмы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Z-алгоритм: 1) Шаблон и текст объединяются с разделителем (например, 'aba$aaababa'). 2) Для каждой позиции вычисляется Z-значение: длина подстроки, начинающейся с этой позиции, которая совпадает с префиксом текста. 3) Если Z-значение равно длине шаблона, найдено совпадение. Ахо-Корасик строит три для шаблонов и ищет их одновременно. Суффиксные деревья хранят все суффиксы текста и позволяют искать за O(m) времени (m — длина шаблона). Например, Z-алгоритм находит 'aba' в 'aaababa' на индексах 2 и 4."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность алгоритмов поиска подстрок (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Z-алгоритм работает за O(n) времени (n — длина текста). Ахо-Корасик требует O(n + m + z) времени (m — суммарная длина шаблонов, z — количество совпадений). Суффиксные деревья строятся за O(n), поиск занимает O(m). Например, для текста 'aaababa' с шаблоном 'aba' Z-алгоритм выполняет O(10) операций. Пространственная сложность — O(n) для Z-алгоритма и суффиксных деревьев. По сравнению с KMP (O(n + m)) Z-алгоритм проще, но Ахо-Корасик лучше для поиска нескольких шаблонов."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "Преимущество: Z-алгоритм прост и быстр." },
+          {
+            "description": "Преимущество: Ахо-Корасик эффективен для поиска нескольких шаблонов."
+          },
+          {
+            "description": "Недостаток: Суффиксные деревья требуют много памяти."
+          },
+          {
+            "description": "Недостаток: Подготовка для больших текстов может быть медленной."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Применение в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Z-алгоритм используется в текстовом поиске (например, поиск слов в редакторах), Ахо-Корасик — в антивирусах и проверке плагиата, суффиксные деревья — в биоинформатике (например, поиск последовательностей ДНК). Например, поиск 'aba' в 'aaababa' похож на поиск в редакторах. По сравнению с KMP Z-алгоритм проще, но суффиксные деревья эффективнее для больших текстов."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основной риск — высокое потребление памяти суффиксными деревьями. Подготовка (построение три или деревьев) может быть медленной для больших текстов. Рекомендации: Используйте Z-алгоритм для небольших текстов, Ахо-Корасик для поиска нескольких шаблонов, суффиксные деревья для больших текстов. Оценивайте размер текста заранее и тестируйте алгоритмы."
+      }
+    ]
+  }
+}

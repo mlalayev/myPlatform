@@ -1,43 +1,14 @@
 version: "3.8"
 
 services:
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    env_file:
-      - .env
+  # Kod icra üçün ayrı servis (yalnız compiler-lər və runtime-lar)
+  code-executor:
+    build: 
+      context: .
+      dockerfile: Dockerfile.executor
     volumes:
-      - ./:/app
-      - /app/node_modules
       - /var/run/docker.sock:/var/run/docker.sock
-    depends_on:
-      - db
+      - /tmp:/tmp
     restart: unless-stopped
     privileged: true
-    environment:
-      - NODE_ENV=development
-    command: npm run dev
-    develop:
-      watch:
-        - action: sync
-          path: .
-          target: /app
-          ignore:
-            - node_modules/
-        - action: rebuild
-          path: package.json
-  db:
-    image: postgres:15
-    environment:
-      - POSTGRES_USER=murad
-      - POSTGRES_PASSWORD=SeninSehfre123!
-      - POSTGRES_DB=mydb
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    restart: unless-stopped
-
-volumes:
-  postgres_data:
+    # Bu servis yalnız kod icra üçün istifadə olunacaq, port expose etmirik

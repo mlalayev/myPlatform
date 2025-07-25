@@ -1,0 +1,407 @@
+{
+  "az": {
+    "title": "C++ Polimorfizm",
+    "language": "cpp",
+    "description": "C++-da polimorfizm siniflərə fərqli davranışlar əlavə etməyə imkan verir, kodun çevikliyini və təkrar istifadəsini artırır.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Polimorfizm nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C++-da polimorfizm (polymorphism) obyekt-əsaslı proqramlaşdırmanın əsas prinsiplərindən biridir və bir sinfin fərqli davranışlar sərgiləməsinə imkan verir. Polimorfizm 'çox forma' deməkdir və bir sinfin metodlarının fərqli siniflərdə fərqli şəkildə işləməsini təmin edir. Məsələn, 'Heyvan' sinfi üçün səs çıxarma funksiyası it və pişik siniflərində fərqli şəkildə həyata keçirilə bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Polimorfizmin Növləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "C++-da iki əsas polimorfizm növü var:\n- **Compile-time Polimorfizm**: Funksiya və ya operatorun yüklənməsi (overloading) ilə həyata keçirilir. Kompilyasiya zamanı hansı funksiyanın çağırılacağı müəyyənləşir.\n- **Run-time Polimorfizm**: Virtual funksiyalar və irsiyyət vasitəsilə həyata keçirilir. Proqram işləyərkən hansı funksiyanın çağırılacağı qərara alınır."
+      },
+      {
+        "type": "heading",
+        "text": "Compile-time Polimorfizm"
+      },
+      {
+        "type": "paragraph",
+        "text": "Compile-time polimorfizm funksiya yüklənməsi (function overloading) və ya operator yüklənməsi (operator overloading) ilə əldə edilir. Məsələn, eyni adlı funksiyalar fərqli parametrlərlə fərqli davranışlar göstərə bilər."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Calculator {\npublic:\n  int add(int a, int b) {\n    return a + b;\n  }\n  double add(double a, double b) {\n    return a + b;\n  }\n};\n\nint main() {\n  Calculator calc;\n  std::cout << \"Int sum: \" << calc.add(5, 3) << std::endl;\n  std::cout << \"Double sum: \" << calc.add(5.5, 3.3) << std::endl;\n  return 0;\n}\n// Output:\n// Int sum: 8\n// Double sum: 8.8"
+      },
+      {
+        "type": "heading",
+        "text": "Run-time Polimorfizm"
+      },
+      {
+        "type": "paragraph",
+        "text": "Run-time polimorfizm virtual funksiyalar və irsiyyət vasitəsilə həyata keçirilir. Əsas sinfin göstəricisi və ya istinadı törəmə sinfin obyektinə işarə edə bilər və `virtual` açar sözü ilə təyin edilmiş funksiyalar çağırıldıqda düzgün davranış sərgilənir."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Animal {\npublic:\n  virtual void makeSound() {\n    std::cout << \"Animal makes a sound\" << std::endl;\n  }\n  virtual ~Animal() {}\n};\n\nclass Dog : public Animal {\npublic:\n  void makeSound() override {\n    std::cout << \"Dog barks\" << std::endl;\n  }\n};\n\nclass Cat : public Animal {\npublic:\n  void makeSound() override {\n    std::cout << \"Cat meows\" << std::endl;\n  }\n};\n\nint main() {\n  Animal* animal1 = new Dog();\n  Animal* animal2 = new Cat();\n  animal1->makeSound();\n  animal2->makeSound();\n  delete animal1;\n  delete animal2;\n  return 0;\n}\n// Output:\n// Dog barks\n// Cat meows"
+      },
+      {
+        "type": "heading",
+        "text": "Virtual Funksiyalar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Virtual funksiyalar run-time polimorfizmin əsasını təşkil edir. `virtual` açar sözü ilə təyin edilmiş funksiya törəmə siniflərdə `override` edilə bilər. Virtual funksiyalar dinamik dispetçerləşdirməni (dynamic dispatch) təmin edir, yəni obyektin həqiqi tipinə əsasən düzgün funksiya çağırılır."
+      },
+      {
+        "type": "heading",
+        "text": "Abstrakt Siniflər və Saf Virtual Funksiyalar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstrakt siniflər obyektləri yaradıla bilməyən siniflərdir və yalnız irsiyyət üçün istifadə olunur. Saf virtual funksiyalar (`= 0`) ilə təyin edilir və törəmə siniflərdə mütləq `override` edilməlidir."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Animal {\npublic:\n  virtual void makeSound() = 0;\n  virtual ~Animal() {}\n};\n\nclass Dog : public Animal {\npublic:\n  void makeSound() override {\n    std::cout << \"Dog barks\" << std::endl;\n  }\n};\n\nint main() {\n  Animal* animal = new Dog();\n  animal->makeSound();\n  delete animal;\n  return 0;\n}\n// Output:\n// Dog barks"
+      },
+      {
+        "type": "heading",
+        "text": "Dinamik Yaddaşla Polimorfizm"
+      },
+      {
+        "type": "paragraph",
+        "text": "Polimorfizm dinamik yaddaşla işləyərkən xüsusilə faydalıdır. `new` ilə yaradılan obyektlər əsas sinfin göstəricisi ilə idarə oluna bilər, lakin virtual funksiyalar sayəsində törəmə sinfin davranışları çağırılır."
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Polimorfizm C++ proqramlaşdırmasında aşağıdakı hallarda geniş istifadə olunur:\n- **Oyun inkişafı**: Fərqli personajların və ya obyektlərin fərqli davranışlar sərgiləməsi.\n- **Kullanıcı interfeysi**: Komponentlərin fərqli şəkildə render edilməsi.\n- **Verilənlər bazası idarəetməsi**: Müxtəlif məlumat növlərinin eyni şəkildə işlənməsi.\n- **Sistem proqramlaşdırması**: Fərqli cihazların və ya modulların eyni interfeyslə idarə edilməsi.\nMəsələn, bir oyun tətbiqində heyvanların fərqli səslər çıxarması polimorfizmlə idarə oluna bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Polimorfizmin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Polimorfizm kodun çevikliyini və təkrar istifadəsini artırır, siniflərə fərqli davranışlar əlavə edərək proqramın mütəşəkkilliyini gücləndirir."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Çeviklik",
+            "description": "Fərqli siniflərə fərqli davranışlar əlavə edir."
+          },
+          {
+            "term": "Virtual Funksiyalar",
+            "description": "Run-time polimorfizmi təmin edir."
+          },
+          {
+            "term": "Abstrakt Siniflər",
+            "description": "İrsiyyət üçün şablonlar yaradır."
+          },
+          {
+            "term": "Kodun Təkrar İstifadəsi",
+            "description": "Eyni interfeysi fərqli siniflərdə istifadə etməyə imkan verir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Virtual funksiyaların həddindən artıq istifadəsi performans problemlərinə, səhv iyerarxiya dizaynı isə mürəkkəb koda səbəb ola bilər.\n- **Tövsiyələr**: Virtual funksiyaları yalnız lazım olduqda istifadə edin, virtual destruktorları abstrakt siniflərdə təyin edin, sadə iyerarxiyalar dizayn edin, Visual Studio və ya CLion kimi IDE-lərdən istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <iostream>\n#include <string>\n\nclass Animal {\npublic:\n  virtual void makeSound() = 0;\n  virtual ~Animal() {}\n};\n\nclass Dog : public Animal {\npublic:\n  void makeSound() override {\n    std::cout << \"Dog barks\" << std::endl;\n  }\n};\n\nint main() {\n  Animal* animal = new Dog();\n  animal->makeSound();\n  delete animal;\n  return 0;\n}\n// Output:\n// Dog barks"
+      }
+    ]
+  },
+  "en": {
+    "title": "C++ Polymorphism",
+    "language": "cpp",
+    "description": "C++ polymorphism allows classes to exhibit different behaviors, enhancing code flexibility and reuse.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Polymorphism?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C++, polymorphism is a core principle of object-oriented programming that allows a class to exhibit different behaviors. Polymorphism means 'many forms,' enabling a class's methods to behave differently in derived classes. For example, an 'Animal' class's sound function can behave differently for Dog and Cat classes."
+      },
+      {
+        "type": "heading",
+        "text": "Types of Polymorphism"
+      },
+      {
+        "type": "paragraph",
+        "text": "C++ supports two main types of polymorphism:\n- **Compile-time Polymorphism**: Achieved through function or operator overloading, resolved at compile time.\n- **Run-time Polymorphism**: Achieved through virtual functions and inheritance, resolved at runtime."
+      },
+      {
+        "type": "heading",
+        "text": "Compile-time Polymorphism"
+      },
+      {
+        "type": "paragraph",
+        "text": "Compile-time polymorphism is achieved via function overloading or operator overloading. For example, functions with the same name but different parameters can exhibit different behaviors."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Calculator {\npublic:\n  int add(int a, int b) {\n    return a + b;\n  }\n  double add(double a, double b) {\n    return a + b;\n  }\n};\n\nint main() {\n  Calculator calc;\n  std::cout << \"Int sum: \" << calc.add(5, 3) << std::endl;\n  std::cout << \"Double sum: \" << calc.add(5.5, 3.3) << std::endl;\n  return 0;\n}\n// Output:\n// Int sum: 8\n// Double sum: 8.8"
+      },
+      {
+        "type": "heading",
+        "text": "Run-time Polymorphism"
+      },
+      {
+        "type": "paragraph",
+        "text": "Run-time polymorphism is achieved using virtual functions and inheritance. A base class pointer or reference can point to a derived class object, and `virtual` functions ensure the correct behavior is invoked."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Animal {\npublic:\n  virtual void makeSound() {\n    std::cout << \"Animal makes a sound\" << std::endl;\n  }\n  virtual ~Animal() {}\n};\n\nclass Dog : public Animal {\npublic:\n  void makeSound() override {\n    std::cout << \"Dog barks\" << std::endl;\n  }\n};\n\nclass Cat : public Animal {\npublic:\n  void makeSound() override {\n    std::cout << \"Cat meows\" << std::endl;\n  }\n};\n\nint main() {\n  Animal* animal1 = new Dog();\n  Animal* animal2 = new Cat();\n  animal1->makeSound();\n  animal2->makeSound();\n  delete animal1;\n  delete animal2;\n  return 0;\n}\n// Output:\n// Dog barks\n// Cat meows"
+      },
+      {
+        "type": "heading",
+        "text": "Virtual Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Virtual functions are the backbone of run-time polymorphism. Declared with the `virtual` keyword, they can be overridden in derived classes using `override`. Virtual functions enable dynamic dispatch, ensuring the correct function is called based on the object's actual type."
+      },
+      {
+        "type": "heading",
+        "text": "Abstract Classes and Pure Virtual Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstract classes cannot be instantiated and are used as templates for inheritance. They are defined with pure virtual functions (`= 0`), which must be overridden in derived classes."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Animal {\npublic:\n  virtual void makeSound() = 0;\n  virtual ~Animal() {}\n};\n\nclass Dog : public Animal {\npublic:\n  void makeSound() override {\n    std::cout << \"Dog barks\" << std::endl;\n  }\n};\n\nint main() {\n  Animal* animal = new Dog();\n  animal->makeSound();\n  delete animal;\n  return 0;\n}\n// Output:\n// Dog barks"
+      },
+      {
+        "type": "heading",
+        "text": "Polymorphism with Dynamic Memory"
+      },
+      {
+        "type": "paragraph",
+        "text": "Polymorphism is particularly useful with dynamic memory. Objects created with `new` can be managed via base class pointers, and virtual functions ensure derived class behaviors are invoked."
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Polymorphism is widely used in C++ programming:\n- **Game Development**: Different characters or objects exhibiting unique behaviors.\n- **User Interfaces**: Rendering components differently.\n- **Database Management**: Processing different data types uniformly.\n- **System Programming**: Managing different devices or modules with the same interface.\nFor example, in a game, different animals making unique sounds can be managed with polymorphism."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Polymorphism"
+      },
+      {
+        "type": "paragraph",
+        "text": "Polymorphism enhances code flexibility and reuse, allowing classes to exhibit varied behaviors while maintaining a consistent interface."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Flexibility",
+            "description": "Enables different behaviors for different classes."
+          },
+          {
+            "term": "Virtual Functions",
+            "description": "Facilitates run-time polymorphism."
+          },
+          {
+            "term": "Abstract Classes",
+            "description": "Provides templates for inheritance."
+          },
+          {
+            "term": "Code Reuse",
+            "description": "Allows the same interface to be used across different classes."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Overusing virtual functions can lead to performance issues, and poor hierarchy design can create complex code.\n- **Recommendations**: Use virtual functions only when necessary, define virtual destructors in abstract classes, design simple hierarchies, and use IDEs like Visual Studio or CLion."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <iostream>\n#include <string>\n\nclass Animal {\npublic:\n  virtual void makeSound() = 0;\n  virtual ~Animal() {}\n};\n\nclass Dog : public Animal {\npublic:\n  void makeSound() override {\n    std::cout << \"Dog barks\" << std::endl;\n  }\n};\n\nint main() {\n  Animal* animal = new Dog();\n  animal->makeSound();\n  delete animal;\n  return 0;\n}\n// Output:\n// Dog barks"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Полиморфизм в C++",
+    "language": "cpp",
+    "description": "Полиморфизм в C++ позволяет классам проявлять различные поведения, повышая гибкость и повторное использование кода.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое полиморфизм?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В C++ полиморфизм — это один из ключевых принципов объектно-ориентированного программирования, позволяющий классу проявлять различные поведения. Полиморфизм означает 'много форм' и позволяет методам класса вести себя по-разному в производных классах. Например, функция звука класса 'Животное' может работать по-разному для классов Собака и Кошка."
+      },
+      {
+        "type": "heading",
+        "text": "Типы полиморфизма"
+      },
+      {
+        "type": "paragraph",
+        "text": "C++ поддерживает два основных типа полиморфизма:\n- **Полиморфизм времени компиляции**: Реализуется через перегрузку функций или операторов, разрешается во время компиляции.\n- **Полиморфизм времени выполнения**: Реализуется через виртуальные функции и наследование, разрешается во время выполнения."
+      },
+      {
+        "type": "heading",
+        "text": "Полиморфизм времени компиляции"
+      },
+      {
+        "type": "paragraph",
+        "text": "Полиморфизм времени компиляции достигается через перегрузку функций или операторов. Например, функции с одинаковым именем, но разными параметрами могут проявлять различные поведения."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Calculator {\npublic:\n  int add(int a, int b) {\n    return a + b;\n  }\n  double add(double a, double b) {\n    return a + b;\n  }\n};\n\nint main() {\n  Calculator calc;\n  std::cout << \"Int sum: \" << calc.add(5, 3) << std::endl;\n  std::cout << \"Double sum: \" << calc.add(5.5, 3.3) << std::endl;\n  return 0;\n}\n// Output:\n// Int sum: 8\n// Double sum: 8.8"
+      },
+      {
+        "type": "heading",
+        "text": "Полиморфизм времени выполнения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Полиморфизм времени выполнения достигается с помощью виртуальных функций и наследования. Указатель или ссылка базового класса может указывать на объект производного класса, и виртуальные функции обеспечивают вызов правильного поведения."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Animal {\npublic:\n  virtual void makeSound() {\n    std::cout << \"Animal makes a sound\" << std::endl;\n  }\n  virtual ~Animal() {}\n};\n\nclass Dog : public Animal {\npublic:\n  void makeSound() override {\n    std::cout << \"Dog barks\" << std::endl;\n  }\n};\n\nclass Cat : public Animal {\npublic:\n  void makeSound() override {\n    std::cout << \"Cat meows\" << std::endl;\n  }\n};\n\nint main() {\n  Animal* animal1 = new Dog();\n  Animal* animal2 = new Cat();\n  animal1->makeSound();\n  animal2->makeSound();\n  delete animal1;\n  delete animal2;\n  return 0;\n}\n// Output:\n// Dog barks\n// Cat meows"
+      },
+      {
+        "type": "heading",
+        "text": "Виртуальные функции"
+      },
+      {
+        "type": "paragraph",
+        "text": "Виртуальные функции составляют основу полиморфизма времени выполнения. Объявленные с ключевым словом `virtual`, они могут быть переопределены в производных классах с помощью `override`. Виртуальные функции обеспечивают динамическую диспетчеризацию, гарантируя вызов правильной функции на основе фактического типа объекта."
+      },
+      {
+        "type": "heading",
+        "text": "Абстрактные классы и чисто виртуальные функции"
+      },
+      {
+        "type": "paragraph",
+        "text": "Абстрактные классы не могут быть инстанцированы и используются как шаблоны для наследования. Они определяются с помощью чисто виртуальных функций (`= 0`), которые должны быть переопределены в производных классах."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <string>\n\nclass Animal {\npublic:\n  virtual void makeSound() = 0;\n  virtual ~Animal() {}\n};\n\nclass Dog : public Animal {\npublic:\n  void makeSound() override {\n    std::cout << \"Dog barks\" << std::endl;\n  }\n};\n\nint main() {\n  Animal* animal = new Dog();\n  animal->makeSound();\n  delete animal;\n  return 0;\n}\n// Output:\n// Dog barks"
+      },
+      {
+        "type": "heading",
+        "text": "Полиморфизм с динамической памятью"
+      },
+      {
+        "type": "paragraph",
+        "text": "Полиморфизм особенно полезен при работе с динамической памятью. Объекты, созданные с помощью `new`, могут управляться через указатели базового класса, а виртуальные функции обеспечивают вызов поведения производного класса."
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Полиморфизм широко используется в программировании на C++:\n- **Разработка игр**: Различные персонажи или объекты проявляют уникальные поведения.\n- **Пользовательские интерфейсы**: Отрисовка компонентов по-разному.\n- **Управление базами данных**: Обработка различных типов данных единообразно.\n- **Системное программирование**: Управление различными устройствами или модулями с одним интерфейсом.\nНапример, в игре различные животные, издающие уникальные звуки, могут управляться с помощью полиморфизма."
+      },
+      {
+        "type": "heading",
+        "text": "Цель полиморфизма"
+      },
+      {
+        "type": "paragraph",
+        "text": "Полиморфизм повышает гибкость и повторное использование кода, позволяя классам проявлять различные поведения при сохранении единого интерфейса."
+      },
+      {
+        "type": "heading",
+        "text": "Основные характеристики"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Гибкость",
+            "description": "Позволяет различным классам проявлять разные поведения."
+          },
+          {
+            "term": "Виртуальные функции",
+            "description": "Обеспечивают полиморфизм времени выполнения."
+          },
+          {
+            "term": "Абстрактные классы",
+            "description": "Предоставляют шаблоны для наследования."
+          },
+          {
+            "term": "Повторное использование кода",
+            "description": "Позволяет использовать один интерфейс для разных классов."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Чрезмерное использование виртуальных функций может привести к проблемам с производительностью, а плохой дизайн иерархии — к сложному коду.\n- **Рекомендации**: Используйте виртуальные функции только при необходимости, определяйте виртуальные деструкторы в абстрактных классах, проектируйте простые иерархии, используйте IDE, такие как Visual Studio или CLion."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <iostream>\n#include <string>\n\nclass Animal {\npublic:\n  virtual void makeSound() = 0;\n  virtual ~Animal() {}\n};\n\nclass Dog : public Animal {\npublic:\n  void makeSound() override {\n    std::cout << \"Dog barks\" << std::endl;\n  }\n};\n\nint main() {\n  Animal* animal = new Dog();\n  animal->makeSound();\n  delete animal;\n  return 0;\n}\n// Output:\n// Dog barks"
+      }
+    ]
+  }
+}

@@ -43,6 +43,12 @@ const mainCategories = [
     icon: <FiCode size={44} color="#23242a" />,
     description: "JavaScript, Python, Java və s.",
   },
+  {
+    key: "topics",
+    name: "Proqramlaşdırma Mövzuları",
+    icon: <FiBook size={44} color="#e67e22" />,
+    description: "OOP, Rekursiya, Polimorfizm və s.",
+  },
 ];
 
 // Tutorial stats data
@@ -97,19 +103,23 @@ export default function TutorialsPage() {
 
       <div className={styles.tutorialsWrapper}>
         <div className={styles.mainCategoriesGrid}>
-          {mainCategories.map((cat) => (
-              <Link
+          {mainCategories.map((cat, idx) => (
+            <Link
               href={`/${currentLang}/tutorials/${cat.key}`}
-              className={styles.mainCategoryCard}
+              className={
+                idx === mainCategories.length - 1
+                  ? `${styles.mainCategoryCard} ${styles.mainCategoryCardFull}`
+                  : styles.mainCategoryCard
+              }
               key={cat.key}
-              >
+            >
               <div className={styles.mainCategoryIcon}>{cat.icon}</div>
               <div className={styles.mainCategoryName}>{cat.name}</div>
               <div className={styles.mainCategoryDesc}>{cat.description}</div>
-                <span className={styles.languageArrow}>
-                  <FiChevronRight size={22} />
-                </span>
-              </Link>
+              <span className={styles.languageArrow}>
+                <FiChevronRight size={22} />
+              </span>
+            </Link>
           ))}
         </div>
       </div>

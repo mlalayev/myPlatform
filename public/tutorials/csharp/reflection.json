@@ -1,0 +1,486 @@
+{
+  "id": "reflection",
+  "az": {
+    "title": "Refleksiya & Metadata",
+    "icon": "FiEye",
+    "language": "csharp",
+    "description": "İcra zamanı kodu yoxlamaq və dəyişdirmək.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Refleksiya Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində refleksiya (reflection) proqramın icra zamanı öz strukturu haqqında məlumat əldə etməsi və ya dəyişikliklər etməsi prosesidir. `System.Reflection` ad məkanı vasitəsilə siniflərin, metodların, xassələrin və digər üzvlərin metadata-sını (məlumat haqqında məlumat) yoxlamaq mümkündür. Refleksiya dinamik proqramlaşdırma üçün faydalıdır, məsələn, plagin sistemlərində və ya obyektləri icra zamanı yaratmaqda. Bu JSON faylda refleksiyanın əsasları, tipləri və üzvləri yoxlama, dinamik obyekt yaratma, metod çağırışları, üstünlükləri və çətinlikləri sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur və Pyodide məhdudiyyətlərinə uyğun olaraq şəbəkə çağırışları və fayl əməliyyatları əvəzinə sadə siniflər üzərində refleksiya əməliyyatları icra edilir."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Refleksiya Nümunəsi: Tip Məlumatlarını Almaq"
+      },
+      {
+        "type": "paragraph",
+        "text": "Refleksiya ilə bir sinfin adını, metodlarını və xassələrini yoxlamaq mümkündür."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Tip məlumatları yoxlanılır...\");\n        Type type = typeof(Person);\n        Console.WriteLine($\"Sinif adı: {type.Name}\");\n        Console.WriteLine(\"Metodlar:\");\n        foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))\n        {\n            Console.WriteLine($\"- {method.Name}\");\n        }\n        Console.WriteLine(\"Xassələr:\");\n        foreach (var property in type.GetProperties())\n        {\n            Console.WriteLine($\"- {property.Name}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n\n    public void SayHello()\n    {\n        Console.WriteLine($\"Salam, mən {Name}!\");\n    }\n}\n// Output:\n// Tip məlumatları yoxlanılır...\n// Sinif adı: Person\n// Metodlar:\n// - SayHello\n// - get_Name\n// - set_Name\n// - get_Age\n// - set_Age\n// - ToString\n// - Equals\n// - GetHashCode\n// - GetType\n// Xassələr:\n// - Name\n// - Age"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `typeof(Person)` sinfin tipini alır.\n- `GetMethods` və `GetProperties` ilə sinfin metodları və xassələri siyahıya alınır.\n- `BindingFlags` metodların ictimai və instansiya üzvlərini filtr edir.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Dinamik Obyekt Yaratma"
+      },
+      {
+        "type": "paragraph",
+        "text": "Refleksiya ilə icra zamanı obyektlər yaradıla bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Dinamik obyekt yaradılır...\");\n        Type type = typeof(Person);\n        object personInstance = Activator.CreateInstance(type);\n        PropertyInfo nameProperty = type.GetProperty(\"Name\");\n        nameProperty.SetValue(personInstance, \"Ayxan\");\n        Console.WriteLine($\"Ad: {nameProperty.GetValue(personInstance)}\");\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n// Output:\n// Dinamik obyekt yaradılır...\n// Ad: Ayxan"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Activator.CreateInstance` ilə `Person` sinfinin instansiyası yaradılır.\n- `GetProperty` və `SetValue` ilə xassəyə dəyər təyin edilir.\n- `GetValue` ilə xassənin dəyəri alınır."
+      },
+      {
+        "type": "heading",
+        "text": "Dinamik Metod Çağırışı"
+      },
+      {
+        "type": "paragraph",
+        "text": "Refleksiya ilə icra zamanı metodlar çağırıla bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Dinamik metod çağırılır...\");\n        Type type = typeof(Person);\n        object personInstance = Activator.CreateInstance(type);\n        PropertyInfo nameProperty = type.GetProperty(\"Name\");\n        nameProperty.SetValue(personInstance, \"Ayxan\");\n        MethodInfo method = type.GetMethod(\"SayHello\");\n        method.Invoke(personInstance, null);\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n\n    public void SayHello()\n    {\n        Console.WriteLine($\"Salam, mən {Name}!\");\n    }\n}\n// Output:\n// Dinamik metod çağırılır...\n// Salam, mən Ayxan!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `GetMethod` ilə `SayHello` metodu alınır.\n- `Invoke` ilə metod icra edilir.\n- Metod parametrsiz olduğu üçün `null` ötürülür."
+      },
+      {
+        "type": "heading",
+        "text": "İstisna İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Refleksiyada səhvlər, məsələn, mövcud olmayan metodun çağırılması, `try-catch` ilə idarə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Metod çağırılır...\");\n        try\n        {\n            Type type = typeof(Person);\n            object personInstance = Activator.CreateInstance(type);\n            MethodInfo method = type.GetMethod(\"NonExistentMethod\");\n            if (method == null)\n                throw new MissingMethodException(\"Metod tapılmadı.\");\n            method.Invoke(personInstance, null);\n        }\n        catch (MissingMethodException ex)\n        {\n            Console.WriteLine(\"Səhv baş verdi!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n}\n// Output:\n// Metod çağırılır...\n// Səhv baş verdi!\n// Səhv mesajı: Metod tapılmadı."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Mövcud olmayan metod çağırıldıqda səhv yoxlanılır.\n- `try-catch` bloku səhvi tutur və mesajı göstərir."
+      },
+      {
+        "type": "heading",
+        "text": "Refleksiyanın Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Refleksiya dinamik proqramlaşdırma üçün güclü vasitədir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nDinamiklik: İcra zamanı tipləri və üzvləri yoxlamaq və dəyişdirmək mümkündür."
+          },
+          {
+            "description": "\nEsneklik: Plagin sistemləri və ya ümumi alətlər üçün idealdır."
+          },
+          {
+            "description": "\nDebugging: Kodun strukturu haqqında məlumat əldə etmək faydalıdır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Refleksiya yeni başlayanlar üçün çətin ola bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nPerformans: Refleksiya yavaş ola bilər, çünki icra zamanı yoxlamalar aparılır."
+          },
+          {
+            "description": "\nMürəkkəblik: Kodun oxunaqlılığı azalır və səhvlər artıra bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# refleksiyası Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Refleksiya yanlış istifadə edildikdə performans problemləri və ya səhvlər (məsələn, null istinadlar) yarana bilər.\n- **Tövsiyələr**: Refleksiyanı yalnız zəruri hallarda istifadə edin. Null yoxlamalarını aparın və `try-catch` bloku ilə səhvləri idarə edin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə null istinad səhvinə yol açılır."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Səhvə yol açan refleksiya...\");\n        try\n        {\n            Type type = typeof(Person);\n            object personInstance = Activator.CreateInstance(type);\n            PropertyInfo property = type.GetProperty(\"NonExistentProperty\");\n            property.SetValue(personInstance, \"Test\"); // NullReferenceException\n        }\n        catch (NullReferenceException ex)\n        {\n            Console.WriteLine(\"Səhv: Null istinad!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n}\n// Output:\n// Səhvə yol açan refleksiya...\n// Səhv: Null istinad!\n// Səhv mesajı: Object reference not set to an instance of an object."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Mövcud olmayan xassəyə daxil olmağa cəhd edilir.\n- `NullReferenceException` yaranır, çünki xassə tapılmır.\n- Həll: `GetProperty` nəticəsini null olub-olmaması yoxlanılmalıdır."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Refleksiya sınağı...\");\n        try\n        {\n            Type type = typeof(Calculator);\n            object calcInstance = Activator.CreateInstance(type);\n            MethodInfo method = type.GetMethod(\"Add\");\n            if (method == null)\n                throw new MissingMethodException(\"Metod tapılmadı.\");\n            int result = (int)method.Invoke(calcInstance, new object[] { 5, 3 });\n            Console.WriteLine($\"Nəticə: 5 + 3 = {result}\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Səhv: {ex.Message}\");\n        }\n    }\n}\n\nclass Calculator\n{\n    public int Add(int a, int b)\n    {\n        return a + b;\n    }\n}\n// Output:\n// Refleksiya sınağı...\n// Nəticə: 5 + 3 = 8"
+      }
+    ]
+  },
+  "en": {
+    "title": "Reflection & Metadata",
+    "icon": "FiEye",
+    "language": "csharp",
+    "description": "Inspecting and modifying code at runtime.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Is Reflection?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, reflection is the process of inspecting and modifying a program’s structure at runtime. Using the `System.Reflection` namespace, you can examine metadata (data about data) of classes, methods, properties, and other members. Reflection is useful for dynamic programming, such as in plugin systems or creating objects at runtime. This JSON file explains reflection basics, inspecting types and members, creating objects dynamically, invoking methods, advantages, and challenges in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values, avoid user input, and perform reflection operations on simple classes instead of network or file operations due to Pyodide limitations."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Reflection Example: Inspecting Type Information"
+      },
+      {
+        "type": "paragraph",
+        "text": "Reflection allows inspecting a class’s name, methods, and properties."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Inspecting type information...\");\n        Type type = typeof(Person);\n        Console.WriteLine($\"Class name: {type.Name}\");\n        Console.WriteLine(\"Methods:\");\n        foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))\n        {\n            Console.WriteLine($\"- {method.Name}\");\n        }\n        Console.WriteLine(\"Properties:\");\n        foreach (var property in type.GetProperties())\n        {\n            Console.WriteLine($\"- {property.Name}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n\n    public void SayHello()\n    {\n        Console.WriteLine($\"Hello, I am {Name}!\");\n    }\n}\n// Output:\n// Inspecting type information...\n// Class name: Person\n// Methods:\n// - SayHello\n// - get_Name\n// - set_Name\n// - get_Age\n// - set_Age\n// - ToString\n// - Equals\n// - GetHashCode\n// - GetType\n// Properties:\n// - Name\n// - Age"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `typeof(Person)` retrieves the class’s type.\n- `GetMethods` and `GetProperties` list the class’s methods and properties.\n- `BindingFlags` filters for public instance members.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Dynamic Object Creation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Reflection allows creating objects dynamically at runtime."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Creating dynamic object...\");\n        Type type = typeof(Person);\n        object personInstance = Activator.CreateInstance(type);\n        PropertyInfo nameProperty = type.GetProperty(\"Name\");\n        nameProperty.SetValue(personInstance, \"John\");\n        Console.WriteLine($\"Name: {nameProperty.GetValue(personInstance)}\");\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n// Output:\n// Creating dynamic object...\n// Name: John"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Activator.CreateInstance` creates an instance of `Person`.\n- `GetProperty` and `SetValue` set a property value.\n- `GetValue` retrieves the property value."
+      },
+      {
+        "type": "heading",
+        "text": "Dynamic Method Invocation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Reflection allows invoking methods dynamically at runtime."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Invoking method dynamically...\");\n        Type type = typeof(Person);\n        object personInstance = Activator.CreateInstance(type);\n        PropertyInfo nameProperty = type.GetProperty(\"Name\");\n        nameProperty.SetValue(personInstance, \"John\");\n        MethodInfo method = type.GetMethod(\"SayHello\");\n        method.Invoke(personInstance, null);\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n\n    public void SayHello()\n    {\n        Console.WriteLine($\"Hello, I am {Name}!\");\n    }\n}\n// Output:\n// Invoking method dynamically...\n// Hello, I am John!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `GetMethod` retrieves the `SayHello` method.\n- `Invoke` executes the method.\n- Since the method has no parameters, `null` is passed."
+      },
+      {
+        "type": "heading",
+        "text": "Exception Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "Errors in reflection, such as invoking a non-existent method, are handled with `try-catch`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Invoking method...\");\n        try\n        {\n            Type type = typeof(Person);\n            object personInstance = Activator.CreateInstance(type);\n            MethodInfo method = type.GetMethod(\"NonExistentMethod\");\n            if (method == null)\n                throw new MissingMethodException(\"Method not found.\");\n            method.Invoke(personInstance, null);\n        }\n        catch (MissingMethodException ex)\n        {\n            Console.WriteLine(\"An error occurred!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n}\n// Output:\n// Invoking method...\n// An error occurred!\n// Error message: Method not found."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- An attempt to invoke a non-existent method is checked.\n- The `try-catch` block catches and displays the error message."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Reflection"
+      },
+      {
+        "type": "paragraph",
+        "text": "Reflection is a powerful tool for dynamic programming."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nDynamism: Allows inspecting and modifying types and members at runtime."
+          },
+          {
+            "description": "\nFlexibility: Ideal for plugin systems or generic tools."
+          },
+          {
+            "description": "\nDebugging: Useful for retrieving information about code structure."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Reflection can be challenging for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nPerformance: Reflection can be slow due to runtime checks."
+          },
+          {
+            "description": "\nComplexity: Reduces code readability and may increase errors."
+          },
+          {
+            "description": "\nPyodide Limitation: C# reflection is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Incorrect use of reflection can cause performance issues or errors (e.g., null references).\n- **Recommendations**: Use reflection only when necessary. Perform null checks and handle errors with `try-catch`. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes a null reference error."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Error-prone reflection...\");\n        try\n        {\n            Type type = typeof(Person);\n            object personInstance = Activator.CreateInstance(type);\n            PropertyInfo property = type.GetProperty(\"NonExistentProperty\");\n            property.SetValue(personInstance, \"Test\"); // NullReferenceException\n        }\n        catch (NullReferenceException ex)\n        {\n            Console.WriteLine(\"Error: Null reference!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n}\n// Output:\n// Error-prone reflection...\n// Error: Null reference!\n// Error message: Object reference not set to an instance of an object."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- An attempt to access a non-existent property causes a `NullReferenceException`.\n- Solution: Check the result of `GetProperty` for null."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Reflection test...\");\n        try\n        {\n            Type type = typeof(Calculator);\n            object calcInstance = Activator.CreateInstance(type);\n            MethodInfo method = type.GetMethod(\"Add\");\n            if (method == null)\n                throw new MissingMethodException(\"Method not found.\");\n            int result = (int)method.Invoke(calcInstance, new object[] { 5, 3 });\n            Console.WriteLine($\"Result: 5 + 3 = {result}\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Error: {ex.Message}\");\n        }\n    }\n}\n\nclass Calculator\n{\n    public int Add(int a, int b)\n    {\n        return a + b;\n    }\n}\n// Output:\n// Reflection test...\n// Result: 5 + 3 = 8"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Рефлексия и метаданные",
+    "icon": "FiEye",
+    "language": "csharp",
+    "description": "Проверка и изменение кода во время выполнения.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое рефлексия?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# рефлексия — это процесс, позволяющий программе во время выполнения получать информацию о своей структуре или изменять её. С помощью пространства имён `System.Reflection` можно проверять метаданные (данные о данных) классов, методов, свойств и других членов. Рефлексия полезна для динамического программирования, например, в системах плагинов или создании объектов во время выполнения. Этот JSON-файл объясняет основы рефлексии, проверку типов и членов, динамическое создание объектов, вызов методов, преимущества и сложности простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения, не требуют ввода от пользователя и выполняют операции рефлексии на простых классах вместо сетевых операций или операций с файлами из-за ограничений Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример рефлексии: Проверка информации о типе"
+      },
+      {
+        "type": "paragraph",
+        "text": "Рефлексия позволяет проверять имя класса, его методы и свойства."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Проверка информации о типе...\");\n        Type type = typeof(Person);\n        Console.WriteLine($\"Имя класса: {type.Name}\");\n        Console.WriteLine(\"Методы:\");\n        foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))\n        {\n            Console.WriteLine($\"- {method.Name}\");\n        }\n        Console.WriteLine(\"Свойства:\");\n        foreach (var property in type.GetProperties())\n        {\n            Console.WriteLine($\"- {property.Name}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n\n    public void SayHello()\n    {\n        Console.WriteLine($\"Привет, я {Name}!\");\n    }\n}\n// Output:\n// Проверка информации о типе...\n// Имя класса: Person\n// Методы:\n// - SayHello\n// - get_Name\n// - set_Name\n// - get_Age\n// - set_Age\n// - ToString\n// - Equals\n// - GetHashCode\n// - GetType\n// Свойства:\n// - Name\n// - Age"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `typeof(Person)` получает тип класса.\n- `GetMethods` и `GetProperties` перечисляют методы и свойства класса.\n- `BindingFlags` фильтрует публичные члены экземпляра.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Динамическое создание объектов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Рефлексия позволяет создавать объекты динамически во время выполнения."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Создание динамического объекта...\");\n        Type type = typeof(Person);\n        object personInstance = Activator.CreateInstance(type);\n        PropertyInfo nameProperty = type.GetProperty(\"Name\");\n        nameProperty.SetValue(personInstance, \"Иван\");\n        Console.WriteLine($\"Имя: {nameProperty.GetValue(personInstance)}\");\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n// Output:\n// Создание динамического объекта...\n// Имя: Иван"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Activator.CreateInstance` создаёт экземпляр класса `Person`.\n- `GetProperty` и `SetValue` устанавливают значение свойства.\n- `GetValue` получает значение свойства."
+      },
+      {
+        "type": "heading",
+        "text": "Динамический вызов методов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Рефлексия позволяет вызывать методы динамически во время выполнения."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Динамический вызов метода...\");\n        Type type = typeof(Person);\n        object personInstance = Activator.CreateInstance(type);\n        PropertyInfo nameProperty = type.GetProperty(\"Name\");\n        nameProperty.SetValue(personInstance, \"Иван\");\n        MethodInfo method = type.GetMethod(\"SayHello\");\n        method.Invoke(personInstance, null);\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n\n    public void SayHello()\n    {\n        Console.WriteLine($\"Привет, я {Name}!\");\n    }\n}\n// Output:\n// Динамический вызов метода...\n// Привет, я Иван!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `GetMethod` получает метод `SayHello`.\n- `Invoke` выполняет метод.\n- Поскольку метод не имеет параметров, передаётся `null`."
+      },
+      {
+        "type": "heading",
+        "text": "Обработка исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ошибки в рефлексии, например, вызов несуществующего метода, обрабатываются с помощью `try-catch`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Вызов метода...\");\n        try\n        {\n            Type type = typeof(Person);\n            object personInstance = Activator.CreateInstance(type);\n            MethodInfo method = type.GetMethod(\"NonExistentMethod\");\n            if (method == null)\n                throw new MissingMethodException(\"Метод не найден.\");\n            method.Invoke(personInstance, null);\n        }\n        catch (MissingMethodException ex)\n        {\n            Console.WriteLine(\"Произошла ошибка!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n}\n// Output:\n// Вызов метода...\n// Произошла ошибка!\n// Сообщение об ошибке: Метод не найден."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Проверяется попытка вызова несуществующего метода.\n- Блок `try-catch` перехватывает и отображает сообщение об ошибке."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества рефлексии"
+      },
+      {
+        "type": "paragraph",
+        "text": "Рефлексия — мощный инструмент для динамического программирования."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nДинамичность: Позволяет проверять и изменять типы и члены во время выполнения."
+          },
+          {
+            "description": "\nГибкость: Идеально подходит для систем плагинов или универсальных инструментов."
+          },
+          {
+            "description": "\nОтладка: Полезно для получения информации о структуре кода."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Рефлексия может быть сложной для новичков."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПроизводительность: Рефлексия может быть медленной из-за проверок во время выполнения."
+          },
+          {
+            "description": "\nСложность: Уменьшает читаемость кода и может увеличить количество ошибок."
+          },
+          {
+            "description": "\nОграничение Pyodide: Рефлексия C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильное использование рефлексии может вызвать проблемы с производительностью или ошибки (например, ссылки на null).\n- **Рекомендации**: Используйте рефлексию только при необходимости. Проводите проверки на null и обрабатывайте ошибки с помощью `try-catch`. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку ссылки на null."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Рефлексия с ошибкой...\");\n        try\n        {\n            Type type = typeof(Person);\n            object personInstance = Activator.CreateInstance(type);\n            PropertyInfo property = type.GetProperty(\"NonExistentProperty\");\n            property.SetValue(personInstance, \"Test\"); // NullReferenceException\n        }\n        catch (NullReferenceException ex)\n        {\n            Console.WriteLine(\"Ошибка: Ссылка на null!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n}\n// Output:\n// Рефлексия с ошибкой...\n// Ошибка: Ссылка на null!\n// Сообщение об ошибке: Object reference not set to an instance of an object."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Попытка доступа к несуществующему свойству вызывает `NullReferenceException`.\n- Решение: Проверяйте результат `GetProperty` на null."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Reflection;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Тест рефлексии...\");\n        try\n        {\n            Type type = typeof(Calculator);\n            object calcInstance = Activator.CreateInstance(type);\n            MethodInfo method = type.GetMethod(\"Add\");\n            if (method == null)\n                throw new MissingMethodException(\"Метод не найден.\");\n            int result = (int)method.Invoke(calcInstance, new object[] { 5, 3 });\n            Console.WriteLine($\"Результат: 5 + 3 = {result}\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Ошибка: {ex.Message}\");\n        }\n    }\n}\n\nclass Calculator\n{\n    public int Add(int a, int b)\n    {\n        return a + b;\n    }\n}\n// Output:\n// Тест рефлексии...\n// Результат: 5 + 3 = 8"
+      }
+    ]
+  }
+}

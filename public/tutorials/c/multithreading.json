@@ -1,0 +1,435 @@
+{
+  "id": "multithreading",
+  "az": {
+    "title": "Çoxluq və Paralellik",
+    "icon": "FiActivity",
+    "language": "c",
+    "description": "Çoxluq, sinxronizasiya və yarış vəziyyətləri.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Çoxluq və Paralellik Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində çoxluq (multithreading) bir proqramın eyni anda birdən çox tapşırığı yerinə yetirməsinə imkan verir. Hər bir tapşırıq ayrı bir 'thread' (yığım) kimi işləyir. Çoxluq proqramın sürətini artıra bilər, çünki tapşırıqlar paralel icra olunur (məsələn, bir thread hesablama apararkən digəri məlumat oxuya bilər). Lakin çoxluqla işləyərkən sinxronizasiya problemləri və yarış vəziyyətləri (race conditions) yaranır. Bu JSON faylda C-də POSIX threads (`pthread`) istifadə edərək çoxluq, sinxronizasiya (mutex ilə) və yarış vəziyyətləri sadə şəkildə izah olunacaq. Kod nümunələri Pyodide-da işləməyəcək, çünki Pyodide POSIX threads-i dəstəkləmir, lakin Linux və ya POSIX dəstəyi olan mühitlərdə (gcc ilə) işləyəcək."
+      },
+      {
+        "type": "heading",
+        "text": "Thread Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Thread bir proqramın icra olunan kiçik vahididir. Bir proqram birdən çox thread ehtiva edə bilər və bu thread-lər eyni yaddaş sahəsini paylaşır. C-də POSIX threads (`pthread.h`) ilə thread-lər yaradılır və idarə olunur. Məsələn, bir thread hesablama apararkən digəri ekrana məlumat yaza bilər."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <pthread.h>\n\nvoid* thread_function(void* arg) {\n  printf(\"Thread işləyir: %s\\n\", (char*)arg);\n  return NULL;\n}\n\nint main() {\n  pthread_t thread1, thread2;\n  char* msg1 = \"Birinci thread\";\n  char* msg2 = \"İkinci thread\";\n\n  pthread_create(&thread1, NULL, thread_function, (void*)msg1);\n  pthread_create(&thread2, NULL, thread_function, (void*)msg2);\n\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n\n  printf(\"Bütün thread-lər tamamlandı\\n\");\n  return 0;\n}\n// Output (sıra dəyişə bilər):\n// Thread işləyir: Birinci thread\n// Thread işləyir: İkinci thread\n// Bütün thread-lər tamamlandı"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `pthread_create` ilə iki thread yaradılır, hər biri `thread_function`-u icra edir.\n- `thread_function` sadəcə bir mesaj çap edir.\n- `pthread_join` thread-lərin tamamlanmasını gözləyir.\n- Qeyd: Bu kod Pyodide-da işləməz, çünki POSIX threads dəstəklənmir. Linux-da `gcc -pthread program.c` ilə kompilyasiya edin."
+      },
+      {
+        "type": "heading",
+        "text": "Yarış Vəziyyətləri (Race Conditions)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yarış vəziyyəti birdən çox thread-in eyni yaddaş sahəsinə (məsələn, dəyişənə) nəzarətsiz şəkildə daxil olması nəticəsində yaranır. Bu, gözlənilməz nəticələrə səbəb ola bilər. Məsələn, iki thread eyni dəyişəni artırmağa çalışarsa, nəticə səhv ola bilər."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <pthread.h>\n\nint counter = 0;\n\nvoid* increment_counter(void* arg) {\n  for (int i = 0; i < 100000; i++) {\n    counter++; // Yarış vəziyyəti\n  }\n  return NULL;\n}\n\nint main() {\n  pthread_t thread1, thread2;\n\n  pthread_create(&thread1, NULL, increment_counter, NULL);\n  pthread_create(&thread2, NULL, increment_counter, NULL);\n\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n\n  printf(\"Counter: %d\\n\", counter);\n  return 0;\n}\n// Output (səhv ola bilər):\n// Counter: [200000-dən kiçik bir dəyər, məsələn, 198732]"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İki thread `counter` dəyişənini 100000 dəfə artırmağa çalışır.\n- Yarış vəziyyəti yaranır, çünki thread-lər `counter`-i sinxronlaşdırmadan dəyişdirir.\n- Nəticə: `counter` 200000 əvəzinə daha kiçik bir dəyər ola bilər.\n- Həll: Sinxronizasiya mexanizmləri (məsələn, mutex) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sinxronizasiya (Mutex ilə)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sinxronizasiya thread-lərin paylaşılan resurslara (məsələn, dəyişənlərə) nizamlı şəkildə daxil olmasını təmin edir. Mutex (mutual exclusion) bir resursa yalnız bir thread-in daxil olmasına imkan verir. Bu, yarış vəziyyətlərinin qarşısını alır."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <pthread.h>\n\nint counter = 0;\npthread_mutex_t lock;\n\nvoid* increment_counter(void* arg) {\n  for (int i = 0; i < 100000; i++) {\n    pthread_mutex_lock(&lock);\n    counter++;\n    pthread_mutex_lock(&lock);\n  }\n  return NULL;\n}\n\nint main() {\n  pthread_t thread1, thread2;\n  pthread_mutex_init(&lock, NULL);\n\n  pthread_create(&thread1, NULL, increment_counter, NULL);\n  pthread_create(&thread2, NULL, increment_counter, NULL);\n\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n\n  pthread_mutex_destroy(&lock);\n  printf(\"Counter: %d\\n\", counter);\n  return 0;\n}\n// Output:\n// Counter: 200000"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `pthread_mutex_t lock` mutex dəyişənini təyin edir.\n- `pthread_mutex_lock` resursu kilidləyir, yalnız bir thread-in `counter`-i dəyişməsinə imkan verir.\n- `pthread_mutex_unlock` kilidi açır.\n- Nəticə: `counter` dəqiq olaraq 200000 olur, çünki yarış vəziyyəti önlənir.\n- Qeyd: Bu kod POSIX mühitində (məsələn, Linux) işləyir, Pyodide-da dəstəklənmir."
+      },
+      {
+        "type": "heading",
+        "text": "Çoxluq və Sinxronizasiyanın Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Çoxluq və sinxronizasiya proqramın performansını artırır, lakin düzgün idarəetmə tələb edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nParalel icra: Çoxluq tapşırıqların eyni anda icra olunmasını təmin edir."
+          },
+          {
+            "description": "\nSinxronizasiya: Mutex ilə yarış vəziyyətləri önlənir."
+          },
+          {
+            "description": "\nEffektivlik: Resursların daha yaxşı istifadəsi mümkündür."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Çoxluq yeni başlayanlar üçün mürəkkəb ola bilər, çünki thread idarəetməsi və sinxronizasiya diqqət tələb edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nYarış vəziyyətləri: Sinxronizasiya olmadan səhvlər yaranır."
+          },
+          {
+            "description": "\nDeadlock: Mutex-lər səhv istifadə edilərsə, thread-lər kilidlənə bilər."
+          },
+          {
+            "description": "\nPyodide məhdudiyyəti: POSIX threads dəstəklənmir, testlər Linux-da aparılmalıdır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Yarış vəziyyətləri səhv nəticələrə səbəb ola bilər. Deadlock proqramın donmasına yol aça bilər. Səhv thread idarəetməsi proqramı çökdürə bilər.\n- **Tövsiyələr**: Həmişə mutex və ya digər sinxronizasiya mexanizmlərindən istifadə edin. Thread-ləri düzgün yaradın və `pthread_join` ilə tamamlanmasını gözləyin. Linux-da `gcc -pthread` ilə kompilyasiya edin. Testləri kiçik nümunələrlə aparın."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə yarış vəziyyəti səbəbindən səhv nəticə yaranır, çünki sinxronizasiya istifadə edilmir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <pthread.h>\n\nint shared_value = 0;\n\nvoid* add_to_value(void* arg) {\n  for (int i = 0; i < 100000; i++) {\n    shared_value++; // Yarış vəziyyəti\n  }\n  return NULL;\n}\n\nint main() {\n  pthread_t thread1, thread2;\n\n  pthread_create(&thread1, NULL, add_to_value, NULL);\n  pthread_create(&thread2, NULL, add_to_value, NULL);\n\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n\n  printf(\"Shared value: %d\\n\", shared_value);\n  return 0;\n}\n// Output (səhv ola bilər):\n// Shared value: [200000-dən kiçik bir dəyər]"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `shared_value` iki thread tərəfindən sinxronizasiya olmadan artırılır.\n- Yarış vəziyyəti səhv nəticəyə səbəb olur.\n- Həll: `pthread_mutex_lock` və `pthread_mutex_unlock` istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <pthread.h>\n\nint counter = 0;\npthread_mutex_t lock;\n\nvoid* increment_counter(void* arg) {\n  for (int i = 0; i < 100000; i++) {\n    pthread_mutex_lock(&lock);\n    counter++;\n    pthread_mutex_unlock(&lock);\n  }\n  return NULL;\n}\n\nint main() {\n  pthread_t thread1, thread2;\n  pthread_mutex_init(&lock, NULL);\n\n  pthread_create(&thread1, NULL, increment_counter, NULL);\n  pthread_create(&thread2, NULL, increment_counter, NULL);\n\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n\n  pthread_mutex_destroy(&lock);\n  printf(\"Counter: %d\\n\", counter);\n  return 0;\n}\n// Output:\n// Counter: 200000"
+      }
+    ]
+  },
+  "en": {
+    "title": "Multithreading & Concurrency",
+    "icon": "FiActivity",
+    "language": "c",
+    "description": "Threads, synchronization, and race conditions.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Multithreading and Concurrency?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, multithreading allows a program to perform multiple tasks simultaneously. Each task runs as a separate 'thread.' Multithreading can improve program performance by executing tasks in parallel (e.g., one thread performs calculations while another reads data). However, multithreading introduces synchronization issues and race conditions. This JSON file explains multithreading, synchronization (using mutexes), and race conditions in C with POSIX threads (`pthread`). Code examples will not run in Pyodide, as it does not support POSIX threads, but they will work in Linux or POSIX-compliant environments (compiled with gcc)."
+      },
+      {
+        "type": "heading",
+        "text": "What is a Thread?"
+      },
+      {
+        "type": "paragraph",
+        "text": "A thread is a small unit of execution within a program. A program can have multiple threads sharing the same memory space. In C, POSIX threads (`pthread.h`) are used to create and manage threads. For example, one thread can perform calculations while another prints to the screen."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <pthread.h>\n\nvoid* thread_function(void* arg) {\n  printf(\"Thread running: %s\\n\", (char*)arg);\n  return NULL;\n}\n\nint main() {\n  pthread_t thread1, thread2;\n  char* msg1 = \"First thread\";\n  char* msg2 = \"Second thread\";\n\n  pthread_create(&thread1, NULL, thread_function, (void*)msg1);\n  pthread_create(&thread2, NULL, thread_function, (void*)msg2);\n\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n\n  printf(\"All threads completed\\n\");\n  return 0;\n}\n// Output (order may vary):\n// Thread running: First thread\n// Thread running: Second thread\n// All threads completed"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `pthread_create` creates two threads, each running `thread_function`.\n- `thread_function` prints a message.\n- `pthread_join` waits for threads to complete.\n- Note: This code will not run in Pyodide, as POSIX threads are not supported. Compile with `gcc -pthread program.c` in Linux."
+      },
+      {
+        "type": "heading",
+        "text": "Race Conditions"
+      },
+      {
+        "type": "paragraph",
+        "text": "A race condition occurs when multiple threads access shared memory (e.g., a variable) without proper control, leading to unpredictable results. For example, if two threads try to increment the same variable, the result may be incorrect."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <pthread.h>\n\nint counter = 0;\n\nvoid* increment_counter(void* arg) {\n  for (int i = 0; i < 100000; i++) {\n    counter++; // Race condition\n  }\n  return NULL;\n}\n\nint main() {\n  pthread_t thread1, thread2;\n\n  pthread_create(&thread1, NULL, increment_counter, NULL);\n  pthread_create(&thread2, NULL, increment_counter, NULL);\n\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n\n  printf(\"Counter: %d\\n\", counter);\n  return 0;\n}\n// Output (may be incorrect):\n// Counter: [less than 200000, e.g., 198732]"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Two threads increment `counter` 100000 times each.\n- A race condition occurs because threads modify `counter` without synchronization.\n- Result: `counter` may be less than 200000.\n- Solution: Use synchronization mechanisms like mutexes."
+      },
+      {
+        "type": "heading",
+        "text": "Synchronization (with Mutex)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Synchronization ensures threads access shared resources (e.g., variables) in an orderly manner. A mutex (mutual exclusion) allows only one thread to access a resource at a time, preventing race conditions."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <pthread.h>\n\nint counter = 0;\npthread_mutex_t lock;\n\nvoid* increment_counter(void* arg) {\n  for (int i = 0; i < 100000; i++) {\n    pthread_mutex_lock(&lock);\n    counter++;\n    pthread_mutex_unlock(&lock);\n  }\n  return NULL;\n}\n\nint main() {\n  pthread_t thread1, thread2;\n  pthread_mutex_init(&lock, NULL);\n\n  pthread_create(&thread1, NULL, increment_counter, NULL);\n  pthread_create(&thread2, NULL, increment_counter, NULL);\n\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n\n  pthread_mutex_destroy(&lock);\n  printf(\"Counter: %d\\n\", counter);\n  return 0;\n}\n// Output:\n// Counter: 200000"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `pthread_mutex_t lock` defines a mutex.\n- `pthread_mutex_lock` locks the resource, allowing only one thread to modify `counter`.\n- `pthread_mutex_unlock` releases the lock.\n- Result: `counter` is exactly 200000, as race conditions are prevented.\n- Note: This code runs in POSIX environments (e.g., Linux), not Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Multithreading and Synchronization"
+      },
+      {
+        "type": "paragraph",
+        "text": "Multithreading and synchronization improve program performance but require careful management."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nParallel execution: Multithreading enables simultaneous task execution."
+          },
+          {
+            "description": "\nSynchronization: Mutexes prevent race conditions."
+          },
+          {
+            "description": "\nEfficiency: Better resource utilization is possible."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Multithreading can be complex for beginners, as thread management and synchronization require attention."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nRace conditions: Without synchronization, errors occur."
+          },
+          {
+            "description": "\nDeadlock: Improper mutex use can freeze threads."
+          },
+          {
+            "description": "\nPyodide limitation: POSIX threads are not supported, so testing requires Linux."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Race conditions can lead to incorrect results. Deadlocks may freeze the program. Improper thread management can crash the program.\n- **Recommendations**: Always use mutexes or other synchronization mechanisms. Create threads properly and use `pthread_join` to wait for completion. Compile with `gcc -pthread` in Linux. Test with small examples."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes incorrect results due to a race condition, as synchronization is not used."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <pthread.h>\n\nint shared_value = 0;\n\nvoid* add_to_value(void* arg) {\n  for (int i = 0; i < 100000; i++) {\n    shared_value++; // Race condition\n  }\n  return NULL;\n}\n\nint main() {\n  pthread_t thread1, thread2;\n\n  pthread_create(&thread1, NULL, add_to_value, NULL);\n  pthread_create(&thread2, NULL, add_to_value, NULL);\n\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n\n  printf(\"Shared value: %d\\n\", shared_value);\n  return 0;\n}\n// Output (may be incorrect):\n// Shared value: [less than 200000]"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `shared_value` is incremented by two threads without synchronization.\n- A race condition causes incorrect results.\n- Solution: Use `pthread_mutex_lock` and `pthread_mutex_unlock`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <pthread.h>\n\nint counter = 0;\npthread_mutex_t lock;\n\nvoid* increment_counter(void* arg) {\n  for (int i = 0; i < 100000; i++) {\n    pthread_mutex_lock(&lock);\n    counter++;\n    pthread_mutex_unlock(&lock);\n  }\n  return NULL;\n}\n\nint main() {\n  pthread_t thread1, thread2;\n  pthread_mutex_init(&lock, NULL);\n\n  pthread_create(&thread1, NULL, increment_counter, NULL);\n  pthread_create(&thread2, NULL, increment_counter, NULL);\n\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n\n  pthread_mutex_destroy(&lock);\n  printf(\"Counter: %d\\n\", counter);\n  return 0;\n}\n// Output:\n// Counter: 200000"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Многопоточность и параллелизм",
+    "icon": "FiActivity",
+    "language": "c",
+    "description": "Потоки, синхронизация и гонки данных.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое многопоточность и параллелизм?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C многопоточность (multithreading) позволяет программе выполнять несколько задач одновременно. Каждая задача выполняется в отдельном 'потоке' (thread). Многопоточность может улучшить производительность программы за счёт параллельного выполнения задач (например, один поток выполняет вычисления, а другой читает данные). Однако многопоточность создаёт проблемы синхронизации и гонки данных (race conditions). Этот JSON-файл объясняет многопоточность, синхронизацию (с использованием мьютексов) и гонки данных в C с использованием POSIX threads (`pthread`). Примеры кода не будут работать в Pyodide, так как он не поддерживает POSIX threads, но будут работать в Linux или POSIX-совместимых средах (с компиляцией через gcc)."
+      },
+      {
+        "type": "heading",
+        "text": "Что такое поток?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Поток — это небольшая единица выполнения в программе. Программа может содержать несколько потоков, которые разделяют общее пространство памяти. В C для создания и управления потоками используются POSIX threads (`pthread.h`). Например, один поток может выполнять вычисления, а другой — выводить данные на экран."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <pthread.h>\n\nvoid* thread_function(void* arg) {\n  printf(\"Поток работает: %s\\n\", (char*)arg);\n  return NULL;\n}\n\nint main() {\n  pthread_t thread1, thread2;\n  char* msg1 = \"Первый поток\";\n  char* msg2 = \"Второй поток\";\n\n  pthread_create(&thread1, NULL, thread_function, (void*)msg1);\n  pthread_create(&thread2, NULL, thread_function, (void*)msg2);\n\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n\n  printf(\"Все потоки завершены\\n\");\n  return 0;\n}\n// Output (порядок может варьироваться):\n// Поток работает: Первый поток\n// Поток работает: Второй поток\n// Все потоки завершены"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `pthread_create` создаёт два потока, каждый из которых выполняет `thread_function`.\n- `thread_function` выводит сообщение.\n- `pthread_join` ожидает завершения потоков.\n- Примечание: Код не работает в Pyodide, так как POSIX threads не поддерживаются. Компилируйте с `gcc -pthread program.c` в Linux."
+      },
+      {
+        "type": "heading",
+        "text": "Гонки данных"
+      },
+      {
+        "type": "paragraph",
+        "text": "Гонка данных возникает, когда несколько потоков обращаются к общей памяти (например, переменной) без должного контроля, что приводит к непредсказуемым результатам. Например, если два потока пытаются увеличить одну и ту же переменную, результат может быть неверным."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <pthread.h>\n\nint counter = 0;\n\nvoid* increment_counter(void* arg) {\n  for (int i = 0; i < 100000; i++) {\n    counter++; // Гонка данных\n  }\n  return NULL;\n}\n\nint main() {\n  pthread_t thread1, thread2;\n\n  pthread_create(&thread1, NULL, increment_counter, NULL);\n  pthread_create(&thread2, NULL, increment_counter, NULL);\n\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n\n  printf(\"Счётчик: %d\\n\", counter);\n  return 0;\n}\n// Output (может быть неверным):\n// Счётчик: [меньше 200000, например, 198732]"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Два потока увеличивают `counter` по 100000 раз.\n- Гонка данных возникает, так как потоки изменяют `counter` без синхронизации.\n- Результат: `counter` может быть меньше 200000.\n- Решение: Используйте механизмы синхронизации, такие как мьютексы."
+      },
+      {
+        "type": "heading",
+        "text": "Синхронизация (с мьютексами)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Синхронизация обеспечивает упорядоченный доступ потоков к общим ресурсам (например, переменным). Мьютекс (mutual exclusion) позволяет только одному потоку обращаться к ресурсу за раз, предотвращая гонки данных."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <pthread.h>\n\nint counter = 0;\npthread_mutex_t lock;\n\nvoid* increment_counter(void* arg) {\n  for (int i = 0; i < 100000; i++) {\n    pthread_mutex_lock(&lock);\n    counter++;\n    pthread_mutex_unlock(&lock);\n  }\n  return NULL;\n}\n\nint main() {\n  pthread_t thread1, thread2;\n  pthread_mutex_init(&lock, NULL);\n\n  pthread_create(&thread1, NULL, increment_counter, NULL);\n  pthread_create(&thread2, NULL, increment_counter, NULL);\n\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n\n  pthread_mutex_destroy(&lock);\n  printf(\"Счётчик: %d\\n\", counter);\n  return 0;\n}\n// Output:\n// Счётчик: 200000"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `pthread_mutex_t lock` определяет мьютекс.\n- `pthread_mutex_lock` блокирует ресурс, позволяя только одному потоку изменять `counter`.\n- `pthread_mutex_unlock` снимает блокировку.\n- Результат: `counter` точно равен 200000, так как гонки данных предотвращены.\n- Примечание: Код работает в POSIX-средах (например, Linux), но не в Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества многопоточности и синхронизации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Многопоточность и синхронизация повышают производительность программы, но требуют тщательного управления."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПараллельное выполнение: Многопоточность позволяет выполнять задачи одновременно."
+          },
+          {
+            "description": "\nСинхронизация: Мьютексы предотвращают гонки данных."
+          },
+          {
+            "description": "\nЭффективность: Возможна лучшая утилизация ресурсов."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Многопоточность может быть сложной для новичков, так как управление потоками и синхронизация требуют внимания."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nГонки данных: Без синхронизации возникают ошибки."
+          },
+          {
+            "description": "\nВзаимная блокировка: Неправильное использование мьютексов может заморозить потоки."
+          },
+          {
+            "description": "\nОграничение Pyodide: POSIX threads не поддерживаются, тестирование требует Linux."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Гонки данных могут привести к неверным результатам. Взаимная блокировка может заморозить программу. Неправильное управление потоками может вызвать сбой.\n- **Рекомендации**: Всегда используйте мьютексы или другие механизмы синхронизации. Корректно создавайте потоки и используйте `pthread_join` для ожидания их завершения. Компилируйте с `gcc -pthread` в Linux. Тестируйте с небольшими примерами."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает неверный результат из-за гонки данных, так как синхронизация не используется."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <pthread.h>\n\nint shared_value = 0;\n\nvoid* add_to_value(void* arg) {\n  for (int i = 0; i < 100000; i++) {\n    shared_value++; // Гонка данных\n  }\n  return NULL;\n}\n\nint main() {\n  pthread_t thread1, thread2;\n\n  pthread_create(&thread1, NULL, add_to_value, NULL);\n  pthread_create(&thread2, NULL, add_to_value, NULL);\n\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n\n  printf(\"Общее значение: %d\\n\", shared_value);\n  return 0;\n}\n// Output (может быть неверным):\n// Общее значение: [меньше 200000]"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `shared_value` увеличивается двумя потоками без синхронизации.\n- Гонка данных вызывает неверный результат.\n- Решение: Используйте `pthread_mutex_lock` и `pthread_mutex_unlock`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <pthread.h>\n\nint counter = 0;\npthread_mutex_t lock;\n\nvoid* increment_counter(void* arg) {\n  for (int i = 0; i < 100000; i++) {\n    pthread_mutex_lock(&lock);\n    counter++;\n    pthread_mutex_unlock(&lock);\n  }\n  return NULL;\n}\n\nint main() {\n  pthread_t thread1, thread2;\n  pthread_mutex_init(&lock, NULL);\n\n  pthread_create(&thread1, NULL, increment_counter, NULL);\n  pthread_create(&thread2, NULL, increment_counter, NULL);\n\n  pthread_join(thread1, NULL);\n  pthread_join(thread2, NULL);\n\n  pthread_mutex_destroy(&lock);\n  printf(\"Счётчик: %d\\n\", counter);\n  return 0;\n}\n// Output:\n// Счётчик: 200000"
+      }
+    ]
+  }
+}

@@ -1,0 +1,236 @@
+{
+  "id": "geometry",
+  "az": {
+    "title": "Hesablamalı Həndəsə",
+    "icon": "FiMapPin",
+    "language": "multiple",
+    "description": "Convex Hull, xətt kəsişmələri və digər həndəsi alqoritmlər.",
+    "codes": {
+      "python": "def orientation(p, q, r):\n    val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])\n    if val == 0: return 0\n    return 1 if val > 0 else 2\n\ndef graham_scan(points):\n    if len(points) < 3: return points\n    points.sort()\n    bottom = points[0]\n    points = sorted(points[1:], key=lambda p: (p[0] - bottom[0], p[1] - bottom[1]))\n    points = [bottom] + points\n    stack = [points[0], points[1]]\n    for i in range(2, len(points)):\n        while len(stack) > 1 and orientation(stack[-2], stack[-1], points[i]) != 2:\n            stack.pop()\n        stack.append(points[i])\n    return stack\n\n# Nümunə: Nöqtələr toplusu\npoints = [(0, 0), (1, 1), (2, 0), (2, 2), (0, 2)]\nresult = graham_scan(points)\nprint('Convex Hull:', result)\n# Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]",
+      "javascript": "function orientation(p, q, r) {\n    const val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1]);\n    if (val === 0) return 0;\n    return val > 0 ? 1 : 2;\n}\n\nfunction grahamScan(points) {\n    if (points.length < 3) return points;\n    points = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);\n    const bottom = points[0];\n    points = [bottom, ...points.slice(1).sort((a, b) => {\n        return (a[0] - bottom[0]) - (b[0] - bottom[0]) || (a[1] - bottom[1]) - (b[1] - bottom[1]);\n    }]);\n    const stack = [points[0], points[1]];\n    for (let i = 2; i < points.length; i++) {\n        while (stack.length > 1 && orientation(stack[stack.length - 2], stack[stack.length - 1], points[i]) !== 2) {\n            stack.pop();\n        }\n        stack.push(points[i]);\n    }\n    return stack;\n}\n\n// Nümunə: Nöqtələr toplusu\nconst points = [[0, 0], [1, 1], [2, 0], [2, 2], [0, 2]];\nconst result = grahamScan(points);\nconsole.log('Convex Hull:', result);\n// Çıxış: Convex Hull: [[0, 0], [2, 0], [2, 2], [0, 2]]",
+      "typescript": "interface Point {\n    x: number;\n    y: number;\n}\n\nfunction orientation(p: Point, q: Point, r: Point): number {\n    const val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);\n    if (val === 0) return 0;\n    return val > 0 ? 1 : 2;\n}\n\nfunction grahamScan(points: Point[]): Point[] {\n    if (points.length < 3) return points;\n    points = [...points].sort((a, b) => a.x - b.x || a.y - b.y);\n    const bottom = points[0];\n    points = [bottom, ...points.slice(1).sort((a, b) => {\n        return (a.x - bottom.x) - (b.x - bottom.x) || (a.y - bottom.y) - (b.y - bottom.y);\n    }]);\n    const stack: Point[] = [points[0], points[1]];\n    for (let i = 2; i < points.length; i++) {\n        while (stack.length > 1 && orientation(stack[stack.length - 2], stack[stack.length - 1], points[i]) !== 2) {\n            stack.pop();\n        }\n        stack.push(points[i]);\n    }\n    return stack;\n}\n\n// Nümunə: Nöqtələr toplusu\nconst points: Point[] = [{x: 0, y: 0}, {x: 1, y: 1}, {x: 2, y: 0}, {x: 2, y: 2}, {x: 0, y: 2}];\nconst result = grahamScan(points);\nconsole.log('Convex Hull:', result);\n// Çıxış: Convex Hull: [{x: 0, y: 0}, {x: 2, y: 0}, {x: 2, y: 2}, {x: 0, y: 2}]",
+      "java": "import java.util.ArrayList;\nimport java.util.Arrays;\n\nclass Point implements Comparable<Point> {\n    int x, y;\n    Point(int x, int y) { this.x = x; this.y = y; }\n    public int compareTo(Point other) {\n        return this.x == other.x ? this.y - other.y : this.x - other.x;\n    }\n    public String toString() { return \"(\" + x + \", \" + y + \")\"; }\n}\n\npublic class GrahamScan {\n    static int orientation(Point p, Point q, Point r) {\n        int val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);\n        if (val == 0) return 0;\n        return val > 0 ? 1 : 2;\n    }\n\n    static ArrayList<Point> grahamScan(Point[] points) {\n        if (points.length < 3) return new ArrayList<>(Arrays.asList(points));\n        Arrays.sort(points);\n        Point bottom = points[0];\n        Point[] remaining = Arrays.copyOfRange(points, 1, points.length);\n        Arrays.sort(remaining, (a, b) -> {\n            int dx1 = a.x - bottom.x, dx2 = b.x - bottom.x;\n            int dy1 = a.y - bottom.y, dy2 = b.y - bottom.y;\n            return dx1 == dx2 ? dy1 - dy2 : dx1 - dx2;\n        });\n        ArrayList<Point> stack = new ArrayList<>();\n        stack.add(bottom);\n        stack.add(remaining[0]);\n        for (int i = 1; i < remaining.length; i++) {\n            while (stack.size() > 1 && orientation(stack.get(stack.size() - 2), stack.get(stack.size() - 1), remaining[i]) != 2) {\n                stack.remove(stack.size() - 1);\n            }\n            stack.add(remaining[i]);\n        }\n        return stack;\n    }\n\n    public static void main(String[] args) {\n        Point[] points = {new Point(0, 0), new Point(1, 1), new Point(2, 0), new Point(2, 2), new Point(0, 2)};\n        ArrayList<Point> result = grahamScan(points);\n        System.out.println(\"Convex Hull: \" + result);\n    }\n}\n// Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]",
+      "php": "<?php\n\nfunction orientation($p, $q, $r) {\n    $val = ($q[1] - $p[1]) * ($r[0] - $q[0]) - ($q[0] - $p[0]) * ($r[1] - $q[1]);\n    if ($val == 0) return 0;\n    return $val > 0 ? 1 : 2;\n}\n\nfunction grahamScan($points) {\n    if (count($points) < 3) return $points;\n    usort($points, fn($a, $b) => $a[0] == $b[0] ? $a[1] - $b[1] : $a[0] - $b[0]);\n    $bottom = $points[0];\n    $remaining = array_slice($points, 1);\n    usort($remaining, fn($a, $b) => ($a[0] - $bottom[0]) == ($b[0] - $bottom[0]) ? ($a[1] - $bottom[1]) - ($b[1] - $bottom[1]) : ($a[0] - $bottom[0]) - ($b[0] - $bottom[0]));\n    $points = array_merge([$bottom], $remaining);\n    $stack = [$points[0], $points[1]];\n    for ($i = 2; $i < count($points); $i++) {\n        while (count($stack) > 1 && orientation($stack[count($stack) - 2], $stack[count($stack) - 1], $points[$i]) != 2) {\n            array_pop($stack);\n        }\n        $stack[] = $points[$i];\n    }\n    return $stack;\n}\n\n// Nümunə: Nöqtələr toplusu\n$points = [[0, 0], [1, 1], [2, 0], [2, 2], [0, 2]];\n$result = grahamScan($points);\necho 'Convex Hull: [' . implode(', ', array_map(fn($p) => \"({$p[0]}, {$p[1]})\", $result)) . ']';\n// Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]\n?>",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct {\n    int x, y;\n} Point;\n\nint orientation(Point p, Point q, Point r) {\n    int val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);\n    if (val == 0) return 0;\n    return val > 0 ? 1 : 2;\n}\n\nint compare(const void* a, const void* b) {\n    Point* p1 = (Point*)a;\n    Point* p2 = (Point*)b;\n    return p1->x == p2->x ? p1->y - p2->y : p1->x - p2->x;\n}\n\nint compareAngle(const void* a, const void* b, void* bottom) {\n    Point* p1 = (Point*)a;\n    Point* p2 = (Point*)b;\n    Point* b = (Point*)bottom;\n    int dx1 = p1->x - b->x, dx2 = p2->x - b->x;\n    int dy1 = p1->y - b->y, dy2 = p2->y - b->y;\n    return dx1 == dx2 ? dy1 - dy2 : dx1 - dx2;\n}\n\nPoint* grahamScan(Point* points, int n, int* resultSize) {\n    if (n < 3) {\n        Point* result = (Point*)malloc(n * sizeof(Point));\n        for (int i = 0; i < n; i++) result[i] = points[i];\n        *resultSize = n;\n        return result;\n    }\n    qsort(points, n, sizeof(Point), compare);\n    Point bottom = points[0];\n    qsort(points + 1, n - 1, sizeof(Point), (int (*)(const void*, const void*, void*))compareAngle, &bottom);\n    Point* stack = (Point*)malloc(n * sizeof(Point));\n    int top = 2;\n    stack[0] = bottom;\n    stack[1] = points[1];\n    for (int i = 2; i < n; i++) {\n        while (top > 1 && orientation(stack[top - 2], stack[top - 1], points[i]) != 2) {\n            top--;\n        }\n        stack[top++] = points[i];\n    }\n    *resultSize = top;\n    return stack;\n}\n\nint main() {\n    Point points[] = {{0, 0}, {1, 1}, {2, 0}, {2, 2}, {0, 2}};\n    int n = 5, resultSize;\n    Point* result = grahamScan(points, n, &resultSize);\n    printf(\"Convex Hull: [\");\n    for (int i = 0; i < resultSize; i++) {\n        printf(\"(%d, %d)\", result[i].x, result[i].y);\n        if (i < resultSize - 1) printf(\", \");\n    }\n    printf(\"]\\n\");\n    free(result);\n    return 0;\n}\n// Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]",
+      "csharp": "using System;\nusing System.Collections.Generic;\nusing System.Linq;\n\nclass Point : IComparable<Point> {\n    public int X { get; set; }\n    public int Y { get; set; }\n    public Point(int x, int y) { X = x; Y = y; }\n    public int CompareTo(Point other) => X == other.X ? Y - other.Y : X - other.X;\n    public override string ToString() => $\"({X}, {Y})\";\n}\n\nclass Program {\n    static int Orientation(Point p, Point q, Point r) {\n        int val = (q.Y - p.Y) * (r.X - q.X) - (q.X - p.X) * (r.Y - q.Y);\n        if (val == 0) return 0;\n        return val > 0 ? 1 : 2;\n    }\n\n    static List<Point> GrahamScan(Point[] points) {\n        if (points.Length < 3) return points.ToList();\n        var sorted = points.OrderBy(p => p).ToArray();\n        Point bottom = sorted[0];\n        var remaining = sorted.Skip(1).OrderBy(p => (p.X - bottom.X, p.Y - bottom.Y)).ToArray();\n        var stack = new List<Point> { bottom, remaining[0] };\n        for (int i = 1; i < remaining.Length; i++) {\n            while (stack.Count > 1 && Orientation(stack[stack.Count - 2], stack[stack.Count - 1], remaining[i]) != 2) {\n                stack.RemoveAt(stack.Count - 1);\n            }\n            stack.Add(remaining[i]);\n        }\n        return stack;\n    }\n\n    static void Main() {\n        Point[] points = { new Point(0, 0), new Point(1, 1), new Point(2, 0), new Point(2, 2), new Point(0, 2) };\n        var result = GrahamScan(points);\n        Console.WriteLine(\"Convex Hull: [\" + string.Join(\", \", result) + \"]\");\n    }\n}\n// Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]",
+      "cpp": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nstruct Point {\n    int x, y;\n    bool operator<(const Point& other) const {\n        return x == other.x ? y < other.y : x < other.x;\n    }\n};\n\nint orientation(Point p, Point q, Point r) {\n    int val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);\n    if (val == 0) return 0;\n    return val > 0 ? 1 : 2;\n}\n\nstd::vector<Point> grahamScan(std::vector<Point> points) {\n    if (points.size() < 3) return points;\n    std::sort(points.begin(), points.end());\n    Point bottom = points[0];\n    std::sort(points.begin() + 1, points.end(), [&bottom](const Point& a, const Point& b) {\n        int dx1 = a.x - bottom.x, dx2 = b.x - bottom.x;\n        int dy1 = a.y - bottom.y, dy2 = b.y - bottom.y;\n        return dx1 == dx2 ? dy1 < dy2 : dx1 < dx2;\n    });\n    std::vector<Point> stack = {points[0], points[1]};\n    for (size_t i = 2; i < points.size(); i++) {\n        while (stack.size() > 1 && orientation(stack[stack.size() - 2], stack[stack.size() - 1], points[i]) != 2) {\n            stack.pop_back();\n        }\n        stack.push_back(points[i]);\n    }\n    return stack;\n}\n\nint main() {\n    std::vector<Point> points = {{0, 0}, {1, 1}, {2, 0}, {2, 2}, {0, 2}};\n    auto result = grahamScan(points);\n    std::cout << \"Convex Hull: [\";\n    for (size_t i = 0; i < result.size(); i++) {\n        std::cout << \"(\" << result[i].x << \", \" << result[i].y << \")\";\n        if (i < result.size() - 1) std::cout << \", \";\n    }\n    std::cout << \"]\" << std::endl;\n    return 0;\n}\n// Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "Hesablamalı Həndəsə nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hesablamalı həndəsə nöqtələr, xətlər və fiqurlar üzərində hesablamalar aparan alqoritmləri öyrənir. **Convex Hull** (Qabarıq örtük) nöqtələr toplusunu əhatə edən ən kiçik qabarıq çoxbucaqlıdır. **Xətt kəsişmələri** iki xətt seqmentinin kəsişdiyini tapır. Digər alqoritmlər məsafə hesablamaları və ya fiqur yoxlamaları üçün istifadə olunur. Məsələn, [(0,0), (1,1), (2,0), (2,2), (0,2)] nöqtələri üçün qabarıq örtük [(0,0), (2,0), (2,2), (0,2)]-dir."
+      },
+      {
+        "type": "heading",
+        "text": "Bu alqoritmlər necə işləyir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Graham Scan (Convex Hull): 1) Ən aşağı nöqtəni tapın və nöqtələri bu nöqtəyə görə bucaq sırası ilə sıralayın. 2) Nöqtələri bir-bir yoxlayın; saat əqrəbinin əksi istiqamətində dönmə varsa, nöqtəni örtükə əlavə edin, əks halda çıxarın. Xətt kəsişmələri üçün: 1) İki seqmentin orientasiyasını yoxlayın (saat istiqaməti və ya əksi). 2) Seqmentlərin kəsişdiyini müəyyən edin. Məsələn, yuxarıdakı nöqtələr üçün Graham Scan [(0,0), (2,0), (2,2), (0,2)] qaytarır."
+      },
+      {
+        "type": "heading",
+        "text": "Həndəsi Alqoritmlərin Səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Graham Scan O(n log n) vaxt tələb edir (n - nöqtələrin sayı), çünki sıralama aparılır. Xətt kəsişmələri O(n log n) vaxtda sweep line alqoritmi ilə tapılır. Məsələn, 5 nöqtə üçün Graham Scan O(5 log 5) ≈ O(15) əməliyyat aparır. Məkan mürəkkəbliyi O(n)-dir (nöqtələr və yığın üçün). Dijkstra (O(E + V log V)) ilə müqayisədə Graham Scan oxşar səmərəliliyə malikdir, lakin xətt kəsişmələri daha mürəkkəb ola bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Üstünlüklər və mənfi cəhətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "Üstünlük: Graham Scan sürətli və effektivdir." },
+          {
+            "description": "Üstünlük: Xətt kəsişmələri dəqiq həndəsi hesablamalar aparır."
+          },
+          {
+            "description": "Mənfi cəhət: Böyük nöqtə toplusunda sıralama yavaş ola bilər."
+          },
+          {
+            "description": "Mənfi cəhət: Dəqiqlik problemləri (məsələn, üzən nöqtə hesablamaları) ola bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Convex Hull robototexnikada (maneələrdən qaçma), kompüter qrafikasında (fiqur yaratma) və coğrafi informasiya sistemlərində istifadə olunur. Xətt kəsişmələri xəritələrdə yol kəsişmələrini tapmaq və ya oyun dizaynında toqquşma aşkarlanması üçün tətbiq edilir. Məsələn, yuxarıdakı nöqtələr qabarıq örtük kimi robotun hərəkət sahəsini müəyyənləşdirə bilər. Dinamik proqramlaşdırma ilə müqayisədə həndəsi alqoritmlər daha az yaddaş tələb edir."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əsas təhlükə üzən nöqtə hesablamalarında dəqiqlik problemləridir. Böyük nöqtə toplusunda sıralama yavaş ola bilər. Tövsiyələr: Graham Scan kiçik və orta ölçülü nöqtə toplusu üçün istifadə edin. Xətt kəsişmələri üçün sweep line alqoritmindən istifadə edin. Dəqiqlik üçün riyazi kitabxanalardan istifadə edin və alqoritmləri test edin."
+      }
+    ]
+  },
+  "en": {
+    "title": "Computational Geometry",
+    "icon": "FiMapPin",
+    "language": "multiple",
+    "description": "Algorithms for convex hull, line intersection, and other geometric problems.",
+    "codes": {
+      "python": "def orientation(p, q, r):\n    val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])\n    if val == 0: return 0\n    return 1 if val > 0 else 2\n\ndef graham_scan(points):\n    if len(points) < 3: return points\n    points.sort()\n    bottom = points[0]\n    points = sorted(points[1:], key=lambda p: (p[0] - bottom[0], p[1] - bottom[1]))\n    points = [bottom] + points\n    stack = [points[0], points[1]]\n    for i in range(2, len(points)):\n        while len(stack) > 1 and orientation(stack[-2], stack[-1], points[i]) != 2:\n            stack.pop()\n        stack.append(points[i])\n    return stack\n\n# Nümunə: Nöqtələr toplusu\npoints = [(0, 0), (1, 1), (2, 0), (2, 2), (0, 2)]\nresult = graham_scan(points)\nprint('Convex Hull:', result)\n# Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]",
+      "javascript": "function orientation(p, q, r) {\n    const val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1]);\n    if (val === 0) return 0;\n    return val > 0 ? 1 : 2;\n}\n\nfunction grahamScan(points) {\n    if (points.length < 3) return points;\n    points = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);\n    const bottom = points[0];\n    points = [bottom, ...points.slice(1).sort((a, b) => {\n        return (a[0] - bottom[0]) - (b[0] - bottom[0]) || (a[1] - bottom[1]) - (b[1] - bottom[1]);\n    }]);\n    const stack = [points[0], points[1]];\n    for (let i = 2; i < points.length; i++) {\n        while (stack.length > 1 && orientation(stack[stack.length - 2], stack[stack.length - 1], points[i]) !== 2) {\n            stack.pop();\n        }\n        stack.push(points[i]);\n    }\n    return stack;\n}\n\n// Nümunə: Nöqtələr toplusu\nconst points = [[0, 0], [1, 1], [2, 0], [2, 2], [0, 2]];\nconst result = grahamScan(points);\nconsole.log('Convex Hull:', result);\n// Çıxış: Convex Hull: [[0, 0], [2, 0], [2, 2], [0, 2]]",
+      "typescript": "interface Point {\n    x: number;\n    y: number;\n}\n\nfunction orientation(p: Point, q: Point, r: Point): number {\n    const val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);\n    if (val === 0) return 0;\n    return val > 0 ? 1 : 2;\n}\n\nfunction grahamScan(points: Point[]): Point[] {\n    if (points.length < 3) return points;\n    points = [...points].sort((a, b) => a.x - b.x || a.y - b.y);\n    const bottom = points[0];\n    points = [bottom, ...points.slice(1).sort((a, b) => {\n        return (a.x - bottom.x) - (b.x - bottom.x) || (a.y - bottom.y) - (b.y - bottom.y);\n    }]);\n    const stack: Point[] = [points[0], points[1]];\n    for (let i = 2; i < points.length; i++) {\n        while (stack.length > 1 && orientation(stack[stack.length - 2], stack[stack.length - 1], points[i]) !== 2) {\n            stack.pop();\n        }\n        stack.push(points[i]);\n    }\n    return stack;\n}\n\n// Nümunə: Nöqtələr toplusu\nconst points: Point[] = [{x: 0, y: 0}, {x: 1, y: 1}, {x: 2, y: 0}, {x: 2, y: 2}, {x: 0, y: 2}];\nconst result = grahamScan(points);\nconsole.log('Convex Hull:', result);\n// Çıxış: Convex Hull: [{x: 0, y: 0}, {x: 2, y: 0}, {x: 2, y: 2}, {x: 0, y: 2}]",
+      "java": "import java.util.ArrayList;\nimport java.util.Arrays;\n\nclass Point implements Comparable<Point> {\n    int x, y;\n    Point(int x, int y) { this.x = x; this.y = y; }\n    public int compareTo(Point other) {\n        return this.x == other.x ? this.y - other.y : this.x - other.x;\n    }\n    public String toString() { return \"(\" + x + \", \" + y + \")\"; }\n}\n\npublic class GrahamScan {\n    static int orientation(Point p, Point q, Point r) {\n        int val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);\n        if (val == 0) return 0;\n        return val > 0 ? 1 : 2;\n    }\n\n    static ArrayList<Point> grahamScan(Point[] points) {\n        if (points.length < 3) return new ArrayList<>(Arrays.asList(points));\n        Arrays.sort(points);\n        Point bottom = points[0];\n        Point[] remaining = Arrays.copyOfRange(points, 1, points.length);\n        Arrays.sort(remaining, (a, b) -> {\n            int dx1 = a.x - bottom.x, dx2 = b.x - bottom.x;\n            int dy1 = a.y - bottom.y, dy2 = b.y - bottom.y;\n            return dx1 == dx2 ? dy1 - dy2 : dx1 - dx2;\n        });\n        ArrayList<Point> stack = new ArrayList<>();\n        stack.add(bottom);\n        stack.add(remaining[0]);\n        for (int i = 1; i < remaining.length; i++) {\n            while (stack.size() > 1 && orientation(stack.get(stack.size() - 2), stack.get(stack.size() - 1), remaining[i]) != 2) {\n                stack.remove(stack.size() - 1);\n            }\n            stack.add(remaining[i]);\n        }\n        return stack;\n    }\n\n    public static void main(String[] args) {\n        Point[] points = {new Point(0, 0), new Point(1, 1), new Point(2, 0), new Point(2, 2), new Point(0, 2)};\n        ArrayList<Point> result = grahamScan(points);\n        System.out.println(\"Convex Hull: \" + result);\n    }\n}\n// Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]",
+      "php": "<?php\n\nfunction orientation($p, $q, $r) {\n    $val = ($q[1] - $p[1]) * ($r[0] - $q[0]) - ($q[0] - $p[0]) * ($r[1] - $q[1]);\n    if ($val == 0) return 0;\n    return $val > 0 ? 1 : 2;\n}\n\nfunction grahamScan($points) {\n    if (count($points) < 3) return $points;\n    usort($points, fn($a, $b) => $a[0] == $b[0] ? $a[1] - $b[1] : $a[0] - $b[0]);\n    $bottom = $points[0];\n    $remaining = array_slice($points, 1);\n    usort($remaining, fn($a, $b) => ($a[0] - $bottom[0]) == ($b[0] - $bottom[0]) ? ($a[1] - $bottom[1]) - ($b[1] - $bottom[1]) : ($a[0] - $bottom[0]) - ($b[0] - $bottom[0]));\n    $points = array_merge([$bottom], $remaining);\n    $stack = [$points[0], $points[1]];\n    for ($i = 2; $i < count($points); $i++) {\n        while (count($stack) > 1 && orientation($stack[count($stack) - 2], $stack[count($stack) - 1], $points[$i]) != 2) {\n            array_pop($stack);\n        }\n        $stack[] = $points[$i];\n    }\n    return $stack;\n}\n\n// Nümunə: Nöqtələr toplusu\n$points = [[0, 0], [1, 1], [2, 0], [2, 2], [0, 2]];\n$result = grahamScan($points);\necho 'Convex Hull: [' . implode(', ', array_map(fn($p) => \"({$p[0]}, {$p[1]})\", $result)) . ']';\n// Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]\n?>",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct {\n    int x, y;\n} Point;\n\nint orientation(Point p, Point q, Point r) {\n    int val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);\n    if (val == 0) return 0;\n    return val > 0 ? 1 : 2;\n}\n\nint compare(const void* a, const void* b) {\n    Point* p1 = (Point*)a;\n    Point* p2 = (Point*)b;\n    return p1->x == p2->x ? p1->y - p2->y : p1->x - p2->x;\n}\n\nint compareAngle(const void* a, const void* b, void* bottom) {\n    Point* p1 = (Point*)a;\n    Point* p2 = (Point*)b;\n    Point* b = (Point*)bottom;\n    int dx1 = p1->x - b->x, dx2 = p2->x - b->x;\n    int dy1 = p1->y - b->y, dy2 = p2->y - b->y;\n    return dx1 == dx2 ? dy1 - dy2 : dx1 - dx2;\n}\n\nPoint* grahamScan(Point* points, int n, int* resultSize) {\n    if (n < 3) {\n        Point* result = (Point*)malloc(n * sizeof(Point));\n        for (int i = 0; i < n; i++) result[i] = points[i];\n        *resultSize = n;\n        return result;\n    }\n    qsort(points, n, sizeof(Point), compare);\n    Point bottom = points[0];\n    qsort(points + 1, n - 1, sizeof(Point), (int (*)(const void*, const void*, void*))compareAngle, &bottom);\n    Point* stack = (Point*)malloc(n * sizeof(Point));\n    int top = 2;\n    stack[0] = bottom;\n    stack[1] = points[1];\n    for (int i = 2; i < n; i++) {\n        while (top > 1 && orientation(stack[top - 2], stack[top - 1], points[i]) != 2) {\n            top--;\n        }\n        stack[top++] = points[i];\n    }\n    *resultSize = top;\n    return stack;\n}\n\nint main() {\n    Point points[] = {{0, 0}, {1, 1}, {2, 0}, {2, 2}, {0, 2}};\n    int n = 5, resultSize;\n    Point* result = grahamScan(points, n, &resultSize);\n    printf(\"Convex Hull: [\");\n    for (int i = 0; i < resultSize; i++) {\n        printf(\"(%d, %d)\", result[i].x, result[i].y);\n        if (i < resultSize - 1) printf(\", \");\n    }\n    printf(\"]\\n\");\n    free(result);\n    return 0;\n}\n// Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]",
+      "csharp": "using System;\nusing System.Collections.Generic;\nusing System.Linq;\n\nclass Point : IComparable<Point> {\n    public int X { get; set; }\n    public int Y { get; set; }\n    public Point(int x, int y) { X = x; Y = y; }\n    public int CompareTo(Point other) => X == other.X ? Y - other.Y : X - other.X;\n    public override string ToString() => $\"({X}, {Y})\";\n}\n\nclass Program {\n    static int Orientation(Point p, Point q, Point r) {\n        int val = (q.Y - p.Y) * (r.X - q.X) - (q.X - p.X) * (r.Y - q.Y);\n        if (val == 0) return 0;\n        return val > 0 ? 1 : 2;\n    }\n\n    static List<Point> GrahamScan(Point[] points) {\n        if (points.Length < 3) return points.ToList();\n        var sorted = points.OrderBy(p => p).ToArray();\n        Point bottom = sorted[0];\n        var remaining = sorted.Skip(1).OrderBy(p => (p.X - bottom.X, p.Y - bottom.Y)).ToArray();\n        var stack = new List<Point> { bottom, remaining[0] };\n        for (int i = 1; i < remaining.Length; i++) {\n            while (stack.Count > 1 && Orientation(stack[stack.Count - 2], stack[stack.Count - 1], remaining[i]) != 2) {\n                stack.RemoveAt(stack.Count - 1);\n            }\n            stack.Add(remaining[i]);\n        }\n        return stack;\n    }\n\n    static void Main() {\n        Point[] points = { new Point(0, 0), new Point(1, 1), new Point(2, 0), new Point(2, 2), new Point(0, 2) };\n        var result = GrahamScan(points);\n        Console.WriteLine(\"Convex Hull: [\" + string.Join(\", \", result) + \"]\");\n    }\n}\n// Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]",
+      "cpp": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nstruct Point {\n    int x, y;\n    bool operator<(const Point& other) const {\n        return x == other.x ? y < other.y : x < other.x;\n    }\n};\n\nint orientation(Point p, Point q, Point r) {\n    int val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);\n    if (val == 0) return 0;\n    return val > 0 ? 1 : 2;\n}\n\nstd::vector<Point> grahamScan(std::vector<Point> points) {\n    if (points.size() < 3) return points;\n    std::sort(points.begin(), points.end());\n    Point bottom = points[0];\n    std::sort(points.begin() + 1, points.end(), [&bottom](const Point& a, const Point& b) {\n        int dx1 = a.x - bottom.x, dx2 = b.x - bottom.x;\n        int dy1 = a.y - bottom.y, dy2 = b.y - bottom.y;\n        return dx1 == dx2 ? dy1 < dy2 : dx1 < dx2;\n    });\n    std::vector<Point> stack = {points[0], points[1]};\n    for (size_t i = 2; i < points.size(); i++) {\n        while (stack.size() > 1 && orientation(stack[stack.size() - 2], stack[stack.size() - 1], points[i]) != 2) {\n            stack.pop_back();\n        }\n        stack.push_back(points[i]);\n    }\n    return stack;\n}\n\nint main() {\n    std::vector<Point> points = {{0, 0}, {1, 1}, {2, 0}, {2, 2}, {0, 2}};\n    auto result = grahamScan(points);\n    std::cout << \"Convex Hull: [\";\n    for (size_t i = 0; i < result.size(); i++) {\n        std::cout << \"(\" << result[i].x << \", \" << result[i].y << \")\";\n        if (i < result.size() - 1) std::cout << \", \";\n    }\n    std::cout << \"]\" << std::endl;\n    return 0;\n}\n// Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Computational Geometry?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Computational geometry studies algorithms for computations on points, lines, and shapes. The **Convex Hull** is the smallest convex polygon enclosing a set of points. **Line intersection** determines if two line segments intersect. Other algorithms handle distance calculations or shape analysis. For example, for the points [(0,0), (1,1), (2,0), (2,2), (0,2)], the convex hull is [(0,0), (2,0), (2,2), (0,2)]."
+      },
+      {
+        "type": "heading",
+        "text": "How Do These Algorithms Work?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Graham Scan (Convex Hull): 1) Find the lowest point and sort points by angle relative to it. 2) Iterate through points; if they form a counterclockwise turn, add them to the hull, otherwise remove the last point. For line intersections: 1) Check the orientation of two segments (clockwise or counterclockwise). 2) Determine if they intersect. For example, the above points yield a convex hull of [(0,0), (2,0), (2,2), (0,2)] using Graham Scan."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of Geometric Algorithms (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Graham Scan takes O(n log n) time (n is the number of points) due to sorting. Line intersections take O(n log n) with a sweep line algorithm. For example, for 5 points, Graham Scan performs O(5 log 5) ≈ O(15) operations. Space complexity is O(n) for points and the stack. Compared to Dijkstra’s algorithm (O(E + V log V)), Graham Scan has similar efficiency, but line intersections can be more complex."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "Advantage: Graham Scan is fast and efficient." },
+          {
+            "description": "Advantage: Line intersections provide precise geometric computations."
+          },
+          {
+            "description": "Disadvantage: Sorting can be slow for large point sets."
+          },
+          {
+            "description": "Disadvantage: Floating-point precision issues may arise."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real-Life Applications"
+      },
+      {
+        "type": "paragraph",
+        "text": "Convex Hull is used in robotics (obstacle avoidance), computer graphics (shape creation), and geographic information systems. Line intersections are applied in maps for road crossings or in game design for collision detection. For example, the convex hull of the above points can define a robot’s movement boundary. Compared to dynamic programming, geometric algorithms require less memory."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "The main risk is precision issues in floating-point calculations. Sorting can be slow for large point sets. Recommendations: Use Graham Scan for small to medium point sets. Use sweep line algorithms for line intersections. Employ math libraries for precision and test algorithms thoroughly."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Вычислительная геометрия",
+    "icon": "FiMapPin",
+    "language": "multiple",
+    "description": "Алгоритмы для выпуклой оболочки, пересечения линий и других геометрических задач.",
+    "codes": {
+      "python": "def orientation(p, q, r):\n    val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])\n    if val == 0: return 0\n    return 1 if val > 0 else 2\n\ndef graham_scan(points):\n    if len(points) < 3: return points\n    points.sort()\n    bottom = points[0]\n    points = sorted(points[1:], key=lambda p: (p[0] - bottom[0], p[1] - bottom[1]))\n    points = [bottom] + points\n    stack = [points[0], points[1]]\n    for i in range(2, len(points)):\n        while len(stack) > 1 and orientation(stack[-2], stack[-1], points[i]) != 2:\n            stack.pop()\n        stack.append(points[i])\n    return stack\n\n# Nümunə: Nöqtələr toplusu\npoints = [(0, 0), (1, 1), (2, 0), (2, 2), (0, 2)]\nresult = graham_scan(points)\nprint('Convex Hull:', result)\n# Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]",
+      "javascript": "function orientation(p, q, r) {\n    const val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1]);\n    if (val === 0) return 0;\n    return val > 0 ? 1 : 2;\n}\n\nfunction grahamScan(points) {\n    if (points.length < 3) return points;\n    points = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);\n    const bottom = points[0];\n    points = [bottom, ...points.slice(1).sort((a, b) => {\n        return (a[0] - bottom[0]) - (b[0] - bottom[0]) || (a[1] - bottom[1]) - (b[1] - bottom[1]);\n    }]);\n    const stack = [points[0], points[1]];\n    for (let i = 2; i < points.length; i++) {\n        while (stack.length > 1 && orientation(stack[stack.length - 2], stack[stack.length - 1], points[i]) !== 2) {\n            stack.pop();\n        }\n        stack.push(points[i]);\n    }\n    return stack;\n}\n\n// Nümunə: Nöqtələr toplusu\nconst points = [[0, 0], [1, 1], [2, 0], [2, 2], [0, 2]];\nconst result = grahamScan(points);\nconsole.log('Convex Hull:', result);\n// Çıxış: Convex Hull: [[0, 0], [2, 0], [2, 2], [0, 2]]",
+      "typescript": "interface Point {\n    x: number;\n    y: number;\n}\n\nfunction orientation(p: Point, q: Point, r: Point): number {\n    const val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);\n    if (val === 0) return 0;\n    return val > 0 ? 1 : 2;\n}\n\nfunction grahamScan(points: Point[]): Point[] {\n    if (points.length < 3) return points;\n    points = [...points].sort((a, b) => a.x - b.x || a.y - b.y);\n    const bottom = points[0];\n    points = [bottom, ...points.slice(1).sort((a, b) => {\n        return (a.x - bottom.x) - (b.x - bottom.x) || (a.y - bottom.y) - (b.y - bottom.y);\n    }]);\n    const stack: Point[] = [points[0], points[1]];\n    for (let i = 2; i < points.length; i++) {\n        while (stack.length > 1 && orientation(stack[stack.length - 2], stack[stack.length - 1], points[i]) !== 2) {\n            stack.pop();\n        }\n        stack.push(points[i]);\n    }\n    return stack;\n}\n\n// Nümunə: Nöqtələr toplusu\nconst points: Point[] = [{x: 0, y: 0}, {x: 1, y: 1}, {x: 2, y: 0}, {x: 2, y: 2}, {x: 0, y: 2}];\nconst result = grahamScan(points);\nconsole.log('Convex Hull:', result);\n// Çıxış: Convex Hull: [{x: 0, y: 0}, {x: 2, y: 0}, {x: 2, y: 2}, {x: 0, y: 2}]",
+      "java": "import java.util.ArrayList;\nimport java.util.Arrays;\n\nclass Point implements Comparable<Point> {\n    int x, y;\n    Point(int x, int y) { this.x = x; this.y = y; }\n    public int compareTo(Point other) {\n        return this.x == other.x ? this.y - other.y : this.x - other.x;\n    }\n    public String toString() { return \"(\" + x + \", \" + y + \")\"; }\n}\n\npublic class GrahamScan {\n    static int orientation(Point p, Point q, Point r) {\n        int val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);\n        if (val == 0) return 0;\n        return val > 0 ? 1 : 2;\n    }\n\n    static ArrayList<Point> grahamScan(Point[] points) {\n        if (points.length < 3) return new ArrayList<>(Arrays.asList(points));\n        Arrays.sort(points);\n        Point bottom = points[0];\n        Point[] remaining = Arrays.copyOfRange(points, 1, points.length);\n        Arrays.sort(remaining, (a, b) -> {\n            int dx1 = a.x - bottom.x, dx2 = b.x - bottom.x;\n            int dy1 = a.y - bottom.y, dy2 = b.y - bottom.y;\n            return dx1 == dx2 ? dy1 - dy2 : dx1 - dx2;\n        });\n        ArrayList<Point> stack = new ArrayList<>();\n        stack.add(bottom);\n        stack.add(remaining[0]);\n        for (int i = 1; i < remaining.length; i++) {\n            while (stack.size() > 1 && orientation(stack.get(stack.size() - 2), stack.get(stack.size() - 1), remaining[i]) != 2) {\n                stack.remove(stack.size() - 1);\n            }\n            stack.add(remaining[i]);\n        }\n        return stack;\n    }\n\n    public static void main(String[] args) {\n        Point[] points = {new Point(0, 0), new Point(1, 1), new Point(2, 0), new Point(2, 2), new Point(0, 2)};\n        ArrayList<Point> result = grahamScan(points);\n        System.out.println(\"Convex Hull: \" + result);\n    }\n}\n// Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]",
+      "php": "<?php\n\nfunction orientation($p, $q, $r) {\n    $val = ($q[1] - $p[1]) * ($r[0] - $q[0]) - ($q[0] - $p[0]) * ($r[1] - $q[1]);\n    if ($val == 0) return 0;\n    return $val > 0 ? 1 : 2;\n}\n\nfunction grahamScan($points) {\n    if (count($points) < 3) return $points;\n    usort($points, fn($a, $b) => $a[0] == $b[0] ? $a[1] - $b[1] : $a[0] - $b[0]);\n    $bottom = $points[0];\n    $remaining = array_slice($points, 1);\n    usort($remaining, fn($a, $b) => ($a[0] - $bottom[0]) == ($b[0] - $bottom[0]) ? ($a[1] - $bottom[1]) - ($b[1] - $bottom[1]) : ($a[0] - $bottom[0]) - ($b[0] - $bottom[0]));\n    $points = array_merge([$bottom], $remaining);\n    $stack = [$points[0], $points[1]];\n    for ($i = 2; $i < count($points); $i++) {\n        while (count($stack) > 1 && orientation($stack[count($stack) - 2], $stack[count($stack) - 1], $points[$i]) != 2) {\n            array_pop($stack);\n        }\n        $stack[] = $points[$i];\n    }\n    return $stack;\n}\n\n// Nümunə: Nöqtələr toplusu\n$points = [[0, 0], [1, 1], [2, 0], [2, 2], [0, 2]];\n$result = grahamScan($points);\necho 'Convex Hull: [' . implode(', ', array_map(fn($p) => \"({$p[0]}, {$p[1]})\", $result)) . ']';\n// Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]\n?>",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct {\n    int x, y;\n} Point;\n\nint orientation(Point p, Point q, Point r) {\n    int val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);\n    if (val == 0) return 0;\n    return val > 0 ? 1 : 2;\n}\n\nint compare(const void* a, const void* b) {\n    Point* p1 = (Point*)a;\n    Point* p2 = (Point*)b;\n    return p1->x == p2->x ? p1->y - p2->y : p1->x - p2->x;\n}\n\nint compareAngle(const void* a, const void* b, void* bottom) {\n    Point* p1 = (Point*)a;\n    Point* p2 = (Point*)b;\n    Point* b = (Point*)bottom;\n    int dx1 = p1->x - b->x, dx2 = p2->x - b->x;\n    int dy1 = p1->y - b->y, dy2 = p2->y - b->y;\n    return dx1 == dx2 ? dy1 - dy2 : dx1 - dx2;\n}\n\nPoint* grahamScan(Point* points, int n, int* resultSize) {\n    if (n < 3) {\n        Point* result = (Point*)malloc(n * sizeof(Point));\n        for (int i = 0; i < n; i++) result[i] = points[i];\n        *resultSize = n;\n        return result;\n    }\n    qsort(points, n, sizeof(Point), compare);\n    Point bottom = points[0];\n    qsort(points + 1, n - 1, sizeof(Point), (int (*)(const void*, const void*, void*))compareAngle, &bottom);\n    Point* stack = (Point*)malloc(n * sizeof(Point));\n    int top = 2;\n    stack[0] = bottom;\n    stack[1] = points[1];\n    for (int i = 2; i < n; i++) {\n        while (top > 1 && orientation(stack[top - 2], stack[top - 1], points[i]) != 2) {\n            top--;\n        }\n        stack[top++] = points[i];\n    }\n    *resultSize = top;\n    return stack;\n}\n\nint main() {\n    Point points[] = {{0, 0}, {1, 1}, {2, 0}, {2, 2}, {0, 2}};\n    int n = 5, resultSize;\n    Point* result = grahamScan(points, n, &resultSize);\n    printf(\"Convex Hull: [\");\n    for (int i = 0; i < resultSize; i++) {\n        printf(\"(%d, %d)\", result[i].x, result[i].y);\n        if (i < resultSize - 1) printf(\", \");\n    }\n    printf(\"]\\n\");\n    free(result);\n    return 0;\n}\n// Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]",
+      "csharp": "using System;\nusing System.Collections.Generic;\nusing System.Linq;\n\nclass Point : IComparable<Point> {\n    public int X { get; set; }\n    public int Y { get; set; }\n    public Point(int x, int y) { X = x; Y = y; }\n    public int CompareTo(Point other) => X == other.X ? Y - other.Y : X - other.X;\n    public override string ToString() => $\"({X}, {Y})\";\n}\n\nclass Program {\n    static int Orientation(Point p, Point q, Point r) {\n        int val = (q.Y - p.Y) * (r.X - q.X) - (q.X - p.X) * (r.Y - q.Y);\n        if (val == 0) return 0;\n        return val > 0 ? 1 : 2;\n    }\n\n    static List<Point> GrahamScan(Point[] points) {\n        if (points.Length < 3) return points.ToList();\n        var sorted = points.OrderBy(p => p).ToArray();\n        Point bottom = sorted[0];\n        var remaining = sorted.Skip(1).OrderBy(p => (p.X - bottom.X, p.Y - bottom.Y)).ToArray();\n        var stack = new List<Point> { bottom, remaining[0] };\n        for (int i = 1; i < remaining.Length; i++) {\n            while (stack.Count > 1 && Orientation(stack[stack.Count - 2], stack[stack.Count - 1], remaining[i]) != 2) {\n                stack.RemoveAt(stack.Count - 1);\n            }\n            stack.Add(remaining[i]);\n        }\n        return stack;\n    }\n\n    static void Main() {\n        Point[] points = { new Point(0, 0), new Point(1, 1), new Point(2, 0), new Point(2, 2), new Point(0, 2) };\n        var result = GrahamScan(points);\n        Console.WriteLine(\"Convex Hull: [\" + string.Join(\", \", result) + \"]\");\n    }\n}\n// Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]",
+      "cpp": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nstruct Point {\n    int x, y;\n    bool operator<(const Point& other) const {\n        return x == other.x ? y < other.y : x < other.x;\n    }\n};\n\nint orientation(Point p, Point q, Point r) {\n    int val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);\n    if (val == 0) return 0;\n    return val > 0 ? 1 : 2;\n}\n\nstd::vector<Point> grahamScan(std::vector<Point> points) {\n    if (points.size() < 3) return points;\n    std::sort(points.begin(), points.end());\n    Point bottom = points[0];\n    std::sort(points.begin() + 1, points.end(), [&bottom](const Point& a, const Point& b) {\n        int dx1 = a.x - bottom.x, dx2 = b.x - bottom.x;\n        int dy1 = a.y - bottom.y, dy2 = b.y - bottom.y;\n        return dx1 == dx2 ? dy1 < dy2 : dx1 < dx2;\n    });\n    std::vector<Point> stack = {points[0], points[1]};\n    for (size_t i = 2; i < points.size(); i++) {\n        while (stack.size() > 1 && orientation(stack[stack.size() - 2], stack[stack.size() - 1], points[i]) != 2) {\n            stack.pop_back();\n        }\n        stack.push_back(points[i]);\n    }\n    return stack;\n}\n\nint main() {\n    std::vector<Point> points = {{0, 0}, {1, 1}, {2, 0}, {2, 2}, {0, 2}};\n    auto result = grahamScan(points);\n    std::cout << \"Convex Hull: [\";\n    for (size_t i = 0; i < result.size(); i++) {\n        std::cout << \"(\" << result[i].x << \", \" << result[i].y << \")\";\n        if (i < result.size() - 1) std::cout << \", \";\n    }\n    std::cout << \"]\" << std::endl;\n    return 0;\n}\n// Çıxış: Convex Hull: [(0, 0), (2, 0), (2, 2), (0, 2)]"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое вычислительная геометрия?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Вычислительная геометрия изучает алгоритмы для вычислений над точками, линиями и фигурами. **Выпуклая оболочка** — это наименьший выпуклый многоугольник, охватывающий множество точек. **Пересечение линий** определяет, пересекаются ли два отрезка. Другие алгоритмы используются для вычисления расстояний или анализа фигур. Например, для точек [(0,0), (1,1), (2,0), (2,2), (0,2)] выпуклая оболочка — [(0,0), (2,0), (2,2), (0,2)]."
+      },
+      {
+        "type": "heading",
+        "text": "Как работают эти алгоритмы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Алгоритм Грэхэма (выпуклая оболочка): 1) Найдите самую нижнюю точку и отсортируйте точки по углу относительно неё. 2) Проверяйте точки; если они образуют поворот против часовой стрелки, добавляйте их в оболочку, иначе удаляйте последнюю точку. Для пересечения линий: 1) Проверяйте ориентацию двух отрезков (по или против часовой стрелки). 2) Определите, пересекаются ли они. Например, указанные точки дают выпуклую оболочку [(0,0), (2,0), (2,2), (0,2)] с помощью алгоритма Грэхэма."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность геометрических алгоритмов (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Алгоритм Грэхэма занимает O(n log n) времени (n — количество точек) из-за сортировки. Пересечение линий занимает O(n log n) с алгоритмом сканирующей прямой. Например, для 5 точек алгоритм Грэхэма выполняет O(5 log 5) ≈ O(15) операций. Пространственная сложность — O(n) для точек и стека. По сравнению с алгоритмом Дейкстры (O(E + V log V)) алгоритм Грэхэма имеет схожую эффективность, но пересечение линий может быть сложнее."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Преимущество: Алгоритм Грэхэма быстрый и эффективный."
+          },
+          {
+            "description": "Преимущество: Пересечение линий обеспечивает точные геометрические вычисления."
+          },
+          {
+            "description": "Недостаток: Сортировка может быть медленной для больших наборов точек."
+          },
+          {
+            "description": "Недостаток: Возможны проблемы с точностью вычислений с плавающей запятой."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Применение в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Выпуклая оболочка используется в робототехнике (избежание препятствий), компьютерной графике (создание фигур) и геоинформационных системах. Пересечение линий применяется в картах для определения перекрёстков дорог или в дизайне игр для обнаружения столкновений. Например, выпуклая оболочка указанных точек может определять область движения робота. По сравнению с динамическим программированием геометрические алгоритмы требуют меньше памяти."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основной риск — проблемы с точностью вычислений с плавающей запятой. Сортировка может быть медленной для больших наборов точек. Рекомендации: Используйте алгоритм Грэхэма для малых и средних наборов точек. Для пересечения линий применяйте алгоритм сканирующей прямой. Используйте математические библиотеки для точности и тщательно тестируйте алгоритмы."
+      }
+    ]
+  }
+}

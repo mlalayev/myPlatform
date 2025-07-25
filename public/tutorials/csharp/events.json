@@ -1,0 +1,435 @@
+{
+  "id": "events",
+  "az": {
+    "title": "Hadisələr (Events)",
+    "icon": "FiBell",
+    "language": "csharp",
+    "description": "Event-lərin yaradılması və istifadəsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Hadisələr (Events) Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində hadisələr (events) bir sinfin və ya obyektin vəziyyət dəyişikliyini digər siniflərə və ya obyektlərə bildirmək üçün istifadə olunan mexanizmdir. Hadisələr 'nəşr-abunə' (publish-subscribe) modelinə əsaslanır: bir obyekt hadisəni 'nəşr edir', digər obyektlər isə bu hadisəyə 'abunə olur' və hadisə baş verdikdə müəyyən hərəkətlər yerinə yetirirlər. Hadisələr nümayəndələr (delegates) əsasında işləyir. Bu JSON faylda hadisələrin yaradılması, istifadəsi, nümayəndələrlə əlaqəsi, abunəlik, ləğv etmə və nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Hadisələrin Yaradılması və Nümayəndələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hadisələr nümayəndələr (delegates) vasitəsilə təyin edilir. Nümayəndə bir metodun istinadını saxlayan bir növdür. Hadisə isə bu nümayəndənin xüsusi bir formasıdır ki, yalnız abunə olma və ləğv etmə əməliyyatlarına icazə verir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\n// Nümayəndə təyini\npublic delegate void ButtonClickHandler(string message);\n\nclass Button\n{\n    // Hadisə təyini\n    public event ButtonClickHandler OnClick;\n\n    public void Click()\n    {\n        // Hadisəni işə salmaq\n        OnClick?.Invoke(\"Düyməyə basıldı!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Button button = new Button();\n\n        // Hadisəyə abunə olma\n        button.OnClick += ButtonClicked;\n\n        // Düyməni basma simulyasiyası\n        button.Click();\n    }\n\n    // Hadisə işləyicisi\n    static void ButtonClicked(string message)\n    {\n        Console.WriteLine(message);\n    }\n}\n// Output:\n// Düyməyə basıldı!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ButtonClickHandler` nümayəndəsi hadisə işləyicisi metodların formatını təyin edir.\n- `OnClick` hadisəsi bu nümayəndə tipindədir.\n- `Click` metodu hadisəni işə salır və abunə olan bütün metodları çağırır.\n- `ButtonClicked` metodu hadisəyə abunə olur və hadisə baş verdikdə işləyir.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Hadisələrə Abunə Olma və Ləğv Etmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hadisələrə abunə olmaq üçün `+=` operatoru, ləğv etmək üçün isə `-=` operatoru istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void TemperatureChangeHandler(int newTemperature);\n\nclass Thermostat\n{\n    private int temperature;\n    public event TemperatureChangeHandler OnTemperatureChange;\n\n    public int Temperature\n    {\n        get => temperature;\n        set\n        {\n            temperature = value;\n            OnTemperatureChange?.Invoke(temperature);\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Thermostat thermostat = new Thermostat();\n\n        // Abunə olma\n        thermostat.OnTemperatureChange += DisplayTemperature;\n\n        // Temperaturu dəyişmək\n        thermostat.Temperature = 25;\n\n        // Abunəliyi ləğv etmək\n        thermostat.OnTemperatureChange -= DisplayTemperature;\n\n        // Bu dəyişiklik hadisəni işə salmayacaq\n        thermostat.Temperature = 30;\n    }\n\n    static void DisplayTemperature(int temp)\n    {\n        Console.WriteLine($\"Yeni temperatur: {temp}°C\");\n    }\n}\n// Output:\n// Yeni temperatur: 25°C"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Thermostat` sinfi temperatur dəyişikliyi hadisəsini idarə edir.\n- `OnTemperatureChange` hadisəsi temperatur dəyişdikdə işə salınır.\n- `DisplayTemperature` metodu hadisəyə abunə olur, lakin sonradan ləğv edilir.\n- Ləğv edildikdən sonra temperatur dəyişikliyi hadisəni işə salmır."
+      },
+      {
+        "type": "heading",
+        "text": "Standart Hadisə Şablonu"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# dilində hadisələr adətən `EventHandler` və ya `EventHandler<T>` ilə təyin edilir, bu da kodu standartlaşdırır."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Timer\n{\n    public event EventHandler<string> OnTick;\n\n    public void Start()\n    {\n        OnTick?.Invoke(this, \"Saat işə düşdü!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Timer timer = new Timer();\n        timer.OnTick += TimerTicked;\n        timer.Start();\n    }\n\n    static void TimerTicked(object sender, string message)\n    {\n        Console.WriteLine($\"Hadisə: {message}\");\n    }\n}\n// Output:\n// Hadisə: Saat işə düşdü!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `EventHandler<string>` standart hadisə nümayəndəsidir.\n- `sender` hadisəni işə salan obyekti, `message` isə hadisə məlumatını təmsil edir.\n- `TimerTicked` metodu hadisəyə abunə olur və məlumatı göstərir."
+      },
+      {
+        "type": "heading",
+        "text": "Hadisələrin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hadisələr proqramın çevikliyini artırır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nÇoxsaylı Abunəçilər: Bir hadisəyə birdən çox metod abunə ola bilər."
+          },
+          {
+            "description": "\nKapsulyasiya: Hadisələr yalnız abunə olmağa və ləğv etməyə icazə verir, birbaşa çağırışa icazə vermir."
+          },
+          {
+            "description": "\nAsinxronluq: Hadisələr asinxron proqramlaşdırma ilə uyğun işləyir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hadisələr yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: Nümayəndələr və hadisələr anlayış olaraq yeni başlayanlar üçün çətin ola bilər."
+          },
+          {
+            "description": "\nYaddaş Sızması: Abunəliklər ləğv edilməzsə, yaddaş sızması (memory leak) baş verə bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Abunəliklərin ləğv edilməməsi yaddaş sızmasına səbəb ola bilər. Həddindən artıq mürəkkəb hadisələr kodu çətinləşdirə bilər.\n- **Tövsiyələr**: Hadisə abunəliklərini ləğv etməyi unutmayın. Standart `EventHandler` şablonundan istifadə edin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə hadisənin null yoxlaması olmadan çağırılması səhvə səbəb ola bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void ErrorHandler(string message);\n\nclass BadButton\n{\n    public event ErrorHandler OnClick;\n\n    public void Click()\n    {\n        // Null yoxlaması yoxdur\n        OnClick(\"Səhv baş verdi!\"); // NullReferenceException riski\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BadButton button = new BadButton();\n        try\n        {\n            button.Click();\n        }\n        catch (NullReferenceException ex)\n        {\n            Console.WriteLine(\"Səhv: Hadisəyə abunəçi yoxdur!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Səhv: Hadisəyə abunəçi yoxdur!\n// Səhv mesajı: Object reference not set to an instance of an object."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `OnClick` hadisəsi null yoxlaması olmadan çağırılır.\n- Əgər heç bir abunəçi yoxdursa, `NullReferenceException` yaranır.\n- Həll: `OnClick?.Invoke(...)` istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\npublic delegate void AlarmHandler(string message);\n\nclass AlarmClock\n{\n    public event AlarmHandler OnAlarm;\n\n    public void TriggerAlarm()\n    {\n        OnAlarm?.Invoke(\"Zəngli saat çalır!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        AlarmClock alarm = new AlarmClock();\n\n        // Abunə olma\n        alarm.OnAlarm += WakeUp;\n        alarm.OnAlarm += Announce;\n\n        // Zəngi çalmaq\n        alarm.TriggerAlarm();\n\n        // Bir abunəçini ləğv etmək\n        alarm.OnAlarm -= WakeUp;\n\n        // Zəngi yenidən çalmaq\n        alarm.TriggerAlarm();\n    }\n\n    static void WakeUp(string message)\n    {\n        Console.WriteLine($\"Hərəkət: Oyatma - {message}\");\n    }\n\n    static void Announce(string message)\n    {\n        Console.WriteLine($\"Hərəkət: Elan - {message}\");\n    }\n}\n// Output:\n// Hərəkət: Oyatma - Zəngli saat çalır!\n// Hərəkət: Elan - Zəngli saat çalır!\n// Hərəkət: Elan - Zəngli saat çalır!"
+      }
+    ]
+  },
+  "en": {
+    "title": "Events",
+    "icon": "FiBell",
+    "language": "csharp",
+    "description": "Creating and using events.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Events?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, events are a mechanism for a class or object to notify other classes or objects about state changes. Events follow a publish-subscribe pattern: one object 'publishes' an event, and other objects 'subscribe' to it, performing actions when the event occurs. Events are built on delegates. This JSON file explains the creation, usage, relation to delegates, subscription, unsubscription, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input."
+      },
+      {
+        "type": "heading",
+        "text": "Creating Events and Delegates"
+      },
+      {
+        "type": "paragraph",
+        "text": "Events are defined using delegates, which are types that hold references to methods. An event is a special form of delegate that only allows subscription and unsubscription."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\n// Delegate definition\npublic delegate void ButtonClickHandler(string message);\n\nclass Button\n{\n    // Event definition\n    public event ButtonClickHandler OnClick;\n\n    public void Click()\n    {\n        // Trigger the event\n        OnClick?.Invoke(\"Button clicked!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Button button = new Button();\n\n        // Subscribe to the event\n        button.OnClick += ButtonClicked;\n\n        // Simulate a button click\n        button.Click();\n    }\n\n    // Event handler\n    static void ButtonClicked(string message)\n    {\n        Console.WriteLine(message);\n    }\n}\n// Output:\n// Button clicked!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ButtonClickHandler` is a delegate defining the event handler method's signature.\n- `OnClick` is an event of this delegate type.\n- The `Click` method triggers the event, calling all subscribed methods.\n- `ButtonClicked` is a method subscribed to the event.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Subscribing and Unsubscribing to Events"
+      },
+      {
+        "type": "paragraph",
+        "text": "Events are subscribed to using the `+=` operator and unsubscribed using the `-=` operator."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void TemperatureChangeHandler(int newTemperature);\n\nclass Thermostat\n{\n    private int temperature;\n    public event TemperatureChangeHandler OnTemperatureChange;\n\n    public int Temperature\n    {\n        get => temperature;\n        set\n        {\n            temperature = value;\n            OnTemperatureChange?.Invoke(temperature);\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Thermostat thermostat = new Thermostat();\n\n        // Subscribe to the event\n        thermostat.OnTemperatureChange += DisplayTemperature;\n\n        // Change temperature\n        thermostat.Temperature = 25;\n\n        // Unsubscribe from the event\n        thermostat.OnTemperatureChange -= DisplayTemperature;\n\n        // This change won't trigger the event\n        thermostat.Temperature = 30;\n    }\n\n    static void DisplayTemperature(int temp)\n    {\n        Console.WriteLine($\"New temperature: {temp}°C\");\n    }\n}\n// Output:\n// New temperature: 25°C"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Thermostat` class manages a temperature change event.\n- `OnTemperatureChange` is triggered when the temperature changes.\n- `DisplayTemperature` subscribes to the event but is later unsubscribed.\n- After unsubscription, temperature changes no longer trigger the event."
+      },
+      {
+        "type": "heading",
+        "text": "Standard Event Pattern"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C#, events typically use `EventHandler` or `EventHandler<T>` for standardization."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Timer\n{\n    public event EventHandler<string> OnTick;\n\n    public void Start()\n    {\n        OnTick?.Invoke(this, \"Timer started!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Timer timer = new Timer();\n        timer.OnTick += TimerTicked;\n        timer.Start();\n    }\n\n    static void TimerTicked(object sender, string message)\n    {\n        Console.WriteLine($\"Event: {message}\");\n    }\n}\n// Output:\n// Event: Timer started!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `EventHandler<string>` is a standard event delegate.\n- `sender` represents the object raising the event, and `message` is the event data.\n- `TimerTicked` is subscribed to the event and displays the message."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Events"
+      },
+      {
+        "type": "paragraph",
+        "text": "Events enhance program flexibility."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMultiple Subscribers: Multiple methods can subscribe to a single event."
+          },
+          {
+            "description": "\nEncapsulation: Events allow only subscription and unsubscription, not direct invocation."
+          },
+          {
+            "description": "\nAsynchronous Compatibility: Events work well with asynchronous programming."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Events can pose challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: Delegates and events can be conceptually difficult for beginners."
+          },
+          {
+            "description": "\nMemory Leaks: Failing to unsubscribe from events can cause memory leaks."
+          },
+          {
+            "description": "\nPyodide Limitation: C# code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Forgetting to unsubscribe from events can lead to memory leaks. Overly complex events can make code harder to understand.\n- **Recommendations**: Always unsubscribe from events when no longer needed. Use the standard `EventHandler` pattern. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error by invoking an event without checking for null."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void ErrorHandler(string message);\n\nclass BadButton\n{\n    public event ErrorHandler OnClick;\n\n    public void Click()\n    {\n        // No null check\n        OnClick(\"Error occurred!\"); // Risk of NullReferenceException\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BadButton button = new BadButton();\n        try\n        {\n            button.Click();\n        }\n        catch (NullReferenceException ex)\n        {\n            Console.WriteLine(\"Error: No subscribers to the event!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Error: No subscribers to the event!\n// Error message: Object reference not set to an instance of an object."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `OnClick` event is invoked without a null check.\n- If there are no subscribers, a `NullReferenceException` occurs.\n- Solution: Use `OnClick?.Invoke(...)` to avoid this error."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\npublic delegate void AlarmHandler(string message);\n\nclass AlarmClock\n{\n    public event AlarmHandler OnAlarm;\n\n    public void TriggerAlarm()\n    {\n        OnAlarm?.Invoke(\"Alarm clock ringing!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        AlarmClock alarm = new AlarmClock();\n\n        // Subscribe to the event\n        alarm.OnAlarm += WakeUp;\n        alarm.OnAlarm += Announce;\n\n        // Trigger the alarm\n        alarm.TriggerAlarm();\n\n        // Unsubscribe one handler\n        alarm.OnAlarm -= WakeUp;\n\n        // Trigger the alarm again\n        alarm.TriggerAlarm();\n    }\n\n    static void WakeUp(string message)\n    {\n        Console.WriteLine($\"Action: Wake up - {message}\");\n    }\n\n    static void Announce(string message)\n    {\n        Console.WriteLine($\"Action: Announce - {message}\");\n    }\n}\n// Output:\n// Action: Wake up - Alarm clock ringing!\n// Action: Announce - Alarm clock ringing!\n// Action: Announce - Alarm clock ringing!"
+      }
+    ]
+  },
+  "ru": {
+    "title": "События (Events)",
+    "icon": "FiBell",
+    "language": "csharp",
+    "description": "Создание и использование событий.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое события?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# события (events) — это механизм, позволяющий классу или объекту уведомлять другие классы или объекты об изменениях состояния. События следуют модели «издатель-подписчик»: один объект «публикует» событие, а другие объекты «подписываются» на него, выполняя действия при наступлении события. События основаны на делегатах. Этот JSON-файл объясняет создание, использование, связь с делегатами, подписку, отписку и примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Создание событий и делегатов"
+      },
+      {
+        "type": "paragraph",
+        "text": "События определяются с помощью делегатов, которые являются типами, содержащими ссылки на методы. Событие — это особая форма делегата, которая позволяет только подписку и отписку."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\n// Определение делегата\npublic delegate void ButtonClickHandler(string message);\n\nclass Button\n{\n    // Определение события\n    public event ButtonClickHandler OnClick;\n\n    public void Click()\n    {\n        // Запуск события\n        OnClick?.Invoke(\"Кнопка нажата!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Button button = new Button();\n\n        // Подписка на событие\n        button.OnClick += ButtonClicked;\n\n        // Симуляция нажатия кнопки\n        button.Click();\n    }\n\n    // Обработчик события\n    static void ButtonClicked(string message)\n    {\n        Console.WriteLine(message);\n    }\n}\n// Output:\n// Кнопка нажата!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ButtonClickHandler` — делегат, определяющий сигнатуру метода-обработчика.\n- `OnClick` — событие этого типа делегата.\n- Метод `Click` запускает событие, вызывая все подписанные методы.\n- Метод `ButtonClicked` подписан на событие.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Подписка и отписка от событий"
+      },
+      {
+        "type": "paragraph",
+        "text": "Подписка на события осуществляется с помощью оператора `+=`, а отписка — с помощью `-=`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void TemperatureChangeHandler(int newTemperature);\n\nclass Thermostat\n{\n    private int temperature;\n    public event TemperatureChangeHandler OnTemperatureChange;\n\n    public int Temperature\n    {\n        get => temperature;\n        set\n        {\n            temperature = value;\n            OnTemperatureChange?.Invoke(temperature);\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Thermostat thermostat = new Thermostat();\n\n        // Подписка на событие\n        thermostat.OnTemperatureChange += DisplayTemperature;\n\n        // Изменение температуры\n        thermostat.Temperature = 25;\n\n        // Отписка от события\n        thermostat.OnTemperatureChange -= DisplayTemperature;\n\n        // Это изменение не вызовет событие\n        thermostat.Temperature = 30;\n    }\n\n    static void DisplayTemperature(int temp)\n    {\n        Console.WriteLine($\"Новая температура: {temp}°C\");\n    }\n}\n// Output:\n// Новая температура: 25°C"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Thermostat` управляет событием изменения температуры.\n- Событие `OnTemperatureChange` вызывается при изменении температуры.\n- Метод `DisplayTemperature` подписывается на событие, но затем отписывается.\n- После отписки изменение температуры не вызывает событие."
+      },
+      {
+        "type": "heading",
+        "text": "Стандартный шаблон событий"
+      },
+      {
+        "type": "paragraph",
+        "text": "В C# события обычно используют `EventHandler` или `EventHandler<T>` для стандартизации."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Timer\n{\n    public event EventHandler<string> OnTick;\n\n    public void Start`\n    {\n        OnTick?.Invoke(this, \"Таймер запущен!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Timer timer = new Timer();\n        timer.OnTick += TimerTicked;\n        timer.Start();\n    }\n\n    static void TimerTicked(object sender, string message)\n    {\n        Console.WriteLine($\"Событие: {message}\");\n    }\n}\n// Output:\n// Событие: Таймер запущен!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `EventHandler<string>` — стандартный делегат события.\n- `sender` представляет объект, вызывающий событие, а `message` — данные события.\n- Метод `TimerTicked` подписан на событие и отображает сообщение."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества событий"
+      },
+      {
+        "type": "paragraph",
+        "text": "События повышают гибкость программы."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nМножественные подписчики: Несколько методов могут подписаться на одно событие."
+          },
+          {
+            "description": "\nИнкапсуляция: События разрешают только подписку и отписку, но не прямой вызов."
+          },
+          {
+            "description": "\nСовместимость с асинхронностью: События хорошо работают с асинхронным программированием."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "События могут создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Делегаты и события могут быть концептуально сложными для новичков."
+          },
+          {
+            "description": "\nУтечки памяти: Неправильная отписка от событий может привести к утечкам памяти."
+          },
+          {
+            "description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неотписка от событий может привести к утечкам памяти. Слишком сложные события могут усложнить код.\n- **Рекомендации**: Всегда отписывайтесь от событий, когда они больше не нужны. Используйте стандартный шаблон `EventHandler`. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку из-за вызова события без проверки на null."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void ErrorHandler(string message);\n\nclass BadButton\n{\n    public event ErrorHandler OnClick;\n\n    public void Click()\n    {\n        // Без проверки на null\n        OnClick(\"Произошла ошибка!\"); // Риск NullReferenceException\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BadButton button = new BadButton();\n        try\n        {\n            button.Click();\n        }\n        catch (NullReferenceException ex)\n        {\n            Console.WriteLine(\"Ошибка: Нет подписчиков на событие!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Ошибка: Нет подписчиков на событие!\n// Сообщение об ошибке: Object reference not set to an instance of an object."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Событие `OnClick` вызывается без проверки на null.\n- Если подписчиков нет, возникает `NullReferenceException`.\n- Решение: Используйте `OnClick?.Invoke(...)` для избежания ошибки."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\npublic delegate void AlarmHandler(string message);\n\nclass AlarmClock\n{\n    public event AlarmHandler OnAlarm;\n\n    public void TriggerAlarm()\n    {\n        OnAlarm?.Invoke(\"Будильник звонит!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        AlarmClock alarm = new AlarmClock();\n\n        // Подписка на событие\n        alarm.OnAlarm += WakeUp;\n        alarm.OnAlarm += Announce;\n\n        // Запуск будильника\n        alarm.TriggerAlarm();\n\n        // Отписка одного обработчика\n        alarm.OnAlarm -= WakeUp;\n\n        // Повторный запуск будильника\n        alarm.TriggerAlarm();\n    }\n\n    static void WakeUp(string message)\n    {\n        Console.WriteLine($\"Действие: Пробуждение - {message}\");\n    }\n\n    static void Announce(string message)\n    {\n        Console.WriteLine($\"Действие: Оповещение - {message}\");\n    }\n}\n// Output:\n// Действие: Пробуждение - Будильник звонит!\n// Действие: Оповещение - Будильник звонит!\n// Действие: Оповещение - Будильник звонит!"
+      }
+    ]
+  }
+}

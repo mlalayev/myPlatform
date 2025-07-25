@@ -10,14 +10,17 @@ type SavadliTypes = {
   right?: string | undefined;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
 };
 
 function SavadliButton(props: SavadliTypes) {
   return (
     <div>
       <button
-        className={style["cssbuttons-io"]}
+        className={props.className ? props.className + ' ' + style["cssbuttons-io"] : style["cssbuttons-io"]}
         style={{
+          ...(props.style || {}),
           position: props.position ? "absolute" : "relative",
           top: props.position ? props.top : undefined,
           bottom: props.position ? props.bottom : undefined,

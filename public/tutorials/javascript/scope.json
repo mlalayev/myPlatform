@@ -1,218 +1,681 @@
 {
+  "id": "scope",
   "az": {
     "title": "Scope",
+    "icon": "FiLayers",
     "language": "javascript",
-    "description": "Scope (görünürlük) – dəyişənlərin və funksiyaların kodun hansı hissəsində əlçatan olduğunu müəyyənləşdirən JavaScript qaydasıdır!",
+    "description": "Scope (görünürlük).",
     "content": [
       {
         "type": "heading",
-        "text": "Scope nədir?"
+        "text": "JavaScript-də Scope Nədir?"
       },
       {
         "type": "paragraph",
-        "text": "Təsəvvür et ki, sən bir evdəsən, və bu evdə bir neçə otaq var: mətbəx, qonaq otağı və yataq otağı. Hər otağın öz qapısı var, və sən hər otaqda fərqli əşyalar saxlayırsan. Məsələn, mətbəxdəki çaydan yalnız mətbəxdə istifadə oluna bilər, amma evin ümumi qapısındakı açar hər yerdə işləyir. JavaScript-də `scope` (görünürlük) dəyişənlərin və funksiyaların hansı otaqda (yəni kodun hansı hissəsində) əlçatan olduğunu müəyyənləşdirir. Əgər bir dəyişən müəyyən bir otaqda (scope-da) elan edilbsə, o, yalnız həmin otaqda və ya onun içindəki kiçik otaqlarda görünür."
+        "text": "JavaScript-də scope (görünürlük) bir dəyişənin harada təyin olunduğuna və ona harada daxil oluna biləcəyinə aiddir. Başqa sözlə, scope dəyişənlərin və funksiyaların kodun hansı hissələrində əlçatan olduğunu müəyyənləşdirir. Scope kodun düzgün işləməsi və səhvlərin qarşısını almaq üçün çox vacibdir. JavaScript-də əsasən üç scope növü var: qlobal scope, funksiya scope-u və blok scope-u. Bu JSON faylda scope-un növləri, xüsusiyyətləri, `var`, `let`, `const` ilə əlaqəsi, hoisting, scope zənciri, üstünlükləri və çətinlikləri sadə şəkildə izah olunacaq. Aşağıda kodları yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Scope Növləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "JavaScript-də scope növləri aşağıdakılardır:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nQlobal Scope: Kodun hər yerindən əlçatan olan dəyişənlər. Funksiya və ya blok daxilində təyin edilməyən dəyişənlər qlobal scope-dadır."
+          },
+          {
+            "description": "\nFunksiya Scope-u: Yalnız bir funksiya daxilində əlçatan olan dəyişənlər. Funksiyadan kənarda onlara daxil olmaq mümkün deyil."
+          },
+          {
+            "description": "\nBlok Scope-u: `{}` ilə müəyyən edilmiş bloklar (məsələn, `if`, `for`) daxilində əlçatan dəyişənlər. `let` və `const` blok scope-unu dəstəkləyir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Qlobal Scope"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Qlobal scope\nconst houseKey = \"Evin açarı\";\n\n// Funksiya scope-u\nfunction kitchen() {\n  const teapot = \"Çaydan\"; // Yalnız funksiya daxilində görünür\n  console.log(teapot); // nəticə: Çaydan\n  console.log(houseKey); // nəticə: Evin açarı\n}\nkitchen();\n\n// console.log(teapot); // Xəta: teapot is not defined"
-      },
-      {
-        "type": "heading",
-        "text": "Scope necə işləyir?"
+        "code": "// Qlobal scope nümunəsi\nconst globalVar = 'Mən qlobalam';\nfunction showGlobal() {\n    console.log(globalVar);\n}\nshowGlobal();\nconsole.log(globalVar);\n// Çıxış:\n// Mən qlobalam\n// Mən qlobalam"
       },
       {
         "type": "paragraph",
-        "text": "JavaScript-də əsasən üç növ scope var: **qlobal scope**, **funksiya scope-u** və **blok scope-u**. \n- **Qlobal scope**: Evin ümumi qapısı kimi, burada elan edilən dəyişənlər (əsasən `var` və ya heç bir açar söz olmadan) kodun hər yerində əlçatandır.\n- **Funksiya scope-u**: Bir otaq kimi, `function` daxilində elan edilən dəyişənlər (`var`, `let`, `const`) yalnız həmin funksiyada görünür.\n- **Blok scope-u**: Bir kiçik otaq kimi, `{}` içində (məsələn, `if` və ya `for` bloku) `let` və ya `const` ilə elan edilən dəyişənlər yalnız həmin blokda görünür.\nScope dəyişənlərin harada əlçatan olduğunu müəyyənləşdirir, və bu, səhvləri azaltmağa kömək edir, çünki dəyişənlər yalnız nəzərdə tutulmuş yerdə istifadə olunur."
+        "text": "Bu kodda:\n- `globalVar` qlobal scope-da təyin olunub və həm funksiya daxilində, həm də xaricində əlçatandır.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiya Scope-u"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Blok scope-u nümunəsi\nif (true) {\n  let roomItem = \"Lampa\"; // Yalnız blok daxilində görünür\n  console.log(roomItem); // nəticə: Lampa\n}\n// console.log(roomItem); // Xəta: roomItem is not defined\n\n// Qlobal scope nümunəsi\nvar globalItem = \"Ümumi açar\";\nfunction checkAccess() {\n  console.log(globalItem); // nəticə: Ümumi açar\n}\ncheckAccess();\nconsole.log(globalItem); // nəticə: Ümumi açar"
-      },
-      {
-        "type": "heading",
-        "text": "Scope-un xüsusiyyətləri"
+        "code": "// Funksiya scope-u nümunəsi\nfunction myFunction() {\n    const localVar = 'Mən funksiya daxilindəyəm';\n    console.log(localVar);\n}\nmyFunction();\n// console.log(localVar); // Səhv: localVar is not defined\n// Çıxış:\n// Mən funksiya daxilindəyəm"
       },
       {
         "type": "paragraph",
-        "text": "Scope JavaScript-də dəyişənlərin həyat dövrünü idarə edir. `var` ilə elan edilən dəyişənlər funksiya scope-una malikdir və bəzən hoisting səbəbindən gözlənilməz davranışlar göstərə bilər. `let` və `const` isə blok scope-una malikdir, bu da onları daha nəzarətli və təhlükəsiz edir. Məsələn, bir dövrün içində `let` ilə elan edilən dəyişən yalnız həmin dövrün blokunda görünür. Scope həm də dəyişənlərin təsadüfən dəyişdirilməsinin qarşısını alır, çünki dəyişənlər yalnız öz otaqlarında (scope-larında) əlçatandır."
+        "text": "Bu kodda:\n- `localVar` yalnız `myFunction` daxilində əlçatandır.\n- Funksiyadan kənarda `localVar`-a daxil olmağa cəhd etsək, səhv yaranar.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Blok Scope-u"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// var və let fərqi\nfor (var i = 0; i < 3; i++) {\n  console.log(\"Dövrün içində i: \" + i);\n}\nconsole.log(\"Dövrün xaricində i: \" + i); // nəticə: 3\n\nfor (let j = 0; j < 3; j++) {\n  console.log(\"Dövrün içində j: \" + j);\n}\n// console.log(j); // Xəta: j is not defined"
-      },
-      {
-        "type": "heading",
-        "text": "Scope və funksiya ifadələri ilə müqayisə"
+        "code": "// Blok scope-u nümunəsi\nif (true) {\n    let blockVar = 'Mən blok daxilindəyəm';\n    console.log(blockVar);\n}\n// console.log(blockVar); // Səhv: blockVar is not defined\n// Çıxış:\n// Mən blok daxilindəyəm"
       },
       {
         "type": "paragraph",
-        "text": "Funksiya bəyanatları (`function`) və funksiya ifadələri (`const fn = function()`) scope ilə sıx bağlıdır. Funksiya bəyanatları hoisting ilə işləyir və qlobal scope-da əlçatan olur, amma funksiya ifadələri yalnız dəyişənin elan olunduğu scope-da işləyir. Məsələn, bir funksiya ifadəsini `const` ilə elan etsən, o, yalnız həmin scope-da əlçatan olacaq. Scope-un düzgün idarə olunması kodun səliqəsini artırır və dəyişənlərin yanlış istifadəsinin qarşısını alır."
+        "text": "Bu kodda:\n- `blockVar` `let` ilə təyin olunub və yalnız `if` bloku daxilində əlçatandır.\n- Blokdan kənarda `blockVar`-a daxil olmağa cəhd etsək, səhv yaranar.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "`var`, `let`, `const` ilə Əlaqə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dəyişənlərin scope-u onların təyin olunduğu açar sözə (`var`, `let`, `const`) bağlıdır:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`var`: Funksiya scope-unu dəstəkləyir, blok scope-unu dəstəkləmir. Hoisting olunur və `undefined` kimi təyin edilir."
+          },
+          {
+            "description": "\n`let`: Blok scope-unu dəstəkləyir, hoisting olunur, lakin TDZ (Temporal Dead Zone) səbəbindən təyin edilməmişdən əvvəl çağırıla bilməz."
+          },
+          {
+            "description": "\n`const`: Blok scope-unu dəstəkləyir, yenidən təyin edilə bilməz, lakin dəyəri dəyişdirilə bilən obyektlərə istinad edə bilər."
+          }
+        ]
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Funksiya bəyanatı və scope\nfunction sayHello() {\n  console.log(\"Salam!\");\n}\nsayHello(); // nəticə: Salam!\n\n// Funksiya ifadəsi və scope\nif (true) {\n  const greet = function() {\n    console.log(\"Salam, qonaq!\");\n  };\n  greet(); // nəticə: Salam, qonaq!\n}\n// console.log(greet); // Xəta: greet is not defined"
-      },
-      {
-        "type": "heading",
-        "text": "Nə vaxt scope-a diqqət etməli?"
+        "code": "// var, let, const ilə scope nümunəsi\nif (true) {\n    var varVariable = 'Var ilə';\n    let letVariable = 'Let ilə';\n    const constVariable = 'Const ilə';\n    console.log(varVariable);\n    console.log(letVariable);\n    console.log(constVariable);\n}\nconsole.log(varVariable);\n// console.log(letVariable); // Səhv: letVariable is not defined\n// console.log(constVariable); // Səhv: constVariable is not defined\n// Çıxış:\n// Var ilə\n// Let ilə\n// Const ilə\n// Var ilə"
       },
       {
         "type": "paragraph",
-        "text": "`Scope` dəyişənlərin harada əlçatan olduğunu və harada itməsini müəyyənləşdirir. `let` və `const` istifadə edərək blok scope-undan faydalanmaq kodu daha təhlükəsiz və oxunaqlı edir. `var` istifadəsi isə bəzən gözlənilməz nəticələrə səbəb ola bilər, çünki o, funksiya scope-una və hoisting-ə malikdir. Böyük proqramlarda scope-un düzgün idarə olunması səhvləri azaltmağa kömək edir, çünki dəyişənlər yalnız nəzərdə tutulmuş yerdə istifadə olunur. Məsələn, bir funksiyanın içindəki dəyişən digər funksiyalar tərəfindən dəyişdirilə bilməz."
+        "text": "Bu kodda:\n- `varVariable` funksiya scope-una malik olduğu üçün blokdan kənarda əlçatandır.\n- `letVariable` və `constVariable` blok scope-una malikdir, buna görə blokdan kənarda səhv yaranar.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
       },
       {
         "type": "heading",
-        "text": "Sınaq üçün nümunə"
+        "text": "Hoisting və Scope"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hoisting, dəyişənlərin və funksiyaların kodun icrasından əvvəl yaddaşda yerləşdirilməsidir. Scope ilə hoisting arasında əlaqə var:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`var`: Hoisting olunur və `undefined` kimi təyin edilir, lakin scope funksiya və ya qlobal scope ilə məhdudlaşır."
+          },
+          {
+            "description": "\n`let` və `const`: Hoisting olunur, lakin TDZ səbəbindən təyin edilməmişdən əvvəl çağırıla bilməz."
+          },
+          {
+            "description": "\nFunksiya elanları: Hoisting olunur və tamamilə əlçatandır, lakin scope funksiya daxilində qalır."
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Hoisting və scope nümunəsi\nconsole.log(varHoist); // undefined\nvar varHoist = 'Var hoisting';\n// console.log(letHoist); // Səhv: Cannot access 'letHoist' before initialization\nlet letHoist = 'Let hoisting';\nfunction testHoist() {\n    console.log(localHoist); // undefined\n    var localHoist = 'Funksiya daxilində';\n}\ntestHoist();\n// Çıxış:\n// undefined\n// undefined"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `varHoist` hoisting səbəbindən `undefined` qaytarır.\n- `letHoist` TDZ səbəbindən səhv yaranar.\n- `localHoist` funksiya scope-unda hoisting olunur, lakin `undefined` qaytarır.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Scope Zənciri (Scope Chain)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Scope zənciri dəyişənə daxil olmaq cəhdi zamanı JavaScript-in dəyişəni axtarma qaydasını müəyyənləşdirir. Əgər dəyişən cari scope-da tapılmazsa, JavaScript yuxarı scope-lara (məsələn, qlobal scope-a) baxır."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Scope zənciri nümunəsi\nconst globalVar = 'Qlobal dəyişən';\nfunction outerFunction() {\n    const outerVar = 'Xarici funksiya';\n    function innerFunction() {\n        const innerVar = 'Daxili funksiya';\n        console.log(innerVar);\n        console.log(outerVar);\n        console.log(globalVar);\n    }\n    innerFunction();\n}\nouterFunction();\n// Çıxış:\n// Daxili funksiya\n// Xarici funksiya\n// Qlobal dəyişən"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `innerFunction` öz scope-unda `innerVar`-ı tapır.\n- `outerVar` və `globalVar` yuxarı scope-lardan alınır.\n- Scope zənciri daxildən xaricə doğru işləyir.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Scope-un Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Scope kodun təhlükəsizliyini və nizamını təmin edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nTəcrid: Dəyişənlər yalnız müəyyən scope-da əlçatan olur, bu da səhvləri azaldır."
+          },
+          {
+            "description": "\nModulluluq: Kodun müxtəlif hissələri bir-birindən asılı olmayaraq işləyə bilər."
+          },
+          {
+            "description": "\nNəzarət: Blok scope-u ilə `let` və `const` daha dəqiq nəzarət təmin edir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Scope ilə işləyərkən bəzi çətinliklər ola bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nScope çaşqınlığı: Yeni başlayanlar dəyişənin harada əlçatan olduğunu başa düşməkdə çətinlik çəkə bilər."
+          },
+          {
+            "description": "\n`var` ilə problemlər: `var`-ın blok scope-u dəstəkləməməsi səhvlərə səbəb ola bilər."
+          },
+          {
+            "description": "\nHoisting: Hoisting-in necə işlədiyini bilməmək səhvlərə yol aça bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Qlobal scope-da çox dəyişən təyin etmək, `var`-ın blok scope-u dəstəkləməməsi və ya hoisting səbəbindən gözlənilməz davranışlar səhvlərə səbəb ola bilər.\n- **Tövsiyələr**: `let` və `const` istifadə edin, çünki onlar blok scope-unu dəstəkləyir. Qlobal dəyişənləri minimuma endirin. Scope zəncirini başa düşün. Aşağıda kodları yoxlaya bilərsiniz. Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/JavaScript) sənədlərindən istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Səhvə yol açan nümunə\nfor (var i = 0; i < 3; i++) {\n    console.log('Döngü daxilində:', i);\n}\nconsole.log('Döngüdən kənarda:', i);\n// Çıxış:\n// Döngü daxilində: 0\n// Döngü daxilində: 1\n// Döngü daxilində: 2\n// Döngüdən kənarda: 3"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `var` ilə təyin olunan `i` blok scope-u dəstəkləmədiyi üçün döngüdən kənarda da əlçatandır.\n- `let` istifadə olunsaydı, `i` döngüdən kənarda əlçatan olmazdı və səhv yaranardı.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
       },
       {
         "type": "editor",
-        "initialCode": "// Öz scope nümunəni yarat!\nconst globalItem = \"Evin açarı\";\nfunction livingRoom() {\n  const sofa = \"Divan\";\n  console.log(sofa); // nəticə: Divan\n  console.log(globalItem); // nəticə: Evin açarı\n}\nlivingRoom();\n// console.log(sofa); // Xəta: sofa is not defined"
+        "initialCode": "// Scope sınağı\nconst globalVar = 'Qlobal';\nfunction outer() {\n    const outerVar = 'Xarici';\n    function inner() {\n        const innerVar = 'Daxili';\n        console.log(innerVar);\n        console.log(outerVar);\n        console.log(globalVar);\n    }\n    inner();\n}\nouter();\n// Çıxış:\n// Daxili\n// Xarici\n// Qlobal"
       }
     ]
   },
   "en": {
     "title": "Scope",
+    "icon": "FiLayers",
     "language": "javascript",
-    "description": "Scope – a JavaScript rule that determines where variables and functions are accessible in your code!",
+    "description": "Scope (visibility).",
     "content": [
       {
         "type": "heading",
-        "text": "What is scope?"
+        "text": "What is Scope in JavaScript?"
       },
       {
         "type": "paragraph",
-        "text": "Imagine you’re in a house with several rooms: a kitchen, a living room, and a bedroom. Each room has its own door, and you keep different items in each room. For example, a teapot in the kitchen can only be used there, but a house key at the main door works everywhere. In JavaScript, `scope` determines where variables and functions are accessible in your code. If a variable is declared in a specific room (scope), it’s only visible in that room or in smaller rooms inside it."
+        "text": "In JavaScript, scope determines where a variable or function is accessible within the code. In other words, scope defines the boundaries of where variables and functions can be used. Scope is crucial for ensuring code works correctly and avoiding errors. JavaScript primarily has three types of scope: global scope, function scope, and block scope. This JSON file explains scope types, their features, relation with `var`, `let`, `const`, hoisting, scope chain, advantages, and challenges in a simple way. You can test the code below."
+      },
+      {
+        "type": "heading",
+        "text": "Types of Scope"
+      },
+      {
+        "type": "paragraph",
+        "text": "JavaScript has the following scope types:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nGlobal Scope: Variables accessible from anywhere in the code. Variables not defined inside a function or block are in global scope."
+          },
+          {
+            "description": "\nFunction Scope: Variables accessible only within a function. They cannot be accessed outside the function."
+          },
+          {
+            "description": "\nBlock Scope: Variables accessible only within a block (e.g., `if`, `for`) defined by `{}`. `let` and `const` support block scope."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Global Scope"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Global scope\nconst houseKey = \"House key\";\n\n// Function scope\nfunction kitchen() {\n  const teapot = \"Teapot\"; // Only visible inside the function\n  console.log(teapot); // Output: Teapot\n  console.log(houseKey); // Output: House key\n}\nkitchen();\n\n// console.log(teapot); // Error: teapot is not defined"
-      },
-      {
-        "type": "heading",
-        "text": "How does scope work?"
+        "code": "// Global scope example\nconst globalVar = 'I am global';\nfunction showGlobal() {\n    console.log(globalVar);\n}\nshowGlobal();\nconsole.log(globalVar);\n// Output:\n// I am global\n// I am global"
       },
       {
         "type": "paragraph",
-        "text": "JavaScript has three main types of scope: **global scope**, **function scope**, and **block scope**.\n- **Global scope**: Like the house’s main door, variables declared here (usually with `var` or without a keyword) are accessible everywhere in the code.\n- **Function scope**: Like a room, variables declared inside a `function` (using `var`, `let`, or `const`) are only visible within that function.\n- **Block scope**: Like a smaller room, variables declared with `let` or `const` inside a `{}` block (e.g., in an `if` or `for` loop) are only visible within that block.\nScope controls where variables can be accessed, helping prevent errors by keeping variables confined to their intended areas."
+        "text": "In this code:\n- `globalVar` is defined in the global scope and is accessible both inside and outside the function.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Function Scope"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Block scope example\nif (true) {\n  let roomItem = \"Lamp\"; // Only visible inside the block\n  console.log(roomItem); // Output: Lamp\n}\n// console.log(roomItem); // Error: roomItem is not defined\n\n// Global scope example\nvar globalItem = \"Master key\";\nfunction checkAccess() {\n  console.log(globalItem); // Output: Master key\n}\ncheckAccess();\nconsole.log(globalItem); // Output: Master key"
-      },
-      {
-        "type": "heading",
-        "text": "Features of scope"
+        "code": "// Function scope example\nfunction myFunction() {\n    const localVar = 'I am inside the function';\n    console.log(localVar);\n}\nmyFunction();\n// console.log(localVar); // Error: localVar is not defined\n// Output:\n// I am inside the function"
       },
       {
         "type": "paragraph",
-        "text": "Scope manages the lifecycle of variables in JavaScript. Variables declared with `var` have function scope and can sometimes cause unexpected behavior due to hoisting. `let` and `const` have block scope, making them more controlled and safer. For example, a variable declared with `let` inside a loop is only visible within that loop’s block. Scope also prevents variables from being accidentally modified by keeping them confined to their specific rooms (scopes)."
+        "text": "In this code:\n- `localVar` is only accessible within `myFunction`.\n- Attempting to access `localVar` outside the function causes an error.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Block Scope"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Difference between var and let\nfor (var i = 0; i < 3; i++) {\n  console.log(\"Inside loop i: \" + i);\n}\nconsole.log(\"Outside loop i: \" + i); // Output: 3\n\nfor (let j = 0; j < 3; j++) {\n  console.log(\"Inside loop j: \" + j);\n}\n// console.log(j); // Error: j is not defined"
-      },
-      {
-        "type": "heading",
-        "text": "Scope and function expressions"
+        "code": "// Block scope example\nif (true) {\n    let blockVar = 'I am inside the block';\n    console.log(blockVar);\n}\n// console.log(blockVar); // Error: blockVar is not defined\n// Output:\n// I am inside the block"
       },
       {
         "type": "paragraph",
-        "text": "Function declarations (`function`) and function expressions (`const fn = function()`) are closely tied to scope. Function declarations support hoisting and are accessible in the global scope, but function expressions are only available in the scope where their variable is defined. For example, if you declare a function expression with `const`, it’s only accessible in that scope. Properly managing scope keeps code organized and prevents accidental misuse of variables."
+        "text": "In this code:\n- `blockVar` is defined with `let` and is only accessible within the `if` block.\n- Attempting to access `blockVar` outside the block causes an error.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Relation with `var`, `let`, and `const`"
+      },
+      {
+        "type": "paragraph",
+        "text": "The scope of variables depends on the keyword used (`var`, `let`, `const`):"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`var`: Supports function scope, not block scope. It is hoisted and initialized as `undefined`."
+          },
+          {
+            "description": "\n`let`: Supports block scope, is hoisted but inaccessible before assignment due to TDZ (Temporal Dead Zone)."
+          },
+          {
+            "description": "\n`const`: Supports block scope, cannot be reassigned, but mutable objects it refers to can be modified."
+          }
+        ]
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Function declaration and scope\nfunction sayHello() {\n  console.log(\"Hello!\");\n}\nsayHello(); // Output: Hello!\n\n// Function expression and scope\nif (true) {\n  const greet = function() {\n    console.log(\"Hello, guest!\");\n  };\n  greet(); // Output: Hello, guest!\n}\n// console.log(greet); // Error: greet is not defined"
-      },
-      {
-        "type": "heading",
-        "text": "When to pay attention to scope?"
+        "code": "// var, let, const with scope example\nif (true) {\n    var varVariable = 'With var';\n    let letVariable = 'With let';\n    const constVariable = 'With const';\n    console.log(varVariable);\n    console.log(letVariable);\n    console.log(constVariable);\n}\nconsole.log(varVariable);\n// console.log(letVariable); // Error: letVariable is not defined\n// console.log(constVariable); // Error: constVariable is not defined\n// Output:\n// With var\n// With let\n// With const\n// With var"
       },
       {
         "type": "paragraph",
-        "text": "Scope determines where variables are accessible and when they disappear. Using `let` and `const` for block scope makes code safer and more readable. `var` can lead to unexpected results due to its function scope and hoisting. In large programs, proper scope management reduces errors by ensuring variables are only used where intended. For example, a variable inside a function cannot be modified by other functions."
+        "text": "In this code:\n- `varVariable` is accessible outside the block because `var` supports function scope.\n- `letVariable` and `constVariable` are block-scoped, so accessing them outside the block causes an error.\n- You can test this code below."
       },
       {
         "type": "heading",
-        "text": "Try it yourself"
+        "text": "Hoisting and Scope"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hoisting is the process of moving variable and function declarations to the top of their scope before code execution. Scope interacts with hoisting as follows:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`var`: Hoisted and initialized as `undefined`, but limited by function or global scope."
+          },
+          {
+            "description": "\n`let` and `const`: Hoisted but inaccessible before assignment due to TDZ."
+          },
+          {
+            "description": "\nFunction Declarations: Hoisted and fully accessible, but limited by their scope."
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Hoisting and scope example\nconsole.log(varHoist); // undefined\nvar varHoist = 'Var hoisting';\n// console.log(letHoist); // Error: Cannot access 'letHoist' before initialization\nlet letHoist = 'Let hoisting';\nfunction testHoist() {\n    console.log(localHoist); // undefined\n    var localHoist = 'Inside function';\n}\ntestHoist();\n// Output:\n// undefined\n// undefined"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `varHoist` returns `undefined` due to hoisting.\n- `letHoist` causes an error due to TDZ.\n- `localHoist` is hoisted within the function scope but returns `undefined`.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Scope Chain"
+      },
+      {
+        "type": "paragraph",
+        "text": "The scope chain determines the order in which JavaScript looks for a variable when it is accessed. If a variable is not found in the current scope, JavaScript checks outer scopes (e.g., global scope)."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Scope chain example\nconst globalVar = 'Global variable';\nfunction outerFunction() {\n    const outerVar = 'Outer function';\n    function innerFunction() {\n        const innerVar = 'Inner function';\n        console.log(innerVar);\n        console.log(outerVar);\n        console.log(globalVar);\n    }\n    innerFunction();\n}\nouterFunction();\n// Output:\n// Inner function\n// Outer function\n// Global variable"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `innerFunction` finds `innerVar` in its own scope.\n- `outerVar` and `globalVar` are accessed from outer scopes.\n- The scope chain works from inner to outer scopes.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Scope"
+      },
+      {
+        "type": "paragraph",
+        "text": "Scope ensures code safety and organization."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nIsolation: Variables are only accessible within their scope, reducing errors."
+          },
+          {
+            "description": "\nModularity: Code sections can operate independently."
+          },
+          {
+            "description": "\nControl: Block scope with `let` and `const` provides precise control."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Working with scope can present challenges."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nScope Confusion: Beginners may struggle to understand where variables are accessible."
+          },
+          {
+            "description": "\nIssues with `var`: Lack of block scope in `var` can cause errors."
+          },
+          {
+            "description": "\nHoisting: Not understanding hoisting can lead to unexpected behavior."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Overusing global scope, `var`’s lack of block scope, or misunderstanding hoisting can cause errors.\n- **Recommendations**: Use `let` and `const` for block scope. Minimize global variables. Understand the scope chain. You can test the code below. Refer to Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/JavaScript) for guidance."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Error-prone example\nfor (var i = 0; i < 3; i++) {\n    console.log('Inside loop:', i);\n}\nconsole.log('Outside loop:', i);\n// Output:\n// Inside loop: 0\n// Inside loop: 1\n// Inside loop: 2\n// Outside loop: 3"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `i` defined with `var` is accessible outside the loop because `var` does not support block scope.\n- Using `let` would make `i` inaccessible outside the loop, causing an error.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
       },
       {
         "type": "editor",
-        "initialCode": "// Create your own scope example!\nconst globalItem = \"House key\";\nfunction livingRoom() {\n  const sofa = \"Sofa\";\n  console.log(sofa); // Output: Sofa\n  console.log(globalItem); // Output: House key\n}\nlivingRoom();\n// console.log(sofa); // Error: sofa is not defined"
+        "initialCode": "// Scope test\nconst globalVar = 'Global';\nfunction outer() {\n    const outerVar = 'Outer';\n    function inner() {\n        const innerVar = 'Inner';\n        console.log(innerVar);\n        console.log(outerVar);\n        console.log(globalVar);\n    }\n    inner();\n}\nouter();\n// Output:\n// Inner\n// Outer\n// Global"
       }
     ]
   },
   "ru": {
-    "title": "Scope",
+    "title": "Область видимости",
+    "icon": "FiLayers",
     "language": "javascript",
-    "description": "Область видимости – правило JavaScript, определяющее, где переменные и функции доступны в коде!",
+    "description": "Область видимости (scope).",
     "content": [
       {
         "type": "heading",
-        "text": "Что такое scope?"
+        "text": "Что такое область видимости в JavaScript?"
       },
       {
         "type": "paragraph",
-        "text": "Представь, что ты находишься в доме с несколькими комнатами: кухня, гостиная и спальня. У каждой комнаты своя дверь, и в каждой комнате хранятся разные вещи. Например, чайник на кухне можно использовать только там, но ключ от дома у входной двери работает везде. В JavaScript `scope` (область видимости) определяет, где переменные и функции доступны в коде. Если переменная объявлена в определённой комнате (scope), она видна только в этой комнате или в меньших комнатах внутри неё."
+        "text": "В JavaScript область видимости (scope) определяет, где переменная или функция доступны в коде. Другими словами, scope определяет границы, в которых можно использовать переменные и функции. Область видимости важна для корректной работы кода и предотвращения ошибок. В JavaScript есть три основных типа области видимости: глобальная, функциональная и блочная. Этот JSON-файл объясняет типы областей видимости, их особенности, связь с `var`, `let`, `const`, подъем (hoisting), цепочку областей видимости, преимущества и сложности простым образом. Вы можете протестировать код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Типы областей видимости"
+      },
+      {
+        "type": "paragraph",
+        "text": "В JavaScript существуют следующие типы областей видимости:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nГлобальная область видимости: Переменные, доступные из любой части кода. Переменные, не объявленные внутри функции или блока, находятся в глобальной области видимости."
+          },
+          {
+            "description": "\nФункциональная область видимости: Переменные, доступные только внутри функции. Они недоступны за пределами функции."
+          },
+          {
+            "description": "\nБлочная область видимости: Переменные, доступные только внутри блока (например, `if`, `for`), определенного `{}`. `let` и `const` поддерживают блочную область видимости."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Глобальная область видимости"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Глобальная область видимости\nconst houseKey = \"Ключ от дома\";\n\n// Область видимости функции\nfunction kitchen() {\n  const teapot = \"Чайник\"; // Видно только внутри функции\n  console.log(teapot); // Вывод: Чайник\n  console.log(houseKey); // Вывод: Ключ от дома\n}\nkitchen();\n\n// console.log(teapot); // Ошибка: teapot is not defined"
-      },
-      {
-        "type": "heading",
-        "text": "Как работает scope?"
+        "code": "// Пример глобальной области видимости\nconst globalVar = 'Я глобальная';\nfunction showGlobal() {\n    console.log(globalVar);\n}\nshowGlobal();\nconsole.log(globalVar);\n// Вывод:\n// Я глобальная\n// Я глобальная"
       },
       {
         "type": "paragraph",
-        "text": "В JavaScript есть три основных типа области видимости: **глобальная область видимости**, **область видимости функции** и **блочная область видимости**.\n- **Глобальная область видимости**: Как главная дверь дома, переменные, объявленные здесь (обычно с `var` или без ключевого слова), доступны везде в коде.\n- **Область видимости функции**: Как комната, переменные, объявленные внутри `function` (с помощью `var`, `let` или `const`), видны только внутри этой функции.\n- **Блочная область видимости**: Как маленькая комната, переменные, объявленные с `let` или `const` внутри блока `{}`, например, в `if` или `for`, видны только в этом блоке.\nОбласть видимости контролирует доступ к переменным, помогая предотвратить ошибки, ограничивая переменные их предназначенными зонами."
+        "text": "В этом коде:\n- `globalVar` объявлена в глобальной области видимости и доступна как внутри, так и снаружи функции.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Функциональная область видимости"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Пример блочной области видимости\nif (true) {\n  let roomItem = \"Лампа\"; // Видно только внутри блока\n  console.log(roomItem); // Вывод: Лампа\n}\n// console.log(roomItem); // Ошибка: roomItem is not defined\n\n// Пример глобальной области видимости\nvar globalItem = \"Главный ключ\";\nfunction checkAccess() {\n  console.log(globalItem); // Вывод: Главный ключ\n}\ncheckAccess();\nconsole.log(globalItem); // Вывод: Главный ключ"
-      },
-      {
-        "type": "heading",
-        "text": "Особенности scope"
+        "code": "// Пример функциональной области видимости\nfunction myFunction() {\n    const localVar = 'Я внутри функции';\n    console.log(localVar);\n}\nmyFunction();\n// console.log(localVar); // Ошибка: localVar is not defined\n// Вывод:\n// Я внутри функции"
       },
       {
         "type": "paragraph",
-        "text": "Область видимости управляет жизненным циклом переменных в JavaScript. Переменные, объявленные с `var`, имеют область видимости функции и могут вызывать неожиданное поведение из-за hoisting. `let` и `const` имеют блочную область видимости, что делает их более контролируемыми и безопасными. Например, переменная, объявленная с `let` внутри цикла, видна только в блоке этого цикла. Область видимости также предотвращает случайное изменение переменных, ограничивая их доступом к их комнатам (scope)."
+        "text": "В этом коде:\n- `localVar` доступна только внутри `myFunction`.\n- Попытка доступа к `localVar` снаружи функции вызывает ошибку.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Блочная область видимости"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Разница между var и let\nfor (var i = 0; i < 3; i++) {\n  console.log(\"Внутри цикла i: \" + i);\n}\nconsole.log(\"Вне цикла i: \" + i); // Вывод: 3\n\nfor (let j = 0; j < 3; j++) {\n  console.log(\"Внутри цикла j: \" + j);\n}\n// console.log(j); // Ошибка: j is not defined"
-      },
-      {
-        "type": "heading",
-        "text": "Scope и функциональные выражения"
+        "code": "// Пример блочной области видимости\nif (true) {\n    let blockVar = 'Я внутри блока';\n    console.log(blockVar);\n}\n// console.log(blockVar); // Ошибка: blockVar is not defined\n// Вывод:\n// Я внутри блока"
       },
       {
         "type": "paragraph",
-        "text": "Объявления функций (`function`) и функциональные выражения (`const fn = function()`) тесно связаны с областью видимости. Объявления функций поддерживают hoisting и доступны в глобальной области видимости, но функциональные выражения доступны только в той области, где определена их переменная. Например, если ты объявляешь функциональное выражение с `const`, оно доступно только в этой области. Правильное управление областью видимости делает код организованным и предотвращает случайное использование переменных."
+        "text": "В этом коде:\n- `blockVar`, объявленная с `let`, доступна только внутри блока `if`.\n- Попытка доступа к `blockVar` снаружи блока вызывает ошибку.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Связь с `var`, `let` и `const`"
+      },
+      {
+        "type": "paragraph",
+        "text": "Область видимости переменных зависит от используемого ключевого слова (`var`, `let`, `const`):"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`var`: Поддерживает функциональную область видимости, но не блочную. Поднимается и инициализируется как `undefined`."
+          },
+          {
+            "description": "\n`let`: Поддерживает блочную область видимости, поднимается, но недоступен до присваивания из-за TDZ (Temporal Dead Zone)."
+          },
+          {
+            "description": "\n`const`: Поддерживает блочную область видимости, не допускает повторного присваивания, но объекты, на которые ссылается, могут быть изменены."
+          }
+        ]
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Объявление функции и scope\nfunction sayHello() {\n  console.log(\"Привет!\");\n}\nsayHello(); // Вывод: Привет!\n\n// Функциональное выражение и scope\nif (true) {\n  const greet = function() {\n    console.log(\"Привет, гость!\");\n  };\n  greet(); // Вывод: Привет, гость!\n}\n// console.log(greet); // Ошибка: greet is not defined"
-      },
-      {
-        "type": "heading",
-        "text": "Когда обращать внимание на scope?"
+        "code": "// Пример var, let, const с областью видимости\nif (true) {\n    var varVariable = 'С var';\n    let letVariable = 'С let';\n    const constVariable = 'С const';\n    console.log(varVariable);\n    console.log(letVariable);\n    console.log(constVariable);\n}\nconsole.log(varVariable);\n// console.log(letVariable); // Ошибка: letVariable is not defined\n// console.log(constVariable); // Ошибка: constVariable is not defined\n// Вывод:\n// С var\n// С let\n// С const\n// С var"
       },
       {
         "type": "paragraph",
-        "text": "Область видимости определяет, где переменные доступны и когда они исчезают. Использование `let` и `const` для блочной области видимости делает код безопаснее и читабельнее. `var` может приводить к неожиданным результатам из-за своей функциональной области видимости и hoisting. В больших программах правильное управление областью видимости уменьшает ошибки, гарантируя, что переменные используются только там, где они предназначены. Например, переменная внутри функции не может быть изменена другими функциями."
+        "text": "В этом коде:\n- `varVariable` доступна за пределами блока, так как `var` поддерживает функциональную область видимости.\n- `letVariable` и `constVariable` ограничены блочной областью видимости, поэтому доступ к ним снаружи вызывает ошибку.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Подъем (Hoisting) и область видимости"
+      },
+      {
+        "type": "paragraph",
+        "text": "Подъем (hoisting) — это процесс, при котором переменные и объявления функций перемещаются в начало их области видимости перед выполнением кода. Область видимости взаимодействует с подъемом следующим образом:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`var`: Поднимается и инициализируется как `undefined`, но ограничена функциональной или глобальной областью видимости."
+          },
+          {
+            "description": "\n`let` и `const`: Поднимаются, но недоступны до присваивания из-за TDZ."
+          },
+          {
+            "description": "\nОбъявления функций: Поднимаются и полностью доступны, но ограничены своей областью видимости."
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример подъема и области видимости\nconsole.log(varHoist); // undefined\nvar varHoist = 'Var hoisting';\n// console.log(letHoist); // Ошибка: Cannot access 'letHoist' before initialization\nlet letHoist = 'Let hoisting';\nfunction testHoist() {\n    console.log(localHoist); // undefined\n    var localHoist = 'Внутри функции';\n}\ntestHoist();\n// Вывод:\n// undefined\n// undefined"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `varHoist` возвращает `undefined` из-за подъема.\n- `letHoist` вызывает ошибку из-за TDZ.\n- `localHoist` поднимается в функциональной области видимости, но возвращает `undefined`.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Цепочка областей видимости (Scope Chain)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Цепочка областей видимости определяет порядок, в котором JavaScript ищет переменную при попытке доступа к ней. Если переменная не найдена в текущей области видимости, JavaScript проверяет внешние области (например, глобальную)."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример цепочки областей видимости\nconst globalVar = 'Глобальная переменная';\nfunction outerFunction() {\n    const outerVar = 'Внешняя функция';\n    function innerFunction() {\n        const innerVar = 'Внутренняя функция';\n        console.log(innerVar);\n        console.log(outerVar);\n        console.log(globalVar);\n    }\n    innerFunction();\n}\nouterFunction();\n// Вывод:\n// Внутренняя функция\n// Внешняя функция\n// Глобальная переменная"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `innerFunction` находит `innerVar` в своей области видимости.\n- `outerVar` и `globalVar` берутся из внешних областей видимости.\n- Цепочка областей видимости работает от внутренней к внешней.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества области видимости"
+      },
+      {
+        "type": "paragraph",
+        "text": "Область видимости обеспечивает безопасность и организацию кода."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nИзоляция: Переменные доступны только в своей области видимости, что снижает вероятность ошибок."
+          },
+          {
+            "description": "\nМодульность: Различные части кода могут работать независимо друг от друга."
+          },
+          {
+            "description": "\nКонтроль: Блочная область видимости с `let` и `const` обеспечивает точное управление."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Работа с областью видимости может представлять сложности."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПутаница с областью видимости: Новички могут испытывать трудности с пониманием, где переменные доступны."
+          },
+          {
+            "description": "\nПроблемы с `var`: Отсутствие поддержки блочной области видимости у `var` может вызывать ошибки."
+          },
+          {
+            "description": "\nПодъем: Непонимание подъема может привести к неожиданному поведению."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Чрезмерное использование глобальной области видимости, отсутствие блочной области видимости у `var` или непонимание подъема могут вызывать ошибки.\n- **Рекомендации**: Используйте `let` и `const` для поддержки блочной области видимости. Минимизируйте глобальные переменные. Понимайте цепочку областей видимости. Вы можете протестировать код ниже. Обратитесь к документации Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/JavaScript)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример с ошибкой\nfor (var i = 0; i < 3; i++) {\n    console.log('Внутри цикла:', i);\n}\nconsole.log('Снаружи цикла:', i);\n// Вывод:\n// Внутри цикла: 0\n// Внутри цикла: 1\n// Внутри цикла: 2\n// Снаружи цикла: 3"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `i`, объявленная с `var`, доступна за пределами цикла, так как `var` не поддерживает блочную область видимости.\n- Использование `let` сделало бы `i` недоступной за пределами цикла, вызвав ошибку.\n- Вы можете протестировать этот код ниже."
       },
       {
         "type": "heading",
@@ -220,7 +683,7 @@
       },
       {
         "type": "editor",
-        "initialCode": "// Создай свой пример scope!\nconst globalItem = \"Ключ от дома\";\nfunction livingRoom() {\n  const sofa = \"Диван\";\n  console.log(sofa); // Вывод: Диван\n  console.log(globalItem); // Вывод: Ключ от дома\n}\nlivingRoom();\n// console.log(sofa); // Ошибка: sofa is not defined"
+        "initialCode": "// Тест области видимости\nconst globalVar = 'Глобальная';\nfunction outer() {\n    const outerVar = 'Внешняя';\n    function inner() {\n        const innerVar = 'Внутренняя';\n        console.log(innerVar);\n        console.log(outerVar);\n        console.log(globalVar);\n    }\n    inner();\n}\nouter();\n// Вывод:\n// Внутренняя\n// Внешняя\n// Глобальная"
       }
     ]
   }

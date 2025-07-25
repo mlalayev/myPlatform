@@ -1,0 +1,435 @@
+{
+  "id": "indexers",
+  "az": {
+    "title": "İndeksatorlar",
+    "icon": "FiHash",
+    "language": "csharp",
+    "description": "İndeksatorların yaradılması.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "İndeksatorlar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində indeksatorlar (indexers) sinif və ya struktur daxilindəki məlumatlara massivə bənzər şəkildə daxil olmağa imkan verən xüsusi bir mexanizmdir. İndeksatorlar sayəsində bir obyektin elementlərinə indeks (məsələn, `[0]`, `[1]`) istifadə edərək daxil ola bilərsiniz, sanki o, bir massiv və ya siyahıdır. İndeksatorlar xüsusiyyətlərə (properties) bənzəyir, lakin indeks parametri qəbul edir. Bu JSON faylda indeksatorların yaradılması, istifadəsi, xüsusiyyətlərlə fərqləri, çoxölçülü indeksatorlar və nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "İndeksatorların Yaradılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeksatorlar `this` açar sözü ilə və `get` və `set` aksessorları ilə yaradılır. Onlar adətən bir indeks parametri qəbul edir (məsələn, `int index`)."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass NumberList\n{\n    private int[] numbers = new int[5];\n\n    public int this[int index]\n    {\n        get\n        {\n            if (index >= 0 && index < numbers.Length)\n            {\n                return numbers[index];\n            }\n            throw new IndexOutOfRangeException(\"İndeks sərhəddən kənardır.\");\n        }\n        set\n        {\n            if (index >= 0 && index < numbers.Length)\n            {\n                numbers[index] = value;\n            }\n            else\n            {\n                throw new IndexOutOfRangeException(\"İndeks sərhəddən kənardır.\");\n            }\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        NumberList list = new NumberList();\n        list[0] = 10; // set istifadə olunur\n        list[1] = 20;\n        Console.WriteLine($\"Elementlər: {list[0]}, {list[1]}\"); // get istifadə olunur\n    }\n}\n// Output:\n// Elementlər: 10, 20"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `NumberList` sinfi bir massivi saxlayır və indeksator vasitəsilə ona daxil olur.\n- `this[int index]` indeksatoru `get` və `set` aksessorları ilə massivin elementlərinə nəzarətli giriş təmin edir.\n- İndeks sərhəddən kənarda olarsa, `IndexOutOfRangeException` atılır.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "İndeksatorlar və Xüsusiyyətlər Arasındakı Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeksatorlar və xüsusiyyətlər (properties) oxşar görünsə də, fərqli məqsədlərə xidmət edir:\n- Xüsusiyyətlər tək bir dəyəri idarə edir, indeksatorlar isə çoxsaylı elementlərə (məsələn, massiv və ya siyahı kimi) daxil olmaq üçün istifadə olunur.\n- İndeksatorlar `this` açar sözü ilə təyin edilir və indeks parametri tələb edir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    private string[] hobbies = new string[3];\n\n    public string Name { get; set; } // Xüsusiyyət\n\n    public string this[int index] // İndeksator\n    {\n        get { return hobbies[index]; }\n        set { hobbies[index] = value; }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person();\n        person.Name = \"Ali\"; // Xüsusiyyət\n        person[0] = \"Futbol\"; // İndeksator\n        person[1] = \"Şahmat\";\n        Console.WriteLine($\"Ad: {person.Name}, Hobbilər: {person[0]}, {person[1]}\");\n    }\n}\n// Output:\n// Ad: Ali, Hobbilər: Futbol, Şahmat"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Name` xüsusiyyəti tək bir dəyəri (ad) idarə edir.\n- İndeksator isə `hobbies` massivinə massiv sintaksisi ilə daxil olmağa imkan verir."
+      },
+      {
+        "type": "heading",
+        "text": "Çoxölçülü İndeksatorlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeksatorlar birdən çox parametr qəbul edə bilər, məsələn, çoxölçülü massivlərə daxil olmaq üçün."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Matrix\n{\n    private int[,] data = new int[3, 3];\n\n    public int this[int row, int col]\n    {\n        get\n        {\n            if (row >= 0 && row < 3 && col >= 0 && col < 3)\n            {\n                return data[row, col];\n            }\n            throw new IndexOutOfRangeException(\"İndeks sərhəddən kənardır.\");\n        }\n        set\n        {\n            if (row >= 0 && row < 3 && col >= 0 && col < 3)\n            {\n                data[row, col] = value;\n            }\n            else\n            {\n                throw new IndexOutOfRangeException(\"İndeks sərhəddən kənardır.\");\n            }\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Matrix matrix = new Matrix();\n        matrix[0, 0] = 1;\n        matrix[1, 1] = 5;\n        Console.WriteLine($\"Element [0,0]: {matrix[0, 0]}\");\n        Console.WriteLine($\"Element [1,1]: {matrix[1, 1]}\");\n    }\n}\n// Output:\n// Element [0,0]: 1\n// Element [1,1]: 5"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Matrix` sinfi çoxölçülü indeksator ilə 3x3 massivə daxil olur.\n- İndeksator iki parametr qəbul edir: `row` və `col`."
+      },
+      {
+        "type": "heading",
+        "text": "İndeksatorların Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeksatorlar kodun intuitiv və çevik olmasını təmin edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nİntuitivlik: Massivə bənzər sintaksis kodu oxunaqlı edir."
+          },
+          {
+            "description": "\nÇeviklik: Müxtəlif tipli indekslər (məsələn, int və ya string) istifadə oluna bilər."
+          },
+          {
+            "description": "\nKapsulyasiya: Daxili məlumatlara nəzarətli giriş təmin edir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeksatorlar yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: `this` sintaksisi və indeksatorların məntiqi başlanğıcda qarışıq ola bilər."
+          },
+          {
+            "description": "\nSərhəd Yoxlaması: İndeks sərhədlərinin düzgün idarə olunmaması səhvlərə səbəb olur."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: İndeksatorların həddindən artıq istifadəsi və ya düzgün sərhəd yoxlamasının olmaması xətalara səbəb ola bilər.\n- **Tövsiyələr**: İndeks sərhədlərini yoxlamaq üçün `get` və `set` aksessorlarında yoxlamalar əlavə edin. Sadə indeksatorlardan başlayın. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə indeks sərhədlərinin yoxlanılmaması səhvə səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BadList\n{\n    private int[] numbers = new int[3];\n\n    public int this[int index]\n    {\n        get { return numbers[index]; } // Sərhəd yoxlaması yoxdur\n        set { numbers[index] = value; }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BadList list = new BadList();\n        try\n        {\n            list[10] = 100; // İndeks sərhəddən kənardır\n        }\n        catch (IndexOutOfRangeException ex)\n        {\n            Console.WriteLine(\"Səhv: İndeks sərhəddən kənardır!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Səhv: İndeks sərhəddən kənardır!\n// Səhv mesajı: Index was outside the bounds of the array."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `BadList` sinfi indeks sərhədlərini yoxlamır.\n- Yanlış indeksə daxil olmağa cəhd edildikdə `IndexOutOfRangeException` yaranır.\n- Həll: `get` və `set` aksessorlarında sərhəd yoxlaması əlavə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Dictionary\n{\n    private string[] keys = new string[5];\n    private string[] values = new string[5];\n\n    public string this[string key]\n    {\n        get\n        {\n            for (int i = 0; i < keys.Length; i++)\n            {\n                if (keys[i] == key)\n                {\n                    return values[i];\n                }\n            }\n            throw new ArgumentException(\"Açar tapılmadı.\");\n        }\n        set\n        {\n            for (int i = 0; i < keys.Length; i++)\n            {\n                if (keys[i] == key || keys[i] == null)\n                {\n                    keys[i] = key;\n                    values[i] = value;\n                    return;\n                }\n            }\n            throw new InvalidOperationException(\"Lüğət doludur.\");\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Dictionary dict = new Dictionary();\n        dict[\"ad\"] = \"Zeynəb\";\n        dict[\"yaş\"] = \"20\";\n        Console.WriteLine($\"Ad: {dict[\"ad\"]}\");\n        Console.WriteLine($\"Yaş: {dict[\"yaş\"]}\");\n    }\n}\n// Output:\n// Ad: Zeynəb\n// Yaş: 20"
+      }
+    ]
+  },
+  "en": {
+    "title": "Indexers",
+    "icon": "FiHash",
+    "language": "csharp",
+    "description": "Creating indexers.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Indexers?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, indexers allow you to access data within a class or struct using array-like syntax. With indexers, you can treat an object like an array or list, accessing its elements using an index (e.g., `[0]`, `[1]`). Indexers are similar to properties but take an index parameter. This JSON file explains the creation, usage, differences from properties, multi-dimensional indexers, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input."
+      },
+      {
+        "type": "heading",
+        "text": "Creating Indexers"
+      },
+      {
+        "type": "paragraph",
+        "text": "Indexers are created using the `this` keyword with `get` and `set` accessors. They typically take an index parameter (e.g., `int index`)."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass NumberList\n{\n    private int[] numbers = new int[5];\n\n    public int this[int index]\n    {\n        get\n        {\n            if (index >= 0 && index < numbers.Length)\n            {\n                return numbers[index];\n            }\n            throw new IndexOutOfRangeException(\"Index is out of range.\");\n        }\n        set\n        {\n            if (index >= 0 && index < numbers.Length)\n            {\n                numbers[index] = value;\n            }\n            else\n            {\n                throw new IndexOutOfRangeException(\"Index is out of range.\");\n            }\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        NumberList list = new NumberList();\n        list[0] = 10; // Uses set\n        list[1] = 20;\n        Console.WriteLine($\"Elements: {list[0]}, {list[1]}\"); // Uses get\n    }\n}\n// Output:\n// Elements: 10, 20"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `NumberList` class stores an array and provides access via an indexer.\n- The `this[int index]` indexer uses `get` and `set` to provide controlled access to the array elements.\n- If the index is out of range, an `IndexOutOfRangeException` is thrown.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Indexers vs. Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Indexers and properties may seem similar but serve different purposes:\n- Properties manage a single value, while indexers allow access to multiple elements (e.g., like an array or list).\n- Indexers are defined with the `this` keyword and require an index parameter."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    private string[] hobbies = new string[3];\n\n    public string Name { get; set; } // Property\n\n    public string this[int index] // Indexer\n    {\n        get { return hobbies[index]; }\n        set { hobbies[index] = value; }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person();\n        person.Name = \"Ali\"; // Property\n        person[0] = \"Football\"; // Indexer\n        person[1] = \"Chess\";\n        Console.WriteLine($\"Name: {person.Name}, Hobbies: {person[0]}, {person[1]}\");\n    }\n}\n// Output:\n// Name: Ali, Hobbies: Football, Chess"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Name` property manages a single value (the name).\n- The indexer allows array-like access to the `hobbies` array."
+      },
+      {
+        "type": "heading",
+        "text": "Multi-Dimensional Indexers"
+      },
+      {
+        "type": "paragraph",
+        "text": "Indexers can take multiple parameters, such as for accessing multi-dimensional arrays."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Matrix\n{\n    private int[,] data = new int[3, 3];\n\n    public int this[int row, int col]\n    {\n        get\n        {\n            if (row >= 0 && row < 3 && col >= 0 && col < 3)\n            {\n                return data[row, col];\n            }\n            throw new IndexOutOfRangeException(\"Index is out of range.\");\n        }\n        set\n        {\n            if (row >= 0 && row < 3 && col >= 0 && col < 3)\n            {\n                data[row, col] = value;\n            }\n            else\n            {\n                throw new IndexOutOfRangeException(\"Index is out of range.\");\n            }\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Matrix matrix = new Matrix();\n        matrix[0, 0] = 1;\n        matrix[1, 1] = 5;\n        Console.WriteLine($\"Element [0,0]: {matrix[0, 0]}\");\n        Console.WriteLine($\"Element [1,1]: {matrix[1, 1]}\");\n    }\n}\n// Output:\n// Element [0,0]: 1\n// Element [1,1]: 5"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Matrix` class uses a multi-dimensional indexer to access a 3x3 array.\n- The indexer takes two parameters: `row` and `col`."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Indexers"
+      },
+      {
+        "type": "paragraph",
+        "text": "Indexers make code intuitive and flexible."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nIntuitiveness: Array-like syntax makes code readable."
+          },
+          {
+            "description": "\nFlexibility: Different index types (e.g., int or string) can be used."
+          },
+          {
+            "description": "\nEncapsulation: Provides controlled access to internal data."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Indexers can present challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: The `this` syntax and indexer logic can be confusing initially."
+          },
+          {
+            "description": "\nBounds Checking: Failing to properly check index bounds can cause errors."
+          },
+          {
+            "description": "\nPyodide Limitation: C# code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Overusing indexers or neglecting bounds checking can lead to errors.\n- **Recommendations**: Add bounds checking in `get` and `set` accessors. Start with simple indexers. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error due to missing index bounds checking."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BadList\n{\n    private int[] numbers = new int[3];\n\n    public int this[int index]\n    {\n        get { return numbers[index]; } // No bounds checking\n        set { numbers[index] = value; }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BadList list = new BadList();\n        try\n        {\n            list[10] = 100; // Index out of range\n        }\n        catch (IndexOutOfRangeException ex)\n        {\n            Console.WriteLine(\"Error: Index out of range!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Error: Index out of range!\n// Error message: Index was outside the bounds of the array."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `BadList` class does not check index bounds.\n- Accessing an invalid index causes an `IndexOutOfRangeException`.\n- Solution: Add bounds checking in the `get` and `set` accessors."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Dictionary\n{\n    private string[] keys = new string[5];\n    private string[] values = new string[5];\n\n    public string this[string key]\n    {\n        get\n        {\n            for (int i = 0; i < keys.Length; i++)\n            {\n                if (keys[i] == key)\n                {\n                    return values[i];\n                }\n            }\n            throw new ArgumentException(\"Key not found.\");\n        }\n        set\n        {\n            for (int i = 0; i < keys.Length; i++)\n            {\n                if (keys[i] == key || keys[i] == null)\n                {\n                    keys[i] = key;\n                    values[i] = value;\n                    return;\n                }\n            }\n            throw new InvalidOperationException(\"Dictionary is full.\");\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Dictionary dict = new Dictionary();\n        dict[\"name\"] = \"Zeyneb\";\n        dict[\"age\"] = \"20\";\n        Console.WriteLine($\"Name: {dict[\"name\"]}\");\n        Console.WriteLine($\"Age: {dict[\"age\"]}\");\n    }\n}\n// Output:\n// Name: Zeyneb\n// Age: 20"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Индексаторы",
+    "icon": "FiHash",
+    "language": "csharp",
+    "description": "Создание индексаторов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое индексаторы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# индексаторы (indexers) позволяют обращаться к данным внутри класса или структуры с использованием синтаксиса, похожего на массив. С помощью индексаторов объект можно использовать как массив или список, обращаясь к его элементам по индексу (например, `[0]`, `[1]`). Индексаторы похожи на свойства (properties), но принимают параметр индекса. Этот JSON-файл объясняет создание, использование, отличия от свойств, многомерные индексаторы и примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Создание индексаторов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексаторы создаются с использованием ключевого слова `this` и аксессоров `get` и `set`. Обычно они принимают параметр индекса (например, `int index`)."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass NumberList\n{\n    private int[] numbers = new int[5];\n\n    public int this[int index]\n    {\n        get\n        {\n            if (index >= 0 && index < numbers.Length)\n            {\n                return numbers[index];\n            }\n            throw new IndexOutOfRangeException(\"Индекс вне диапазона.\");\n        }\n        set\n        {\n            if (index >= 0 && index < numbers.Length)\n            {\n                numbers[index] = value;\n            }\n            else\n            {\n                throw new IndexOutOfRangeException(\"Индекс вне диапазона.\");\n            }\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        NumberList list = new NumberList();\n        list[0] = 10; // Используется set\n        list[1] = 20;\n        Console.WriteLine($\"Элементы: {list[0]}, {list[1]}\"); // Используется get\n    }\n}\n// Output:\n// Элементы: 10, 20"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `NumberList` хранит массив и предоставляет доступ через индексатор.\n- Индексатор `this[int index]` использует `get` и `set` для контролируемого доступа к элементам массива.\n- Если индекс вне диапазона, выбрасывается `IndexOutOfRangeException`.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Индексаторы и свойства"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексаторы и свойства похожи, но служат разным целям:\n- Свойства управляют одним значением, тогда как индексаторы позволяют обращаться к нескольким элементам (например, как к массиву или списку).\n- Индексаторы определяются с помощью ключевого слова `this` и требуют параметр индекса."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    private string[] hobbies = new string[3];\n\n    public string Name { get; set; } // Свойство\n\n    public string this[int index] // Индексатор\n    {\n        get { return hobbies[index]; }\n        set { hobbies[index] = value; }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person();\n        person.Name = \"Али\"; // Свойство\n        person[0] = \"Футбол\"; // Индексатор\n        person[1] = \"Шахматы\";\n        Console.WriteLine($\"Имя: {person.Name}, Хобби: {person[0]}, {person[1]}\");\n    }\n}\n// Output:\n// Имя: Али, Хобби: Футбол, Шахматы"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Свойство `Name` управляет одним значением (именем).\n- Индексатор позволяет обращаться к массиву `hobbies` с использованием синтаксиса массива."
+      },
+      {
+        "type": "heading",
+        "text": "Многомерные индексаторы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексаторы могут принимать несколько параметров, например, для доступа к многомерным массивам."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Matrix\n{\n    private int[,] data = new int[3, 3];\n\n    public int this[int row, int col]\n    {\n        get\n        {\n            if (row >= 0 && row < 3 && col >= 0 && col < 3)\n            {\n                return data[row, col];\n            }\n            throw new IndexOutOfRangeException(\"Индекс вне диапазона.\");\n        }\n        set\n        {\n            if (row >= 0 && row < 3 && col >= 0 && col < 3)\n            {\n                data[row, col] = value;\n            }\n            else\n            {\n                throw new IndexOutOfRangeException(\"Индекс вне диапазона.\");\n            }\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Matrix matrix = new Matrix();\n        matrix[0, 0] = 1;\n        matrix[1, 1] = 5;\n        Console.WriteLine($\"Элемент [0,0]: {matrix[0, 0]}\");\n        Console.WriteLine($\"Элемент [1,1]: {matrix[1, 1]}\");\n    }\n}\n// Output:\n// Элемент [0,0]: 1\n// Элемент [1,1]: 5"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Matrix` использует многомерный индексатор для доступа к массиву 3x3.\n- Индексатор принимает два параметра: `row` и `col`."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества индексаторов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексаторы делают код интуитивным и гибким."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nИнтуитивность: Синтаксис, похожий на массив, делает код читаемым."
+          },
+          {
+            "description": "\nГибкость: Можно использовать разные типы индексов (например, int или string)."
+          },
+          {
+            "description": "\nИнкапсуляция: Обеспечивает контролируемый доступ к внутренним данным."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексаторы могут создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Синтаксис `this` и логика индексаторов могут быть запутанными на первых порах."
+          },
+          {
+            "description": "\nПроверка границ: Неправильная проверка границ индекса может привести к ошибкам."
+          },
+          {
+            "description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Чрезмерное использование индексаторов или отсутствие проверки границ может привести к ошибкам.\n- **Рекомендации**: Добавляйте проверку границ в аксессоры `get` и `set`. Начинайте с простых индексаторов. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку из-за отсутствия проверки границ индекса."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BadList\n{\n    private int[] numbers = new int[3];\n\n    public int this[int index]\n    {\n        get { return numbers[index]; } // Без проверки границ\n        set { numbers[index] = value; }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BadList list = new BadList();\n        try\n        {\n            list[10] = 100; // Индекс вне диапазона\n        }\n        catch (IndexOutOfRangeException ex)\n        {\n            Console.WriteLine(\"Ошибка: Индекс вне диапазона!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Ошибка: Индекс вне диапазона!\n// Сообщение об ошибке: Index was outside the bounds of the array."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `BadList` не проверяет границы индекса.\n- Обращение к неверному индексу вызывает `IndexOutOfRangeException`.\n- Решение: Добавьте проверку границ в аксессоры `get` и `set`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Dictionary\n{\n    private string[] keys = new string[5];\n    private string[] values = new string[5];\n\n    public string this[string key]\n    {\n        get\n        {\n            for (int i = 0; i < keys.Length; i++)\n            {\n                if (keys[i] == key)\n                {\n                    return values[i];\n                }\n            }\n            throw new ArgumentException(\"Ключ не найден.\");\n        }\n        set\n        {\n            for (int i = 0; i < keys.Length; i++)\n            {\n                if (keys[i] == key || keys[i] == null)\n                {\n                    keys[i] = key;\n                    values[i] = value;\n                    return;\n                }\n            }\n            throw new InvalidOperationException(\"Словарь полон.\");\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Dictionary dict = new Dictionary();\n        dict[\"имя\"] = \"Зейнеб\";\n        dict[\"возраст\"] = \"20\";\n        Console.WriteLine($\"Имя: {dict[\"имя\"]}\");\n        Console.WriteLine($\"Возраст: {dict[\"возраст\"]}\");\n    }\n}\n// Output:\n// Имя: Зейнеб\n// Возраст: 20"
+      }
+    ]
+  }
+}

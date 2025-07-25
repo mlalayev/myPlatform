@@ -1,218 +1,615 @@
 {
+  "id": "hoisting",
   "az": {
     "title": "Hoisting",
+    "icon": "FiLayers",
     "language": "javascript",
-    "description": "Hoisting – JavaScript-də dəyişənlərin və funksiyaların kod işə düşməzdən əvvəl 'yuxarı qaldırılması' prosesidir!",
+    "description": "Hoisting anlayışı.",
     "content": [
       {
         "type": "heading",
-        "text": "Hoisting nədir?"
+        "text": "JavaScript-də Hoisting Nədir?"
       },
       {
         "type": "paragraph",
-        "text": "Təsəvvür et ki, səhər yeməyi hazırlamaq üçün mətbəxə girirsən. Çay içmək istəyirsən, amma çaydan hələ rəfdədir. Ancaq sənin köməkçin artıq çaydan, fincan və çayı masanın üzərinə qoyub ki, sən onları dərhal istifadə edə biləsən. JavaScript-də `hoisting` belə işləyir – dəyişənlər (`var` ilə) və funksiya bəyanatları (`function`) kod işə düşməzdən əvvəl avtomatik olaraq scope-un yuxarısına 'qaldırılır'. Bu o deməkdir ki, sən onları elan etməzdən əvvəl belə istifadə edə bilərsən, amma bəzən gözlənilməz nəticələr ola bilər."
+        "text": "JavaScript-də hoisting, dəyişənlərin və funksiyaların elanlarının (declaration) kod icra olunmadan əvvəl onların scope-un (görünürlük sahəsinin) əvvəlinə 'qaldırılması' prosesidir. Bu o deməkdir ki, dəyişənlər və funksiya elanları fiziki olaraq kodda harada yazıldığından asılı olmayaraq, JavaScript tərəfindən scope-un başlanğıcına köçürülür. Lakin yalnız elanlar qaldırılır, dəyər təyin etmələr (initialization) qaldırılmır. Hoisting səbəbindən bəzi dəyişənlər və funksiyalar təyin edilməmişdən əvvəl çağırıla bilər, lakin bu, səhvlərə də yol aça bilər. Bu JSON faylda hoisting-in necə işlədiyi, `var`, `let`, `const`, funksiya elanları və ifadələri ilə əlaqəsi, üstünlükləri və çətinlikləri sadə şəkildə izah olunacaq. Aşağıda kodları yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Hoisting-in Əsasları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hoisting zamanı JavaScript dəyişən və funksiya elanlarını cari scope-un (qlobal və ya funksiya scope-u) əvvəlinə köçürür. Lakin davranış açar sözlərdən (`var`, `let`, `const`) və elan tiplərindən asılıdır:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`var`: Elan hoisting olunur və `undefined` kimi təyin edilir."
+          },
+          {
+            "description": "\n`let` və `const`: Elan hoisting olunur, lakin TDZ (Temporal Dead Zone) səbəbindən təyin edilməmişdən əvvəl çağırıla bilməz."
+          },
+          {
+            "description": "\nFunksiya elanları: Tamamilə hoisting olunur, yəni funksiya təyin edilməmişdən əvvəl çağırıla bilər."
+          },
+          {
+            "description": "\nFunksiya ifadələri: Yalnız dəyişən elanı hoisting olunur, funksiya təyini isə qalmır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "`var` ilə Hoisting"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Hoisting ilə funksiya nümunəsi\nconsole.log(sayHello()); // nəticə: Salam!\nfunction sayHello() {\n  return \"Salam!\";\n}\n\n// var ilə dəyişən hoisting\nconsole.log(name); // nəticə: undefined\nvar name = \"Aysel\";"
-      },
-      {
-        "type": "heading",
-        "text": "Hoisting necə işləyir?"
+        "code": "// var ilə hoisting nümunəsi\nconsole.log(myVar); // undefined\nvar myVar = 'Salam';\nconsole.log(myVar); // Salam\n// Çıxış:\n// undefined\n// Salam"
       },
       {
         "type": "paragraph",
-        "text": "JavaScript-də kod işə düşməzdən əvvəl, `var` ilə elan edilən dəyişənlər və `function` bəyanatları scope-un əvvəlinə 'qaldırılır'. `var` dəyişənləri qaldırılır, amma onların dəyəri təyin olunmayıb `undefined` olur. Funksiya bəyanatları isə tamamilə qaldırılır, yəni funksiyanı elan etməzdən əvvəl çağırdığında o işləyir. `let` və `const` ilə elan edilən dəyişənlər də hoisting olunur, amma 'Temporal Dead Zone' (Müvəqqəti Ölü Zona) səbəbindən elan edilməmişdən əvvəl onlara daxil olmaq xəta verir."
+        "text": "Bu kodda:\n- `myVar` elanı hoisting olunur və `undefined` kimi təyin edilir.\n- Təyin etmə (`'Salam'`) hoisting olunmur, buna görə ikinci `console.log` dəyəri göstərir.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "`let` və `const` ilə Hoisting"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// var hoisting\nconsole.log(counter); // nəticə: undefined\nvar counter = 10;\nconsole.log(counter); // nəticə: 10\n\n// let hoisting (xəta verir)\n// console.log(age); // Xəta: Cannot access 'age' before initialization\nlet age = 20;"
-      },
-      {
-        "type": "heading",
-        "text": "Hoisting-in xüsusiyyətləri"
+        "code": "// let ilə hoisting nümunəsi\n// console.log(myLet); // Səhv: Cannot access 'myLet' before initialization\nlet myLet = 'Salam';\nconsole.log(myLet); // Salam\n// const ilə hoisting nümunəsi\n// console.log(myConst); // Səhv: Cannot access 'myConst' before initialization\nconst myConst = 'Dünya';\nconsole.log(myConst); // Dünya\n// Çıxış:\n// Salam\n// Dünya"
       },
       {
         "type": "paragraph",
-        "text": "Hoisting yalnız `var` dəyişənləri və `function` bəyanatları üçün tam işləyir. `var` ilə elan edilən dəyişənlər scope-un əvvəlində `undefined` kimi təyin olunur, bu da bəzən gözlənilməz davranışlara səbəb ola bilər. `function` bəyanatları isə bütün kod bloku ilə qaldırılır, buna görə də funksiyanı istənilən yerdə çağırmaq olar. `let` və `const` ilə elan edilən dəyişənlər də hoisting olunur, amma onların istifadəsi elan edilməzdən əvvəl qadağandır. Funksiya ifadələri (`const fn = function()`) isə yalnız dəyişənin hoisting-ə məruz qalır, funksiya özü qaldırılmır."
+        "text": "Bu kodda:\n- `myLet` və `myConst` elanları hoisting olunur, lakin TDZ səbəbindən təyin edilməmişdən əvvəl çağırıla bilməz.\n- Təyin etmədən əvvəl çağırış səhvə səbəb olur.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiya Elanları ilə Hoisting"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Funksiya ifadəsi ilə hoisting\n// console.log(greet()); // Xəta: Cannot access 'greet' before initialization\nconst greet = function() {\n  return \"Salam, qonaq!\";\n};\n\n// Funksiya bəyanatı ilə hoisting\nconsole.log(sayHi()); // nəticə: Salam, dünya!\nfunction sayHi() {\n  return \"Salam, dünya!\";\n}"
-      },
-      {
-        "type": "heading",
-        "text": "Hoisting-in təhlükələri və üstünlükləri"
+        "code": "// Funksiya elanı ilə hoisting nümunəsi\nsayHello(); // Salam\nfunction sayHello() {\n    console.log('Salam');\n}\n// Çıxış:\n// Salam"
       },
       {
         "type": "paragraph",
-        "text": "Hoisting kodun çevikliyini artırsa da, bəzən səhvlərə səbəb ola bilər. Məsələn, `var` ilə elan edilən dəyişənin `undefined` qaytarması səhv nəticələrə gətirib çıxara bilər. Buna görə `let` və `const` istifadəsi daha təhlükəsizdir, çünki onlar elan edilməzdən əvvəl istifadəni qadağan edir. Hoisting-in üstünlüyü isə funksiya bəyanatlarının kodun istənilən yerində çağırıla bilməsidir, bu da bəzən kodu sadələşdirir. Ancaq yaxşı təcrübə olaraq, dəyişənləri və funksiyaları istifadə etməzdən əvvəl elan etmək tövsiyə olunur."
+        "text": "Bu kodda:\n- `sayHello` funksiya elanı tamamilə hoisting olunur, buna görə təyin edilməmişdən əvvəl çağırıla bilər.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiya İfadələri ilə Hoisting"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Təhlükəli hoisting nümunəsi\nconsole.log(item); // nəticə: undefined\nitem = \"Çaydan\";\nconsole.log(item); // nəticə: Çaydan\nvar item;"
-      },
-      {
-        "type": "heading",
-        "text": "Nə vaxt hoisting-ə diqqət etməli?"
+        "code": "// Funksiya ifadəsi ilə hoisting nümunəsi\n// sayHi(); // Səhv: sayHi is not a function\nconsole.log(sayHi); // undefined\nvar sayHi = function() {\n    console.log('Salam');\n};\nsayHi(); // Salam\n// Çıxış:\n// undefined\n// Salam"
       },
       {
         "type": "paragraph",
-        "text": "Hoisting JavaScript-in əsas mexanizmlərindən biridir, amma diqqətli olmaq lazımdır. `var` istifadə edərkən dəyişənlərin `undefined` qaytarması səhvlərə səbəb ola bilər, buna görə `let` və `const` istifadəsi daha yaxşıdır. Funksiya bəyanatları ilə hoisting faydalı ola bilər, çünki funksiyaları kodun istənilən yerində çağırmaq mümkündür. Ancaq funksiya ifadələri ilə ehtiyatlı ol, çünki onlar yalnız dəyişənin elanından sonra işləyir. Hoisting-i başa düşmək kodu daha nəzarətli və səliqəli yazmağa kömək edir."
+        "text": "Bu kodda:\n- `sayHi` dəyişəni hoisting olunur və `undefined` kimi təyin edilir.\n- Funksiya təyini hoisting olunmur, buna görə təyin etmədən əvvəl çağırış səhvə səbəb olur.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
       },
       {
         "type": "heading",
-        "text": "Sınaq üçün nümunə"
+        "text": "Arrow Funksiyalar ilə Hoisting"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Arrow funksiyası ilə hoisting nümunəsi\n// sayArrow(); // Səhv: sayArrow is not a function\nconsole.log(sayArrow); // undefined\nvar sayArrow = () => console.log('Salam');\nsayArrow(); // Salam\n// Çıxış:\n// undefined\n// Salam"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `sayArrow` dəyişəni hoisting olunur, lakin `undefined` kimi təyin edilir.\n- Arrow funksiyası təyini hoisting olunmur, buna görə təyin etmədən əvvəl çağırış səhvə səbəb olur.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Hoisting və Scope Əlaqəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hoisting scope ilə sıx bağlıdır. Hoisting dəyişənləri və funksiyaları cari scope-un (qlobal və ya funksiya scope-u) əvvəlinə qaldırır:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nQlobal Scope: `var` və funksiya elanları qlobal scope-un əvvəlinə qaldırılır."
+          },
+          {
+            "description": "\nFunksiya Scope-u: Funksiya daxilindəki `var` və funksiya elanları funksiya scope-unun əvvəlinə qaldırılır."
+          },
+          {
+            "description": "\nBlok Scope-u: `let` və `const` blok scope-unda hoisting olunur, lakin TDZ səbəbindən təyin edilməmişdən əvvəl əlçatan deyil."
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Hoisting və scope nümunəsi\nfunction testScope() {\n    console.log(localVar); // undefined\n    var localVar = 'Funksiya daxilində';\n    console.log(localVar); // Funksiya daxilində\n}\ntestScope();\n// Çıxış:\n// undefined\n// Funksiya daxilində"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `localVar` funksiya scope-unda hoisting olunur və `undefined` kimi təyin edilir.\n- Təyin etmədən sonra dəyər göstərilir.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Hoisting-in Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hoisting bəzi hallarda kodun çevikliyini artırır:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nFunksiya Elanları: Funksiyaları kodun istənilən yerində çağırmağa imkan verir."
+          },
+          {
+            "description": "\nSadəlik: Kodun tərtibində çeviklik təmin edir, xüsusən kiçik layihələrdə."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hoisting ilə işləyərkən bəzi çətinliklər ola bilər:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`var` ilə Səhvlər: `undefined` qaytarılması gözlənilməz davranışlara səbəb ola bilər."
+          },
+          {
+            "description": "\nTDZ Çaşqınlığı: `let` və `const` ilə TDZ yeni başlayanlar üçün çətin ola bilər."
+          },
+          {
+            "description": "\nKod Oxunaqlılığı: Hoisting səbəbindən kodun hansı sırada icra olunduğunu başa düşmək çətinləşə bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: `var` ilə hoisting-in `undefined` qaytarması, TDZ səhvləri və ya funksiya ifadələrinin yanlış istifadəsi səhvlərə səbəb ola bilər.\n- **Tövsiyələr**: `let` və `const` istifadə edin, çünki onlar TDZ ilə daha təhlükəsizdir. Dəyişənləri və funksiyaları təyin etdikdən sonra çağırın. Kodun oxunaqlığını artırmaq üçün elanları scope-un əvvəlində yazın. Aşağıda kodları yoxlaya bilərsiniz. Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/JavaScript) sənədlərindən istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Səhvə yol açan nümunə\nconsole.log(counter); // undefined\nvar counter = 5;\nconsole.log(counter); // 5\n// console.log(temp); // Səhv: Cannot access 'temp' before initialization\nlet temp = 10;\n// Çıxış:\n// undefined\n// 5"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `counter` hoisting səbəbindən `undefined` qaytarır, sonra 5 olur.\n- `temp` TDZ səbəbindən səhvə səbəb olur.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
       },
       {
         "type": "editor",
-        "initialCode": "// Öz hoisting nümunəni yarat!\nconsole.log(prepareBreakfast()); // nəticə: Səhər yeməyi hazırdır!\nfunction prepareBreakfast() {\n  return \"Səhər yeməyi hazırdır!\";\n}\n\nconsole.log(tea); // nəticə: undefined\nvar tea = \"Çay\";"
+        "initialCode": "// Hoisting sınağı\nsayGreeting(); // Salam\nfunction sayGreeting() {\n    console.log('Salam');\n}\nconsole.log(myVar); // undefined\nvar myVar = 'Dünya';\nconsole.log(myVar); // Dünya\n// Çıxış:\n// Salam\n// undefined\n// Dünya"
       }
     ]
   },
   "en": {
     "title": "Hoisting",
+    "icon": "FiLayers",
     "language": "javascript",
-    "description": "Hoisting – the process in JavaScript where variables and functions are 'lifted' to the top of their scope before code execution!",
+    "description": "The concept of hoisting.",
     "content": [
       {
         "type": "heading",
-        "text": "What is hoisting?"
+        "text": "What is Hoisting in JavaScript?"
       },
       {
         "type": "paragraph",
-        "text": "Imagine you’re preparing breakfast in the kitchen. You want to make tea, but the teapot is still on the shelf. Luckily, your assistant has already placed the teapot, cup, and tea on the table for you to use right away. In JavaScript, `hoisting` works like this – variables (declared with `var`) and function declarations (`function`) are automatically 'lifted' to the top of their scope before the code runs. This means you can use them before they’re declared, but sometimes it leads to unexpected results."
+        "text": "In JavaScript, hoisting is the process where variable and function declarations are moved to the top of their containing scope (global or function scope) before the code is executed. This means that declarations are processed before any code runs, allowing variables and functions to be used before they are defined in the code. However, only declarations are hoisted, not initializations. Hoisting can enable calling certain functions or variables early but can also lead to errors if not understood. This JSON file explains how hoisting works, its relation with `var`, `let`, `const`, function declarations, and expressions, as well as its advantages and challenges in a simple way. You can test the code below."
+      },
+      {
+        "type": "heading",
+        "text": "Basics of Hoisting"
+      },
+      {
+        "type": "paragraph",
+        "text": "During hoisting, JavaScript moves variable and function declarations to the top of their scope. The behavior depends on the keyword or declaration type:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`var`: Declaration is hoisted and initialized as `undefined`."
+          },
+          {
+            "description": "\n`let` and `const`: Declaration is hoisted but not initialized, causing a TDZ (Temporal Dead Zone) error if accessed before assignment."
+          },
+          {
+            "description": "\nFunction Declarations: Fully hoisted, so the function can be called before its definition."
+          },
+          {
+            "description": "\nFunction Expressions: Only the variable declaration is hoisted, not the function assignment."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Hoisting with `var`"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Hoisting with a function\nconsole.log(sayHello()); // Output: Hello!\nfunction sayHello() {\n  return \"Hello!\";\n}\n\n// var hoisting\nconsole.log(name); // Output: undefined\nvar name = \"Aysel\";"
-      },
-      {
-        "type": "heading",
-        "text": "How does hoisting work?"
+        "code": "// Hoisting with var example\nconsole.log(myVar); // undefined\nvar myVar = 'Hello';\nconsole.log(myVar); // Hello\n// Output:\n// undefined\n// Hello"
       },
       {
         "type": "paragraph",
-        "text": "Before JavaScript code runs, `var` variables and `function` declarations are 'hoisted' to the top of their scope. `var` variables are hoisted but initialized as `undefined` until their value is assigned. Function declarations are fully hoisted, so you can call them before their declaration, and they’ll work. Variables declared with `let` and `const` are also hoisted, but they’re in a 'Temporal Dead Zone,' meaning accessing them before declaration causes an error."
+        "text": "In this code:\n- `myVar` declaration is hoisted and initialized as `undefined`.\n- The assignment (`'Hello'`) is not hoisted, so the second `console.log` shows the value.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Hoisting with `let` and `const`"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// var hoisting\nconsole.log(counter); // Output: undefined\nvar counter = 10;\nconsole.log(counter); // Output: 10\n\n// let hoisting (causes error)\n// console.log(age); // Error: Cannot access 'age' before initialization\nlet age = 20;"
-      },
-      {
-        "type": "heading",
-        "text": "Features of hoisting"
+        "code": "// Hoisting with let example\n// console.log(myLet); // Error: Cannot access 'myLet' before initialization\nlet myLet = 'Hello';\nconsole.log(myLet); // Hello\n// Hoisting with const example\n// console.log(myConst); // Error: Cannot access 'myConst' before initialization\nconst myConst = 'World';\nconsole.log(myConst); // World\n// Output:\n// Hello\n// World"
       },
       {
         "type": "paragraph",
-        "text": "Hoisting fully applies to `var` variables and `function` declarations. `var` variables are hoisted with a value of `undefined`, which can sometimes cause unexpected behavior. Function declarations are hoisted with their entire code block, so you can call them anywhere in the scope. `let` and `const` variables are hoisted but cannot be accessed before their declaration. Function expressions (`const fn = function()`) are hoisted only as the variable, not the function itself, so they can’t be used before declaration."
+        "text": "In this code:\n- `myLet` and `myConst` declarations are hoisted but not initialized, causing a TDZ error if accessed before assignment.\n- Accessing them after assignment works fine.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Hoisting with Function Declarations"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Function expression hoisting\n// console.log(greet()); // Error: Cannot access 'greet' before initialization\nconst greet = function() {\n  return \"Hello, guest!\";\n};\n\n// Function declaration hoisting\nconsole.log(sayHi()); // Output: Hello, world!\nfunction sayHi() {\n  return \"Hello, world!\";\n}"
-      },
-      {
-        "type": "heading",
-        "text": "Dangers and benefits of hoisting"
+        "code": "// Hoisting with function declaration example\nsayHello(); // Hello\nfunction sayHello() {\n    console.log('Hello');\n}\n// Output:\n// Hello"
       },
       {
         "type": "paragraph",
-        "text": "Hoisting adds flexibility to code but can lead to errors. For example, a `var` variable returning `undefined` can cause unexpected results. This is why `let` and `const` are safer, as they prevent access before declaration. The benefit of hoisting is that function declarations can be called anywhere in the code, which can simplify things. However, it’s best practice to declare variables and functions before using them to avoid confusion and bugs."
+        "text": "In this code:\n- `sayHello` function declaration is fully hoisted, so it can be called before its definition.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Hoisting with Function Expressions"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Dangerous hoisting example\nconsole.log(item); // Output: undefined\nitem = \"Teapot\";\nconsole.log(item); // Output: Teapot\nvar item;"
-      },
-      {
-        "type": "heading",
-        "text": "When to pay attention to hoisting?"
+        "code": "// Hoisting with function expression example\n// sayHi(); // Error: sayHi is not a function\nconsole.log(sayHi); // undefined\nvar sayHi = function() {\n    console.log('Hello');\n};\nsayHi(); // Hello\n// Output:\n// undefined\n// Hello"
       },
       {
         "type": "paragraph",
-        "text": "Hoisting is a core JavaScript mechanism, but it requires caution. Using `var` can lead to errors because variables return `undefined` before assignment. `let` and `const` are safer since they block access before declaration. Function declarations benefit from hoisting, allowing calls anywhere, but function expressions require declaration first. Understanding hoisting helps you write more controlled and organized code."
+        "text": "In this code:\n- `sayHi` variable is hoisted and initialized as `undefined`.\n- The function assignment is not hoisted, so calling it before assignment causes an error.\n- You can test this code below."
       },
       {
         "type": "heading",
-        "text": "Try it yourself"
+        "text": "Hoisting with Arrow Functions"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Hoisting with arrow function example\n// sayArrow(); // Error: sayArrow is not a function\nconsole.log(sayArrow); // undefined\nvar sayArrow = () => console.log('Hello');\nsayArrow(); // Hello\n// Output:\n// undefined\n// Hello"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `sayArrow` variable is hoisted and initialized as `undefined`.\n- The arrow function assignment is not hoisted, so calling it before assignment causes an error.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Hoisting and Scope Relationship"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hoisting is closely tied to scope. It moves declarations to the top of their containing scope (global or function scope):"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nGlobal Scope: `var` and function declarations are hoisted to the top of the global scope."
+          },
+          {
+            "description": "\nFunction Scope: `var` and function declarations inside a function are hoisted to the top of the function scope."
+          },
+          {
+            "description": "\nBlock Scope: `let` and `const` are hoisted in block scope but are not accessible before assignment due to TDZ."
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Hoisting and scope example\nfunction testScope() {\n    console.log(localVar); // undefined\n    var localVar = 'Inside function';\n    console.log(localVar); // Inside function\n}\ntestScope();\n// Output:\n// undefined\n// Inside function"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `localVar` is hoisted within the function scope and initialized as `undefined`.\n- After assignment, the value is displayed.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Hoisting"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hoisting provides some flexibility in code organization:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nFunction Declarations: Allows calling functions anywhere in the code."
+          },
+          {
+            "description": "\nSimplicity: Provides flexibility in code structure, especially in smaller projects."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Working with hoisting can present challenges:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nErrors with `var`: Returning `undefined` can lead to unexpected behavior."
+          },
+          {
+            "description": "\nTDZ Confusion: The TDZ with `let` and `const` can be tricky for beginners."
+          },
+          {
+            "description": "\nCode Readability: Hoisting can make it harder to understand the order of execution."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Hoisting with `var` returning `undefined`, TDZ errors, or misuse of function expressions can cause errors.\n- **Recommendations**: Use `let` and `const` for safer behavior with TDZ. Call variables and functions after their declaration. Declare variables and functions at the top of their scope for better readability. You can test the code below. Refer to Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/JavaScript) for guidance."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Error-prone example\nconsole.log(counter); // undefined\nvar counter = 5;\nconsole.log(counter); // 5\n// console.log(temp); // Error: Cannot access 'temp' before initialization\nlet temp = 10;\n// Output:\n// undefined\n// 5"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `counter` returns `undefined` due to hoisting, then 5 after assignment.\n- `temp` causes an error due to TDZ.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
       },
       {
         "type": "editor",
-        "initialCode": "// Create your own hoisting example!\nconsole.log(prepareBreakfast()); // Output: Breakfast is ready!\nfunction prepareBreakfast() {\n  return \"Breakfast is ready!\";\n}\n\nconsole.log(tea); // Output: undefined\nvar tea = \"Tea\";"
+        "initialCode": "// Hoisting test\nsayGreeting(); // Hello\nfunction sayGreeting() {\n    console.log('Hello');\n}\nconsole.log(myVar); // undefined\nvar myVar = 'World';\nconsole.log(myVar); // World\n// Output:\n// Hello\n// undefined\n// World"
       }
     ]
   },
   "ru": {
-    "title": "Hoisting",
+    "title": "Подъем (Hoisting)",
+    "icon": "FiLayers",
     "language": "javascript",
-    "description": "Hoisting – процесс в JavaScript, при котором переменные и функции 'поднимаются' в начало своей области видимости до выполнения кода!",
+    "description": "Концепция подъема (hoisting).",
     "content": [
       {
         "type": "heading",
-        "text": "Что такое hoisting?"
+        "text": "Что такое подъем в JavaScript?"
       },
       {
         "type": "paragraph",
-        "text": "Представь, что ты готовишь завтрак на кухне. Хочешь заварить чай, но чайник всё ещё на полке. К счастью, твой помощник уже поставил чайник, чашку и чай на стол, чтобы ты мог сразу их использовать. В JavaScript `hoisting` работает так же – переменные (объявленные с `var`) и объявления функций (`function`) автоматически 'поднимаются' в начало своей области видимости до выполнения кода. Это значит, что ты можешь использовать их до их объявления, но иногда это приводит к неожиданным результатам."
+        "text": "В JavaScript подъем (hoisting) — это процесс, при котором объявления переменных и функций перемещаются в начало их области видимости (глобальной или функциональной) до выполнения кода. Это означает, что объявления обрабатываются до запуска кода, позволяя использовать переменные и функции до их определения в коде. Однако поднимаются только объявления, а не инициализации. Подъем может позволять вызывать функции или переменные раньше их определения, но также может приводить к ошибкам, если не понят. Этот JSON-файл объясняет, как работает подъем, его связь с `var`, `let`, `const`, объявлениями и выражениями функций, а также преимущества и сложности простым образом. Вы можете протестировать код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Основы подъема"
+      },
+      {
+        "type": "paragraph",
+        "text": "Во время подъема JavaScript перемещает объявления переменных и функций в начало их области видимости. Поведение зависит от ключевого слова или типа объявления:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`var`: Объявление поднимается и инициализируется как `undefined`."
+          },
+          {
+            "description": "\n`let` и `const`: Объявление поднимается, но не инициализируется, вызывая ошибку TDZ (Temporal Dead Zone) при обращении до присваивания."
+          },
+          {
+            "description": "\nОбъявления функций: Полностью поднимаются, позволяя вызывать функцию до ее определения."
+          },
+          {
+            "description": "\nФункциональные выражения: Поднимается только объявление переменной, а не присваивание функции."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Подъем с `var`"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Hoisting с функцией\nconsole.log(sayHello()); // Вывод: Привет!\nfunction sayHello() {\n  return \"Привет!\";\n}\n\n// Hoisting с var\nconsole.log(name); // Вывод: undefined\nvar name = \"Айсель\";"
-      },
-      {
-        "type": "heading",
-        "text": "Как работает hoisting?"
+        "code": "// Пример подъема с var\nconsole.log(myVar); // undefined\nvar myVar = 'Привет';\nconsole.log(myVar); // Привет\n// Вывод:\n// undefined\n// Привет"
       },
       {
         "type": "paragraph",
-        "text": "Перед выполнением кода JavaScript переменные `var` и объявления функций `function` 'поднимаются' в начало своей области видимости. Переменные `var` поднимаются, но инициализируются как `undefined` до присвоения значения. Объявления функций полностью поднимаются, поэтому их можно вызывать до объявления, и они будут работать. Переменные, объявленные с `let` и `const`, тоже подвергаются hoisting, но находятся в 'Temporal Dead Zone' (Временной мёртвой зоне), и доступ к ним до объявления вызывает ошибку."
+        "text": "В этом коде:\n- Объявление `myVar` поднимается и инициализируется как `undefined`.\n- Присваивание (`'Привет'`) не поднимается, поэтому второй `console.log` показывает значение.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Подъем с `let` и `const`"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Hoisting с var\nconsole.log(counter); // Вывод: undefined\nvar counter = 10;\nconsole.log(counter); // Вывод: 10\n\n// Hoisting с let (вызывает ошибку)\n// console.log(age); // Ошибка: Cannot access 'age' before initialization\nlet age = 20;"
-      },
-      {
-        "type": "heading",
-        "text": "Особенности hoisting"
+        "code": "// Пример подъема с let\n// console.log(myLet); // Ошибка: Cannot access 'myLet' before initialization\nlet myLet = 'Привет';\nconsole.log(myLet); // Привет\n// Пример подъема с const\n// console.log(myConst); // Ошибка: Cannot access 'myConst' before initialization\nconst myConst = 'Мир';\nconsole.log(myConst); // Мир\n// Вывод:\n// Привет\n// Мир"
       },
       {
         "type": "paragraph",
-        "text": "Hoisting полностью работает для переменных `var` и объявлений функций `function`. Переменные `var` поднимаются с значением `undefined`, что иногда вызывает неожиданное поведение. Объявления функций поднимаются вместе с их кодом, так что их можно вызывать в любом месте области видимости. Переменные `let` и `const` тоже поднимаются, но их использование до объявления запрещено. Функциональные выражения (`const fn = function()`) поднимаются только как переменная, а не как функция, поэтому их нельзя использовать до объявления."
+        "text": "В этом коде:\n- Объявления `myLet` и `myConst` поднимаются, но не инициализируются, вызывая ошибку TDZ при обращении до присваивания.\n- Доступ после присваивания работает корректно.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Подъем с объявлениями функций"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Hoisting с функциональным выражением\n// console.log(greet()); // Ошибка: Cannot access 'greet' before initialization\nconst greet = function() {\n  return \"Привет, гость!\";\n};\n\n// Hoisting с объявлением функции\nconsole.log(sayHi()); // Вывод: Привет, мир!\nfunction sayHi() {\n  return \"Привет, мир!\";\n}"
-      },
-      {
-        "type": "heading",
-        "text": "Опасности и преимущества hoisting"
+        "code": "// Пример подъема с объявлением функции\nsayHello(); // Привет\nfunction sayHello() {\n    console.log('Привет');\n}\n// Вывод:\n// Привет"
       },
       {
         "type": "paragraph",
-        "text": "Hoisting добавляет гибкости коду, но может привести к ошибкам. Например, переменная `var`, возвращающая `undefined`, может вызвать неверные результаты. Поэтому `let` и `const` безопаснее, так как они запрещают доступ до объявления. Преимущество hoisting в том, что объявления функций можно вызывать в любом месте кода, что иногда упрощает задачу. Однако лучшая практика – объявлять переменные и функции до их использования, чтобы избежать путаницы и ошибок."
+        "text": "В этом коде:\n- Объявление функции `sayHello` полностью поднимается, поэтому ее можно вызвать до определения.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Подъем с функциональными выражениями"
       },
       {
         "type": "code",
         "language": "javascript",
-        "code": "// Опасный пример hoisting\nconsole.log(item); // Вывод: undefined\nitem = \"Чайник\";\nconsole.log(item); // Вывод: Чайник\nvar item;"
-      },
-      {
-        "type": "heading",
-        "text": "Когда обращать внимание на hoisting?"
+        "code": "// Пример подъема с функциональным выражением\n// sayHi(); // Ошибка: sayHi is not a function\nconsole.log(sayHi); // undefined\nvar sayHi = function() {\n    console.log('Привет');\n};\nsayHi(); // Привет\n// Вывод:\n// undefined\n// Привет"
       },
       {
         "type": "paragraph",
-        "text": "Hoisting – один из ключевых механизмов JavaScript, но требует осторожности. Использование `var` может привести к ошибкам из-за возврата `undefined` до присвоения. `let` и `const` безопаснее, так как блокируют доступ до объявления. Объявления функций выигрывают от hoisting, позволяя вызывать их в любом месте, но с функциональными выражениями нужно быть осторожным, так как они работают только после объявления. Понимание hoisting помогает писать более контролируемый и организованный код."
+        "text": "В этом коде:\n- Переменная `sayHi` поднимается и инициализируется как `undefined`.\n- Присваивание функции не поднимается, поэтому вызов до присваивания вызывает ошибку.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Подъем со стрелочными функциями"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример подъема со стрелочной функцией\n// sayArrow(); // Ошибка: sayArrow is not a function\nconsole.log(sayArrow); // undefined\nvar sayArrow = () => console.log('Привет');\nsayArrow(); // Привет\n// Вывод:\n// undefined\n// Привет"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Переменная `sayArrow` поднимается и инициализируется как `undefined`.\n- Присваивание стрелочной функции не поднимается, поэтому вызов до присваивания вызывает ошибку.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Связь подъема и области видимости"
+      },
+      {
+        "type": "paragraph",
+        "text": "Подъем тесно связан с областью видимости. Он перемещает объявления в начало их области видимости (глобальной или функциональной):"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nГлобальная область видимости: `var` и объявления функций поднимаются в начало глобальной области видимости."
+          },
+          {
+            "description": "\nФункциональная область видимости: `var` и объявления функций внутри функции поднимаются в начало функциональной области видимости."
+          },
+          {
+            "description": "\nБлочная область видимости: `let` и `const` поднимаются в блочной области видимости, но недоступны до присваивания из-за TDZ."
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример подъема и области видимости\nfunction testScope() {\n    console.log(localVar); // undefined\n    var localVar = 'Внутри функции';\n    console.log(localVar); // Внутри функции\n}\ntestScope();\n// Вывод:\n// undefined\n// Внутри функции"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `localVar` поднимается в функциональной области видимости и инициализируется как `undefined`.\n- После присваивания отображается значение.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества подъема"
+      },
+      {
+        "type": "paragraph",
+        "text": "Подъем обеспечивает некоторую гибкость в организации кода:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nОбъявления функций: Позволяет вызывать функции в любом месте кода."
+          },
+          {
+            "description": "\nПростота: Обеспечивает гибкость в структуре кода, особенно в небольших проектах."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Работа с подъемом может представлять сложности:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nОшибки с `var`: Возврат `undefined` может привести к неожиданному поведению."
+          },
+          {
+            "description": "\nПутаница с TDZ: TDZ для `let` и `const` может быть сложной для новичков."
+          },
+          {
+            "description": "\nЧитаемость кода: Подъем может затруднить понимание порядка выполнения."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Подъем с `var`, возвращающий `undefined`, ошибки TDZ или неправильное использование функциональных выражений могут вызывать ошибки.\n- **Рекомендации**: Используйте `let` и `const` для более безопасного поведения с TDZ. Вызывайте переменные и функции после их объявления. Объявляйте переменные и функции в начале области видимости для улучшения читаемости. Вы можете протестировать код ниже. Обратитесь к документации Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/JavaScript)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример с ошибкой\nconsole.log(counter); // undefined\nvar counter = 5;\nconsole.log(counter); // 5\n// console.log(temp); // Ошибка: Cannot access 'temp' before initialization\nlet temp = 10;\n// Вывод:\n// undefined\n// 5"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `counter` возвращает `undefined` из-за подъема, затем 5 после присваивания.\n- `temp` вызывает ошибку из-за TDZ.\n- Вы можете протестировать этот код ниже."
       },
       {
         "type": "heading",
@@ -220,7 +617,7 @@
       },
       {
         "type": "editor",
-        "initialCode": "// Создай свой пример hoisting!\nconsole.log(prepareBreakfast()); // Вывод: Завтрак готов!\nfunction prepareBreakfast() {\n  return \"Завтрак готов!\";\n}\n\nconsole.log(tea); // Вывод: undefined\nvar tea = \"Чай\";"
+        "initialCode": "// Тест подъема\nsayGreeting(); // Привет\nfunction sayGreeting() {\n    console.log('Привет');\n}\nconsole.log(myVar); // undefined\nvar myVar = 'Мир';\nconsole.log(myVar); // Мир\n// Вывод:\n// Привет\n// undefined\n// Мир"
       }
     ]
   }

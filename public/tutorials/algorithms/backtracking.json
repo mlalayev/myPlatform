@@ -1,0 +1,236 @@
+{
+  "az": {
+    "title": "Backtracking",
+    "language": "multiple",
+    "description": "Backtracking alqoritmləri problemi mümkün həlləri sınaqdan keçirərək həll edir və uğursuz yolları ləğv edir. N-Queens problemi ilə izah edilir.",
+    "codes": {
+      "c": "#include <stdio.h>\n#include <stdbool.h>\n\n#define N 4\n\nbool isSafe(int board[N][N], int row, int col) {\n  for (int i = 0; i < col; i++) if (board[row][i]) return false;\n  for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i][j]) return false;\n  for (int i = row, j = col; i < N && j >= 0; i++, j--) if (board[i][j]) return false;\n  return true;\n}\n\nbool solveNQueensUtil(int board[N][N], int col) {\n  if (col >= N) return true;\n  for (int i = 0; i < N; i++) {\n    if (isSafe(board, i, col)) {\n      board[i][col] = 1;\n      if (solveNQueensUtil(board, col + 1)) return true;\n      board[i][col] = 0;\n    }\n  }\n  return false;\n}\n\nvoid printSolution(int board[N][N]) {\n  for (int i = 0; i < N; i++) {\n    for (int j = 0; j < N; j++) printf(\"%d \", board[i][j]);\n    printf(\"\\n\");\n  }\n}\n\nvoid solveNQueens() {\n  int board[N][N] = {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};\n  if (solveNQueensUtil(board, 0)) printSolution(board);\n  else printf(\"Solution does not exist\\n\");\n}\n\nint main() {\n  solveNQueens();\n  return 0;\n}\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "cpp": "#include <iostream>\n#include <vector>\n\n#define N 4\n\nbool isSafe(std::vector<std::vector<int>>& board, int row, int col) {\n  for (int i = 0; i < col; i++) if (board[row][i]) return false;\n  for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i][j]) return false;\n  for (int i = row, j = col; i < N && j >= 0; i++, j--) if (board[i][j]) return false;\n  return true;\n}\n\nbool solveNQueensUtil(std::vector<std::vector<int>>& board, int col) {\n  if (col >= N) return true;\n  for (int i = 0; i < N; i++) {\n    if (isSafe(board, i, col)) {\n      board[i][col] = 1;\n      if (solveNQueensUtil(board, col + 1)) return true;\n      board[i][col] = 0;\n    }\n  }\n  return false;\n}\n\nvoid printSolution(std::vector<std::vector<int>>& board) {\n  for (int i = 0; i < N; i++) {\n    for (int j = 0; j < N; j++) std::cout << board[i][j] << \" \";\n    std::cout << std::endl;\n  }\n}\n\nvoid solveNQueens() {\n  std::vector<std::vector<int>> board(N, std::vector<int>(N, 0));\n  if (solveNQueensUtil(board, 0)) printSolution(board);\n  else std::cout << \"Solution does not exist\" << std::endl;\n}\n\nint main() {\n  solveNQueens();\n  return 0;\n}\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "csharp": "using System;\n\nclass Program {\n  const int N = 4;\n\n  static bool IsSafe(int[,] board, int row, int col) {\n    for (int i = 0; i < col; i++) if (board[row, i] == 1) return false;\n    for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i, j] == 1) return false;\n    for (int i = row, j = col; i < N && j >= 0; i++, j--) if (board[i, j] == 1) return false;\n    return true;\n  }\n\n  static bool SolveNQueensUtil(int[,] board, int col) {\n    if (col >= N) return true;\n    for (int i = 0; i < N; i++) {\n      if (IsSafe(board, i, col)) {\n        board[i, col] = 1;\n        if (SolveNQueensUtil(board, col + 1)) return true;\n        board[i, col] = 0;\n      }\n    }\n    return false;\n  }\n\n  static void PrintSolution(int[,] board) {\n    for (int i = 0; i < N; i++) {\n      for (int j = 0; j < N; j++) Console.Write(board[i, j] + \" \");\n      Console.WriteLine();\n    }\n  }\n\n  static void SolveNQueens() {\n    int[,] board = new int[N, N];\n    if (SolveNQueensUtil(board, 0)) PrintSolution(board);\n    else Console.WriteLine(\"Solution does not exist\");\n  }\n\n  static void Main() {\n    SolveNQueens();\n  }\n}\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "java": "public class Main {\n  static final int N = 4;\n\n  static boolean isSafe(int[][] board, int row, int col) {\n    for (int i = 0; i < col; i++) if (board[row][i] == 1) return false;\n    for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i][j] == 1) return false;\n    for (int i = row, j = col; i < N && j >= 0; i++, j--) if (board[i][j] == 1) return false;\n    return true;\n  }\n\n  static boolean solveNQueensUtil(int[][] board, int col) {\n    if (col >= N) return true;\n    for (int i = 0; i < N; i++) {\n      if (isSafe(board, i, col)) {\n        board[i][col] = 1;\n        if (solveNQueensUtil(board, col + 1)) return true;\n        board[i][col] = 0;\n      }\n    }\n    return false;\n  }\n\n  static void printSolution(int[][] board) {\n    for (int i = 0; i < N; i++) {\n      for (int j = 0; j < N; j++) System.out.print(board[i][j] + \" \");\n      System.out.println();\n    }\n  }\n\n  static void solveNQueens() {\n    int[][] board = new int[N][N];\n    if (solveNQueensUtil(board, 0)) printSolution(board);\n    else System.out.println(\"Solution does not exist\");\n  }\n\n  public static void main(String[] args) {\n    solveNQueens();\n  }\n}\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "javascript": "const N = 4;\n\nfunction isSafe(board, row, col) {\n  for (let i = 0; i < col; i++) if (board[row][i]) return false;\n  for (let i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i][j]) return false;\n  for (let i = row, j = col; i < N && j >= 0; i++, j--) if (board[i][j]) return false;\n  return true;\n}\n\nfunction solveNQueensUtil(board, col) {\n  if (col >= N) return true;\n  for (let i = 0; i < N; i++) {\n    if (isSafe(board, i, col)) {\n      board[i][col] = 1;\n      if (solveNQueensUtil(board, col + 1)) return true;\n      board[i][col] = 0;\n    }\n  }\n  return false;\n}\n\nfunction printSolution(board) {\n  for (let i = 0; i < N; i++) console.log(board[i].join(\" \"));\n}\n\nfunction solveNQueens() {\n  let board = Array.from({ length: N }, () => Array(N).fill(0));\n  if (solveNQueensUtil(board, 0)) printSolution(board);\n  else console.log(\"Solution does not exist\");\n}\n\nsolveNQueens();\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "typescript": "const N: number = 4;\n\nfunction isSafe(board: number[][], row: number, col: number): boolean {\n  for (let i = 0; i < col; i++) if (board[row][i]) return false;\n  for (let i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i][j]) return false;\n  for (let i = row, j = col; i < N && j >= 0; i++, j--) if (board[i][j]) return false;\n  return true;\n}\n\nfunction solveNQueensUtil(board: number[][], col: number): boolean {\n  if (col >= N) return true;\n  for (let i = 0; i < N; i++) {\n    if (isSafe(board, i, col)) {\n      board[i][col] = 1;\n      if (solveNQueensUtil(board, col + 1)) return true;\n      board[i][col] = 0;\n    }\n  }\n  return false;\n}\n\nfunction printSolution(board: number[][]): void {\n  for (let i = 0; i < N; i++) console.log(board[i].join(\" \"));\n}\n\nfunction solveNQueens(): void {\n  let board: number[][] = Array.from({ length: N }, () => Array(N).fill(0));\n  if (solveNQueensUtil(board, 0)) printSolution(board);\n  else console.log(\"Solution does not exist\");\n}\n\nsolveNQueens();\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "python": "N = 4\n\ndef is_safe(board, row, col):\n    for i in range(col):\n        if board[row][i]:\n            return False\n    for i, j in zip(range(row, -1, -1), range(col, -1, -1)):\n        if board[i][j]:\n            return False\n    for i, j in zip(range(row, N), range(col, -1, -1)):\n        if board[i][j]:\n            return False\n    return True\n\ndef solve_nqueens_util(board, col):\n    if col >= N:\n        return True\n    for i in range(N):\n        if is_safe(board, i, col):\n            board[i][col] = 1\n            if solve_nqueens_util(board, col + 1):\n                return True\n            board[i][col] = 0\n    return False\n\ndef print_solution(board):\n    for i in range(N):\n        print(' '.join(map(str, board[i])))\n\ndef solve_nqueens():\n    board = [[0] * N for _ in range(N)]\n    if solve_nqueens_util(board, 0):\n        print_solution(board)\n    else:\n        print('Solution does not exist')\n\nsolve_nqueens()\n# Output:\n# 0 1 0 0\n# 0 0 0 1\n# 1 0 0 0\n# 0 0 1 0",
+      "php": "<?php\n\n$N = 4;\n\nfunction isSafe($board, $row, $col) {\n  for ($i = 0; $i < $col; $i++) if ($board[$row][$i]) return false;\n  for ($i = $row, $j = $col; $i >= 0 && $j >= 0; $i--, $j--) if ($board[$i][$j]) return false;\n  for ($i = $row, $j = $col; $i < $N && $j >= 0; $i++, $j--) if ($board[$i][$j]) return false;\n  return true;\n}\n\nfunction solveNQueensUtil(&$board, $col) {\n  global $N;\n  if ($col >= $N) return true;\n  for ($i = 0; $i < $N; $i++) {\n    if (isSafe($board, $i, $col)) {\n      $board[$i][$col] = 1;\n      if (solveNQueensUtil($board, $col + 1)) return true;\n      $board[$i][col] = 0;\n    }\n  }\n  return false;\n}\n\nfunction printSolution($board) {\n  global $N;\n  for ($i = 0; $i < $N; $i++) echo implode(\" \", $board[$i]) . \"\\n\";\n}\n\nfunction solveNQueens() {\n  global $N;\n  $board = array_fill(0, $N, array_fill(0, $N, 0));\n  if (solveNQueensUtil($board, 0)) printSolution($board);\n  else echo \"Solution does not exist\\n\";\n}\n\nsolveNQueens();\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "Backtracking nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Backtracking alqoritmləri problemi mümkün həlləri sınaqdan keçirərək həll edir, yanlış yolları ləğv edərək geri qayıdır və düzgün həll tapılana qədər davam edir. Bu strategiya 'sınaq və səhv' metoduna əsaslanır: bir həll cəhdi uğursuz olarsa, alqoritm əvvəlki vəziyyətə qayıdır və başqa bir yol sınayır. Məsələn, N-Queens problemi backtracking-in klassik nümunəsidir: 4x4 şahmat taxtasında 4 vəzir elə yerləşdirilir ki, heç biri digərini təhdid etməsin (yəni eyni sətirdə, sütunda və ya diaqonalda olmasın). Backtracking hər sətirdə vəziri yerləşdirərək sınaq aparır, təhlükəsiz yer tapırsa davam edir, əks halda geri qayıdır. Bu, bütün mümkün həlləri araşdırır, lakin hesablama baxımından ağır ola bilər. Dinamik proqramlaşdırma ilə müqayisədə backtracking nəticələri saxlamır, buna görə daha çox hesablama tələb edir. Böl və hökm sür strategiyası ilə müqayisədə isə backtracking daha çox kombinasiya sınaqdan keçirir, lakin həllin tapılmasına zəmanət verir."
+      },
+      {
+        "type": "heading",
+        "text": "Backtracking necə işləyir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Backtracking problemi rekursiv şəkildə həll edir: hər addımda mümkün bir həll cəhd edilir, uğursuz olarsa geri qayıdılır və başqa bir həll sınanır. N-Queens problemində bu proses belə işləyir: 1) **Başlanğıc vəziyyət** - 4x4 şahmat taxtası boşdur (sıfırlarla dolu massiv). 2) **Vəzir yerləşdirmə** - ilk sütunda hər sətirdə vəzir yerləşdirilir və təhlükəsizlik yoxlanılır (sətir, sütun və diaqonallarda başqa vəzir olmamalıdır). 3) **Rekursiv davam** - təhlükəsiz yer tapılırsa, növbəti sütuna keçilir və proses təkrarlanır. 4) **Geri qayıtma** - əgər cari vəziyyətdə həll mümkün deyilsə, son vəzir çıxarılır və başqa sətirdə sınaq aparılır. Məsələn, 4x4 taxtada vəzirlər [2, 0, 3, 1] sətirlərində yerləşdirilərək həll tapılır (yəni 1-ci vəzir 2-ci sətirdə, 2-ci vəzir 0-cı sətirdə və s.). Backtracking bütün mümkün kombinasiyaları sınaqdan keçirərək optimal həlli tapır, lakin böyük problemlərdə yavaş ola bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Backtracking-in səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Backtracking alqoritmlərinin səmərəliliyi problemdən asılıdır, lakin ümumiyyətlə eksponensial vaxt tələb edir. N-Queens problemi üçün vaxt mürəkkəbliyi O(N!) ola bilər, çünki hər sütunda N sətir sınaqdan keçirilir, lakin təhlükəsizlik yoxlamaları ilə bu, praktikada daha az ola bilər. Məsələn, 4x4 taxtada (N=4) hər sütunda 4 mümkün yer sınaqdan keçirilir, lakin təhlükəsizlik şərtləri sınaqların sayını azaldır. Məkan mürəkkəbliyi O(N²)-dir, çünki N x N ölçülü taxta və rekursiya yığını saxlanılır. Dinamik proqramlaşdırma (məsələn, O(n * m) Minimum sikkə problemində) və Böl və hökm sür (məsələn, O(n log n) Merge Sort-da) ilə müqayisədə, backtracking daha yavaşdır, çünki bütün mümkün həlləri sınaqdan keçirir. Optimallaşdırma (məsələn, erkən kəsmə) performansı yaxşılaşdıra bilər, lakin böyük datasetlərdə hesablama yükü yüksək qalır."
+      },
+      {
+        "type": "heading",
+        "text": "Backtracking-in üstünlükləri və mənfi cəhətləri"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Optimal həll: Bütün mümkün həlləri sınaqdan keçirərək düzgün nəticəni tapır."
+          },
+          {
+            "description": "Sadəlik: Rekursiv yanaşma ilə mürəkkəb problemləri sadələşdirir."
+          },
+          {
+            "description": "Mənfi cəhət: Eksponensial vaxt tələb edir (məsələn, O(N!) N-Queens üçün)."
+          },
+          {
+            "description": "Mənfi cəhət: Böyük problemlərdə hesablama yükü yüksək olur."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda backtracking"
+      },
+      {
+        "type": "paragraph",
+        "text": "Backtracking problemləri bütün mümkün həlləri araşdırmaq lazım olan ssenarilərdə istifadə olunur. N-Queens problemi şahmat tapmacalarında və ya planlaşdırma problemlərində tətbiq edilir. Digər nümunələrə Sudoku həlli, labirint problemləri, kombinasiya tapmacaları (məsələn, şifrə generasiyası) və qraf rənglənməsi daxildir. Məsələn, Sudoku-da backtracking hər xanaya mümkün rəqəmləri yerləşdirərək həll tapır, uğursuz olarsa geri qayıdır. Real dünyada bu strategiya planlaşdırma sistemlərində (məsələn, resursların yerləşdirilməsi), oyun dizaynında və ya şəbəkə optimallaşdırmasında tətbiq olunur. Dinamik proqramlaşdırma ilə müqayisədə backtracking təkrarlanan alt problemləri saxlamır, buna görə daha çox hesablama tələb edir. Böl və hökm sür ilə müqayisədə isə backtracking daha çox kombinasiya sınaqdan keçirir, lakin optimal həll tapır. Kiçik problemlər üçün effektivdir, lakin böyük datasetlərdə yavaş ola bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Backtracking-in əsas təhlükəsi eksponensial vaxt mürəkkəbliyidir, çünki bütün mümkün həlləri sınaqdan keçirir. Məsələn, N-Queens problemində N böyüdükcə (məsələn, 8x8 taxta) hesablama vaxtı kəskin artır. Həmçinin, dərin rekursiya yaddaş aşmasına (stack overflow) səbəb ola bilər. Tövsiyələrə gəlincə, erkən kəsmə (pruning) üsulları ilə sınaqların sayını azaltmaq mümkündür, məsələn, N-Queens-də təhlükəsizlik yoxlamasını optimallaşdırmaq. Problem dinamik proqramlaşdırma və ya böl və hökm sür ilə həll oluna bilərsə, bu strategiyalar nəzərdən keçirilə bilər (məsələn, DP Minimum sikkə problemində daha səmərəlidir). Alqoritmi müxtəlif girişlərlə sınaqdan keçirin və performansını qiymətləndirin. Əgər sürət prioritetdirsə, alternativ alqoritmlər (məsələn, açgözlü yanaşmalar) araşdırıla bilər, lakin onların optimal həll təmin etmədiyi yoxlanılmalıdır."
+      }
+    ]
+  },
+  "en": {
+    "title": "Backtracking",
+    "language": "multiple",
+    "description": "Backtracking algorithms solve problems by trying possible solutions and backtracking when a path fails, exemplified by the N-Queens problem.",
+    "codes": {
+      "c": "#include <stdio.h>\n#include <stdbool.h>\n\n#define N 4\n\nbool isSafe(int board[N][N], int row, int col) {\n  for (int i = 0; i < col; i++) if (board[row][i]) return false;\n  for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i][j]) return false;\n  for (int i = row, j = col; i < N && j >= 0; i++, j--) if (board[i][j]) return false;\n  return true;\n}\n\nbool solveNQueensUtil(int board[N][N], int col) {\n  if (col >= N) return true;\n  for (int i = 0; i < N; i++) {\n    if (isSafe(board, i, col)) {\n      board[i][col] = 1;\n      if (solveNQueensUtil(board, col + 1)) return true;\n      board[i][col] = 0;\n    }\n  }\n  return false;\n}\n\nvoid printSolution(int board[N][N]) {\n  for (int i = 0; i < N; i++) {\n    for (int j = 0; j < N; j++) printf(\"%d \", board[i][j]);\n    printf(\"\\n\");\n  }\n}\n\nvoid solveNQueens() {\n  int board[N][N] = {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};\n  if (solveNQueensUtil(board, 0)) printSolution(board);\n  else printf(\"Solution does not exist\\n\");\n}\n\nint main() {\n  solveNQueens();\n  return 0;\n}\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "cpp": "#include <iostream>\n#include <vector>\n\n#define N 4\n\nbool isSafe(std::vector<std::vector<int>>& board, int row, int col) {\n  for (int i = 0; i < col; i++) if (board[row][i]) return false;\n  for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i][j]) return false;\n  for (int i = row, j = col; i < N && j >= 0; i++, j--) if (board[i][j]) return false;\n  return true;\n}\n\nbool solveNQueensUtil(std::vector<std::vector<int>>& board, int col) {\n  if (col >= N) return true;\n  for (int i = 0; i < N; i++) {\n    if (isSafe(board, i, col)) {\n      board[i][col] = 1;\n      if (solveNQueensUtil(board, col + 1)) return true;\n      board[i][col] = 0;\n    }\n  }\n  return false;\n}\n\nvoid printSolution(std::vector<std::vector<int>>& board) {\n  for (int i = 0; i < N; i++) {\n    for (int j = 0; j < N; j++) std::cout << board[i][j] << \" \";\n    std::cout << std::endl;\n  }\n}\n\nvoid solveNQueens() {\n  std::vector<std::vector<int>> board(N, std::vector<int>(N, 0));\n  if (solveNQueensUtil(board, 0)) printSolution(board);\n  else std::cout << \"Solution does not exist\" << std::endl;\n}\n\nint main() {\n  solveNQueens();\n  return 0;\n}\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "csharp": "using System;\n\nclass Program {\n  const int N = 4;\n\n  static bool IsSafe(int[,] board, int row, int col) {\n    for (int i = 0; i < col; i++) if (board[row, i] == 1) return false;\n    for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i, j] == 1) return false;\n    for (int i = row, j = col; i < N && j >= 0; i++, j--) if (board[i, j] == 1) return false;\n    return true;\n  }\n\n  static bool SolveNQueensUtil(int[,] board, int col) {\n    if (col >= N) return true;\n    for (int i = 0; i < N; i++) {\n      if (IsSafe(board, i, col)) {\n        board[i, col] = 1;\n        if (SolveNQueensUtil(board, col + 1)) return true;\n        board[i, col] = 0;\n      }\n    }\n    return false;\n  }\n\n  static void PrintSolution(int[,] board) {\n    for (int i = 0; i < N; i++) {\n      for (int j = 0; j < N; j++) Console.Write(board[i, j] + \" \");\n      Console.WriteLine();\n    }\n  }\n\n  static void SolveNQueens() {\n    int[,] board = new int[N, N];\n    if (SolveNQueensUtil(board, 0)) PrintSolution(board);\n    else Console.WriteLine(\"Solution does not exist\");\n  }\n\n  static void Main() {\n    SolveNQueens();\n  }\n}\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "java": "public class Main {\n  static final int N = 4;\n\n  static boolean isSafe(int[][] board, int row, int col) {\n    for (int i = 0; i < col; i++) if (board[row][i] == 1) return false;\n    for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i][j] == 1) return false;\n    for (int i = row, j = col; i < N && j >= 0; i++, j--) if (board[i][j] == 1) return false;\n    return true;\n  }\n\n  static boolean solveNQueensUtil(int[][] board, int col) {\n    if (col >= N) return true;\n    for (int i = 0; i < N; i++) {\n      if (isSafe(board, i, col)) {\n        board[i][col] = 1;\n        if (solveNQueensUtil(board, col + 1)) return true;\n        board[i][col] = 0;\n      }\n    }\n    return false;\n  }\n\n  static void printSolution(int[][] board) {\n    for (int i = 0; i < N; i++) {\n      for (int j = 0; j < N; j++) System.out.print(board[i][j] + \" \");\n      System.out.println();\n    }\n  }\n\n  static void solveNQueens() {\n    int[][] board = new int[N][N];\n    if (solveNQueensUtil(board, 0)) printSolution(board);\n    else System.out.println(\"Solution does not exist\");\n  }\n\n  public static void main(String[] args) {\n    solveNQueens();\n  }\n}\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "javascript": "const N = 4;\n\nfunction isSafe(board, row, col) {\n  for (let i = 0; i < col; i++) if (board[row][i]) return false;\n  for (let i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i][j]) return false;\n  for (let i = row, j = col; i < N && j >= 0; i++, j--) if (board[i][j]) return false;\n  return true;\n}\n\nfunction solveNQueensUtil(board, col) {\n  if (col >= N) return true;\n  for (let i = 0; i < N; i++) {\n    if (isSafe(board, i, col)) {\n      board[i][col] = 1;\n      if (solveNQueensUtil(board, col + 1)) return true;\n      board[i][col] = 0;\n    }\n  }\n  return false;\n}\n\nfunction printSolution(board) {\n  for (let i = 0; i < N; i++) console.log(board[i].join(\" \"));\n}\n\nfunction solveNQueens() {\n  let board = Array.from({ length: N }, () => Array(N).fill(0));\n  if (solveNQueensUtil(board, 0)) printSolution(board);\n  else console.log(\"Solution does not exist\");\n}\n\nsolveNQueens();\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "typescript": "const N: number = 4;\n\nfunction isSafe(board: number[][], row: number, col: number): boolean {\n  for (let i = 0; i < col; i++) if (board[row][i]) return false;\n  for (let i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i][j]) return false;\n  for (let i = row, j = col; i < N && j >= 0; i++, j--) if (board[i][j]) return false;\n  return true;\n}\n\nfunction solveNQueensUtil(board: number[][], col: number): boolean {\n  if (col >= N) return true;\n  for (let i = 0; i < N; i++) {\n    if (isSafe(board, i, col)) {\n      board[i][col] = 1;\n      if (solveNQueensUtil(board, col + 1)) return true;\n      board[i][col] = 0;\n    }\n  }\n  return false;\n}\n\nfunction printSolution(board: number[][]): void {\n  for (let i = 0; i < N; i++) console.log(board[i].join(\" \"));\n}\n\nfunction solveNQueens(): void {\n  let board: number[][] = Array.from({ length: N }, () => Array(N).fill(0));\n  if (solveNQueensUtil(board, 0)) printSolution(board);\n  else console.log(\"Solution does not exist\");\n}\n\nsolveNQueens();\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "python": "N = 4\n\ndef is_safe(board, row, col):\n    for i in range(col):\n        if board[row][i]:\n            return False\n    for i, j in zip(range(row, -1, -1), range(col, -1, -1)):\n        if board[i][j]:\n            return False\n    for i, j in zip(range(row, N), range(col, -1, -1)):\n        if board[i][j]:\n            return False\n    return True\n\ndef solve_nqueens_util(board, col):\n    if col >= N:\n        return True\n    for i in range(N):\n        if is_safe(board, i, col):\n            board[i][col] = 1\n            if solve_nqueens_util(board, col + 1):\n                return True\n            board[i][col] = 0\n    return False\n\ndef print_solution(board):\n    for i in range(N):\n        print(' '.join(map(str, board[i])))\n\ndef solve_nqueens():\n    board = [[0] * N for _ in range(N)]\n    if solve_nqueens_util(board, 0):\n        print_solution(board)\n    else:\n        print('Solution does not exist')\n\nsolve_nqueens()\n# Output:\n# 0 1 0 0\n# 0 0 0 1\n# 1 0 0 0\n# 0 0 1 0",
+      "php": "<?php\n\n$N = 4;\n\nfunction isSafe($board, $row, $col) {\n  for ($i = 0; $i < $col; $i++) if ($board[$row][$i]) return false;\n  for ($i = $row, $j = $col; $i >= 0 && $j >= 0; $i--, $j--) if ($board[$i][$j]) return false;\n  for ($i = $row, $j = $col; $i < $N && $j >= 0; $i++, $j--) if ($board[$i][$j]) return false;\n  return true;\n}\n\nfunction solveNQueensUtil(&$board, $col) {\n  global $N;\n  if ($col >= $N) return true;\n  for ($i = 0; $i < $N; $i++) {\n    if (isSafe($board, $i, $col)) {\n      $board[$i][$col] = 1;\n      if (solveNQueensUtil($board, $col + 1)) return true;\n      $board[$i][col] = 0;\n    }\n  }\n  return false;\n}\n\nfunction printSolution($board) {\n  global $N;\n  for ($i = 0; $i < $N; $i++) echo implode(\" \", $board[$i]) . \"\\n\";\n}\n\nfunction solveNQueens() {\n  global $N;\n  $board = array_fill(0, $N, array_fill(0, $N, 0));\n  if (solveNQueensUtil($board, 0)) printSolution($board);\n  else echo \"Solution does not exist\\n\";\n}\n\nsolveNQueens();\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Backtracking?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Backtracking algorithms solve problems by trying possible solutions and reverting to a previous state when a path fails, continuing until a valid solution is found. This is a 'trial and error' approach: if a solution attempt fails, the algorithm backtracks and tries another option. For example, the N-Queens problem is a classic backtracking problem: place 4 queens on a 4x4 chessboard such that no queen threatens another (i.e., not in the same row, column, or diagonal). Backtracking tries placing a queen in each row of a column, checks if it’s safe, proceeds if valid, and backtracks if it leads to a dead end. This ensures all possible solutions are explored, but it can be computationally expensive. Compared to dynamic programming, backtracking doesn’t store subproblem results, leading to higher computational cost. Compared to divide and conquer, it explores more combinations but guarantees finding a solution."
+      },
+      {
+        "type": "heading",
+        "text": "How Does Backtracking Work?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Backtracking solves problems recursively by incrementally trying solutions, reverting when a path fails, and exploring other options. In the N-Queens problem, the process works as follows: 1) **Initial state** - a 4x4 chessboard is empty (array of zeros). 2) **Place queen** - in the first column, try placing a queen in each row and check if it’s safe (no other queens in the same row, column, or diagonals). 3) **Recursive continuation** - if a safe position is found, move to the next column and repeat. 4) **Backtrack** - if the current placement leads to no solution, remove the queen and try another row. For example, in a 4x4 board, queens are placed at rows [2, 0, 3, 1] to find a solution (i.e., queen 1 in row 2, queen 2 in row 0, etc.). Backtracking explores all possible combinations to find a valid solution but can be slow for large problems."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of Backtracking (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "The efficiency of backtracking algorithms varies by problem but is generally exponential. For the N-Queens problem, the time complexity can be O(N!), as it tries N possible rows for each column, though safety checks reduce the number of trials in practice. For a 4x4 board (N=4), each of the 4 columns has up to 4 possible rows, but constraints like row and diagonal checks prune invalid paths. The space complexity is O(N²) to store the N x N board and the recursion stack. Compared to dynamic programming (e.g., O(n * m) for Minimum Coin Change) and divide and conquer (e.g., O(n log n) for Merge Sort), backtracking is slower because it exhaustively explores all possibilities. Optimizations like early pruning can improve performance, but large datasets remain computationally intensive."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages of Backtracking"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Optimal solution: Explores all possibilities to find a correct solution."
+          },
+          {
+            "description": "Simplicity: Simplifies complex problems with a recursive approach."
+          },
+          {
+            "description": "Disadvantage: Exponential time complexity (e.g., O(N!) for N-Queens)."
+          },
+          {
+            "description": "Disadvantage: High computational cost for large problems."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Backtracking in Real Life"
+      },
+      {
+        "type": "paragraph",
+        "text": "Backtracking is used in scenarios requiring exploration of all possible solutions. The N-Queens problem applies to chess puzzles or scheduling problems. Other examples include solving Sudoku, maze problems, combinatorial puzzles (e.g., password generation), and graph coloring. For instance, in Sudoku, backtracking tries possible numbers for each cell, backtracking if a number leads to an invalid state. In real-world applications, backtracking is used in scheduling systems (e.g., resource allocation), game design, or network optimization. Compared to dynamic programming, backtracking doesn’t store subproblem results, leading to higher computational cost. Compared to divide and conquer, it explores more combinations but ensures a solution. It’s effective for small problems but can be slow for large datasets."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "The main danger of backtracking is its exponential time complexity, as it explores all possible solutions. For example, in the N-Queens problem, as N increases (e.g., 8x8 board), the computation time grows significantly. Deep recursion can also cause stack overflow. Recommendations include using early pruning to reduce the number of trials, such as optimizing safety checks in N-Queens. If the problem can be solved with dynamic programming or divide and conquer (e.g., DP for Minimum Coin Change), consider those for better efficiency. Test the algorithm with various inputs to evaluate performance. If speed is a priority, explore alternative approaches like greedy algorithms, but verify they produce optimal solutions."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Бэктрекинг",
+    "language": "multiple",
+    "description": "Алгоритмы бэктрекинга решают задачи, перебирая возможные решения и возвращаясь назад при неудаче, примером чего является проблема N ферзей.",
+    "codes": {
+      "c": "#include <stdio.h>\n#include <stdbool.h>\n\n#define N 4\n\nbool isSafe(int board[N][N], int row, int col) {\n  for (int i = 0; i < col; i++) if (board[row][i]) return false;\n  for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i][j]) return false;\n  for (int i = row, j = col; i < N && j >= 0; i++, j--) if (board[i][j]) return false;\n  return true;\n}\n\nbool solveNQueensUtil(int board[N][N], int col) {\n  if (col >= N) return true;\n  for (int i = 0; i < N; i++) {\n    if (isSafe(board, i, col)) {\n      board[i][col] = 1;\n      if (solveNQueensUtil(board, col + 1)) return true;\n      board[i][col] = 0;\n    }\n  }\n  return false;\n}\n\nvoid printSolution(int board[N][N]) {\n  for (int i = 0; i < N; i++) {\n    for (int j = 0; j < N; j++) printf(\"%d \", board[i][j]);\n    printf(\"\\n\");\n  }\n}\n\nvoid solveNQueens() {\n  int board[N][N] = {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};\n  if (solveNQueensUtil(board, 0)) printSolution(board);\n  else printf(\"Solution does not exist\\n\");\n}\n\nint main() {\n  solveNQueens();\n  return 0;\n}\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "cpp": "#include <iostream>\n#include <vector>\n\n#define N 4\n\nbool isSafe(std::vector<std::vector<int>>& board, int row, int col) {\n  for (int i = 0; i < col; i++) if (board[row][i]) return false;\n  for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i][j]) return false;\n  for (int i = row, j = col; i < N && j >= 0; i++, j--) if (board[i][j]) return false;\n  return true;\n}\n\nbool solveNQueensUtil(std::vector<std::vector<int>>& board, int col) {\n  if (col >= N) return true;\n  for (int i = 0; i < N; i++) {\n    if (isSafe(board, i, col)) {\n      board[i][col] = 1;\n      if (solveNQueensUtil(board, col + 1)) return true;\n      board[i][col] = 0;\n    }\n  }\n  return false;\n}\n\nvoid printSolution(std::vector<std::vector<int>>& board) {\n  for (int i = 0; i < N; i++) {\n    for (int j = 0; j < N; j++) std::cout << board[i][j] << \" \";\n    std::cout << std::endl;\n  }\n}\n\nvoid solveNQueens() {\n  std::vector<std::vector<int>> board(N, std::vector<int>(N, 0));\n  if (solveNQueensUtil(board, 0)) printSolution(board);\n  else std::cout << \"Solution does not exist\" << std::endl;\n}\n\nint main() {\n  solveNQueens();\n  return 0;\n}\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "csharp": "using System;\n\nclass Program {\n  const int N = 4;\n\n  static bool IsSafe(int[,] board, int row, int col) {\n    for (int i = 0; i < col; i++) if (board[row, i] == 1) return false;\n    for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i, j] == 1) return false;\n    for (int i = row, j = col; i < N && j >= 0; i++, j--) if (board[i, j] == 1) return false;\n    return true;\n  }\n\n  static bool SolveNQueensUtil(int[,] board, int col) {\n    if (col >= N) return true;\n    for (int i = 0; i < N; i++) {\n      if (IsSafe(board, i, col)) {\n        board[i, col] = 1;\n        if (SolveNQueensUtil(board, col + 1)) return true;\n        board[i, col] = 0;\n      }\n    }\n    return false;\n  }\n\n  static void PrintSolution(int[,] board) {\n    for (int i = 0; i < N; i++) {\n      for (int j = 0; j < N; j++) Console.Write(board[i, j] + \" \");\n      Console.WriteLine();\n    }\n  }\n\n  static void SolveNQueens() {\n    int[,] board = new int[N, N];\n    if (SolveNQueensUtil(board, 0)) PrintSolution(board);\n    else Console.WriteLine(\"Solution does not exist\");\n  }\n\n  static void Main() {\n    SolveNQueens();\n  }\n}\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "java": "public class Main {\n  static final int N = 4;\n\n  static boolean isSafe(int[][] board, int row, int col) {\n    for (int i = 0; i < col; i++) if (board[row][i] == 1) return false;\n    for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i][j] == 1) return false;\n    for (int i = row, j = col; i < N && j >= 0; i++, j--) if (board[i][j] == 1) return false;\n    return true;\n  }\n\n  static boolean solveNQueensUtil(int[][] board, int col) {\n    if (col >= N) return true;\n    for (int i = 0; i < N; i++) {\n      if (isSafe(board, i, col)) {\n        board[i][col] = 1;\n        if (solveNQueensUtil(board, col + 1)) return true;\n        board[i][col] = 0;\n      }\n    }\n    return false;\n  }\n\n  static void printSolution(int[][] board) {\n    for (int i = 0; i < N; i++) {\n      for (int j = 0; j < N; j++) System.out.print(board[i][j] + \" \");\n      System.out.println();\n    }\n  }\n\n  static void solveNQueens() {\n    int[][] board = new int[N][N];\n    if (solveNQueensUtil(board, 0)) printSolution(board);\n    else System.out.println(\"Solution does not exist\");\n  }\n\n  public static void main(String[] args) {\n    solveNQueens();\n  }\n}\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "javascript": "const N = 4;\n\nfunction isSafe(board, row, col) {\n  for (let i = 0; i < col; i++) if (board[row][i]) return false;\n  for (let i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i][j]) return false;\n  for (let i = row, j = col; i < N && j >= 0; i++, j--) if (board[i][j]) return false;\n  return true;\n}\n\nfunction solveNQueensUtil(board, col) {\n  if (col >= N) return true;\n  for (let i = 0; i < N; i++) {\n    if (isSafe(board, i, col)) {\n      board[i][col] = 1;\n      if (solveNQueensUtil(board, col + 1)) return true;\n      board[i][col] = 0;\n    }\n  }\n  return false;\n}\n\nfunction printSolution(board) {\n  for (let i = 0; i < N; i++) console.log(board[i].join(\" \"));\n}\n\nfunction solveNQueens() {\n  let board = Array.from({ length: N }, () => Array(N).fill(0));\n  if (solveNQueensUtil(board, 0)) printSolution(board);\n  else console.log(\"Solution does not exist\");\n}\n\nsolveNQueens();\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "typescript": "const N: number = 4;\n\nfunction isSafe(board: number[][], row: number, col: number): boolean {\n  for (let i = 0; i < col; i++) if (board[row][i]) return false;\n  for (let i = row, j = col; i >= 0 && j >= 0; i--, j--) if (board[i][j]) return false;\n  for (let i = row, j = col; i < N && j >= 0; i++, j--) if (board[i][j]) return false;\n  return true;\n}\n\nfunction solveNQueensUtil(board: number[][], col: number): boolean {\n  if (col >= N) return true;\n  for (let i = 0; i < N; i++) {\n    if (isSafe(board, i, col)) {\n      board[i][col] = 1;\n      if (solveNQueensUtil(board, col + 1)) return true;\n      board[i][col] = 0;\n    }\n  }\n  return false;\n}\n\nfunction printSolution(board: number[][]): void {\n  for (let i = 0; i < N; i++) console.log(board[i].join(\" \"));\n}\n\nfunction solveNQueens(): void {\n  let board: number[][] = Array.from({ length: N }, () => Array(N).fill(0));\n  if (solveNQueensUtil(board, 0)) printSolution(board);\n  else console.log(\"Solution does not exist\");\n}\n\nsolveNQueens();\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0",
+      "python": "N = 4\n\ndef is_safe(board, row, col):\n    for i in range(col):\n        if board[row][i]:\n            return False\n    for i, j in zip(range(row, -1, -1), range(col, -1, -1)):\n        if board[i][j]:\n            return False\n    for i, j in zip(range(row, N), range(col, -1, -1)):\n        if board[i][j]:\n            return False\n    return True\n\ndef solve_nqueens_util(board, col):\n    if col >= N:\n        return True\n    for i in range(N):\n        if is_safe(board, i, col):\n            board[i][col] = 1\n            if solve_nqueens_util(board, col + 1):\n                return True\n            board[i][col] = 0\n    return False\n\ndef print_solution(board):\n    for i in range(N):\n        print(' '.join(map(str, board[i])))\n\ndef solve_nqueens():\n    board = [[0] * N for _ in range(N)]\n    if solve_nqueens_util(board, 0):\n        print_solution(board)\n    else:\n        print('Solution does not exist')\n\nsolve_nqueens()\n# Output:\n# 0 1 0 0\n# 0 0 0 1\n# 1 0 0 0\n# 0 0 1 0",
+      "php": "<?php\n\n$N = 4;\n\nfunction isSafe($board, $row, $col) {\n  for ($i = 0; $i < $col; $i++) if ($board[$row][$i]) return false;\n  for ($i = $row, $j = $col; $i >= 0 && $j >= 0; $i--, $j--) if ($board[$i][$j]) return false;\n  for ($i = $row, $j = $col; $i < $N && $j >= 0; $i++, $j--) if ($board[$i][$j]) return false;\n  return true;\n}\n\nfunction solveNQueensUtil(&$board, $col) {\n  global $N;\n  if ($col >= $N) return true;\n  for ($i = 0; $i < $N; $i++) {\n    if (isSafe($board, $i, $col)) {\n      $board[$i][$col] = 1;\n      if (solveNQueensUtil($board, $col + 1)) return true;\n      $board[$i][col] = 0;\n    }\n  }\n  return false;\n}\n\nfunction printSolution($board) {\n  global $N;\n  for ($i = 0; $i < $N; $i++) echo implode(\" \", $board[$i]) . \"\\n\";\n}\n\nfunction solveNQueens() {\n  global $N;\n  $board = array_fill(0, $N, array_fill(0, $N, 0));\n  if (solveNQueensUtil($board, 0)) printSolution($board);\n  else echo \"Solution does not exist\\n\";\n}\n\nsolveNQueens();\n// Output:\n// 0 1 0 0\n// 0 0 0 1\n// 1 0 0 0\n// 0 0 1 0"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое бэктрекинг?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Алгоритмы бэктрекинга решают задачи, перебирая возможные решения и возвращаясь назад при неудаче, чтобы попробовать другой путь, пока не будет найдено верное решение. Эта стратегия основана на подходе «проб и ошибок»: если попытка решения не удалась, алгоритм возвращается к предыдущему состоянию и пробует другой вариант. Например, проблема N ферзей — классический пример бэктрекинга: разместить 4 ферзя на шахматной доске 4x4 так, чтобы ни один не угрожал другому (то есть не находился в той же строке, столбце или на диагонали). Бэктрекинг пробует размещать ферзя в каждой строке столбца, проверяет безопасность, продолжает, если позиция допустима, и возвращается назад, если путь ведет в тупик. Это гарантирует перебор всех возможных решений, но может быть вычислительно затратным. По сравнению с динамическим программированием, бэктрекинг не сохраняет результаты подзадач, что приводит к большей вычислительной нагрузке. По сравнению с «разделяй и властвуй», он перебирает больше комбинаций, но гарантирует решение."
+      },
+      {
+        "type": "heading",
+        "text": "Как работает бэктрекинг?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Бэктрекинг решает задачи рекурсивно, пробуя решение постепенно, возвращаясь назад при неудаче и исследуя другие варианты. В проблеме N ферзей процесс работает следующим образом: 1) **Начальное состояние** — шахматная доска 4x4 пуста (массив из нулей). 2) **Размещение ферзя** — в первом столбце пробуется размещение ферзя в каждой строке с проверкой безопасности (в строке, столбце и диагоналях не должно быть других ферзей). 3) **Рекурсивное продолжение** — если найдена безопасная позиция, переход к следующему столбцу и повторение процесса. 4) **Возврат назад** — если текущее размещение не приводит к решению, ферзь убирается, и пробуется другая строка. Например, на доске 4x4 ферзи размещаются в строках [2, 0, 3, 1], чтобы найти решение (ферзь 1 в строке 2, ферзь 2 в строке 0 и т.д.). Бэктрекинг перебирает все возможные комбинации для нахождения верного решения, но может быть медленным для больших задач."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность бэктрекинга (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Эффективность алгоритмов бэктрекинга зависит от задачи, но обычно она экспоненциальна. Для проблемы N ферзей временная сложность может быть O(N!), так как для каждого столбца пробуются N строк, хотя проверки безопасности сокращают количество попыток на практике. Для доски 4x4 (N=4) каждый из 4 столбцов имеет до 4 возможных строк, но ограничения по строкам и диагоналям отсекают недопустимые пути. Пространственная сложность составляет O(N²) для хранения доски N x N и стека рекурсии. По сравнению с динамическим программированием (например, O(n * m) для задачи о минимальном количестве монет) и «разделяй и властвуй» (например, O(n log n) для сортировки слиянием), бэктрекинг медленнее, так как перебирает все возможности. Оптимизации, такие как раннее отсечение, могут улучшить производительность, но большие наборы данных остаются вычислительно сложными."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки бэктрекинга"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Оптимальное решение: Перебирает все возможности, чтобы найти правильное решение."
+          },
+          {
+            "description": "Простота: Упрощает сложные задачи с помощью рекурсивного подхода."
+          },
+          {
+            "description": "Недостаток: Экспоненциальная временная сложность (например, O(N!) для N ферзей)."
+          },
+          {
+            "description": "Недостаток: Высокая вычислительная нагрузка для больших задач."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Бэктрекинг в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Бэктрекинг используется в сценариях, требующих перебора всех возможных решений. Проблема N ферзей применяется в шахматных головоломках или задачах планирования. Другие примеры включают решение судоку, лабиринтов, комбинаторных головоломок (например, генерация паролей) и раскраску графов. Например, в судоку бэктрекинг пробует возможные цифры для каждой клетки, возвращаясь назад, если цифра приводит к неверному состоянию. В реальных приложениях бэктрекинг используется в системах планирования (например, распределение ресурсов), разработке игр или оптимизации сетей. По сравнению с динамическим программированием, бэктрекинг не сохраняет результаты подзадач, что приводит к большей вычислительной нагрузке. По сравнению с «разделяй и властвуй», он перебирает больше комбинаций, но гарантирует решение. Он эффективен для малых задач, но может быть медленным для больших наборов данных."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основная опасность бэктрекинга — его экспоненциальная временная сложность, так как он перебирает все возможные решения. Например, в проблеме N ферзей при увеличении N (например, доска 8x8) время вычислений значительно возрастает. Глубокая рекурсия также может вызвать переполнение стека. Рекомендации включают использование раннего отсечения для сокращения числа попыток, например, оптимизацию проверок безопасности в проблеме N ферзей. Если задача может быть решена с помощью динамического программирования или «разделяй и властвуй» (например, DP для задачи о минимальном количестве монет), рассмотрите их для лучшей эффективности. Тестируйте алгоритм с различными входными данными для оценки производительности. Если приоритет — скорость, исследуйте альтернативные подходы, такие как жадные алгоритмы, но проверяйте, дают ли они оптимальные решения."
+      }
+    ]
+  }
+}

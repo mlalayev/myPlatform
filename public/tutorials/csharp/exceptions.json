@@ -1,0 +1,600 @@
+{
+  "id": "exceptions",
+  "az": {
+    "title": "İstisnalar və Səhvlər",
+    "icon": "FiAlertCircle",
+    "language": "csharp",
+    "description": "Try-catch və səhv idarəetməsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "İstisnalar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində istisnalar (exceptions) proqramın normal işləməsini pozan gözlənilməz səhvlər və ya problemlərdir. Məsələn, sıfıra bölmə, yanlış fayl adı və ya şəbəkə bağlantısı problemi istisna yarada bilər. İstisnaların idarə olunması proqramın qəzaya uğramasının qarşısını alır və istifadəçiyə faydalı mesajlar təqdim edir. Bu, `try-catch` blokları ilə həyata keçirilir. Bu JSON faylda istisnaların əsasları, `try-catch`, `finally`, `throw`, müxtəlif istisna növləri və nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "`try-catch` Blokları"
+      },
+      {
+        "type": "paragraph",
+        "text": "`try` bloku potensial səhv yarada biləcək kodu ehtiva edir. `catch` bloku isə istisna baş verdikdə işə düşür və səhvi idarə edir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int number = 10;\n        int divisor = 0;\n\n        try\n        {\n            int result = number / divisor;\n            Console.WriteLine($\"Nəticə: {result}\");\n        }\n        catch (DivideByZeroException ex)\n        {\n            Console.WriteLine(\"Səhv: Sıfıra bölmək olmaz!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Səhv: Sıfıra bölmək olmaz!\n// Səhv mesajı: Attempted to divide by zero."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `try` bloku sıfıra bölməni sınayır, bu da `DivideByZeroException` istisnasını yaradır.\n- `catch` bloku bu istisnanı tutur və istifadəçiyə səhv mesajı göstərir.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "`finally` Bloku"
+      },
+      {
+        "type": "paragraph",
+        "text": "`finally` bloku istisna olub-olmamasından asılı olmayaraq həmişə işə düşür. Bu, resursların təmizlənməsi (məsələn, faylların bağlanması) üçün istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int[] numbers = { 1, 2, 3 };\n\n        try\n        {\n            Console.WriteLine(numbers[5]);\n        }\n        catch (IndexOutOfRangeException ex)\n        {\n            Console.WriteLine(\"Səhv: Massivin sərhədlərindən kənarda indeks!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n        finally\n        {\n            Console.WriteLine(\"Bu mesaj həmişə görünəcək.\");\n        }\n    }\n}\n// Output:\n// Səhv: Massivin sərhədlərindən kənarda indeks!\n// Səhv mesajı: Index was outside the bounds of the array.\n// Bu mesaj həmişə görünəcək."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `try` bloku massivin mövcud olmayan indeksinə daxil olmağa çalışır, bu da `IndexOutOfRangeException` yaradır.\n- `catch` bloku səhvi tutur və mesaj göstərir.\n- `finally` bloku istisna olub-olmamasından asılı olmayaraq işə düşür."
+      },
+      {
+        "type": "heading",
+        "text": "Müxtəlif İstisna Növləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# dilində müxtəlif istisna növləri var. Ən çox istifadə olunanlardan bəziləri bunlardır:"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\n`DivideByZeroException`: Sıfıra bölmə səhvi." },
+          {
+            "description": "\n`IndexOutOfRangeException`: Massivin sərhədlərindən kənarda indeksə daxil olma."
+          },
+          {
+            "description": "\n`NullReferenceException`: Null obyektdə metod və ya xassəyə daxil olma."
+          },
+          {
+            "description": "\n`FormatException`: Yanlış formatda məlumat daxil edilməsi."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Xüsusi İstisnaların İdarə Olunması"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fərqli istisnalar üçün çoxlu `catch` blokları istifadə edilə bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        string input = \"abc\";\n\n        try\n        {\n            int number = Convert.ToInt32(input);\n            int result = 10 / number;\n        }\n        catch (FormatException ex)\n        {\n            Console.WriteLine(\"Səhv: Düzgün ədəd formatı daxil edilməyib!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n        catch (DivideByZeroException ex)\n        {\n            Console.WriteLine(\"Səhv: Sıfıra bölmək olmaz!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine(\"Ümumi səhv: Bilinməyən problem baş verdi.\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Səhv: Düzgün ədəd formatı daxil edilməyib!\n// Səhv mesajı: Input string was not in a correct format."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `try` bloku yanlış formatda məlumatı (`abc`) ədədə çevirməyə çalışır, bu da `FormatException` yaradır.\n- İlk `catch` bloku bu səhvi tutur.\n- Ümumi `Exception` bloku gözlənilməz səhvləri tutmaq üçün istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "`throw` ilə İstisnaların Yaradılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "`throw` açar sözü ilə proqramçı öz istisnalarını yarada və ya mövcud istisnaları təkrar atəşə verə bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void CheckAge(int age)\n    {\n        if (age < 18)\n        {\n            throw new ArgumentException(\"Yaş 18-dən kiçik ola bilməz!\");\n        }\n        Console.WriteLine(\"Yaş uyğundur.\");\n    }\n\n    static void Main(string[] args)\n    {\n        try\n        {\n            CheckAge(15);\n        }\n        catch (ArgumentException ex)\n        {\n            Console.WriteLine($\"Səhv: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Səhv: Yaş 18-dən kiçik ola bilməz!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `CheckAge` metodu yaşın 18-dən kiçik olub-olmadığını yoxlayır və səhv olduqda `ArgumentException` atır.\n- `catch` bloku bu istisnanı tutur və mesajı göstərir."
+      },
+      {
+        "type": "heading",
+        "text": "Xüsusi İstisna Sinfi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Proqramçı öz istisna sinfini yarada bilər, bu da xüsusi səhvləri idarə etməyi asanlaşdırır."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass InvalidBalanceException : Exception\n{\n    public InvalidBalanceException(string message) : base(message)\n    {\n    }\n}\n\nclass BankAccount\n{\n    private decimal balance;\n\n    public void Deposit(decimal amount)\n    {\n        if (amount <= 0)\n        {\n            throw new InvalidBalanceException(\"Məbləğ müsbət olmalıdır!\");\n        }\n        balance += amount;\n        Console.WriteLine($\"Yeni balans: {balance}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount();\n\n        try\n        {\n            account.Deposit(-100);\n        }\n        catch (InvalidBalanceException ex)\n        {\n            Console.WriteLine($\"Səhv: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Səhv: Məbləğ müsbət olmalıdır!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `InvalidBalanceException` xüsusi istisna sinfidir.\n- `Deposit` metodu mənfi məbləğ daxil edildikdə bu istisnanı atır.\n- `catch` bloku xüsusi istisnanı tutur və mesajı göstərir."
+      },
+      {
+        "type": "heading",
+        "text": "İstisnaların Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "İstisnalar proqramın dayanıqlığını artırır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nTəhlükəsizlik: Proqramın qəzaya uğramasının qarşısı alınır."
+          },
+          {
+            "description": "\nİstifadəçi Təcrübəsi: Səhv mesajları istifadəçiyə başa düşülən formada təqdim edilir."
+          },
+          {
+            "description": "\nNəzarət: Səhvlər mərkəzləşdirilmiş şəkildə idarə olunur."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "İstisnalar yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: Çoxlu `catch` bloklarının idarə edilməsi qarışıq ola bilər."
+          },
+          {
+            "description": "\nPerformans: Həddindən artıq istisna istifadəsi proqramı yavaşlada bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Hər səhvi ümumi `Exception` ilə tutmaq xətanın səbəbini anlamağı çətinləşdirir.\n- **Tövsiyələr**: Xüsusi istisnaları tutun, yalnız zəruri hallarda ümumi `Exception` istifadə edin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə istisnanın idarə olunmaması proqramın qəzaya uğramasına səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int number = 10;\n        int divisor = 0;\n        int result = number / divisor; // Səhv: DivideByZeroException idarə olunmur\n        Console.WriteLine($\"Nəticə: {result}\");\n    }\n}\n// Proqram qəzaya uğrayır: Unhandled DivideByZeroException"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Sıfıra bölmə səhvi idarə olunmur, bu da proqramın qəzaya uğramasına səbəb olur.\n- Həll: Səhvi `try-catch` bloku ilə tutun."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Program\n{\n    static void CheckScore(int score)\n    {\n        if (score < 0 || score > 100)\n        {\n            throw new ArgumentException(\"Qiymət 0 ilə 100 arasında olmalıdır!\");\n        }\n        Console.WriteLine($\"Qiymət: {score}\");\n    }\n\n    static void Main(string[] args)\n    {\n        try\n        {\n            CheckScore(150);\n        }\n        catch (ArgumentException ex)\n        {\n            Console.WriteLine($\"Səhv: {ex.Message}\");\n        }\n        finally\n        {\n            Console.WriteLine(\"Yoxlama tamamlandı.\");\n        }\n    }\n}\n// Output:\n// Səhv: Qiymət 0 ilə 100 arasında olmalıdır!\n// Yoxlama tamamlandı."
+      }
+    ]
+  },
+  "en": {
+    "title": "Exceptions and Errors",
+    "icon": "FiAlertCircle",
+    "language": "csharp",
+    "description": "Try-catch and error handling.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Exceptions?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, exceptions are unexpected errors or problems that disrupt the normal flow of a program. For example, dividing by zero, accessing an invalid file, or network issues can trigger exceptions. Exception handling prevents the program from crashing and provides meaningful error messages to users. This is achieved using `try-catch` blocks. This JSON file explains the basics of exceptions, `try-catch`, `finally`, `throw`, various exception types, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input."
+      },
+      {
+        "type": "heading",
+        "text": "`try-catch` Blocks"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `try` block contains code that might cause an error. The `catch` block handles the exception if one occurs."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int number = 10;\n        int divisor = 0;\n\n        try\n        {\n            int result = number / divisor;\n            Console.WriteLine($\"Result: {result}\");\n        }\n        catch (DivideByZeroException ex)\n        {\n            Console.WriteLine(\"Error: Cannot divide by zero!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Error: Cannot divide by zero!\n// Error message: Attempted to divide by zero."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `try` block attempts to divide by zero, triggering a `DivideByZeroException`.\n- The `catch` block catches this exception and displays an error message.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "`finally` Block"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `finally` block executes regardless of whether an exception occurs. It is used for cleanup tasks, such as closing files."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int[] numbers = { 1, 2, 3 };\n\n        try\n        {\n            Console.WriteLine(numbers[5]);\n        }\n        catch (IndexOutOfRangeException ex)\n        {\n            Console.WriteLine(\"Error: Index out of array bounds!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n        finally\n        {\n            Console.WriteLine(\"This message always appears.\");\n        }\n    }\n}\n// Output:\n// Error: Index out of array bounds!\n// Error message: Index was outside the bounds of the array.\n// This message always appears."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `try` block tries to access an invalid array index, causing an `IndexOutOfRangeException`.\n- The `catch` block catches the error and displays a message.\n- The `finally` block executes regardless of the exception."
+      },
+      {
+        "type": "heading",
+        "text": "Types of Exceptions"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# has various exception types. Some commonly used ones include:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`DivideByZeroException`: Division by zero error."
+          },
+          {
+            "description": "\n`IndexOutOfRangeException`: Accessing an index outside array bounds."
+          },
+          {
+            "description": "\n`NullReferenceException`: Accessing a method or property on a null object."
+          },
+          { "description": "\n`FormatException`: Invalid data format input." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Handling Specific Exceptions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Multiple `catch` blocks can be used to handle different types of exceptions."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        string input = \"abc\";\n\n        try\n        {\n            int number = Convert.ToInt32(input);\n            int result = 10 / number;\n        }\n        catch (FormatException ex)\n        {\n            Console.WriteLine(\"Error: Invalid number format entered!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n        catch (DivideByZeroException ex)\n        {\n            Console.WriteLine(\"Error: Cannot divide by zero!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine(\"General error: An unknown issue occurred.\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Error: Invalid number format entered!\n// Error message: Input string was not in a correct format."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `try` block attempts to convert an invalid string (`abc`) to a number, causing a `FormatException`.\n- The first `catch` block handles this error.\n- A general `Exception` block catches unexpected errors."
+      },
+      {
+        "type": "heading",
+        "text": "Creating Exceptions with `throw`"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `throw` keyword allows programmers to create or rethrow exceptions."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void CheckAge(int age)\n    {\n        if (age < 18)\n        {\n            throw new ArgumentException(\"Age cannot be less than 18!\");\n        }\n        Console.WriteLine(\"Age is valid.\");\n    }\n\n    static void Main(string[] args)\n    {\n        try\n        {\n            CheckAge(15);\n        }\n        catch (ArgumentException ex)\n        {\n            Console.WriteLine($\"Error: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Error: Age cannot be less than 18!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `CheckAge` method checks if the age is less than 18 and throws an `ArgumentException` if true.\n- The `catch` block catches this exception and displays the message."
+      },
+      {
+        "type": "heading",
+        "text": "Custom Exception Class"
+      },
+      {
+        "type": "paragraph",
+        "text": "Programmers can create custom exception classes to handle specific errors more effectively."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass InvalidBalanceException : Exception\n{\n    public InvalidBalanceException(string message) : base(message)\n    {\n    }\n}\n\nclass BankAccount\n{\n    private decimal balance;\n\n    public void Deposit(decimal amount)\n    {\n        if (amount <= 0)\n        {\n            throw new InvalidBalanceException(\"Amount must be positive!\");\n        }\n        balance += amount;\n        Console.WriteLine($\"New balance: {balance}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount();\n\n        try\n        {\n            account.Deposit(-100);\n        }\n        catch (InvalidBalanceException ex)\n        {\n            Console.WriteLine($\"Error: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Error: Amount must be positive!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `InvalidBalanceException` is a custom exception class.\n- The `Deposit` method throws this exception for negative amounts.\n- The `catch` block handles the custom exception and displays the message."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Exceptions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Exceptions improve program reliability."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nSafety: Prevents the program from crashing." },
+          {
+            "description": "\nUser Experience: Provides clear error messages to users."
+          },
+          { "description": "\nControl: Centralizes error handling." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Exceptions can present challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: Managing multiple `catch` blocks can be confusing."
+          },
+          {
+            "description": "\nPerformance: Excessive exception handling can slow down the program."
+          },
+          {
+            "description": "\nPyodide Limitation: C# code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Catching all errors with a general `Exception` can make it hard to identify the root cause.\n- **Recommendations**: Catch specific exceptions and use a general `Exception` only when necessary. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes the program to crash by not handling an exception."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int number = 10;\n        int divisor = 0;\n        int result = number / divisor; // Error: DivideByZeroException not handled\n        Console.WriteLine($\"Result: {result}\");\n    }\n}\n// Program crashes: Unhandled DivideByZeroException"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The division by zero error is not handled, causing the program to crash.\n- Solution: Use a `try-catch` block to handle the error."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Program\n{\n    static void CheckScore(int score)\n    {\n        if (score < 0 || score > 100)\n        {\n            throw new ArgumentException(\"Score must be between 0 and 100!\");\n        }\n        Console.WriteLine($\"Score: {score}\");\n    }\n\n    static void Main(string[] args)\n    {\n        try\n        {\n            CheckScore(150);\n        }\n        catch (ArgumentException ex)\n        {\n            Console.WriteLine($\"Error: {ex.Message}\");\n        }\n        finally\n        {\n            Console.WriteLine(\"Check completed.\");\n        }\n    }\n}\n// Output:\n// Error: Score must be between 0 and 100!\n// Check completed."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Исключения и ошибки",
+    "icon": "FiAlertCircle",
+    "language": "csharp",
+    "description": "Try-catch и обработка ошибок.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое исключения?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# исключения (exceptions) — это непредвиденные ошибки или проблемы, которые нарушают нормальное выполнение программы. Например, деление на ноль, неверное имя файла или проблемы с сетевым подключением могут вызвать исключения. Обработка исключений предотвращает сбой программы и предоставляет пользователю полезные сообщения об ошибках. Это достигается с помощью блоков `try-catch`. Этот JSON-файл объясняет основы исключений, `try-catch`, `finally`, `throw`, различные типы исключений и примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Блоки `try-catch`"
+      },
+      {
+        "type": "paragraph",
+        "text": "Блок `try` содержит код, который может вызвать ошибку. Блок `catch` обрабатывает исключение, если оно возникает."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int number = 10;\n        int divisor = 0;\n\n        try\n        {\n            int result = number / divisor;\n            Console.WriteLine($\"Результат: {result}\");\n        }\n        catch (DivideByZeroException ex)\n        {\n            Console.WriteLine(\"Ошибка: Нельзя делить на ноль!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Ошибка: Нельзя делить на ноль!\n// Сообщение об ошибке: Attempted to divide by zero."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Блок `try` пытается выполнить деление на ноль, что вызывает `DivideByZeroException`.\n- Блок `catch` перехватывает это исключение и выводит сообщение об ошибке.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Блок `finally`"
+      },
+      {
+        "type": "paragraph",
+        "text": "Блок `finally` выполняется независимо от того, возникло исключение или нет. Он используется для очистки ресурсов, например, закрытия файлов."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int[] numbers = { 1, 2, 3 };\n\n        try\n        {\n            Console.WriteLine(numbers[5]);\n        }\n        catch (IndexOutOfRangeException ex)\n        {\n            Console.WriteLine(\"Ошибка: Индекс за пределами массива!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n        finally\n        {\n            Console.WriteLine(\"Это сообщение всегда отображается.\");\n        }\n    }\n}\n// Output:\n// Ошибка: Индекс за пределами массива!\n// Сообщение об ошибке: Index was outside the bounds of the array.\n// Это сообщение всегда отображается."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Блок `try` пытается обратиться к несуществующему индексу массива, вызывая `IndexOutOfRangeException`.\n- Блок `catch` перехватывает ошибку и выводит сообщение.\n- Блок `finally` выполняется независимо от исключения."
+      },
+      {
+        "type": "heading",
+        "text": "Типы исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "В C# существует множество типов исключений. Некоторые из наиболее распространённых:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n`DivideByZeroException`: Ошибка деления на ноль."
+          },
+          {
+            "description": "\n`IndexOutOfRangeException`: Обращение к индексу за пределами массива."
+          },
+          {
+            "description": "\n`NullReferenceException`: Обращение к методу или свойству null-объекта."
+          },
+          {
+            "description": "\n`FormatException`: Ввод данных в неверном формате."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Обработка специфических исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для обработки разных типов исключений можно использовать несколько блоков `catch`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        string input = \"abc\";\n\n        try\n        {\n            int number = Convert.ToInt32(input);\n            int result = 10 / number;\n        }\n        catch (FormatException ex)\n        {\n            Console.WriteLine(\"Ошибка: Введён неверный формат числа!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n        catch (DivideByZeroException ex)\n        {\n            Console.WriteLine(\"Ошибка: Нельзя делить на ноль!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine(\"Общая ошибка: Произошла неизвестная проблема.\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Ошибка: Введён неверный формат числа!\n// Сообщение об ошибке: Input string was not in a correct format."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Блок `try` пытается преобразовать неверную строку (`abc`) в число, вызывая `FormatException`.\n- Первый блок `catch` обрабатывает эту ошибку.\n- Общий блок `Exception` перехватывает непредвиденные ошибки."
+      },
+      {
+        "type": "heading",
+        "text": "Создание исключений с помощью `throw`"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ключевое слово `throw` позволяет программисту создавать или повторно вызывать исключения."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void CheckAge(int age)\n    {\n        if (age < 18)\n        {\n            throw new ArgumentException(\"Возраст не может быть меньше 18!\");\n        }\n        Console.WriteLine(\"Возраст допустим.\");\n    }\n\n    static void Main(string[] args)\n    {\n        try\n        {\n            CheckAge(15);\n        }\n        catch (ArgumentException ex)\n        {\n            Console.WriteLine($\"Ошибка: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Ошибка: Возраст не может быть меньше 18!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Метод `CheckAge` проверяет, меньше ли возраст 18, и вызывает `ArgumentException`, если это так.\n- Блок `catch` перехватывает это исключение и выводит сообщение."
+      },
+      {
+        "type": "heading",
+        "text": "Пользовательский класс исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Программист может создать собственный класс исключений для более эффективной обработки специфических ошибок."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass InvalidBalanceException : Exception\n{\n    public InvalidBalanceException(string message) : base(message)\n    {\n    }\n}\n\nclass BankAccount\n{\n    private decimal balance;\n\n    public void Deposit(decimal amount)\n    {\n        if (amount <= 0)\n        {\n            throw new InvalidBalanceException(\"Сумма должна быть положительной!\");\n        }\n        balance += amount;\n        Console.WriteLine($\"Новый баланс: {balance}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount();\n\n        try\n        {\n            account.Deposit(-100);\n        }\n        catch (InvalidBalanceException ex)\n        {\n            Console.WriteLine($\"Ошибка: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Ошибка: Сумма должна быть положительной!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `InvalidBalanceException` — пользовательский класс исключений.\n- Метод `Deposit` вызывает это исключение для отрицательных сумм.\n- Блок `catch` обрабатывает пользовательское исключение и выводит сообщение."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Исключения повышают надёжность программы."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nБезопасность: Предотвращает сбой программы." },
+          {
+            "description": "\nПользовательский опыт: Предоставляет понятные сообщения об ошибках."
+          },
+          { "description": "\nКонтроль: Централизует обработку ошибок." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Исключения могут создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Управление несколькими блоками `catch` может быть запутанным."
+          },
+          {
+            "description": "\nПроизводительность: Чрезмерная обработка исключений может замедлить программу."
+          },
+          {
+            "description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Перехват всех ошибок с помощью общего `Exception` затрудняет определение причины ошибки.\n- **Рекомендации**: Перехватывайте специфические исключения и используйте общий `Exception` только при необходимости. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает сбой программы из-за необработанного исключения."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        int number = 10;\n        int divisor = 0;\n        int result = number / divisor; // Ошибка: DivideByZeroException не обработано\n        Console.WriteLine($\"Результат: {result}\");\n    }\n}\n// Программа падает: Unhandled DivideByZeroException"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ошибка деления на ноль не обрабатывается, что приводит к сбою программы.\n- Решение: Используйте блок `try-catch` для обработки ошибки."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Program\n{\n    static void CheckScore(int score)\n    {\n        if (score < 0 || score > 100)\n        {\n            throw new ArgumentException(\"Оценка должна быть от 0 до 100!\");\n        }\n        Console.WriteLine($\"Оценка: {score}\");\n    }\n\n    static void Main(string[] args)\n    {\n        try\n        {\n            CheckScore(150);\n        }\n        catch (ArgumentException ex)\n        {\n            Console.WriteLine($\"Ошибка: {ex.Message}\");\n        }\n        finally\n        {\n            Console.WriteLine(\"Проверка завершена.\");\n        }\n    }\n}\n// Output:\n// Ошибка: Оценка должна быть от 0 до 100!\n// Проверка завершена."
+      }
+    ]
+  }
+}

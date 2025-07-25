@@ -1,0 +1,449 @@
+{
+  "id": "dynamic-memory",
+  "az": {
+    "title": "Dinamik Yaddaş (malloc, free)",
+    "icon": "FiDatabase",
+    "language": "c",
+    "description": "Dinamik yaddaş ayırma və sərbəst buraxma.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Dinamik Yaddaş Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində dinamik yaddaş proqramın işləməsi zamanı yaddaşın ayrılması və idarə edilməsi deməkdir. Adi dəyişənlər və ya massivlər proqramın başlanğıcında sabit ölçüdə təyin edilir, lakin dinamik yaddaş proqramın ehtiyaclarına uyğun olaraq istənilən vaxt yaddaş ayırmağa və ya sərbəst buraxmağa imkan verir. Bu, xüsusilə ölçüsü əvvəlcədən bilinməyən məlumatlarla işləyərkən faydalıdır. Dinamik yaddaş `<stdlib.h>` kitabxanasındakı `malloc`, `calloc`, `realloc` və `free` funksiyaları ilə idarə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Dinamik Yaddaş Funksiyalarının Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dinamik yaddaşla işləmək üçün aşağıdakı funksiyalar istifadə olunur:\n- **malloc**: Müəyyən ölçüdə yaddaş ayırır.\n```c\nvoid *malloc(size_t size);\n```\n- **calloc**: Müəyyən sayda element üçün yaddaş ayırır və sıfırlayır.\n```c\nvoid *calloc(size_t num, size_t size);\n```\n- **realloc**: Mövcud yaddaşın ölçüsünü dəyişdirir.\n```c\nvoid *realloc(void *ptr, size_t new_size);\n```\n- **free**: Ayrılan yaddaşı sərbəst buraxır.\n```c\nvoid free(void *ptr);\n```\nHər funksiya `void *` tipli göstərici qaytarır, bu da istənilən tipə çevrilə bilər. Yaddaş ayrılarkən həmişə göstəricilərə təyin edilir."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə malloc Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə `malloc` ilə dinamik yaddaş ayrılır və istifadə olunur. Kod giriş tələb etmir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int *numbers = (int *)malloc(3 * sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory allocation failed!\\n\");\n    return 1;\n  }\n  numbers[0] = 10;\n  numbers[1] = 20;\n  numbers[2] = 30;\n  printf(\"Numbers: %d, %d, %d\\n\", numbers[0], numbers[1], numbers[2]);\n  free(numbers);\n  return 0;\n}\n// Output:\n// Numbers: 10, 20, 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `malloc(3 * sizeof(int))`: 3 `int` üçün yaddaş ayırır (adətən 12 bayt).\n- `(int *)`: Göstəricini `int` tipinə çevirir.\n- `if (numbers == NULL)`: Yaddaşın ayrılıb-ayrılmadığını yoxlayır.\n- `free(numbers)`: Yaddaşı sərbəst buraxır."
+      },
+      {
+        "type": "heading",
+        "text": "calloc ilə Dinamik Yaddaş"
+      },
+      {
+        "type": "paragraph",
+        "text": " `calloc` `malloc`-dan fərqli olaraq yaddaşı sıfırlayır. Bu, sıfırla doldurulmuş massivlər üçün faydalıdır."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int *numbers = (int *)calloc(3, sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory allocation failed!\\n\");\n    return 1;\n  }\n  printf(\"Initialized values: %d, %d, %d\\n\", numbers[0], numbers[1], numbers[2]);\n  numbers[0] = 100;\n  printf(\"Modified value: %d\\n\", numbers[0]);\n  free(numbers);\n  return 0;\n}\n// Output:\n// Initialized values: 0, 0, 0\n// Modified value: 100"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `calloc(3, sizeof(int))`: 3 `int` üçün yaddaş ayırır və sıfırlayır.\n- İlkin dəyərlər 0 olur.\n- `free(numbers)`: Yaddaşı sərbəst buraxır."
+      },
+      {
+        "type": "heading",
+        "text": "realloc ilə Yaddaşın Yenidən Ölçüləndirilməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "`realloc` mövcud dinamik yaddaşın ölçüsünü dəyişdirmək üçün istifadə olunur. Yeni ölçü köhnədən böyük və ya kiçik ola bilər."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int *numbers = (int *)malloc(2 * sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory allocation failed!\\n\");\n    return 1;\n  }\n  numbers[0] = 5;\n  numbers[1] = 10;\n  printf(\"Original: %d, %d\\n\", numbers[0], numbers[1]);\n  numbers = (int *)realloc(numbers, 4 * sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory reallocation failed!\\n\");\n    return 1;\n  }\n  numbers[2] = 15;\n  numbers[3] = 20;\n  printf(\"After realloc: %d, %d, %d, %d\\n\", numbers[0], numbers[1], numbers[2], numbers[3]);\n  free(numbers);\n  return 0;\n}\n// Output:\n// Original: 5, 10\n// After realloc: 5, 10, 15, 20"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `malloc(2 * sizeof(int))`: 2 `int` üçün yaddaş ayırır.\n- `realloc(numbers, 4 * sizeof(int))`: Yaddaşı 4 `int` ölçüsünə genişləndirir.\n- Köhnə dəyərlər (5, 10) saxlanılır, yeni elementlər əlavə edilir.\n- `free(numbers)`: Yaddaşı sərbəst buraxır."
+      },
+      {
+        "type": "heading",
+        "text": "Dinamik Yaddaşın Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dinamik yaddaş çeviklik təmin edir və proqramın işləməsi zamanı yaddaşın effektiv idarə olunmasına imkan verir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nÖlçüsü əvvəlcədən bilinməyən məlumatlarla işləməyə imkan verir."
+          },
+          {
+            "description": "\nYaddaşın dinamik olaraq genişləndirilməsi və ya kiçildilməsi mümkündür."
+          },
+          {
+            "description": "\nBöyük məlumat strukturları ilə effektiv işləyir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dinamik yaddaşla işləmək yeni başlayanlar üçün çətin ola bilər. Yaddaşı sərbəst buraxmamaq (memory leak) və ya yanlış ölçülərdə yaddaş ayırmaq səhvlərə səbəb ola bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nYaddaşı sərbəst buraxmamaq yaddaş sızmasına (memory leak) səbəb olur."
+          },
+          {
+            "description": "\nYaddaşın ayrılmadığını yoxlamamaq proqramı qəzaya uğradır."
+          },
+          {
+            "description": "\nSəhv ölçü hesablamaları gözlənilməz nəticələrə yol açır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Yaddaşı sərbəst buraxmamaq proqramın yaddaş istehlakını artırır. Təyin edilməmiş göstəricilərə müraciət proqramı qəzaya uğradır.\n- **Tövsiyələr**: Həmişə `malloc`, `calloc` və `realloc` nəticəsini `NULL` ilə yoxla. Yaddaşı istifadə etdikdən sonra `free` ilə sərbəst burax. Yaddaş ölçülərini düzgün hesabla. Kodu Visual Studio Code kimi redaktorlarda sına."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə yaddaş sərbəst buraxılmır, bu da yaddaş sızmasına səbəb olur. Bu kod nəzəri nümunədir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int *numbers = (int *)malloc(3 * sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory allocation failed!\\n\");\n    return 1;\n  }\n  numbers[0] = 1;\n  numbers[1] = 2;\n  numbers[2] = 3;\n  printf(\"Numbers: %d, %d, %d\\n\", numbers[0], numbers[1], numbers[2]);\n  // free(numbers); // Yaddaş sərbəst buraxılmayıb, sızma baş verir\n  return 0;\n}\n// Output:\n// Numbers: 1, 2, 3"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda `free(numbers)` çağırılmayıb, bu da yaddaş sızmasına səbəb olur. Həmişə ayrılmış yaddaşı `free` ilə sərbəst burax."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int *numbers = (int *)malloc(3 * sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory allocation failed!\\n\");\n    return 1;\n  }\n  numbers[0] = 5;\n  numbers[1] = 10;\n  numbers[2] = 15;\n  printf(\"Numbers: %d, %d, %d\\n\", numbers[0], numbers[1], numbers[2]);\n  free(numbers);\n  return 0;\n}\n// Output:\n// Numbers: 5, 10, 15"
+      }
+    ]
+  },
+  "en": {
+    "title": "Dynamic Memory (malloc, free)",
+    "icon": "FiDatabase",
+    "language": "c",
+    "description": "Dynamic memory allocation and deallocation.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Dynamic Memory?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, dynamic memory refers to allocating and managing memory during a program’s execution. Unlike regular variables or arrays, which have a fixed size defined at compile time, dynamic memory allows allocating or freeing memory as needed during runtime. This is especially useful when the size of data is unknown beforehand. Dynamic memory is managed using the `malloc`, `calloc`, `realloc`, and `free` functions from the `<stdlib.h>` library."
+      },
+      {
+        "type": "heading",
+        "text": "Dynamic Memory Function Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "The following functions are used for dynamic memory management:\n- **malloc**: Allocates a specified amount of memory.\n```c\nvoid *malloc(size_t size);\n```\n- **calloc**: Allocates memory for a specified number of elements and initializes them to zero.\n```c\nvoid *calloc(size_t num, size_t size);\n```\n- **realloc**: Resizes previously allocated memory.\n```c\nvoid *realloc(void *ptr, size_t new_size);\n```\n- **free**: Frees allocated memory.\n```c\nvoid free(void *ptr);\n```\nEach function returns a `void *` pointer, which can be cast to any type. Memory is always assigned to pointers."
+      },
+      {
+        "type": "heading",
+        "text": "Simple malloc Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example uses `malloc` to allocate and use dynamic memory. The code doesn’t require input."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int *numbers = (int *)malloc(3 * sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory allocation failed!\\n\");\n    return 1;\n  }\n  numbers[0] = 10;\n  numbers[1] = 20;\n  numbers[2] = 30;\n  printf(\"Numbers: %d, %d, %d\\n\", numbers[0], numbers[1], numbers[2]);\n  free(numbers);\n  return 0;\n}\n// Output:\n// Numbers: 10, 20, 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `malloc(3 * sizeof(int))`: Allocates memory for 3 `int`s (typically 12 bytes).\n- `(int *)`: Casts the pointer to `int` type.\n- `if (numbers == NULL)`: Checks if memory allocation succeeded.\n- `free(numbers)`: Frees the allocated memory."
+      },
+      {
+        "type": "heading",
+        "text": "calloc for Dynamic Memory"
+      },
+      {
+        "type": "paragraph",
+        "text": "`calloc` differs from `malloc` by initializing the allocated memory to zero. This is useful for arrays that need to start with zero values."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int *numbers = (int *)calloc(3, sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory allocation failed!\\n\");\n    return 1;\n  }\n  printf(\"Initialized values: %d, %d, %d\\n\", numbers[0], numbers[1], numbers[2]);\n  numbers[0] = 100;\n  printf(\"Modified value: %d\\n\", numbers[0]);\n  free(numbers);\n  return 0;\n}\n// Output:\n// Initialized values: 0, 0, 0\n// Modified value: 100"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `calloc(3, sizeof(int))`: Allocates memory for 3 `int`s and initializes them to zero.\n- Initial values are 0.\n- `free(numbers)`: Frees the allocated memory."
+      },
+      {
+        "type": "heading",
+        "text": "realloc for Resizing Memory"
+      },
+      {
+        "type": "paragraph",
+        "text": "`realloc` is used to resize previously allocated memory. The new size can be larger or smaller than the original."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int *numbers = (int *)malloc(2 * sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory allocation failed!\\n\");\n    return 1;\n  }\n  numbers[0] = 5;\n  numbers[1] = 10;\n  printf(\"Original: %d, %d\\n\", numbers[0], numbers[1]);\n  numbers = (int *)realloc(numbers, 4 * sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory reallocation failed!\\n\");\n    return 1;\n  }\n  numbers[2] = 15;\n  numbers[3] = 20;\n  printf(\"After realloc: %d, %d, %d, %d\\n\", numbers[0], numbers[1], numbers[2], numbers[3]);\n  free(numbers);\n  return 0;\n}\n// Output:\n// Original: 5, 10\n// After realloc: 5, 10, 15, 20"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `malloc(2 * sizeof(int))`: Allocates memory for 2 `int`s.\n- `realloc(numbers, 4 * sizeof(int))`: Resizes the memory to hold 4 `int`s.\n- Original values (5, 10) are preserved, and new elements are added.\n- `free(numbers)`: Frees the allocated memory."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Dynamic Memory"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dynamic memory provides flexibility and allows efficient memory management during program execution."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nAllows working with data of unknown size." },
+          { "description": "\nEnables dynamic resizing of memory." },
+          { "description": "\nEfficiently handles large data structures." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dynamic memory can be challenging for beginners. Failing to free memory (memory leak) or allocating incorrect sizes can cause errors."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nNot freeing memory causes memory leaks." },
+          {
+            "description": "\nNot checking allocation success crashes the program."
+          },
+          {
+            "description": "\nIncorrect size calculations lead to unpredictable results."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Not freeing memory increases memory usage (memory leak). Accessing uninitialized pointers crashes the program.\n- **Recommendations**: Always check the result of `malloc`, `calloc`, and `realloc` for `NULL`. Free memory with `free` after use. Calculate memory sizes correctly. Test code in editors like Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example fails to free allocated memory, causing a memory leak. This is a theoretical example."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int *numbers = (int *)malloc(3 * sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory allocation failed!\\n\");\n    return 1;\n  }\n  numbers[0] = 1;\n  numbers[1] = 2;\n  numbers[2] = 3;\n  printf(\"Numbers: %d, %d, %d\\n\", numbers[0], numbers[1], numbers[2]);\n  // free(numbers); // Memory not freed, causing a leak\n  return 0;\n}\n// Output:\n// Numbers: 1, 2, 3"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code, `free(numbers)` is not called, causing a memory leak. Always free allocated memory with `free`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int *numbers = (int *)malloc(3 * sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory allocation failed!\\n\");\n    return 1;\n  }\n  numbers[0] = 5;\n  numbers[1] = 10;\n  numbers[2] = 15;\n  printf(\"Numbers: %d, %d, %d\\n\", numbers[0], numbers[1], numbers[2]);\n  free(numbers);\n  return 0;\n}\n// Output:\n// Numbers: 5, 10, 15"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Динамическая память (malloc, free)",
+    "icon": "FiDatabase",
+    "language": "c",
+    "description": "Выделение и освобождение динамической памяти.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое динамическая память?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C динамическая память — это процесс выделения и управления памятью во время выполнения программы. В отличие от обычных переменных или массивов, которые имеют фиксированный размер, задаваемый во время компиляции, динамическая память позволяет выделять или освобождать память по мере необходимости во время выполнения. Это особенно полезно, когда размер данных заранее неизвестен. Динамическая память управляется с помощью функций `malloc`, `calloc`, `realloc` и `free` из библиотеки `<stdlib.h>`."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис функций динамической памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для работы с динамической памятью используются следующие функции:\n- **malloc**: Выделяет указанный объём памяти.\n```c\nvoid *malloc(size_t size);\n```\n- **calloc**: Выделяет память для заданного количества элементов и инициализирует её нулями.\n```c\nvoid *calloc(size_t num, size_t size);\n```\n- **realloc**: Изменяет размер ранее выделенной памяти.\n```c\nvoid *realloc(void *ptr, size_t new_size);\n```\n- **free**: Освобождает выделенную память.\n```c\nvoid free(void *ptr);\n```\nКаждая функция возвращает указатель типа `void *`, который можно преобразовать в любой тип. Память всегда присваивается указателям."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример с malloc"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример использует `malloc` для выделения и использования динамической памяти. Код не требует ввода."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int *numbers = (int *)malloc(3 * sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory allocation failed!\\n\");\n    return 1;\n  }\n  numbers[0] = 10;\n  numbers[1] = 20;\n  numbers[2] = 30;\n  printf(\"Numbers: %d, %d, %d\\n\", numbers[0], numbers[1], numbers[2]);\n  free(numbers);\n  return 0;\n}\n// Output:\n// Numbers: 10, 20, 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `malloc(3 * sizeof(int))`: Выделяет память для 3 `int` (обычно 12 байт).\n- `(int *)`: Приводит указатель к типу `int`.\n- `if (numbers == NULL)`: Проверяет, успешно ли выделена память.\n- `free(numbers)`: Освобождает выделенную память."
+      },
+      {
+        "type": "heading",
+        "text": "calloc для динамической памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "`calloc` отличается от `malloc` тем, что инициализирует выделенную память нулями. Это полезно для массивов, которые должны начинаться с нулевых значений."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int *numbers = (int *)calloc(3, sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory allocation failed!\\n\");\n    return 1;\n  }\n  printf(\"Initialized values: %d, %d, %d\\n\", numbers[0], numbers[1], numbers[2]);\n  numbers[0] = 100;\n  printf(\"Modified value: %d\\n\", numbers[0]);\n  free(numbers);\n  return 0;\n}\n// Output:\n// Initialized values: 0, 0, 0\n// Modified value: 100"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `calloc(3, sizeof(int))`: Выделяет память для 3 `int` и инициализирует их нулями.\n- Начальные значения равны 0.\n- `free(numbers)`: Освобождает выделенную память."
+      },
+      {
+        "type": "heading",
+        "text": "realloc для изменения размера памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "`realloc` используется для изменения размера ранее выделенной памяти. Новый размер может быть больше или меньше исходного."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int *numbers = (int *)malloc(2 * sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory allocation failed!\\n\");\n    return 1;\n  }\n  numbers[0] = 5;\n  numbers[1] = 10;\n  printf(\"Original: %d, %d\\n\", numbers[0], numbers[1]);\n  numbers = (int *)realloc(numbers, 4 * sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory reallocation failed!\\n\");\n    return 1;\n  }\n  numbers[2] = 15;\n  numbers[3] = 20;\n  printf(\"After realloc: %d, %d, %d, %d\\n\", numbers[0], numbers[1], numbers[2], numbers[3]);\n  free(numbers);\n  return 0;\n}\n// Output:\n// Original: 5, 10\n// After realloc: 5, 10, 15, 20"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `malloc(2 * sizeof(int))`: Выделяет память для 2 `int`.\n- `realloc(numbers, 4 * sizeof(int))`: Расширяет память до 4 `int`.\n- Старые значения (5, 10) сохраняются, добавляются новые элементы.\n- `free(numbers)`: Освобождает выделенную память."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества динамической памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "Динамическая память обеспечивает гибкость и позволяет эффективно управлять памятью во время выполнения программы."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПозволяет работать с данными неизвестного размера."
+          },
+          {
+            "description": "\nОбеспечивает динамическое изменение размера памяти."
+          },
+          {
+            "description": "\nЭффективно обрабатывает большие структуры данных."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Работа с динамической памятью может быть сложной для новичков. Неосвобождение памяти (утечка памяти) или выделение неправильного размера могут вызвать ошибки."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nНеосвобождение памяти вызывает утечки памяти." },
+          {
+            "description": "\nНепроверка успешности выделения памяти приводит к сбою программы."
+          },
+          {
+            "description": "\nНеправильные расчёты размера памяти приводят к непредсказуемым результатам."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неосвобождение памяти увеличивает потребление памяти (утечка памяти). Обращение к неинициализированным указателям приводит к сбою программы.\n- **Рекомендации**: Всегда проверяйте результат `malloc`, `calloc` и `realloc` на `NULL`. Освобождайте память с помощью `free` после использования. Правильно рассчитывайте размеры памяти. Тестируйте код в редакторах, таких как Visual Studio Code."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример не освобождает выделенную память, что приводит к утечке памяти. Это теоретический пример."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int *numbers = (int *)malloc(3 * sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory allocation failed!\\n\");\n    return 1;\n  }\n  numbers[0] = 1;\n  numbers[1] = 2;\n  numbers[2] = 3;\n  printf(\"Numbers: %d, %d, %d\\n\", numbers[0], numbers[1], numbers[2]);\n  // free(numbers); // Память не освобождена, вызывая утечку\n  return 0;\n}\n// Output:\n// Numbers: 1, 2, 3"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде `free(numbers)` не вызывается, что вызывает утечку памяти. Всегда освобождайте выделенную память с помощью `free`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int *numbers = (int *)malloc(3 * sizeof(int));\n  if (numbers == NULL) {\n    printf(\"Memory allocation failed!\\n\");\n    return 1;\n  }\n  numbers[0] = 5;\n  numbers[1] = 10;\n  numbers[2] = 15;\n  printf(\"Numbers: %d, %d, %d\\n\", numbers[0], numbers[1], numbers[2]);\n  free(numbers);\n  return 0;\n}\n// Output:\n// Numbers: 5, 10, 15"
+      }
+    ]
+  }
+}

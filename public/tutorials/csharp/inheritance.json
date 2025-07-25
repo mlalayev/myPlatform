@@ -1,0 +1,433 @@
+{
+  "id": "inheritance",
+  "az": {
+    "title": "İrsiilik (Inheritance)",
+    "icon": "FiCornerDownRight",
+    "language": "csharp",
+    "description": "Siniflər arasında irsi əlaqə.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "İrsiilik Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində irsiilik (inheritance) bir sinfin (törəmə sinif) başqa bir sinfin (əsas sinif) xassələrini, metodlarını və davranışlarını miras almasıdır. Bu, kodun təkrar istifadəsini asanlaşdırır və proqramları daha təşkil edilmiş edir. Məsələn, 'Avtomobil' əsas sinfi ümumi xüsusiyyətləri təyin edə bilər, 'Sedan' və ya 'Yük maşını' kimi törəmə siniflər isə əlavə xüsusiyyətlər əlavə edir. Bu JSON faylda irsiiliyin əsasları, metodların override edilməsi və nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə İrsiilik Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "İrsiilik `:` simvolu ilə təyin olunur. Törəmə sinif əsas sinfin üzvlərini miras alır."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Vehicle\n{\n    public string Brand { get; set; }\n    public int Speed { get; set; }\n\n    public Vehicle(string brand, int speed)\n    {\n        Brand = brand;\n        Speed = speed;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Nəqliyyat vasitəsi: {Brand}, Sürət: {Speed} km/saat\");\n    }\n}\n\nclass Car : Vehicle\n{\n    public int Doors { get; set; }\n\n    public Car(string brand, int speed, int doors) : base(brand, speed)\n    {\n        Doors = doors;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Car car = new Car(\"Toyota\", 120, 4);\n        car.DisplayInfo();\n        Console.WriteLine($\"Qapılar: {car.Doors}\");\n    }\n}\n// Output:\n// Nəqliyyat vasitəsi: Toyota, Sürət: 120 km/saat\n// Qapılar: 4"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Vehicle` əsas sinfdir, `Brand` və `Speed` xassələrini təyin edir.\n- `Car` sinfi `Vehicle` sinfindən miras alır və `Doors` xassəsini əlavə edir.\n- `: base(brand, speed)` ilə əsas sinfin konstruktoru çağırılır.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Metodların Override Edilməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Törəmə sinif əsas sinfin metodlarını `virtual` və `override` açar sözləri ilə yenidən təyin edə bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Animal\n{\n    public virtual void MakeSound()\n    {\n        Console.WriteLine(\"Heyvan səsi çıxarır.\");\n    }\n}\n\nclass Dog : Animal\n{\n    public override void MakeSound()\n    {\n        Console.WriteLine(\"İt: Hav-hav!\");\n    }\n}\n\nclass Cat : Animal\n{\n    public override void MakeSound()\n    {\n        Console.WriteLine(\"Pişik: Miyav!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Animal animal = new Animal();\n        Animal dog = new Dog();\n        Animal cat = new Cat();\n\n        animal.MakeSound();\n        dog.MakeSound();\n        cat.MakeSound();\n    }\n}\n// Output:\n// Heyvan səsi çıxarır.\n// İt: Hav-hav!\n// Pişik: Miyav!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Animal` sinfi `virtual` `MakeSound` metoduna malikdir.\n- `Dog` və `Cat` sinifləri bu metodu `override` ilə yenidən təyin edir.\n- Törəmə siniflər öz xüsusi davranışlarını tətbiq edir."
+      },
+      {
+        "type": "heading",
+        "text": "Protected Üzvlər və Enkapsulyasiya"
+      },
+      {
+        "type": "paragraph",
+        "text": "İrsiilikdə `protected` açar sözü əsas sinfin üzvlərini yalnız törəmə siniflər üçün əlçatan edir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    protected decimal balance;\n\n    public BankAccount(decimal initialBalance)\n    {\n        balance = initialBalance;\n    }\n\n    public virtual void DisplayBalance()\n    {\n        Console.WriteLine($\"Balans: {balance}\");\n    }\n}\n\nclass SavingsAccount : BankAccount\n{\n    public SavingsAccount(decimal initialBalance) : base(initialBalance)\n    {\n    }\n\n    public override void DisplayBalance()\n    {\n        Console.WriteLine($\"Əmanət hesabının balansı: {balance}\");\n    }\n\n    public void AddInterest(decimal rate)\n    {\n        balance += balance * rate;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        SavingsAccount account = new SavingsAccount(1000);\n        account.DisplayBalance();\n        account.AddInterest(0.05m);\n        account.DisplayBalance();\n    }\n}\n// Output:\n// Əmanət hesabının balansı: 1000\n// Əmanət hesabının balansı: 1050"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `BankAccount` sinfi `protected` `balance` sahəsinə malikdir.\n- `SavingsAccount` sinfi `balance` sahəsinə daxil olur və `DisplayBalance` metodunu override edir.\n- `AddInterest` metodu əmanət hesabına xas funksiyadır."
+      },
+      {
+        "type": "heading",
+        "text": "İrsiiliyin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "İrsiilik proqramlaşdırmanı daha effektiv edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nTəkrar İstifadə: Əsas sinfin kodu təkrar istifadə olunur."
+          },
+          {
+            "description": "\nTəşkilatçılıq: Siniflər iyerarxik şəkildə strukturlaşdırılır."
+          },
+          {
+            "description": "\nÇeviklik: Metodların override edilməsi fərqli davranışlar tətbiq etməyə imkan verir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "İrsiilik yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: İrsiilik iyerarxiyaları qarışıq ola bilər."
+          },
+          {
+            "description": "\nSəhv Dizayn: Yanlış iyerarxiyalar kodu idarəetməni çətinləşdirir."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Həddindən artıq dərin iyerarxiyalar və ya səhv override edilmiş metodlar kodu mürəkkəbləşdirə bilər. `protected` üzvlərin yanlış istifadəsi təhlükəsizliyi poza bilər.\n- **Tövsiyələr**: Sadə iyerarxiyalara üstünlük verin, `virtual` və `override` açar sözlərini düzgün istifadə edin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə `virtual` açar sözünün olmaması override etməyə mane olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Animal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"Heyvan səsi çıxarır.\");\n    }\n}\n\nclass Dog : Animal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"İt: Hav-hav!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Animal animal = new Dog();\n        animal.MakeSound(); // Səhv: İt: Hav-hav! əvəzinə Heyvan səsi çıxarır.\n    }\n}\n// Output:\n// Heyvan səsi çıxarır."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Animal` sinfində `MakeSound` metodu `virtual` deyil, buna görə `Dog` sinfi onu override edə bilmir.\n- `Animal` tipində obyekt `Dog` sinfinə aid olsa belə, əsas sinfin metodu çağırılır.\n- Həll: `MakeSound` metodunu `virtual` edin və `Dog` sinfində `override` istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Shape\n{\n    public double Area { get; set; }\n\n    public Shape(double area)\n    {\n        Area = area;\n    }\n\n    public virtual void DisplayArea()\n    {\n        Console.WriteLine($\"Sahə: {Area}\");\n    }\n}\n\nclass Circle : Shape\n{\n    public double Radius { get; set; }\n\n    public Circle(double radius) : base(3.14 * radius * radius)\n    {\n        Radius = radius;\n    }\n\n    public override void DisplayArea()\n    {\n        Console.WriteLine($\"Dairənin sahəsi: {Area}, Radius: {Radius}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Circle circle = new Circle(5);\n        circle.DisplayArea();\n    }\n}\n// Output:\n// Dairənin sahəsi: 78.5, Radius: 5"
+      }
+    ]
+  },
+  "en": {
+    "title": "Inheritance",
+    "icon": "FiCornerDownRight",
+    "language": "csharp",
+    "description": "Inheritance relationship between classes.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Is Inheritance?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, inheritance allows one class (derived class) to inherit properties, methods, and behaviors from another class (base class). This promotes code reuse and makes programs more organized. For example, a 'Vehicle' base class can define common attributes, while 'Car' or 'Truck' derived classes add specific features. This JSON file explains the basics of inheritance, method overriding, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Inheritance Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inheritance is defined using the `:` symbol. The derived class inherits members from the base class."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Vehicle\n{\n    public string Brand { get; set; }\n    public int Speed { get; set; }\n\n    public Vehicle(string brand, int speed)\n    {\n        Brand = brand;\n        Speed = speed;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Vehicle: {Brand}, Speed: {Speed} km/h\");\n    }\n}\n\nclass Car : Vehicle\n{\n    public int Doors { get; set; }\n\n    public Car(string brand, int speed, int doors) : base(brand, speed)\n    {\n        Doors = doors;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Car car = new Car(\"Toyota\", 120, 4);\n        car.DisplayInfo();\n        Console.WriteLine($\"Doors: {car.Doors}\");\n    }\n}\n// Output:\n// Vehicle: Toyota, Speed: 120 km/h\n// Doors: 4"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Vehicle` is the base class, defining `Brand` and `Speed` properties.\n- `Car` inherits from `Vehicle` and adds the `Doors` property.\n- `: base(brand, speed)` calls the base class constructor.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Method Overriding"
+      },
+      {
+        "type": "paragraph",
+        "text": "A derived class can redefine a base class method using the `virtual` and `override` keywords."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Animal\n{\n    public virtual void MakeSound()\n    {\n        Console.WriteLine(\"Animal makes a sound.\");\n    }\n}\n\nclass Dog : Animal\n{\n    public override void MakeSound()\n    {\n        Console.WriteLine(\"Dog: Woof!\");\n    }\n}\n\nclass Cat : Animal\n{\n    public override void MakeSound()\n    {\n        Console.WriteLine(\"Cat: Meow!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Animal animal = new Animal();\n        Animal dog = new Dog();\n        Animal cat = new Cat();\n\n        animal.MakeSound();\n        dog.MakeSound();\n        cat.MakeSound();\n    }\n}\n// Output:\n// Animal makes a sound.\n// Dog: Woof!\n// Cat: Meow!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Animal` class has a `virtual` `MakeSound` method.\n- `Dog` and `Cat` classes override this method with their specific behaviors.\n- The overridden methods are called based on the object type."
+      },
+      {
+        "type": "heading",
+        "text": "Protected Members and Encapsulation"
+      },
+      {
+        "type": "paragraph",
+        "text": "In inheritance, the `protected` keyword makes base class members accessible only to derived classes."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    protected decimal balance;\n\n    public BankAccount(decimal initialBalance)\n    {\n        balance = initialBalance;\n    }\n\n    public virtual void DisplayBalance()\n    {\n        Console.WriteLine($\"Balance: {balance}\");\n    }\n}\n\nclass SavingsAccount : BankAccount\n{\n    public SavingsAccount(decimal initialBalance) : base(initialBalance)\n    {\n    }\n\n    public override void DisplayBalance()\n    {\n        Console.WriteLine($\"Savings account balance: {balance}\");\n    }\n\n    public void AddInterest(decimal rate)\n    {\n        balance += balance * rate;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        SavingsAccount account = new SavingsAccount(1000);\n        account.DisplayBalance();\n        account.AddInterest(0.05m);\n        account.DisplayBalance();\n    }\n}\n// Output:\n// Savings account balance: 1000\n// Savings account balance: 1050"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `BankAccount` has a `protected` `balance` field.\n- `SavingsAccount` accesses `balance` and overrides `DisplayBalance`.\n- `AddInterest` is a feature specific to the savings account."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Inheritance"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inheritance makes programming more efficient."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nCode Reuse: Base class code can be reused." },
+          {
+            "description": "\nOrganization: Classes are structured hierarchically."
+          },
+          {
+            "description": "\nFlexibility: Method overriding allows custom behaviors."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inheritance can present challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: Inheritance hierarchies can be confusing."
+          },
+          {
+            "description": "\nPoor Design: Incorrect hierarchies can complicate code management."
+          },
+          {
+            "description": "\nPyodide Limitation: C# code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Overly deep hierarchies or incorrect method overrides can complicate code. Misuse of `protected` members can compromise safety.\n- **Recommendations**: Prefer simple hierarchies and use `virtual` and `override` correctly. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example fails to override a method due to missing `virtual` keyword."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Animal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"Animal makes a sound.\");\n    }\n}\n\nclass Dog : Animal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"Dog: Woof!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Animal animal = new Dog();\n        animal.MakeSound(); // Error: Calls Animal's method instead of Dog's\n    }\n}\n// Output:\n// Animal makes a sound."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Animal` class’s `MakeSound` method is not `virtual`, so `Dog` cannot override it.\n- Even though the object is a `Dog`, the base class method is called.\n- Solution: Make `MakeSound` `virtual` in `Animal` and use `override` in `Dog`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Shape\n{\n    public double Area { get; set; }\n\n    public Shape(double area)\n    {\n        Area = area;\n    }\n\n    public virtual void DisplayArea()\n    {\n        Console.WriteLine($\"Area: {Area}\");\n    }\n}\n\nclass Circle : Shape\n{\n    public double Radius { get; set; }\n\n    public Circle(double radius) : base(3.14 * radius * radius)\n    {\n        Radius = radius;\n    }\n\n    public override void DisplayArea()\n    {\n        Console.WriteLine($\"Circle area: {Area}, Radius: {Radius}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Circle circle = new Circle(5);\n        circle.DisplayArea();\n    }\n}\n// Output:\n// Circle area: 78.5, Radius: 5"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Наследование",
+    "icon": "FiCornerDownRight",
+    "language": "csharp",
+    "description": "Отношения наследования между классами.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое наследование?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# наследование позволяет одному классу (производному классу) наследовать свойства, методы и поведение другого класса (базового класса). Это способствует повторному использованию кода и делает программы более организованными. Например, базовый класс 'Vehicle' может определять общие характеристики, а производные классы, такие как 'Car' или 'Truck', добавляют специфические функции. Этот JSON-файл объясняет основы наследования, переопределение методов и примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример наследования"
+      },
+      {
+        "type": "paragraph",
+        "text": "Наследование определяется с помощью символа `:`. Производный класс наследует члены базового класса."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Vehicle\n{\n    public string Brand { get; set; }\n    public int Speed { get; set; }\n\n    public Vehicle(string brand, int speed)\n    {\n        Brand = brand;\n        Speed = speed;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Транспорт: {Brand}, Скорость: {Speed} км/ч\");\n    }\n}\n\nclass Car : Vehicle\n{\n    public int Doors { get; set; }\n\n    public Car(string brand, int speed, int doors) : base(brand, speed)\n    {\n        Doors = doors;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Car car = new Car(\"Toyota\", 120, 4);\n        car.DisplayInfo();\n        Console.WriteLine($\"Двери: {car.Doors}\");\n    }\n}\n// Output:\n// Транспорт: Toyota, Скорость: 120 км/ч\n// Двери: 4"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Vehicle` — базовый класс, определяющий свойства `Brand` и `Speed`.\n- `Car` наследует от `Vehicle` и добавляет свойство `Doors`.\n- `: base(brand, speed)` вызывает конструктор базового класса.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Переопределение методов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Производный класс может переопределить метод базового класса с помощью ключевых слов `virtual` и `override`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Animal\n{\n    public virtual void MakeSound()\n    {\n        Console.WriteLine(\"Животное издает звук.\");\n    }\n}\n\nclass Dog : Animal\n{\n    public override void MakeSound()\n    {\n        Console.WriteLine(\"Собака: Гав-гав!\");\n    }\n}\n\nclass Cat : Animal\n{\n    public override void MakeSound()\n    {\n        Console.WriteLine(\"Кот: Мяу!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Animal animal = new Animal();\n        Animal dog = new Dog();\n        Animal cat = new Cat();\n\n        animal.MakeSound();\n        dog.MakeSound();\n        cat.MakeSound();\n    }\n}\n// Output:\n// Животное издает звук.\n// Собака: Гав-гав!\n// Кот: Мяу!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Animal` имеет `virtual` метод `MakeSound`.\n- Классы `Dog` и `Cat` переопределяют этот метод с помощью `override`.\n- Переопределённые методы вызываются в зависимости от типа объекта."
+      },
+      {
+        "type": "heading",
+        "text": "Защищённые члены и инкапсуляция"
+      },
+      {
+        "type": "paragraph",
+        "text": "В наследовании ключевое слово `protected` делает члены базового класса доступными только для производных классов."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    protected decimal balance;\n\n    public BankAccount(decimal initialBalance)\n    {\n        balance = initialBalance;\n    }\n\n    public virtual void DisplayBalance()\n    {\n        Console.WriteLine($\"Баланс: {balance}\");\n    }\n}\n\nclass SavingsAccount : BankAccount\n{\n    public SavingsAccount(decimal initialBalance) : base(initialBalance)\n    {\n    }\n\n    public override void DisplayBalance()\n    {\n        Console.WriteLine($\"Баланс сберегательного счёта: {balance}\");\n    }\n\n    public void AddInterest(decimal rate)\n    {\n        balance += balance * rate;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        SavingsAccount account = new SavingsAccount(1000);\n        account.DisplayBalance();\n        account.AddInterest(0.05m);\n        account.DisplayBalance();\n    }\n}\n// Output:\n// Баланс сберегательного счёта: 1000\n// Баланс сберегательного счёта: 1050"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `BankAccount` имеет защищённое поле `balance`.\n- `SavingsAccount` получает доступ к `balance` и переопределяет `DisplayBalance`.\n- `AddInterest` — это функция, специфичная для сберегательного счёта."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества наследования"
+      },
+      {
+        "type": "paragraph",
+        "text": "Наследование делает программирование более эффективным."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПовторное использование кода: Код базового класса может быть использован повторно."
+          },
+          {
+            "description": "\nОрганизация: Классы структурированы иерархически."
+          },
+          {
+            "description": "\nГибкость: Переопределение методов позволяет задавать различные поведения."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Наследование может создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Иерархии наследования могут быть запутанными."
+          },
+          {
+            "description": "\nПлохой дизайн: Неправильные иерархии усложняют управление кодом."
+          },
+          {
+            "description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Слишком глубокие иерархии или неверное переопределение методов могут усложнить код. Неправильное использование `protected` членов может нарушить безопасность.\n- **Рекомендации**: Предпочитайте простые иерархии и правильно используйте `virtual` и `override`. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример не позволяет переопределить метод из-за отсутствия ключевого слова `virtual`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Animal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"Животное издает звук.\");\n    }\n}\n\nclass Dog : Animal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"Собака: Гав-гав!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Animal animal = new Dog();\n        animal.MakeSound(); // Ошибка: Вызывается метод Animal, а не Dog\n    }\n}\n// Output:\n// Животное издает звук."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Метод `MakeSound` в классе `Animal` не является `virtual`, поэтому `Dog` не может его переопределить.\n- Даже если объект является `Dog`, вызывается метод базового класса.\n- Решение: Сделайте `MakeSound` `virtual` в `Animal` и используйте `override` в `Dog`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Shape\n{\n    public double Area { get; set; }\n\n    public Shape(double area)\n    {\n        Area = area;\n    }\n\n    public virtual void DisplayArea()\n    {\n        Console.WriteLine($\"Площадь: {Area}\");\n    }\n}\n\nclass Circle : Shape\n{\n    public double Radius { get; set; }\n\n    public Circle(double radius) : base(3.14 * radius * radius)\n    {\n        Radius = radius;\n    }\n\n    public override void DisplayArea()\n    {\n        Console.WriteLine($\"Площадь круга: {Area}, Радиус: {Radius}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Circle circle = new Circle(5);\n        circle.DisplayArea();\n    }\n}\n// Output:\n// Площадь круга: 78.5, Радиус: 5"
+      }
+    ]
+  }
+}

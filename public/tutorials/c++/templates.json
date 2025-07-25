@@ -1,0 +1,449 @@
+{
+  "az": {
+    "title": "Şablonlar və Metaproqramlaşdırma",
+    "language": "cpp",
+    "description": "C++-da şablonlar və metaproqramlaşdırma kodun təkrar istifadəsini və çevikliyini artırır, SFINAE və CRTP kimi texnikalarla mürəkkəb problemləri həll edir.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Şablonlar nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Şablonlar C++-da kodun ümumiləşdirilməsi və təkrar istifadəsi üçün istifadə olunan güclü bir mexanizmdir. Onlar funksiyaların və ya siniflərin müxtəlif verilənlər tipləri ilə işləməsini təmin edir, beləliklə eyni kodu fərqli tiplər üçün təkrar yazmağa ehtiyac qalmır. Şablonlar kompilyasiya zamanı işləyir və kodun çevikliyini artırır."
+      },
+      {
+        "type": "paragraph",
+        "text": "Şablonlar iki əsas növdə olur: **funksiya şablonları** və **sinif şablonları**. Funksiya şablonları müxtəlif tiplər üçün ümumi funksiyalar yaradır, sinif şablonları isə ümumi siniflər təyin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiya Şablonları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Funksiya şablonları müxtəlif verilənlər tipləri ilə işləyə bilən funksiyalar təyin edir. Sintaksis aşağıdakı kimi olur:\ntemplate <typename T>\nreturn_type function_name(T param) {\n  // Funksiya gövdəsi\n}\nBurada `T` şablon parametridir və istənilən tip ilə əvəz oluna bilər."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n\ntemplate <typename T>\nT getMax(T a, T b) {\n  return (a > b) ? a : b;\n}\n\nint main() {\n  int result1 = getMax(5, 3);\n  double result2 = getMax(2.5, 7.8);\n  std::cout << \"Max int: \" << result1 << \"\\nMax double: \" << result2 << std::endl;\n  return 0;\n}\n// Output:\n// Max int: 5\n// Max double: 7.8"
+      },
+      {
+        "type": "heading",
+        "text": "Sinif Şablonları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sinif şablonları müxtəlif tiplər üçün ümumi siniflər yaradır. Sintaksis:\ntemplate <typename T>\nclass ClassName {\npublic:\n  T data;\n  // Metodlar\n};\nSinif şablonları verilənlər strukturunu ümumiləşdirmək üçün istifadə olunur, məsələn, `std::vector` və ya `std::pair`."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n\ntemplate <typename T>\nclass Box {\npublic:\n  T value;\n  Box(T v) : value(v) {}\n  void print() { std::cout << \"Value: \" << value << std::endl; }\n};\n\nint main() {\n  Box<int> intBox(10);\n  Box<double> doubleBox(5.5);\n  intBox.print();\n  doubleBox.print();\n  return 0;\n}\n// Output:\n// Value: 10\n// Value: 5.5"
+      },
+      {
+        "type": "heading",
+        "text": "SFINAE (Substitution Failure Is Not An Error)"
+      },
+      {
+        "type": "paragraph",
+        "text": "SFINAE C++-da şablonların seçilməsi zamanı kompilyasiya xətasının qarşısını alan mexanizmdir. Əgər şablon parametri əvəzlənməsi uğursuz olarsa, bu xəta sayılmır, sadəcə o şablon nəzərə alınmır. Bu, şablonların şərtli seçilməsi üçün istifadə olunur, məsələn, müəyyən tiplər üçün fərqli funksiyaların çağırılması."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <type_traits>\n\ntemplate <typename T, typename std::enable_if<std::is_integral<T>::value, T>::type* = nullptr>\nvoid printType(T value) {\n  std::cout << \"Integral type: \" << value << std::endl;\n}\n\ntemplate <typename T, typename std::enable_if<std::is_floating_point<T>::value, T>::type* = nullptr>\nvoid printType(T value) {\n  std::cout << \"Floating point type: \" << value << std::endl;\n}\n\nint main() {\n  printType(42);\n  printType(3.14);\n  return 0;\n}\n// Output:\n// Integral type: 42\n// Floating point type: 3.14"
+      },
+      {
+        "type": "heading",
+        "text": "CRTP (Curiously Recurring Template Pattern)"
+      },
+      {
+        "type": "paragraph",
+        "text": "CRTP bir sinifin özünü şablon parametri kimi törəmə sinifə ötürməsi ilə işləyən dizayn modelidir. Bu, statik polimorfizmə imkan verir və virtual funksiyaların performans itkisindən qaçır. Sintaksis:\ntemplate <typename Derived>\nclass Base {\n  // Metodlar\n};\nclass Derived : public Base<Derived> {\n  // Törəmə sinif\n};"
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n\ntemplate <typename Derived>\nclass Base {\npublic:\n  void interface() {\n    static_cast<Derived*>(this)->implementation();\n  }\n};\n\nclass Derived : public Base<Derived> {\npublic:\n  void implementation() {\n    std::cout << \"Derived implementation\\n\";\n  }\n};\n\nint main() {\n  Derived obj;\n  obj.interface();\n  return 0;\n}\n// Output:\n// Derived implementation"
+      },
+      {
+        "type": "heading",
+        "text": "Metaproqramlaşdırma"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metaproqramlaşdırma şablonlar vasitəsilə kompilyasiya zamanı hesablamalar aparmaqdır. Bu, kodun dinamik generasiyasını və optimallaşdırılmasını təmin edir. Məsələn, şablonlarla faktorialı kompilyasiya zamanı hesablamaq olar."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n\ntemplate <int N>\nstruct Factorial {\n  static const int value = N * Factorial<N - 1>::value;\n};\n\ntemplate <>\nstruct Factorial<0> {\n  static const int value = 1;\n};\n\nint main() {\n  std::cout << \"Factorial of 5: \" << Factorial<5>::value << std::endl;\n  return 0;\n}\n// Output:\n// Factorial of 5: 120"
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadə ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Şablonlar və metaproqramlaşdırma aşağıdakı hallarda istifadə olunur:\n- **Ümumi verilənlər strukturları**: `std::vector`, `std::map` kimi strukturlar.\n- **Alqoritmlər**: Müxtəlif tiplər üçün ümumi alqoritmlər yazmaq.\n- **Performans optimizasiyası**: CRTP ilə virtual funksiyalardan qaçmaq.\n- **Kompilyasiya zamanı hesablamalar**: Sabit dəyərləri hesablamaq.\nMəsələn, bir tətbiq müxtəlif tiplərdə verilənləri saxlamaq üçün şablon sinifindən istifadə edə bilər."
+      },
+      {
+        "type": "paragraph",
+        "text": "Şablonlar kodun təkrar istifadəsini artırır və tip təhlükəsizliyini təmin edir, çünki kompilyasiya zamanı tiplər yoxlanılır."
+      },
+      {
+        "type": "heading",
+        "text": "Şablonların Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Şablonlar kodun təkrar istifadəsini və çevikliyini artırır, metaproqramlaşdırma isə kompilyasiya zamanı optimallaşdırma və hesablamalar aparır."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas xüsusiyyətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Təkrar İstifadə",
+            "description": "Eyni kodu müxtəlif tiplər üçün istifadə etmək."
+          },
+          {
+            "term": "Tip Təhlükəsizliyi",
+            "description": "Kompilyasiya zamanı tipləri yoxlayır."
+          },
+          {
+            "term": "SFINAE",
+            "description": "Şablonların şərtli seçilməsinə imkan verir."
+          },
+          {
+            "term": "CRTP",
+            "description": "Statik polimorfizm təmin edir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Şablonlar kompilyasiya müddətini uzada bilər və səhv mesajları mürəkkəb ola bilər. CRTP yanlış istifadə edildikdə kodun oxunaqlığını azalda bilər.\n- **Tövsiyələr**: Şablonları sadə saxlayın, `std::enable_if` və `std::is_same` kimi vasitələrdən istifadə edin, səhv mesajlarını asanlaşdırmaq üçün `static_assert` istifadə edin, Visual Studio və ya CLion kimi IDE-lərdən istifadə edin."
+      },
+      {
+        "type": "paragraph",
+        "text": "Məsələn, şablonlarla işləyərkən səhv mesajlarını asanlaşdırmaq üçün `static_assert` istifadə edərək tip yoxlamalarını gücləndirin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq üçün nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <iostream>\n\ntemplate <typename T>\nT getMax(T a, T b) {\n  return (a > b) ? a : b;\n}\n\nint main() {\n  int result1 = getMax(5, 3);\n  double result2 = getMax(2.5, 7.8);\n  std::cout << \"Max int: \" << result1 << \"\\nMax double: \" << result2 << std::endl;\n  return 0;\n}\n// Output:\n// Max int: 5\n// Max double: 7.8"
+      }
+    ]
+  },
+  "en": {
+    "title": "Templates & Metaprogramming",
+    "language": "cpp",
+    "description": "In C++, templates and metaprogramming enhance code reusability and flexibility, using techniques like SFINAE and CRTP to solve complex problems.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Templates?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Templates in C++ are a powerful mechanism for code generalization and reuse. They allow functions or classes to work with different data types without rewriting code. Templates operate at compile-time, increasing code flexibility."
+      },
+      {
+        "type": "paragraph",
+        "text": "Templates come in two main types: **function templates** and **class templates**. Function templates create generic functions, while class templates define generic classes."
+      },
+      {
+        "type": "heading",
+        "text": "Function Templates"
+      },
+      {
+        "type": "paragraph",
+        "text": "Function templates define functions that work with various data types. The syntax is:\ntemplate <typename T>\nreturn_type function_name(T param) {\n  // Function body\n}\nHere, `T` is a template parameter that can be replaced with any type."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n\ntemplate <typename T>\nT getMax(T a, T b) {\n  return (a > b) ? a : b;\n}\n\nint main() {\n  int result1 = getMax(5, 3);\n  double result2 = getMax(2.5, 7.8);\n  std::cout << \"Max int: \" << result1 << \"\\nMax double: \" << result2 << std::endl;\n  return 0;\n}\n// Output:\n// Max int: 5\n// Max double: 7.8"
+      },
+      {
+        "type": "heading",
+        "text": "Class Templates"
+      },
+      {
+        "type": "paragraph",
+        "text": "Class templates create generic classes for different types. Syntax:\ntemplate <typename T>\nclass ClassName {\npublic:\n  T data;\n  // Methods\n};\nClass templates generalize data structures, like `std::vector` or `std::pair`."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n\ntemplate <typename T>\nclass Box {\npublic:\n  T value;\n  Box(T v) : value(v) {}\n  void print() { std::cout << \"Value: \" << value << std::endl; }\n};\n\nint main() {\n  Box<int> intBox(10);\n  Box<double> doubleBox(5.5);\n  intBox.print();\n  doubleBox.print();\n  return 0;\n}\n// Output:\n// Value: 10\n// Value: 5.5"
+      },
+      {
+        "type": "heading",
+        "text": "SFINAE (Substitution Failure Is Not An Error)"
+      },
+      {
+        "type": "paragraph",
+        "text": "SFINAE is a mechanism in C++ that prevents compilation errors when template substitution fails. Instead of causing an error, the compiler ignores the invalid template and tries another. It’s used for conditional template selection, e.g., calling different functions based on types."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <type_traits>\n\ntemplate <typename T, typename std::enable_if<std::is_integral<T>::value, T>::type* = nullptr>\nvoid printType(T value) {\n  std::cout << \"Integral type: \" << value << std::endl;\n}\n\ntemplate <typename T, typename std::enable_if<std::is_floating_point<T>::value, T>::type* = nullptr>\nvoid printType(T value) {\n  std::cout << \"Floating point type: \" << value << std::endl;\n}\n\nint main() {\n  printType(42);\n  printType(3.14);\n  return 0;\n}\n// Output:\n// Integral type: 42\n// Floating point type: 3.14"
+      },
+      {
+        "type": "heading",
+        "text": "CRTP (Curiously Recurring Template Pattern)"
+      },
+      {
+        "type": "paragraph",
+        "text": "CRTP is a design pattern where a class passes itself as a template parameter to its base class. It enables static polymorphism, avoiding the performance cost of virtual functions. Syntax:\ntemplate <typename Derived>\nclass Base {\n  // Methods\n};\nclass Derived : public Base<Derived> {\n  // Derived class\n};"
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n\ntemplate <typename Derived>\nclass Base {\npublic:\n  void interface() {\n    static_cast<Derived*>(this)->implementation();\n  }\n};\n\nclass Derived : public Base<Derived> {\npublic:\n  void implementation() {\n    std::cout << \"Derived implementation\\n\";\n  }\n};\n\nint main() {\n  Derived obj;\n  obj.interface();\n  return 0;\n}\n// Output:\n// Derived implementation"
+      },
+      {
+        "type": "heading",
+        "text": "Metaprogramming"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metaprogramming uses templates to perform computations at compile-time, enabling dynamic code generation and optimization. For example, factorials can be computed at compile-time using templates."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n\ntemplate <int N>\nstruct Factorial {\n  static const int value = N * Factorial<N - 1>::value;\n};\n\ntemplate <>\nstruct Factorial<0> {\n  static const int value = 1;\n};\n\nint main() {\n  std::cout << \"Factorial of 5: \" << Factorial<5>::value << std::endl;\n  return 0;\n}\n// Output:\n// Factorial of 5: 120"
+      },
+      {
+        "type": "heading",
+        "text": "Real-world Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Templates and metaprogramming are used in:\n- **Generic Data Structures**: `std::vector`, `std::map`.\n- **Algorithms**: Writing generic algorithms for different types.\n- **Performance Optimization**: Using CRTP to avoid virtual function overhead.\n- **Compile-time Computations**: Calculating constants at compile-time.\nFor example, an application can use a template class to store different types of data."
+      },
+      {
+        "type": "paragraph",
+        "text": "Templates enhance code reuse and ensure type safety, as types are checked at compile-time."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Templates"
+      },
+      {
+        "type": "paragraph",
+        "text": "Templates improve code reusability and flexibility, while metaprogramming enables compile-time optimizations and computations."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Code Reuse",
+            "description": "Use the same code for different types."
+          },
+          {
+            "term": "Type Safety",
+            "description": "Checks types at compile-time."
+          },
+          {
+            "term": "SFINAE",
+            "description": "Enables conditional template selection."
+          },
+          {
+            "term": "CRTP",
+            "description": "Provides static polymorphism."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Templates can increase compilation time and produce complex error messages. Misusing CRTP can reduce code readability.\n- **Recommendations**: Keep templates simple, use `std::enable_if` and `std::is_same` for type checking, use `static_assert` to simplify error messages, and use IDEs like Visual Studio or CLion."
+      },
+      {
+        "type": "paragraph",
+        "text": "For example, use `static_assert` to enforce type checks when working with templates to simplify error messages."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <iostream>\n\ntemplate <typename T>\nT getMax(T a, T b) {\n  return (a > b) ? a : b;\n}\n\nint main() {\n  int result1 = getMax(5, 3);\n  double result2 = getMax(2.5, 7.8);\n  std::cout << \"Max int: \" << result1 << \"\\nMax double: \" << result2 << std::endl;\n  return 0;\n}\n// Output:\n// Max int: 5\n// Max double: 7.8"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Шаблоны и метапрограммирование",
+    "language": "cpp",
+    "description": "В C++ шаблоны и метапрограммирование повышают повторное использование и гибкость кода, используя техники, такие как SFINAE и CRTP, для решения сложных задач.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое шаблоны?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Шаблоны в C++ — это мощный механизм для обобщения и повторного использования кода. Они позволяют функциям и классам работать с разными типами данных без необходимости переписывать код. Шаблоны работают на этапе компиляции, увеличивая гибкость кода."
+      },
+      {
+        "type": "paragraph",
+        "text": "Шаблоны бывают двух основных типов: **функциональные шаблоны** и **классовые шаблоны**. Функциональные шаблоны создают обобщённые функции, а классовые шаблоны определяют обобщённые классы."
+      },
+      {
+        "type": "heading",
+        "text": "Функциональные шаблоны"
+      },
+      {
+        "type": "paragraph",
+        "text": "Функциональные шаблоны определяют функции, работающие с разными типами данных. Синтаксис:\ntemplate <typename T>\nreturn_type function_name(T param) {\n  // Тело функции\n}\nЗдесь `T` — параметр шаблона, который может быть заменён любым типом."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n\ntemplate <typename T>\nT getMax(T a, T b) {\n  return (a > b) ? a : b;\n}\n\nint main() {\n  int result1 = getMax(5, 3);\n  double result2 = getMax(2.5, 7.8);\n  std::cout << \"Max int: \" << result1 << \"\\nMax double: \" << result2 << std::endl;\n  return 0;\n}\n// Output:\n// Max int: 5\n// Max double: 7.8"
+      },
+      {
+        "type": "heading",
+        "text": "Классовые шаблоны"
+      },
+      {
+        "type": "paragraph",
+        "text": "Классовые шаблоны создают обобщённые классы для разных типов. Синтаксис:\ntemplate <typename T>\nclass ClassName {\npublic:\n  T data;\n  // Методы\n};\nКлассовые шаблоны обобщают структуры данных, такие как `std::vector` или `std::pair`."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n\ntemplate <typename T>\nclass Box {\npublic:\n  T value;\n  Box(T v) : value(v) {}\n  void print() { std::cout << \"Value: \" << value << std::endl; }\n};\n\nint main() {\n  Box<int> intBox(10);\n  Box<double> doubleBox(5.5);\n  intBox.print();\n  doubleBox.print();\n  return 0;\n}\n// Output:\n// Value: 10\n// Value: 5.5"
+      },
+      {
+        "type": "heading",
+        "text": "SFINAE (Substitution Failure Is Not An Error)"
+      },
+      {
+        "type": "paragraph",
+        "text": "SFINAE — это механизм в C++, предотвращающий ошибки компиляции при неудачной подстановке шаблонов. Вместо ошибки компилятор игнорирует неподходящий шаблон и пробует другой. Используется для условного выбора шаблонов, например, вызова разных функций в зависимости от типа."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n#include <type_traits>\n\ntemplate <typename T, typename std::enable_if<std::is_integral<T>::value, T>::type* = nullptr>\nvoid printType(T value) {\n  std::cout << \"Integral type: \" << value << std::endl;\n}\n\ntemplate <typename T, typename std::enable_if<std::is_floating_point<T>::value, T>::type* = nullptr>\nvoid printType(T value) {\n  std::cout << \"Floating point type: \" << value << std::endl;\n}\n\nint main() {\n  printType(42);\n  printType(3.14);\n  return 0;\n}\n// Output:\n// Integral type: 42\n// Floating point type: 3.14"
+      },
+      {
+        "type": "heading",
+        "text": "CRTP (Curiously Recurring Template Pattern)"
+      },
+      {
+        "type": "paragraph",
+        "text": "CRTP — это шаблон проектирования, при котором класс передаёт себя в качестве параметра шаблона базовому классу. Это обеспечивает статический полиморфизм, избегая накладных расходов виртуальных функций. Синтаксис:\ntemplate <typename Derived>\nclass Base {\n  // Методы\n};\nclass Derived : public Base<Derived> {\n  // Производный класс\n};"
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n\ntemplate <typename Derived>\nclass Base {\npublic:\n  void interface() {\n    static_cast<Derived*>(this)->implementation();\n  }\n};\n\nclass Derived : public Base<Derived> {\npublic:\n  void implementation() {\n    std::cout << \"Derived implementation\\n\";\n  }\n};\n\nint main() {\n  Derived obj;\n  obj.interface();\n  return 0;\n}\n// Output:\n// Derived implementation"
+      },
+      {
+        "type": "heading",
+        "text": "Метапрограммирование"
+      },
+      {
+        "type": "paragraph",
+        "text": "Метапрограммирование использует шаблоны для выполнения вычислений на этапе компиляции, обеспечивая динамическую генерацию и оптимизацию кода. Например, факториал можно вычислить во время компиляции с помощью шаблонов."
+      },
+      {
+        "type": "code",
+        "language": "cpp",
+        "code": "#include <iostream>\n\ntemplate <int N>\nstruct Factorial {\n  static const int value = N * Factorial<N - 1>::value;\n};\n\ntemplate <>\nstruct Factorial<0> {\n  static const int value = 1;\n};\n\nint main() {\n  std::cout << \"Factorial of 5: \" << Factorial<5>::value << std::endl;\n  return 0;\n}\n// Output:\n// Factorial of 5: 120"
+      },
+      {
+        "type": "heading",
+        "text": "Примеры из реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Шаблоны и метапрограммирование используются в:\n- **Обобщённых структурах данных**: `std::vector`, `std::map`.\n- **Алгоритмах**: Написание обобщённых алгоритмов для разных типов.\n- **Оптимизации производительности**: Использование CRTP для избежания накладных расходов виртуальных функций.\n- **Вычислениях во время компиляции**: Вычисление констант.\nНапример, приложение может использовать шаблонный класс для хранения данных разных типов."
+      },
+      {
+        "type": "paragraph",
+        "text": "Шаблоны повышают повторное использование кода и обеспечивают безопасность типов, так как типы проверяются на этапе компиляции."
+      },
+      {
+        "type": "heading",
+        "text": "Цель шаблонов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Шаблоны повышают повторное использование и гибкость кода, а метапрограммирование позволяет проводить оптимизации и вычисления на этапе компиляции."
+      },
+      {
+        "type": "heading",
+        "text": "Основные характеристики"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "term": "Повторное использование",
+            "description": "Использование одного кода для разных типов."
+          },
+          {
+            "term": "Безопасность типов",
+            "description": "Проверка типов на этапе компиляции."
+          },
+          {
+            "term": "SFINAE",
+            "description": "Позволяет условный выбор шаблонов."
+          },
+          {
+            "term": "CRTP",
+            "description": "Обеспечивает статический полиморфизм."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Шаблоны могут увеличить время компиляции и создавать сложные сообщения об ошибках. Неправильное использование CRTP может снизить читаемость кода.\n- **Рекомендации**: Держите шаблоны простыми, используйте `std::enable_if` и `std::is_same` для проверки типов, применяйте `static_assert` для упрощения сообщений об ошибках, используйте IDE, такие как Visual Studio или CLion."
+      },
+      {
+        "type": "paragraph",
+        "text": "Например, при работе с шаблонами используйте `static_assert` для усиления проверок типов и упрощения сообщений об ошибках."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <iostream>\n\ntemplate <typename T>\nT getMax(T a, T b) {\n  return (a > b) ? a : b;\n}\n\nint main() {\n  int result1 = getMax(5, 3);\n  double result2 = getMax(2.5, 7.8);\n  std::cout << \"Max int: \" << result1 << \"\\nMax double: \" << result2 << std::endl;\n  return 0;\n}\n// Output:\n// Max int: 5\n// Max double: 7.8"
+      }
+    ]
+  }
+}

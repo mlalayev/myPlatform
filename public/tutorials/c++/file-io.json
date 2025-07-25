@@ -1,0 +1,443 @@
+{
+    "az": {
+      "title": "C++ Fayllarla İş (fstream)",
+      "language": "cpp",
+      "description": "C++-da fstream sinfi fayllardan məlumat oxumaq və fayllara məlumat yazmaq üçün istifadə olunur, verilənlərin saxlanması və bərpası üçün effektiv alət təqdim edir.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Fayllarla İş nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "C++-da fayllarla iş proqramın fayllardan məlumat oxuması və ya fayllara məlumat yazması prosesini nəzərdə tutur. Bu, məlumatların uzunmüddətli saxlanması, konfiqurasiya fayllarının idarə edilməsi və ya jurnal (log) qeydlərinin aparılması kimi vəzifələr üçün istifadə olunur. `fstream` sinfi bu prosesi asanlaşdırır."
+        },
+        {
+          "type": "paragraph",
+          "text": "Fayllarla iş üçün C++-da `<fstream>` başlıq faylı istifadə olunur. Bu başlıq üç əsas sinfi təmin edir: `std::ifstream` (oxumaq üçün), `std::ofstream` (yazmaq üçün) və `std::fstream` (həm oxumaq, həm də yazmaq üçün)."
+        },
+        {
+          "type": "heading",
+          "text": "Fayl Oxuma və Yazma Sinifləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **std::ifstream**: Yalnız fayldan oxumaq üçün istifadə olunur.\n- **std::ofstream**: Yalnız fayla yazmaq üçün istifadə olunur.\n- **std::fstream**: Həm oxumaq, həm də yazmaq üçün istifadə olunur.\nBu siniflər fayl əməliyyatlarını təhlükəsiz və çevik şəkildə idarə etməyə imkan verir."
+        },
+        {
+          "type": "heading",
+          "text": "Fayl Rejimləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Fayllarla işləyərkən müxtəlif rejimlərdən istifadə olunur:\n- **std::ios::in**: Faylı oxumaq üçün açır.\n- **std::ios::out**: Fayla yazmaq üçün açır (əgər fayl artıq mövcuddursa, içindəkiləri silir).\n- **std::ios::app**: Faylın sonuna yazmaq üçün açır (mövcud məlumatları silmir).\n- **std::ios::trunc**: Faylı açarkən içindəkiləri silir.\n- **std::ios::binary**: Faylı ikili (binary) rejimdə açır.\nBu rejimlər `|` (bitwise OR) operatoru ilə birləşdirilə bilər, məsələn, `std::ios::in | std::ios::out`."
+        },
+        {
+          "type": "heading",
+          "text": "Faylın Açılması və Bağlanması"
+        },
+        {
+          "type": "paragraph",
+          "text": "Fayl işə başlamazdan əvvəl açılmalı və iş başa çatdıqdan sonra bağlanmalıdır. Faylı açmaq üçün `open()` funksiyası, bağlamaq üçün isə `close()` funksiyası istifadə olunur. Əgər fayl uğurla açılmayıbsa, bu vəziyyəti yoxlamaq üçün `is_open()` funksiyasından istifadə edilir."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <fstream>\n#include <string>\n\nint main() {\n  std::ofstream file;\n  file.open(\"example.txt\", std::ios::out);\n  if(file.is_open()) {\n    file << \"Hello, World!\\n\";\n    file.close();\n  } else {\n    std::cout << \"Failed to open file\\n\";\n  }\n  return 0;\n}\n// Output: Creates a file named example.txt with content \"Hello, World!\""
+        },
+        {
+          "type": "heading",
+          "text": "Fayla Yazma"
+        },
+        {
+          "type": "paragraph",
+          "text": "Fayla məlumat yazmaq üçün `std::ofstream` və ya `std::fstream` istifadə olunur. Məlumatlar `<<` operatoru ilə yazılır, eynilə konsola yazma kimi. Faylın sonuna əlavə etmək üçün `std::ios::app` rejimi istifadə edilə bilər."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <fstream>\n#include <string>\n\nint main() {\n  std::ofstream file(\"example.txt\", std::ios::out);\n  if(file.is_open()) {\n    file << \"Name: Ali\\nScore: 85\\n\";\n    file.close();\n  } else {\n    std::cout << \"Failed to open file\\n\";\n  }\n  return 0;\n}\n// Output: Creates or overwrites example.txt with content \"Name: Ali\\nScore: 85\\n\""
+        },
+        {
+          "type": "heading",
+          "text": "Fayldan Oxuma"
+        },
+        {
+          "type": "paragraph",
+          "text": "Fayldan məlumat oxumaq üçün `std::ifstream` və ya `std::fstream` istifadə olunur. `>>` operatoru ilə ayrı-ayrı sözlər oxuna bilər, `std::getline()` ilə isə tam sətirlər oxunur."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <fstream>\n#include <string>\n\nint main() {\n  std::ifstream file(\"example.txt\", std::ios::in);\n  std::string line;\n  if(file.is_open()) {\n    while(std::getline(file, line)) {\n      std::cout << line << std::endl;\n    }\n    file.close();\n  } else {\n    std::cout << \"Failed to open file\\n\";\n  }\n  return 0;\n}\n// Output (assuming example.txt exists):\n// Name: Ali\n// Score: 85"
+        },
+        {
+          "type": "heading",
+          "text": "Səhvlərin İdarə Edilməsi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Fayl əməliyyatlarında səhvlər baş verə bilər, məsələn, faylın olmaması və ya yazmaq üçün icazənin olmaması. `is_open()` ilə faylın açılıb-açılmadığını, `eof()` ilə faylın sonuna çatıb-çatılmadığını yoxlamaq mümkündür. Səhvləri idarə etmək üçün həmişə faylın vəziyyətini yoxlamaq tövsiyə olunur."
+        },
+        {
+          "type": "heading",
+          "text": "Real həyatda istifadə ssenariləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Fayllarla iş aşağıdakı hallarda istifadə olunur:\n- **Məlumat saxlama**: İstifadəçi məlumatlarının (məsələn, adlar, qiymətlər) faylda saxlanması.\n- **Konfiqurasiya faylları**: Tətbiqin parametrlərinin saxlanması.\n- **Jurnal qeydləri**: Proqramın fəaliyyətinin qeydə alınması.\n- **Verilənlər ixracı**: Məlumatların CSV və ya mətn faylı kimi ixrac edilməsi.\nMəsələn, bir tətbiq tələbələrin qiymətlərini faylda saxlaya və sonra bərpa edə bilər."
+        },
+        {
+          "type": "paragraph",
+          "text": "Fayllarla iş proqramların portativliyini artırır, çünki məlumatlar proqram bağlandıqdan sonra da saxlanılır. Məsələn, bir oyun tətbiqi oyunçuların xallarını faylda saxlaya bilər."
+        },
+        {
+          "type": "heading",
+          "text": "Fayllarla İşin Məqsədi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Fayllarla iş məlumatların uzunmüddətli saxlanmasını və bərpasını təmin edir, proqramların funksionallığını artırır və məlumatların paylaşılmasını asanlaşdırır."
+        },
+        {
+          "type": "heading",
+          "text": "Əsas xüsusiyyətlər"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Oxuma və Yazma",
+              "description": "Fayllardan məlumat oxumaq və ya fayllara yazmaq mümkündür."
+            },
+            {
+              "term": "Rejimlər",
+              "description": "Müxtəlif rejimlər fayl əməliyyatlarını çevik edir."
+            },
+            {
+              "term": "Səhvlərin İdarə Edilməsi",
+              "description": "Fayl əməliyyatlarındakı səhvləri yoxlamaq mümkündür."
+            },
+            {
+              "term": "Portativlik",
+              "description": "Məlumatlar proqram bağlandıqdan sonra da saxlanılır."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Təhlükələr və tövsiyələr"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Təhlükələr**: Faylın açılmaması, səhv rejim istifadəsi və ya faylın zədələnməsi səhvlərə səbəb ola bilər. Faylı bağlamağı unutmaq resurs sızmasına səbəb ola bilər.\n- **Tövsiyələr**: Həmişə `is_open()` ilə faylın açıldığını yoxlayın, faylı istifadə etdikdən sonra `close()` ilə bağlayın, fayl əməliyyatları üçün istisnalardan (exceptions) istifadə etməyi nəzərdən keçirin, Visual Studio və ya CLion kimi IDE-lərdən istifadə edin."
+        },
+        {
+          "type": "paragraph",
+          "text": "Fayllarla işləyərkən mətn faylları ilə ikili fayllar arasında fərqə diqqət edin. Mətn faylları sadə oxuma/yazma üçün, ikili fayllar isə mürəkkəb verilənlər (məsələn, şəkillər) üçün uyğundur."
+        },
+        {
+          "type": "heading",
+          "text": "Sınaq üçün nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "#include <iostream>\n#include <fstream>\n#include <string>\n\nint main() {\n  std::ofstream outfile(\"test.txt\", std::ios::out);\n  if(outfile.is_open()) {\n    outfile << \"Name: Veli\\nScore: 90\\n\";\n    outfile.close();\n  }\n  std::ifstream infile(\"test.txt\", std::ios::in);\n  std::string line;\n  if(infile.is_open()) {\n    while(std::getline(infile, line)) {\n      std::cout << line << std::endl;\n    }\n    infile.close();\n  } else {\n    std::cout << \"Failed to open file\\n\";\n  }\n  return 0;\n}\n// Output:\n// Name: Veli\n// Score: 90"
+        }
+      ]
+    },
+    "en": {
+      "title": "C++ File I/O (fstream)",
+      "language": "cpp",
+      "description": "In C++, the fstream class is used to read from and write to files, providing an effective tool for data storage and retrieval.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "What is File I/O?"
+        },
+        {
+          "type": "paragraph",
+          "text": "In C++, file input/output (I/O) refers to the process of reading data from files or writing data to files. This is used for long-term data storage, managing configuration files, or keeping log records. The `fstream` class simplifies this process."
+        },
+        {
+          "type": "paragraph",
+          "text": "File I/O in C++ uses the `<fstream>` header, which provides three main classes: `std::ifstream` (for reading), `std::ofstream` (for writing), and `std::fstream` (for both reading and writing)."
+        },
+        {
+          "type": "heading",
+          "text": "File Reading and Writing Classes"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **std::ifstream**: Used for reading from files.\n- **std::ofstream**: Used for writing to files.\n- **std::fstream**: Used for both reading and writing.\nThese classes enable safe and flexible file operations."
+        },
+        {
+          "type": "heading",
+          "text": "File Modes"
+        },
+        {
+          "type": "paragraph",
+          "text": "Files can be opened in different modes:\n- **std::ios::in**: Opens the file for reading.\n- **std::ios::out**: Opens the file for writing (overwrites existing content).\n- **std::ios::app**: Appends data to the end of the file (preserves existing content).\n- **std::ios::trunc**: Truncates the file's content when opening.\n- **std::ios::binary**: Opens the file in binary mode.\nModes can be combined using the `|` (bitwise OR) operator, e.g., `std::ios::in | std::ios::out`."
+        },
+        {
+          "type": "heading",
+          "text": "Opening and Closing Files"
+        },
+        {
+          "type": "paragraph",
+          "text": "A file must be opened before use and closed afterward. The `open()` function is used to open a file, and the `close()` function is used to close it. The `is_open()` function checks if the file was successfully opened."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <fstream>\n#include <string>\n\nint main() {\n  std::ofstream file;\n  file.open(\"example.txt\", std::ios::out);\n  if(file.is_open()) {\n    file << \"Hello, World!\\n\";\n    file.close();\n  } else {\n    std::cout << \"Failed to open file\\n\";\n  }\n  return 0;\n}\n// Output: Creates a file named example.txt with content \"Hello, World!\""
+        },
+        {
+          "type": "heading",
+          "text": "Writing to a File"
+        },
+        {
+          "type": "paragraph",
+          "text": "To write to a file, use `std::ofstream` or `std::fstream`. Data is written using the `<<` operator, similar to console output. The `std::ios::app` mode can be used to append data to the file's end."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <fstream>\n#include <string>\n\nint main() {\n  std::ofstream file(\"example.txt\", std::ios::out);\n  if(file.is_open()) {\n    file << \"Name: Ali\\nScore: 85\\n\";\n    file.close();\n  } else {\n    std::cout << \"Failed to open file\\n\";\n  }\n  return 0;\n}\n// Output: Creates or overwrites example.txt with content \"Name: Ali\\nScore: 85\\n\""
+        },
+        {
+          "type": "heading",
+          "text": "Reading from a File"
+        },
+        {
+          "type": "paragraph",
+          "text": "To read from a file, use `std::ifstream` or `std::fstream`. The `>>` operator reads individual words, while `std::getline()` reads entire lines."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <fstream>\n#include <string>\n\nint main() {\n  std::ifstream file(\"example.txt\", std::ios::in);\n  std::string line;\n  if(file.is_open()) {\n    while(std::getline(file, line)) {\n      std::cout << line << std::endl;\n    }\n    file.close();\n  } else {\n    std::cout << \"Failed to open file\\n\";\n  }\n  return 0;\n}\n// Output (assuming example.txt exists):\n// Name: Ali\n// Score: 85"
+        },
+        {
+          "type": "heading",
+          "text": "Error Handling"
+        },
+        {
+          "type": "paragraph",
+          "text": "File operations can fail due to issues like a missing file or lack of write permissions. Use `is_open()` to check if a file was opened successfully and `eof()` to check if the end of the file has been reached. Always verify the file's state to handle errors."
+        },
+        {
+          "type": "heading",
+          "text": "Real-world Use Cases"
+        },
+        {
+          "type": "paragraph",
+          "text": "File I/O is used in:\n- **Data Storage**: Storing user data (e.g., names, scores) in a file.\n- **Configuration Files**: Saving application settings.\n- **Log Files**: Recording program activity.\n- **Data Export**: Exporting data as CSV or text files.\nFor example, an application can save student grades in a file and retrieve them later."
+        },
+        {
+          "type": "paragraph",
+          "text": "File I/O enhances program portability, as data persists after the program terminates. For instance, a game can save player scores in a file."
+        },
+        {
+          "type": "heading",
+          "text": "Purpose of File I/O"
+        },
+        {
+          "type": "paragraph",
+          "text": "File I/O enables long-term data storage and retrieval, enhances program functionality, and facilitates data sharing."
+        },
+        {
+          "type": "heading",
+          "text": "Key Features"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Reading and Writing",
+              "description": "Allows reading from and writing to files."
+            },
+            {
+              "term": "Modes",
+              "description": "Different modes make file operations flexible."
+            },
+            {
+              "term": "Error Handling",
+              "description": "Enables checking for file operation errors."
+            },
+            {
+              "term": "Portability",
+              "description": "Data persists after the program terminates."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Dangers and Recommendations"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Dangers**: Failure to open a file, incorrect mode usage, or file corruption can cause errors. Forgetting to close a file may lead to resource leaks.\n- **Recommendations**: Always check if a file is opened with `is_open()`, close files with `close()` after use, consider using exceptions for file operations, and use IDEs like Visual Studio or CLion."
+        },
+        {
+          "type": "paragraph",
+          "text": "Be mindful of the difference between text and binary files. Text files are suitable for simple reading/writing, while binary files are used for complex data (e.g., images)."
+        },
+        {
+          "type": "heading",
+          "text": "Try it Yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "#include <iostream>\n#include <fstream>\n#include <string>\n\nint main() {\n  std::ofstream outfile(\"test.txt\", std::ios::out);\n  if(outfile.is_open()) {\n    outfile << \"Name: Veli\\nScore: 90\\n\";\n    outfile.close();\n  }\n  std::ifstream infile(\"test.txt\", std::ios::in);\n  std::string line;\n  if(infile.is_open()) {\n    while(std::getline(infile, line)) {\n      std::cout << line << std::endl;\n    }\n    infile.close();\n  } else {\n    std::cout << \"Failed to open file\\n\";\n  }\n  return 0;\n}\n// Output:\n// Name: Veli\n// Score: 90"
+        }
+      ]
+    },
+    "ru": {
+      "title": "Работа с файлами в C++ (fstream)",
+      "language": "cpp",
+      "description": "В C++ класс fstream используется для чтения из файлов и записи в файлы, предоставляя эффективный инструмент для хранения и восстановления данных.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Что такое работа с файлами?"
+        },
+        {
+          "type": "paragraph",
+          "text": "В C++ работа с файлами (file I/O) подразумевает процесс чтения данных из файлов или записи данных в файлы. Это используется для долгосрочного хранения данных, управления конфигурационными файлами или ведения логов. Класс `fstream` упрощает этот процесс."
+        },
+        {
+          "type": "paragraph",
+          "text": "Для работы с файлами в C++ используется заголовочный файл `<fstream>`, который предоставляет три основных класса: `std::ifstream` (для чтения), `std::ofstream` (для записи) и `std::fstream` (для чтения и записи)."
+        },
+        {
+          "type": "heading",
+          "text": "Классы для чтения и записи файлов"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **std::ifstream**: Используется только для чтения из файлов.\n- **std::ofstream**: Используется только для записи в файлы.\n- **std::fstream**: Используется для чтения и записи.\nЭти классы позволяют безопасно и гибко выполнять операции с файлами."
+        },
+        {
+          "type": "heading",
+          "text": "Режимы файлов"
+        },
+        {
+          "type": "paragraph",
+          "text": "Файлы могут открываться в различных режимах:\n- **std::ios::in**: Открывает файл для чтения.\n- **std::ios::out**: Открывает файл для записи (перезаписывает существующий контент).\n- **std::ios::app**: Добавляет данные в конец файла (сохраняет существующий контент).\n- **std::ios::trunc**: Очищает содержимое файла при открытии.\n- **std::ios::binary**: Открывает файл в бинарном режиме.\nРежимы можно комбинировать с помощью оператора `|` (побитовое ИЛИ), например, `std::ios::in | std::ios::out`."
+        },
+        {
+          "type": "heading",
+          "text": "Открытие и закрытие файлов"
+        },
+        {
+          "type": "paragraph",
+          "text": "Файл должен быть открыт перед использованием и закрыт после. Для открытия используется функция `open()`, для закрытия — `close()`. Функция `is_open()` проверяет, успешно ли открыт файл."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <fstream>\n#include <string>\n\nint main() {\n  std::ofstream file;\n  file.open(\"example.txt\", std::ios::out);\n  if(file.is_open()) {\n    file << \"Hello, World!\\n\";\n    file.close();\n  } else {\n    std::cout << \"Failed to open file\\n\";\n  }\n  return 0;\n}\n// Output: Creates a file named example.txt with content \"Hello, World!\""
+        },
+        {
+          "type": "heading",
+          "text": "Запись в файл"
+        },
+        {
+          "type": "paragraph",
+          "text": "Для записи в файл используются `std::ofstream` или `std::fstream`. Данные записываются с помощью оператора `<<`, как при выводе в консоль. Для добавления данных в конец файла используется режим `std::ios::app`."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <fstream>\n#include <string>\n\nint main() {\n  std::ofstream file(\"example.txt\", std::ios::out);\n  if(file.is_open()) {\n    file << \"Name: Ali\\nScore: 85\\n\";\n    file.close();\n  } else {\n    std::cout << \"Failed to open file\\n\";\n  }\n  return 0;\n}\n// Output: Creates or overwrites example.txt with content \"Name: Ali\\nScore: 85\\n\""
+        },
+        {
+          "type": "heading",
+          "text": "Чтение из файла"
+        },
+        {
+          "type": "paragraph",
+          "text": "Для чтения из файла используются `std::ifstream` или `std::fstream`. Оператор `>>` читает отдельные слова, а `std::getline()` читает целые строки."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <fstream>\n#include <string>\n\nint main() {\n  std::ifstream file(\"example.txt\", std::ios::in);\n  std::string line;\n  if(file.is_open()) {\n    while(std::getline(file, line)) {\n      std::cout << line << std::endl;\n    }\n    file.close();\n  } else {\n    std::cout << \"Failed to open file\\n\";\n  }\n  return 0;\n}\n// Output (assuming example.txt exists):\n// Name: Ali\n// Score: 85"
+        },
+        {
+          "type": "heading",
+          "text": "Обработка ошибок"
+        },
+        {
+          "type": "paragraph",
+          "text": "Операции с файлами могут завершаться ошибками, например, из-за отсутствия файла или отсутствия прав на запись. Используйте `is_open()` для проверки успешного открытия файла и `eof()` для проверки достижения конца файла. Всегда проверяйте состояние файла для обработки ошибок."
+        },
+        {
+          "type": "heading",
+          "text": "Примеры из реальной жизни"
+        },
+        {
+          "type": "paragraph",
+          "text": "Работа с файлами используется в:\n- **Хранении данных**: Сохранение пользовательских данных (например, имён, оценок) в файле.\n- **Конфигурационных файлах**: Сохранение настроек приложения.\n- **Лог-файлах**: Запись активности программы.\n- **Экспорте данных**: Экспорт данных в формате CSV или текстовых файлов.\nНапример, приложение может сохранять оценки студентов в файл и восстанавливать их позже."
+        },
+        {
+          "type": "paragraph",
+          "text": "Работа с файлами повышает переносимость программ, так как данные сохраняются после завершения программы. Например, игра может сохранять очки игроков в файле."
+        },
+        {
+          "type": "heading",
+          "text": "Цель работы с файлами"
+        },
+        {
+          "type": "paragraph",
+          "text": "Работа с файлами обеспечивает долгосрочное хранение и восстановление данных, расширяет функциональность программ и упрощает обмен данными."
+        },
+        {
+          "type": "heading",
+          "text": "Основные характеристики"
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "term": "Чтение и запись",
+              "description": "Позволяет читать из файлов и записывать в файлы."
+            },
+            {
+              "term": "Режимы",
+              "description": "Различные режимы делают операции с файлами гибкими."
+            },
+            {
+              "term": "Обработка ошибок",
+              "description": "Позволяет проверять ошибки операций с файлами."
+            },
+            {
+              "term": "Переносимость",
+              "description": "Данные сохраняются после завершения программы."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "Опасности и рекомендации"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Опасности**: Невозможность открытия файла, неправильное использование режима или повреждение файла могут вызвать ошибки. Забыв закрыть файл, можно вызвать утечку ресурсов.\n- **Рекомендации**: Всегда проверяйте открытие файла с помощью `is_open()`, закрывайте файлы с помощью `close()` после использования, рассмотрите использование исключений для операций с файлами, используйте IDE, такие как Visual Studio или CLion."
+        },
+        {
+          "type": "paragraph",
+          "text": "Обратите внимание на различия между текстовыми и бинарными файлами. Текстовые файлы подходят для простого чтения/записи, а бинарные файлы используются для сложных данных (например, изображений)."
+        },
+        {
+          "type": "heading",
+          "text": "Попробуй сам"
+        },
+        {
+          "type": "editor",
+          "initialCode": "#include <iostream>\n#include <fstream>\n#include <string>\n\nint main() {\n  std::ofstream outfile(\"test.txt\", std::ios::out);\n  if(outfile.is_open()) {\n    outfile << \"Name: Veli\\nScore: 90\\n\";\n    outfile.close();\n  }\n  std::ifstream infile(\"test.txt\", std::ios::in);\n  std::string line;\n  if(infile.is_open()) {\n    while(std::getline(infile, line)) {\n      std::cout << line << std::endl;\n    }\n    infile.close();\n  } else {\n    std::cout << \"Failed to open file\\n\";\n  }\n  return 0;\n}\n// Output:\n// Name: Veli\n// Score: 90"
+        }
+      ]
+    }
+  }

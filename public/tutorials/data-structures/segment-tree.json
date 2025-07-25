@@ -1,0 +1,386 @@
+{
+  "id": "segment-tree",
+  "az": {
+    "title": "Segment Tree",
+    "icon": "FiGitBranch",
+    "language": "multiple",
+    "codes": {
+      "python": "class SegmentTree:\n    def __init__(self, arr):\n        self.arr = arr\n        self.n = len(arr)\n        self.tree = [0] * (4 * self.n)\n        self.build(0, 0, self.n - 1)\n\n    def build(self, node, start, end):\n        if start == end:\n            self.tree[node] = self.arr[start]\n            return\n        mid = (start + end) // 2\n        self.build(2 * node + 1, start, mid)\n        self.build(2 * node + 2, mid + 1, end)\n        self.tree[node] = self.tree[2 * node + 1] + self.tree[2 * node + 2]\n\n    def query(self, node, start, end, left, right):\n        if right < start or left > end:\n            return 0\n        if left <= start and right >= end:\n            return self.tree[node]\n        mid = (start + end) // 2\n        return self.query(2 * node + 1, start, mid, left, right) + \\\n               self.query(2 * node + 2, mid + 1, end, left, right)\n\n    def update(self, node, start, end, idx, val):\n        if start == end:\n            self.arr[idx] = val\n            self.tree[node] = val\n            return\n        mid = (start + end) // 2\n        if idx <= mid:\n            self.update(2 * node + 1, start, mid, idx, val)\n        else:\n            self.update(2 * node + 2, mid + 1, end, idx, val)\n        self.tree[node] = self.tree[2 * node + 1] + self.tree[2 * node + 2]\n\n# Example: Segment Tree operations\narr = [1, 3, 5, 7]\nst = SegmentTree(arr)\nprint('Sum of range [1, 2]:', st.query(0, 0, len(arr) - 1, 1, 2))\nst.update(0, 0, len(arr) - 1, 1, 10)\nprint('Sum of range [1, 2] after update:', st.query(0, 0, len(arr) - 1, 1, 2))\n# Output: Sum of range [1, 2]: 8\n# Output: Sum of range [1, 2] after update: 15",
+      "javascript": "class SegmentTree {\n    constructor(arr) {\n        this.arr = arr;\n        this.n = arr.length;\n        this.tree = new Array(4 * this.n).fill(0);\n        this.build(0, 0, this.n - 1);\n    }\n\n    build(node, start, end) {\n        if (start === end) {\n            this.tree[node] = this.arr[start];\n            return;\n        }\n        let mid = Math.floor((start + end) / 2);\n        this.build(2 * node + 1, start, mid);\n        this.build(2 * node + 2, mid + 1, end);\n        this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];\n    }\n\n    query(node, start, end, left, right) {\n        if (right < start || left > end) return 0;\n        if (left <= start && right >= end) return this.tree[node];\n        let mid = Math.floor((start + end) / 2);\n        return this.query(2 * node + 1, start, mid, left, right) +\n               this.query(2 * node + 2, mid + 1, end, left, right);\n    }\n\n    update(node, start, end, idx, val) {\n        if (start === end) {\n            this.arr[idx] = val;\n            this.tree[node] = val;\n            return;\n        }\n        let mid = Math.floor((start + end) / 2);\n        if (idx <= mid) {\n            this.update(2 * node + 1, start, mid, idx, val);\n        } else {\n            this.update(2 * node + 2, mid + 1, end, idx, val);\n        }\n        this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];\n    }\n}\n\n// Example: Segment Tree operations\nconst arr = [1, 3, 5, 7];\nconst st = new SegmentTree(arr);\nconsole.log('Sum of range [1, 2]:', st.query(0, 0, arr.length - 1, 1, 2));\nst.update(0, 0, arr.length - 1, 1, 10);\nconsole.log('Sum of range [1, 2] after update:', st.query(0, 0, arr.length - 1, 1, 2));\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "typescript": "class SegmentTree {\n    private arr: number[];\n    private n: number;\n    private tree: number[];\n\n    constructor(arr: number[]) {\n        this.arr = arr;\n        this.n = arr.length;\n        this.tree = new Array(4 * this.n).fill(0);\n        this.build(0, 0, this.n - 1);\n    }\n\n    private build(node: number, start: number, end: number): void {\n        if (start === end) {\n            this.tree[node] = this.arr[start];\n            return;\n        }\n        let mid = Math.floor((start + end) / 2);\n        this.build(2 * node + 1, start, mid);\n        this.build(2 * node + 2, mid + 1, end);\n        this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];\n    }\n\n    query(node: number, start: number, end: number, left: number, right: number): number {\n        if (right < start || left > end) return 0;\n        if (left <= start && right >= end) return this.tree[node];\n        let mid = Math.floor((start + end) / 2);\n        return this.query(2 * node + 1, start, mid, left, right) +\n               this.query(2 * node + 2, mid + 1, end, left, right);\n    }\n\n    update(node: number, start: number, end: number, idx: number, val: number): void {\n        if (start === end) {\n            this.arr[idx] = val;\n            this.tree[node] = val;\n            return;\n        }\n        let mid = Math.floor((start + end) / 2);\n        if (idx <= mid) {\n            this.update(2 * node + 1, start, mid, idx, val);\n        } else {\n            this.update(2 * node + 2, mid + 1, end, idx, val);\n        }\n        this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];\n    }\n}\n\n// Example: Segment Tree operations\nconst arr = [1, 3, 5, 7];\nconst st = new SegmentTree(arr);\nconsole.log('Sum of range [1, 2]:', st.query(0, 0, arr.length - 1, 1, 2));\nst.update(0, 0, arr.length - 1, 1, 10);\nconsole.log('Sum of range [1, 2] after update:', st.query(0, 0, arr.length - 1, 1, 2));\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "java": "class SegmentTree {\n    private int[] arr;\n    private int[] tree;\n    private int n;\n\n    public SegmentTree(int[] arr) {\n        this.arr = arr;\n        this.n = arr.length;\n        this.tree = new int[4 * n];\n        build(0, 0, n - 1);\n    }\n\n    private void build(int node, int start, int end) {\n        if (start == end) {\n            tree[node] = arr[start];\n            return;\n        }\n        int mid = (start + end) / 2;\n        build(2 * node + 1, start, mid);\n        build(2 * node + 2, mid + 1, end);\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n\n    public int query(int node, int start, int end, int left, int right) {\n        if (right < start || left > end) return 0;\n        if (left <= start && right >= end) return tree[node];\n        int mid = (start + end) / 2;\n        return query(2 * node + 1, start, mid, left, right) +\n               query(2 * node + 2, mid + 1, end, left, right);\n    }\n\n    public void update(int node, int start, int end, int idx, int val) {\n        if (start == end) {\n            arr[idx] = val;\n            tree[node] = val;\n            return;\n        }\n        int mid = (start + end) / 2;\n        if (idx <= mid) {\n            update(2 * node + 1, start, mid, idx, val);\n        } else {\n            update(2 * node + 2, mid + 1, end, idx, val);\n        }\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        int[] arr = {1, 3, 5, 7};\n        SegmentTree st = new SegmentTree(arr);\n        System.out.println(\"Sum of range [1, 2]: \" + st.query(0, 0, arr.length - 1, 1, 2));\n        st.update(0, 0, arr.length - 1, 1, 10);\n        System.out.println(\"Sum of range [1, 2] after update: \" + st.query(0, 0, arr.length - 1, 1, 2));\n    }\n}\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "php": "<?php\n\nclass SegmentTree {\n    private $arr;\n    private $tree;\n    private $n;\n\n    public function __construct($arr) {\n        $this->arr = $arr;\n        $this->n = count($arr);\n        $this->tree = array_fill(0, 4 * $this->n, 0);\n        $this->build(0, 0, $this->n - 1);\n    }\n\n    private function build($node, $start, $end) {\n        if ($start == $end) {\n            $this->tree[$node] = $this->arr[$start];\n            return;\n        }\n        $mid = (int)(($start + $end) / 2);\n        $this->build(2 * $node + 1, $start, $mid);\n        $this->build(2 * $node + 2, $mid + 1, $end);\n        $this->tree[$node] = $this->tree[2 * $node + 1] + $this->tree[2 * $node + 2];\n    }\n\n    public function query($node, $start, $end, $left, $right) {\n        if ($right < $start || $left > $end) return 0;\n        if ($left <= $start && $right >= $end) return $this->tree[$node];\n        $mid = (int)(($start + $end) / 2);\n        return $this->query(2 * $node + 1, $start, $mid, $left, $right) +\n               $this->query(2 * $node + 2, $mid + 1, $end, $left, $right);\n    }\n\n    public function update($node, $start, $end, $idx, $val) {\n        if ($start == $end) {\n            $this->arr[$idx] = $val;\n            $this->tree[$node] = $val;\n            return;\n        }\n        $mid = (int)(($start + $end) / 2);\n        if ($idx <= $mid) {\n            $this->update(2 * $node + 1, $start, $mid, $idx, $val);\n        } else {\n            $this->update(2 * $node + 2, $mid + 1, $end, $idx, $val);\n        }\n        $this->tree[$node] = $this->tree[2 * $node + 1] + $this->tree[2 * $node + 2];\n    }\n}\n\n// Example: Segment Tree operations\n$arr = [1, 3, 5, 7];\n$st = new SegmentTree($arr);\necho \"Sum of range [1, 2]: \" . $st->query(0, 0, count($arr) - 1, 1, 2) . \"\\n\";\n$st->update(0, 0, count($arr) - 1, 1, 10);\necho \"Sum of range [1, 2] after update: \" . $st->query(0, 0, count($arr) - 1, 1, 2) . \"\\n\";\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct SegmentTree {\n    int* arr;\n    int* tree;\n    int n;\n} SegmentTree;\n\nSegmentTree* createSegmentTree(int arr[], int n) {\n    SegmentTree* st = (SegmentTree*)malloc(sizeof(SegmentTree));\n    st->arr = (int*)malloc(n * sizeof(int));\n    st->n = n;\n    st->tree = (int*)calloc(4 * n, sizeof(int));\n    for (int i = 0; i < n; i++) st->arr[i] = arr[i];\n    return st;\n}\n\nvoid build(SegmentTree* st, int node, int start, int end) {\n    if (start == end) {\n        st->tree[node] = st->arr[start];\n        return;\n    }\n    int mid = (start + end) / 2;\n    build(st, 2 * node + 1, start, mid);\n    build(st, 2 * node + 2, mid + 1, end);\n    st->tree[node] = st->tree[2 * node + 1] + st->tree[2 * node + 2];\n}\n\nint query(SegmentTree* st, int node, int start, int end, int left, int right) {\n    if (right < start || left > end) return 0;\n    if (left <= start && right >= end) return st->tree[node];\n    int mid = (start + end) / 2;\n    return query(st, 2 * node + 1, start, mid, left, right) +\n           query(st, 2 * node + 2, mid + 1, end, left, right);\n}\n\nvoid update(SegmentTree* st, int node, int start, int end, int idx, int val) {\n    if (start == end) {\n        st->arr[idx] = val;\n        st->tree[node] = val;\n        return;\n    }\n    int mid = (start + end) / 2;\n    if (idx <= mid) {\n        update(st, 2 * node + 1, start, mid, idx, val);\n    } else {\n        update(st, 2 * node + 2, mid + 1, end, idx, val);\n    }\n    st->tree[node] = st->tree[2 * node + 1] + st->tree[2 * node + 2];\n}\n\nvoid freeSegmentTree(SegmentTree* st) {\n    free(st->arr);\n    free(st->tree);\n    free(st);\n}\n\nint main() {\n    int arr[] = {1, 3, 5, 7};\n    int n = sizeof(arr) / sizeof(arr[0]);\n    SegmentTree* st = createSegmentTree(arr, n);\n    build(st, 0, 0, n - 1);\n    printf(\"Sum of range [1, 2]: %d\\n\", query(st, 0, 0, n - 1, 1, 2));\n    update(st, 0, 0, n - 1, 1, 10);\n    printf(\"Sum of range [1, 2] after update: %d\\n\", query(st, 0, 0, n - 1, 1, 2));\n    freeSegmentTree(st);\n    return 0;\n}\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "csharp": "using System;\n\nclass SegmentTree {\n    private int[] arr;\n    private int[] tree;\n    private int n;\n\n    public SegmentTree(int[] arr) {\n        this.arr = arr;\n        this.n = arr.Length;\n        this.tree = new int[4 * n];\n        Build(0, 0, n - 1);\n    }\n\n    private void Build(int node, int start, int end) {\n        if (start == end) {\n            tree[node] = arr[start];\n            return;\n        }\n        int mid = (start + end) / 2;\n        Build(2 * node + 1, start, mid);\n        Build(2 * node + 2, mid + 1, end);\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n\n    public int Query(int node, int start, int end, int left, int right) {\n        if (right < start || left > end) return 0;\n        if (left <= start && right >= end) return tree[node];\n        int mid = (start + end) / 2;\n        return Query(2 * node + 1, start, mid, left, right) +\n               Query(2 * node + 2, mid + 1, end, left, right);\n    }\n\n    public void Update(int node, int start, int end, int idx, int val) {\n        if (start == end) {\n            arr[idx] = val;\n            tree[node] = val;\n            return;\n        }\n        int mid = (start + end) / 2;\n        if (idx <= mid) {\n            Update(2 * node + 1, start, mid, idx, val);\n        } else {\n            Update(2 * node + 2, mid + 1, end, idx, val);\n        }\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n}\n\nclass Program {\n    static void Main() {\n        int[] arr = { 1, 3, 5, 7 };\n        SegmentTree st = new SegmentTree(arr);\n        Console.WriteLine(\"Sum of range [1, 2]: \" + st.Query(0, 0, arr.Length - 1, 1, 2));\n        st.Update(0, 0, arr.Length - 1, 1, 10);\n        Console.WriteLine(\"Sum of range [1, 2] after update: \" + st.Query(0, 0, arr.Length - 1, 1, 2));\n    }\n}\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "cpp": "#include <iostream>\n#include <vector>\n\nclass SegmentTree {\nprivate:\n    std::vector<int> arr;\n    std::vector<int> tree;\n    int n;\n\n    void build(int node, int start, int end) {\n        if (start == end) {\n            tree[node] = arr[start];\n            return;\n        }\n        int mid = (start + end) / 2;\n        build(2 * node + 1, start, mid);\n        build(2 * node + 2, mid + 1, end);\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n\npublic:\n    SegmentTree(const std::vector<int>& input) {\n        arr = input;\n        n = arr.size();\n        tree.resize(4 * n, 0);\n        build(0, 0, n - 1);\n    }\n\n    int query(int node, int start, int end, int left, int right) {\n        if (right < start || left > end) return 0;\n        if (left <= start && right >= end) return tree[node];\n        int mid = (start + end) / 2;\n        return query(2 * node + 1, start, mid, left, right) +\n               query(2 * node + 2, mid + 1, end, left, right);\n    }\n\n    void update(int node, int start, int end, int idx, int val) {\n        if (start == end) {\n            arr[idx] = val;\n            tree[node] = val;\n            return;\n        }\n        int mid = (start + end) / 2;\n        if (idx <= mid) {\n            update(2 * node + 1, start, mid, idx, val);\n        } else {\n            update(2 * node + 2, mid + 1, end, idx, val);\n        }\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n};\n\nint main() {\n    std::vector<int> arr = {1, 3, 5, 7};\n    SegmentTree st(arr);\n    std::cout << \"Sum of range [1, 2]: \" << st.query(0, 0, arr.size() - 1, 1, 2) << \"\\n\";\n    st.update(0, 0, arr.size() - 1, 1, 10);\n    std::cout << \"Sum of range [1, 2] after update: \" << st.query(0, 0, arr.size() - 1, 1, 2) << \"\\n\";\n    return 0;\n}\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15"
+    },
+    "description": "Segment ağacı və onun tətbiqləri haqqında ümumi məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Segment Tree nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Segment Tree (Seqment Ağacı) massiv üzərində aralıq sorğularını (məsələn, cəm, minimum, maksimum) və yeniləmələri effektiv şəkildə icra etmək üçün istifadə olunan ikili ağac tipli məlumat strukturudur. Yuxarıdakı nümunədə [1, 3, 5, 7] massivi üçün Segment Tree qurulur, [1, 2] aralığında cəm 8, 1-ci indeksi 10-a yenilədikdən sonra isə 15 qaytarır."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas Terminlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Node: Ağacın düyünü, aralığın məlumatını saxlayır (yuxarıdakı tree)."
+          },
+          {
+            "description": "Build: Massivdən Segment Tree qurma (yuxarıdakı build funksiyası)."
+          },
+          {
+            "description": "Query: Verilmiş aralıqda sorğu icra etmək (yuxarıdakı query funksiyası)."
+          },
+          {
+            "description": "Update: Müəyyən indeksdə dəyəri yeniləmək (yuxarıdakı update funksiyası)."
+          },
+          { "description": "Leaf Node: Tək elementə uyğun gələn düyün." },
+          {
+            "description": "Internal Node: Alt aralıqların aqreqatını saxlayan düyün."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Segment Tree Növləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Segment Tree müxtəlif formalarda olur: 1) **Standart Segment Tree**: Cəm, minimum və ya maksimum kimi sorğuları dəstəkləyir (yuxarıdakı nümunədə cəm üçün). 2) **Lazy Propagation Segment Tree**: Aralıq yeniləmələri üçün optimallaşdırılmışdır. 3) **Persistent Segment Tree**: Keçmiş versiyaları saxlayır. 4) **2D Segment Tree**: İkiölçülü massivlər üçün."
+      },
+      {
+        "type": "heading",
+        "text": "Segment Tree nə üçün lazımdır?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Segment Tree massiv üzərində aralıq sorğularını və yeniləmələri sürətlə icra etmək üçün istifadə olunur. Böyük məlumat dəstlərində effektiv işləyir və dinamik sorğular üçün idealdır."
+      },
+      {
+        "type": "heading",
+        "text": "Segment Tree nəyə kömək edir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Segment Tree aşağıdakı sahələrdə kömək edir: 1) **Aralıq Sorğuları**: Cəm, minimum, maksimum tapmaq (yuxarıdakı query funksiyası). 2) **Dinamik Yeniləmələr**: Tək element və ya aralıq yeniləmələri (yuxarıdakı update funksiyası). 3) **Məlumat Təhlili**: Böyük verilənlər bazalarında statistik sorğular. 4) **Alqoritmlər**: Rəqabətli proqramlaşdırma problemlərində istifadə."
+      },
+      {
+        "type": "heading",
+        "text": "Segment Tree-nin Səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Segment Tree-nin qurulması O(n log n) vaxt tələb edir (n massiv uzunluğu). Query və update əməliyyatları O(log n) vaxt aparır. Məkan mürəkkəbliyi O(n) təşkil edir. Yuxarıdakı nümunədə build, query və update effektiv işləyir."
+      },
+      {
+        "type": "heading",
+        "text": "Üstünlüklər və Mənfi Cəhətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Üstünlük: Aralıq sorğuları və yeniləmələri O(log n) vaxtda icra edir."
+          },
+          {
+            "description": "Üstünlük: Çoxsaylı sorğu tiplərini (cəm, min, max) dəstəkləyir."
+          },
+          {
+            "description": "Üstünlük: Dinamik məlumat dəstləri üçün uyğundur."
+          },
+          { "description": "Mənfi cəhət: Tətbiqi mürəkkəb ola bilər." },
+          { "description": "Mənfi cəhət: Əlavə yaddaş tələb edir (O(n))." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real Həyatda İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Segment Tree geniş tətbiq sahəsinə malikdir: 1) **Verilənlər Bazaları**: Aralıq sorğuları və dinamik yeniləmələr. 2) **Rəqabətli Proqramlaşdırma**: Alqoritmik problemlərin həlli. 3) **Məlumat Təhlili**: Böyük verilənlər üzərində statistik sorğular. 4) **Qrafik Emalı**: Piksel aralıqlarının təhlili. Yuxarıdakı query funksiyası aralıq cəmini simulyasiya edir."
+      },
+      {
+        "type": "heading",
+        "text": "Optimallaşdırma Strategiyaları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Segment Tree performansını artırmaq üçün: 1) **Lazy Propagation**: Aralıq yeniləmələrini optimallaşdırın. 2) **Kəşləmə**: Tez-tez istifadə olunan sorğuları kəşləyin. 3) **Yaddaş İdarəetməsi**: Dinamik yaddaş ayırmadan istifadə edin. 4) **Paralel Emal**: Böyük məlumatlarda paralel sorğular tətbiq edin. 5) **Səmərəli Alqoritmlər**: Query və update alqoritmlərini optimallaşdırın."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əsas təhlükələrə daxildir: 1) **Mürəkkəblik**: Tətbiq və debugging çətin ola bilər. 2) **Yaddaş İstifadəsi**: Böyük massivlər üçün əlavə yaddaş tələb edir. 3) **Performans**: Böyük məlumatlarda yavaşlama riski. Tövsiyələr: 1) Lazy Propagation istifadə edin. 2) Yaddaş istifadəsini optimallaşdırın. 3) Kodları böyük məlumatlarla test edin."
+      }
+    ]
+  },
+  "en": {
+    "title": "Segment Tree",
+    "icon": "FiGitBranch",
+    "language": "multiple",
+    "codes": {
+      "python": "class SegmentTree:\n    def __init__(self, arr):\n        self.arr = arr\n        self.n = len(arr)\n        self.tree = [0] * (4 * self.n)\n        self.build(0, 0, self.n - 1)\n\n    def build(self, node, start, end):\n        if start == end:\n            self.tree[node] = self.arr[start]\n            return\n        mid = (start + end) // 2\n        self.build(2 * node + 1, start, mid)\n        self.build(2 * node + 2, mid + 1, end)\n        self.tree[node] = self.tree[2 * node + 1] + self.tree[2 * node + 2]\n\n    def query(self, node, start, end, left, right):\n        if right < start or left > end:\n            return 0\n        if left <= start and right >= end:\n            return self.tree[node]\n        mid = (start + end) // 2\n        return self.query(2 * node + 1, start, mid, left, right) + \\\n               self.query(2 * node + 2, mid + 1, end, left, right)\n\n    def update(self, node, start, end, idx, val):\n        if start == end:\n            self.arr[idx] = val\n            self.tree[node] = val\n            return\n        mid = (start + end) // 2\n        if idx <= mid:\n            self.update(2 * node + 1, start, mid, idx, val)\n        else:\n            self.update(2 * node + 2, mid + 1, end, idx, val)\n        self.tree[node] = self.tree[2 * node + 1] + self.tree[2 * node + 2]\n\n# Example: Segment Tree operations\narr = [1, 3, 5, 7]\nst = SegmentTree(arr)\nprint('Sum of range [1, 2]:', st.query(0, 0, len(arr) - 1, 1, 2))\nst.update(0, 0, len(arr) - 1, 1, 10)\nprint('Sum of range [1, 2] after update:', st.query(0, 0, len(arr) - 1, 1, 2))\n# Output: Sum of range [1, 2]: 8\n# Output: Sum of range [1, 2] after update: 15",
+      "javascript": "class SegmentTree {\n    constructor(arr) {\n        this.arr = arr;\n        this.n = arr.length;\n        this.tree = new Array(4 * this.n).fill(0);\n        this.build(0, 0, this.n - 1);\n    }\n\n    build(node, start, end) {\n        if (start === end) {\n            this.tree[node] = this.arr[start];\n            return;\n        }\n        let mid = Math.floor((start + end) / 2);\n        this.build(2 * node + 1, start, mid);\n        this.build(2 * node + 2, mid + 1, end);\n        this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];\n    }\n\n    query(node, start, end, left, right) {\n        if (right < start || left > end) return 0;\n        if (left <= start && right >= end) return this.tree[node];\n        let mid = Math.floor((start + end) / 2);\n        return this.query(2 * node + 1, start, mid, left, right) +\n               this.query(2 * node + 2, mid + 1, end, left, right);\n    }\n\n    update(node, start, end, idx, val) {\n        if (start === end) {\n            this.arr[idx] = val;\n            this.tree[node] = val;\n            return;\n        }\n        let mid = Math.floor((start + end) / 2);\n        if (idx <= mid) {\n            this.update(2 * node + 1, start, mid, idx, val);\n        } else {\n            this.update(2 * node + 2, mid + 1, end, idx, val);\n        }\n        this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];\n    }\n}\n\n// Example: Segment Tree operations\nconst arr = [1, 3, 5, 7];\nconst st = new SegmentTree(arr);\nconsole.log('Sum of range [1, 2]:', st.query(0, 0, arr.length - 1, 1, 2));\nst.update(0, 0, arr.length - 1, 1, 10);\nconsole.log('Sum of range [1, 2] after update:', st.query(0, 0, arr.length - 1, 1, 2));\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "typescript": "class SegmentTree {\n    private arr: number[];\n    private n: number;\n    private tree: number[];\n\n    constructor(arr: number[]) {\n        this.arr = arr;\n        this.n = arr.length;\n        this.tree = new Array(4 * this.n).fill(0);\n        this.build(0, 0, this.n - 1);\n    }\n\n    private build(node: number, start: number, end: number): void {\n        if (start === end) {\n            this.tree[node] = this.arr[start];\n            return;\n        }\n        let mid = Math.floor((start + end) / 2);\n        this.build(2 * node + 1, start, mid);\n        this.build(2 * node + 2, mid + 1, end);\n        this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];\n    }\n\n    query(node: number, start: number, end: number, left: number, right: number): number {\n        if (right < start || left > end) return 0;\n        if (left <= start && right >= end) return this.tree[node];\n        let mid = Math.floor((start + end) / 2);\n        return this.query(2 * node + 1, start, mid, left, right) +\n               this.query(2 * node + 2, mid + 1, end, left, right);\n    }\n\n    update(node: number, start: number, end: number, idx: number, val: number): void {\n        if (start === end) {\n            this.arr[idx] = val;\n            this.tree[node] = val;\n            return;\n        }\n        let mid = Math.floor((start + end) / 2);\n        if (idx <= mid) {\n            this.update(2 * node + 1, start, mid, idx, val);\n        } else {\n            this.update(2 * node + 2, mid + 1, end, idx, val);\n        }\n        this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];\n    }\n}\n\n// Example: Segment Tree operations\nconst arr = [1, 3, 5, 7];\nconst st = new SegmentTree(arr);\nconsole.log('Sum of range [1, 2]:', st.query(0, 0, arr.length - 1, 1, 2));\nst.update(0, 0, arr.length - 1, 1, 10);\nconsole.log('Sum of range [1, 2] after update:', st.query(0, 0, arr.length - 1, 1, 2));\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "java": "class SegmentTree {\n    private int[] arr;\n    private int[] tree;\n    private int n;\n\n    public SegmentTree(int[] arr) {\n        this.arr = arr;\n        this.n = arr.length;\n        this.tree = new int[4 * n];\n        build(0, 0, n - 1);\n    }\n\n    private void build(int node, int start, int end) {\n        if (start == end) {\n            tree[node] = arr[start];\n            return;\n        }\n        int mid = (start + end) / 2;\n        build(2 * node + 1, start, mid);\n        build(2 * node + 2, mid + 1, end);\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n\n    public int query(int node, int start, int end, int left, int right) {\n        if (right < start || left > end) return 0;\n        if (left <= start && right >= end) return tree[node];\n        int mid = (start + end) / 2;\n        return query(2 * node + 1, start, mid, left, right) +\n               query(2 * node + 2, mid + 1, end, left, right);\n    }\n\n    public void update(int node, int start, int end, int idx, int val) {\n        if (start == end) {\n            arr[idx] = val;\n            tree[node] = val;\n            return;\n        }\n        int mid = (start + end) / 2;\n        if (idx <= mid) {\n            update(2 * node + 1, start, mid, idx, val);\n        } else {\n            update(2 * node + 2, mid + 1, end, idx, val);\n        }\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        int[] arr = {1, 3, 5, 7};\n        SegmentTree st = new SegmentTree(arr);\n        System.out.println(\"Sum of range [1, 2]: \" + st.query(0, 0, arr.length - 1, 1, 2));\n        st.update(0, 0, arr.length - 1, 1, 10);\n        System.out.println(\"Sum of range [1, 2] after update: \" + st.query(0, 0, arr.length - 1, 1, 2));\n    }\n}\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "php": "<?php\n\nclass SegmentTree {\n    private $arr;\n    private $tree;\n    private $n;\n\n    public function __construct($arr) {\n        $this->arr = $arr;\n        $this->n = count($arr);\n        $this->tree = array_fill(0, 4 * $this->n, 0);\n        $this->build(0, 0, $this->n - 1);\n    }\n\n    private function build($node, $start, $end) {\n        if ($start == $end) {\n            $this->tree[$node] = $this->arr[$start];\n            return;\n        }\n        $mid = (int)(($start + $end) / 2);\n        $this->build(2 * $node + 1, $start, $mid);\n        $this->build(2 * $node + 2, $mid + 1, $end);\n        $this->tree[$node] = $this->tree[2 * $node + 1] + $this->tree[2 * $node + 2];\n    }\n\n    public function query($node, $start, $end, $left, $right) {\n        if ($right < $start || $left > $end) return 0;\n        if ($left <= $start && $right >= $end) return $this->tree[$node];\n        $mid = (int)(($start + $end) / 2);\n        return $this->query(2 * $node + 1, $start, $mid, $left, $right) +\n               $this->query(2 * $node + 2, $mid + 1, $end, $left, $right);\n    }\n\n    public function update($node, $start, $end, $idx, $val) {\n        if ($start == $end) {\n            $this->arr[$idx] = $val;\n            $this->tree[$node] = $val;\n            return;\n        }\n        $mid = (int)(($start + $end) / 2);\n        if ($idx <= $mid) {\n            $this->update(2 * $node + 1, $start, $mid, $idx, $val);\n        } else {\n            $this->update(2 * $node + 2, $mid + 1, $end, $idx, $val);\n        }\n        $this->tree[$node] = $this->tree[2 * $node + 1] + $this->tree[2 * $node + 2];\n    }\n}\n\n// Example: Segment Tree operations\n$arr = [1, 3, 5, 7];\n$st = new SegmentTree($arr);\necho \"Sum of range [1, 2]: \" . $st->query(0, 0, count($arr) - 1, 1, 2) . \"\\n\";\n$st->update(0, 0, count($arr) - 1, 1, 10);\necho \"Sum of range [1, 2] after update: \" . $st->query(0, 0, count($arr) - 1, 1, 2) . \"\\n\";\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct SegmentTree {\n    int* arr;\n    int* tree;\n    int n;\n} SegmentTree;\n\nSegmentTree* createSegmentTree(int arr[], int n) {\n    SegmentTree* st = (SegmentTree*)malloc(sizeof(SegmentTree));\n    st->arr = (int*)malloc(n * sizeof(int));\n    st->n = n;\n    st->tree = (int*)calloc(4 * n, sizeof(int));\n    for (int i = 0; i < n; i++) st->arr[i] = arr[i];\n    return st;\n}\n\nvoid build(SegmentTree* st, int node, int start, int end) {\n    if (start == end) {\n        st->tree[node] = st->arr[start];\n        return;\n    }\n    int mid = (start + end) / 2;\n    build(st, 2 * node + 1, start, mid);\n    build(st, 2 * node + 2, mid + 1, end);\n    st->tree[node] = st->tree[2 * node + 1] + st->tree[2 * node + 2];\n}\n\nint query(SegmentTree* st, int node, int start, int end, int left, int right) {\n    if (right < start || left > end) return 0;\n    if (left <= start && right >= end) return st->tree[node];\n    int mid = (start + end) / 2;\n    return query(st, 2 * node + 1, start, mid, left, right) +\n           query(st, 2 * node + 2, mid + 1, end, left, right);\n}\n\nvoid update(SegmentTree* st, int node, int start, int end, int idx, int val) {\n    if (start == end) {\n        st->arr[idx] = val;\n        st->tree[node] = val;\n        return;\n    }\n    int mid = (start + end) / 2;\n    if (idx <= mid) {\n        update(st, 2 * node + 1, start, mid, idx, val);\n    } else {\n        update(st, 2 * node + 2, mid + 1, end, idx, val);\n    }\n    st->tree[node] = st->tree[2 * node + 1] + st->tree[2 * node + 2];\n}\n\nvoid freeSegmentTree(SegmentTree* st) {\n    free(st->arr);\n    free(st->tree);\n    free(st);\n}\n\nint main() {\n    int arr[] = {1, 3, 5, 7};\n    int n = sizeof(arr) / sizeof(arr[0]);\n    SegmentTree* st = createSegmentTree(arr, n);\n    build(st, 0, 0, n - 1);\n    printf(\"Sum of range [1, 2]: %d\\n\", query(st, 0, 0, n - 1, 1, 2));\n    update(st, 0, 0, n - 1, 1, 10);\n    printf(\"Sum of range [1, 2] after update: %d\\n\", query(st, 0, 0, n - 1, 1, 2));\n    freeSegmentTree(st);\n    return 0;\n}\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "csharp": "using System;\n\nclass SegmentTree {\n    private int[] arr;\n    private int[] tree;\n    private int n;\n\n    public SegmentTree(int[] arr) {\n        this.arr = arr;\n        this.n = arr.Length;\n        this.tree = new int[4 * n];\n        Build(0, 0, n - 1);\n    }\n\n    private void Build(int node, int start, int end) {\n        if (start == end) {\n            tree[node] = arr[start];\n            return;\n        }\n        int mid = (start + end) / 2;\n        Build(2 * node + 1, start, mid);\n        Build(2 * node + 2, mid + 1, end);\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n\n    public int Query(int node, int start, int end, int left, int right) {\n        if (right < start || left > end) return 0;\n        if (left <= start && right >= end) return tree[node];\n        int mid = (start + end) / 2;\n        return Query(2 * node + 1, start, mid, left, right) +\n               Query(2 * node + 2, mid + 1, end, left, right);\n    }\n\n    public void Update(int node, int start, int end, int idx, int val) {\n        if (start == end) {\n            arr[idx] = val;\n            tree[node] = val;\n            return;\n        }\n        int mid = (start + end) / 2;\n        if (idx <= mid) {\n            Update(2 * node + 1, start, mid, idx, val);\n        } else {\n            Update(2 * node + 2, mid + 1, end, idx, val);\n        }\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n}\n\nclass Program {\n    static void Main() {\n        int[] arr = { 1, 3, 5, 7 };\n        SegmentTree st = new SegmentTree(arr);\n        Console.WriteLine(\"Sum of range [1, 2]: \" + st.Query(0, 0, arr.Length - 1, 1, 2));\n        st.Update(0, 0, arr.Length - 1, 1, 10);\n        Console.WriteLine(\"Sum of range [1, 2] after update: \" + st.Query(0, 0, arr.Length - 1, 1, 2));\n    }\n}\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "cpp": "#include <iostream>\n#include <vector>\n\nclass SegmentTree {\nprivate:\n    std::vector<int> arr;\n    std::vector<int> tree;\n    int n;\n\n    void build(int node, int start, int end) {\n        if (start == end) {\n            tree[node] = arr[start];\n            return;\n        }\n        int mid = (start + end) / 2;\n        build(2 * node + 1, start, mid);\n        build(2 * node + 2, mid + 1, end);\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n\npublic:\n    SegmentTree(const std::vector<int>& input) {\n        arr = input;\n        n = arr.size();\n        tree.resize(4 * n, 0);\n        build(0, 0, n - 1);\n    }\n\n    int query(int node, int start, int end, int left, int right) {\n        if (right < start || left > end) return 0;\n        if (left <= start && right >= end) return tree[node];\n        int mid = (start + end) / 2;\n        return query(2 * node + 1, start, mid, left, right) +\n               query(2 * node + 2, mid + 1, end, left, right);\n    }\n\n    void update(int node, int start, int end, int idx, int val) {\n        if (start == end) {\n            arr[idx] = val;\n            tree[node] = val;\n            return;\n        }\n        int mid = (start + end) / 2;\n        if (idx <= mid) {\n            update(2 * node + 1, start, mid, idx, val);\n        } else {\n            update(2 * node + 2, mid + 1, end, idx, val);\n        }\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n};\n\nint main() {\n    std::vector<int> arr = {1, 3, 5, 7};\n    SegmentTree st(arr);\n    std::cout << \"Sum of range [1, 2]: \" << st.query(0, 0, arr.size() - 1, 1, 2) << \"\\n\";\n    st.update(0, 0, arr.size() - 1, 1, 10);\n    std::cout << \"Sum of range [1, 2] after update: \" << st.query(0, 0, arr.size() - 1, 1, 2) << \"\\n\";\n    return 0;\n}\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15"
+    },
+    "description": "Overview of Segment Tree and its applications.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is a Segment Tree?"
+      },
+      {
+        "type": "paragraph",
+        "text": "A Segment Tree is a binary tree-like data structure used to efficiently handle range queries (e.g., sum, minimum, maximum) and updates on an array. In the example above, a Segment Tree is built for the array [1, 3, 5, 7], querying the sum over range [1, 2] returns 8, and after updating index 1 to 10, the sum becomes 15."
+      },
+      {
+        "type": "heading",
+        "text": "Key Terminology"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Node: A tree node storing information about a range (used as tree above)."
+          },
+          {
+            "description": "Build: Constructing the Segment Tree from an array (shown in the build function above)."
+          },
+          {
+            "description": "Query: Performing a range query (shown in the query function above)."
+          },
+          {
+            "description": "Update: Updating a single element (shown in the update function above)."
+          },
+          {
+            "description": "Leaf Node: A node corresponding to a single array element."
+          },
+          {
+            "description": "Internal Node: A node storing the aggregate of its child ranges."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Types of Segment Trees"
+      },
+      {
+        "type": "paragraph",
+        "text": "Segment Trees come in various forms: 1) **Standard Segment Tree**: Supports sum, min, or max queries (sum in the example). 2) **Lazy Propagation Segment Tree**: Optimized for range updates. 3) **Persistent Segment Tree**: Maintains historical versions. 4) **2D Segment Tree**: For two-dimensional arrays."
+      },
+      {
+        "type": "heading",
+        "text": "Why are Segment Trees Needed?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Segment Trees enable fast range queries and updates on arrays, making them ideal for large datasets and dynamic queries."
+      },
+      {
+        "type": "heading",
+        "text": "What Do Segment Trees Help With?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Segment Trees support various tasks: 1) **Range Queries**: Finding sum, min, or max (shown in the query function). 2) **Dynamic Updates**: Single or range updates (shown in the update function). 3) **Data Analysis**: Statistical queries on large datasets. 4) **Algorithms**: Used in competitive programming problems."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of Segment Trees (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Building a Segment Tree takes O(n log n) time (n is the array length). Query and update operations take O(log n) time. Space complexity is O(n). The example’s build, query, and update operations are efficient."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Advantage: Performs range queries and updates in O(log n) time."
+          },
+          {
+            "description": "Advantage: Supports multiple query types (sum, min, max)."
+          },
+          { "description": "Advantage: Suitable for dynamic datasets." },
+          { "description": "Disadvantage: Implementation can be complex." },
+          { "description": "Disadvantage: Requires additional memory (O(n))." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real-Life Applications"
+      },
+      {
+        "type": "paragraph",
+        "text": "Segment Trees are widely used: 1) **Databases**: Range queries and dynamic updates. 2) **Competitive Programming**: Solving algorithmic problems. 3) **Data Analysis**: Statistical queries on large datasets. 4) **Graphics Processing**: Analyzing pixel ranges. The query function in the example simulates range sum queries."
+      },
+      {
+        "type": "heading",
+        "text": "Optimization Strategies"
+      },
+      {
+        "type": "paragraph",
+        "text": "To optimize Segment Trees: 1) **Lazy Propagation**: Optimize range updates. 2) **Caching**: Cache frequent queries. 3) **Memory Management**: Use dynamic memory allocation. 4) **Parallel Processing**: Apply parallel queries for large datasets. 5) **Efficient Algorithms**: Optimize query and update algorithms."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Key risks include: 1) **Complexity**: Implementation and debugging can be challenging. 2) **Memory Usage**: Requires additional memory for large arrays. 3) **Performance**: Risk of slowdown with large datasets. Recommendations: 1) Use Lazy Propagation for range updates. 2) Optimize memory usage. 3) Test code with large datasets."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Segment Tree",
+    "icon": "FiGitBranch",
+    "language": "multiple",
+    "codes": {
+      "python": "class SegmentTree:\n    def __init__(self, arr):\n        self.arr = arr\n        self.n = len(arr)\n        self.tree = [0] * (4 * self.n)\n        self.build(0, 0, self.n - 1)\n\n    def build(self, node, start, end):\n        if start == end:\n            self.tree[node] = self.arr[start]\n            return\n        mid = (start + end) // 2\n        self.build(2 * node + 1, start, mid)\n        self.build(2 * node + 2, mid + 1, end)\n        self.tree[node] = self.tree[2 * node + 1] + self.tree[2 * node + 2]\n\n    def query(self, node, start, end, left, right):\n        if right < start or left > end:\n            return 0\n        if left <= start and right >= end:\n            return self.tree[node]\n        mid = (start + end) // 2\n        return self.query(2 * node + 1, start, mid, left, right) + \\\n               self.query(2 * node + 2, mid + 1, end, left, right)\n\n    def update(self, node, start, end, idx, val):\n        if start == end:\n            self.arr[idx] = val\n            self.tree[node] = val\n            return\n        mid = (start + end) // 2\n        if idx <= mid:\n            self.update(2 * node + 1, start, mid, idx, val)\n        else:\n            self.update(2 * node + 2, mid + 1, end, idx, val)\n        self.tree[node] = self.tree[2 * node + 1] + self.tree[2 * node + 2]\n\n# Example: Segment Tree operations\narr = [1, 3, 5, 7]\nst = SegmentTree(arr)\nprint('Sum of range [1, 2]:', st.query(0, 0, len(arr) - 1, 1, 2))\nst.update(0, 0, len(arr) - 1, 1, 10)\nprint('Sum of range [1, 2] after update:', st.query(0, 0, len(arr) - 1, 1, 2))\n# Output: Sum of range [1, 2]: 8\n# Output: Sum of range [1, 2] after update: 15",
+      "javascript": "class SegmentTree {\n    constructor(arr) {\n        this.arr = arr;\n        this.n = arr.length;\n        this.tree = new Array(4 * this.n).fill(0);\n        this.build(0, 0, this.n - 1);\n    }\n\n    build(node, start, end) {\n        if (start === end) {\n            this.tree[node] = this.arr[start];\n            return;\n        }\n        let mid = Math.floor((start + end) / 2);\n        this.build(2 * node + 1, start, mid);\n        this.build(2 * node + 2, mid + 1, end);\n        this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];\n    }\n\n    query(node, start, end, left, right) {\n        if (right < start || left > end) return 0;\n        if (left <= start && right >= end) return this.tree[node];\n        let mid = Math.floor((start + end) / 2);\n        return this.query(2 * node + 1, start, mid, left, right) +\n               this.query(2 * node + 2, mid + 1, end, left, right);\n    }\n\n    update(node, start, end, idx, val) {\n        if (start === end) {\n            this.arr[idx] = val;\n            this.tree[node] = val;\n            return;\n        }\n        let mid = Math.floor((start + end) / 2);\n        if (idx <= mid) {\n            this.update(2 * node + 1, start, mid, idx, val);\n        } else {\n            this.update(2 * node + 2, mid + 1, end, idx, val);\n        }\n        this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];\n    }\n}\n\n// Example: Segment Tree operations\nconst arr = [1, 3, 5, 7];\nconst st = new SegmentTree(arr);\nconsole.log('Sum of range [1, 2]:', st.query(0, 0, arr.length - 1, 1, 2));\nst.update(0, 0, arr.length - 1, 1, 10);\nconsole.log('Sum of range [1, 2] after update:', st.query(0, 0, arr.length - 1, 1, 2));\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "typescript": "class SegmentTree {\n    private arr: number[];\n    private n: number;\n    private tree: number[];\n\n    constructor(arr: number[]) {\n        this.arr = arr;\n        this.n = arr.length;\n        this.tree = new Array(4 * this.n).fill(0);\n        this.build(0, 0, this.n - 1);\n    }\n\n    private build(node: number, start: number, end: number): void {\n        if (start === end) {\n            this.tree[node] = this.arr[start];\n            return;\n        }\n        let mid = Math.floor((start + end) / 2);\n        this.build(2 * node + 1, start, mid);\n        this.build(2 * node + 2, mid + 1, end);\n        this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];\n    }\n\n    query(node: number, start: number, end: number, left: number, right: number): number {\n        if (right < start || left > end) return 0;\n        if (left <= start && right >= end) return this.tree[node];\n        let mid = Math.floor((start + end) / 2);\n        return this.query(2 * node + 1, start, mid, left, right) +\n               this.query(2 * node + 2, mid + 1, end, left, right);\n    }\n\n    update(node: number, start: number, end: number, idx: number, val: number): void {\n        if (start === end) {\n            this.arr[idx] = val;\n            this.tree[node] = val;\n            return;\n        }\n        let mid = Math.floor((start + end) / 2);\n        if (idx <= mid) {\n            this.update(2 * node + 1, start, mid, idx, val);\n        } else {\n            this.update(2 * node + 2, mid + 1, end, idx, val);\n        }\n        this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];\n    }\n}\n\n// Example: Segment Tree operations\nconst arr = [1, 3, 5, 7];\nconst st = new SegmentTree(arr);\nconsole.log('Sum of range [1, 2]:', st.query(0, 0, arr.length - 1, 1, 2));\nst.update(0, 0, arr.length - 1, 1, 10);\nconsole.log('Sum of range [1, 2] after update:', st.query(0, 0, arr.length - 1, 1, 2));\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "java": "class SegmentTree {\n    private int[] arr;\n    private int[] tree;\n    private int n;\n\n    public SegmentTree(int[] arr) {\n        this.arr = arr;\n        this.n = arr.length;\n        this.tree = new int[4 * n];\n        build(0, 0, n - 1);\n    }\n\n    private void build(int node, int start, int end) {\n        if (start == end) {\n            tree[node] = arr[start];\n            return;\n        }\n        int mid = (start + end) / 2;\n        build(2 * node + 1, start, mid);\n        build(2 * node + 2, mid + 1, end);\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n\n    public int query(int node, int start, int end, int left, int right) {\n        if (right < start || left > end) return 0;\n        if (left <= start && right >= end) return tree[node];\n        int mid = (start + end) / 2;\n        return query(2 * node + 1, start, mid, left, right) +\n               query(2 * node + 2, mid + 1, end, left, right);\n    }\n\n    public void update(int node, int start, int end, int idx, int val) {\n        if (start == end) {\n            arr[idx] = val;\n            tree[node] = val;\n            return;\n        }\n        int mid = (start + end) / 2;\n        if (idx <= mid) {\n            update(2 * node + 1, start, mid, idx, val);\n        } else {\n            update(2 * node + 2, mid + 1, end, idx, val);\n        }\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n}\n\nclass Main {\n    public static void main(String[] args) {\n        int[] arr = {1, 3, 5, 7};\n        SegmentTree st = new SegmentTree(arr);\n        System.out.println(\"Sum of range [1, 2]: \" + st.query(0, 0, arr.length - 1, 1, 2));\n        st.update(0, 0, arr.length - 1, 1, 10);\n        System.out.println(\"Sum of range [1, 2] after update: \" + st.query(0, 0, arr.length - 1, 1, 2));\n    }\n}\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "php": "<?php\n\nclass SegmentTree {\n    private $arr;\n    private $tree;\n    private $n;\n\n    public function __construct($arr) {\n        $this->arr = $arr;\n        $this->n = count($arr);\n        $this->tree = array_fill(0, 4 * $this->n, 0);\n        $this->build(0, 0, $this->n - 1);\n    }\n\n    private function build($node, $start, $end) {\n        if ($start == $end) {\n            $this->tree[$node] = $this->arr[$start];\n            return;\n        }\n        $mid = (int)(($start + $end) / 2);\n        $this->build(2 * $node + 1, $start, $mid);\n        $this->build(2 * $node + 2, $mid + 1, $end);\n        $this->tree[$node] = $this->tree[2 * $node + 1] + $this->tree[2 * $node + 2];\n    }\n\n    public function query($node, $start, $end, $left, $right) {\n        if ($right < $start || $left > $end) return 0;\n        if ($left <= $start && $right >= $end) return $this->tree[$node];\n        $mid = (int)(($start + $end) / 2);\n        return $this->query(2 * $node + 1, $start, $mid, $left, $right) +\n               $this->query(2 * $node + 2, $mid + 1, $end, $left, $right);\n    }\n\n    public function update($node, $start, $end, $idx, $val) {\n        if ($start == $end) {\n            $this->arr[$idx] = $val;\n            $this->tree[$node] = $val;\n            return;\n        }\n        $mid = (int)(($start + $end) / 2);\n        if ($idx <= $mid) {\n            $this->update(2 * $node + 1, $start, $mid, $idx, $val);\n        } else {\n            $this->update(2 * $node + 2, $mid + 1, $end, $idx, $val);\n        }\n        $this->tree[$node] = $this->tree[2 * $node + 1] + $this->tree[2 * $node + 2];\n    }\n}\n\n// Example: Segment Tree operations\n$arr = [1, 3, 5, 7];\n$st = new SegmentTree($arr);\necho \"Sum of range [1, 2]: \" . $st->query(0, 0, count($arr) - 1, 1, 2) . \"\\n\";\n$st->update(0, 0, count($arr) - 1, 1, 10);\necho \"Sum of range [1, 2] after update: \" . $st->query(0, 0, count($arr) - 1, 1, 2) . \"\\n\";\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct SegmentTree {\n    int* arr;\n    int* tree;\n    int n;\n} SegmentTree;\n\nSegmentTree* createSegmentTree(int arr[], int n) {\n    SegmentTree* st = (SegmentTree*)malloc(sizeof(SegmentTree));\n    st->arr = (int*)malloc(n * sizeof(int));\n    st->n = n;\n    st->tree = (int*)calloc(4 * n, sizeof(int));\n    for (int i = 0; i < n; i++) st->arr[i] = arr[i];\n    return st;\n}\n\nvoid build(SegmentTree* st, int node, int start, int end) {\n    if (start == end) {\n        st->tree[node] = st->arr[start];\n        return;\n    }\n    int mid = (start + end) / 2;\n    build(st, 2 * node + 1, start, mid);\n    build(st, 2 * node + 2, mid + 1, end);\n    st->tree[node] = st->tree[2 * node + 1] + st->tree[2 * node + 2];\n}\n\nint query(SegmentTree* st, int node, int start, int end, int left, int right) {\n    if (right < start || left > end) return 0;\n    if (left <= start && right >= end) return st->tree[node];\n    int mid = (start + end) / 2;\n    return query(st, 2 * node + 1, start, mid, left, right) +\n           query(st, 2 * node + 2, mid + 1, end, left, right);\n}\n\nvoid update(SegmentTree* st, int node, int start, int end, int idx, int val) {\n    if (start == end) {\n        st->arr[idx] = val;\n        st->tree[node] = val;\n        return;\n    }\n    int mid = (start + end) / 2;\n    if (idx <= mid) {\n        update(st, 2 * node + 1, start, mid, idx, val);\n    } else {\n        update(st, 2 * node + 2, mid + 1, end, idx, val);\n    }\n    st->tree[node] = st->tree[2 * node + 1] + st->tree[2 * node + 2];\n}\n\nvoid freeSegmentTree(SegmentTree* st) {\n    free(st->arr);\n    free(st->tree);\n    free(st);\n}\n\nint main() {\n    int arr[] = {1, 3, 5, 7};\n    int n = sizeof(arr) / sizeof(arr[0]);\n    SegmentTree* st = createSegmentTree(arr, n);\n    build(st, 0, 0, n - 1);\n    printf(\"Sum of range [1, 2]: %d\\n\", query(st, 0, 0, n - 1, 1, 2));\n    update(st, 0, 0, n - 1, 1, 10);\n    printf(\"Sum of range [1, 2] after update: %d\\n\", query(st, 0, 0, n - 1, 1, 2));\n    freeSegmentTree(st);\n    return 0;\n}\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "csharp": "using System;\n\nclass SegmentTree {\n    private int[] arr;\n    private int[] tree;\n    private int n;\n\n    public SegmentTree(int[] arr) {\n        this.arr = arr;\n        this.n = arr.Length;\n        this.tree = new int[4 * n];\n        Build(0, 0, n - 1);\n    }\n\n    private void Build(int node, int start, int end) {\n        if (start == end) {\n            tree[node] = arr[start];\n            return;\n        }\n        int mid = (start + end) / 2;\n        Build(2 * node + 1, start, mid);\n        Build(2 * node + 2, mid + 1, end);\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n\n    public int Query(int node, int start, int end, int left, int right) {\n        if (right < start || left > end) return 0;\n        if (left <= start && right >= end) return tree[node];\n        int mid = (start + end) / 2;\n        return Query(2 * node + 1, start, mid, left, right) +\n               Query(2 * node + 2, mid + 1, end, left, right);\n    }\n\n    public void Update(int node, int start, int end, int idx, int val) {\n        if (start == end) {\n            arr[idx] = val;\n            tree[node] = val;\n            return;\n        }\n        int mid = (start + end) / 2;\n        if (idx <= mid) {\n            Update(2 * node + 1, start, mid, idx, val);\n        } else {\n            Update(2 * node + 2, mid + 1, end, idx, val);\n        }\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n}\n\nclass Program {\n    static void Main() {\n        int[] arr = { 1, 3, 5, 7 };\n        SegmentTree st = new SegmentTree(arr);\n        Console.WriteLine(\"Sum of range [1, 2]: \" + st.Query(0, 0, arr.Length - 1, 1, 2));\n        st.Update(0, 0, arr.Length - 1, 1, 10);\n        Console.WriteLine(\"Sum of range [1, 2] after update: \" + st.Query(0, 0, arr.Length - 1, 1, 2));\n    }\n}\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15",
+      "cpp": "#include <iostream>\n#include <vector>\n\nclass SegmentTree {\nprivate:\n    std::vector<int> arr;\n    std::vector<int> tree;\n    int n;\n\n    void build(int node, int start, int end) {\n        if (start == end) {\n            tree[node] = arr[start];\n            return;\n        }\n        int mid = (start + end) / 2;\n        build(2 * node + 1, start, mid);\n        build(2 * node + 2, mid + 1, end);\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n\npublic:\n    SegmentTree(const std::vector<int>& input) {\n        arr = input;\n        n = arr.size();\n        tree.resize(4 * n, 0);\n        build(0, 0, n - 1);\n    }\n\n    int query(int node, int start, int end, int left, int right) {\n        if (right < start || left > end) return 0;\n        if (left <= start && right >= end) return tree[node];\n        int mid = (start + end) / 2;\n        return query(2 * node + 1, start, mid, left, right) +\n               query(2 * node + 2, mid + 1, end, left, right);\n    }\n\n    void update(int node, int start, int end, int idx, int val) {\n        if (start == end) {\n            arr[idx] = val;\n            tree[node] = val;\n            return;\n        }\n        int mid = (start + end) / 2;\n        if (idx <= mid) {\n            update(2 * node + 1, start, mid, idx, val);\n        } else {\n            update(2 * node + 2, mid + 1, end, idx, val);\n        }\n        tree[node] = tree[2 * node + 1] + tree[2 * node + 2];\n    }\n};\n\nint main() {\n    std::vector<int> arr = {1, 3, 5, 7};\n    SegmentTree st(arr);\n    std::cout << \"Sum of range [1, 2]: \" << st.query(0, 0, arr.size() - 1, 1, 2) << \"\\n\";\n    st.update(0, 0, arr.size() - 1, 1, 10);\n    std::cout << \"Sum of range [1, 2] after update: \" << st.query(0, 0, arr.size() - 1, 1, 2) << \"\\n\";\n    return 0;\n}\n// Output: Sum of range [1, 2]: 8\n// Output: Sum of range [1, 2] after update: 15"
+    },
+    "description": "Обзор структуры Segment Tree и её применений.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Segment Tree?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Segment Tree (Сегментное дерево) — это бинарное дерево, используемое для эффективного выполнения запросов на диапазоны (например, сумма, минимум, максимум) и обновлений в массиве. В примере выше Segment Tree строится для массива [1, 3, 5, 7], запрос суммы на диапазоне [1, 2] возвращает 8, а после обновления индекса 1 до 10 сумма становится 15."
+      },
+      {
+        "type": "heading",
+        "text": "Основные термины"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Узел (Node): Узел дерева, хранящий информацию о диапазоне (используется как tree выше)."
+          },
+          {
+            "description": "Build: Построение Segment Tree из массива (показано в функции build выше)."
+          },
+          {
+            "description": "Query: Выполнение запроса на диапазоне (показано в функции query выше)."
+          },
+          {
+            "description": "Update: Обновление одного элемента (показано в функции update выше)."
+          },
+          {
+            "description": "Листовой узел (Leaf Node): Узел, соответствующий одному элементу массива."
+          },
+          {
+            "description": "Внутренний узел (Internal Node): Узел, хранящий агрегацию дочерних диапазонов."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Типы Segment Tree"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сегментные деревья бывают разных видов: 1) **Стандартное Segment Tree**: Поддерживает запросы суммы, минимума или максимума (сумма в примере). 2) **Segment Tree с ленивым распространением**: Оптимизировано для обновлений диапазонов. 3) **Персистентное Segment Tree**: Сохраняет исторические версии. 4) **2D Segment Tree**: Для двумерных массивов."
+      },
+      {
+        "type": "heading",
+        "text": "Зачем нужны Segment Tree?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сегментные деревья позволяют быстро выполнять запросы на диапазоны и обновления в массивах, что делает их идеальными для больших наборов данных и динамических запросов."
+      },
+      {
+        "type": "heading",
+        "text": "Для чего помогают Segment Tree?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сегментные деревья поддерживают множество задач: 1) **Запросы на диапазонах**: Нахождение суммы, минимума или максимума (показано в функции query). 2) **Динамические обновления**: Обновление одного элемента или диапазона (показано в функции update). 3) **Анализ данных**: Статистические запросы на больших наборах данных. 4) **Алгоритмы**: Использование в соревновательном программировании."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность Segment Tree (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Построение Segment Tree занимает O(n log n) времени (n — длина массива). Запросы и обновления занимают O(log n) времени. Пространственная сложность — O(n). В примере операции build, query и update работают эффективно."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Преимущество: Выполняет запросы и обновления на диапазонах за O(log n) времени."
+          },
+          {
+            "description": "Преимущество: Поддерживает различные типы запросов (сумма, минимум, максимум)."
+          },
+          {
+            "description": "Преимущество: Подходит для динамических наборов данных."
+          },
+          { "description": "Недостаток: Реализация может быть сложной." },
+          { "description": "Недостаток: Требует дополнительной памяти (O(n))." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Применение в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сегментные деревья широко используются: 1) **Базы данных**: Запросы на диапазонах и динамические обновления. 2) **Соревновательное программирование**: Решение алгоритмических задач. 3) **Анализ данных**: Статистические запросы на больших наборах данных. 4) **Обработка графики**: Анализ диапазонов пикселей. Функция query в примере имитирует запрос суммы на диапазоне."
+      },
+      {
+        "type": "heading",
+        "text": "Стратегии оптимизации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для оптимизации Segment Tree: 1) **Ленивое распространение**: Оптимизируйте обновления диапазонов. 2) **Кэширование**: Кэшируйте часто используемые запросы. 3) **Управление памятью**: Используйте динамическое выделение памяти. 4) **Параллельная обработка**: Применяйте параллельные запросы для больших данных. 5) **Эффективные алгоритмы**: Оптимизируйте алгоритмы запросов и обновлений."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основные риски включают: 1) **Сложность**: Реализация и отладка могут быть сложными. 2) **Использование памяти**: Требует дополнительной памяти для больших массивов. 3) **Производительность**: Риск замедления при больших данных. Рекомендации: 1) Используйте ленивое распространение для обновлений диапазонов. 2) Оптимизируйте использование памяти. 3) Тестируйте код с большими данными."
+      }
+    ]
+  }
+}

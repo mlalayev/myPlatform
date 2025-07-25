@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import styles from "../../../TutorialsPage.module.css";
 import * as FiIcons from "react-icons/fi";
@@ -7,7 +7,9 @@ import Header from "../../../../components/header/Header";
 import Footer from "../../../../components/footer/Footer";
 import JsTryEditor from "../../../../components/tryeditor/JsTryEditor";
 import CodeLoader from "../../../../components/loading/CodeLoader";
-import { useSession } from 'next-auth/react';
+import { useSession } from "next-auth/react";
+import { useMemo } from "react";
+import mainPageTryEditorStyles from "../../../../components/mainpageTryEditor/MainPageTryEditor.module.css";
 
 interface ContentBlock {
   type: "heading" | "paragraph" | "code" | "editor" | "list";
@@ -48,12 +50,33 @@ const languageShortMap: Record<string, string> = {
   matlab: "ML",
 };
 
+function languageAlias(lang: string) {
+  if (!lang) return "";
+  const l = lang.toLowerCase();
+  if (l === "c++" || l === "c%2b%2b") return "cpp";
+  return l;
+}
+
+function renderBoldText(text: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") ? (
+      <strong key={i} style={{ fontWeight: 700 }}>
+        {part.slice(2, -2)}
+      </strong>
+    ) : (
+      <React.Fragment key={i}>{part}</React.Fragment>
+    )
+  );
+}
+
 function renderContentBlock(
   block: ContentBlock,
   i: number,
   editorStates: Record<string, string>,
   setEditorStates: React.Dispatch<React.SetStateAction<Record<string, string>>>,
-  safeLanguage: string
+  safeLanguage: string,
+  runCode?: (code: string, language: string) => void // yeni prop
 ) {
   switch (block.type) {
     case "heading":
@@ -99,9 +122,13 @@ function renderContentBlock(
       const handleEditorChange = (val: string) => {
         setEditorStates((prev) => ({ ...prev, [editorKey]: val }));
       };
-      // Always lowercase the language prop
-      const editorLanguage = (block.language || safeLanguage || '').toLowerCase();
-      
+      // Prefer block.language (from JSON), fallback to safeLanguage (from URL)
+      const editorLanguage = block.language
+        ? languageAlias(block.language)
+        : languageAlias(safeLanguage);
+      const handleRun = () => {
+        if (runCode) runCode(codeValue, editorLanguage);
+      };
 
       return (
         <div key={i} className={styles.editorContainer}>
@@ -110,6 +137,7 @@ function renderContentBlock(
             value={codeValue}
             onChange={handleEditorChange}
             showRunButton={true}
+            onRun={handleRun}
           />
         </div>
       );
@@ -119,7 +147,7 @@ function renderContentBlock(
         <ul key={i} style={{ marginBottom: 16, paddingLeft: 24 }}>
           {block.items?.map((item, idx) => (
             <li key={idx} style={{ marginBottom: 8 }}>
-              <strong>{item.term}:</strong> {item.description}
+              <strong>{item.term}:</strong> {renderBoldText(item.description)}
             </li>
           ))}
         </ul>
@@ -129,9 +157,27 @@ function renderContentBlock(
   }
 }
 
+// Add a helper for display name
+function displayLanguageName(lang: string) {
+  const l = languageAlias(lang);
+  if (l === "cpp") return "C++";
+  return lang.charAt(0).toUpperCase() + lang.slice(1);
+}
+
+const ALGO_LANGUAGES = [
+  { value: "cpp", label: "C++" },
+  { value: "csharp", label: "C#" },
+  { value: "c", label: "C" },
+  { value: "php", label: "PHP" },
+  { value: "javascript", label: "JavaScript" },
+  { value: "typescript", label: "TypeScript" },
+  { value: "java", label: "Java" },
+  { value: "python", label: "Python" },
+];
+const ALGO_LANG_KEY = "algorithms-try-lang";
+const ALGO_DEFAULT_LANG = "javascript";
+
 export default function TutorialTopicPage() {
-
-
   const params = useParams();
   const language = Array.isArray(params.language)
     ? params.language[0]
@@ -149,24 +195,62 @@ export default function TutorialTopicPage() {
   const [editorStates, setEditorStates] = useState<Record<string, string>>({});
   const { data: session } = useSession();
   const [visitedLessons, setVisitedLessons] = useState<string[]>([]);
+  const [algoLang, setAlgoLang] = useState(ALGO_DEFAULT_LANG);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const editorLanguages = ALGO_LANGUAGES;
+  const leftLanguages = editorLanguages.slice(
+    0,
+    Math.ceil(editorLanguages.length / 2)
+  );
+  const rightLanguages = editorLanguages.slice(
+    Math.ceil(editorLanguages.length / 2)
+  );
+  const [algoCode, setAlgoCode] = useState("");
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   // Fetch visited lessons on load
   useEffect(() => {
     const fetchVisited = async () => {
-      const visitedLessonsByLang = JSON.parse(localStorage.getItem("visitedLessons") || '{}');
-      const visited = safeLanguage ? (visitedLessonsByLang[safeLanguage] || []) : [];
+      const visitedLessonsByLang = JSON.parse(
+        localStorage.getItem("visitedLessons") || "{}"
+      );
+      const visited = safeLanguage
+        ? visitedLessonsByLang[safeLanguage] || []
+        : [];
       if (visited.length > 0) {
         setVisitedLessons(visited);
       } else if (session?.user) {
         // fallback to server if localStorage is empty
         try {
-          const res = await fetch('/api/user/lessons');
+          const res = await fetch("/api/user/lessons");
           const data = await res.json();
           const serverVisited = data[safeLanguage] || [];
           setVisitedLessons(serverVisited);
           // save to localStorage for next time
           visitedLessonsByLang[safeLanguage] = serverVisited;
-          localStorage.setItem("visitedLessons", JSON.stringify(visitedLessonsByLang));
+          localStorage.setItem(
+            "visitedLessons",
+            JSON.stringify(visitedLessonsByLang)
+          );
         } catch (e) {
           setVisitedLessons([]);
         }
@@ -180,12 +264,19 @@ export default function TutorialTopicPage() {
   // Mark as visited on mount
   useEffect(() => {
     const markVisited = async () => {
-      const visitedLessonsByLang = JSON.parse(localStorage.getItem("visitedLessons") || '{}');
-      const visited = safeLanguage ? (visitedLessonsByLang[safeLanguage] || []) : [];
+      const visitedLessonsByLang = JSON.parse(
+        localStorage.getItem("visitedLessons") || "{}"
+      );
+      const visited = safeLanguage
+        ? visitedLessonsByLang[safeLanguage] || []
+        : [];
       if (safeTopicId && !visited.includes(safeTopicId)) {
         visited.push(safeTopicId);
         if (safeLanguage) visitedLessonsByLang[safeLanguage] = visited;
-        localStorage.setItem("visitedLessons", JSON.stringify(visitedLessonsByLang));
+        localStorage.setItem(
+          "visitedLessons",
+          JSON.stringify(visitedLessonsByLang)
+        );
         setVisitedLessons(visited);
       } else {
         setVisitedLessons(visited);
@@ -193,10 +284,13 @@ export default function TutorialTopicPage() {
       // Sync to server in background if logged in
       if (session?.user && safeTopicId) {
         try {
-          await fetch('/api/user/lessons', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ language: safeLanguage, lessonId: safeTopicId }),
+          await fetch("/api/user/lessons", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              language: safeLanguage,
+              lessonId: safeTopicId,
+            }),
           });
         } catch (e) {}
       }
@@ -204,6 +298,21 @@ export default function TutorialTopicPage() {
     markVisited();
   }, [safeTopicId, session, safeLanguage]);
 
+  // Algoritm mövzusu üçün localStorage-dan oxu
+  useEffect(() => {
+    if (language === "algorithms") {
+      const saved = localStorage.getItem(ALGO_LANG_KEY);
+      if (saved && ALGO_LANGUAGES.some((l) => l.value === saved)) {
+        setAlgoLang(saved);
+      }
+    }
+  }, [language]);
+
+  // Algoritm mövzusu üçün dil dəyişəndə localStorage-a yaz
+  const handleAlgoLangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setAlgoLang(e.target.value);
+    localStorage.setItem(ALGO_LANG_KEY, e.target.value);
+  };
 
   useEffect(() => {
     if (!language || !topicId || !lang) return;
@@ -259,6 +368,15 @@ export default function TutorialTopicPage() {
     setEditorStates({}); // Reset editor states when topic changes
   }, [language, topicId, lang, router]);
 
+  useEffect(() => {
+    if (
+      (language === "algorithms" || language === "data-structures") &&
+      topicContent?.codes
+    ) {
+      setAlgoCode(topicContent.codes[algoLang] || "");
+    }
+  }, [topicContent, algoLang, language]);
+
   const handleSelect = (id: string) => {
     if (id !== topicId) {
       router.push(`/${lang}/tutorials/languages/${language}/${id}`);
@@ -269,6 +387,25 @@ export default function TutorialTopicPage() {
 
   const handleBack = () => {
     router.push(`/${lang}/tutorials`);
+  };
+
+  const runCode = (code: string, language: string) => {
+    // Burada kodu backendə göndərmək üçün fetch və ya API call yaz
+    // Məsələn:
+    fetch("/api/execute", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, language }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        // nəticəni state-də saxla və ya göstər
+        console.log("Run result:", data);
+      });
+  };
+
+  const handleAlgoRun = () => {
+    runCode(algoCode, algoLang);
   };
 
   if (loading) {
@@ -295,18 +432,18 @@ export default function TutorialTopicPage() {
         <aside
           className={collapsed ? styles.sidebarNewCollapsed : styles.sidebarNew}
         >
-
           <div className={styles.sidebarHeaderNew}>
             <span className={styles.sidebarTitleNew}>
               {collapsed
-                ? languageShortMap[safeLanguage] ||
-                  (safeLanguage ? safeLanguage.slice(0, 2).toUpperCase() : "L")
-                : `${
-                    safeLanguage
-                      ? safeLanguage.charAt(0).toUpperCase() +
-                        safeLanguage.slice(1)
-                      : "Language"
-                  } Mövzular`}
+                ? languageShortMap[
+                    languageAlias(decodeURIComponent(safeLanguage))
+                  ] ||
+                  (safeLanguage
+                    ? decodeURIComponent(safeLanguage).slice(0, 2).toUpperCase()
+                    : "L")
+                : `${displayLanguageName(
+                    decodeURIComponent(safeLanguage)
+                  )} Mövzular`}
             </span>
             <button
               className={styles.collapseBtnNew}
@@ -323,7 +460,9 @@ export default function TutorialTopicPage() {
           <nav className={styles.topicListNew}>
             {topics.map((topic) => {
               const Icon = (FiIcons as any)[topic.icon] || FiIcons.FiBookOpen;
-              const visitedArr = Array.isArray(visitedLessons) ? visitedLessons : [];
+              const visitedArr = Array.isArray(visitedLessons)
+                ? visitedLessons
+                : [];
               const isVisited = visitedArr.includes(topic.id);
               if (isVisited) {
                 console.log(`[Sidebar] Topic ${topic.id} is visited`);
@@ -385,12 +524,140 @@ export default function TutorialTopicPage() {
                 <p className={styles.topicDescNew}>
                   {topicContent.description}
                 </p>
+                {/* Standart content render */}
                 <div className={styles.contentBlocks}>
                   {topicContent.content &&
                     topicContent.content.map((block: ContentBlock, i: number) =>
-                      renderContentBlock(block, i, editorStates, setEditorStates, safeLanguage)
+                      renderContentBlock(
+                        block,
+                        i,
+                        editorStates,
+                        setEditorStates,
+                        safeLanguage,
+                        runCode // yeni prop
+                      )
                     )}
                 </div>
+                {/* ALGORITHMS: Language Picker və Try Editor ən aşağıda */}
+                {(language === "algorithms" ||
+                  language === "data-structures") &&
+                  topicContent.codes && (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        gap: 16,
+                        margin: "32px 0 0 0",
+                      }}
+                    >
+                      <div
+                        className={
+                          mainPageTryEditorStyles.languageDropdownWrapper
+                        }
+                        ref={dropdownRef}
+                      >
+                        <button
+                          className={
+                            mainPageTryEditorStyles.languageDropdownButton
+                          }
+                          type="button"
+                          onClick={() => setDropdownOpen((open) => !open)}
+                          aria-haspopup="listbox"
+                          aria-expanded={dropdownOpen}
+                        >
+                          <span>
+                            {editorLanguages.find((l) => l.value === algoLang)
+                              ?.label || "Select Language"}
+                          </span>
+                          <FiIcons.FiChevronDown
+                            style={{
+                              marginLeft: 8,
+                              fontSize: 16,
+                              transition: "transform 0.2s ease",
+                              transform: dropdownOpen
+                                ? "rotate(180deg)"
+                                : "rotate(0deg)",
+                            }}
+                          />
+                        </button>
+                        {dropdownOpen && (
+                          <div
+                            className={
+                              mainPageTryEditorStyles.languageDropdownMenu
+                            }
+                            role="listbox"
+                          >
+                            <div
+                              className={
+                                mainPageTryEditorStyles.languageDropdownColumn
+                              }
+                            >
+                              {leftLanguages.map((lang) => (
+                                <button
+                                  key={lang.value}
+                                  className={
+                                    mainPageTryEditorStyles.languageDropdownItem +
+                                    (algoLang === lang.value
+                                      ? " " + mainPageTryEditorStyles.selected
+                                      : "")
+                                  }
+                                  onClick={() => {
+                                    handleAlgoLangChange({
+                                      target: { value: lang.value },
+                                    } as any);
+                                    setDropdownOpen(false);
+                                  }}
+                                  type="button"
+                                  role="option"
+                                  aria-selected={algoLang === lang.value}
+                                >
+                                  {lang.label}
+                                </button>
+                              ))}
+                            </div>
+                            <div
+                              className={
+                                mainPageTryEditorStyles.languageDropdownColumn
+                              }
+                            >
+                              {rightLanguages.map((lang) => (
+                                <button
+                                  key={lang.value}
+                                  className={
+                                    mainPageTryEditorStyles.languageDropdownItem +
+                                    (algoLang === lang.value
+                                      ? " " + mainPageTryEditorStyles.selected
+                                      : "")
+                                  }
+                                  onClick={() => {
+                                    handleAlgoLangChange({
+                                      target: { value: lang.value },
+                                    } as any);
+                                    setDropdownOpen(false);
+                                  }}
+                                  type="button"
+                                  role="option"
+                                  aria-selected={algoLang === lang.value}
+                                >
+                                  {lang.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div style={{ width: "100%" }}>
+                        <JsTryEditor
+                          language={algoLang}
+                          value={algoCode}
+                          onChange={setAlgoCode}
+                          showRunButton={true}
+                        />
+                      </div>
+                    </div>
+                  )}
               </>
             ) : (
               <div className={styles.topicEmptyNew}>Mövzu tapılmadı</div>

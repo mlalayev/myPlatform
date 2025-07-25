@@ -1,0 +1,240 @@
+{
+  "id": "topological-sort",
+  "az": {
+    "title": "Topoloji Sıralama",
+    "icon": "FiList",
+    "language": "multiple",
+    "description": "Topoloji sıralama, yönəldilmiş asiklik qrafda (DAG) nöqtələri elə sıralayır ki, hər kənar (u, v) üçün u v-dən əvvəl gəlsin.",
+    "codes": {
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\n#define MAX 100\n\ntypedef struct {\n  int adj[MAX][MAX];\n  int vertices;\n} Graph;\n\nvoid initGraph(Graph* g, int vertices) {\n  g->vertices = vertices;\n  for (int i = 0; i < vertices; i++)\n    for (int j = 0; j < vertices; j++)\n      g->adj[i][j] = 0;\n}\n\nvoid addEdge(Graph* g, int u, int v) {\n  g->adj[u][v] = 1;\n}\n\nvoid topologicalSortUtil(Graph* g, int v, int visited[], int stack[], int* stackIndex) {\n  visited[v] = 1;\n  for (int i = 0; i < g->vertices; i++) {\n    if (g->adj[v][i] && !visited[i])\n      topologicalSortUtil(g, i, visited, stack, stackIndex);\n  }\n  stack[(*stackIndex)++] = v;\n}\n\nvoid topologicalSort(Graph* g) {\n  int visited[MAX] = {0};\n  int stack[MAX];\n  int stackIndex = 0;\n  for (int i = 0; i < g->vertices; i++) {\n    if (!visited[i])\n      topologicalSortUtil(g, i, visited, stack, &stackIndex);\n  }\n  printf(\"Topological Sort:\\n\");\n  for (int i = stackIndex - 1; i >= 0; i--)\n    printf(\"%d \", stack[i]);\n  printf(\"\\n\");\n}\n\nint main() {\n  Graph g;\n  initGraph(&g, 6);\n  addEdge(&g, 5, 2); addEdge(&g, 5, 0); addEdge(&g, 4, 0);\n  addEdge(&g, 4, 1); addEdge(&g, 2, 3); addEdge(&g, 3, 1);\n  topologicalSort(&g);\n  return 0;\n}\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "cpp": "#include <iostream>\n#include <vector>\n\nclass Graph {\n  int vertices;\n  std::vector<std::vector<int>> adj;\npublic:\n  Graph(int v) : vertices(v), adj(v, std::vector<int>(v, 0)) {}\n  void addEdge(int u, int v) { adj[u][v] = 1; }\n  void topologicalSortUtil(int v, std::vector<int>& visited, std::vector<int>& stack) {\n    visited[v] = 1;\n    for (int i = 0; i < vertices; i++) {\n      if (adj[v][i] && !visited[i])\n        topologicalSortUtil(i, visited, stack);\n    }\n    stack.push_back(v);\n  }\n  void topologicalSort() {\n    std::vector<int> visited(vertices, 0), stack;\n    for (int i = 0; i < vertices; i++) {\n      if (!visited[i])\n        topologicalSortUtil(i, visited, stack);\n    }\n    std::cout << \"Topological Sort:\\n\";\n    for (int i = stack.size() - 1; i >= 0; i--)\n      std::cout << stack[i] << \" \";\n    std::cout << std::endl;\n  }\n};\n\nint main() {\n  Graph g(6);\n  g.addEdge(5, 2); g.addEdge(5, 0); g.addEdge(4, 0);\n  g.addEdge(4, 1); g.addEdge(2, 3); g.addEdge(3, 1);\n  g.topologicalSort();\n  return 0;\n}\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass Graph {\n  private int vertices;\n  private int[,] adj;\n  public Graph(int v) {\n    vertices = v;\n    adj = new int[v, v];\n  }\n  public void AddEdge(int u, int v) { adj[u, v] = 1; }\n  private void TopologicalSortUtil(int v, int[] visited, List<int> stack) {\n    visited[v] = 1;\n    for (int i = 0; i < vertices; i++) {\n      if (adj[v, i] == 1 && visited[i] == 0)\n        TopologicalSortUtil(i, visited, stack);\n    }\n    stack.Add(v);\n  }\n  public void TopologicalSort() {\n    int[] visited = new int[vertices];\n    List<int> stack = new List<int>();\n    for (int i = 0; i < vertices; i++) {\n      if (visited[i] == 0)\n        TopologicalSortUtil(i, visited, stack);\n    }\n    Console.WriteLine(\"Topological Sort:\");\n    for (int i = stack.Count - 1; i >= 0; i--)\n      Console.Write(stack[i] + \" \");\n    Console.WriteLine();\n  }\n}\n\nclass Program {\n  static void Main() {\n    Graph g = new Graph(6);\n    g.AddEdge(5, 2); g.AddEdge(5, 0); g.AddEdge(4, 0);\n    g.AddEdge(4, 1); g.AddEdge(2, 3); g.AddEdge(3, 1);\n    g.TopologicalSort();\n  }\n}\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "java": "import java.util.*;\n\nclass Graph {\n  private int vertices;\n  private int[][] adj;\n  public Graph(int v) {\n    vertices = v;\n    adj = new int[v][v];\n  }\n  public void addEdge(int u, int v) { adj[u][v] = 1; }\n  private void topologicalSortUtil(int v, int[] visited, List<Integer> stack) {\n    visited[v] = 1;\n    for (int i = 0; i < vertices; i++) {\n      if (adj[v][i] == 1 && visited[i] == 0)\n        topologicalSortUtil(i, visited, stack);\n    }\n    stack.add(v);\n  }\n  public void topologicalSort() {\n    int[] visited = new int[vertices];\n    List<Integer> stack = new ArrayList<>();\n    for (int i = 0; i < vertices; i++) {\n      if (visited[i] == 0)\n        topologicalSortUtil(i, visited, stack);\n    }\n    System.out.println(\"Topological Sort:\");\n    for (int i = stack.size() - 1; i >= 0; i--)\n      System.out.print(stack.get(i) + \" \");\n    System.out.println();\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Graph g = new Graph(6);\n    g.addEdge(5, 2); g.addEdge(5, 0); g.addEdge(4, 0);\n    g.addEdge(4, 1); g.addEdge(2, 3); g.addEdge(3, 1);\n    g.topologicalSort();\n  }\n}\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "javascript": "class Graph {\n  constructor(v) {\n    this.vertices = v;\n    this.adj = Array(v).fill().map(() => Array(v).fill(0));\n  }\n  addEdge(u, v) { this.adj[u][v] = 1; }\n  topologicalSortUtil(v, visited, stack) {\n    visited[v] = 1;\n    for (let i = 0; i < this.vertices; i++) {\n      if (this.adj[v][i] && !visited[i])\n        this.topologicalSortUtil(i, visited, stack);\n    }\n    stack.push(v);\n  }\n  topologicalSort() {\n    let visited = Array(this.vertices).fill(0);\n    let stack = [];\n    for (let i = 0; i < this.vertices; i++) {\n      if (!visited[i])\n        this.topologicalSortUtil(i, visited, stack);\n    }\n    console.log(\"Topological Sort:\");\n    console.log(stack.reverse().join(\" \"));\n  }\n}\n\nconst g = new Graph(6);\ng.addEdge(5, 2); g.addEdge(5, 0); g.addEdge(4, 0);\ng.addEdge(4, 1); g.addEdge(2, 3); g.addEdge(3, 1);\ng.topologicalSort();\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "typescript": "class Graph {\n  private vertices: number;\n  private adj: number[][];\n  constructor(v: number) {\n    this.vertices = v;\n    this.adj = Array(v).fill(0).map(() => Array(v).fill(0));\n  }\n  addEdge(u: number, v: number): void { this.adj[u][v] = 1; }\n  private topologicalSortUtil(v: number, visited: number[], stack: number[]): void {\n    visited[v] = 1;\n    for (let i = 0; i < this.vertices; i++) {\n      if (this.adj[v][i] && !visited[i])\n        this.topologicalSortUtil(i, visited, stack);\n    }\n    stack.push(v);\n  }\n  topologicalSort(): void {\n    let visited: number[] = Array(this.vertices).fill(0);\n    let stack: number[] = [];\n    for (let i = 0; i < this.vertices; i++) {\n      if (!visited[i])\n        this.topologicalSortUtil(i, visited, stack);\n    }\n    console.log(\"Topological Sort:\");\n    console.log(stack.reverse().join(\" \"));\n  }\n}\n\nconst g = new Graph(6);\ng.addEdge(5, 2); g.addEdge(5, 0); g.addEdge(4, 0);\ng.addEdge(4, 1); g.addEdge(2, 3); g.addEdge(3, 1);\ng.topologicalSort();\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "python": "class Graph:\n    def __init__(self, vertices):\n        self.vertices = vertices\n        self.adj = [[0] * vertices for _ in range(vertices)]\n\n    def add_edge(self, u, v):\n        self.adj[u][v] = 1\n\n    def topological_sort_util(self, v, visited, stack):\n        visited[v] = 1\n        for i in range(self.vertices):\n            if self.adj[v][i] and not visited[i]:\n                self.topological_sort_util(i, visited, stack)\n        stack.append(v)\n\n    def topological_sort(self):\n        visited = [0] * self.vertices\n        stack = []\n        for i in range(self.vertices):\n            if not visited[i]:\n                self.topological_sort_util(i, visited, stack)\n        print(\"Topological Sort:\")\n        print(\" \".join(map(str, stack[::-1])))\n\n\ng = Graph(6)\ng.add_edge(5, 2); g.add_edge(5, 0); g.add_edge(4, 0)\ng.add_edge(4, 1); g.add_edge(2, 3); g.add_edge(3, 1)\ng.topological_sort()\n# Output: \n# Topological Sort:\n# 5 4 2 3 1 0",
+      "php": "<?php\n\nclass Graph {\n  private $vertices;\n  private $adj;\n  public function __construct($v) {\n    $this->vertices = $v;\n    $this->adj = array_fill(0, $v, array_fill(0, $v, 0));\n  }\n  public function addEdge($u, $v) { $this->adj[$u][$v] = 1; }\n  private function topologicalSortUtil($v, &$visited, &$stack) {\n    $visited[$v] = 1;\n    for ($i = 0; $i < $this->vertices; $i++) {\n      if ($this->adj[$v][$i] && !$visited[$i])\n        $this->topologicalSortUtil($i, $visited, $stack);\n    }\n    $stack[] = $v;\n  }\n  public function topologicalSort() {\n    $visited = array_fill(0, $this->vertices, 0);\n    $stack = [];\n    for ($i = 0; $i < $this->vertices; $i++) {\n      if (!$visited[$i])\n        $this->topologicalSortUtil($i, $visited, $stack);\n    }\n    echo \"Topological Sort:\\n\";\n    echo implode(\" \", array_reverse($stack)) . \"\\n\";\n  }\n}\n\n$g = new Graph(6);\n$g->addEdge(5, 2); $g->addEdge(5, 0); $g->addEdge(4, 0);\n$g->addEdge(4, 1); $g->addEdge(2, 3); $g->addEdge(3, 1);\n$g->topologicalSort();\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "Topoloji Sıralama nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Topoloji sıralama, yönəldilmiş asiklik qrafda (DAG) nöqtələri elə sıralayır ki, hər kənar (u, v) üçün u v-dən əvvəl gəlsin. Bu alqoritm tapşırıqların ardıcıllığını təyin etmək və ya asılılıqları idarə etmək üçün istifadə olunur, məsələn, kursların tamamlanma sırası və ya proqram təminatının quraşdırılma ardıcıllığı. Məsələn, 6 nöqtəli qrafda (kənarlar: 5-2, 5-0, 4-0, 4-1, 2-3, 3-1) topoloji sıralama nəticəsi 5, 4, 2, 3, 1, 0 ola bilər. Alqoritm dərinlik-axtarış (DFS) və ya Kahn alqoritmi ilə həyata keçirilir. DFS ilə müqayisədə topoloji sıralama yalnız DAG-larda işləyir, çünki dövrlər sıralamanı qeyri-mümkün edir. Dinamik proqramlaşdırma ilə müqayisədə isə daha az yaddaş tələb edir."
+      },
+      {
+        "type": "heading",
+        "text": "Topoloji Sıralama necə işləyir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "DFS əsaslı topoloji sıralama belə işləyir: 1) **Başlanğıc nöqtə seçimi** - hər ziyarət edilməmiş nöqtə üçün DFS çağırılır. 2) **Dərinlik axtarışı** - hər nöqtənin qonşuları rekursiv şəkildə ziyarət edilir. 3) **Stakə əlavə** - nöqtənin bütün qonşuları ziyarət edildikdən sonra stakə əlavə edilir. 4) **Nəticə** - stak tərs çevrilərək sıralama əldə edilir. Məsələn, 6 nöqtəli qrafda (5-2, 5-0, 4-0, 4-1, 2-3, 3-1) sıralama 5, 4, 2, 3, 1, 0 olur. Kahn alqoritmi isə giriş dərəcəsi (in-degree) 0 olan nöqtələrdən başlayır və növbə istifadə edir. DFS sıx qraflarda, Kahn isə giriş dərəcələrinin asan hesablandığı hallarda effektivdir."
+      },
+      {
+        "type": "heading",
+        "text": "Topoloji Sıralamanın səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "DFS əsaslı topoloji sıralamanın vaxt mürəkkəbliyi O(V + E), burada V nöqtələrin, E isə kənarların sayıdır. Hər nöqtə və kənar bir dəfə ziyarət edilir. Məsələn, 6 nöqtəli və 6 kənarlı qrafda O(6 + 6) ≈ O(12) əməliyyat aparılır. Kahn alqoritmi də O(V + E) vaxt tələb edir, çünki giriş dərəcələri hesablanır və növbə əməliyyatları sabit vaxt aparır. Məkan mürəkkəbliyi DFS üçün O(V) (stak və visited massivi), Kahn üçün isə O(V) (növbə və in-degree massivi) təşkil edir. Backtracking ilə müqayisədə (məsələn, O(N!) N-Queens üçün) topoloji sıralama daha səmərəlidir. Dinamik proqramlaşdırma ilə müqayisədə (məsələn, O(n * m) Minimum sikkə problemində) daha az yaddaş tələb edir."
+      },
+      {
+        "type": "heading",
+        "text": "Topoloji Sıralamanın üstünlükləri və mənfi cəhətləri"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Effektivlik: DFS əsaslı sıralama sıx qraflarda sürətlidir."
+          },
+          {
+            "description": "Çox yönlülük: Kahn alqoritmi giriş dərəcələri ilə effektivdir."
+          },
+          {
+            "description": "Mənfi cəhət: Yalnız DAG-larda işləyir, dövrlər sıralamanı qeyri-mümkün edir."
+          },
+          {
+            "description": "Mənfi cəhət: Böyük qraflarda yaddaş istifadəsi problem ola bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda Topoloji Sıralama"
+      },
+      {
+        "type": "paragraph",
+        "text": "Topoloji sıralama tapşırıq planlaşdırmasında (məsələn, layihə tapşırıqlarının sırası), proqram təminatının quraşdırılmasında (asılılıqların idarə edilməsi) və kurs cədvəllərinin hazırlanmasında istifadə olunur. Məsələn, kurslarda 5-dən 2-yə və 0-a, 4-dən 0-a və 1-ə asılılıq varsa, sıralama 5, 4, 2, 3, 1, 0 olur. DFS əsaslı alqoritm sıx qraflarda, Kahn isə asılılıqların giriş dərəcələrinə əsasən hesablandığı hallarda effektivdir. Backtracking ilə müqayisədə topoloji sıralama daha səmərəlidir, çünki bütün mümkün sıraları yoxlamır. Dinamik proqramlaşdırma ilə müqayisədə isə daha az yaddaş tələb edir, lakin yalnız DAG-larda işləyir."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əsas təhlükə qrafda dövr olmasıdır, çünki topoloji sıralama yalnız DAG-larda mümkündür. Dövr aşkarlanması üçün əlavə alqoritm (məsələn, DFS ilə) tələb oluna bilər, bu da O(V + E) vaxt aparır. Böyük qraflarda yaddaş istifadəsi problem yarada bilər, xüsusilə sıx qraflarda. Tövsiyələrə gəlincə, sıx qraflarda DFS, giriş dərəcələrinin asan hesablandığı hallarda isə Kahn alqoritmi istifadə edilməlidir. Qrafın DAG olduğundan əmin olun. Alqoritmi müxtəlif ölçülü qraflarla sınaqdan keçirin və performansını qiymətləndirin. Əgər dövr aşkarlanması vacibdirsə, DFS ilə dövr yoxlaması inteqrasiya oluna bilər."
+      }
+    ]
+  },
+  "en": {
+    "title": "Topological Sort",
+    "icon": "FiList",
+    "language": "multiple",
+    "description": "Topological sort orders vertices in a directed acyclic graph (DAG) such that for every edge (u, v), u comes before v.",
+    "codes": {
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\n#define MAX 100\n\ntypedef struct {\n  int adj[MAX][MAX];\n  int vertices;\n} Graph;\n\nvoid initGraph(Graph* g, int vertices) {\n  g->vertices = vertices;\n  for (int i = 0; i < vertices; i++)\n    for (int j = 0; j < vertices; j++)\n      g->adj[i][j] = 0;\n}\n\nvoid addEdge(Graph* g, int u, int v) {\n  g->adj[u][v] = 1;\n}\n\nvoid topologicalSortUtil(Graph* g, int v, int visited[], int stack[], int* stackIndex) {\n  visited[v] = 1;\n  for (int i = 0; i < g->vertices; i++) {\n    if (g->adj[v][i] && !visited[i])\n      topologicalSortUtil(g, i, visited, stack, stackIndex);\n  }\n  stack[(*stackIndex)++] = v;\n}\n\nvoid topologicalSort(Graph* g) {\n  int visited[MAX] = {0};\n  int stack[MAX];\n  int stackIndex = 0;\n  for (int i = 0; i < g->vertices; i++) {\n    if (!visited[i])\n      topologicalSortUtil(g, i, visited, stack, &stackIndex);\n  }\n  printf(\"Topological Sort:\\n\");\n  for (int i = stackIndex - 1; i >= 0; i--)\n    printf(\"%d \", stack[i]);\n  printf(\"\\n\");\n}\n\nint main() {\n  Graph g;\n  initGraph(&g, 6);\n  addEdge(&g, 5, 2); addEdge(&g, 5, 0); addEdge(&g, 4, 0);\n  addEdge(&g, 4, 1); addEdge(&g, 2, 3); addEdge(&g, 3, 1);\n  topologicalSort(&g);\n  return 0;\n}\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "cpp": "#include <iostream>\n#include <vector>\n\nclass Graph {\n  int vertices;\n  std::vector<std::vector<int>> adj;\npublic:\n  Graph(int v) : vertices(v), adj(v, std::vector<int>(v, 0)) {}\n  void addEdge(int u, int v) { adj[u][v] = 1; }\n  void topologicalSortUtil(int v, std::vector<int>& visited, std::vector<int>& stack) {\n    visited[v] = 1;\n    for (int i = 0; i < vertices; i++) {\n      if (adj[v][i] && !visited[i])\n        topologicalSortUtil(i, visited, stack);\n    }\n    stack.push_back(v);\n  }\n  void topologicalSort() {\n    std::vector<int> visited(vertices, 0), stack;\n    for (int i = 0; i < vertices; i++) {\n      if (!visited[i])\n        topologicalSortUtil(i, visited, stack);\n    }\n    std::cout << \"Topological Sort:\\n\";\n    for (int i = stack.size() - 1; i >= 0; i--)\n      std::cout << stack[i] << \" \";\n    std::cout << std::endl;\n  }\n};\n\nint main() {\n  Graph g(6);\n  g.addEdge(5, 2); g.addEdge(5, 0); g.addEdge(4, 0);\n  g.addEdge(4, 1); g.addEdge(2, 3); g.addEdge(3, 1);\n  g.topologicalSort();\n  return 0;\n}\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass Graph {\n  private int vertices;\n  private int[,] adj;\n  public Graph(int v) {\n    vertices = v;\n    adj = new int[v, v];\n  }\n  public void AddEdge(int u, int v) { adj[u, v] = 1; }\n  private void TopologicalSortUtil(int v, int[] visited, List<int> stack) {\n    visited[v] = 1;\n    for (int i = 0; i < vertices; i++) {\n      if (adj[v, i] == 1 && visited[i] == 0)\n        TopologicalSortUtil(i, visited, stack);\n    }\n    stack.Add(v);\n  }\n  public void TopologicalSort() {\n    int[] visited = new int[vertices];\n    List<int> stack = new List<int>();\n    for (int i = 0; i < vertices; i++) {\n      if (visited[i] == 0)\n        TopologicalSortUtil(i, visited, stack);\n    }\n    Console.WriteLine(\"Topological Sort:\");\n    for (int i = stack.Count - 1; i >= 0; i--)\n      Console.Write(stack[i] + \" \");\n    Console.WriteLine();\n  }\n}\n\nclass Program {\n  static void Main() {\n    Graph g = new Graph(6);\n    g.AddEdge(5, 2); g.AddEdge(5, 0); g.AddEdge(4, 0);\n    g.AddEdge(4, 1); g.AddEdge(2, 3); g.AddEdge(3, 1);\n    g.TopologicalSort();\n  }\n}\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "java": "import java.util.*;\n\nclass Graph {\n  private int vertices;\n  private int[][] adj;\n  public Graph(int v) {\n    vertices = v;\n    adj = new int[v][v];\n  }\n  public void addEdge(int u, int v) { adj[u][v] = 1; }\n  private void topologicalSortUtil(int v, int[] visited, List<Integer> stack) {\n    visited[v] = 1;\n    for (int i = 0; i < vertices; i++) {\n      if (adj[v][i] == 1 && visited[i] == 0)\n        topologicalSortUtil(i, visited, stack);\n    }\n    stack.add(v);\n  }\n  public void topologicalSort() {\n    int[] visited = new int[vertices];\n    List<Integer> stack = new ArrayList<>();\n    for (int i = 0; i < vertices; i++) {\n      if (visited[i] == 0)\n        topologicalSortUtil(i, visited, stack);\n    }\n    System.out.println(\"Topological Sort:\");\n    for (int i = stack.size() - 1; i >= 0; i--)\n      System.out.print(stack.get(i) + \" \");\n    System.out.println();\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Graph g = new Graph(6);\n    g.addEdge(5, 2); g.addEdge(5, 0); g.addEdge(4, 0);\n    g.addEdge(4, 1); g.addEdge(2, 3); g.addEdge(3, 1);\n    g.topologicalSort();\n  }\n}\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "javascript": "class Graph {\n  constructor(v) {\n    this.vertices = v;\n    this.adj = Array(v).fill().map(() => Array(v).fill(0));\n  }\n  addEdge(u, v) { this.adj[u][v] = 1; }\n  topologicalSortUtil(v, visited, stack) {\n    visited[v] = 1;\n    for (let i = 0; i < this.vertices; i++) {\n      if (this.adj[v][i] && !visited[i])\n        this.topologicalSortUtil(i, visited, stack);\n    }\n    stack.push(v);\n  }\n  topologicalSort() {\n    let visited = Array(this.vertices).fill(0);\n    let stack = [];\n    for (let i = 0; i < this.vertices; i++) {\n      if (!visited[i])\n        this.topologicalSortUtil(i, visited, stack);\n    }\n    console.log(\"Topological Sort:\");\n    console.log(stack.reverse().join(\" \"));\n  }\n}\n\nconst g = new Graph(6);\ng.addEdge(5, 2); g.addEdge(5, 0); g.addEdge(4, 0);\ng.addEdge(4, 1); g.addEdge(2, 3); g.addEdge(3, 1);\ng.topologicalSort();\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "typescript": "class Graph {\n  private vertices: number;\n  private adj: number[][];\n  constructor(v: number) {\n    this.vertices = v;\n    this.adj = Array(v).fill(0).map(() => Array(v).fill(0));\n  }\n  addEdge(u: number, v: number): void { this.adj[u][v] = 1; }\n  private topologicalSortUtil(v: number, visited: number[], stack: number[]): void {\n    visited[v] = 1;\n    for (let i = 0; i < this.vertices; i++) {\n      if (this.adj[v][i] && !visited[i])\n        this.topologicalSortUtil(i, visited, stack);\n    }\n    stack.push(v);\n  }\n  topologicalSort(): void {\n    let visited: number[] = Array(this.vertices).fill(0);\n    let stack: number[] = [];\n    for (let i = 0; i < this.vertices; i++) {\n      if (!visited[i])\n        this.topologicalSortUtil(i, visited, stack);\n    }\n    console.log(\"Topological Sort:\");\n    console.log(stack.reverse().join(\" \"));\n  }\n}\n\nconst g = new Graph(6);\ng.addEdge(5, 2); g.addEdge(5, 0); g.addEdge(4, 0);\ng.addEdge(4, 1); g.addEdge(2, 3); g.addEdge(3, 1);\ng.topologicalSort();\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "python": "class Graph:\n    def __init__(self, vertices):\n        self.vertices = vertices\n        self.adj = [[0] * vertices for _ in range(vertices)]\n\n    def add_edge(self, u, v):\n        self.adj[u][v] = 1\n\n    def topological_sort_util(self, v, visited, stack):\n        visited[v] = 1\n        for i in range(self.vertices):\n            if self.adj[v][i] and not visited[i]:\n                self.topological_sort_util(i, visited, stack)\n        stack.append(v)\n\n    def topological_sort(self):\n        visited = [0] * self.vertices\n        stack = []\n        for i in range(self.vertices):\n            if not visited[i]:\n                self.topological_sort_util(i, visited, stack)\n        print(\"Topological Sort:\")\n        print(\" \".join(map(str, stack[::-1])))\n\n\ng = Graph(6)\ng.add_edge(5, 2); g.add_edge(5, 0); g.add_edge(4, 0)\ng.add_edge(4, 1); g.add_edge(2, 3); g.add_edge(3, 1)\ng.topological_sort()\n# Output: \n# Topological Sort:\n# 5 4 2 3 1 0",
+      "php": "<?php\n\nclass Graph {\n  private $vertices;\n  private $adj;\n  public function __construct($v) {\n    $this->vertices = $v;\n    $this->adj = array_fill(0, $v, array_fill(0, $v, 0));\n  }\n  public function addEdge($u, $v) { $this->adj[$u][$v] = 1; }\n  private function topologicalSortUtil($v, &$visited, &$stack) {\n    $visited[$v] = 1;\n    for ($i = 0; $i < $this->vertices; $i++) {\n      if ($this->adj[$v][$i] && !$visited[$i])\n        $this->topologicalSortUtil($i, $visited, $stack);\n    }\n    $stack[] = $v;\n  }\n  public function topologicalSort() {\n    $visited = array_fill(0, $this->vertices, 0);\n    $stack = [];\n    for ($i = 0; $i < $this->vertices; $i++) {\n      if (!$visited[$i])\n        $this->topologicalSortUtil($i, $visited, $stack);\n    }\n    echo \"Topological Sort:\\n\";\n    echo implode(\" \", array_reverse($stack)) . \"\\n\";\n  }\n}\n\n$g = new Graph(6);\n$g->addEdge(5, 2); $g->addEdge(5, 0); $g->addEdge(4, 0);\n$g->addEdge(4, 1); $g->addEdge(2, 3); $g->addEdge(3, 1);\n$g->topologicalSort();\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Topological Sort?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Topological sort orders vertices in a directed acyclic graph (DAG) such that for every edge (u, v), u comes before v. It is used to schedule tasks or manage dependencies, such as course prerequisites or software installation order. For example, in a 6-vertex graph with edges (5-2, 5-0, 4-0, 4-1, 2-3, 3-1), a valid topological sort is 5, 4, 2, 3, 1, 0. The algorithm can be implemented using Depth-First Search (DFS) or Kahn’s algorithm. Compared to DFS, topological sort only works on DAGs, as cycles make ordering impossible. Compared to dynamic programming, it requires less memory."
+      },
+      {
+        "type": "heading",
+        "text": "How Does Topological Sort Work?"
+      },
+      {
+        "type": "paragraph",
+        "text": "DFS-based topological sort works as follows: 1) **Start vertex selection** - DFS is called for each unvisited vertex. 2) **Depth-first search** - neighbors of each vertex are visited recursively. 3) **Stack addition** - a vertex is added to a stack after all its neighbors are visited. 4) **Result** - the stack is reversed to obtain the topological order. For example, in a 6-vertex graph (5-2, 5-0, 4-0, 4-1, 2-3, 3-1), the order is 5, 4, 2, 3, 1, 0. Kahn’s algorithm starts with vertices of in-degree 0 and uses a queue to build the order. DFS is efficient for dense graphs, while Kahn’s algorithm is better when in-degrees are easily computed."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of Topological Sort (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "DFS-based topological sort has a time complexity of O(V + E), where V is the number of vertices and E is the number of edges. Each vertex and edge is visited once. For example, in a 6-vertex, 6-edge graph, it takes O(6 + 6) ≈ O(12) operations. Kahn’s algorithm also has O(V + E) time complexity, as it computes in-degrees and processes vertices via a queue. Space complexity is O(V) for DFS (stack and visited array) and O(V) for Kahn’s algorithm (queue and in-degree array). Compared to backtracking (e.g., O(N!) for N-Queens), topological sort is more efficient. Compared to dynamic programming (e.g., O(n * m) for Minimum Coin Change), it uses less memory."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages of Topological Sort"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Efficiency: DFS-based sort is fast for dense graphs."
+          },
+          {
+            "description": "Versatility: Kahn’s algorithm is effective with in-degree calculations."
+          },
+          {
+            "description": "Disadvantage: Only works on DAGs, as cycles make ordering impossible."
+          },
+          {
+            "description": "Disadvantage: Memory usage can be an issue for large graphs."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Topological Sort in Real Life"
+      },
+      {
+        "type": "paragraph",
+        "text": "Topological sort is used in task scheduling (e.g., ordering project tasks), software installation (managing dependencies), and course scheduling. For example, if course 5 depends on 2 and 0, and 4 depends on 0 and 1, the order is 5, 4, 2, 3, 1, 0. DFS-based sort is efficient for dense graphs, while Kahn’s algorithm is better when in-degrees are easily computed. Compared to backtracking, topological sort is more efficient as it doesn’t explore all possible orders. Compared to dynamic programming, it uses less memory but only works on DAGs."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "The main danger is the presence of cycles in the graph, as topological sort is only possible in DAGs. Cycle detection may require an additional algorithm (e.g., DFS-based), which takes O(V + E) time. Memory usage can be an issue for large graphs, especially dense ones. Recommendations include using DFS for dense graphs and Kahn’s algorithm when in-degrees are easily computed. Ensure the graph is a DAG before applying the algorithm. Test with different graph sizes to evaluate performance. If cycle detection is critical, integrate a DFS-based cycle check."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Топологическая сортировка",
+    "icon": "FiList",
+    "language": "multiple",
+    "description": "Топологическая сортировка упорядочивает вершины направленного ациклического графа (DAG) так, чтобы для каждого ребра (u, v) вершина u предшествовала v.",
+    "codes": {
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\n#define MAX 100\n\ntypedef struct {\n  int adj[MAX][MAX];\n  int vertices;\n} Graph;\n\nvoid initGraph(Graph* g, int vertices) {\n  g->vertices = vertices;\n  for (int i = 0; i < vertices; i++)\n    for (int j = 0; j < vertices; j++)\n      g->adj[i][j] = 0;\n}\n\nvoid addEdge(Graph* g, int u, int v) {\n  g->adj[u][v] = 1;\n}\n\nvoid topologicalSortUtil(Graph* g, int v, int visited[], int stack[], int* stackIndex) {\n  visited[v] = 1;\n  for (int i = 0; i < g->vertices; i++) {\n    if (g->adj[v][i] && !visited[i])\n      topologicalSortUtil(g, i, visited, stack, stackIndex);\n  }\n  stack[(*stackIndex)++] = v;\n}\n\nvoid topologicalSort(Graph* g) {\n  int visited[MAX] = {0};\n  int stack[MAX];\n  int stackIndex = 0;\n  for (int i = 0; i < g->vertices; i++) {\n    if (!visited[i])\n      topologicalSortUtil(g, i, visited, stack, &stackIndex);\n  }\n  printf(\"Topological Sort:\\n\");\n  for (int i = stackIndex - 1; i >= 0; i--)\n    printf(\"%d \", stack[i]);\n  printf(\"\\n\");\n}\n\nint main() {\n  Graph g;\n  initGraph(&g, 6);\n  addEdge(&g, 5, 2); addEdge(&g, 5, 0); addEdge(&g, 4, 0);\n  addEdge(&g, 4, 1); addEdge(&g, 2, 3); addEdge(&g, 3, 1);\n  topologicalSort(&g);\n  return 0;\n}\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "cpp": "#include <iostream>\n#include <vector>\n\nclass Graph {\n  int vertices;\n  std::vector<std::vector<int>> adj;\npublic:\n  Graph(int v) : vertices(v), adj(v, std::vector<int>(v, 0)) {}\n  void addEdge(int u, int v) { adj[u][v] = 1; }\n  void topologicalSortUtil(int v, std::vector<int>& visited, std::vector<int>& stack) {\n    visited[v] = 1;\n    for (int i = 0; i < vertices; i++) {\n      if (adj[v][i] && !visited[i])\n        topologicalSortUtil(i, visited, stack);\n    }\n    stack.push_back(v);\n  }\n  void topologicalSort() {\n    std::vector<int> visited(vertices, 0), stack;\n    for (int i = 0; i < vertices; i++) {\n      if (!visited[i])\n        topologicalSortUtil(i, visited, stack);\n    }\n    std::cout << \"Topological Sort:\\n\";\n    for (int i = stack.size() - 1; i >= 0; i--)\n      std::cout << stack[i] << \" \";\n    std::cout << std::endl;\n  }\n};\n\nint main() {\n  Graph g(6);\n  g.addEdge(5, 2); g.addEdge(5, 0); g.addEdge(4, 0);\n  g.addEdge(4, 1); g.addEdge(2, 3); g.addEdge(3, 1);\n  g.topologicalSort();\n  return 0;\n}\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "csharp": "using System;\nusing System.Collections.Generic;\n\nclass Graph {\n  private int vertices;\n  private int[,] adj;\n  public Graph(int v) {\n    vertices = v;\n    adj = new int[v, v];\n  }\n  public void AddEdge(int u, int v) { adj[u, v] = 1; }\n  private void TopologicalSortUtil(int v, int[] visited, List<int> stack) {\n    visited[v] = 1;\n    for (int i = 0; i < vertices; i++) {\n      if (adj[v, i] == 1 && visited[i] == 0)\n        TopologicalSortUtil(i, visited, stack);\n    }\n    stack.Add(v);\n  }\n  public void TopologicalSort() {\n    int[] visited = new int[vertices];\n    List<int> stack = new List<int>();\n    for (int i = 0; i < vertices; i++) {\n      if (visited[i] == 0)\n        TopologicalSortUtil(i, visited, stack);\n    }\n    Console.WriteLine(\"Topological Sort:\");\n    for (int i = stack.Count - 1; i >= 0; i--)\n      Console.Write(stack[i] + \" \");\n    Console.WriteLine();\n  }\n}\n\nclass Program {\n  static void Main() {\n    Graph g = new Graph(6);\n    g.AddEdge(5, 2); g.AddEdge(5, 0); g.AddEdge(4, 0);\n    g.AddEdge(4, 1); g.AddEdge(2, 3); g.AddEdge(3, 1);\n    g.TopologicalSort();\n  }\n}\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "java": "import java.util.*;\n\nclass Graph {\n  private int vertices;\n  private int[][] adj;\n  public Graph(int v) {\n    vertices = v;\n    adj = new int[v][v];\n  }\n  public void addEdge(int u, int v) { adj[u][v] = 1; }\n  private void topologicalSortUtil(int v, int[] visited, List<Integer> stack) {\n    visited[v] = 1;\n    for (int i = 0; i < vertices; i++) {\n      if (adj[v][i] == 1 && visited[i] == 0)\n        topologicalSortUtil(i, visited, stack);\n    }\n    stack.add(v);\n  }\n  public void topologicalSort() {\n    int[] visited = new int[vertices];\n    List<Integer> stack = new ArrayList<>();\n    for (int i = 0; i < vertices; i++) {\n      if (visited[i] == 0)\n        topologicalSortUtil(i, visited, stack);\n    }\n    System.out.println(\"Topological Sort:\");\n    for (int i = stack.size() - 1; i >= 0; i--)\n      System.out.print(stack.get(i) + \" \");\n    System.out.println();\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Graph g = new Graph(6);\n    g.addEdge(5, 2); g.addEdge(5, 0); g.addEdge(4, 0);\n    g.addEdge(4, 1); g.addEdge(2, 3); g.addEdge(3, 1);\n    g.topologicalSort();\n  }\n}\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "javascript": "class Graph {\n  constructor(v) {\n    this.vertices = v;\n    this.adj = Array(v).fill().map(() => Array(v).fill(0));\n  }\n  addEdge(u, v) { this.adj[u][v] = 1; }\n  topologicalSortUtil(v, visited, stack) {\n    visited[v] = 1;\n    for (let i = 0; i < this.vertices; i++) {\n      if (this.adj[v][i] && !visited[i])\n        this.topologicalSortUtil(i, visited, stack);\n    }\n    stack.push(v);\n  }\n  topologicalSort() {\n    let visited = Array(this.vertices).fill(0);\n    let stack = [];\n    for (let i = 0; i < this.vertices; i++) {\n      if (!visited[i])\n        this.topologicalSortUtil(i, visited, stack);\n    }\n    console.log(\"Topological Sort:\");\n    console.log(stack.reverse().join(\" \"));\n  }\n}\n\nconst g = new Graph(6);\ng.addEdge(5, 2); g.addEdge(5, 0); g.addEdge(4, 0);\ng.addEdge(4, 1); g.addEdge(2, 3); g.addEdge(3, 1);\ng.topologicalSort();\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "typescript": "class Graph {\n  private vertices: number;\n  private adj: number[][];\n  constructor(v: number) {\n    this.vertices = v;\n    this.adj = Array(v).fill(0).map(() => Array(v).fill(0));\n  }\n  addEdge(u: number, v: number): void { this.adj[u][v] = 1; }\n  private topologicalSortUtil(v: number, visited: number[], stack: number[]): void {\n    visited[v] = 1;\n    for (let i = 0; i < this.vertices; i++) {\n      if (this.adj[v][i] && !visited[i])\n        this.topologicalSortUtil(i, visited, stack);\n    }\n    stack.push(v);\n  }\n  topologicalSort(): void {\n    let visited: number[] = Array(this.vertices).fill(0);\n    let stack: number[] = [];\n    for (let i = 0; i < this.vertices; i++) {\n      if (!visited[i])\n        this.topologicalSortUtil(i, visited, stack);\n    }\n    console.log(\"Topological Sort:\");\n    console.log(stack.reverse().join(\" \"));\n  }\n}\n\nconst g = new Graph(6);\ng.addEdge(5, 2); g.addEdge(5, 0); g.addEdge(4, 0);\n g.addEdge(4, 1); g.addEdge(2, 3); g.addEdge(3, 1);\n g.topologicalSort();\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0",
+      "python": "class Graph:\n    def __init__(self, vertices):\n        self.vertices = vertices\n        self.adj = [[0] * vertices for _ in range(vertices)]\n\n    def add_edge(self, u, v):\n        self.adj[u][v] = 1\n\n    def topological_sort_util(self, v, visited, stack):\n        visited[v] = 1\n        for i in range(self.vertices):\n            if self.adj[v][i] and not visited[i]:\n                self.topological_sort_util(i, visited, stack)\n        stack.append(v)\n\n    def topological_sort(self):\n        visited = [0] * self.vertices\n        stack = []\n        for i in range(self.vertices):\n            if not visited[i]:\n                self.topological_sort_util(i, visited, stack)\n        print(\"Topological Sort:\")\n        print(\" \".join(map(str, stack[::-1])))\n\n\ng = Graph(6)\ng.add_edge(5, 2); g.add_edge(5, 0); g.add_edge(4, 0)\ng.add_edge(4, 1); g.add_edge(2, 3); g.add_edge(3, 1)\ng.topological_sort()\n# Output: \n# Topological Sort:\n# 5 4 2 3 1 0",
+      "php": "<?php\n\nclass Graph {\n  private $vertices;\n  private $adj;\n  public function __construct($v) {\n    $this->vertices = $v;\n    $this->adj = array_fill(0, $v, array_fill(0, $v, 0));\n  }\n  public function addEdge($u, $v) { $this->adj[$u][$v] = 1; }\n  private function topologicalSortUtil($v, &$visited, &$stack) {\n    $visited[$v] = 1;\n    for ($i = 0; $i < $this->vertices; $i++) {\n      if ($this->adj[$v][$i] && !$visited[$i])\n        $this->topologicalSortUtil($i, $visited, $stack);\n    }\n    $stack[] = $v;\n  }\n  public function topologicalSort() {\n    $visited = array_fill(0, $this->vertices, 0);\n    $stack = [];\n    for ($i = 0; $i < $this->vertices; $i++) {\n      if (!$visited[$i])\n        $this->topologicalSortUtil($i, $visited, $stack);\n    }\n    echo \"Topological Sort:\\n\";\n    echo implode(\" \", array_reverse($stack)) . \"\\n\";\n  }\n}\n\n$g = new Graph(6);\n$g->addEdge(5, 2); $g->addEdge(5, 0); $g->addEdge(4, 0);\n$g->addEdge(4, 1); $g->addEdge(2, 3); $g->addEdge(3, 1);\n$g->topologicalSort();\n// Output: \n// Topological Sort:\n// 5 4 2 3 1 0"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое топологическая сортировка?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Топологическая сортировка упорядочивает вершины направленного ациклического графа (DAG) так, чтобы для каждого ребра (u, v) вершина u предшествовала v. Она используется для планирования задач или управления зависимостями, например, для определения порядка прохождения курсов или установки программного обеспечения. Например, в графе с 6 вершинами и рёбрами (5-2, 5-0, 4-0, 4-1, 2-3, 3-1) результатом топологической сортировки может быть 5, 4, 2, 3, 1, 0. Алгоритм реализуется с помощью поиска в глубину (DFS) или алгоритма Кана. По сравнению с DFS топологическая сортировка работает только на DAG, так как циклы делают упорядочивание невозможным. По сравнению с динамиącym программированием она требует меньше памяти."
+      },
+      {
+        "type": "heading",
+        "text": "Как работает топологическая сортировка?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Топологическая сортировка на основе DFS работает следующим образом: 1) **Выбор начальной вершины** - DFS вызывается для каждой непосещённой вершины. 2) **Поиск в глубину** - соседи каждой вершины посещаются рекурсивно. 3) **Добавление в стек** - вершина добавляется в стек после посещения всех её соседей. 4) **Результат** - стек переворачивается для получения порядка. Например, в графе с 6 вершинами (5-2, 5-0, 4-0, 4-1, 2-3, 3-1) порядок будет 5, 4, 2, 3, 1, 0. Алгоритм Кана начинает с вершин с входящей степенью 0 и использует очередь для построения порядка. DFS эффективен для плотных графов, а алгоритм Кана — для случаев, когда входящие степени легко вычисляются."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность топологической сортировки (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Топологическая сортировка на основе DFS имеет временную сложность O(V + E), где V — количество вершин, а E — количество рёбер. Каждая вершина и ребро посещаются один раз. Например, в графе с 6 вершинами и 6 рёбрами требуется O(6 + 6) ≈ O(12) операций. Алгоритм Кана также имеет сложность O(V + E), так как вычисляются входящие степени и вершины обрабатываются через очередь. Пространственная сложность для DFS составляет O(V) (стек и массив посещённых вершин), а для алгоритма Кана — O(V) (очередь и массив входящих степеней). По сравнению с бэктрекингом (например, O(N!) для задачи N-ферзей) топологическая сортировка более эффективна. По сравнению с динамическим программированием (например, O(n * m) для задачи о минимальном количестве монет) она использует меньше памяти."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки топологической сортировки"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "Эффективность: Сортировка на основе DFS быстра для плотных графов."
+          },
+          {
+            "description": "Универсальность: Алгоритм Кана эффективен при вычислении входящих степеней."
+          },
+          {
+            "description": "Недостаток: Работает только на DAG, так как циклы делают сортировку невозможной."
+          },
+          {
+            "description": "Недостаток: Использование памяти может быть проблемой для больших графов."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Топологическая сортировка в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "Топологическая сортировка используется в планировании задач (например, определение порядка выполнения проектных задач), установке программного обеспечения (управление зависимостями) и составлении расписания курсов. Например, если курс 5 зависит от курсов 2 и 0, а курс 4 зависит от 0 и 1, порядок будет 5, 4, 2, 3, 1, 0. Сортировка на основе DFS эффективна для плотных графов, а алгоритм Кана — для случаев, когда входящие степени легко вычисляются. По сравнению с бэктрекингом топологическая сортировка более эффективна, так как не перебирает все возможные порядки. По сравнению с динамическим программированием она использует меньше памяти, но работает только на DAG."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основная опасность — наличие циклов в графе, так как топологическая сортировка возможна только в DAG. Для обнаружения циклов может потребоваться дополнительный алгоритм (например, на основе DFS), который занимает O(V + E) времени. Использование памяти может быть проблемой для больших графов, особенно плотных. Рекомендации включают использование DFS для плотных графов и алгоритма Кана, когда входящие степени легко вычисляются. Убедитесь, что граф является DAG, перед применением алгоритма. Протестируйте алгоритм на графах разного размера, чтобы оценить производительность. Если обнаружение циклов критично, интегрируйте проверку циклов на основе DFS."
+      }
+    ]
+  }
+}

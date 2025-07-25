@@ -1,0 +1,496 @@
+{
+  "id": "file-io",
+  "az": {
+    "title": "Fayllarla İş (FILE*)",
+    "icon": "FiFileText",
+    "language": "c",
+    "description": "Fayllardan oxuma və yazma.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Fayllarla İş Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində fayllarla iş, məlumatları fayllara yazmaq və ya fayllardan oxumaq üçün istifadə olunan texnikadır. Bu, proqramın məlumatları saxlaması və ya əvvəlki məlumatları yenidən istifadə etməsi üçün faydalıdır. Məsələn, bir mətn faylına istifadəçi məlumatlarını yaza və ya mövcud fayldan məlumatları oxuya bilərsiniz. C-də fayllarla iş `FILE*` göstəricisi və `<stdio.h>` kitabxanasında olan funksiyalar (`fopen`, `fclose`, `fprintf`, `fscanf`, `fgets`, `fputs`) vasitəsilə həyata keçirilir. Qeyd: Bu kod nümunələri Pyodide mühitində işləməyəcək, çünki Pyodide fayl əməliyyatlarını dəstəkləmir. Kodu sınamaq üçün Visual Studio Code və ya gcc kimi yerli C kompilyatoru istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Əsas Funksiyalar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayllarla iş üçün əsas funksiyalar aşağıdakılardır:\n- `fopen`: Faylı açır.\n- `fclose`: Faylı bağlayır.\n- `fprintf`: Fayla formatlı məlumat yazır.\n- `fscanf`: Fayldan formatlı məlumat oxuyur.\n- `fgets`: Fayldan sətir oxuyur.\n- `fputs`: Fayla sətir yazır."
+      },
+      {
+        "type": "heading",
+        "text": "Fayl Açma və Bağlama (fopen, fclose)"
+      },
+      {
+        "type": "paragraph",
+        "text": "`fopen` funksiyası faylı oxumaq və ya yazmaq üçün açır. `fclose` isə faylı bağlayır. `fopen` iki arqument qəbul edir: fayl adı və rejim (məsələn, `r` oxuma, `w` yazma, `a` əlavə etmə).\nRejimlər:\n- `r`: Oxumaq üçün açır (fayl olmalıdır).\n- `w`: Yazmaq üçün açır (fayl yoxdursa yaradılır, varsa sıfırlanır).\n- `a`: Əlavə etmək üçün açır (faylın sonuna yazır).\n- `r+`, `w+`, `a+`: Həm oxuma, həm yazma üçün."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"example.txt\", \"w\");\n  if (file == NULL) {\n    printf(\"Fayl acilmadi!\\n\");\n    return 1;\n  }\n  fprintf(file, \"Salam, Dunya!\\n\");\n  fclose(file);\n  return 0;\n}\n// Output (example.txt faylına yazılır):\n// Salam, Dunya!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fopen(\"example.txt\", \"w\")`: `example.txt` faylını yazmaq üçün açır.\n- `if (file == NULL)`: Faylın açılıb-açılmadığını yoxlayır.\n- `fprintf`: Fayla mətn yazır.\n- `fclose`: Faylı bağlayır.\nQeyd: Bu kodu yerli kompilyatorda (məsələn, gcc) sınayın."
+      },
+      {
+        "type": "heading",
+        "text": "Fayla Yazma (fprintf, fputs)"
+      },
+      {
+        "type": "paragraph",
+        "text": "`fprintf` formatlı məlumatları (məsələn, ədədlər, simvollar) fayla yazır. `fputs` isə sətirləri yazır."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"data.txt\", \"w\");\n  if (file == NULL) {\n    printf(\"Fayl acilmadi!\\n\");\n    return 1;\n  }\n  fprintf(file, \"ID: %d, Ad: %s\\n\", 1, \"Ali\");\n  fputs(\"Bu bir setirdir.\\n\", file);\n  fclose(file);\n  return 0;\n}\n// Output (data.txt faylına yazılır):\n// ID: 1, Ad: Ali\n// Bu bir setirdir."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fprintf(file, \"ID: %d, Ad: %s\\n\", 1, \"Ali\")`: Formatlı məlumat yazır.\n- `fputs`: Sətir yazır.\n- Kodu yerli kompilyatorda sınayın."
+      },
+      {
+        "type": "heading",
+        "text": "Fayldan Oxuma (fscanf, fgets)"
+      },
+      {
+        "type": "paragraph",
+        "text": "`fscanf` fayldan formatlı məlumatları oxuyur, `fgets` isə sətirləri oxuyur."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"data.txt\", \"r\");\n  if (file == NULL) {\n    printf(\"Fayl acilmadi!\\n\");\n    return 1;\n  }\n  int id;\n  char name[50];\n  fscanf(file, \"ID: %d, Ad: %s\", &id, name);\n  printf(\"Oxunan: ID: %d, Ad: %s\\n\", id, name);\n  char line[100];\n  fgets(line, 100, file);\n  printf(\"Oxunan setir: %s\", line);\n  fclose(file);\n  return 0;\n}\n// Output (data.txt faylı əvvəlki nümunədən oxunarsa):\n// Oxunan: ID: 1, Ad: Ali\n// Oxunan setir: Bu bir setirdir.\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fopen(\"data.txt\", \"r\")`: Faylı oxumaq üçün açır.\n- `fscanf`: Formatlı məlumatları oxuyur.\n- `fgets`: Sətir oxuyur.\n- `fclose`: Faylı bağlayır.\nQeyd: `data.txt` faylı əvvəlki nümunədən olmalıdır."
+      },
+      {
+        "type": "heading",
+        "text": "Əlavə Etmə Rejimi (a)"
+      },
+      {
+        "type": "paragraph",
+        "text": "`a` rejimi ilə faylın sonuna məlumat əlavə edilir, fayl sıfırlanmır."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"log.txt\", \"a\");\n  if (file == NULL) {\n    printf(\"Fayl acilmadi!\\n\");\n    return 1;\n  }\n  fprintf(file, \"Yeni qeyd: %s\\n\", \"Test\");\n  fclose(file);\n  return 0;\n}\n// Output (log.txt faylına əlavə olunur):\n// Yeni qeyd: Test"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fopen(\"log.txt\", \"a\")`: Faylı əlavə etmək üçün açır.\n- `fprintf`: Faylın sonuna mətn əlavə edir.\n- Kodu yerli kompilyatorda sınayın."
+      },
+      {
+        "type": "heading",
+        "text": "Fayllarla İşin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayllarla iş proqramların məlumatları daimi saxlamasına imkan verir."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nMəlumatları daimi saxlamağa imkan verir." },
+          {
+            "description": "\nBöyük həcmli məlumatlarla işləməyi asanlaşdırır."
+          },
+          {
+            "description": "\nMəlumatların paylaşılmasını və təkrar istifadəsini dəstəkləyir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayllarla iş yeni başlayanlar üçün çətin ola bilər, xüsusilə faylın açılmaması və ya səhv rejimlə açılması kimi hallarda."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nFaylın açılmaması xətaları (NULL göstərici) idarə edilməlidir."
+          },
+          {
+            "description": "\nSəhv rejim seçimi gözlənilməz nəticələrə səbəb ola bilər."
+          },
+          { "description": "\nFayl bağlanmazsa, məlumat itkisi ola bilər." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Faylın açılmaması yoxlanılmazsa, proqram çökə bilər. `fclose` unudulursa, məlumatlar saxlanmaya bilər. Səhv formatlama `fscanf` ilə oxunarkən problemlər yarada bilər.\n- **Tövsiyələr**: Həmişə `fopen` nəticəsini yoxlayın (`NULL` olub-olmadığını). Faylları istifadədən sonra `fclose` ilə bağlayın. Formatlı oxuma/yazma üçün düzgün format göstəriciləri istifadə edin. Kodu Visual Studio Code və ya gcc ilə yerli kompilyatorda sınayın."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə faylın açılıb-açılmaması yoxlanılmır və səhvə səbəb olur. Bu kod icra olunmamalıdır, sadəcə nəzəri nümunədir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"nonexistent.txt\", \"r\");\n  fprintf(file, \"Bu yazilmayacaq!\\n\"); // Səhv: NULL göstərici\n  fclose(file);\n  return 0;\n}\n// Output: (Proqram çökə bilər)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fopen(\"nonexistent.txt\", \"r\")`: Mövcud olmayan faylı açmağa çalışır, `NULL` qaytarır.\n- `fprintf`: `NULL` göstəricisinə yazmağa çalışır, bu da proqramın çökməsinə səbəb olur.\n- Tövsiyə: `fopen` nəticəsini həmişə yoxlayın (`if (file == NULL)`)."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"example.txt\", \"w\");\n  if (file == NULL) {\n    printf(\"Fayl acilmadi!\\n\");\n    return 1;\n  }\n  fprintf(file, \"Salam, Dunya!\\n\");\n  fclose(file);\n  return 0;\n}\n// Output (example.txt faylına yazılır):\n// Salam, Dunya!"
+      }
+    ]
+  },
+  "en": {
+    "title": "File I/O (FILE*)",
+    "icon": "FiFileText",
+    "language": "c",
+    "description": "Reading from and writing to files.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is File I/O?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, file I/O (input/output) refers to reading from and writing to files. This allows programs to store data persistently or retrieve previously stored data. For example, you can write user data to a text file or read data from an existing file. In C, file operations are performed using the `FILE*` pointer and functions from the `<stdio.h>` library, such as `fopen`, `fclose`, `fprintf`, `fscanf`, `fgets`, and `fputs`. Note: These code examples will not work in Pyodide, as it does not support file operations. Test them in a local C compiler like Visual Studio Code or gcc."
+      },
+      {
+        "type": "heading",
+        "text": "Main Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "The main functions for file I/O are:\n- `fopen`: Opens a file.\n- `fclose`: Closes a file.\n- `fprintf`: Writes formatted data to a file.\n- `fscanf`: Reads formatted data from a file.\n- `fgets`: Reads a line from a file.\n- `fputs`: Writes a line to a file."
+      },
+      {
+        "type": "heading",
+        "text": "Opening and Closing Files (fopen, fclose)"
+      },
+      {
+        "type": "paragraph",
+        "text": "`fopen` opens a file for reading or writing. `fclose` closes the file. `fopen` takes two arguments: the file name and the mode (e.g., `r` for reading, `w` for writing, `a` for appending).\nModes:\n- `r`: Opens for reading (file must exist).\n- `w`: Opens for writing (creates file if it doesn’t exist, overwrites if it does).\n- `a`: Opens for appending (writes to the end of the file).\n- `r+`, `w+`, `a+`: Opens for both reading and writing."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"example.txt\", \"w\");\n  if (file == NULL) {\n    printf(\"File could not be opened!\\n\");\n    return 1;\n  }\n  fprintf(file, \"Hello, World!\\n\");\n  fclose(file);\n  return 0;\n}\n// Output (written to example.txt):\n// Hello, World!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `fopen(\"example.txt\", \"w\")`: Opens `example.txt` for writing.\n- `if (file == NULL)`: Checks if the file was opened successfully.\n- `fprintf`: Writes text to the file.\n- `fclose`: Closes the file.\nNote: Test this code in a local compiler (e.g., gcc)."
+      },
+      {
+        "type": "heading",
+        "text": "Writing to a File (fprintf, fputs)"
+      },
+      {
+        "type": "paragraph",
+        "text": "`fprintf` writes formatted data (e.g., numbers, strings) to a file. `fputs` writes strings to a file."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"data.txt\", \"w\");\n  if (file == NULL) {\n    printf(\"File could not be opened!\\n\");\n    return 1;\n  }\n  fprintf(file, \"ID: %d, Name: %s\\n\", 1, \"Ali\");\n  fputs(\"This is a line.\\n\", file);\n  fclose(file);\n  return 0;\n}\n// Output (written to data.txt):\n// ID: 1, Name: Ali\n// This is a line."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `fprintf(file, \"ID: %d, Name: %s\\n\", 1, \"Ali\")`: Writes formatted data.\n- `fputs`: Writes a string.\n- Test this code in a local compiler."
+      },
+      {
+        "type": "heading",
+        "text": "Reading from a File (fscanf, fgets)"
+      },
+      {
+        "type": "paragraph",
+        "text": "`fscanf` reads formatted data from a file, while `fgets` reads lines."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"data.txt\", \"r\");\n  if (file == NULL) {\n    printf(\"File could not be opened!\\n\");\n    return 1;\n  }\n  int id;\n  char name[50];\n  fscanf(file, \"ID: %d, Name: %s\", &id, name);\n  printf(\"Read: ID: %d, Name: %s\\n\", id, name);\n  char line[100];\n  fgets(line, 100, file);\n  printf(\"Read line: %s\", line);\n  fclose(file);\n  return 0;\n}\n// Output (if data.txt is from the previous example):\n// Read: ID: 1, Name: Ali\n// Read line: This is a line.\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `fopen(\"data.txt\", \"r\")`: Opens the file for reading.\n- `fscanf`: Reads formatted data.\n- `fgets`: Reads a line.\n- `fclose`: Closes the file.\nNote: `data.txt` must exist from the previous example."
+      },
+      {
+        "type": "heading",
+        "text": "Appending Mode (a)"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `a` mode appends data to the end of a file without overwriting it."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"log.txt\", \"a\");\n  if (file == NULL) {\n    printf(\"File could not be opened!\\n\");\n    return 1;\n  }\n  fprintf(file, \"New entry: %s\\n\", \"Test\");\n  fclose(file);\n  return 0;\n}\n// Output (appended to log.txt):\n// New entry: Test"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `fopen(\"log.txt\", \"a\")`: Opens the file for appending.\n- `fprintf`: Appends text to the file.\n- Test this code in a local compiler."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of File I/O"
+      },
+      {
+        "type": "paragraph",
+        "text": "File I/O allows programs to store data persistently."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nEnables persistent data storage." },
+          { "description": "\nFacilitates handling large amounts of data." },
+          { "description": "\nSupports data sharing and reuse." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "File I/O can be challenging for beginners, especially when handling file opening failures or using incorrect modes."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nFile opening errors (NULL pointer) must be handled."
+          },
+          {
+            "description": "\nIncorrect mode selection can cause unexpected results."
+          },
+          {
+            "description": "\nForgetting to close a file can lead to data loss."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Failing to check if a file opened successfully can crash the program. Forgetting `fclose` may result in unsaved data. Incorrect formatting in `fscanf` can cause issues.\n- **Recommendations**: Always check the result of `fopen` (for `NULL`). Close files with `fclose` after use. Use correct format specifiers for formatted reading/writing. Test code in a local compiler like Visual Studio Code or gcc."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example fails to check if the file was opened, causing an error. This code should not be run; it’s a theoretical example."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"nonexistent.txt\", \"r\");\n  fprintf(file, \"This won't write!\\n\"); // Error: NULL pointer\n  fclose(file);\n  return 0;\n}\n// Output: (Program may crash)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `fopen(\"nonexistent.txt\", \"r\")`: Tries to open a non-existent file, returning `NULL`.\n- `fprintf`: Attempts to write to a `NULL` pointer, causing a crash.\n- Recommendation: Always check `fopen`’s result (`if (file == NULL)`)."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"example.txt\", \"w\");\n  if (file == NULL) {\n    printf(\"File could not be opened!\\n\");\n    return 1;\n  }\n  fprintf(file, \"Hello, World!\\n\");\n  fclose(file);\n  return 0;\n}\n// Output (written to example.txt):\n// Hello, World!"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Работа с файлами (FILE*)",
+    "icon": "FiFileText",
+    "language": "c",
+    "description": "Чтение из файлов и запись в файлы.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое работа с файлами?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C работа с файлами (file I/O) — это техника чтения данных из файлов или записи данных в файлы. Это позволяет программам сохранять данные постоянно или использовать ранее сохранённые данные. Например, вы можете записать данные пользователя в текстовый файл или прочитать данные из существующего файла. В C операции с файлами выполняются с использованием указателя `FILE*` и функций из библиотеки `<stdio.h>`, таких как `fopen`, `fclose`, `fprintf`, `fscanf`, `fgets` и `fputs`. Примечание: Эти примеры кода не будут работать в Pyodide, так как он не поддерживает операции с файлами. Тестируйте их в локальном компиляторе, таком как Visual Studio Code или gcc."
+      },
+      {
+        "type": "heading",
+        "text": "Основные функции"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основные функции для работы с файлами:\n- `fopen`: Открывает файл.\n- `fclose`: Закрывает файл.\n- `fprintf`: Записывает форматированные данные в файл.\n- `fscanf`: Читает форматированные данные из файла.\n- `fgets`: Читает строку из файла.\n- `fputs`: Записывает строку в файл."
+      },
+      {
+        "type": "heading",
+        "text": "Открытие и закрытие файлов (fopen, fclose)"
+      },
+      {
+        "type": "paragraph",
+        "text": "`fopen` открывает файл для чтения или записи. `fclose` закрывает файл. `fopen` принимает два аргумента: имя файла и режим (например, `r` для чтения, `w` для записи, `a` для добавления).\nРежимы:\n- `r`: Открывает для чтения (файл должен существовать).\n- `w`: Открывает для записи (создаёт файл, если он не существует, перезаписывает, если существует).\n- `a`: Открывает для добавления (записывает в конец файла).\n- `r+`, `w+`, `a+`: Открывает для чтения и записи."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"example.txt\", \"w\");\n  if (file == NULL) {\n    printf(\"Файл не удалось открыть!\\n\");\n    return 1;\n  }\n  fprintf(file, \"Привет, мир!\\n\");\n  fclose(file);\n  return 0;\n}\n// Output (записано в example.txt):\n// Привет, мир!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `fopen(\"example.txt\", \"w\")`: Открывает `example.txt` для записи.\n- `if (file == NULL)`: Проверяет, успешно ли открыт файл.\n- `fprintf`: Записывает текст в файл.\n- `fclose`: Закрывает файл.\nПримечание: Тестируйте этот код в локальном компиляторе (например, gcc)."
+      },
+      {
+        "type": "heading",
+        "text": "Запись в файл (fprintf, fputs)"
+      },
+      {
+        "type": "paragraph",
+        "text": "`fprintf` записывает форматированные данные (например, числа, строки) в файл. `fputs` записывает строки."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"data.txt\", \"w\");\n  if (file == NULL) {\n    printf(\"Файл не удалось открыть!\\n\");\n    return 1;\n  }\n  fprintf(file, \"ID: %d, Имя: %s\\n\", 1, \"Али\");\n  fputs(\"Это строка.\\n\", file);\n  fclose(file);\n  return 0;\n}\n// Output (записано в data.txt):\n// ID: 1, Имя: Али\n// Это строка."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `fprintf(file, \"ID: %d, Имя: %s\\n\", 1, \"Али\")`: Записывает форматированные данные.\n- `fputs`: Записывает строку.\n- Тестируйте этот код в локальном компиляторе."
+      },
+      {
+        "type": "heading",
+        "text": "Чтение из файла (fscanf, fgets)"
+      },
+      {
+        "type": "paragraph",
+        "text": "`fscanf` читает форматированные данные из файла, а `fgets` читает строки."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"data.txt\", \"r\");\n  if (file == NULL) {\n    printf(\"Файл не удалось открыть!\\n\");\n    return 1;\n  }\n  int id;\n  char name[50];\n  fscanf(file, \"ID: %d, Имя: %s\", &id, name);\n  printf(\"Прочитано: ID: %d, Имя: %s\\n\", id, name);\n  char line[100];\n  fgets(line, 100, file);\n  printf(\"Прочитанная строка: %s\", line);\n  fclose(file);\n  return 0;\n}\n// Output (если data.txt из предыдущего примера):\n// Прочитано: ID: 1, Имя: Али\n// Прочитанная строка: Это строка.\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `fopen(\"data.txt\", \"r\")`: Открывает файл для чтения.\n- `fscanf`: Читает форматированные данные.\n- `fgets`: Читает строку.\n- `fclose`: Закрывает файл.\nПримечание: Файл `data.txt` должен существовать из предыдущего примера."
+      },
+      {
+        "type": "heading",
+        "text": "Режим добавления (a)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Режим `a` добавляет данные в конец файла без его перезаписи."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"log.txt\", \"a\");\n  if (file == NULL) {\n    printf(\"Файл не удалось открыть!\\n\");\n    return 1;\n  }\n  fprintf(file, \"Новая запись: %s\\n\", \"Тест\");\n  fclose(file);\n  return 0;\n}\n// Output (добавлено в log.txt):\n// Новая запись: Тест"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `fopen(\"log.txt\", \"a\")`: Открывает файл для добавления.\n- `fprintf`: Добавляет текст в конец файла.\n- Тестируйте этот код в локальном компиляторе."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества работы с файлами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Работа с файлами позволяет программам сохранять данные постоянно."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nПозволяет сохранять данные постоянно." },
+          { "description": "\nУпрощает работу с большими объёмами данных." },
+          {
+            "description": "\nПоддерживает обмен и повторное использование данных."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Работа с файлами может быть сложной для новичков, особенно при обработке ошибок открытия файла или использовании неправильных режимов."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nОшибки открытия файла (NULL указатель) должны обрабатываться."
+          },
+          {
+            "description": "\nНеправильный выбор режима может привести к неожиданным результатам."
+          },
+          {
+            "description": "\nНезакрытие файла может привести к потере данных."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Непроверка успешности открытия файла может привести к сбою программы. Забытый `fclose` может привести к несохранению данных. Неправильное форматирование в `fscanf` может вызвать проблемы.\n- **Рекомендации**: Всегда проверяйте результат `fopen` (на `NULL`). Закрывайте файлы с помощью `fclose` после использования. Используйте правильные спецификаторы формата для форматированного чтения/записи. Тестируйте код в локальном компиляторе, таком как Visual Studio Code или gcc."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример не проверяет, открыт ли файл, что вызывает ошибку. Код не следует запускать; это теоретический пример."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"nonexistent.txt\", \"r\");\n  fprintf(file, \"Это не запишется!\\n\"); // Ошибка: NULL указатель\n  fclose(file);\n  return 0;\n}\n// Output: (Программа может аварийно завершиться)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `fopen(\"nonexistent.txt\", \"r\")`: Пытается открыть несуществующий файл, возвращая `NULL`.\n- `fprintf`: Пытается записать в `NULL` указатель, что вызывает сбой.\n- Рекомендация: Всегда проверяйте результат `fopen` (`if (file == NULL)`)."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"example.txt\", \"w\");\n  if (file == NULL) {\n    printf(\"Файл не удалось открыть!\\n\");\n    return 1;\n  }\n  fprintf(file, \"Привет, мир!\\n\");\n  fclose(file);\n  return 0;\n}\n// Output (записано в example.txt):\n// Привет, мир!"
+      }
+    ]
+  }
+}

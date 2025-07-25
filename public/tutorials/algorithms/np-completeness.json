@@ -1,0 +1,232 @@
+{
+  "id": "np-completeness",
+  "az": {
+    "title": "NP-Tamlıq və Mürəkkəblik Sinifləri",
+    "icon": "FiAlertTriangle",
+    "language": "multiple",
+    "description": "P, NP, NP-complete və NP-hard problemləri haqqında məlumat.",
+    "codes": {
+      "python": "def is_satisfiable(clauses, n):\n    # Sadələşdirilmiş SAT problemi: Bütün kombinasiyaları yoxlayır\n    def evaluate(assignment, clauses):\n        for clause in clauses:\n            satisfied = False\n            for literal in clause:\n                var = abs(literal) - 1\n                value = assignment[var] if literal > 0 else not assignment[var]\n                if value:\n                    satisfied = True\n                    break\n            if not satisfied:\n                return False\n        return True\n\n    # 2^n kombinasiyanı yoxlayır\n    for i in range(1 << n):\n        assignment = [(i >> j) & 1 == 1 for j in range(n)]\n        if evaluate(assignment, clauses):\n            return True\n    return False\n\n# Nümunə: 3 dəyişən, 3 klauz\nclauses = [[1, -2], [-1, 3], [2, -3]]\nresult = is_satisfiable(clauses, 3)\nprint('Satisfiable:', result)\n# Çıxış: Satisfiable: True",
+      "javascript": "function isSatisfiable(clauses, n) {\n    // Sadələşdirilmiş SAT problemi: Bütün kombinasiyaları yoxlayır\n    function evaluate(assignment, clauses) {\n        for (let clause of clauses) {\n            let satisfied = false;\n            for (let literal of clause) {\n                let varIndex = Math.abs(literal) - 1;\n                let value = literal > 0 ? assignment[varIndex] : !assignment[varIndex];\n                if (value) {\n                    satisfied = true;\n                    break;\n                }\n            }\n            if (!satisfied) return false;\n        }\n        return true;\n    }\n\n    // 2^n kombinasiyanı yoxlayır\n    for (let i = 0; i < (1 << n); i++) {\n        let assignment = Array(n).fill(false).map((_, j) => (i >> j) & 1 === 1);\n        if (evaluate(assignment, clauses)) return true;\n    }\n    return false;\n}\n\n// Nümunə: 3 dəyişən, 3 klauz\nconst clauses = [[1, -2], [-1, 3], [2, -3]];\nconsole.log('Satisfiable:', isSatisfiable(clauses, 3));\n// Çıxış: Satisfiable: true",
+      "typescript": "function isSatisfiable(clauses: number[][], n: number): boolean {\n    // Sadələşdirilmiş SAT problemi: Bütün kombinasiyaları yoxlayır\n    function evaluate(assignment: boolean[], clauses: number[][]): boolean {\n        for (let clause of clauses) {\n            let satisfied = false;\n            for (let literal of clause) {\n                let varIndex = Math.abs(literal) - 1;\n                let value = literal > 0 ? assignment[varIndex] : !assignment[varIndex];\n                if (value) {\n                    satisfied = true;\n                    break;\n                }\n            }\n            if (!satisfied) return false;\n        }\n        return true;\n    }\n\n    // 2^n kombinasiyanı yoxlayır\n    for (let i = 0; i < (1 << n); i++) {\n        let assignment: boolean[] = Array(n).fill(false).map((_, j) => (i >> j) & 1 === 1);\n        if (evaluate(assignment, clauses)) return true;\n    }\n    return false;\n}\n\n// Nümunə: 3 dəyişən, 3 klauz\nconst clauses: number[][] = [[1, -2], [-1, 3], [2, -3]];\nconsole.log('Satisfiable:', isSatisfiable(clauses, 3));\n// Çıxış: Satisfiable: true",
+      "java": "import java.util.*;\n\nclass SATSolver {\n    static boolean isSatisfiable(int[][] clauses, int n) {\n        // Sadələşdirilmiş SAT problemi: Bütün kombinasiyaları yoxlayır\n        class Evaluator {\n            static boolean evaluate(boolean[] assignment, int[][] clauses) {\n                for (int[] clause : clauses) {\n                    boolean satisfied = false;\n                    for (int literal : clause) {\n                        int var = Math.abs(literal) - 1;\n                        boolean value = literal > 0 ? assignment[var] : !assignment[var];\n                        if (value) {\n                            satisfied = true;\n                            break;\n                        }\n                    }\n                    if (!satisfied) return false;\n                }\n                return true;\n            }\n        }\n\n        // 2^n kombinasiyanı yoxlayır\n        for (int i = 0; i < (1 << n); i++) {\n            boolean[] assignment = new boolean[n];\n            for (int j = 0; j < n; j++) {\n                assignment[j] = ((i >> j) & 1) == 1;\n            }\n            if (Evaluator.evaluate(assignment, clauses)) return true;\n        }\n        return false;\n    }\n\n    public static void main(String[] args) {\n        int[][] clauses = {{1, -2}, {-1, 3}, {2, -3}};\n        boolean result = isSatisfiable(clauses, 3);\n        System.out.println(\"Satisfiable: \" + result);\n    }\n}\n// Çıxış: Satisfiable: true",
+      "php": "<?php\n\nfunction isSatisfiable($clauses, $n) {\n    // Sadələşdirilmiş SAT problemi: Bütün kombinasiyaları yoxlayır\n    function evaluate($assignment, $clauses) {\n        foreach ($clauses as $clause) {\n            $satisfied = false;\n            foreach ($clause as $literal) {\n                $var = abs($literal) - 1;\n                $value = $literal > 0 ? $assignment[$var] : !$assignment[$var];\n                if ($value) {\n                    $satisfied = true;\n                    break;\n                }\n            }\n            if (!$satisfied) return false;\n        }\n        return true;\n    }\n\n    // 2^n kombinasiyanı yoxlayır\n    for ($i = 0; $i < (1 << $n); $i++) {\n        $assignment = array_fill(0, $n, false);\n        for ($j = 0; $j < $n; $j++) {\n            $assignment[$j] = (($i >> $j) & 1) == 1;\n        }\n        if (evaluate($assignment, $clauses)) return true;\n    }\n    return false;\n}\n\n// Nümunə: 3 dəyişən, 3 klauz\n$clauses = [[1, -2], [-1, 3], [2, -3]];\necho 'Satisfiable: ' . (isSatisfiable($clauses, 3) ? 'true' : 'false') . \"\\n\";\n// Çıxış: Satisfiable: true\n?>",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\nbool evaluate(bool* assignment, int** clauses, int clauseCount, int literalCount) {\n    for (int i = 0; i < clauseCount; i++) {\n        bool satisfied = false;\n        for (int j = 0; j < literalCount; j++) {\n            if (clauses[i][j] == 0) break;\n            int var = abs(clauses[i][j]) - 1;\n            bool value = clauses[i][j] > 0 ? assignment[var] : !assignment[var];\n            if (value) {\n                satisfied = true;\n                break;\n            }\n        }\n        if (!satisfied) return false;\n    }\n    return true;\n}\n\nbool isSatisfiable(int** clauses, int n, int clauseCount, int literalCount) {\n    // 2^n kombinasiyanı yoxlayır\n    bool* assignment = (bool*)malloc(n * sizeof(bool));\n    for (int i = 0; i < (1 << n); i++) {\n        for (int j = 0; j < n; j++) {\n            assignment[j] = (i >> j) & 1;\n        }\n        if (evaluate(assignment, clauses, clauseCount, literalCount)) {\n            free(assignment);\n            return true;\n        }\n    }\n    free(assignment);\n    return false;\n}\n\nint main() {\n    int clauses[3][2] = {{1, -2}, {-1, 3}, {2, -3}};\n    int* clausesPtr[3] = {clauses[0], clauses[1], clauses[2]};\n    bool result = isSatisfiable(clausesPtr, 3, 3, 2);\n    printf(\"Satisfiable: %s\\n\", result ? \"true\" : \"false\");\n    return 0;\n}\n// Çıxış: Satisfiable: true",
+      "csharp": "using System;\nusing System.Linq;\n\nclass SATSolver {\n    static bool Evaluate(bool[] assignment, int[][] clauses) {\n        foreach (var clause in clauses) {\n            bool satisfied = false;\n            foreach (var literal in clause) {\n                int var = Math.Abs(literal) - 1;\n                bool value = literal > 0 ? assignment[var] : !assignment[var];\n                if (value) {\n                    satisfied = true;\n                    break;\n                }\n            }\n            if (!satisfied) return false;\n        }\n        return true;\n    }\n\n    static bool IsSatisfiable(int[][] clauses, int n) {\n        // 2^n kombinasiyanı yoxlayır\n        for (int i = 0; i < (1 << n); i++) {\n            bool[] assignment = new bool[n];\n            for (int j = 0; j < n; j++) {\n                assignment[j] = ((i >> j) & 1) == 1;\n            }\n            if (Evaluate(assignment, clauses)) return true;\n        }\n        return false;\n    }\n\n    static void Main() {\n        int[][] clauses = new int[][] { new int[] { 1, -2 }, new int[] { -1, 3 }, new int[] { 2, -3 } };\n        bool result = IsSatisfiable(clauses, 3);\n        Console.WriteLine(\"Satisfiable: \" + result);\n    }\n}\n// Çıxış: Satisfiable: True",
+      "cpp": "#include <iostream>\n#include <vector>\n\nbool evaluate(const std::vector<bool>& assignment, const std::vector<std::vector<int>>& clauses) {\n    for (const auto& clause : clauses) {\n        bool satisfied = false;\n        for (int literal : clause) {\n            int var = abs(literal) - 1;\n            bool value = literal > 0 ? assignment[var] : !assignment[var];\n            if (value) {\n                satisfied = true;\n                break;\n            }\n        }\n        if (!satisfied) return false;\n    }\n    return true;\n}\n\nbool isSatisfiable(const std::vector<std::vector<int>>& clauses, int n) {\n    // 2^n kombinasiyanı yoxlayır\n    for (int i = 0; i < (1 << n); i++) {\n        std::vector<bool> assignment(n, false);\n        for (int j = 0; j < n; j++) {\n            assignment[j] = (i >> j) & 1;\n        }\n        if (evaluate(assignment, clauses)) return true;\n    }\n    return false;\n}\n\nint main() {\n    std::vector<std::vector<int>> clauses = {{1, -2}, {-1, 3}, {2, -3}};\n    bool result = isSatisfiable(clauses, 3);\n    std::cout << \"Satisfiable: \" << (result ? \"true\" : \"false\") << std::endl;\n    return 0;\n}\n// Çıxış: Satisfiable: true"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "P, NP, NP-complete və NP-hard nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "P, NP, NP-complete və NP-hard kompüter elmində problemlərin mürəkkəbliyini təsnif etmək üçün siniflərdir. **P** (Polinomial) sinfi, polinomial vaxtda (məsələn, n² və ya n³) həll oluna bilən problemləri əhatə edir, məsələn, bir sıra sayını sıralamaq. **NP** (Qeyri-deterministik Polinomial) sinfi, həllini polinomial vaxtda yoxlamaq mümkün olan problemləri ehtiva edir, məsələn, SAT problemi (boolean ifadənin doğru olub-olmadığını yoxlamaq). **NP-complete** problemləri NP-dəki ən çətin problemlərdir; bir NP-complete problemi polinomial vaxtda həll edilərsə, bütün NP problemləri də həll oluna bilər. **NP-hard** problemləri isə ən azı NP-complete qədər çətindir, lakin NP-də olmaq məcburi deyil. Məsələn, SAT problemi NP-complete-dir."
+      },
+      {
+        "type": "heading",
+        "text": "Bu siniflər necə işləyir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "P problemləri tez həll olunur, çünki onların alqoritmləri effektivdir. NP problemlərinin həlli uzun çəkə bilər, amma həll doğru olub-olmadığını yoxlamaq asandır. Məsələn, SAT problemində hər bir dəyişənə 'doğru' və ya 'yalan' dəyəri verməklə ifadəni yoxlamaq olar, lakin bütün kombinasiyaları sınamaq 2^n vaxt tələb edir. NP-complete problemləri, məsələn, SAT və ya Traveling Salesman, digər NP problemlərinə çevrilə bilər. NP-hard problemləri isə optimallaşdırma kimi daha ümumi ola bilər. P=NP olub-olmaması hələ də açıq sualdır."
+      },
+      {
+        "type": "heading",
+        "text": "Mürəkkəblik siniflərinin səmərəliliyi (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "P problemləri O(n^k) vaxtda həll olunur (k sabitdir). NP problemləri eksponensial vaxt, məsələn, O(2^n) tələb edə bilər. Məsələn, 3 dəyişənli SAT problemi üçün 2^3=8 kombinasiya yoxlanılır, bu da O(2^n)-dir. NP-complete problemlərinin effektiv həlli yoxdur, çünki onların həlli bütün NP problemlərini həll edər. Məkan mürəkkəbliyi adətən O(n) və ya O(n^2)-dir (məsələn, SAT üçün dəyişənlər və klauzlar). Dijkstra alqoritmi (O(E + V log V)) ilə müqayisədə NP-complete problemləri daha mürəkkəbdir."
+      },
+      {
+        "type": "heading",
+        "text": "Üstünlüklər və mənfi cəhətlər"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "Üstünlük: P problemləri sürətli və effektivdir." },
+          {
+            "description": "Üstünlük: NP problemlərinin həllini yoxlamaq asandır."
+          },
+          {
+            "description": "Mənfi cəhət: NP-complete problemləri böyük ölçülərdə çox yavaşdır."
+          },
+          {
+            "description": "Mənfi cəhət: NP-hard problemləri həll etmək çox vaxt eksponensial vaxt tələb edir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real həyatda istifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "NP-complete problemləri planlaşdırma (məsələn, marşrut optimallaşdırması), şifrələmə (kriptoqrafiya) və oyun dizaynında istifadə olunur. Məsələn, SAT problemi loqik sxemlərin dizaynında və proqram təminatının yoxlanmasında tətbiq edilir. NP-hard problemləri isə optimallaşdırma tapşırıqlarında (məsələn, resurs bölgüsü) istifadə olunur. P problemləri gündəlik tapşırıqlarda (sıralama, axtarış) effektivdir. Dinamik proqramlaşdırma ilə müqayisədə NP-complete problemləri daha ümumi həllər tələb edir."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əsas təhlükə NP-complete və NP-hard problemlərinin böyük ölçülərdə həllinin çox yavaş olmasıdır. Məsələn, SAT problemi üçün 100 dəyişənlə 2^100 kombinasiya mümkündür ki, bu da praktiki deyil. Tövsiyələr: Kiçik ölçülü problemlər üçün tam həllər, böyük ölçülər üçün isə yaxınlaşdırma alqoritmləri istifadə edin. Heuristik metodlar (məsələn, genetik alqoritmlər) və ya paralel hesablama kömək edə bilər. Problemin ölçüsünü əvvəlcədən qiymətləndirin və test edin."
+      }
+    ]
+  },
+  "en": {
+    "title": "NP-Completeness & Complexity Classes",
+    "icon": "FiAlertTriangle",
+    "language": "multiple",
+    "description": "P, NP, NP-complete, and NP-hard problems explained.",
+    "codes": {
+      "python": "def is_satisfiable(clauses, n):\n    # Sadələşdirilmiş SAT problemi: Bütün kombinasiyaları yoxlayır\n    def evaluate(assignment, clauses):\n        for clause in clauses:\n            satisfied = False\n            for literal in clause:\n                var = abs(literal) - 1\n                value = assignment[var] if literal > 0 else not assignment[var]\n                if value:\n                    satisfied = True\n                    break\n            if not satisfied:\n                return False\n        return True\n\n    # 2^n kombinasiyanı yoxlayır\n    for i in range(1 << n):\n        assignment = [(i >> j) & 1 == 1 for j in range(n)]\n        if evaluate(assignment, clauses):\n            return True\n    return False\n\n# Nümunə: 3 dəyişən, 3 klauz\nclauses = [[1, -2], [-1, 3], [2, -3]]\nresult = is_satisfiable(clauses, 3)\nprint('Satisfiable:', result)\n# Çıxış: Satisfiable: True",
+      "javascript": "function isSatisfiable(clauses, n) {\n    // Sadələşdirilmiş SAT problemi: Bütün kombinasiyaları yoxlayır\n    function evaluate(assignment, clauses) {\n        for (let clause of clauses) {\n            let satisfied = false;\n            for (let literal of clause) {\n                let varIndex = Math.abs(literal) - 1;\n                let value = literal > 0 ? assignment[varIndex] : !assignment[varIndex];\n                if (value) {\n                    satisfied = true;\n                    break;\n                }\n            }\n            if (!satisfied) return false;\n        }\n        return true;\n    }\n\n    // 2^n kombinasiyanı yoxlayır\n    for (let i = 0; i < (1 << n); i++) {\n        let assignment = Array(n).fill(false).map((_, j) => (i >> j) & 1 === 1);\n        if (evaluate(assignment, clauses)) return true;\n    }\n    return false;\n}\n\n// Nümunə: 3 dəyişən, 3 klauz\nconst clauses = [[1, -2], [-1, 3], [2, -3]];\nconsole.log('Satisfiable:', isSatisfiable(clauses, 3));\n// Çıxış: Satisfiable: true",
+      "typescript": "function isSatisfiable(clauses: number[][], n: number): boolean {\n    // Sadələşdirilmiş SAT problemi: Bütün kombinasiyaları yoxlayır\n    function evaluate(assignment: boolean[], clauses: number[][]): boolean {\n        for (let clause of clauses) {\n            let satisfied = false;\n            for (let literal of clause) {\n                let varIndex = Math.abs(literal) - 1;\n                let value = literal > 0 ? assignment[varIndex] : !assignment[varIndex];\n                if (value) {\n                    satisfied = true;\n                    break;\n                }\n            }\n            if (!satisfied) return false;\n        }\n        return true;\n    }\n\n    // 2^n kombinasiyanı yoxlayır\n    for (let i = 0; i < (1 << n); i++) {\n        let assignment: boolean[] = Array(n).fill(false).map((_, j) => (i >> j) & 1 === 1);\n        if (evaluate(assignment, clauses)) return true;\n    }\n    return false;\n}\n\n// Nümunə: 3 dəyişən, 3 klauz\nconst clauses: number[][] = [[1, -2], [-1, 3], [2, -3]];\nconsole.log('Satisfiable:', isSatisfiable(clauses, 3));\n// Çıxış: Satisfiable: true",
+      "java": "import java.util.*;\n\nclass SATSolver {\n    static boolean isSatisfiable(int[][] clauses, int n) {\n        // Sadələşdirilmiş SAT problemi: Bütün kombinasiyaları yoxlayır\n        class Evaluator {\n            static boolean evaluate(boolean[] assignment, int[][] clauses) {\n                for (int[] clause : clauses) {\n                    boolean satisfied = false;\n                    for (int literal : clause) {\n                        int var = Math.abs(literal) - 1;\n                        boolean value = literal > 0 ? assignment[var] : !assignment[var];\n                        if (value) {\n                            satisfied = true;\n                            break;\n                        }\n                    }\n                    if (!satisfied) return false;\n                }\n                return true;\n            }\n        }\n\n        // 2^n kombinasiyanı yoxlayır\n        for (int i = 0; i < (1 << n); i++) {\n            boolean[] assignment = new boolean[n];\n            for (int j = 0; j < n; j++) {\n                assignment[j] = ((i >> j) & 1) == 1;\n            }\n            if (Evaluator.evaluate(assignment, clauses)) return true;\n        }\n        return false;\n    }\n\n    public static void main(String[] args) {\n        int[][] clauses = {{1, -2}, {-1, 3}, {2, -3}};\n        boolean result = isSatisfiable(clauses, 3);\n        System.out.println(\"Satisfiable: \" + result);\n    }\n}\n// Çıxış: Satisfiable: true",
+      "php": "<?php\n\nfunction isSatisfiable($clauses, $n) {\n    // Sadələşdirilmiş SAT problemi: Bütün kombinasiyaları yoxlayır\n    function evaluate($assignment, $clauses) {\n        foreach ($clauses as $clause) {\n            $satisfied = false;\n            foreach ($clause as $literal) {\n                $var = abs($literal) - 1;\n                $value = $literal > 0 ? $assignment[$var] : !$assignment[$var];\n                if ($value) {\n                    $satisfied = true;\n                    break;\n                }\n            }\n            if (!$satisfied) return false;\n        }\n        return true;\n    }\n\n    // 2^n kombinasiyanı yoxlayır\n    for ($i = 0; $i < (1 << $n); $i++) {\n        $assignment = array_fill(0, $n, false);\n        for ($j = 0; $j < $n; $j++) {\n            $assignment[$j] = (($i >> $j) & 1) == 1;\n        }\n        if (evaluate($assignment, $clauses)) return true;\n    }\n    return false;\n}\n\n// Nümunə: 3 dəyişən, 3 klauz\n$clauses = [[1, -2], [-1, 3], [2, -3]];\necho 'Satisfiable: ' . (isSatisfiable($clauses, 3) ? 'true' : 'false') . \"\\n\";\n// Çıxış: Satisfiable: true\n?>",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\nbool evaluate(bool* assignment, int** clauses, int clauseCount, int literalCount) {\n    for (int i = 0; i < clauseCount; i++) {\n        bool satisfied = false;\n        for (int j = 0; j < literalCount; j++) {\n            if (clauses[i][j] == 0) break;\n            int var = abs(clauses[i][j]) - 1;\n            bool value = clauses[i][j] > 0 ? assignment[var] : !assignment[var];\n            if (value) {\n                satisfied = true;\n                break;\n            }\n        }\n        if (!satisfied) return false;\n    }\n    return true;\n}\n\nbool isSatisfiable(int** clauses, int n, int clauseCount, int literalCount) {\n    // 2^n kombinasiyanı yoxlayır\n    bool* assignment = (bool*)malloc(n * sizeof(bool));\n    for (int i = 0; i < (1 << n); i++) {\n        for (int j = 0; j < n; j++) {\n            assignment[j] = (i >> j) & 1;\n        }\n        if (evaluate(assignment, clauses, clauseCount, literalCount)) {\n            free(assignment);\n            return true;\n        }\n    }\n    free(assignment);\n    return false;\n}\n\nint main() {\n    int clauses[3][2] = {{1, -2}, {-1, 3}, {2, -3}};\n    int* clausesPtr[3] = {clauses[0], clauses[1], clauses[2]};\n    bool result = isSatisfiable(clausesPtr, 3, 3, 2);\n    printf(\"Satisfiable: %s\\n\", result ? \"true\" : \"false\");\n    return 0;\n}\n// Çıxış: Satisfiable: true",
+      "csharp": "using System;\nusing System.Linq;\n\nclass SATSolver {\n    static bool Evaluate(bool[] assignment, int[][] clauses) {\n        foreach (var clause in clauses) {\n            bool satisfied = false;\n            foreach (var literal in clause) {\n                int var = Math.Abs(literal) - 1;\n                bool value = literal > 0 ? assignment[var] : !assignment[var];\n                if (value) {\n                    satisfied = true;\n                    break;\n                }\n            }\n            if (!satisfied) return false;\n        }\n        return true;\n    }\n\n    static bool IsSatisfiable(int[][] clauses, int n) {\n        // 2^n kombinasiyanı yoxlayır\n        for (int i = 0; i < (1 << n); i++) {\n            bool[] assignment = new bool[n];\n            for (int j = 0; j < n; j++) {\n                assignment[j] = ((i >> j) & 1) == 1;\n            }\n            if (Evaluate(assignment, clauses)) return true;\n        }\n        return false;\n    }\n\n    static void Main() {\n        int[][] clauses = new int[][] { new int[] { 1, -2 }, new int[] { -1, 3 }, new int[] { 2, -3 } };\n        bool result = IsSatisfiable(clauses, 3);\n        Console.WriteLine(\"Satisfiable: \" + result);\n    }\n}\n// Çıxış: Satisfiable: True",
+      "cpp": "#include <iostream>\n#include <vector>\n\nbool evaluate(const std::vector<bool>& assignment, const std::vector<std::vector<int>>& clauses) {\n    for (const auto& clause : clauses) {\n        bool satisfied = false;\n        for (int literal : clause) {\n            int var = abs(literal) - 1;\n            bool value = literal > 0 ? assignment[var] : !assignment[var];\n            if (value) {\n                satisfied = true;\n                break;\n            }\n        }\n        if (!satisfied) return false;\n    }\n    return true;\n}\n\nbool isSatisfiable(const std::vector<std::vector<int>>& clauses, int n) {\n    // 2^n kombinasiyanı yoxlayır\n    for (int i = 0; i < (1 << n); i++) {\n        std::vector<bool> assignment(n, false);\n        for (int j = 0; j < n; j++) {\n            assignment[j] = (i >> j) & 1;\n        }\n        if (evaluate(assignment, clauses)) return true;\n    }\n    return false;\n}\n\nint main() {\n    std::vector<std::vector<int>> clauses = {{1, -2}, {-1, 3}, {2, -3}};\n    bool result = isSatisfiable(clauses, 3);\n    std::cout << \"Satisfiable: \" << (result ? \"true\" : \"false\") << std::endl;\n    return 0;\n}\n// Çıxış: Satisfiable: true"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are P, NP, NP-complete, and NP-hard?"
+      },
+      {
+        "type": "paragraph",
+        "text": "P, NP, NP-complete, and NP-hard are classes used to categorize the complexity of computational problems. **P** (Polynomial) includes problems solvable in polynomial time (e.g., n² or n³), like sorting a list of numbers. **NP** (Nondeterministic Polynomial) includes problems where a solution can be verified in polynomial time, such as the SAT problem (checking if a boolean expression can be true). **NP-complete** problems are the hardest in NP; if one can be solved in polynomial time, all NP problems can be. **NP-hard** problems are at least as hard as NP-complete but may not be in NP. For example, SAT is NP-complete."
+      },
+      {
+        "type": "heading",
+        "text": "How Do These Classes Work?"
+      },
+      {
+        "type": "paragraph",
+        "text": "P problems are solved quickly with efficient algorithms. NP problems may take a long time to solve, but verifying a solution is fast. For example, in the SAT problem, you can check if a set of 'true' or 'false' assignments satisfies an expression, but trying all combinations takes 2^n time. NP-complete problems, like SAT or Traveling Salesman, can be transformed into other NP problems. NP-hard problems may involve optimization, like finding the best solution. Whether P equals NP remains an open question."
+      },
+      {
+        "type": "heading",
+        "text": "Efficiency of Complexity Classes (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "P problems are solved in O(n^k) time (k is constant). NP problems can take exponential time, e.g., O(2^n). For example, a SAT problem with 3 variables checks 2^3=8 combinations, which is O(2^n). NP-complete problems lack efficient solutions, as solving one efficiently would solve all NP problems. Space complexity is typically O(n) or O(n^2) (e.g., for SAT variables and clauses). Compared to Dijkstra’s algorithm (O(E + V log V)), NP-complete problems are far more complex."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Disadvantages"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "Advantage: P problems are fast and efficient." },
+          {
+            "description": "Advantage: NP problem solutions are easy to verify."
+          },
+          {
+            "description": "Disadvantage: NP-complete problems are very slow for large sizes."
+          },
+          {
+            "description": "Disadvantage: NP-hard problems often require exponential time."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Real-Life Applications"
+      },
+      {
+        "type": "paragraph",
+        "text": "NP-complete problems are used in scheduling (e.g., route optimization), cryptography (e.g., code-breaking), and game design. For example, SAT is used in circuit design and software verification. NP-hard problems appear in optimization tasks (e.g., resource allocation). P problems are efficient for daily tasks like sorting or searching. Compared to dynamic programming, NP-complete problems require more general solutions."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "The main risk is that NP-complete and NP-hard problems are very slow for large inputs. For example, a SAT problem with 100 variables has 2^100 possible combinations, which is impractical. Recommendations: Use exact solutions for small problems and approximation algorithms for large ones. Heuristic methods (e.g., genetic algorithms) or parallel computing can help. Always estimate problem size and test solutions beforehand."
+      }
+    ]
+  },
+  "ru": {
+    "title": "NP-полнота и классы сложности",
+    "icon": "FiAlertTriangle",
+    "language": "multiple",
+    "description": "P, NP, NP-полные и NP-трудные задачи.",
+    "codes": {
+      "python": "def is_satisfiable(clauses, n):\n    # Sadələşdirilmiş SAT problemi: Bütün kombinasiyaları yoxlayır\n    def evaluate(assignment, clauses):\n        for clause in clauses:\n            satisfied = False\n            for literal in clause:\n                var = abs(literal) - 1\n                value = assignment[var] if literal > 0 else not assignment[var]\n                if value:\n                    satisfied = True\n                    break\n            if not satisfied:\n                return False\n        return True\n\n    # 2^n kombinasiyanı yoxlayır\n    for i in range(1 << n):\n        assignment = [(i >> j) & 1 == 1 for j in range(n)]\n        if evaluate(assignment, clauses):\n            return True\n    return False\n\n# Nümunə: 3 dəyişən, 3 klauz\nclauses = [[1, -2], [-1, 3], [2, -3]]\nresult = is_satisfiable(clauses, 3)\nprint('Satisfiable:', result)\n# Çıxış: Satisfiable: True",
+      "javascript": "function isSatisfiable(clauses, n) {\n    // Sadələşdirilmiş SAT problemi: Bütün kombinasiyaları yoxlayır\n    function evaluate(assignment, clauses) {\n        for (let clause of clauses) {\n            let satisfied = false;\n            for (let literal of clause) {\n                let varIndex = Math.abs(literal) - 1;\n                let value = literal > 0 ? assignment[varIndex] : !assignment[varIndex];\n                if (value) {\n                    satisfied = true;\n                    break;\n                }\n            }\n            if (!satisfied) return false;\n        }\n        return true;\n    }\n\n    // 2^n kombinasiyanı yoxlayır\n    for (let i = 0; i < (1 << n); i++) {\n        let assignment = Array(n).fill(false).map((_, j) => (i >> j) & 1 === 1);\n        if (evaluate(assignment, clauses)) return true;\n    }\n    return false;\n}\n\n// Nümunə: 3 dəyişən, 3 klauz\nconst clauses = [[1, -2], [-1, 3], [2, -3]];\nconsole.log('Satisfiable:', isSatisfiable(clauses, 3));\n// Çıxış: Satisfiable: true",
+      "typescript": "function isSatisfiable(clauses: number[][], n: number): boolean {\n    // Sadələşdirilmiş SAT problemi: Bütün kombinasiyaları yoxlayır\n    function evaluate(assignment: boolean[], clauses: number[][]): boolean {\n        for (let clause of clauses) {\n            let satisfied = false;\n            for (let literal of clause) {\n                let varIndex = Math.abs(literal) - 1;\n                let value = literal > 0 ? assignment[varIndex] : !assignment[varIndex];\n                if (value) {\n                    satisfied = true;\n                    break;\n                }\n            }\n            if (!satisfied) return false;\n        }\n        return true;\n    }\n\n    // 2^n kombinasiyanı yoxlayır\n    for (let i = 0; i < (1 << n); i++) {\n        let assignment: boolean[] = Array(n).fill(false).map((_, j) => (i >> j) & 1 === 1);\n        if (evaluate(assignment, clauses)) return true;\n    }\n    return false;\n}\n\n// Nümunə: 3 dəyişən, 3 klauz\nconst clauses: number[][] = [[1, -2], [-1, 3], [2, -3]];\nconsole.log('Satisfiable:', isSatisfiable(clauses, 3));\n// Çıxış: Satisfiable: true",
+      "java": "import java.util.*;\n\nclass SATSolver {\n    static boolean isSatisfiable(int[][] clauses, int n) {\n        // Sadələşdirilmiş SAT problemi: Bütün kombinasiyaları yoxlayır\n        class Evaluator {\n            static boolean evaluate(boolean[] assignment, int[][] clauses) {\n                for (int[] clause : clauses) {\n                    boolean satisfied = false;\n                    for (int literal : clause) {\n                        int var = Math.abs(literal) - 1;\n                        boolean value = literal > 0 ? assignment[var] : !assignment[var];\n                        if (value) {\n                            satisfied = true;\n                            break;\n                        }\n                    }\n                    if (!satisfied) return false;\n                }\n                return true;\n            }\n        }\n\n        // 2^n kombinasiyanı yoxlayır\n        for (int i = 0; i < (1 << n); i++) {\n            boolean[] assignment = new boolean[n];\n            for (int j = 0; j < n; j++) {\n                assignment[j] = ((i >> j) & 1) == 1;\n            }\n            if (Evaluator.evaluate(assignment, clauses)) return true;\n        }\n        return false;\n    }\n\n    public static void main(String[] args) {\n        int[][] clauses = {{1, -2}, {-1, 3}, {2, -3}};\n        boolean result = isSatisfiable(clauses, 3);\n        System.out.println(\"Satisfiable: \" + result);\n    }\n}\n// Çıxış: Satisfiable: true",
+      "php": "<?php\n\nfunction isSatisfiable($clauses, $n) {\n    // Sadələşdirilmiş SAT problemi: Bütün kombinasiyaları yoxlayır\n    function evaluate($assignment, $clauses) {\n        foreach ($clauses as $clause) {\n            $satisfied = false;\n            foreach ($clause as $literal) {\n                $var = abs($literal) - 1;\n                $value = $literal > 0 ? $assignment[$var] : !$assignment[$var];\n                if ($value) {\n                    $satisfied = true;\n                    break;\n                }\n            }\n            if (!$satisfied) return false;\n        }\n        return true;\n    }\n\n    // 2^n kombinasiyanı yoxlayır\n    for ($i = 0; $i < (1 << $n); $i++) {\n        $assignment = array_fill(0, $n, false);\n        for ($j = 0; $j < $n; $j++) {\n            $assignment[$j] = (($i >> $j) & 1) == 1;\n        }\n        if (evaluate($assignment, $clauses)) return true;\n    }\n    return false;\n}\n\n// Nümunə: 3 dəyişən, 3 klauz\n$clauses = [[1, -2], [-1, 3], [2, -3]];\necho 'Satisfiable: ' . (isSatisfiable($clauses, 3) ? 'true' : 'false') . \"\\n\";\n// Çıxış: Satisfiable: true\n?>",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\nbool evaluate(bool* assignment, int** clauses, int clauseCount, int literalCount) {\n    for (int i = 0; i < clauseCount; i++) {\n        bool satisfied = false;\n        for (int j = 0; j < literalCount; j++) {\n            if (clauses[i][j] == 0) break;\n            int var = abs(clauses[i][j]) - 1;\n            bool value = clauses[i][j] > 0 ? assignment[var] : !assignment[var];\n            if (value) {\n                satisfied = true;\n                break;\n            }\n        }\n        if (!satisfied) return false;\n    }\n    return true;\n}\n\nbool isSatisfiable(int** clauses, int n, int clauseCount, int literalCount) {\n    // 2^n kombinasiyanı yoxlayır\n    bool* assignment = (bool*)malloc(n * sizeof(bool));\n    for (int i = 0; i < (1 << n); i++) {\n        for (int j = 0; j < n; j++) {\n            assignment[j] = (i >> j) & 1;\n        }\n        if (evaluate(assignment, clauses, clauseCount, literalCount)) {\n            free(assignment);\n            return true;\n        }\n    }\n    free(assignment);\n    return false;\n}\n\nint main() {\n    int clauses[3][2] = {{1, -2}, {-1, 3}, {2, -3}};\n    int* clausesPtr[3] = {clauses[0], clauses[1], clauses[2]};\n    bool result = isSatisfiable(clausesPtr, 3, 3, 2);\n    printf(\"Satisfiable: %s\\n\", result ? \"true\" : \"false\");\n    return 0;\n}\n// Çıxış: Satisfiable: true",
+      "csharp": "using System;\nusing System.Linq;\n\nclass SATSolver {\n    static bool Evaluate(bool[] assignment, int[][] clauses) {\n        foreach (var clause in clauses) {\n            bool satisfied = false;\n            foreach (var literal in clause) {\n                int var = Math.Abs(literal) - 1;\n                bool value = literal > 0 ? assignment[var] : !assignment[var];\n                if (value) {\n                    satisfied = true;\n                    break;\n                }\n            }\n            if (!satisfied) return false;\n        }\n        return true;\n    }\n\n    static bool IsSatisfiable(int[][] clauses, int n) {\n        // 2^n kombinasiyanı yoxlayır\n        for (int i = 0; i < (1 << n); i++) {\n            bool[] assignment = new bool[n];\n            for (int j = 0; j < n; j++) {\n                assignment[j] = ((i >> j) & 1) == 1;\n            }\n            if (Evaluate(assignment, clauses)) return true;\n        }\n        return false;\n    }\n\n    static void Main() {\n        int[][] clauses = new int[][] { new int[] { 1, -2 }, new int[] { -1, 3 }, new int[] { 2, -3 } };\n        bool result = IsSatisfiable(clauses, 3);\n        Console.WriteLine(\"Satisfiable: \" + result);\n    }\n}\n// Çıxış: Satisfiable: True",
+      "cpp": "#include <iostream>\n#include <vector>\n\nbool evaluate(const std::vector<bool>& assignment, const std::vector<std::vector<int>>& clauses) {\n    for (const auto& clause : clauses) {\n        bool satisfied = false;\n        for (int literal : clause) {\n            int var = abs(literal) - 1;\n            bool value = literal > 0 ? assignment[var] : !assignment[var];\n            if (value) {\n                satisfied = true;\n                break;\n            }\n        }\n        if (!satisfied) return false;\n    }\n    return true;\n}\n\nbool isSatisfiable(const std::vector<std::vector<int>>& clauses, int n) {\n    // 2^n kombinasiyanı yoxlayır\n    for (int i = 0; i < (1 << n); i++) {\n        std::vector<bool> assignment(n, false);\n        for (int j = 0; j < n; j++) {\n            assignment[j] = (i >> j) & 1;\n        }\n        if (evaluate(assignment, clauses)) return true;\n    }\n    return false;\n}\n\nint main() {\n    std::vector<std::vector<int>> clauses = {{1, -2}, {-1, 3}, {2, -3}};\n    bool result = isSatisfiable(clauses, 3);\n    std::cout << \"Satisfiable: \" << (result ? \"true\" : \"false\") << std::endl;\n    return 0;\n}\n// Çıxış: Satisfiable: true"
+    },
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое P, NP, NP-полные и NP-трудные задачи?"
+      },
+      {
+        "type": "paragraph",
+        "text": "P, NP, NP-полные и NP-трудные — это классы для классификации сложности вычислительных задач. **P** (Полиномиальные) включают задачи, решаемые за полиномиальное время (например, n² или n³), такие как сортировка чисел. **NP** (Недетерминированные полиномиальные) включают задачи, решение которых можно проверить за полиномиальное время, например, задача SAT (проверка истинности булева выражения). **NP-полные** задачи — самые сложные в NP; если одна из них решается за полиномиальное время, все NP-задачи тоже могут быть решены. **NP-трудные** задачи как минимум так же сложны, как NP-полные, но не обязательно принадлежат NP. Например, SAT — NP-полная задача."
+      },
+      {
+        "type": "heading",
+        "text": "Как работают эти классы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Задачи P решаются быстро с помощью эффективных алгоритмов. Решение NP-задач может занимать много времени, но проверка решения быстрая. Например, в задаче SAT можно проверить, удовлетворяет ли набор значений 'true' или 'false' выражению, но перебор всех комбинаций занимает 2^n времени. NP-полные задачи, такие как SAT или задача коммивояжёра, могут быть преобразованы в другие NP-задачи. NP-трудные задачи могут включать оптимизацию. Вопрос, равны ли P и NP, остаётся открытым."
+      },
+      {
+        "type": "heading",
+        "text": "Эффективность классов сложности (Big O)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Задачи P решаются за время O(n^k), где k — константа. NP-задачи могут требовать экспоненциального времени, например, O(2^n). Например, задача SAT с 3 переменными проверяет 2^3=8 комбинаций, что соответствует O(2^n). Для NP-полных задач нет эффективных решений, так как их решение решит все NP-задачи. Пространственная сложность обычно O(n) или O(n^2) (например, для переменных и клауз SAT). По сравнению с алгоритмом Дейкстры (O(E + V log V)) NP-полные задачи значительно сложнее."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и недостатки"
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "Преимущество: Задачи P быстрые и эффективные." },
+          { "description": "Преимущество: Решения NP-задач легко проверять." },
+          {
+            "description": "Недостаток: NP-полные задачи очень медленные для больших размеров."
+          },
+          {
+            "description": "Недостаток: NP-трудные задачи часто требуют экспоненциального времени."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Применение в реальной жизни"
+      },
+      {
+        "type": "paragraph",
+        "text": "NP-полные задачи используются в планировании (например, оптимизация маршрутов), криптографии (например, взлом кодов) и дизайне игр. Например, SAT применяется в проектировании логических схем и проверке программного обеспечения. NP-трудные задачи используются в задачах оптимизации (например, распределение ресурсов). Задачи P эффективны для повседневных задач, таких как сортировка или поиск. По сравнению с динамическим программированием NP-полные задачи требуют более общих решений."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основной риск — медленная работа NP-полных и NP-трудных задач при больших входных данных. Например, задача SAT с 100 переменными имеет 2^100 возможных комбинаций, что непрактично. Рекомендации: Используйте точные решения для малых задач и аппроксимационные алгоритмы для больших. Эвристические методы (например, генетические алгоритмы) или параллельные вычисления могут помочь. Оценивайте размер задачи заранее и тестируйте решения."
+      }
+    ]
+  }
+}

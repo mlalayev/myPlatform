@@ -1,0 +1,435 @@
+{
+  "id": "interop",
+  "az": {
+    "title": "Interop və Təhlükəli Kod",
+    "icon": "FiAlertTriangle",
+    "language": "csharp",
+    "description": "Doğma kod çağırışı, göstəricilər və təhlükəli kontekstlər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Interop və Təhlükəli Kod Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində 'interop' (qarşılıqlı əməliyyat) C# kodunun C və ya C++ kimi digər dillərdə yazılmış doğma (native) kodla işləməsini təmin edir. Bu, məsələn, Windows API və ya xarici kitabxanalarla işləmək üçün istifadə olunur. 'Təhlükəli kod' (unsafe code) isə C#-ın yaddaşla birbaşa işləməyə imkan verən xüsusiyyətidir, məsələn, göstəricilər (pointers) vasitəsilə. Bu JSON faylda Platform Invoke (P/Invoke), göstəricilər və təhlükəli kontekstlərin əsasları, istifadəsi, üstünlükləri, riskləri və tipik səhvlər sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur və Pyodide məhdudiyyətlərinə uyğun olaraq şəbəkə çağırışları və fayl əməliyyatları əvəzinə sadə massivlər üzərində əməliyyatlar icra edilir."
+      },
+      {
+        "type": "heading",
+        "text": "Platform Invoke (P/Invoke) ilə Doğma Kod Çağırışı"
+      },
+      {
+        "type": "paragraph",
+        "text": "P/Invoke C# kodunun Windows və ya digər platformaların doğma funksiyalarını çağırmasına imkan verir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Runtime.InteropServices;\n\nclass Program\n{\n    [DllImport(\"user32.dll\", CharSet = CharSet.Auto)]\n    private static extern int MessageBox(IntPtr hWnd, string text, string caption, int options);\n\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"P/Invoke ilə MessageBox çağırışı...\");\n        try\n        {\n            MessageBox(IntPtr.Zero, \"Salam, dünya!\", \"P/Invoke Nümunəsi\", 0);\n            Console.WriteLine(\"MessageBox göstərildi.\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Səhv: {ex.Message}\");\n        }\n    }\n}\n// Output (Windows-da):\n// P/Invoke ilə MessageBox çağırışı...\n// (Bir mesaj qutusu göstərilir)\n// MessageBox göstərildi.\n// Qeyd: Bu kod yalnız Windows-da işləyir. Pyodide-da dəstəklənmir."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `DllImport` atributu ilə Windows-un `user32.dll` kitabxanasından `MessageBox` funksiyası çağırılır.\n- Mesaj qutusu göstərilir.\n- Qeyd: Bu kod yalnız Windows platformasında işləyir və .NET SDK ilə Visual Studio Code-da `dotnet run` ilə sınaqdan keçirilməlidir."
+      },
+      {
+        "type": "heading",
+        "text": "Göstəricilər və Təhlükəli Kontekst"
+      },
+      {
+        "type": "paragraph",
+        "text": "Təhlükəli kontekstdə göstəricilər yaddaş ünvanları ilə birbaşa işləməyə imkan verir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Təhlükəli kod və göstəricilər...\");\n        int[] numbers = new[] { 10, 20, 30 };\n        unsafe\n        {\n            fixed (int* ptr = numbers)\n            {\n                for (int i = 0; i < 3; i++)\n                {\n                    Console.WriteLine($\"Dəyər: {*(ptr + i)}\");\n                }\n            }\n        }\n    }\n}\n// Output:\n// Təhlükəli kod və göstəricilər...\n// Dəyər: 10\n// Dəyər: 20\n// Dəyər: 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `unsafe` bloku göstəricilərə icazə verir.\n- `fixed` ilə massiv yaddaşda sabitlənir, çünki zibil toplayıcı obyektləri hərəkət etdirə bilər.\n- Göstəricilər (`*`) vasitəsilə massivin dəyərlərinə daxil olunur.\n- Qeyd: Təhlükəli kod üçün proyekt faylında `<AllowUnsafeBlocks>true</AllowUnsafeBlocks>` əlavə edilməlidir."
+      },
+      {
+        "type": "heading",
+        "text": "İstisna İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Təhlükəli kodda səhvlər, məsələn, yanlış yaddaş ünvanına daxil olma, `try-catch` ilə idarə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Təhlükəli kod səhvi...\");\n        int[] numbers = new[] { 1, 2, 3 };\n        try\n        {\n            unsafe\n            {\n                fixed (int* ptr = numbers)\n                {\n                    Console.WriteLine($\"Səhv ünvan: {*(ptr + 10)}\");\n                }\n            }\n        }\n        catch (AccessViolationException ex)\n        {\n            Console.WriteLine(\"Səhv: Yaddaş ünvanına yanlış daxil olma!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Ümumi səhv: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Təhlükəli kod səhvi...\n// Səhv: Yaddaş ünvanına yanlış daxil olma!\n// Səhv mesajı: Attempted to read or write protected memory."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Göstəricil massivin sərhədlərindən kənarda yaddaşa daxil olmağa cəhd edir.\n- `AccessViolationException` yaranır və `try-catch` ilə idarə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Interop və Təhlükəli Kodun Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interop və təhlükəli kod yüksək performanslı tətbiqlər üçün faydalıdır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nPerformans: Göstəricilər yaddaşla birbaşa işləyərək sürəti artırır."
+          },
+          {
+            "description": "\nInteqrasiya: P/Invoke xarici kitabxanalarla işləməyi asanlaşdırır."
+          },
+          {
+            "description": "\nNəzarət: Təhlükəli kod yaddaşa dəqiq nəzarət imkanı verir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interop və təhlükəli kod yeni başlayanlar üçün mürəkkəbdir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nTəhlükə: Göstəricilərdə səhv yaddaş sızmasına və ya proqramın çökməsinə səbəb ola bilər."
+          },
+          {
+            "description": "\nPlatforma asılılığı: P/Invoke kodları platformaya xas ola bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: Təhlükəli kod və P/Invoke Pyodide-da dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Yanlış göstəricil istifadəsi yaddaş sızmasına və ya çökməyə səbəb ola bilər. P/Invoke-da səhv funksiya tərifləri icra zamanı səhvlər yaradır.\n- **Tövsiyələr**: Təhlükəli kodu minimumda istifadə edin. Göstəriciləri `fixed` ilə sabitləyin. Səhvləri `try-catch` ilə idarə edin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə yanlış göstəricil istifadəsi səhvə səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Səhvə yol açan göstəricil...\");\n        try\n        {\n            unsafe\n            {\n                int* ptr = null;\n                *ptr = 42;\n                Console.WriteLine($\"Dəyər: {*ptr}\");\n            }\n        }\n        catch (NullReferenceException ex)\n        {\n            Console.WriteLine(\"Səhv: Null göstəriciyə daxil olma!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Səhvə yol açan göstəricil...\n// Səhv: Null göstəriciyə daxil olma!\n// Səhv mesajı: Object reference not set to an instance of an object."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Null göstəriciyə daxil olmağa cəhd edilir.\n- `NullReferenceException` yaranır və `try-catch` ilə idarə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Təhlükəli kod sınağı...\");\n        try\n        {\n            int[] numbers = new[] { 100, 200, 300 };\n            unsafe\n            {\n                fixed (int* ptr = numbers)\n                {\n                    for (int i = 0; i < 3; i++)\n                    {\n                        Console.WriteLine($\"Dəyər: {*(ptr + i)}\");\n                    }\n                }\n            }\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Səhv: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Təhlükəli kod sınağı...\n// Dəyər: 100\n// Dəyər: 200\n// Dəyər: 300"
+      }
+    ]
+  },
+  "en": {
+    "title": "Interop & Unsafe Code",
+    "icon": "FiAlertTriangle",
+    "language": "csharp",
+    "description": "Calling native code, pointers, and unsafe contexts.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Interop and Unsafe Code?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, 'interop' (interoperability) allows C# code to interact with native code written in languages like C or C++, such as calling Windows APIs or external libraries. 'Unsafe code' enables direct memory manipulation using pointers. This JSON file explains Platform Invoke (P/Invoke), pointers, and unsafe contexts, their usage, benefits, risks, and common errors in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values, avoid user input, and perform operations on simple arrays instead of network or file operations due to Pyodide limitations."
+      },
+      {
+        "type": "heading",
+        "text": "Platform Invoke (P/Invoke) for Native Code"
+      },
+      {
+        "type": "paragraph",
+        "text": "P/Invoke allows C# code to call native functions from Windows or other platforms."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Runtime.InteropServices;\n\nclass Program\n{\n    [DllImport(\"user32.dll\", CharSet = CharSet.Auto)]\n    private static extern int MessageBox(IntPtr hWnd, string text, string caption, int options);\n\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Calling MessageBox with P/Invoke...\");\n        try\n        {\n            MessageBox(IntPtr.Zero, \"Hello, World!\", \"P/Invoke Example\", 0);\n            Console.WriteLine(\"MessageBox displayed.\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Error: {ex.Message}\");\n        }\n    }\n}\n// Output (on Windows):\n// Calling MessageBox with P/Invoke...\n// (A message box is displayed)\n// MessageBox displayed.\n// Note: This code only works on Windows and is not supported in Pyodide."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `DllImport` attribute calls the `MessageBox` function from Windows' `user32.dll`.\n- A message box is displayed.\n- Note: This code only works on Windows and should be tested with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Pointers and Unsafe Contexts"
+      },
+      {
+        "type": "paragraph",
+        "text": "Unsafe contexts allow pointers to directly manipulate memory addresses."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Unsafe code and pointers...\");\n        int[] numbers = new[] { 10, 20, 30 };\n        unsafe\n        {\n            fixed (int* ptr = numbers)\n            {\n                for (int i = 0; i < 3; i++)\n                {\n                    Console.WriteLine($\"Value: {*(ptr + i)}\");\n                }\n            }\n        }\n    }\n}\n// Output:\n// Unsafe code and pointers...\n// Value: 10\n// Value: 20\n// Value: 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `unsafe` block enables pointer usage.\n- The `fixed` statement pins the array in memory to prevent garbage collector movement.\n- Pointers (`*`) access the array’s values.\n- Note: Unsafe code requires `<AllowUnsafeBlocks>true</AllowUnsafeBlocks>` in the project file."
+      },
+      {
+        "type": "heading",
+        "text": "Exception Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "Errors in unsafe code, such as accessing invalid memory addresses, are handled with `try-catch`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Unsafe code error...\");\n        int[] numbers = new[] { 1, 2, 3 };\n        try\n        {\n            unsafe\n            {\n                fixed (int* ptr = numbers)\n                {\n                    Console.WriteLine($\"Invalid address: {*(ptr + 10)}\");\n                }\n            }\n        }\n        catch (AccessViolationException ex)\n        {\n            Console.WriteLine(\"Error: Invalid memory access!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"General error: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Unsafe code error...\n// Error: Invalid memory access!\n// Error message: Attempted to read or write protected memory."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The pointer attempts to access memory beyond the array’s bounds.\n- An `AccessViolationException` is triggered and handled with `try-catch`."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Interop and Unsafe Code"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interop and unsafe code are useful for high-performance applications."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nPerformance: Pointers increase speed by directly accessing memory."
+          },
+          {
+            "description": "\nIntegration: P/Invoke simplifies working with external libraries."
+          },
+          {
+            "description": "\nControl: Unsafe code provides precise memory control."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interop and unsafe code can be complex for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nRisk: Incorrect pointer usage can cause memory leaks or crashes."
+          },
+          {
+            "description": "\nPlatform Dependency: P/Invoke code may be platform-specific."
+          },
+          {
+            "description": "\nPyodide Limitation: Unsafe code and P/Invoke are not supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Incorrect pointer usage can lead to memory leaks or crashes. Incorrect P/Invoke definitions cause runtime errors.\n- **Recommendations**: Minimize unsafe code usage. Pin pointers with `fixed`. Handle errors with `try-catch`. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error due to invalid pointer usage."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Error-prone pointer...\");\n        try\n        {\n            unsafe\n            {\n                int* ptr = null;\n                *ptr = 42;\n                Console.WriteLine($\"Value: {*ptr}\");\n            }\n        }\n        catch (NullReferenceException ex)\n        {\n            Console.WriteLine(\"Error: Null pointer access!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Error-prone pointer...\n// Error: Null pointer access!\n// Error message: Object reference not set to an instance of an object."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- An attempt is made to access a null pointer.\n- A `NullReferenceException` is triggered and handled with `try-catch`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Unsafe code test...\");\n        try\n        {\n            int[] numbers = new[] { 100, 200, 300 };\n            unsafe\n            {\n                fixed (int* ptr = numbers)\n                {\n                    for (int i = 0; i < 3; i++)\n                    {\n                        Console.WriteLine($\"Value: {*(ptr + i)}\");\n                    }\n                }\n            }\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Error: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Unsafe code test...\n// Value: 100\n// Value: 200\n// Value: 300"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Взаимодействие и небезопасный код",
+    "icon": "FiAlertTriangle",
+    "language": "csharp",
+    "description": "Вызов нативного кода, указатели и небезопасные контексты.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое взаимодействие и небезопасный код?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# 'взаимодействие' (interop) позволяет коду на C# взаимодействовать с нативным кодом, написанным на языках вроде C или C++, например, для вызова Windows API или внешних библиотек. 'Небезопасный код' (unsafe code) позволяет напрямую работать с памятью с помощью указателей. Этот JSON-файл объясняет основы Platform Invoke (P/Invoke), указателей и небезопасных контекстов, их использование, преимущества, риски и типичные ошибки простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения, не требуют ввода от пользователя и выполняют операции на простых массивах вместо сетевых операций или операций с файлами из-за ограничений Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Platform Invoke (P/Invoke) для нативного кода"
+      },
+      {
+        "type": "paragraph",
+        "text": "P/Invoke позволяет коду на C# вызывать нативные функции Windows или других платформ."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Runtime.InteropServices;\n\nclass Program\n{\n    [DllImport(\"user32.dll\", CharSet = CharSet.Auto)]\n    private static extern int MessageBox(IntPtr hWnd, string text, string caption, int options);\n\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Вызов MessageBox с помощью P/Invoke...\");\n        try\n        {\n            MessageBox(IntPtr.Zero, \"Привет, мир!\", \"Пример P/Invoke\", 0);\n            Console.WriteLine(\"MessageBox отображено.\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Ошибка: {ex.Message}\");\n        }\n    }\n}\n// Output (на Windows):\n// Вызов MessageBox с помощью P/Invoke...\n// (Отображается окно сообщения)\n// MessageBox отображено.\n// Примечание: Этот код работает только на Windows и не поддерживается в Pyodide."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Атрибут `DllImport` вызывает функцию `MessageBox` из библиотеки `user32.dll` Windows.\n- Отображается окно сообщения.\n- Примечание: Этот код работает только на Windows и должен тестироваться с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Указатели и небезопасные контексты"
+      },
+      {
+        "type": "paragraph",
+        "text": "Небезопасные контексты позволяют использовать указатели для прямой работы с адресами памяти."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Небезопасный код и указатели...\");\n        int[] numbers = new[] { 10, 20, 30 };\n        unsafe\n        {\n            fixed (int* ptr = numbers)\n            {\n                for (int i = 0; i < 3; i++)\n                {\n                    Console.WriteLine($\"Значение: {*(ptr + i)}\");\n                }\n            }\n        }\n    }\n}\n// Output:\n// Небезопасный код и указатели...\n// Значение: 10\n// Значение: 20\n// Значение: 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Блок `unsafe` разрешает использование указателей.\n- Оператор `fixed` фиксирует массив в памяти, чтобы сборщик мусора не перемещал его.\n- Указатели (`*`) используются для доступа к значениям массива.\n- Примечание: Для небезопасного кода в файл проекта необходимо добавить `<AllowUnsafeBlocks>true</AllowUnsafeBlocks>`."
+      },
+      {
+        "type": "heading",
+        "text": "Обработка исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ошибки в небезопасном коде, такие как доступ к неверному адресу памяти, обрабатываются с помощью `try-catch`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Ошибка небезопасного кода...\");\n        int[] numbers = new[] { 1, 2, 3 };\n        try\n        {\n            unsafe\n            {\n                fixed (int* ptr = numbers)\n                {\n                    Console.WriteLine($\"Неверный адрес: {*(ptr + 10)}\");\n                }\n            }\n        }\n        catch (AccessViolationException ex)\n        {\n            Console.WriteLine(\"Ошибка: Неверный доступ к памяти!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Общая ошибка: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Ошибка небезопасного кода...\n// Ошибка: Неверный доступ к памяти!\n// Сообщение об ошибке: Attempted to read or write protected memory."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Указатель пытается получить доступ к памяти за пределами массива.\n- Возникает `AccessViolationException`, которое обрабатывается с помощью `try-catch`."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества взаимодействия и небезопасного кода"
+      },
+      {
+        "type": "paragraph",
+        "text": "Взаимодействие и небезопасный код полезны для высокопроизводительных приложений."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПроизводительность: Указатели увеличивают скорость за счёт прямого доступа к памяти."
+          },
+          {
+            "description": "\nИнтеграция: P/Invoke упрощает работу с внешними библиотеками."
+          },
+          {
+            "description": "\nКонтроль: Небезопасный код обеспечивает точный контроль над памятью."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Взаимодействие и небезопасный код сложны для новичков."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nРиск: Неправильное использование указателей может привести к утечкам памяти или сбоям."
+          },
+          {
+            "description": "\nЗависимость от платформы: Код P/Invoke может быть специфичным для платформы."
+          },
+          {
+            "description": "\nОграничение Pyodide: Небезопасный код и P/Invoke не поддерживаются в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильное использование указателей может привести к утечкам памяти или сбоям. Ошибки в определениях P/Invoke вызывают ошибки времени выполнения.\n- **Рекомендации**: Минимизируйте использование небезопасного кода. Фиксируйте указатели с помощью `fixed`. Обрабатывайте ошибки с помощью `try-catch`. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку из-за неверного использования указателя."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Указатель с ошибкой...\");\n        try\n        {\n            unsafe\n            {\n                int* ptr = null;\n                *ptr = 42;\n                Console.WriteLine($\"Значение: {*ptr}\");\n            }\n        }\n        catch (NullReferenceException ex)\n        {\n            Console.WriteLine(\"Ошибка: Доступ к нулевому указателю!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Указатель с ошибкой...\n// Ошибка: Доступ к нулевому указателю!\n// Сообщение об ошибке: Object reference not set to an instance of an object."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Пытаются получить доступ к нулевому указателю.\n- Возникает `NullReferenceException`, которое обрабатывается с помощью `try-catch`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Тест небезопасного кода...\");\n        try\n        {\n            int[] numbers = new[] { 100, 200, 300 };\n            unsafe\n            {\n                fixed (int* ptr = numbers)\n                {\n                    for (int i = 0; i < 3; i++)\n                    {\n                        Console.WriteLine($\"Значение: {*(ptr + i)}\");\n                    }\n                }\n            }\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Ошибка: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Тест небезопасного кода...\n// Значение: 100\n// Значение: 200\n// Значение: 300"
+      }
+    ]
+  }
+}
