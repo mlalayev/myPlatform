@@ -19,7 +19,7 @@ Platforma iki hissədən ibarətdir:
 
 ### Tələblər
 
-- Node.js 18+
+- Node.js 18+ 
 - Docker Desktop
 - PostgreSQL (və ya Docker ilə)
 - Aşağıdakı compiler-lər (local istifadə üçün):

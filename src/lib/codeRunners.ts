@@ -30,7 +30,12 @@ const filenames: Record<string, string> = {
 };
 
 // Base Docker command template
-const createDockerCommand = (image: string, code: string, filename: string, command: string) => {
+const createDockerCommand = (
+  image: string,
+  code: string,
+  filename: string,
+  command: string
+) => {
   return [
     "docker run --rm",
     "--network none",
@@ -42,19 +47,19 @@ const createDockerCommand = (image: string, code: string, filename: string, comm
   ].join(" ");
 };
 
-
-
 // Python runner
-const pythonRunner = async (code: string): Promise<{ stdout: string; stderr: string }> => {
+const pythonRunner = async (
+  code: string
+): Promise<{ stdout: string; stderr: string }> => {
   try {
     // Clean Python code (remove comments and trailing whitespace)
     const cleanCode = code
       .replace(/\n\s*#.*$/gm, "")
       .replace(/\s+$/, "")
       .trim();
-    
+
     // Use base64 encoding to avoid shell escaping issues
-    const base64Code = Buffer.from(cleanCode).toString('base64');
+    const base64Code = Buffer.from(cleanCode).toString("base64");
     const dockerCmd = [
       "docker run --rm",
       "--network none",
@@ -63,10 +68,10 @@ const pythonRunner = async (code: string): Promise<{ stdout: string; stderr: str
       "sh -c",
       `"echo '${base64Code}' | base64 -d > /tmp/main.py && python /tmp/main.py"`,
     ].join(" ");
-    
+
     console.log(`[pythonRunner] executing: ${dockerCmd}`);
     const { stdout, stderr } = await execAsync(dockerCmd, { timeout: 30000 });
-    
+
     return { stdout, stderr };
   } catch (error) {
     return {
@@ -77,10 +82,12 @@ const pythonRunner = async (code: string): Promise<{ stdout: string; stderr: str
 };
 
 // C++ runner - using base64 encoding
-const cppRunner = async (code: string): Promise<{ stdout: string; stderr: string }> => {
+const cppRunner = async (
+  code: string
+): Promise<{ stdout: string; stderr: string }> => {
   try {
     // Use base64 encoding to avoid shell escaping issues
-    const base64Code = Buffer.from(code).toString('base64');
+    const base64Code = Buffer.from(code).toString("base64");
     const dockerCmd = [
       "docker run --rm",
       "--network none",
@@ -89,10 +96,10 @@ const cppRunner = async (code: string): Promise<{ stdout: string; stderr: string
       "sh -c",
       `"echo '${base64Code}' | base64 -d > /tmp/main.cpp && g++ /tmp/main.cpp -o /tmp/a.out && chmod +x /tmp/a.out && /tmp/a.out"`,
     ].join(" ");
-    
+
     console.log(`[cppRunner] executing: ${dockerCmd}`);
     const { stdout, stderr } = await execAsync(dockerCmd, { timeout: 30000 });
-    
+
     return { stdout, stderr };
   } catch (error) {
     return {
@@ -103,10 +110,12 @@ const cppRunner = async (code: string): Promise<{ stdout: string; stderr: string
 };
 
 // C runner - using base64 encoding
-const cRunner = async (code: string): Promise<{ stdout: string; stderr: string }> => {
+const cRunner = async (
+  code: string
+): Promise<{ stdout: string; stderr: string }> => {
   try {
     // Use base64 encoding to avoid shell escaping issues
-    const base64Code = Buffer.from(code).toString('base64');
+    const base64Code = Buffer.from(code).toString("base64");
     const dockerCmd = [
       "docker run --rm",
       "--network none",
@@ -129,10 +138,12 @@ const cRunner = async (code: string): Promise<{ stdout: string; stderr: string }
 };
 
 // Java runner - using base64 encoding
-const javaRunner = async (code: string): Promise<{ stdout: string; stderr: string }> => {
+const javaRunner = async (
+  code: string
+): Promise<{ stdout: string; stderr: string }> => {
   try {
     // Use base64 encoding to avoid shell escaping issues
-    const base64Code = Buffer.from(code).toString('base64');
+    const base64Code = Buffer.from(code).toString("base64");
     const dockerCmd = [
       "docker run --rm",
       "--network none",
@@ -141,10 +152,10 @@ const javaRunner = async (code: string): Promise<{ stdout: string; stderr: strin
       "sh -c",
       `"echo '${base64Code}' | base64 -d > /tmp/Main.java && javac /tmp/Main.java && java -cp /tmp Main"`,
     ].join(" ");
-    
+
     console.log(`[javaRunner] executing: ${dockerCmd}`);
     const { stdout, stderr } = await execAsync(dockerCmd, { timeout: 30000 });
-    
+
     return { stdout, stderr };
   } catch (error) {
     return {
@@ -155,10 +166,12 @@ const javaRunner = async (code: string): Promise<{ stdout: string; stderr: strin
 };
 
 // PHP runner - using direct execution for simple code
-const phpRunner = async (code: string): Promise<{ stdout: string; stderr: string }> => {
+const phpRunner = async (
+  code: string
+): Promise<{ stdout: string; stderr: string }> => {
   try {
     // For simple PHP code, we can use a different approach
-    const safeCode = code.replace(/"/g, '\\"').replace(/\n/g, '\\n');
+    const safeCode = code.replace(/"/g, '\\"').replace(/\n/g, "\\n");
     const dockerCmd = [
       "docker run --rm",
       "--network none",
@@ -167,10 +180,10 @@ const phpRunner = async (code: string): Promise<{ stdout: string; stderr: string
       "sh -c",
       `"echo '${safeCode}' > /tmp/main.php && php /tmp/main.php"`,
     ].join(" ");
-    
+
     console.log(`[phpRunner] executing: ${dockerCmd}`);
     const { stdout, stderr } = await execAsync(dockerCmd, { timeout: 30000 });
-    
+
     return { stdout, stderr };
   } catch (error) {
     return {
@@ -181,10 +194,12 @@ const phpRunner = async (code: string): Promise<{ stdout: string; stderr: string
 };
 
 // C# runner with output filtering and base64 encoding
-const csharpRunner = async (code: string): Promise<{ stdout: string; stderr: string }> => {
+const csharpRunner = async (
+  code: string
+): Promise<{ stdout: string; stderr: string }> => {
   try {
     // Use base64 encoding to avoid shell escaping issues
-    const base64Code = Buffer.from(code).toString('base64');
+    const base64Code = Buffer.from(code).toString("base64");
     const dockerCmd = [
       "docker run --rm",
       "--network none",
@@ -193,28 +208,54 @@ const csharpRunner = async (code: string): Promise<{ stdout: string; stderr: str
       "sh -c",
       `"echo '${base64Code}' | base64 -d > /tmp/Program.cs && appdir=/tmp/app_\\$RANDOM\\$RANDOM && dotnet new console -o \\$appdir --force && cp /tmp/Program.cs \\$appdir/Program.cs && dotnet run --project \\$appdir && rm -rf \\$appdir"`,
     ].join(" ");
-    
+
     console.log(`[csharpRunner] executing: ${dockerCmd}`);
     const { stdout, stderr } = await execAsync(dockerCmd, { timeout: 30000 });
-    
+
     // Filter dotnet status messages
     const filterPrefixes = [
-      "The template ", "Processing post-creation actions", "Restoring ",
-      "Restore succeeded", "Determining projects to restore", "All projects are up-to-date for restore",
-      "Restore completed", "To learn more", "Getting ready", "Welcome to .NET", "More information: ",
-      "Build succeeded.", "Build started...", "Build completed...", "You can invoke the tool",
-      "info: ", "warn: ", "dbug: ", "fail: ", "error: ", "Time Elapsed", "Microsoft (R) Build Engine",
-      "Copyright (C)", "For more information", "Use 'dotnet new --help'", "Use 'dotnet run --help'",
-      "Use 'dotnet build --help'", "Use 'dotnet restore --help'", "Use 'dotnet publish --help'",
-      "Use 'dotnet test --help'", "Restored ",
+      "The template ",
+      "Processing post-creation actions",
+      "Restoring ",
+      "Restore succeeded",
+      "Determining projects to restore",
+      "All projects are up-to-date for restore",
+      "Restore completed",
+      "To learn more",
+      "Getting ready",
+      "Welcome to .NET",
+      "More information: ",
+      "Build succeeded.",
+      "Build started...",
+      "Build completed...",
+      "You can invoke the tool",
+      "info: ",
+      "warn: ",
+      "dbug: ",
+      "fail: ",
+      "error: ",
+      "Time Elapsed",
+      "Microsoft (R) Build Engine",
+      "Copyright (C)",
+      "For more information",
+      "Use 'dotnet new --help'",
+      "Use 'dotnet run --help'",
+      "Use 'dotnet build --help'",
+      "Use 'dotnet restore --help'",
+      "Use 'dotnet publish --help'",
+      "Use 'dotnet test --help'",
+      "Restored ",
     ];
-    
+
     const filteredOutput = stdout
       .split(/\r?\n/)
       .map((l) => l.trim())
-      .filter((l) => l.length > 0 && !filterPrefixes.some((prefix) => l.startsWith(prefix)))
+      .filter(
+        (l) =>
+          l.length > 0 && !filterPrefixes.some((prefix) => l.startsWith(prefix))
+      )
       .join("\n");
-    
+
     return { stdout: filteredOutput, stderr };
   } catch (error) {
     return {
@@ -225,16 +266,18 @@ const csharpRunner = async (code: string): Promise<{ stdout: string; stderr: str
 };
 
 // Go runner
-const goRunner = async (code: string): Promise<{ stdout: string; stderr: string }> => {
+const goRunner = async (
+  code: string
+): Promise<{ stdout: string; stderr: string }> => {
   const filename = filenames.go;
-  
+
   try {
     const command = `go run /code/${filename}`;
     const dockerCmd = createDockerCommand(images.go, code, filename, command);
-    
+
     console.log(`[goRunner] executing: ${dockerCmd}`);
     const { stdout, stderr } = await execAsync(dockerCmd, { timeout: 30000 });
-    
+
     return { stdout, stderr };
   } catch (error) {
     return {
@@ -245,16 +288,18 @@ const goRunner = async (code: string): Promise<{ stdout: string; stderr: string 
 };
 
 // Rust runner
-const rustRunner = async (code: string): Promise<{ stdout: string; stderr: string }> => {
+const rustRunner = async (
+  code: string
+): Promise<{ stdout: string; stderr: string }> => {
   const filename = filenames.rust;
-  
+
   try {
     const command = `rustc /code/${filename} -o /code/a.out && /code/a.out`;
     const dockerCmd = createDockerCommand(images.rust, code, filename, command);
-    
+
     console.log(`[rustRunner] executing: ${dockerCmd}`);
     const { stdout, stderr } = await execAsync(dockerCmd, { timeout: 30000 });
-    
+
     return { stdout, stderr };
   } catch (error) {
     return {
@@ -265,7 +310,10 @@ const rustRunner = async (code: string): Promise<{ stdout: string; stderr: strin
 };
 
 // Main runners object - O(1) lookup
-export const codeRunners: Record<string, (code: string) => Promise<{ stdout: string; stderr: string }>> = {
+export const codeRunners: Record<
+  string,
+  (code: string) => Promise<{ stdout: string; stderr: string }>
+> = {
   python: pythonRunner,
   python3: pythonRunner,
   cpp: cppRunner,
@@ -280,4 +328,4 @@ export const codeRunners: Record<string, (code: string) => Promise<{ stdout: str
 // Helper function to check if language is supported
 export const isLanguageSupported = (language: string): boolean => {
   return language.toLowerCase() in codeRunners;
-}; 
+};

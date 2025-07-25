@@ -372,15 +372,19 @@ export default function JsTryEditor({
             if (e.data.type === "success") {
               if (e.data.logs.length === 0) {
                 setOutput("");
+                setParsedOutput([]);
                 setError(t("tryeditor.noOutput"));
               } else {
-                setOutput(e.data.logs.join("\n"));
+                const parsed = parseColoredOutput(e.data.logs);
+                setParsedOutput(parsed);
+                setOutput(e.data.logs.join("\n")); // Keep original for backward compatibility
                 setError("");
               }
               setShowOutput(true);
               setIsLoading(false);
             } else if (e.data.type === "error") {
               setError(e.data.error);
+              setParsedOutput([]);
               setShowOutput(true);
               setIsLoading(false);
             }
@@ -534,9 +538,24 @@ export default function JsTryEditor({
           ></CopyButton>
         )}
       </div>
-      {showOutput && (output || error) && (
+      {showOutput && (parsedOutput.length > 0 || output || error) && (
         <div className={styles.tryOutputBox}>
-          {output && (
+          {parsedOutput.length > 0 && (
+            <div className={styles.outputSection}>
+              <div className={styles.outputLabel}>Nəticə:</div>
+              <div className={styles.coloredOutput}>
+                {parsedOutput.map((logItem) => (
+                  <div 
+                    key={logItem.key} 
+                    className={`${styles.logLine} ${styles[`log-${logItem.type}`]}`}
+                  >
+                    {logItem.content}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {!parsedOutput.length && output && (
             <div className={styles.outputSection}>
               <div className={styles.outputLabel}>Nəticə:</div>
               <pre className={styles.output}>{output}</pre>
