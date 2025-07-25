@@ -1,0 +1,486 @@
+{
+  "id": "advanced-linq",
+  "az": {
+    "title": "Qabaqcıl LINQ",
+    "icon": "FiSearch",
+    "language": "csharp",
+    "description": "İfadə ağacları və xüsusi LINQ təminatçıları.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Qabaqcıl LINQ və İfadə Ağacları Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində LINQ (Language Integrated Query) məlumat kolleksiyaları üzərində sorğular yazmağı asanlaşdırır. Qabaqcıl LINQ isə ifadə ağacları (expression trees) və xüsusi LINQ təminatçıları kimi daha mürəkkəb alətləri əhatə edir. İfadə ağacları LINQ sorğularını təmsil edən və icra zamanı təhlil edilə bilən kod strukturlarıdır. Xüsusi LINQ təminatçıları isə LINQ sorğularını fərqli mənbələrə (məsələn, verilənlər bazalarına) çevirməyə imkan verir. Bu JSON faylda ifadə ağaclarının əsasları, LINQ-də istifadəsi, xüsusi təminatçıların yaradılması, üstünlükləri və çətinlikləri sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur və Pyodide məhdudiyyətlərinə uyğun olaraq şəbəkə çağırışları və fayl əməliyyatları əvəzinə sadə kolleksiyalar üzərində LINQ əməliyyatları icra edilir."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə İfadə Ağacı Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "İfadə ağacları C# kodunu təmsil edən strukturlardır."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq.Expressions;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"İfadə ağacı yaradılır...\");\n        ParameterExpression param = Expression.Parameter(typeof(int), \"x\");\n        ConstantExpression constant = Expression.Constant(5, typeof(int));\n        BinaryExpression add = Expression.Add(param, constant);\n        Expression<Func<int, int>> lambda = Expression.Lambda<Func<int, int>>(add, param);\n\n        Func<int, int> compiled = lambda.Compile();\n        int result = compiled(3);\n        Console.WriteLine($\"Nəticə: 3 + 5 = {result}\");\n    }\n}\n// Output:\n// İfadə ağacı yaradılır...\n// Nəticə: 3 + 5 = 8"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ParameterExpression` və `ConstantExpression` ilə ifadə ağacının komponentləri yaradılır.\n- `Expression.Add` ilə toplama əməliyyatı təyin edilir.\n- `Expression.Lambda` ilə lambda ifadəsi yaradılır və `Compile` ilə icra edilə bilən kod çevrilir.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "LINQ-də İfadə Ağacları"
+      },
+      {
+        "type": "paragraph",
+        "text": "LINQ sorğuları ifadə ağaclarına çevrilir, bu da onları təhlil etməyə imkan verir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\nusing System.Linq.Expressions;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"LINQ ifadə ağacı təhlili...\");\n        var people = new[]\n        {\n            new Person { Name = \"Ayxan\", Age = 25 },\n            new Person { Name = \"Leyla\", Age = 30 }\n        }.AsQueryable();\n\n        Expression<Func<Person, bool>> filter = p => p.Age > 25;\n        var query = people.Where(filter);\n        Console.WriteLine($\"İfadə ağacı: {filter}\");\n\n        foreach (var person in query)\n        {\n            Console.WriteLine($\"Ad: {person.Name}, Yaş: {person.Age}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n// Output:\n// LINQ ifadə ağacı təhlili...\n// İfadə ağacı: p => p.Age > 25\n// Ad: Leyla, Yaş: 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `AsQueryable` ilə kolleksiya sorğu üçün hazırlanır.\n- `Expression<Func<Person, bool>>` ilə filtr ifadəsi yaradılır.\n- LINQ sorğusu ifadə ağacına çevrilir və icra edilir."
+      },
+      {
+        "type": "heading",
+        "text": "Xüsusi LINQ Təminatçısı: Sadə Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xüsusi LINQ təminatçısı LINQ sorğularını fərqli mənbələrə çevirir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Linq.Expressions;\n\nclass CustomQueryProvider : IQueryProvider\n{\n    private readonly List<Person> _data;\n\n    public CustomQueryProvider(List<Person> data)\n    {\n        _data = data;\n    }\n\n    public IQueryable CreateQuery(Expression expression)\n    {\n        return new CustomQueryable<Person>(this, expression);\n    }\n\n    public IQueryable<TElement> CreateQuery<TElement>(Expression expression)\n    {\n        return new CustomQueryable<TElement>(this, expression);\n    }\n\n    public object Execute(Expression expression)\n    {\n        return Execute<IEnumerable<Person>>(expression);\n    }\n\n    public TResult Execute<TResult>(Expression expression)\n    {\n        if (expression is MethodCallExpression methodCall && methodCall.Method.Name == \"Where\")\n        {\n            var lambda = (LambdaExpression)((UnaryExpression)methodCall.Arguments[1]).Operand;\n            var predicate = (Func<Person, bool>)lambda.Compile();\n            return (TResult)(object)_data.Where(predicate).ToList();\n        }\n        return (TResult)(object)_data.ToList();\n    }\n}\n\nclass CustomQueryable<T> : IQueryable<T>\n{\n    private readonly CustomQueryProvider _provider;\n    private readonly Expression _expression;\n\n    public CustomQueryable(CustomQueryProvider provider, Expression expression)\n    {\n        _provider = provider;\n        _expression = expression;\n    }\n\n    public Type ElementType => typeof(T);\n    public Expression Expression => _expression;\n    public IQueryProvider Provider => _provider;\n\n    public IEnumerator<T> GetEnumerator() => _provider.Execute<IEnumerable<T>>(_expression).GetEnumerator();\n    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Xüsusi LINQ təminatçısı...\");\n        var data = new List<Person>\n        {\n            new Person { Name = \"Ayxan\", Age = 25 },\n            new Person { Name = \"Leyla\", Age = 30 }\n        };\n\n        var provider = new CustomQueryProvider(data);\n        var queryable = new CustomQueryable<Person>(provider, Expression.Constant(null));\n        var query = queryable.Where(p => p.Age > 25);\n\n        foreach (var person in query)\n        {\n            Console.WriteLine($\"Ad: {person.Name}, Yaş: {person.Age}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n// Output:\n// Xüsusi LINQ təminatçısı...\n// Ad: Leyla, Yaş: 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `CustomQueryProvider` və `CustomQueryable` ilə xüsusi LINQ təminatçısı yaradılır.\n- `Where` metodunun ifadə ağacı təhlil edilərək filtr tətbiq edilir.\n- Təminatçı sadə kolleksiya üzərində işləyir."
+      },
+      {
+        "type": "heading",
+        "text": "İstisna İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "İfadə ağaclarında və xüsusi təminatçılarda səhvlər `try-catch` ilə idarə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\nusing System.Linq.Expressions;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"İfadə ağacı səhvi...\");\n        try\n        {\n            var people = new[] { new Person { Name = \"Ayxan\", Age = 25 } }.AsQueryable();\n            Expression<Func<Person, bool>> invalidFilter = p => p.Age / propertyName > 0;\n            var query = people.Where(invalidFilter);\n            var result = query.ToList();\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine(\"Səhv baş verdi!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n// Output:\n// İfadə ağacı səhvi...\n// Səhv baş verdi!\n// Səhv mesajı: The name 'propertyName' does not exist in the current context."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Mövcud olmayan dəyişənə daxil olmağa cəhd edilir.\n- Səhv `try-catch` ilə tutulur."
+      },
+      {
+        "type": "heading",
+        "text": "Qabaqcıl LINQ-ın Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "İfadə ağacları və xüsusi təminatçılar güclü alətlərdir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\n\nEsneklik: LINQ sorğuları fərqli mənbələrə çevrilə bilər."
+          },
+          {
+            "description": "\nTəhlil: İfadə ağacları sorğuların optimizasiyasına imkan verir."
+          },
+          {
+            "description": "\nInteqrasiya: Verilənlər bazaları ilə effektiv işləməyi asanlaşdırır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Qabaqcıl LINQ yeni başlayanlar üçün mürəkkəb ola bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: İfadə ağacları və təminatçılar mürəkkəb kod tələb edir."
+          },
+          {
+            "description": "\nPerformans: Yanlış tətbiq performans problemlərinə səbəb ola bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# ifadə ağacları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: İfadə ağaclarında yanlış təhlil və ya təminatçıda səhvlər icra zamanı problemlər yarada bilər.\n- **Tövsiyələr**: İfadə ağaclarını sadə saxlayın. Səhvləri `try-catch` ilə idarə edin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə dəstəklənməyən əməliyyat səhvə səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq.Expressions;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Səhvə yol açan ifadə ağacı...\");\n        try\n        {\n            ParameterExpression param = Expression.Parameter(typeof(int), \"x\");\n            MethodCallExpression invalidCall = Expression.Call(typeof(string), \"InvalidMethod\", null, param);\n            Expression.Lambda<Action<int>>(invalidCall, param).Compile();\n        }\n        catch (ArgumentException ex)\n        {\n            Console.WriteLine(\"Səhv: Dəstəklənməyən əməliyyat!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Səhvə yol açan ifadə ağacı...\n// Səhv: Dəstəklənməyən əməliyyat!\n// Səhv mesajı: No method 'InvalidMethod' exists on type 'System.String'."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Mövcud olmayan metod çağırılır.\n- `ArgumentException` yaranır və `try-catch` ilə idarə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Linq;\nusing System.Linq.Expressions;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"LINQ ifadə ağacı sınağı...\");\n        try\n        {\n            var people = new[]\n            {\n                new Person { Name = \"Ayxan\", Age = 25 },\n                new Person { Name = \"Leyla\", Age = 30 }\n            }.AsQueryable();\n\n            Expression<Func<Person, bool>> filter = p => p.Name.StartsWith(\"L\");\n            var query = people.Where(filter);\n\n            foreach (var person in query)\n            {\n                Console.WriteLine($\"Ad: {person.Name}, Yaş: {person.Age}\");\n            }\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Səhv: {ex.Message}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n// Output:\n// LINQ ifadə ağacı sınağı...\n// Ad: Leyla, Yaş: 30"
+      }
+    ]
+  },
+  "en": {
+    "title": "Advanced LINQ",
+    "icon": "FiSearch",
+    "language": "csharp",
+    "description": "Expression trees and custom LINQ providers.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Advanced LINQ and Expression Trees?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, LINQ (Language Integrated Query) simplifies querying data collections. Advanced LINQ involves complex tools like expression trees and custom LINQ providers. Expression trees are code structures representing LINQ queries that can be analyzed at runtime. Custom LINQ providers allow translating LINQ queries to different data sources (e.g., databases). This JSON file explains expression tree basics, their use in LINQ, creating custom providers, advantages, and challenges in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values, avoid user input, and perform LINQ operations on simple collections instead of network or file operations due to Pyodide limitations."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Expression Tree Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "Expression trees represent C# code as data structures."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq.Expressions;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Creating expression tree...\");\n        ParameterExpression param = Expression.Parameter(typeof(int), \"x\");\n        ConstantExpression constant = Expression.Constant(5, typeof(int));\n        BinaryExpression add = Expression.Add(param, constant);\n        Expression<Func<int, int>> lambda = Expression.Lambda<Func<int, int>>(add, param);\n\n        Func<int, int> compiled = lambda.Compile();\n        int result = compiled(3);\n        Console.WriteLine($\"Result: 3 + 5 = {result}\");\n    }\n}\n// Output:\n// Creating expression tree...\n// Result: 3 + 5 = 8"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ParameterExpression` and `ConstantExpression` create components of the expression tree.\n- `Expression.Add` defines an addition operation.\n- `Expression.Lambda` creates a lambda expression, and `Compile` converts it to executable code.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Expression Trees in LINQ"
+      },
+      {
+        "type": "paragraph",
+        "text": "LINQ queries are translated into expression trees, enabling runtime analysis."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\nusing System.Linq.Expressions;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"LINQ expression tree analysis...\");\n        var people = new[]\n        {\n            new Person { Name = \"John\", Age = 25 },\n            new Person { Name = \"Jane\", Age = 30 }\n        }.AsQueryable();\n\n        Expression<Func<Person, bool>> filter = p => p.Age > 25;\n        var query = people.Where(filter);\n        Console.WriteLine($\"Expression tree: {filter}\");\n\n        foreach (var person in query)\n        {\n            Console.WriteLine($\"Name: {person.Name}, Age: {person.Age}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n// Output:\n// LINQ expression tree analysis...\n// Expression tree: p => p.Age > 25\n// Name: Jane, Age: 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `AsQueryable` prepares the collection for querying.\n- `Expression<Func<Person, bool>>` defines a filter expression.\n- The LINQ query is translated into an expression tree and executed."
+      },
+      {
+        "type": "heading",
+        "text": "Custom LINQ Provider: Simple Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "A custom LINQ provider translates LINQ queries to different data sources."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Linq.Expressions;\n\nclass CustomQueryProvider : IQueryProvider\n{\n    private readonly List<Person> _data;\n\n    public CustomQueryProvider(List<Person> data)\n    {\n        _data = data;\n    }\n\n    public IQueryable CreateQuery(Expression expression)\n    {\n        return new CustomQueryable<Person>(this, expression);\n    }\n\n    public IQueryable<TElement> CreateQuery<TElement>(Expression expression)\n    {\n        return new CustomQueryable<TElement>(this, expression);\n    }\n\n    public object Execute(Expression expression)\n    {\n        return Execute<IEnumerable<Person>>(expression);\n    }\n\n    public TResult Execute<TResult>(Expression expression)\n    {\n        if (expression is MethodCallExpression methodCall && methodCall.Method.Name == \"Where\")\n        {\n            var lambda = (LambdaExpression)((UnaryExpression)methodCall.Arguments[1]).Operand;\n            var predicate = (Func<Person, bool>)lambda.Compile();\n            return (TResult)(object)_data.Where(predicate).ToList();\n        }\n        return (TResult)(object)_data.ToList();\n    }\n}\n\nclass CustomQueryable<T> : IQueryable<T>\n{\n    private readonly CustomQueryProvider _provider;\n    private readonly Expression _expression;\n\n    public CustomQueryable(CustomQueryProvider provider, Expression expression)\n    {\n        _provider = provider;\n        _expression = expression;\n    }\n\n    public Type ElementType => typeof(T);\n    public Expression Expression => _expression;\n    public IQueryProvider Provider => _provider;\n\n    public IEnumerator<T> GetEnumerator() => _provider.Execute<IEnumerable<T>>(_expression).GetEnumerator();\n    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Custom LINQ provider...\");\n        var data = new List<Person>\n        {\n            new Person { Name = \"John\", Age = 25 },\n            new Person { Name = \"Jane\", Age = 30 }\n        };\n\n        var provider = new CustomQueryProvider(data);\n        var queryable = new CustomQueryable<Person>(provider, Expression.Constant(null));\n        var query = queryable.Where(p => p.Age > 25);\n\n        foreach (var person in query)\n        {\n            Console.WriteLine($\"Name: {person.Name}, Age: {person.Age}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n// Output:\n// Custom LINQ provider...\n// Name: Jane, Age: 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `CustomQueryProvider` and `CustomQueryable` create a custom LINQ provider.\n- The `Where` method’s expression tree is analyzed to apply filtering.\n- The provider operates on a simple collection."
+      },
+      {
+        "type": "heading",
+        "text": "Exception Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "Errors in expression trees and custom providers are handled with `try-catch`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\nusing System.Linq.Expressions;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Expression tree error...\");\n        try\n        {\n            var people = new[] { new Person { Name = \"John\", Age = 25 } }.AsQueryable();\n            Expression<Func<Person, bool>> invalidFilter = p => p.Age / propertyName > 0;\n            var query = people.Where(invalidFilter);\n            var result = query.ToList();\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine(\"An error occurred!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n// Output:\n// Expression tree error...\n// An error occurred!\n// Error message: The name 'propertyName' does not exist in the current context."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- An attempt to access a non-existent variable causes an error.\n- The error is caught with `try-catch`."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Advanced LINQ"
+      },
+      {
+        "type": "paragraph",
+        "text": "Expression trees and custom providers are powerful tools."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nFlexibility: LINQ queries can be translated to various data sources."
+          },
+          {
+            "description": "\nAnalysis: Expression trees enable query optimization."
+          },
+          {
+            "description": "\nIntegration: Facilitates efficient interaction with databases."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advanced LINQ can be complex for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: Expression trees and providers require complex code."
+          },
+          {
+            "description": "\nPerformance: Incorrect implementation may cause performance issues."
+          },
+          {
+            "description": "\nPyodide Limitation: C# expression trees are not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Incorrect analysis of expression trees or errors in providers can cause runtime issues.\n- **Recommendations**: Keep expression trees simple. Handle errors with `try-catch`. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error due to an unsupported operation."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq.Expressions;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Error-prone expression tree...\");\n        try\n        {\n            ParameterExpression param = Expression.Parameter(typeof(int), \"x\");\n            MethodCallExpression invalidCall = Expression.Call(typeof(string), \"InvalidMethod\", null, param);\n            Expression.Lambda<Action<int>>(invalidCall, param).Compile();\n        }\n        catch (ArgumentException ex)\n        {\n            Console.WriteLine(\"Error: Unsupported operation!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Error-prone expression tree...\n// Error: Unsupported operation!\n// Error message: No method 'InvalidMethod' exists on type 'System.String'."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- A non-existent method is called.\n- An `ArgumentException` is triggered and handled with `try-catch`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Linq;\nusing System.Linq.Expressions;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"LINQ expression tree test...\");\n        try\n        {\n            var people = new[]\n            {\n                new Person { Name = \"John\", Age = 25 },\n                new Person { Name = \"Jane\", Age = 30 }\n            }.AsQueryable();\n\n            Expression<Func<Person, bool>> filter = p => p.Name.StartsWith(\"J\");\n            var query = people.Where(filter);\n\n            foreach (var person in query)\n            {\n                Console.WriteLine($\"Name: {person.Name}, Age: {person.Age}\");\n            }\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Error: {ex.Message}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n// Output:\n// LINQ expression tree test...\n// Name: John, Age: 25\n// Name: Jane, Age: 30"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Продвинутый LINQ",
+    "icon": "FiSearch",
+    "language": "csharp",
+    "description": "Деревья выражений и пользовательские провайдеры LINQ.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое продвинутый LINQ и деревья выражений?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# LINQ (Language Integrated Query) упрощает написание запросов к коллекциям данных. Продвинутый LINQ включает сложные инструменты, такие как деревья выражений (expression trees) и пользовательские провайдеры LINQ. Деревья выражений — это структуры кода, представляющие запросы LINQ, которые можно анализировать во время выполнения. Пользовательские провайдеры LINQ позволяют переводить запросы LINQ на разные источники данных (например, базы данных). Этот JSON-файл объясняет основы деревьев выражений, их использование в LINQ, создание пользовательских провайдеров, преимущества и сложности простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения, не требуют ввода от пользователя и выполняют операции LINQ на простых коллекциях вместо сетевых операций или операций с файлами из-за ограничений Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример дерева выражений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Деревья выражений представляют код C# в виде структур данных."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq.Expressions;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Создание дерева выражений...\");\n        ParameterExpression param = Expression.Parameter(typeof(int), \"x\");\n        ConstantExpression constant = Expression.Constant(5, typeof(int));\n        BinaryExpression add = Expression.Add(param, constant);\n        Expression<Func<int, int>> lambda = Expression.Lambda<Func<int, int>>(add, param);\n\n        Func<int, int> compiled = lambda.Compile();\n        int result = compiled(3);\n        Console.WriteLine($\"Результат: 3 + 5 = {result}\");\n    }\n}\n// Output:\n// Создание дерева выражений...\n// Результат: 3 + 5 = 8"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ParameterExpression` и `ConstantExpression` создают компоненты дерева выражений.\n- `Expression.Add` определяет операцию сложения.\n- `Expression.Lambda` создаёт лямбда-выражение, а `Compile` преобразует его в исполняемый код.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Деревья выражений в LINQ"
+      },
+      {
+        "type": "paragraph",
+        "text": "Запросы LINQ преобразуются в деревья выражений, что позволяет анализировать их во время выполнения."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\nusing System.Linq.Expressions;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Анализ дерева выражений LINQ...\");\n        var people = new[]\n        {\n            new Person { Name = \"Иван\", Age = 25 },\n            new Person { Name = \"Мария\", Age = 30 }\n        }.AsQueryable();\n\n        Expression<Func<Person, bool>> filter = p => p.Age > 25;\n        var query = people.Where(filter);\n        Console.WriteLine($\"Дерево выражений: {filter}\");\n\n        foreach (var person in query)\n        {\n            Console.WriteLine($\"Имя: {person.Name}, Возраст: {person.Age}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n// Output:\n// Анализ дерева выражений LINQ...\n// Дерево выражений: p => p.Age > 25\n// Имя: Мария, Возраст: 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `AsQueryable` подготавливает коллекцию для запросов.\n- `Expression<Func<Person, bool>>` определяет фильтр.\n- Запрос LINQ преобразуется в дерево выражений и выполняется."
+      },
+      {
+        "type": "heading",
+        "text": "Пользовательский провайдер LINQ: Простой пример"
+      },
+      {
+        "type": "paragraph",
+        "text": "Пользовательский провайдер LINQ переводит запросы LINQ на разные источники данных."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Linq.Expressions;\n\nclass CustomQueryProvider : IQueryProvider\n{\n    private readonly List<Person> _data;\n\n    public CustomQueryProvider(List<Person> data)\n    {\n        _data = data;\n    }\n\n    public IQueryable CreateQuery(Expression expression)\n    {\n        return new CustomQueryable<Person>(this, expression);\n    }\n\n    public IQueryable<TElement> CreateQuery<TElement>(Expression expression)\n    {\n        return new CustomQueryable<TElement>(this, expression);\n    }\n\n    public object Execute(Expression expression)\n    {\n        return Execute<IEnumerable<Person>>(expression);\n    }\n\n    public TResult Execute<TResult>(Expression expression)\n    {\n        if (expression is MethodCallExpression methodCall && methodCall.Method.Name == \"Where\")\n        {\n            var lambda = (LambdaExpression)((UnaryExpression)methodCall.Arguments[1]).Operand;\n            var predicate = (Func<Person, bool>)lambda.Compile();\n            return (TResult)(object)_data.Where(predicate).ToList();\n        }\n        return (TResult)(object)_data.ToList();\n    }\n}\n\nclass CustomQueryable<T> : IQueryable<T>\n{\n    private readonly CustomQueryProvider _provider;\n    private readonly Expression _expression;\n\n    public CustomQueryable(CustomQueryProvider provider, Expression expression)\n    {\n        _provider = provider;\n        _expression = expression;\n    }\n\n    public Type ElementType => typeof(T);\n    public Expression Expression => _expression;\n    public IQueryProvider Provider => _provider;\n\n    public IEnumerator<T> GetEnumerator() => _provider.Execute<IEnumerable<T>>(_expression).GetEnumerator();\n    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Пользовательский провайдер LINQ...\");\n        var data = new List<Person>\n        {\n            new Person { Name = \"Иван\", Age = 25 },\n            new Person { Name = \"Мария\", Age = 30 }\n        };\n\n        var provider = new CustomQueryProvider(data);\n        var queryable = new CustomQueryable<Person>(provider, Expression.Constant(null));\n        var query = queryable.Where(p => p.Age > 25);\n\n        foreach (var person in query)\n        {\n            Console.WriteLine($\"Имя: {person.Name}, Возраст: {person.Age}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n// Output:\n// Пользовательский провайдер LINQ...\n// Имя: Мария, Возраст: 30"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `CustomQueryProvider` и `CustomQueryable` создают пользовательский провайдер LINQ.\n- Дерево выражений метода `Where` анализируется для применения фильтрации.\n- Провайдер работает с простой коллекцией."
+      },
+      {
+        "type": "heading",
+        "text": "Обработка исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ошибки в деревьях выражений и пользовательских провайдерах обрабатываются с помощью `try-catch`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq;\nusing System.Linq.Expressions;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Ошибка дерева выражений...\");\n        try\n        {\n            var people = new[] { new Person { Name = \"Иван\", Age = 25 } }.AsQueryable();\n            Expression<Func<Person, bool>> invalidFilter = p => p.Age / propertyName > 0;\n            var query = people.Where(invalidFilter);\n            var result = query.ToList();\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine(\"Произошла ошибка!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n// Output:\n// Ошибка дерева выражений...\n// Произошла ошибка!\n// Сообщение об ошибке: The name 'propertyName' does not exist in the current context."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Попытка доступа к несуществующей переменной вызывает ошибку.\n- Ошибка перехватывается с помощью `try-catch`."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества продвинутого LINQ"
+      },
+      {
+        "type": "paragraph",
+        "text": "Деревья выражений и пользовательские провайдеры — мощные инструменты."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nГибкость: Запросы LINQ могут быть переведены на различные источники данных."
+          },
+          {
+            "description": "\nАнализ: Деревья выражений позволяют оптимизировать запросы."
+          },
+          {
+            "description": "\nИнтеграция: Упрощает эффективное взаимодействие с базами данных."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Продвинутый LINQ может быть сложным для новичков."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Деревья выражений и провайдеры требуют сложного кода."
+          },
+          {
+            "description": "\nПроизводительность: Неправильная реализация может вызвать проблемы с производительностью."
+          },
+          {
+            "description": "\nОграничение Pyodide: Деревья выражений C# не полностью поддерживаются в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильный анализ деревьев выражений или ошибки в провайдерах могут вызвать проблемы во время выполнения.\n- **Рекомендации**: Держите деревья выражений простыми. Обрабатывайте ошибки с помощью `try-catch`. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку из-за неподдерживаемой операции."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Linq.Expressions;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Дерево выражений с ошибкой...\");\n        try\n        {\n            ParameterExpression param = Expression.Parameter(typeof(int), \"x\");\n            MethodCallExpression invalidCall = Expression.Call(typeof(string), \"InvalidMethod\", null, param);\n            Expression.Lambda<Action<int>>(invalidCall, param).Compile();\n        }\n        catch (ArgumentException ex)\n        {\n            Console.WriteLine(\"Ошибка: Неподдерживаемая операция!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Дерево выражений с ошибкой...\n// Ошибка: Неподдерживаемая операция!\n// Сообщение об ошибке: No method 'InvalidMethod' exists on type 'System.String'."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Вызывается несуществующий метод.\n- Возникает `ArgumentException`, которая обрабатывается с помощью `try-catch`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Linq;\nusing System.Linq.Expressions;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Тест дерева выражений LINQ...\");\n        try\n        {\n            var people = new[]\n            {\n                new Person { Name = \"Иван\", Age = 25 },\n                new Person { Name = \"Мария\", Age = 30 }\n            }.AsQueryable();\n\n            Expression<Func<Person, bool>> filter = p => p.Name.StartsWith(\"М\");\n            var query = people.Where(filter);\n\n            foreach (var person in query)\n            {\n                Console.WriteLine($\"Имя: {person.Name}, Возраст: {person.Age}\");\n            }\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Ошибка: {ex.Message}\");\n        }\n    }\n}\n\nclass Person\n{\n    public string Name { get; set; }\n    public int Age { get; set; }\n}\n// Output:\n// Тест дерева выражений LINQ...\n// Имя: Мария, Возраст: 30"
+      }
+    ]
+  }
+}

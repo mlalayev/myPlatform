@@ -1,0 +1,426 @@
+{
+  "id": "encapsulation",
+  "az": {
+    "title": "Kapsulyasiya",
+    "icon": "FiShield",
+    "language": "csharp",
+    "description": "Məlumatların gizlədilməsi və qorunması.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Kapsulyasiya Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində kapsulyasiya (encapsulation) sinfin daxili məlumatlarını (sahələr və ya dəyişənlər) xarici müdaxilələrdən qorumaq və onların yalnız müəyyən metodlar və ya xassələr vasitəsilə əlçatan olmasını təmin etmək deməkdir. Bu, məlumatların təhlükəsizliyini artırır və kodun daha idarə oluna bilən olmasını təmin edir. Məsələn, bir bank hesabının balansı yalnız xüsusi metodlar vasitəsilə dəyişdirilə bilər. Bu JSON faylda kapsulyasiyanın əsasları, giriş modifikatorları (`private`, `public`, `protected`, `internal`), xassələr (properties), getter və setter metodları və nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Giriş Modifikatorları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Giriş modifikatorları sinfin üzvlərinin (sahələr, metodlar, xassələr) hansı səviyyədə əlçatan olduğunu müəyyənləşdirir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {"description": "\n`public`: Üzv hər yerdən əlçatandır."},
+          {"description": "\n`private`: Üzv yalnız sinfin daxilində əlçatandır."},
+          {"description": "\n`protected`: Üzv sinfin daxilində və törəmə siniflərdə əlçatandır."},
+          {"description": "\n`internal`: Üzv yalnız eyni layihədə əlçatandır."}
+        ]
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    private string name;\n    public int Age { get; set; }\n\n    public Person(string name, int age)\n    {\n        this.name = name;\n        Age = age;\n    }\n\n    public string GetName()\n    {\n        return name;\n    }\n\n    public void SetName(string newName)\n    {\n        if (!string.IsNullOrEmpty(newName))\n            name = newName;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person(\"Aysel\", 25);\n        Console.WriteLine($\"Ad: {person.GetName()}, Yaş: {person.Age}\");\n        person.SetName(\"Kamal\");\n        Console.WriteLine($\"Yeni ad: {person.GetName()}\");\n        // person.name = \"Səhv\"; // Səhv: name private olduğu üçün əlçatan deyil\n    }\n}\n// Output:\n// Ad: Aysel, Yaş: 25\n// Yeni ad: Kamal"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `name` sahəsi `private` olduğundan yalnız sinfin daxilində əlçatandır.\n- `GetName` və `SetName` metodları `name` sahəsinə təhlükəsiz giriş və dəyişdirmə imkanı verir.\n- `Age` xassəsi `public` olduğundan birbaşa əlçatandır.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Xassələr (Properties) ilə Kapsulyasiya"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xassələr (properties) sahələrə təhlükəsiz giriş təmin etmək üçün istifadə olunur. `get` və `set` vasitəsilə məlumatların oxunması və dəyişdirilməsi idarə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    private decimal balance;\n\n    public decimal Balance\n    {\n        get { return balance; }\n        set\n        {\n            if (value >= 0)\n                balance = value;\n        }\n    }\n\n    public BankAccount(decimal initialBalance)\n    {\n        Balance = initialBalance;\n    }\n\n    public void Deposit(decimal amount)\n    {\n        if (amount > 0)\n            Balance += amount;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount(1000);\n        Console.WriteLine($\"Başlanğıc balans: {account.Balance}\");\n        account.Deposit(500);\n        Console.WriteLine($\"Yeni balans: {account.Balance}\");\n        account.Balance = -100; // Mənfi dəyər qəbul olunmur\n        Console.WriteLine($\"Balans: {account.Balance}\");\n    }\n}\n// Output:\n// Başlanğıc balans: 1000\n// Yeni balans: 1500\n// Balans: 1500"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `balance` sahəsi `private` olaraq qorunur.\n- `Balance` xassəsi `get` və `set` ilə məlumatlara nəzarətli giriş təmin edir.\n- `set` bloku mənfi dəyərləri rədd edir.\n- `Deposit` metodu yalnız müsbət məbləğləri qəbul edir."
+      },
+      {
+        "type": "heading",
+        "text": "Kapsulyasiya və İrsiilik"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kapsulyasiya irsiiliklə birlikdə istifadə olunduqda, `protected` modifikatoru törəmə siniflərə məhdud giriş imkanı verir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Vehicle\n{\n    protected string brand;\n\n    public Vehicle(string brand)\n    {\n        this.brand = brand;\n    }\n\n    public string GetBrand()\n    {\n        return brand;\n    }\n}\n\nclass Car : Vehicle\n{\n    public Car(string brand) : base(brand)\n    {\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Avtomobil markası: {brand}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Car car = new Car(\"BMW\");\n        car.DisplayInfo();\n        Console.WriteLine($\"Marka: {car.GetBrand()}\");\n        // car.brand = \"Toyota\"; // Səhv: brand protected olduğu üçün birbaşa əlçatan deyil\n    }\n}\n// Output:\n// Avtomobil markası: BMW\n// Marka: BMW"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `brand` sahəsi `protected` olaraq qorunur və yalnız `Vehicle` və törəmə siniflərdə (məsələn, `Car`) əlçatandır.\n- `GetBrand` metodu `public` olaraq xarici giriş təmin edir.\n- `brand` sahəsinə birbaşa xarici daxil olmaq mümkün deyil."
+      },
+      {
+        "type": "heading",
+        "text": "Kapsulyasiyanın Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kapsulyasiya kodun təhlükəsizliyini və idarə olunmasını artırır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {"description": "\nTəhlükəsizlik: Məlumatlar xarici müdaxilələrdən qorunur."},
+          {"description": "\nNəzarət: Getter və setter metodları ilə məlumatlara nəzarət edilir."},
+          {"description": "\nModulluluq: Sinfin daxili detalları gizlənərək kod sadələşir."}
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kapsulyasiya yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {"description": "\nMürəkkəblik: Getter və setter metodlarının yazılması əlavə kod tələb edir."},
+          {"description": "\nSəhv İstifadə: Yanlış modifikator seçimi məlumat təhlükəsizliyini poza bilər."},
+          {"description": "\nPyodide Məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."}
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Yanlış giriş modifikatorlarının istifadəsi (məsələn, hər şeyi `public` etmək) və ya qeyri-kafi yoxlamalar məlumat təhlükəsizliyini poza bilər.\n- **Tövsiyələr**: Məlumatları `private` və ya `protected` olaraq qoruyun, xassələrdə yoxlamalar tətbiq edin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə məlumatların birbaşa dəyişdirilməsinə icazə verilməsi kapsulyasiyanı pozur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    public decimal Balance; // Səhv: Public sahə məlumatları qorumur\n\n    public BankAccount(decimal initialBalance)\n    {\n        Balance = initialBalance;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount(1000);\n        account.Balance = -500; // Səhv: Mənfi balans qəbul olunur\n        Console.WriteLine($\"Balans: {account.Balance}\");\n    }\n}\n// Output:\n// Balans: -500"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Balance` sahəsi `public` olduğu üçün birbaşa dəyişdirilə bilər, bu da mənfi balans kimi səhvlərə yol açır.\n- Həll: `Balance` sahəsini `private` edin və xassə (property) ilə nəzarətli giriş təmin edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Student\n{\n    private string name;\n    private int grade;\n\n    public string Name\n    {\n        get { return name; }\n        set { if (!string.IsNullOrEmpty(value)) name = value; }\n    }\n\n    public int Grade\n    {\n        get { return grade; }\n        set { if (value >= 0 && value <= 100) grade = value; }\n    }\n\n    public Student(string name, int grade)\n    {\n        Name = name;\n        Grade = grade;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Tələbə: {Name}, Qiymət: {Grade}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Student student = new Student(\"Ali\", 85);\n        student.DisplayInfo();\n        student.Grade = 90;\n        student.DisplayInfo();\n        student.Grade = -10; // Qəbul olunmur\n        student.DisplayInfo();\n    }\n}\n// Output:\n// Tələbə: Ali, Qiymət: 85\n// Tələbə: Ali, Qiymət: 90\n// Tələbə: Ali, Qiymət: 90"
+      }
+    ]
+  },
+  "en": {
+    "title": "Encapsulation",
+    "icon": "FiShield",
+    "language": "csharp",
+    "description": "Data hiding and protection.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Is Encapsulation?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, encapsulation refers to protecting a class’s internal data (fields or variables) from external interference and ensuring they are only accessible through specific methods or properties. This enhances data security and makes code more manageable. For example, a bank account’s balance can only be modified through designated methods. This JSON file explains the basics of encapsulation, access modifiers (`private`, `public`, `protected`, `internal`), properties, getter and setter methods, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input."
+      },
+      {
+        "type": "heading",
+        "text": "Access Modifiers"
+      },
+      {
+        "type": "paragraph",
+        "text": "Access modifiers determine the accessibility level of a class’s members (fields, methods, properties)."
+      },
+      {
+        "type": "list",
+        "items": [
+          {"description": "\n`public`: The member is accessible from everywhere."},
+          {"description": "\n`private`: The member is only accessible within the class."},
+          {"description": "\n`protected`: The member is accessible within the class and derived classes."},
+          {"description": "\n`internal`: The member is accessible only within the same project."}
+        ]
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    private string name;\n    public int Age { get; set; }\n\n    public Person(string name, int age)\n    {\n        this.name = name;\n        Age = age;\n    }\n\n    public string GetName()\n    {\n        return name;\n    }\n\n    public void SetName(string newName)\n    {\n        if (!string.IsNullOrEmpty(newName))\n            name = newName;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person(\"Alice\", 25);\n        Console.WriteLine($\"Name: {person.GetName()}, Age: {person.Age}\");\n        person.SetName(\"Bob\");\n        Console.WriteLine($\"New name: {person.GetName()}\");\n        // person.name = \"Error\"; // Error: name is private and inaccessible\n    }\n}\n// Output:\n// Name: Alice, Age: 25\n// New name: Bob"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `name` field is `private`, accessible only within the class.\n- `GetName` and `SetName` methods provide safe access and modification of `name`.\n- The `Age` property is `public`, allowing direct access.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Encapsulation with Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Properties provide a controlled way to access and modify fields using `get` and `set`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    private decimal balance;\n\n    public decimal Balance\n    {\n        get { return balance; }\n        set\n        {\n            if (value >= 0)\n                balance = value;\n        }\n    }\n\n    public BankAccount(decimal initialBalance)\n    {\n        Balance = initialBalance;\n    }\n\n    public void Deposit(decimal amount)\n    {\n        if (amount > 0)\n            Balance += amount;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount(1000);\n        Console.WriteLine($\"Initial balance: {account.Balance}\");\n        account.Deposit(500);\n        Console.WriteLine($\"New balance: {account.Balance}\");\n        account.Balance = -100; // Negative value is ignored\n        Console.WriteLine($\"Balance: {account.Balance}\");\n    }\n}\n// Output:\n// Initial balance: 1000\n// New balance: 1500\n// Balance: 1500"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `balance` field is `private` for protection.\n- The `Balance` property uses `get` and `set` to control access.\n- The `set` block prevents negative values.\n- The `Deposit` method only accepts positive amounts."
+      },
+      {
+        "type": "heading",
+        "text": "Encapsulation and Inheritance"
+      },
+      {
+        "type": "paragraph",
+        "text": "When used with inheritance, encapsulation uses the `protected` modifier to allow limited access to derived classes."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Vehicle\n{\n    protected string brand;\n\n    public Vehicle(string brand)\n    {\n        this.brand = brand;\n    }\n\n    public string GetBrand()\n    {\n        return brand;\n    }\n}\n\nclass Car : Vehicle\n{\n    public Car(string brand) : base(brand)\n    {\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Car brand: {brand}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Car car = new Car(\"BMW\");\n        car.DisplayInfo();\n        Console.WriteLine($\"Brand: {car.GetBrand()}\");\n        // car.brand = \"Toyota\"; // Error: brand is protected and not directly accessible\n    }\n}\n// Output:\n// Car brand: BMW\n// Brand: BMW"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `brand` field is `protected`, accessible only in `Vehicle` and derived classes like `Car`.\n- The `GetBrand` method provides `public` access externally.\n- Direct access to `brand` from outside is not allowed."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Encapsulation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Encapsulation enhances code security and manageability."
+      },
+      {
+        "type": "list",
+        "items": [
+          {"description": "\nSecurity: Protects data from external interference."},
+          {"description": "\nControl: Getter and setter methods control data access."},
+          {"description": "\nModularity: Hides internal details, simplifying code."}
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Encapsulation can present challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {"description": "\nComplexity: Writing getter and setter methods requires extra code."},
+          {"description": "\nIncorrect Usage: Choosing the wrong modifier can compromise data security."},
+          {"description": "\nPyodide Limitation: C# code is not fully supported in Pyodide."}
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Using incorrect access modifiers (e.g., making everything `public`) or insufficient validation can compromise data security.\n- **Recommendations**: Protect data with `private` or `protected` modifiers and use properties with validation. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example breaks encapsulation by allowing direct data modification."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    public decimal Balance; // Error: Public field exposes data\n\n    public BankAccount(decimal initialBalance)\n    {\n        Balance = initialBalance;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount(1000);\n        account.Balance = -500; // Error: Allows negative balance\n        Console.WriteLine($\"Balance: {account.Balance}\");\n    }\n}\n// Output:\n// Balance: -500"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Balance` field is `public`, allowing direct modification and enabling errors like negative balances.\n- Solution: Make `Balance` `private` and use a property for controlled access."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Student\n{\n    private string name;\n    private int grade;\n\n    public string Name\n    {\n        get { return name; }\n        set { if (!string.IsNullOrEmpty(value)) name = value; }\n    }\n\n    public int Grade\n    {\n        get { return grade; }\n        set { if (value >= 0 && value <= 100) grade = value; }\n    }\n\n    public Student(string name, int grade)\n    {\n        Name = name;\n        Grade = grade;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Student: {Name}, Grade: {Grade}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Student student = new Student(\"Alice\", 85);\n        student.DisplayInfo();\n        student.Grade = 90;\n        student.DisplayInfo();\n        student.Grade = -10; // Ignored\n        student.DisplayInfo();\n    }\n}\n// Output:\n// Student: Alice, Grade: 85\n// Student: Alice, Grade: 90\n// Student: Alice, Grade: 90"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Инкапсуляция",
+    "icon": "FiShield",
+    "language": "csharp",
+    "description": "Сокрытие и защита данных.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое инкапсуляция?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# инкапсуляция означает защиту внутренних данных класса (полей или переменных) от внешнего вмешательства и обеспечение их доступности только через определённые методы или свойства. Это повышает безопасность данных и делает код более управляемым. Например, баланс банковского счёта может изменяться только через специальные методы. Этот JSON-файл объясняет основы инкапсуляции, модификаторы доступа (`private`, `public`, `protected`, `internal`), свойства, методы getter и setter, а также примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Модификаторы доступа"
+      },
+      {
+        "type": "paragraph",
+        "text": "Модификаторы доступа определяют уровень доступности членов класса (полей, методов, свойств)."
+      },
+      {
+        "type": "list",
+        "items": [
+          {"description": "\n`public`: Член доступен отовсюду."},
+          {"description": "\n`private`: Член доступен только внутри класса."},
+          {"description": "\n`protected`: Член доступен внутри класса и в производных классах."},
+          {"description": "\n`internal`: Член доступен только в пределах одного проекта."}
+        ]
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    private string name;\n    public int Age { get; set; }\n\n    public Person(string name, int age)\n    {\n        this.name = name;\n        Age = age;\n    }\n\n    public string GetName()\n    {\n        return name;\n    }\n\n    public void SetName(string newName)\n    {\n        if (!string.IsNullOrEmpty(newName))\n            name = newName;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person(\"Алиса\", 25);\n        Console.WriteLine($\"Имя: {person.GetName()}, Возраст: {person.Age}\");\n        person.SetName(\"Боб\");\n        Console.WriteLine($\"Новое имя: {person.GetName()}\");\n        // person.name = \"Ошибка\"; // Ошибка: name приватное и недоступно\n    }\n}\n// Output:\n// Имя: Алиса, Возраст: 25\n// Новое имя: Боб"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Поле `name` является `private` и доступно только внутри класса.\n- Методы `GetName` и `SetName` обеспечивают безопасный доступ и изменение `name`.\n- Свойство `Age` является `public` и доступно напрямую.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Инкапсуляция со свойствами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства обеспечивают контролируемый способ доступа и изменения полей с помощью `get` и `set`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    private decimal balance;\n\n    public decimal Balance\n    {\n        get { return balance; }\n        set\n        {\n            if (value >= 0)\n                balance = value;\n        }\n    }\n\n    public BankAccount(decimal initialBalance)\n    {\n        Balance = initialBalance;\n    }\n\n    public void Deposit(decimal amount)\n    {\n        if (amount > 0)\n            Balance += amount;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount(1000);\n        Console.WriteLine($\"Начальный баланс: {account.Balance}\");\n        account.Deposit(500);\n        Console.WriteLine($\"Новый баланс: {account.Balance}\");\n        account.Balance = -100; // Отрицательное значение игнорируется\n        Console.WriteLine($\"Баланс: {account.Balance}\");\n    }\n}\n// Output:\n// Начальный баланс: 1000\n// Новый баланс: 1500\n// Баланс: 1500"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Поле `balance` является `private` для защиты.\n- Свойство `Balance` использует `get` и `set` для контроля доступа.\n- Блок `set` предотвращает установку отрицательных значений.\n- Метод `Deposit` принимает только положительные суммы."
+      },
+      {
+        "type": "heading",
+        "text": "Инкапсуляция и наследование"
+      },
+      {
+        "type": "paragraph",
+        "text": "При использовании с наследованием инкапсуляция использует модификатор `protected` для ограниченного доступа производным классам."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Vehicle\n{\n    protected string brand;\n\n    public Vehicle(string brand)\n    {\n        this.brand = brand;\n    }\n\n    public string GetBrand()\n    {\n        return brand;\n    }\n}\n\nclass Car : Vehicle\n{\n    public Car(string brand) : base(brand)\n    {\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Марка автомобиля: {brand}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Car car = new Car(\"BMW\");\n        car.DisplayInfo();\n        Console.WriteLine($\"Марка: {car.GetBrand()}\");\n        // car.brand = \"Toyota\"; // Ошибка: brand защищено и недоступно напрямую\n    }\n}\n// Output:\n// Марка автомобиля: BMW\n// Марка: BMW"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Поле `brand` является `protected` и доступно только в `Vehicle` и производных классах, таких как `Car`.\n- Метод `GetBrand` предоставляет `public` доступ извне.\n- Прямой доступ к `brand` извне невозможен."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества инкапсуляции"
+      },
+      {
+        "type": "paragraph",
+        "text": "Инкапсуляция повышает безопасность и управляемость кода."
+      },
+      {
+        "type": "list",
+        "items": [
+          {"description": "\nБезопасность: Защищает данные от внешнего вмешательства."},
+          {"description": "\nКонтроль: Методы getter и setter контролируют доступ к данным."},
+          {"description": "\nМодульность: Скрытие внутренних деталей упрощает код."}
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Инкапсуляция может создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {"description": "\nСложность: Написание методов getter и setter требует дополнительного кода."},
+          {"description": "\nНеправильное использование: Выбор неверного модификатора может нарушить безопасность данных."},
+          {"description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."}
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Использование неверных модификаторов доступа (например, всё делать `public`) или недостаточная проверка могут нарушить безопасность данных.\n- **Рекомендации**: Защищайте данные с помощью `private` или `protected` и используйте свойства с проверкой. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример нарушает инкапсуляцию, позволяя напрямую изменять данные."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    public decimal Balance; // Ошибка: Публичное поле не защищает данные\n\n    public BankAccount(decimal initialBalance)\n    {\n        Balance = initialBalance;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount(1000);\n        account.Balance = -500; // Ошибка: Позволяет установить отрицательный баланс\n        Console.WriteLine($\"Баланс: {account.Balance}\");\n    }\n}\n// Output:\n// Баланс: -500"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Поле `Balance` является `public`, что позволяет напрямую его изменять, допуская ошибки, такие как отрицательный баланс.\n- Решение: Сделайте `Balance` `private` и используйте свойство для контролируемого доступа."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Student\n{\n    private string name;\n    private int grade;\n\n    public string Name\n    {\n        get { return name; }\n        set { if (!string.IsNullOrEmpty(value)) name = value; }\n    }\n\n    public int Grade\n    {\n        get { return grade; }\n        set { if (value >= 0 && value <= 100) grade = value; }\n    }\n\n    public Student(string name, int grade)\n    {\n        Name = name;\n        Grade = grade;\n    }\n\n    public void DisplayInfo()\n    {\n        Console.WriteLine($\"Студент: {Name}, Оценка: {Grade}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Student student = new Student(\"Алиса\", 85);\n        student.DisplayInfo();\n        student.Grade = 90;\n        student.DisplayInfo();\n        student.Grade = -10; // Игнорируется\n        student.DisplayInfo();\n    }\n}\n// Output:\n// Студент: Алиса, Оценка: 85\n// Студент: Алиса, Оценка: 90\n// Студент: Алиса, Оценка: 90"
+      }
+    ]
+  }
+}

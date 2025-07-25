@@ -1,0 +1,459 @@
+{
+  "id": "cross-platform",
+  "az": {
+    "title": "Çarpaz-Platforma İnkişafı",
+    "icon": "FiMonitor",
+    "language": "c",
+    "description": "Portativ C kodu yazılması.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Çarpaz-Platforma İnkişafı Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində çarpaz-platforma inkişafı, eyni kodun fərqli əməliyyat sistemlərində (məsələn, Windows, Linux, macOS) və ya cihazlarda (x86_64, ARM) problemsiz işləməsini təmin edən kod yazma texnikasıdır. Portativ kod yazmaq, platformaya xüsusi funksiyalardan qaçınmağı və standart C kitabxanalarını (məsələn, `stdio.h`, `stdlib.h`) istifadə etməyi tələb edir. Bu JSON faylda portativ kod yazmağın əsasları, nümunələr və tövsiyələr sadə şəkildə izah olunacaq. Kod nümunələri Pyodide-da işləyəcək, lakin platformaya xüsusi funksiyalar (məsələn, Windows API) Pyodide-da dəstəklənmir və Linux/Windows mühitlərində sınaqdan keçirilməlidir."
+      },
+      {
+        "type": "heading",
+        "text": "Niyə Portativ Kod Yazılır?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Portativ kod yazmaq proqramın müxtəlif platformalarda işləməsini təmin edir. Bu, kodun təkrar istifadəsini asanlaşdırır, inkişaf müddətini qısaldır və baxım xərclərini azaldır. Məsələn, bir proqram Linux-da yazılmışsa, lakin Windows-da da işləməlidirsə, portativlik vacibdir."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Portativ Kod Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Aşağıdakı nümunə standart C kitabxanalarından istifadə edərək portativ bir proqram göstərir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int numbers[] = {1, 2, 3, 4, 5};\n  int size = 5;\n  double sum = 0.0;\n\n  for (int i = 0; i < size; i++) {\n    sum += numbers[i];\n  }\n  double average = sum / size;\n\n  printf(\"Ədədlərin ortalaması: %f\\n\", average);\n  return 0;\n}\n// Output:\n// Ədədlərin ortalaması: 3.000000"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Yalnız standart C kitabxanaları (`stdio.h`, `stdlib.h`) istifadə olunur.\n- Kod hər hansı platformaya xüsusi funksiyalardan istifadə etmir.\n- Bu kod Windows, Linux, macOS və hətta Pyodide-da işləyəcək."
+      },
+      {
+        "type": "heading",
+        "text": "Şərti Kompilyasiya ilə Çarpaz-Platforma Kod"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fərqli platformalar üçün şərti kompilyasiya (`#ifdef`, `#endif`) istifadə olunur. Bu, platformaya xüsusi kodların idarə edilməsini asanlaşdırır."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#ifdef _WIN32\n#include <windows.h>\n#define SLEEP(ms) Sleep(ms)\n#else\n#include <unistd.h>\n#define SLEEP(ms) usleep((ms) * 1000)\n#endif\n\nint main() {\n  printf(\"3 saniyə gözləyin...\\n\");\n  SLEEP(3000);\n  printf(\"Gözləmə bitdi!\\n\");\n  return 0;\n}\n// Output:\n// 3 saniyə gözləyin...\n// (3 saniyə sonra)\n// Gözləmə bitdi!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `#ifdef _WIN32` Windows üçün `Sleep` funksiyasını, digər platformalar üçün isə `usleep` funksiyasını istifadə edir.\n- `#define SLEEP(ms)` makrosu platformadan asılı olaraq düzgün funksiyanı seçir.\n- Qeyd: Bu kod Pyodide-da işləməyəcək, çünki `windows.h` və `unistd.h` Pyodide-da dəstəklənmir. Linux-da (`gcc program.c`) və ya Windows-da (`cl program.c`) kompilyasiya edin."
+      },
+      {
+        "type": "heading",
+        "text": "Portativ Fayl İdarəetmə Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə standart C fayl idarəetmə funksiyaları ilə portativ kod göstərilir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"example.txt\", \"w\");\n  if (file == NULL) {\n    printf(\"Fayl yaradılmadı\\n\");\n    return 1;\n  }\n\n  fprintf(file, \"Bu portativ C kodudur!\\n\");\n  fclose(file);\n\n  file = fopen(\"example.txt\", \"r\");\n  if (file == NULL) {\n    printf(\"Fayl oxunmadı\\n\");\n    return 1;\n  }\n\n  char buffer[100];\n  fgets(buffer, 100, file);\n  printf(\"Faylın məzmunu: %s\", buffer);\n  fclose(file);\n  return 0;\n}\n// Output:\n// Faylın məzmunu: Bu portativ C kodudur!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fopen`, `fprintf`, `fgets`, `fclose` kimi standart C funksiyaları istifadə olunur.\n- Kod bütün platformalarda eyni şəkildə işləyir.\n- Qeyd: Pyodide-da fayl sistemi məhdudiyyətləri səbəbindən bu kod tam işləməyə bilər, lakin Linux/Windows-da problemsiz işləyəcək."
+      },
+      {
+        "type": "heading",
+        "text": "Çarpaz-Platforma İnkişafının Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Portativ kod yazmaq proqramın universallığını artırır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nTəkrar istifadə: Kod müxtəlif platformalarda yenidən istifadə edilə bilər."
+          },
+          {
+            "description": "\nBaxım asanlığı: Tək bir kod bazası saxlamaq daha asandır."
+          },
+          {
+            "description": "\nSəmərəlilik: Platformaya xüsusi kod yazmağa ehtiyac azalır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Çarpaz-platforma inkişafı yeni başlayanlar üçün mürəkkəb ola bilər, çünki platformalar arası fərqləri başa düşmək tələb olunur."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nPlatforma fərqləri: Fayl yolları, yaddaş idarəetməsi və API-lar platformaya görə dəyişir."
+          },
+          {
+            "description": "\nTest mürəkkəbliyi: Kodu hər platformada sınaqdan keçirmək lazımdır."
+          },
+          {
+            "description": "\nPyodide məhdudiyyəti: Platformaya xüsusi funksiyalar Pyodide-da dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Platformaya xüsusi funksiyaların istifadəsi portativliyi pozur. Şərti kompilyasiya səhvləri kodu qarışdıra bilər. Test edilməmiş kod platformalar arası problemlər yarada bilər.\n- **Tövsiyələr**: Yalnız standart C funksiyalarından istifadə edin. Platformaya xüsusi kod üçün `#ifdef` istifadə edin. Kodu Linux, Windows və macOS kimi müxtəlif platformalarda sınaqdan keçirin. `gcc -E` ilə preprocess edilmiş kodu yoxlayın. CMake kimi çarpaz-platforma qurma alətlərindən istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə platformaya xüsusi kod portativliyi pozur."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <windows.h>\n\nint main() {\n  printf(\"Windows-a xüsusi funksiya çağırılır...\\n\");\n  MessageBox(NULL, \"Salam!\", \"Xəbərdarlıq\", MB_OK);\n  return 0;\n}\n// Output (yalnız Windows-da):\n// Windows-a xüsusi funksiya çağırılır...\n// (Mesaj qutusu göstərilir)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `windows.h` və `MessageBox` yalnız Windows-da işləyir.\n- Linux və ya Pyodide-da kompilyasiya uğursuz olacaq.\n- Həll: Platformaya xüsusi funksiyalar əvəzinə standart C funksiyalarından istifadə edin və ya `#ifdef _WIN32` ilə şərti kompilyasiya tətbiq edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int numbers[] = {10, 20, 30, 40, 50};\n  int size = 5;\n  int max = numbers[0];\n\n  for (int i = 1; i < size; i++) {\n    if (numbers[i] > max) {\n      max = numbers[i];\n    }\n  }\n\n  printf(\"Ən böyük ədəd: %d\\n\", max);\n  return 0;\n}\n// Output:\n// Ən böyük ədəd: 50"
+      }
+    ]
+  },
+  "en": {
+    "title": "Cross-Platform Development",
+    "icon": "FiMonitor",
+    "language": "c",
+    "description": "Writing portable C code.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Cross-Platform Development?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, cross-platform development involves writing code that runs seamlessly on different operating systems (e.g., Windows, Linux, macOS) or devices (e.g., x86_64, ARM). Portable code avoids platform-specific functions and relies on standard C libraries (e.g., `stdio.h`, `stdlib.h`). This JSON file explains the basics of writing portable code, provides examples, and offers recommendations. Code examples will work in Pyodide, but platform-specific functions (e.g., Windows API) are not supported in Pyodide and require testing in Linux/Windows environments."
+      },
+      {
+        "type": "heading",
+        "text": "Why Write Portable Code?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Writing portable code ensures a program can run on multiple platforms. This enhances code reuse, reduces development time, and lowers maintenance costs. For example, a program written for Linux can also run on Windows if designed portably."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Portable Code Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "The following example demonstrates portable code using standard C libraries."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int numbers[] = {1, 2, 3, 4, 5};\n  int size = 5;\n  double sum = 0.0;\n\n  for (int i = 0; i < size; i++) {\n    sum += numbers[i];\n  }\n  double average = sum / size;\n\n  printf(\"Average of numbers: %f\\n\", average);\n  return 0;\n}\n// Output:\n// Average of numbers: 3.000000"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Only standard C libraries (`stdio.h`, `stdlib.h`) are used.\n- The code avoids platform-specific functions.\n- This code will run on Windows, Linux, macOS, and Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Cross-Platform Code with Conditional Compilation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Conditional compilation (`#ifdef`, `#endif`) is used to handle platform-specific code."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#ifdef _WIN32\n#include <windows.h>\n#define SLEEP(ms) Sleep(ms)\n#else\n#include <unistd.h>\n#define SLEEP(ms) usleep((ms) * 1000)\n#endif\n\nint main() {\n  printf(\"Waiting for 3 seconds...\\n\");\n  SLEEP(3000);\n  printf(\"Wait complete!\\n\");\n  return 0;\n}\n// Output:\n// Waiting for 3 seconds...\n// (3 seconds later)\n// Wait complete!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `#ifdef _WIN32` uses `Sleep` for Windows and `usleep` for other platforms.\n- `#define SLEEP(ms)` macro selects the appropriate function based on the platform.\n- Note: This code will not run in Pyodide, as `windows.h` and `unistd.h` are not supported. Compile with `gcc program.c` on Linux or `cl program.c` on Windows."
+      },
+      {
+        "type": "heading",
+        "text": "Portable File Handling Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example demonstrates portable code using standard C file handling functions."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"example.txt\", \"w\");\n  if (file == NULL) {\n    printf(\"File creation failed\\n\");\n    return 1;\n  }\n\n  fprintf(file, \"This is portable C code!\\n\");\n  fclose(file);\n\n  file = fopen(\"example.txt\", \"r\");\n  if (file == NULL) {\n    printf(\"File reading failed\\n\");\n    return 1;\n  }\n\n  char buffer[100];\n  fgets(buffer, 100, file);\n  printf(\"File contents: %s\", buffer);\n  fclose(file);\n  return 0;\n}\n// Output:\n// File contents: This is portable C code!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Standard C functions like `fopen`, `fprintf`, `fgets`, and `fclose` are used.\n- The code works consistently across platforms.\n- Note: Due to Pyodide’s file system limitations, this code may not fully work in Pyodide but will work on Linux/Windows."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Cross-Platform Development"
+      },
+      {
+        "type": "paragraph",
+        "text": "Writing portable code increases a program’s versatility."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nReusability: Code can be reused across different platforms."
+          },
+          {
+            "description": "\nEase of maintenance: A single codebase is easier to maintain."
+          },
+          {
+            "description": "\nEfficiency: Reduces the need for platform-specific code."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Cross-platform development can be complex for beginners, as it requires understanding platform differences."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nPlatform differences: File paths, memory management, and APIs vary across platforms."
+          },
+          {
+            "description": "\nTesting complexity: Code must be tested on each platform."
+          },
+          {
+            "description": "\nPyodide limitation: Platform-specific functions are not supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Using platform-specific functions breaks portability. Conditional compilation errors can complicate code. Untested code may cause platform-specific issues.\n- **Recommendations**: Use only standard C functions. Employ `#ifdef` for platform-specific code. Test code on Linux, Windows, and macOS. Check preprocessed code with `gcc -E`. Use cross-platform build tools like CMake."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example breaks portability by using platform-specific code."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <windows.h>\n\nint main() {\n  printf(\"Calling Windows-specific function...\\n\");\n  MessageBox(NULL, \"Hello!\", \"Alert\", MB_OK);\n  return 0;\n}\n// Output (Windows only):\n// Calling Windows-specific function...\n// (Message box displayed)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `windows.h` and `MessageBox` are Windows-specific.\n- Compilation will fail on Linux or Pyodide.\n- Solution: Use standard C functions or apply `#ifdef _WIN32` for conditional compilation."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int numbers[] = {10, 20, 30, 40, 50};\n  int size = 5;\n  int max = numbers[0];\n\n  for (int i = 1; i < size; i++) {\n    if (numbers[i] > max) {\n      max = numbers[i];\n    }\n  }\n\n  printf(\"Largest number: %d\\n\", max);\n  return 0;\n}\n// Output:\n// Largest number: 50"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Кроссплатформенная разработка",
+    "icon": "FiMonitor",
+    "language": "c",
+    "description": "Написание переносимого кода на C.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое кроссплатформенная разработка?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C кроссплатформенная разработка подразумевает написание кода, который без проблем работает на разных операционных системах (например, Windows, Linux, macOS) или устройствах (например, x86_64, ARM). Переносимый код избегает использования платформозависимых функций и полагается на стандартные библиотеки C (например, `stdio.h`, `stdlib.h`). Этот JSON-файл объясняет основы написания переносимого кода, предоставляет примеры и рекомендации. Примеры кода будут работать в Pyodide, но платформозависимые функции (например, Windows API) не поддерживаются в Pyodide и требуют тестирования в средах Linux/Windows."
+      },
+      {
+        "type": "heading",
+        "text": "Зачем писать переносимый код?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Написание переносимого кода позволяет программе работать на нескольких платформах. Это упрощает повторное использование кода, сокращает время разработки и снижает затраты на обслуживание. Например, программа, написанная для Linux, может также работать на Windows, если она спроектирована с учётом переносимости."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример переносимого кода"
+      },
+      {
+        "type": "paragraph",
+        "text": "Следующий пример демонстрирует переносимый код с использованием стандартных библиотек C."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int numbers[] = {1, 2, 3, 4, 5};\n  int size = 5;\n  double sum = 0.0;\n\n  for (int i = 0; i < size; i++) {\n    sum += numbers[i];\n  }\n  double average = sum / size;\n\n  printf(\"Среднее значение чисел: %f\\n\", average);\n  return 0;\n}\n// Output:\n// Среднее значение чисел: 3.000000"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Используются только стандартные библиотеки C (`stdio.h`, `stdlib.h`).\n- Код не использует платформозависимые функции.\n- Этот код будет работать на Windows, Linux, macOS и в Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Кроссплатформенный код с условной компиляцией"
+      },
+      {
+        "type": "paragraph",
+        "text": "Условная компиляция (`#ifdef`, `#endif`) используется для обработки платформозависимого кода."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#ifdef _WIN32\n#include <windows.h>\n#define SLEEP(ms) Sleep(ms)\n#else\n#include <unistd.h>\n#define SLEEP(ms) usleep((ms) * 1000)\n#endif\n\nint main() {\n  printf(\"Ожидание 3 секунды...\\n\");\n  SLEEP(3000);\n  printf(\"Ожидание завершено!\\n\");\n  return 0;\n}\n// Output:\n// Ожидание 3 секунды...\n// (3 секунды спустя)\n// Ожидание завершено!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `#ifdef _WIN32` использует `Sleep` для Windows и `usleep` для других платформ.\n- Макрос `#define SLEEP(ms)` выбирает подходящую функцию в зависимости от платформы.\n- Примечание: Этот код не будет работать в Pyodide, так как `windows.h` и `unistd.h` не поддерживаются. Компилируйте с `gcc program.c` на Linux или `cl program.c` на Windows."
+      },
+      {
+        "type": "heading",
+        "text": "Пример переносимой работы с файлами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример демонстрирует переносимый код с использованием стандартных функций работы с файлами в C."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\nint main() {\n  FILE* file = fopen(\"example.txt\", \"w\");\n  if (file == NULL) {\n    printf(\"Ошибка создания файла\\n\");\n    return 1;\n  }\n\n  fprintf(file, \"Это переносимый код на C!\\n\");\n  fclose(file);\n\n  file = fopen(\"example.txt\", \"r\");\n  if (file == NULL) {\n    printf(\"Ошибка чтения файла\\n\");\n    return 1;\n  }\n\n  char buffer[100];\n  fgets(buffer, 100, file);\n  printf(\"Содержимое файла: %s\", buffer);\n  fclose(file);\n  return 0;\n}\n// Output:\n// Содержимое файла: Это переносимый код на C!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Используются стандартные функции C, такие как `fopen`, `fprintf`, `fgets` и `fclose`.\n- Код работает одинаково на всех платформах.\n- Примечание: Из-за ограничений файловой системы в Pyodide этот код может не полностью работать, но он будет работать на Linux/Windows."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества кроссплатформенной разработки"
+      },
+      {
+        "type": "paragraph",
+        "text": "Написание переносимого кода повышает универсальность программы."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПовторное использование: Код может быть использован на разных платформах."
+          },
+          {
+            "description": "\nУдобство обслуживания: Единая кодовая база проще в управлении."
+          },
+          {
+            "description": "\nЭффективность: Уменьшает необходимость написания платформозависимого кода."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Кроссплатформенная разработка может быть сложной для новичков, так как требует понимания различий между платформами."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nРазличия платформ: Пути к файлам, управление памятью и API различаются в зависимости от платформы."
+          },
+          {
+            "description": "\nСложность тестирования: Код необходимо тестировать на каждой платформе."
+          },
+          {
+            "description": "\nОграничение Pyodide: Платформозависимые функции не поддерживаются в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Использование платформозависимых функций нарушает переносимость. Ошибки условной компиляции могут запутать код. Непротестированный код может вызвать проблемы на разных платформах.\n- **Рекомендации**: Используйте только стандартные функции C. Применяйте `#ifdef` для платформозависимого кода. Тестируйте код на Linux, Windows и macOS. Проверяйте препроцессированный код с помощью `gcc -E`. Используйте кроссплатформенные инструменты сборки, такие как CMake."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример нарушает переносимость из-за использования платформозависимого кода."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <windows.h>\n\nint main() {\n  printf(\"Вызов платформозависимой функции Windows...\\n\");\n  MessageBox(NULL, \"Привет!\", \"Предупреждение\", MB_OK);\n  return 0;\n}\n// Output (только Windows):\n// Вызов платформозависимой функции Windows...\n// (Отображается окно сообщения)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `windows.h` и `MessageBox` специфичны для Windows.\n- Компиляция не удастся на Linux или в Pyodide.\n- Решение: Используйте стандартные функции C или применяйте `#ifdef _WIN32` для условной компиляции."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int numbers[] = {10, 20, 30, 40, 50};\n  int size = 5;\n  int max = numbers[0];\n\n  for (int i = 1; i < size; i++) {\n    if (numbers[i] > max) {\n      max = numbers[i];\n    }\n  }\n\n  printf(\"Наибольшее число: %d\\n\", max);\n  return 0;\n}\n// Output:\n// Наибольшее число: 50"
+      }
+    ]
+  }
+}

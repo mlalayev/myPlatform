@@ -211,8 +211,6 @@ export default function RootLayout({
       <body
         style={{
           minHeight: "100vh",
-          // background: "linear-gradient(135deg,rgb(115, 156, 184) 0%,rgb(91, 132, 173) 100%);",
-          // background: "linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);",
           background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
         }}
       >

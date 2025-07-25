@@ -1,0 +1,499 @@
+{
+  "id": "abstraction",
+  "az": {
+    "title": "Abstraksiya",
+    "icon": "FiEye",
+    "language": "csharp",
+    "description": "Abstrakt siniflər və interfeyslər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Abstraksiya Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində abstraksiya (abstraction) sinfin daxili detallarını gizlətmək və yalnız zəruri funksiyaları istifadəçiyə təqdim etmək deməkdir. Bu, mürəkkəb sistemləri sadələşdirir və kodun yalnız əsas davranışlarına fokuslanmağa imkan verir. Abstraksiya əsasən abstrakt siniflər və interfeyslər vasitəsilə həyata keçirilir. Abstrakt siniflər ümumi davranışları təyin edir, lakin birbaşa obyekt yaradıla bilməz. Interfeyslər isə siniflərin hansı metodları tətbiq etməli olduğunu göstərir. Bu JSON faylda abstraksiyanın əsasları, abstrakt siniflər, interfeyslər, onların fərqləri və nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Abstrakt Siniflər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstrakt siniflər yalnız miras alınmaq üçün nəzərdə tutulub və birbaşa obyekt yaradıla bilməz. Onlar ümumi davranışları təyin edir və törəmə siniflərə bu davranışları tətbiq etməyi tələb edir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nabstract class Shape\n{\n    public abstract double CalculateArea();\n\n    public void Display()\n    {\n        Console.WriteLine($\"Fiqurun sahəsi: {CalculateArea()}\");\n    }\n}\n\nclass Circle : Shape\n{\n    private double radius;\n\n    public Circle(double radius)\n    {\n        this.radius = radius;\n    }\n\n    public override double CalculateArea()\n    {\n        return Math.PI * radius * radius;\n    }\n}\n\nclass Rectangle : Shape\n{\n    private double width;\n    private double height;\n\n    public Rectangle(double width, double height)\n    {\n        this.width = width;\n        this.height = height;\n    }\n\n    public override double CalculateArea()\n    {\n        return width * height;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Shape circle = new Circle(5);\n        Shape rectangle = new Rectangle(4, 6);\n\n        circle.Display();\n        rectangle.Display();\n        // Shape shape = new Shape(); // Səhv: Abstrakt sinifdən obyekt yaradıla bilməz\n    }\n}\n// Output:\n// Fiqurun sahəsi: 78.53981633974483\n// Fiqurun sahəsi: 24"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Shape` abstrakt sinfdir və `CalculateArea` abstrakt metodudur.\n- `Circle` və `Rectangle` sinifləri `CalculateArea` metodunu özünəməxsus şəkildə tətbiq edir.\n- `Display` metodu ümumi davranış kimi bütün törəmə siniflərdə istifadə olunur.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Interfeyslər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeyslər siniflərin hansı metodları tətbiq etməli olduğunu təyin edən müqavilələrdir. Onlar yalnız metod və xassə imzalarını ehtiva edir, heç bir tətbiqetmə kodu yoxdur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IVehicle\n{\n    void Start();\n    void Stop();\n}\n\nclass Car : IVehicle\n{\n    public void Start()\n    {\n        Console.WriteLine(\"Avtomobil işə salındı.\");\n    }\n\n    public void Stop()\n    {\n        Console.WriteLine(\"Avtomobil dayandırıldı.\");\n    }\n}\n\nclass Bicycle : IVehicle\n{\n    public void Start()\n    {\n        Console.WriteLine(\"Velosiped hərəkətə başladı.\");\n    }\n\n    public void Stop()\n    {\n        Console.WriteLine(\"Velosiped dayandırıldı.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IVehicle car = new Car();\n        IVehicle bicycle = new Bicycle();\n\n        car.Start();\n        car.Stop();\n        bicycle.Start();\n        bicycle.Stop();\n    }\n}\n// Output:\n// Avtomobil işə salındı.\n// Avtomobil dayandırıldı.\n// Velosiped hərəkətə başladı.\n// Velosiped dayandırıldı."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `IVehicle` interfeysi `Start` və `Stop` metodlarını tələb edir.\n- `Car` və `Bicycle` sinifləri bu metodları fərqli şəkildə tətbiq edir.\n- Interfeys polimorfizmi dəstəkləyir, çünki fərqli siniflər eyni metodları tətbiq edir."
+      },
+      {
+        "type": "heading",
+        "text": "Abstrakt Siniflər və Interfeyslər Arasındakı Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstrakt siniflər və interfeyslər abstraksiyanı təmin etsə də, onların istifadəsi fərqlidir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nAbstrakt Sinflər: Həm abstrakt, həm də tətbiq edilmiş metodlar ola bilər. Yalnız tək sinfdən miras alına bilər."
+          },
+          {
+            "description": "\nInterfeyslər: Yalnız metod və xassə imzaları ehtiva edir. Bir sinf çoxlu interfeysləri tətbiq edə bilər."
+          },
+          {
+            "description": "\nİstifadə: Abstrakt sinflər ümumi funksionallıq təmin edir, interfeyslər isə davranış müqavilələri yaradır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Abstraksiya və Polimorfizm"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstraksiya polimorfizmlə sıx bağlıdır, çünki abstrakt siniflər və interfeyslər fərqli siniflərin eyni metodları fərqli şəkildə tətbiq etməsinə imkan verir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IAnimal\n{\n    void MakeSound();\n}\n\nabstract class Mammal\n{\n    public abstract void Move();\n}\n\nclass Dog : Mammal, IAnimal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"İt: Hav-hav!\");\n    }\n\n    public override void Move()\n    {\n        Console.WriteLine(\"İt qaçır.\");\n    }\n}\n\nclass Cat : Mammal, IAnimal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"Pişik: Miyav!\");\n    }\n\n    public override void Move()\n    {\n        Console.WriteLine(\"Pişik gəzir.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IAnimal dog = new Dog();\n        IAnimal cat = new Cat();\n        Mammal dogMammal = new Dog();\n        Mammal catMammal = new Cat();\n\n        dog.MakeSound();\n        cat.MakeSound();\n        dogMammal.Move();\n        catMammal.Move();\n    }\n}\n// Output:\n// İt: Hav-hav!\n// Pişik: Miyav!\n// İt qaçır.\n// Pişik gəzir."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `IAnimal` interfeysi `MakeSound` metodunu tələb edir.\n- `Mammal` abstrakt sinfi `Move` metodunu tələb edir.\n- `Dog` və `Cat` sinifləri həm interfeysi, həm də abstrakt sinfi tətbiq edir, polimorfizm sayəsində fərqli davranışlar nümayiş etdirir."
+      },
+      {
+        "type": "heading",
+        "text": "Abstraksiyanın Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstraksiya kodun idarə olunmasını və çevikliyini artırır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nSadəlik: Daxili detallar gizlənərək kod sadələşir."
+          },
+          {
+            "description": "\nÇeviklik: Polimorfizm vasitəsilə fərqli davranışlar tətbiq olunur."
+          },
+          {
+            "description": "\nTəkrar İstifadə: Ümumi davranışlar təkrar istifadə olunur."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstraksiya yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: Abstrakt sinflər və interfeyslər düzgün dizayn edilmədikdə qarışıq ola bilər."
+          },
+          {
+            "description": "\nSəhv Tətbiq: Yanlış metod tətbiqləri xətalara səbəb ola bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Həddindən artıq abstraksiya və ya səhv dizayn edilmiş interfeyslər kodu mürəkkəbləşdirə bilər.\n- **Tövsiyələr**: Abstrakt sinfləri və interfeysləri sadə saxlayın, yalnız zəruri metodları təyin edin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə abstrakt metodun tətbiq edilməməsi səhvə səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nabstract class Shape\n{\n    public abstract void Draw();\n}\n\nclass Circle : Shape\n{\n    // Draw metodu tətbiq edilməyib\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Shape circle = new Circle(); // Səhv: Circle abstrakt metodu tətbiq etməyib\n    }\n}\n// Kompilyasiya xətası: 'Circle' must implement 'Draw' method"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Circle` sinfi `Shape` sinfindəki `Draw` abstrakt metodunu tətbiq etməyib.\n- Bu, kompilyasiya xətasına səbəb olur.\n- Həll: `Circle` sinfində `Draw` metodunu `override` ilə tətbiq edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\ninterface IDrawable\n{\n    void Draw();\n}\n\nabstract class Shape\n{\n    public abstract double GetArea();\n}\n\nclass Triangle : Shape, IDrawable\n{\n    private double baseLength;\n    private double height;\n\n    public Triangle(double baseLength, double height)\n    {\n        this.baseLength = baseLength;\n        this.height = height;\n    }\n\n    public override double GetArea()\n    {\n        return 0.5 * baseLength * height;\n    }\n\n    public void Draw()\n    {\n        Console.WriteLine(\"Üçbucaq çəkilir.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Triangle triangle = new Triangle(10, 5);\n        Console.WriteLine($\"Üçbucağın sahəsi: {triangle.GetArea()}\");\n        triangle.Draw();\n    }\n}\n// Output:\n// Üçbucağın sahəsi: 25\n// Üçbucaq çəkilir."
+      }
+    ]
+  },
+  "en": {
+    "title": "Abstraction",
+    "icon": "FiEye",
+    "language": "csharp",
+    "description": "Abstract classes and interfaces.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Is Abstraction?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, abstraction refers to hiding a class’s internal details and exposing only the necessary functionalities to the user. This simplifies complex systems and allows focusing on essential behaviors. Abstraction is primarily achieved through abstract classes and interfaces. Abstract classes define common behaviors but cannot be instantiated directly. Interfaces specify which methods a class must implement. This JSON file explains the basics of abstraction, abstract classes, interfaces, their differences, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input."
+      },
+      {
+        "type": "heading",
+        "text": "Abstract Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstract classes are designed for inheritance only and cannot be instantiated directly. They define common behaviors and require derived classes to implement them."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nabstract class Shape\n{\n    public abstract double CalculateArea();\n\n    public void Display()\n    {\n        Console.WriteLine($\"Shape area: {CalculateArea()}\");\n    }\n}\n\nclass Circle : Shape\n{\n    private double radius;\n\n    public Circle(double radius)\n    {\n        this.radius = radius;\n    }\n\n    public override double CalculateArea()\n    {\n        return Math.PI * radius * radius;\n    }\n}\n\nclass Rectangle : Shape\n{\n    private double width;\n    private double height;\n\n    public Rectangle(double width, double height)\n    {\n        this.width = width;\n        this.height = height;\n    }\n\n    public override double CalculateArea()\n    {\n        return width * height;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Shape circle = new Circle(5);\n        Shape rectangle = new Rectangle(4, 6);\n\n        circle.Display();\n        rectangle.Display();\n        // Shape shape = new Shape(); // Error: Cannot create instance of abstract class\n    }\n}\n// Output:\n// Shape area: 78.53981633974483\n// Shape area: 24"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Shape` is an abstract class with an abstract `CalculateArea` method.\n- `Circle` and `Rectangle` implement `CalculateArea` in their own way.\n- The `Display` method is a common behavior used by all derived classes.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces act as contracts, specifying which methods or properties a class must implement, without providing any implementation code."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IVehicle\n{\n    void Start();\n    void Stop();\n}\n\nclass Car : IVehicle\n{\n    public void Start()\n    {\n        Console.WriteLine(\"Car started.\");\n    }\n\n    public void Stop()\n    {\n        Console.WriteLine(\"Car stopped.\");\n    }\n}\n\nclass Bicycle : IVehicle\n{\n    public void Start()\n    {\n        Console.WriteLine(\"Bicycle started moving.\");\n    }\n\n    public void Stop()\n    {\n        Console.WriteLine(\"Bicycle stopped.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IVehicle car = new Car();\n        IVehicle bicycle = new Bicycle();\n\n        car.Start();\n        car.Stop();\n        bicycle.Start();\n        bicycle.Stop();\n    }\n}\n// Output:\n// Car started.\n// Car stopped.\n// Bicycle started moving.\n// Bicycle stopped."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `IVehicle` interface requires `Start` and `Stop` methods.\n- `Car` and `Bicycle` implement these methods differently.\n- The interface supports polymorphism by allowing different classes to implement the same methods."
+      },
+      {
+        "type": "heading",
+        "text": "Differences Between Abstract Classes and Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "While both abstract classes and interfaces enable abstraction, their use cases differ."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nAbstract Classes: Can include both abstract and implemented methods. A class can inherit from only one abstract class."
+          },
+          {
+            "description": "\nInterfaces: Contain only method and property signatures. A class can implement multiple interfaces."
+          },
+          {
+            "description": "\nUsage: Abstract classes provide common functionality; interfaces define behavioral contracts."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Abstraction and Polymorphism"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstraction is closely tied to polymorphism, as abstract classes and interfaces allow different classes to implement the same methods in unique ways."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IAnimal\n{\n    void MakeSound();\n}\n\nabstract class Mammal\n{\n    public abstract void Move();\n}\n\nclass Dog : Mammal, IAnimal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"Dog: Woof!\");\n    }\n\n    public override void Move()\n    {\n        Console.WriteLine(\"Dog runs.\");\n    }\n}\n\nclass Cat : Mammal, IAnimal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"Cat: Meow!\");\n    }\n\n    public override void Move()\n    {\n        Console.WriteLine(\"Cat walks.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IAnimal dog = new Dog();\n        IAnimal cat = new Cat();\n        Mammal dogMammal = new Dog();\n        Mammal catMammal = new Cat();\n\n        dog.MakeSound();\n        cat.MakeSound();\n        dogMammal.Move();\n        catMammal.Move();\n    }\n}\n// Output:\n// Dog: Woof!\n// Cat: Meow!\n// Dog runs.\n// Cat walks."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `IAnimal` interface requires the `MakeSound` method.\n- The `Mammal` abstract class requires the `Move` method.\n- `Dog` and `Cat` implement both the interface and abstract class, enabling polymorphic behavior."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Abstraction"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstraction improves code manageability and flexibility."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nSimplicity: Hides internal details, simplifying code."
+          },
+          {
+            "description": "\nFlexibility: Enables different behaviors through polymorphism."
+          },
+          { "description": "\nCode Reuse: Common behaviors can be reused." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstraction can present challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: Poorly designed abstract classes or interfaces can be confusing."
+          },
+          {
+            "description": "\nIncorrect Implementation: Improper method implementations can cause errors."
+          },
+          {
+            "description": "\nPyodide Limitation: C# code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Over-abstraction or poorly designed interfaces can complicate code.\n- **Recommendations**: Keep abstract classes and interfaces simple, defining only necessary methods. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error by failing to implement an abstract method."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nabstract class Shape\n{\n    public abstract void Draw();\n}\n\nclass Circle : Shape\n{\n    // Draw method not implemented\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Shape circle = new Circle(); // Error: Circle does not implement Draw method\n    }\n}\n// Compilation error: 'Circle' must implement 'Draw' method"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Circle` class does not implement the `Draw` abstract method from `Shape`.\n- This results in a compilation error.\n- Solution: Implement the `Draw` method in `Circle` using `override`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\ninterface IDrawable\n{\n    void Draw();\n}\n\nabstract class Shape\n{\n    public abstract double GetArea();\n}\n\nclass Triangle : Shape, IDrawable\n{\n    private double baseLength;\n    private double height;\n\n    public Triangle(double baseLength, double height)\n    {\n        this.baseLength = baseLength;\n        this.height = height;\n    }\n\n    public override double GetArea()\n    {\n        return 0.5 * baseLength * height;\n    }\n\n    public void Draw()\n    {\n        Console.WriteLine(\"Drawing a triangle.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Triangle triangle = new Triangle(10, 5);\n        Console.WriteLine($\"Triangle area: {triangle.GetArea()}\");\n        triangle.Draw();\n    }\n}\n// Output:\n// Triangle area: 25\n// Drawing a triangle."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Абстракция",
+    "icon": "FiEye",
+    "language": "csharp",
+    "description": "Абстрактные классы и интерфейсы.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое абстракция?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# абстракция означает сокрытие внутренних деталей класса и предоставление пользователю только необходимых функций. Это упрощает сложные системы и позволяет сосредоточиться на основных поведениях. Абстракция в основном реализуется через абстрактные классы и интерфейсы. Абстрактные классы определяют общие поведения, но не могут быть инстанцированы напрямую. Интерфейсы указывают, какие методы должен реализовать класс. Этот JSON-файл объясняет основы абстракции, абстрактные классы, интерфейсы, их различия и примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Абстрактные классы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Абстрактные классы предназначены только для наследования и не могут быть инстанцированы напрямую. Они определяют общие поведения и требуют от производных классов их реализации."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nabstract class Shape\n{\n    public abstract double CalculateArea();\n\n    public void Display()\n    {\n        Console.WriteLine($\"Площадь фигуры: {CalculateArea()}\");\n    }\n}\n\nclass Circle : Shape\n{\n    private double radius;\n\n    public Circle(double radius)\n    {\n        this.radius = radius;\n    }\n\n    public override double CalculateArea()\n    {\n        return Math.PI * radius * radius;\n    }\n}\n\nclass Rectangle : Shape\n{\n    private double width;\n    private double height;\n\n    public Rectangle(double width, double height)\n    {\n        this.width = width;\n        this.height = height;\n    }\n\n    public override double CalculateArea()\n    {\n        return width * height;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Shape circle = new Circle(5);\n        Shape rectangle = new Rectangle(4, 6);\n\n        circle.Display();\n        rectangle.Display();\n        // Shape shape = new Shape(); // Ошибка: Нельзя создать экземпляр абстрактного класса\n    }\n}\n// Output:\n// Площадь фигуры: 78.53981633974483\n// Площадь фигуры: 24"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Shape` — абстрактный класс с абстрактным методом `CalculateArea`.\n- `Circle` и `Rectangle` реализуют `CalculateArea` по-своему.\n- Метод `Display` — общее поведение, используемое всеми производными классами.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Интерфейсы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы — это контракты, которые указывают, какие методы или свойства должен реализовать класс, без предоставления кода реализации."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IVehicle\n{\n    void Start();\n    void Stop();\n}\n\nclass Car : IVehicle\n{\n    public void Start()\n    {\n        Console.WriteLine(\"Машина заведена.\");\n    }\n\n    public void Stop()\n    {\n        Console.WriteLine(\"Машина остановлена.\");\n    }\n}\n\nclass Bicycle : IVehicle\n{\n    public void Start()\n    {\n        Console.WriteLine(\"Велосипед начал движение.\");\n    }\n\n    public void Stop()\n    {\n        Console.WriteLine(\"Велосипед остановлен.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IVehicle car = new Car();\n        IVehicle bicycle = new Bicycle();\n\n        car.Start();\n        car.Stop();\n        bicycle.Start();\n        bicycle.Stop();\n    }\n}\n// Output:\n// Машина заведена.\n// Машина остановлена.\n// Велосипед начал движение.\n// Велосипед остановлен."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `IVehicle` требует методы `Start` и `Stop`.\n- Классы `Car` и `Bicycle` реализуют эти методы по-разному.\n- Интерфейс поддерживает полиморфизм, позволяя разным классам реализовывать одни и те же методы."
+      },
+      {
+        "type": "heading",
+        "text": "Различия между абстрактными классами и интерфейсами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Хотя абстрактные классы и интерфейсы обеспечивают абстракцию, их использование различается."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nАбстрактные классы: Могут содержать как абстрактные, так и реализованные методы. Класс может наследовать только один абстрактный класс."
+          },
+          {
+            "description": "\nИнтерфейсы: Содержат только сигнатуры методов и свойств. Класс может реализовать несколько интерфейсов."
+          },
+          {
+            "description": "\nИспользование: Абстрактные классы предоставляют общую функциональность; интерфейсы определяют контракты поведения."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Абстракция и полиморфизм"
+      },
+      {
+        "type": "paragraph",
+        "text": "Абстракция тесно связана с полиморфизмом, поскольку абстрактные классы и интерфейсы позволяют разным классам реализовывать одни и те же методы по-разному."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IAnimal\n{\n    void MakeSound();\n}\n\nabstract class Mammal\n{\n    public abstract void Move();\n}\n\nclass Dog : Mammal, IAnimal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"Собака: Гав-гав!\");\n    }\n\n    public override void Move()\n    {\n        Console.WriteLine(\"Собака бежит.\");\n    }\n}\n\nclass Cat : Mammal, IAnimal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"Кот: Мяу!\");\n    }\n\n    public override void Move()\n    {\n        Console.WriteLine(\"Кот идёт.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IAnimal dog = new Dog();\n        IAnimal cat = new Cat();\n        Mammal dogMammal = new Dog();\n        Mammal catMammal = new Cat();\n\n        dog.MakeSound();\n        cat.MakeSound();\n        dogMammal.Move();\n        catMammal.Move();\n    }\n}\n// Output:\n// Собака: Гав-гав!\n// Кот: Мяу!\n// Собака бежит.\n// Кот идёт."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `IAnimal` требует метод `MakeSound`.\n- Абстрактный класс `Mammal` требует метод `Move`.\n- Классы `Dog` и `Cat` реализуют как интерфейс, так и абстрактный класс, обеспечивая полиморфное поведение."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества абстракции"
+      },
+      {
+        "type": "paragraph",
+        "text": "Абстракция улучшает управляемость и гибкость кода."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПростота: Скрытие внутренних деталей упрощает код."
+          },
+          {
+            "description": "\nГибкость: Полиморфизм позволяет реализовать разные поведения."
+          },
+          {
+            "description": "\nПовторное использование: Общие поведения могут быть переиспользованы."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Абстракция может создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Неправильно спроектированные абстрактные классы или интерфейсы могут быть запутанными."
+          },
+          {
+            "description": "\nНеправильная реализация: Ошибки в реализации методов могут вызывать проблемы."
+          },
+          {
+            "description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Чрезмерная абстракция или плохо спроектированные интерфейсы могут усложнить код.\n- **Рекомендации**: Сохраняйте простоту абстрактных классов и интерфейсов, определяйте только необходимые методы. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку из-за отсутствия реализации абстрактного метода."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nabstract class Shape\n{\n    public abstract void Draw();\n}\n\nclass Circle : Shape\n{\n    // Метод Draw не реализован\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Shape circle = new Circle(); // Ошибка: Circle не реализует метод Draw\n    }\n}\n// Ошибка компиляции: 'Circle' должен реализовать метод 'Draw'"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Circle` не реализует абстрактный метод `Draw` из класса `Shape`.\n- Это приводит к ошибке компиляции.\n- Решение: Реализуйте метод `Draw` в `Circle` с помощью `override`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\ninterface IDrawable\n{\n    void Draw();\n}\n\nabstract class Shape\n{\n    public abstract double GetArea();\n}\n\nclass Triangle : Shape, IDrawable\n{\n    private double baseLength;\n    private double height;\n\n    public Triangle(double baseLength, double height)\n    {\n        this.baseLength = baseLength;\n        this.height = height;\n    }\n\n    public override double GetArea()\n    {\n        return 0.5 * baseLength * height;\n    }\n\n    public void Draw()\n    {\n        Console.WriteLine(\"Рисуем треугольник.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Triangle triangle = new Triangle(10, 5);\n        Console.WriteLine($\"Площадь треугольника: {triangle.GetArea()}\");\n        triangle.Draw();\n    }\n}\n// Output:\n// Площадь треугольника: 25\n// Рисуем треугольник."
+      }
+    ]
+  }
+}

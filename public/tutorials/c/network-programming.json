@@ -1,0 +1,408 @@
+{
+  "id": "network-programming",
+  "az": {
+    "title": "Şəbəkə Proqramlaşdırması",
+    "icon": "FiGlobe",
+    "language": "c",
+    "description": "C dilində soketlər və şəbəkə rabitəsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Şəbəkə Proqramlaşdırması Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində şəbəkə proqramlaşdırması kompüterlərin şəbəkə (məsələn, internet və ya yerli şəbəkə) üzərindən bir-biri ilə rabitə qurmasını təmin edir. Bu, 'soketlər' adlanan mexanizmlərlə həyata keçirilir. Soketlər proqramların məlumat göndərməsi və qəbul etməsi üçün bir interfeys təmin edir. C-də POSIX socket API (`sys/socket.h`) ilə işləyərək TCP və ya UDP protokolları istifadə olunur. Bu JSON faylda TCP soketləri ilə sadə server və müştəri (client) nümunələri izah olunacaq. Kodlar Pyodide-da işləməyəcək, çünki Pyodide POSIX socket API-ni dəstəkləmir. Nümunələr Linux və ya POSIX dəstəyi olan mühitlərdə (gcc ilə) işləyəcək."
+      },
+      {
+        "type": "heading",
+        "text": "Soket Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Soket bir proqramın şəbəkə üzərindən məlumat göndərməsi və qəbul etməsi üçün istifadə etdiyi bir vasitədir. TCP (Transmission Control Protocol) etibarlı rabitə təmin edir, çünki məlumatların düzgün çatmasını yoxlayır. Məsələn, veb brauzerlər veb saytlarla TCP soketləri vasitəsilə əlaqə qurur. Bu faylda TCP server və müştəri nümunələri göstəriləcək."
+      },
+      {
+        "type": "heading",
+        "text": "TCP Server Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Aşağıdakı nümunə sadə bir TCP serverdir ki, müştəridən mesaj qəbul edir və cavab göndərir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n#include <unistd.h>\n\nint main() {\n  int server_fd, client_fd;\n  struct sockaddr_in server_addr, client_addr;\n  socklen_t client_len = sizeof(client_addr);\n  char buffer[1024] = {0};\n\n  server_fd = socket(AF_INET, SOCK_STREAM, 0);\n  if (server_fd < 0) {\n    printf(\"Soket yaradılmadı\\n\");\n    return 1;\n  }\n\n  server_addr.sin_family = AF_INET;\n  server_addr.sin_addr.s_addr = INADDR_ANY;\n  server_addr.sin_port = htons(8080);\n\n  if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {\n    printf(\"Bind uğursuz oldu\\n\");\n    return 1;\n  }\n\n  if (listen(server_fd, 3) < 0) {\n    printf(\"Listen uğursuz oldu\\n\");\n    return 1;\n  }\n\n  printf(\"Server 8080 portunda gözləyir...\\n\");\n  client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_len);\n  if (client_fd < 0) {\n    printf(\"Müştəri qəbul edilmədi\\n\");\n    return 1;\n  }\n\n  read(client_fd, buffer, 1024);\n  printf(\"Müştəri mesajı: %s\\n\", buffer);\n  char* response = \"Salam, müştəri!\";\n  write(client_fd, response, strlen(response));\n\n  close(client_fd);\n  close(server_fd);\n  return 0;\n}\n// Output:\n// Server 8080 portunda gözləyir...\n// Müştəri mesajı: [müştəridən gələn mesaj]"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `socket` TCP soketi yaradır.\n- `bind` soketi 8080 portuna bağlayır.\n- `listen` serveri müştəri bağlantılarını gözləməyə hazır edir.\n- `accept` müştəri bağlantısını qəbul edir.\n- `read` müştəridən mesaj oxuyur, `write` isə cavab göndərir.\n- Qeyd: Bu kod Pyodide-da işləməz, çünki POSIX soketləri dəstəklənmir. Linux-da `gcc -o server server.c` ilə kompilyasiya edin və `./server` ilə işə salın."
+      },
+      {
+        "type": "heading",
+        "text": "TCP Müştəri Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Aşağıdakı nümunə sadə bir TCP müştərisidir ki, serverə mesaj göndərir və cavab alır."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n#include <arpa/inet.h>\n#include <unistd.h>\n\nint main() {\n  int client_fd;\n  struct sockaddr_in server_addr;\n  char buffer[1024] = {0};\n\n  client_fd = socket(AF_INET, SOCK_STREAM, 0);\n  if (client_fd < 0) {\n    printf(\"Soket yaradılmadı\\n\");\n    return 1;\n  }\n\n  server_addr.sin_family = AF_INET;\n  server_addr.sin_port = htons(8080);\n  inet_pton(AF_INET, \"127.0.0.1\", &server_addr.sin_addr);\n\n  if (connect(client_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {\n    printf(\"Bağlantı uğursuz oldu\\n\");\n    return 1;\n  }\n\n  char* message = \"Salam, server!\";\n  write(client_fd, message, strlen(message));\n  read(client_fd, buffer, 1024);\n  printf(\"Server cavabı: %s\\n\", buffer);\n\n  close(client_fd);\n  return 0;\n}\n// Output:\n// Server cavabı: Salam, müştəri!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `socket` TCP soketi yaradır.\n- `inet_pton` serverin IP ünvanını (127.0.0.1, localhost) təyin edir.\n- `connect` serverə 8080 portu üzərindən qoşulur.\n- `write` serverə mesaj göndərir, `read` isə cavabı oxuyur.\n- Qeyd: Bu kod Pyodide-da işləməz. Linux-da `gcc -o client client.c` ilə kompilyasiya edin və `./client` ilə işə salın (server işlək olmalıdır)."
+      },
+      {
+        "type": "heading",
+        "text": "Şəbəkə Proqramlaşdırmasının Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Şəbəkə proqramlaşdırması proqramların bir-biri ilə rabitə qurmasını təmin edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nRabitə: Kompüterlər arasında məlumat mübadiləsi mümkündür (məsələn, veb serverlər, mesajlaşma tətbiqləri)."
+          },
+          {
+            "description": "\nEtibarlılıq: TCP protokolu məlumatların düzgün çatmasını təmin edir."
+          },
+          {
+            "description": "\nÇeviklik: Soketlər müxtəlif şəbəkə protokolları ilə işləyə bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Şəbəkə proqramlaşdırması yeni başlayanlar üçün mürəkkəb ola bilər, çünki şəbəkə protokollarını və soket API-ni öyrənmək tələb olunur."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: Soketlərin düzgün konfiqurasiyası diqqət tələb edir."
+          },
+          {
+            "description": "\nXətalar: Bağlantı problemləri və ya səhv port istifadəsi proqramı dayandıra bilər."
+          },
+          {
+            "description": "\nPyodide məhdudiyyəti: POSIX soketləri dəstəklənmir, testlər Linux-da aparılmalıdır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Səhv konfiqurasiya bağlantı uğursuzluğuna səbəb ola bilər. Resursların düzgün bağlanmaması (soketlərin `close` ilə azad edilməməsi) yaddaş sızmasına yol aça bilər. Şəbəkə təhlükəsizliyi nəzərə alınmazsa, hücumlara məruz qalma riski var.\n- **Tövsiyələr**: Soketləri düzgün yaradın və bağlayın. TCP üçün `bind`, `listen`, `accept` (server) və `connect` (müştəri) funksiyalarını düzgün istifadə edin. Linux-da `gcc -o program program.c` ilə kompilyasiya edin. Testləri localhost (127.0.0.1) ilə kiçik nümunələrdə aparın."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə server soketi bağlanmır və bu, resurs sızmasına səbəb ola bilər."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n\nint main() {\n  int server_fd;\n  struct sockaddr_in server_addr;\n\n  server_fd = socket(AF_INET, SOCK_STREAM, 0);\n  if (server_fd < 0) {\n    printf(\"Soket yaradılmadı\\n\");\n    return 1;\n  }\n\n  server_addr.sin_family = AF_INET;\n  server_addr.sin_addr.s_addr = INADDR_ANY;\n  server_addr.sin_port = htons(8080);\n\n  if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {\n    printf(\"Bind uğursuz oldu\\n\");\n    return 1;\n  }\n\n  if (listen(server_fd, 3) < 0) {\n    printf(\"Listen uğursuz oldu\\n\");\n    return 1;\n  }\n\n  printf(\"Server 8080 portunda gözləyir...\\n\");\n  // Səhv: Soket bağlanmır\n  return 0;\n}\n// Output:\n// Server 8080 portunda gözləyir..."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `server_fd` soketi `close` ilə azad edilmir.\n- Bu, resurs sızmasına səbəb ola bilər.\n- Həll: `close(server_fd)` əlavə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n#include <arpa/inet.h>\n#include <unistd.h>\n\nint main() {\n  int client_fd;\n  struct sockaddr_in server_addr;\n  char buffer[1024] = {0};\n\n  client_fd = socket(AF_INET, SOCK_STREAM, 0);\n  if (client_fd < 0) {\n    printf(\"Soket yaradılmadı\\n\");\n    return 1;\n  }\n\n  server_addr.sin_family = AF_INET;\n  server_addr.sin_port = htons(8080);\n  inet_pton(AF_INET, \"127.0.0.1\", &server_addr.sin_addr);\n\n  if (connect(client_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {\n    printf(\"Bağlantı uğursuz oldu\\n\");\n    return 1;\n  }\n\n  char* message = \"Salam, server!\";\n  write(client_fd, message, strlen(message));\n  read(client_fd, buffer, 1024);\n  printf(\"Server cavabı: %s\\n\", buffer);\n\n  close(client_fd);\n  return 0;\n}\n// Output:\n// Server cavabı: Salam, müştəri!"
+      }
+    ]
+  },
+  "en": {
+    "title": "Network Programming",
+    "icon": "FiGlobe",
+    "language": "c",
+    "description": "Sockets and network communication in C.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Network Programming?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, network programming enables computers to communicate over a network (e.g., the internet or a local network). This is achieved using 'sockets,' which provide an interface for sending and receiving data. In C, the POSIX socket API (`sys/socket.h`) is used with protocols like TCP or UDP. This JSON file explains TCP sockets with simple server and client examples. Code examples will not run in Pyodide, as it does not support the POSIX socket API, but they will work in Linux or POSIX-compliant environments (compiled with gcc)."
+      },
+      {
+        "type": "heading",
+        "text": "What is a Socket?"
+      },
+      {
+        "type": "paragraph",
+        "text": "A socket is a mechanism used by programs to send and receive data over a network. TCP (Transmission Control Protocol) ensures reliable communication by verifying data delivery. For example, web browsers use TCP sockets to connect to websites. This file provides examples of a TCP server and client."
+      },
+      {
+        "type": "heading",
+        "text": "TCP Server Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "The following example is a simple TCP server that receives a message from a client and sends a response."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n#include <unistd.h>\n\nint main() {\n  int server_fd, client_fd;\n  struct sockaddr_in server_addr, client_addr;\n  socklen_t client_len = sizeof(client_addr);\n  char buffer[1024] = {0};\n\n  server_fd = socket(AF_INET, SOCK_STREAM, 0);\n  if (server_fd < 0) {\n    printf(\"Socket creation failed\\n\");\n    return 1;\n  }\n\n  server_addr.sin_family = AF_INET;\n  server_addr.sin_addr.s_addr = INADDR_ANY;\n  server_addr.sin_port = htons(8080);\n\n  if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {\n    printf(\"Bind failed\\n\");\n    return 1;\n  }\n\n  if (listen(server_fd, 3) < 0) {\n    printf(\"Listen failed\\n\");\n    return 1;\n  }\n\n  printf(\"Server listening on port 8080...\\n\");\n  client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_len);\n  if (client_fd < 0) {\n    printf(\"Client connection failed\\n\");\n    return 1;\n  }\n\n  read(client_fd, buffer, 1024);\n  printf(\"Client message: %s\\n\", buffer);\n  char* response = \"Hello, client!\";\n  write(client_fd, response, strlen(response));\n\n  close(client_fd);\n  close(server_fd);\n  return 0;\n}\n// Output:\n// Server listening on port 8080...\n// Client message: [message from client]"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `socket` creates a TCP socket.\n- `bind` binds the socket to port 8080.\n- `listen` prepares the server to accept client connections.\n- `accept` accepts a client connection.\n- `read` reads a message from the client, and `write` sends a response.\n- Note: This code will not run in Pyodide, as POSIX sockets are not supported. Compile with `gcc -o server server.c` in Linux and run with `./server`."
+      },
+      {
+        "type": "heading",
+        "text": "TCP Client Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "The following example is a simple TCP client that sends a message to a server and receives a response."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n#include <arpa/inet.h>\n#include <unistd.h>\n\nint main() {\n  int client_fd;\n  struct sockaddr_in server_addr;\n  char buffer[1024] = {0};\n\n  client_fd = socket(AF_INET, SOCK_STREAM, 0);\n  if (client_fd < 0) {\n    printf(\"Socket creation failed\\n\");\n    return 1;\n  }\n\n  server_addr.sin_family = AF_INET;\n  server_addr.sin_port = htons(8080);\n  inet_pton(AF_INET, \"127.0.0.1\", &server_addr.sin_addr);\n\n  if (connect(client_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {\n    printf(\"Connection failed\\n\");\n    return 1;\n  }\n\n  char* message = \"Hello, server!\";\n  write(client_fd, message, strlen(message));\n  read(client_fd, buffer, 1024);\n  printf(\"Server response: %s\\n\", buffer);\n\n  close(client_fd);\n  return 0;\n}\n// Output:\n// Server response: Hello, client!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `socket` creates a TCP socket.\n- `inet_pton` sets the server’s IP address (127.0.0.1, localhost).\n- `connect` connects to the server on port 8080.\n- `write` sends a message to the server, and `read` receives the response.\n- Note: This code will not run in Pyodide. Compile with `gcc -o client client.c` in Linux and run with `./client` (server must be running)."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Network Programming"
+      },
+      {
+        "type": "paragraph",
+        "text": "Network programming enables communication between programs."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nCommunication: Enables data exchange between computers (e.g., web servers, messaging apps)."
+          },
+          {
+            "description": "\nReliability: TCP ensures accurate data delivery."
+          },
+          {
+            "description": "\nFlexibility: Sockets can work with various network protocols."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Network programming can be complex for beginners, as it requires understanding network protocols and the socket API."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: Proper socket configuration requires attention."
+          },
+          {
+            "description": "\nErrors: Connection issues or incorrect port usage can halt the program."
+          },
+          {
+            "description": "\nPyodide limitation: POSIX sockets are not supported, so testing requires Linux."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Incorrect configuration can cause connection failures. Failing to close sockets with `close` may lead to resource leaks. Neglecting network security can expose vulnerabilities.\n- **Recommendations**: Properly create and close sockets. Use `bind`, `listen`, `accept` (server) and `connect` (client) correctly for TCP. Compile with `gcc -o program program.c` in Linux. Test with localhost (127.0.0.1) using small examples."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example fails to close the server socket, which can cause a resource leak."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n\nint main() {\n  int server_fd;\n  struct sockaddr_in server_addr;\n\n  server_fd = socket(AF_INET, SOCK_STREAM, 0);\n  if (server_fd < 0) {\n    printf(\"Socket creation failed\\n\");\n    return 1;\n  }\n\n  server_addr.sin_family = AF_INET;\n  server_addr.sin_addr.s_addr = INADDR_ANY;\n  server_addr.sin_port = htons(8080);\n\n  if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {\n    printf(\"Bind failed\\n\");\n    return 1;\n  }\n\n  if (listen(server_fd, 3) < 0) {\n    printf(\"Listen failed\\n\");\n    return 1;\n  }\n\n  printf(\"Server listening on port 8080...\\n\");\n  // Error: Socket not closed\n  return 0;\n}\n// Output:\n// Server listening on port 8080..."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `server_fd` socket is not closed with `close`.\n- This can cause a resource leak.\n- Solution: Add `close(server_fd)`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n#include <arpa/inet.h>\n#include <unistd.h>\n\nint main() {\n  int client_fd;\n  struct sockaddr_in server_addr;\n  char buffer[1024] = {0};\n\n  client_fd = socket(AF_INET, SOCK_STREAM, 0);\n  if (client_fd < 0) {\n    printf(\"Socket creation failed\\n\");\n    return 1;\n  }\n\n  server_addr.sin_family = AF_INET;\n  server_addr.sin_port = htons(8080);\n  inet_pton(AF_INET, \"127.0.0.1\", &server_addr.sin_addr);\n\n  if (connect(client_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {\n    printf(\"Connection failed\\n\");\n    return 1;\n  }\n\n  char* message = \"Hello, server!\";\n  write(client_fd, message, strlen(message));\n  read(client_fd, buffer, 1024);\n  printf(\"Server response: %s\\n\", buffer);\n\n  close(client_fd);\n  return 0;\n}\n// Output:\n// Server response: Hello, client!"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Сетевое программирование",
+    "icon": "FiGlobe",
+    "language": "c",
+    "description": "Сокеты и сетевое взаимодействие в C.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое сетевое программирование?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C сетевое программирование позволяет компьютерам обмениваться данными через сеть (например, интернет или локальную сеть). Это достигается с помощью 'сокетов', которые предоставляют интерфейс для отправки и получения данных. В C используется POSIX socket API (`sys/socket.h`) с протоколами, такими как TCP или UDP. Этот JSON-файл объясняет сокеты TCP с простыми примерами сервера и клиента. Примеры кода не будут работать в Pyodide, так как он не поддерживает POSIX socket API, но будут работать в Linux или POSIX-совместимых средах (с компиляцией через gcc)."
+      },
+      {
+        "type": "heading",
+        "text": "Что такое сокет?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сокет — это механизм, используемый программами для отправки и получения данных по сети. TCP (Transmission Control Protocol) обеспечивает надёжную передачу данных, проверяя их доставку. Например, веб-браузеры используют TCP-сокеты для связи с веб-сайтами. В этом файле приведены примеры TCP-сервера и клиента."
+      },
+      {
+        "type": "heading",
+        "text": "Пример TCP-сервера"
+      },
+      {
+        "type": "paragraph",
+        "text": "Следующий пример — это простой TCP-сервер, который принимает сообщение от клиента и отправляет ответ."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n#include <unistd.h>\n\nint main() {\n  int server_fd, client_fd;\n  struct sockaddr_in server_addr, client_addr;\n  socklen_t client_len = sizeof(client_addr);\n  char buffer[1024] = {0};\n\n  server_fd = socket(AF_INET, SOCK_STREAM, 0);\n  if (server_fd < 0) {\n    printf(\"Ошибка создания сокета\\n\");\n    return 1;\n  }\n\n  server_addr.sin_family = AF_INET;\n  server_addr.sin_addr.s_addr = INADDR_ANY;\n  server_addr.sin_port = htons(8080);\n\n  if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {\n    printf(\"Ошибка привязки\\n\");\n    return 1;\n  }\n\n  if (listen(server_fd, 3) < 0) {\n    printf(\"Ошибка прослушивания\\n\");\n    return 1;\n  }\n\n  printf(\"Сервер слушает на порту 8080...\\n\");\n  client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_len);\n  if (client_fd < 0) {\n    printf(\"Ошибка принятия клиента\\n\");\n    return 1;\n  }\n\n  read(client_fd, buffer, 1024);\n  printf(\"Сообщение клиента: %s\\n\", buffer);\n  char* response = \"Привет, клиент!\";\n  write(client_fd, response, strlen(response));\n\n  close(client_fd);\n  close(server_fd);\n  return 0;\n}\n// Output:\n// Сервер слушает на порту 8080...\n// Сообщение клиента: [сообщение от клиента]"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `socket` создаёт TCP-сокет.\n- `bind` привязывает сокет к порту 8080.\n- `listen` подготавливает сервер к принятию клиентских соединений.\n- `accept` принимает соединение клиента.\n- `read` читает сообщение от клиента, а `write` отправляет ответ.\n- Примечание: Этот код не работает в Pyodide, так как POSIX-сокеты не поддерживаются. Компилируйте с `gcc -o server server.c` в Linux и запустите с `./server`."
+      },
+      {
+        "type": "heading",
+        "text": "Пример TCP-клиента"
+      },
+      {
+        "type": "paragraph",
+        "text": "Следующий пример — это простой TCP-клиент, который отправляет сообщение серверу и получает ответ."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n#include <arpa/inet.h>\n#include <unistd.h>\n\nint main() {\n  int client_fd;\n  struct sockaddr_in server_addr;\n  char buffer[1024] = {0};\n\n  client_fd = socket(AF_INET, SOCK_STREAM, 0);\n  if (client_fd < 0) {\n    printf(\"Ошибка создания сокета\\n\");\n    return 1;\n  }\n\n  server_addr.sin_family = AF_INET;\n  server_addr.sin_port = htons(8080);\n  inet_pton(AF_INET, \"127.0.0.1\", &server_addr.sin_addr);\n\n  if (connect(client_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {\n    printf(\"Ошибка соединения\\n\");\n    return 1;\n  }\n\n  char* message = \"Привет, сервер!\";\n  write(client_fd, message, strlen(message));\n  read(client_fd, buffer, 1024);\n  printf(\"Ответ сервера: %s\\n\", buffer);\n\n  close(client_fd);\n  return 0;\n}\n// Output:\n// Ответ сервера: Привет, клиент!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `socket` создаёт TCP-сокет.\n- `inet_pton` задаёт IP-адрес сервера (127.0.0.1, localhost).\n- `connect` подключается к серверу на порту 8080.\n- `write` отправляет сообщение серверу, а `read` получает ответ.\n- Примечание: Этот код не работает в Pyodide. Компилируйте с `gcc -o client client.c` в Linux и запустите с `./client` (сервер должен быть запущен)."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества сетевого программирования"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сетевое программирование позволяет программам взаимодействовать друг с другом."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nВзаимодействие: Возможен обмен данными между компьютерами (например, веб-серверы, мессенджеры)."
+          },
+          {
+            "description": "\nНадёжность: TCP обеспечивает точную доставку данных."
+          },
+          {
+            "description": "\nГибкость: Сокеты могут работать с различными сетевыми протоколами."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сетевое программирование может быть сложным для новичков, так как требует понимания сетевых протоколов и API сокетов."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Корректная настройка сокетов требует внимания."
+          },
+          {
+            "description": "\nОшибки: Проблемы с соединением или неверный порт могут остановить программу."
+          },
+          {
+            "description": "\nОграничение Pyodide: POSIX-сокеты не поддерживаются, тестирование требует Linux."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильная конфигурация может привести к сбоям соединения. Незакрытые сокеты (без `close`) могут вызвать утечки ресурсов. Игнорирование сетевой безопасности может привести к уязвимостям.\n- **Рекомендации**: Правильно создавайте и закрывайте сокеты. Используйте `bind`, `listen`, `accept` (сервер) и `connect` (клиент) корректно для TCP. Компилируйте с `gcc -o program program.c` в Linux. Тестируйте с localhost (127.0.0.1) на небольших примерах."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом примере серверный сокет не закрывается, что может привести к утечке ресурсов."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n\nint main() {\n  int server_fd;\n  struct sockaddr_in server_addr;\n\n  server_fd = socket(AF_INET, SOCK_STREAM, 0);\n  if (server_fd < 0) {\n    printf(\"Ошибка создания сокета\\n\");\n    return 1;\n  }\n\n  server_addr.sin_family = AF_INET;\n  server_addr.sin_addr.s_addr = INADDR_ANY;\n  server_addr.sin_port = htons(8080);\n\n  if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {\n    printf(\"Ошибка привязки\\n\");\n    return 1;\n  }\n\n  if (listen(server_fd, 3) < 0) {\n    printf(\"Ошибка прослушивания\\n\");\n    return 1;\n  }\n\n  printf(\"Сервер слушает на порту 8080...\\n\");\n  // Ошибка: Сокет не закрыт\n  return 0;\n}\n// Output:\n// Сервер слушает на порту 8080..."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Сокет `server_fd` не закрывается с помощью `close`.\n- Это может вызвать утечку ресурсов.\n- Решение: Добавьте `close(server_fd)`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n#include <arpa/inet.h>\n#include <unistd.h>\n\nint main() {\n  int client_fd;\n  struct sockaddr_in server_addr;\n  char buffer[1024] = {0};\n\n  client_fd = socket(AF_INET, SOCK_STREAM, 0);\n  if (client_fd < 0) {\n    printf(\"Ошибка создания сокета\\n\");\n    return 1;\n  }\n\n  server_addr.sin_family = AF_INET;\n  server_addr.sin_port = htons(8080);\n  inet_pton(AF_INET, \"127.0.0.1\", &server_addr.sin_addr);\n\n  if (connect(client_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {\n    printf(\"Ошибка соединения\\n\");\n    return 1;\n  }\n\n  char* message = \"Привет, сервер!\";\n  write(client_fd, message, strlen(message));\n  read(client_fd, buffer, 1024);\n  printf(\"Ответ сервера: %s\\n\", buffer);\n\n  close(client_fd);\n  return 0;\n}\n// Output:\n// Ответ сервера: Привет, клиент!"
+      }
+    ]
+  }
+}

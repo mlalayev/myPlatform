@@ -1,0 +1,480 @@
+{
+  "id": "polymorphism",
+  "az": {
+    "title": "Polimorfizm",
+    "icon": "FiShuffle",
+    "language": "csharp",
+    "description": "Polimorfizm və virtual metodlar.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Polimorfizm Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində polimorfizm (polymorphism) bir obyektin fərqli siniflərə aid olan davranışları eyni interfeys və ya əsas sinf vasitəsilə nümayiş etdirməsi deməkdir. Bu, kodun çevikliyini artırır və fərqli obyektlərin eyni şəkildə istifadə edilməsinə imkan verir. Polimorfizm iki əsas formada olur: kompilyasiya zamanı (method overloading) və icra zamanı (virtual metodlar və override). Bu JSON faylda polimorfizmin növləri, virtual metodlar, abstrakt siniflər, interfeyslər və nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Kompilyasiya Zamanı Polimorfizm (Method Overloading)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kompilyasiya zamanı polimorfizm metodların eyni adla, lakin fərqli parametrlərlə təyin edilməsi ilə əldə edilir. Buna method overloading deyilir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Calculator\n{\n    public int Add(int a, int b)\n    {\n        return a + b;\n    }\n\n    public double Add(double a, double b)\n    {\n        return a + b;\n    }\n\n    public int Add(int a, int b, int c)\n    {\n        return a + b + c;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Calculator calc = new Calculator();\n        Console.WriteLine($\"İki tam ədəd: {calc.Add(5, 3)}\");\n        Console.WriteLine($\"İki onluq ədəd: {calc.Add(5.5, 3.2)}\");\n        Console.WriteLine($\"Üç tam ədəd: {calc.Add(5, 3, 2)}\");\n    }\n}\n// Output:\n// İki tam ədəd: 8\n// İki onluq ədəd: 8.7\n// Üç tam ədəd: 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Calculator` sinfi `Add` metodunu üç fərqli formada təyin edir.\n- Kompilyator metodun hansı versiyasını çağıracağını parametrlərə görə seçir.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "İcra Zamanı Polimorfizm (Virtual Metodlar)"
+      },
+      {
+        "type": "paragraph",
+        "text": "İcra zamanı polimorfizm `virtual` və `override` açar sözləri ilə əldə edilir. Törəmə sinif əsas sinfin metodunu yenidən təyin edə bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Shape\n{\n    public virtual void Draw()\n    {\n        Console.WriteLine(\"Fiqur çəkilir.\");\n    }\n}\n\nclass Circle : Shape\n{\n    public override void Draw()\n    {\n        Console.WriteLine(\"Dairə çəkilir.\");\n    }\n}\n\nclass Rectangle : Shape\n{\n    public override void Draw()\n    {\n        Console.WriteLine(\"Düzbucaqlı çəkilir.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Shape shape = new Shape();\n        Shape circle = new Circle();\n        Shape rectangle = new Rectangle();\n\n        shape.Draw();\n        circle.Draw();\n        rectangle.Draw();\n    }\n}\n// Output:\n// Fiqur çəkilir.\n// Dairə çəkilir.\n// Düzbucaqlı çəkilir."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Shape` sinfi `virtual` `Draw` metoduna malikdir.\n- `Circle` və `Rectangle` sinifləri bu metodu `override` ilə yenidən təyin edir.\n- Obyektin tipi icra zamanı müəyyənləşdirilir və müvafiq metod çağırılır."
+      },
+      {
+        "type": "heading",
+        "text": "Abstrakt Siniflərlə Polimorfizm"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstrakt siniflər yalnız miras alınmaq üçün nəzərdə tutulub və birbaşa obyekt yaradıla bilməz. Onlar polimorfizmi dəstəkləyir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nabstract class Animal\n{\n    public abstract void MakeSound();\n}\n\nclass Dog : Animal\n{\n    public override void MakeSound()\n    {\n        Console.WriteLine(\"İt: Hav-hav!\");\n    }\n}\n\nclass Cat : Animal\n{\n    public override void MakeSound()\n    {\n        Console.WriteLine(\"Pişik: Miyav!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Animal dog = new Dog();\n        Animal cat = new Cat();\n\n        dog.MakeSound();\n        cat.MakeSound();\n    }\n}\n// Output:\n// İt: Hav-hav!\n// Pişik: Miyav!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Animal` abstrakt sinfdir və `MakeSound` abstrakt metodudur.\n- `Dog` və `Cat` sinifləri `MakeSound` metodunu tətbiq edir.\n- Polimorfizm sayəsində `Animal` tipindəki obyektlər fərqli davranışlar nümayiş etdirir."
+      },
+      {
+        "type": "heading",
+        "text": "Interfeyslərlə Polimorfizm"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeyslər siniflərə müəyyən metodları tətbiq etməyi tələb edir, bu da polimorfizmi dəstəkləyir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IVehicle\n{\n    void Drive();\n}\n\nclass Car : IVehicle\n{\n    public void Drive()\n    {\n        Console.WriteLine(\"Avtomobil sürülür.\");\n    }\n}\n\nclass Bicycle : IVehicle\n{\n    public void Drive()\n    {\n        Console.WriteLine(\"Velosiped sürülür.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IVehicle car = new Car();\n        IVehicle bicycle = new Bicycle();\n\n        car.Drive();\n        bicycle.Drive();\n    }\n}\n// Output:\n// Avtomobil sürülür.\n// Velosiped sürülür."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `IVehicle` interfeysi `Drive` metodunu tələb edir.\n- `Car` və `Bicycle` sinifləri bu metodu fərqli şəkildə tətbiq edir.\n- Interfeys polimorfizmi təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Polimorfizmin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Polimorfizm proqramlaşdırmanı daha çevik və təkrar istifadə edilə bilər edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nÇeviklik: Fərqli obyektlər eyni interfeys vasitəsilə idarə olunur."
+          },
+          {
+            "description": "\nTəkrar İstifadə: Kodun təkrar istifadəsi asanlaşır."
+          },
+          {
+            "description": "\nAbstraksiya: Ümumi davranışlar müəyyənləşdirilərək kod təşkil edilir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Polimorfizm yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: Virtual metodlar və abstrakt siniflər qarışıq ola bilər."
+          },
+          {
+            "description": "\nSəhv Tətbiq: Yanlış override edilmiş metodlar xətalara səbəb ola bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: `virtual` və `override` açar sözlərinin yanlış istifadəsi və ya abstrakt siniflərin səhv tətbiqi xətalara səbəb ola bilər.\n- **Tövsiyələr**: Metodları düzgün override edin, interfeysləri və abstrakt sinifləri sadə saxlayın. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə `virtual` açar sözünün olmaması override etməyə mane olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Shape\n{\n    public void Draw()\n    {\n        Console.WriteLine(\"Fiqur çəkilir.\");\n    }\n}\n\nclass Circle : Shape\n{\n    public void Draw()\n    {\n        Console.WriteLine(\"Dairə çəkilir.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Shape shape = new Circle();\n        shape.Draw(); // Səhv: Dairə çəkilir əvəzinə Fiqur çəkilir.\n    }\n}\n// Output:\n// Fiqur çəkilir."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Shape` sinfində `Draw` metodu `virtual` deyil, buna görə `Circle` sinfi onu override edə bilmir.\n- `Shape` tipində obyekt `Circle` sinfinə aid olsa belə, əsas sinfin metodu çağırılır.\n- Həll: `Draw` metodunu `virtual` edin və `Circle` sinfində `override` istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\ninterface IShape\n{\n    void Draw();\n}\n\nclass Triangle : IShape\n{\n    public void Draw()\n    {\n        Console.WriteLine(\"Üçbucaq çəkilir.\");\n    }\n}\n\nclass Square : IShape\n{\n    public void Draw()\n    {\n        Console.WriteLine(\"Kvadrat çəkilir.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IShape triangle = new Triangle();\n        IShape square = new Square();\n\n        triangle.Draw();\n        square.Draw();\n    }\n}\n// Output:\n// Üçbucaq çəkilir.\n// Kvadrat çəkilir."
+      }
+    ]
+  },
+  "en": {
+    "title": "Polymorphism",
+    "icon": "FiShuffle",
+    "language": "csharp",
+    "description": "Polymorphism and virtual methods.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Is Polymorphism?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, polymorphism allows an object to exhibit behaviors from different classes through a common interface or base class. This increases code flexibility and enables different objects to be used uniformly. Polymorphism occurs in two main forms: compile-time (method overloading) and runtime (virtual methods and override). This JSON file explains polymorphism types, virtual methods, abstract classes, interfaces, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input."
+      },
+      {
+        "type": "heading",
+        "text": "Compile-Time Polymorphism (Method Overloading)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Compile-time polymorphism is achieved through method overloading, where methods have the same name but different parameters."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Calculator\n{\n    public int Add(int a, int b)\n    {\n        return a + b;\n    }\n\n    public double Add(double a, double b)\n    {\n        return a + b;\n    }\n\n    public int Add(int a, int b, int c)\n    {\n        return a + b + c;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Calculator calc = new Calculator();\n        Console.WriteLine($\"Two integers: {calc.Add(5, 3)}\");\n        Console.WriteLine($\"Two doubles: {calc.Add(5.5, 3.2)}\");\n        Console.WriteLine($\"Three integers: {calc.Add(5, 3, 2)}\");\n    }\n}\n// Output:\n// Two integers: 8\n// Two doubles: 8.7\n// Three integers: 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Calculator` class defines the `Add` method in three different forms.\n- The compiler selects the appropriate method based on the parameters.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Runtime Polymorphism (Virtual Methods)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Runtime polymorphism is achieved using `virtual` and `override` keywords, allowing a derived class to redefine a base class method."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Shape\n{\n    public virtual void Draw()\n    {\n        Console.WriteLine(\"Drawing a shape.\");\n    }\n}\n\nclass Circle : Shape\n{\n    public override void Draw()\n    {\n        Console.WriteLine(\"Drawing a circle.\");\n    }\n}\n\nclass Rectangle : Shape\n{\n    public override void Draw()\n    {\n        Console.WriteLine(\"Drawing a rectangle.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Shape shape = new Shape();\n        Shape circle = new Circle();\n        Shape rectangle = new Rectangle();\n\n        shape.Draw();\n        circle.Draw();\n        rectangle.Draw();\n    }\n}\n// Output:\n// Drawing a shape.\n// Drawing a circle.\n// Drawing a rectangle."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Shape` class has a `virtual` `Draw` method.\n- `Circle` and `Rectangle` classes override this method with specific behaviors.\n- The object type determines which method is called at runtime."
+      },
+      {
+        "type": "heading",
+        "text": "Polymorphism with Abstract Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstract classes are designed for inheritance only and cannot be instantiated directly. They support polymorphism."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nabstract class Animal\n{\n    public abstract void MakeSound();\n}\n\nclass Dog : Animal\n{\n    public override void MakeSound()\n    {\n        Console.WriteLine(\"Dog: Woof!\");\n    }\n}\n\nclass Cat : Animal\n{\n    public override void MakeSound()\n    {\n        Console.WriteLine(\"Cat: Meow!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Animal dog = new Dog();\n        Animal cat = new Cat();\n\n        dog.MakeSound();\n        cat.MakeSound();\n    }\n}\n// Output:\n// Dog: Woof!\n// Cat: Meow!"
+      },
+      {
+        "type": "heading",
+        "text": "Polymorphism with Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces require classes to implement specific methods, supporting polymorphism."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IVehicle\n{\n    void Drive();\n}\n\nclass Car : IVehicle\n{\n    public void Drive()\n    {\n        Console.WriteLine(\"Driving a car.\");\n    }\n}\n\nclass Bicycle : IVehicle\n{\n    public void Drive()\n    {\n        Console.WriteLine(\"Riding a bicycle.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IVehicle car = new Car();\n        IVehicle bicycle = new Bicycle();\n\n        car.Drive();\n        bicycle.Drive();\n    }\n}\n// Output:\n// Driving a car.\n// Riding a bicycle."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `IVehicle` interface requires the `Drive` method.\n- `Car` and `Bicycle` classes implement it differently.\n- The interface enables polymorphism."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Polymorphism"
+      },
+      {
+        "type": "paragraph",
+        "text": "Polymorphism makes programming more flexible and reusable."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nFlexibility: Different objects can be managed through a common interface."
+          },
+          { "description": "\nCode Reuse: Simplifies code reuse." },
+          {
+            "description": "\nAbstraction: Organizes code by defining common behaviors."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Polymorphism can present challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: Virtual methods and abstract classes can be confusing."
+          },
+          {
+            "description": "\nIncorrect Implementation: Improperly overridden methods can cause errors."
+          },
+          {
+            "description": "\nPyodide Limitation: C# code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Incorrect use of `virtual` and `override` or improper abstract class implementation can lead to errors.\n- **Recommendations**: Properly override methods and keep interfaces and abstract classes simple. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example fails to override a method due to the missing `virtual` keyword."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Shape\n{\n    public void Draw()\n    {\n        Console.WriteLine(\"Drawing a shape.\");\n    }\n}\n\nclass Circle : Shape\n{\n    public void Draw()\n    {\n        Console.WriteLine(\"Drawing a circle.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Shape shape = new Circle();\n        shape.Draw(); // Error: Draws shape instead of circle.\n    }\n}\n// Output:\n// Drawing a shape."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Shape` class’s `Draw` method is not `virtual`, so `Circle` cannot override it.\n- Even though the object is a `Circle`, the base class method is called.\n- Solution: Make `Draw` `virtual` in `Shape` and use `override` in `Circle`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\ninterface IShape\n{\n    void Draw();\n}\n\nclass Triangle : IShape\n{\n    public void Draw()\n    {\n        Console.WriteLine(\"Drawing a triangle.\");\n    }\n}\n\nclass Square : IShape\n{\n    public void Draw()\n    {\n        Console.WriteLine(\"Drawing a square.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IShape triangle = new Triangle();\n        IShape square = new Square();\n\n        triangle.Draw();\n        square.Draw();\n    }\n}\n// Output:\n// Drawing a triangle.\n// Drawing a square."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Полиморфизм",
+    "icon": "FiShuffle",
+    "language": "csharp",
+    "description": "Полиморфизм и виртуальные методы.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое полиморфизм?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# полиморфизм позволяет объекту проявлять поведение разных классов через общий интерфейс или базовый класс. Это повышает гибкость кода и позволяет использовать разные объекты единообразно. Полиморфизм проявляется в двух основных формах: на этапе компиляции (перегрузка методов) и во время выполнения (виртуальные методы и переопределение). Этот JSON-файл объясняет типы полиморфизма, виртуальные методы, абстрактные классы, интерфейсы и примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Полиморфизм на этапе компиляции (Перегрузка методов)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Полиморфизм на этапе компиляции достигается через перегрузку методов, когда методы имеют одинаковое имя, но разные параметры."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Calculator\n{\n    public int Add(int a, int b)\n    {\n        return a + b;\n    }\n\n    public double Add(double a, double b)\n    {\n        return a + b;\n    }\n\n    public int Add(int a, int b, int c)\n    {\n        return a + b + c;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Calculator calc = new Calculator();\n        Console.WriteLine($\"Два целых числа: {calc.Add(5, 3)}\");\n        Console.WriteLine($\"Два числа с плавающей точкой: {calc.Add(5.5, 3.2)}\");\n        Console.WriteLine($\"Три целых числа: {calc.Add(5, 3, 2)}\");\n    }\n}\n// Output:\n// Два целых числа: 8\n// Два числа с плавающей точкой: 8.7\n// Три целых числа: 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Calculator` определяет метод `Add` в трёх разных формах.\n- Компилятор выбирает подходящую версию метода на основе параметров.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Полиморфизм во время выполнения (Виртуальные методы)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Полиморфизм во время выполнения достигается с помощью ключевых слов `virtual` и `override`, позволяя производному классу переопределить метод базового класса."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Shape\n{\n    public virtual void Draw()\n    {\n        Console.WriteLine(\"Рисуем фигуру.\");\n    }\n}\n\nclass Circle : Shape\n{\n    public override void Draw()\n    {\n        Console.WriteLine(\"Рисуем круг.\");\n    }\n}\n\nclass Rectangle : Shape\n{\n    public override void Draw()\n    {\n        Console.WriteLine(\"Рисуем прямоугольник.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Shape shape = new Shape();\n        Shape circle = new Circle();\n        Shape rectangle = new Rectangle();\n\n        shape.Draw();\n        circle.Draw();\n        rectangle.Draw();\n    }\n}\n// Output:\n// Рисуем фигуру.\n// Рисуем круг.\n// Рисуем прямоугольник."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Shape` имеет `virtual` метод `Draw`.\n- Классы `Circle` и `Rectangle` переопределяют этот метод с помощью `override`.\n- Тип объекта определяет, какой метод вызывается во время выполнения."
+      },
+      {
+        "type": "heading",
+        "text": "Полиморфизм с абстрактными классами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Абстрактные классы предназначены только для наследования и не могут быть инстанцированы напрямую. Они поддерживают полиморфизм."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nabstract class Animal\n{\n    public abstract void MakeSound();\n}\n\nclass Dog : Animal\n{\n    public override void MakeSound()\n    {\n        Console.WriteLine(\"Собака: Гав-гав!\");\n    }\n}\n\nclass Cat : Animal\n{\n    public override void MakeSound()\n    {\n        Console.WriteLine(\"Кот: Мяу!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Animal dog = new Dog();\n        Animal cat = new Cat();\n\n        dog.MakeSound();\n        cat.MakeSound();\n    }\n}\n// Output:\n// Собака: Гав-гав!\n// Кот: Мяу!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Animal` — абстрактный класс с абстрактным методом `MakeSound`.\n- Классы `Dog` и `Cat` реализуют этот метод.\n- Полиморфизм позволяет объектам типа `Animal` проявлять разные поведения."
+      },
+      {
+        "type": "heading",
+        "text": "Полиморфизм с интерфейсами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы требуют от классов реализации определённых методов, поддерживая полиморфизм."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IVehicle\n{\n    void Drive();\n}\n\nclass Car : IVehicle\n{\n    public void Drive()\n    {\n        Console.WriteLine(\"Едем на машине.\");\n    }\n}\n\nclass Bicycle : IVehicle\n{\n    public void Drive()\n    {\n        Console.WriteLine(\"Едем на велосипеде.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IVehicle car = new Car();\n        IVehicle bicycle = new Bicycle();\n\n        car.Drive();\n        bicycle.Drive();\n    }\n}\n// Output:\n// Едем на машине.\n// Едем на велосипеде."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `IVehicle` требует метод `Drive`.\n- Классы `Car` и `Bicycle` реализуют его по-разному.\n- Интерфейс обеспечивает полиморфизм."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества полиморфизма"
+      },
+      {
+        "type": "paragraph",
+        "text": "Полиморфизм делает программирование более гибким и пригодным для повторного использования."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nГибкость: Разные объекты могут управляться через общий интерфейс."
+          },
+          {
+            "description": "\nПовторное использование кода: Упрощает повторное использование кода."
+          },
+          {
+            "description": "\nАбстракция: Организует код, определяя общие поведения."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Полиморфизм может создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Виртуальные методы и абстрактные классы могут быть запутанными."
+          },
+          {
+            "description": "\nНеправильная реализация: Неверно переопределённые методы могут вызывать ошибки."
+          },
+          {
+            "description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильное использование `virtual` и `override` или неверная реализация абстрактных классов может привести к ошибкам.\n- **Рекомендации**: Правильно переопределяйте методы и сохраняйте простоту интерфейсов и абстрактных классов. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример не позволяет переопределить метод из-за отсутствия ключевого слова `virtual`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Shape\n{\n    public void Draw()\n    {\n        Console.WriteLine(\"Рисуем фигуру.\");\n    }\n}\n\nclass Circle : Shape\n{\n    public void Draw()\n    {\n        Console.WriteLine(\"Рисуем круг.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Shape shape = new Circle();\n        shape.Draw(); // Ошибка: Рисует фигуру вместо круга.\n    }\n}\n// Output:\n// Рисуем фигуру."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Метод `Draw` в классе `Shape` не является `virtual`, поэтому `Circle` не может его переопределить.\n- Даже если объект является `Circle`, вызывается метод базового класса.\n- Решение: Сделайте `Draw` `virtual` в `Shape` и используйте `override` в `Circle`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\ninterface IShape\n{\n    void Draw();\n}\n\nclass Triangle : IShape\n{\n    public void Draw()\n    {\n        Console.WriteLine(\"Рисуем треугольник.\");\n    }\n}\n\nclass Square : IShape\n{\n    public void Draw()\n    {\n        Console.WriteLine(\"Рисуем квадрат.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IShape triangle = new Triangle();\n        IShape square = new Square();\n\n        triangle.Draw();\n        square.Draw();\n    }\n}\n// Output:\n// Рисуем треугольник.\n// Рисуем квадрат."
+      }
+    ]
+  }
+}

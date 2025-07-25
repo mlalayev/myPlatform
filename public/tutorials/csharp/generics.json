@@ -1,0 +1,486 @@
+{
+  "id": "generics",
+  "az": {
+    "title": "Generiklər",
+    "icon": "FiLayers",
+    "language": "csharp",
+    "description": "Tip təhlükəsizliyi və generiklər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Generiklər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində generiklər (generics) kodun müxtəlif verilənlər tipləri ilə işləməsini təmin edən bir mexanizmdir. Generiklər sayəsində eyni kodu fərqli tiplər üçün təkrar istifadə edə bilərsiniz, bu da kodun təhlükəsizliyini və oxunaqlığını artırır. Məsələn, bir siyahı yaratmaq istəyirsinizsə, generiklər bu siyahının hansı tipdə (məsələn, ədədlər və ya sətirlər) olacağını dəqiqləşdirməyə imkan verir. Bu JSON faylda generiklərin əsasları, tip təhlükəsizliyi, generik siniflər, metodlar, məhdudiyyətlər və nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Təhlükəsizliyi və Generiklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip təhlükəsizliyi proqramın işləmə zamanı səhvlərdən qaçınmasını təmin edir. Generiklər tip təhlükəsizliyini təmin etmək üçün istifadə olunur, çünki onlar verilənlər tipini əvvəlcədən müəyyənləşdirir. Məsələn, `List<int>` yalnız ədədləri saxlayır və sətir əlavə etməyə cəhd etsəniz, kompilyator xəta verəcək."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        List<int> numbers = new List<int>();\n        numbers.Add(10);\n        numbers.Add(20);\n        // numbers.Add(\"sətir\"); // Kompilyator xətası: Sətir ədəd deyil\n\n        Console.WriteLine(\"Rəqəmlər:\");\n        foreach (int number in numbers)\n        {\n            Console.WriteLine(number);\n        }\n    }\n}\n// Output:\n// Rəqəmlər:\n// 10\n// 20"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `List<int>` yalnız ədədləri saxlamaq üçün yaradılır.\n- Sətir əlavə etməyə cəhd etsəniz, kompilyator xəta verərək tip təhlükəsizliyini təmin edir.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Generik Siniflər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generik siniflər müxtəlif tiplərlə işləyə bilən siniflər yaratmağa imkan verir. `T` parametri tipi təmsil edir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Box<T>\n{\n    private T item;\n\n    public void Add(T value)\n    {\n        item = value;\n    }\n\n    public T Get()\n    {\n        return item;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Box<int> numberBox = new Box<int>();\n        numberBox.Add(42);\n        Console.WriteLine($\"Rəqəm qutusu: {numberBox.Get()}\");\n\n        Box<string> stringBox = new Box<string>();\n        stringBox.Add(\"Salam\");\n        Console.WriteLine($\"Sətir qutusu: {stringBox.Get()}\");\n    }\n}\n// Output:\n// Rəqəm qutusu: 42\n// Sətir qutusu: Salam"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Box<T>` generik sinfidir və istənilən tipi saxlaya bilir.\n- `Box<int>` ədədləri, `Box<string>` isə sətirləri saxlayır.\n- Generiklər sayəsində eyni sinfi fərqli tiplər üçün istifadə edirik."
+      },
+      {
+        "type": "heading",
+        "text": "Generik Metodlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generik metodlar müxtəlif tiplərlə işləyə bilən metodlardır. Metodun parametri kimi `T` istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Swap<T>(ref T first, ref T second)\n    {\n        T temp = first;\n        first = second;\n        second = temp;\n    }\n\n    static void Main(string[] args)\n    {\n        int a = 5, b = 10;\n        Console.WriteLine($\"Əvvəl: a = {a}, b = {b}\");\n        Swap(ref a, ref b);\n        Console.WriteLine($\"Sonra: a = {a}, b = {b}\");\n\n        string x = \"Salam\", y = \"Dünya\";\n        Console.WriteLine($\"\\nƏvvəl: x = {x}, y = {y}\");\n        Swap(ref x, ref y);\n        Console.WriteLine($\"Sonra: x = {x}, y = {y}\");\n    }\n}\n// Output:\n// Əvvəl: a = 5, b = 10\n// Sonra: a = 10, b = 5\n//\n// Əvvəl: x = Salam, y = Dünya\n// Sonra: x = Dünya, y = Salam"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Swap<T>` generik metodudur və istənilən tipdəki iki dəyəri dəyişdirir.\n- Metod həm ədədlər, həm də sətirlər üçün işləyir."
+      },
+      {
+        "type": "heading",
+        "text": "Generik Məhdudiyyətlər (Constraints)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generik tiplərə məhdudiyyətlər tətbiq edilə bilər ki, yalnız müəyyən tiplər istifadə olunsun. Məsələn, `where T : class` yalnız istinad tiplərinə icazə verir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Printer<T> where T : class\n{\n    public void Print(T item)\n    {\n        if (item != null)\n        {\n            Console.WriteLine($\"Element: {item}\");\n        }\n        else\n        {\n            Console.WriteLine(\"Element null-dır.\");\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Printer<string> stringPrinter = new Printer<string>();\n        stringPrinter.Print(\"Salam\");\n        stringPrinter.Print(null);\n\n        // Printer<int> numberPrinter = new Printer<int>(); // Kompilyator xətası: int sinif deyil\n    }\n}\n// Output:\n// Element: Salam\n// Element null-dır."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Printer<T>` sinfi yalnız sinif tipləri ilə işləyir (`where T : class`).\n- `string` sinif olduğu üçün işləyir, amma `int` struktur olduğu üçün xəta verir."
+      },
+      {
+        "type": "heading",
+        "text": "Generiklərin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generiklər kodun effektivliyini və təhlükəsizliyini artırır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nTəkrar İstifadə: Eyni kodu fərqli tiplər üçün istifadə etmək mümkündür."
+          },
+          {
+            "description": "\nTip Təhlükəsizliyi: Kompilyasiya zamanı səhvlər aşkarlanır."
+          },
+          {
+            "description": "\nPerformans: Tip çevrilmələri (boxing/unboxing) azalır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generiklər yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: Generik sintaksisi başlanğıcda qarışıq görünə bilər."
+          },
+          {
+            "description": "\nMəhdudiyyətlər: Düzgün məhdudiyyətlərin seçilməsi təcrübə tələb edir."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Həddindən artıq ümumi generik siniflər kodun oxunaqlığını azalda bilər.\n- **Tövsiyələr**: Lazımi məhdudiyyətlərdən istifadə edin (məsələn, `where T : class` və ya `where T : IComparable`). Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə generik olmayan kollektiyadan istifadə səhvə səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        ArrayList list = new ArrayList();\n        list.Add(10);\n        list.Add(\"sətir\"); // Tip təhlükəsizliyi yoxdur\n\n        try\n        {\n            int sum = 0;\n            foreach (int number in list) // Səhv: Sətir ədədə çevrilə bilməz\n            {\n                sum += number;\n            }\n            Console.WriteLine($\"Cəm: {sum}\");\n        }\n        catch (InvalidCastException ex)\n        {\n            Console.WriteLine(\"Səhv: Tip çevrilməsi uğursuz oldu!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Səhv: Tip çevrilməsi uğursuz oldu!\n// Səhv mesajı: Specified cast is not valid."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ArrayList` generik olmayan kollektiyadır və tip təhlükəsizliyi təmin etmir.\n- Sətir əlavə edildikdə və ədəd kimi oxunmağa çalışıldığında `InvalidCastException` yaranır.\n- Həll: `List<int>` kimi generik kollektiyadan istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Pair<T, U>\n{\n    public T First { get; set; }\n    public U Second { get; set; }\n\n    public void Print()\n    {\n        Console.WriteLine($\"Birinci: {First}, İkinci: {Second}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Pair<int, string> pair1 = new Pair<int, string> { First = 100, Second = \"Test\" };\n        pair1.Print();\n\n        Pair<string, double> pair2 = new Pair<string, double> { First = \"Naber\", Second = 3.14 };\n        pair2.Print();\n    }\n}\n// Output:\n// Birinci: 100, İkinci: Test\n// Birinci: Naber, İkinci: 3.14"
+      }
+    ]
+  },
+  "en": {
+    "title": "Generics",
+    "icon": "FiLayers",
+    "language": "csharp",
+    "description": "Type safety and generics.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Generics?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, generics allow code to work with different data types while maintaining type safety and reusability. Generics let you write a single piece of code that can be used with multiple types, improving code safety and readability. For example, when creating a list, generics specify the type of data (e.g., numbers or strings) the list can hold. This JSON file explains the basics of generics, type safety, generic classes, methods, constraints, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input."
+      },
+      {
+        "type": "heading",
+        "text": "Type Safety and Generics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type safety ensures that a program avoids errors during runtime by enforcing data types at compile time. Generics provide type safety by specifying the data type in advance. For example, a `List<int>` can only store integers, and attempting to add a string will result in a compile-time error."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        List<int> numbers = new List<int>();\n        numbers.Add(10);\n        numbers.Add(20);\n        // numbers.Add(\"string\"); // Compile-time error: String is not an integer\n\n        Console.WriteLine(\"Numbers:\");\n        foreach (int number in numbers)\n        {\n            Console.WriteLine(number);\n        }\n    }\n}\n// Output:\n// Numbers:\n// 10\n// 20"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- A `List<int>` is created to store only integers.\n- Attempting to add a string causes a compile-time error, ensuring type safety.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic classes allow you to create classes that work with different types. The `T` parameter represents the type."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Box<T>\n{\n    private T item;\n\n    public void Add(T value)\n    {\n        item = value;\n    }\n\n    public T Get()\n    {\n        return item;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Box<int> numberBox = new Box<int>();\n        numberBox.Add(42);\n        Console.WriteLine($\"Number box: {numberBox.Get()}\");\n\n        Box<string> stringBox = new Box<string>();\n        stringBox.Add(\"Hello\");\n        Console.WriteLine($\"String box: {stringBox.Get()}\");\n    }\n}\n// Output:\n// Number box: 42\n// String box: Hello"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Box<T>` is a generic class that can store any type.\n- `Box<int>` stores integers, and `Box<string>` stores strings.\n- Generics allow the same class to be reused for different types."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Methods"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic methods can work with different types, using `T` as a type parameter."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Swap<T>(ref T first, ref T second)\n    {\n        T temp = first;\n        first = second;\n        second = temp;\n    }\n\n    static void Main(string[] args)\n    {\n        int a = 5, b = 10;\n        Console.WriteLine($\"Before: a = {a}, b = {b}\");\n        Swap(ref a, ref b);\n        Console.WriteLine($\"After: a = {a}, b = {b}\");\n\n        string x = \"Hello\", y = \"World\";\n        Console.WriteLine($\"\\nBefore: x = {x}, y = {y}\");\n        Swap(ref x, ref y);\n        Console.WriteLine($\"After: x = {x}, y = {y}\");\n    }\n}\n// Output:\n// Before: a = 5, b = 10\n// After: a = 10, b = 5\n//\n// Before: x = Hello, y = World\n// After: x = World, y = Hello"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Swap<T>` is a generic method that swaps two values of any type.\n- It works for both integers and strings."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Constraints"
+      },
+      {
+        "type": "paragraph",
+        "text": "Constraints can be applied to generic types to restrict them to specific types. For example, `where T : class` allows only reference types."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Printer<T> where T : class\n{\n    public void Print(T item)\n    {\n        if (item != null)\n        {\n            Console.WriteLine($\"Item: {item}\");\n        }\n        else\n        {\n            Console.WriteLine(\"Item is null.\");\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Printer<string> stringPrinter = new Printer<string>();\n        stringPrinter.Print(\"Hello\");\n        stringPrinter.Print(null);\n\n        // Printer<int> numberPrinter = new Printer<int>(); // Compile-time error: int is not a class\n    }\n}\n// Output:\n// Item: Hello\n// Item is null."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Printer<T>` class only works with class types (`where T : class`).\n- `string` works because it is a class, but `int` causes a compile-time error because it is a struct."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Generics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics improve code efficiency and safety."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nReusability: The same code can be used for different types."
+          },
+          {
+            "description": "\nType Safety: Errors are caught at compile time."
+          },
+          {
+            "description": "\nPerformance: Reduces type casting (boxing/unboxing)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics can present challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: Generic syntax can seem confusing at first."
+          },
+          {
+            "description": "\nConstraints: Choosing the right constraints requires experience."
+          },
+          {
+            "description": "\nPyodide Limitation: C# code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Overly generic classes can reduce code readability.\n- **Recommendations**: Use appropriate constraints (e.g., `where T : class` or `where T : IComparable`). Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error by using a non-generic collection."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        ArrayList list = new ArrayList();\n        list.Add(10);\n        list.Add(\"string\"); // No type safety\n\n        try\n        {\n            int sum = 0;\n            foreach (int number in list) // Error: String cannot be cast to int\n            {\n                sum += number;\n            }\n            Console.WriteLine($\"Sum: {sum}\");\n        }\n        catch (InvalidCastException ex)\n        {\n            Console.WriteLine(\"Error: Type casting failed!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Error: Type casting failed!\n// Error message: Specified cast is not valid."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ArrayList` is a non-generic collection and lacks type safety.\n- Adding a string and treating it as an integer causes an `InvalidCastException`.\n- Solution: Use a generic collection like `List<int>`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Pair<T, U>\n{\n    public T First { get; set; }\n    public U Second { get; set; }\n\n    public void Print()\n    {\n        Console.WriteLine($\"First: {First}, Second: {Second}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Pair<int, string> pair1 = new Pair<int, string> { First = 100, Second = \"Test\" };\n        pair1.Print();\n\n        Pair<string, double> pair2 = new Pair<string, double> { First = \"Hi\", Second = 3.14 };\n        pair2.Print();\n    }\n}\n// Output:\n// First: 100, Second: Test\n// First: Hi, Second: 3.14"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Дженерики",
+    "icon": "FiLayers",
+    "language": "csharp",
+    "description": "Безопасность типов и дженерики.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое дженерики?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# дженерики (generics) — это механизм, позволяющий коду работать с разными типами данных, сохраняя при этом безопасность типов и возможность повторного использования. Дженерики позволяют писать один и тот же код для разных типов, улучшая безопасность и читаемость кода. Например, при создании списка дженерики позволяют указать, какой тип данных (например, числа или строки) будет хранить список. Этот JSON-файл объясняет основы дженериков, безопасность типов, дженерик-классы, методы, ограничения и примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Безопасность типов и дженерики"
+      },
+      {
+        "type": "paragraph",
+        "text": "Безопасность типов гарантирует, что программа избегает ошибок во время выполнения, проверяя типы данных на этапе компиляции. Дженерики обеспечивают безопасность типов, заранее определяя тип данных. Например, `List<int>` может хранить только целые числа, и попытка добавить строку вызовет ошибку на этапе компиляции."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections.Generic;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        List<int> numbers = new List<int>();\n        numbers.Add(10);\n        numbers.Add(20);\n        // numbers.Add(\"строка\"); // Ошибка компиляции: Строка не является числом\n\n        Console.WriteLine(\"Числа:\");\n        foreach (int number in numbers)\n        {\n            Console.WriteLine(number);\n        }\n    }\n}\n// Output:\n// Числа:\n// 10\n// 20"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `List<int>` создаётся для хранения только целых чисел.\n- Попытка добавить строку вызывает ошибку компиляции, обеспечивая безопасность типов.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Дженерик-классы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-классы позволяют создавать классы, работающие с разными типами. Параметр `T` представляет тип."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Box<T>\n{\n    private T item;\n\n    public void Add(T value)\n    {\n        item = value;\n    }\n\n    public T Get()\n    {\n        return item;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Box<int> numberBox = new Box<int>();\n        numberBox.Add(42);\n        Console.WriteLine($\"Числовой ящик: {numberBox.Get()}\");\n\n        Box<string> stringBox = new Box<string>();\n        stringBox.Add(\"Привет\");\n        Console.WriteLine($\"Строковый ящик: {stringBox.Get()}\");\n    }\n}\n// Output:\n// Числовой ящик: 42\n// Строковый ящик: Привет"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Box<T>` — дженерик-класс, который может хранить любой тип.\n- `Box<int>` хранит числа, а `Box<string>` — строки.\n- Дженерики позволяют использовать один и тот же класс для разных типов."
+      },
+      {
+        "type": "heading",
+        "text": "Дженерик-методы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-методы могут работать с разными типами, используя `T` в качестве параметра типа."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Swap<T>(ref T first, ref T second)\n    {\n        T temp = first;\n        first = second;\n        second = temp;\n    }\n\n    static void Main(string[] args)\n    {\n        int a = 5, b = 10;\n        Console.WriteLine($\"До: a = {a}, b = {b}\");\n        Swap(ref a, ref b);\n        Console.WriteLine($\"После: a = {a}, b = {b}\");\n\n        string x = \"Привет\", y = \"Мир\";\n        Console.WriteLine($\"\\nДо: x = {x}, y = {y}\");\n        Swap(ref x, ref y);\n        Console.WriteLine($\"После: x = {x}, y = {y}\");\n    }\n}\n// Output:\n// До: a = 5, b = 10\n// После: a = 10, b = 5\n//\n// До: x = Привет, y = Мир\n// После: x = Мир, y = Привет"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Swap<T>` — дженерик-метод, который меняет местами два значения любого типа.\n- Он работает как для чисел, так и для строк."
+      },
+      {
+        "type": "heading",
+        "text": "Ограничения дженериков"
+      },
+      {
+        "type": "paragraph",
+        "text": "К дженерик-типам можно применять ограничения, чтобы разрешать только определённые типы. Например, `where T : class` разрешает только ссылочные типы."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Printer<T> where T : class\n{\n    public void Print(T item)\n    {\n        if (item != null)\n        {\n            Console.WriteLine($\"Элемент: {item}\");\n        }\n        else\n        {\n            Console.WriteLine(\"Элемент равен null.\");\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Printer<string> stringPrinter = new Printer<string>();\n        stringPrinter.Print(\"Привет\");\n        stringPrinter.Print(null);\n\n        // Printer<int> numberPrinter = new Printer<int>(); // Ошибка компиляции: int не является классом\n    }\n}\n// Output:\n// Элемент: Привет\n// Элемент равен null."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Printer<T>` работает только с типами классов (`where T : class`).\n- `string` работает, так как это класс, но `int` вызывает ошибку компиляции, так как это структура."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества дженериков"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерики повышают эффективность и безопасность кода."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПовторное использование: Один и тот же код можно использовать для разных типов."
+          },
+          {
+            "description": "\nБезопасность типов: Ошибки обнаруживаются на этапе компиляции."
+          },
+          {
+            "description": "\nПроизводительность: Уменьшается количество преобразований типов (boxing/unboxing)."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерики могут создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Синтаксис дженериков может показаться запутанным на первых порах."
+          },
+          {
+            "description": "\nОграничения: Выбор правильных ограничений требует опыта."
+          },
+          {
+            "description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Слишком обобщённые дженерик-классы могут снизить читаемость кода.\n- **Рекомендации**: Используйте подходящие ограничения (например, `where T : class` или `where T : IComparable`). Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку из-за использования недженерик-коллекции."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Collections;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        ArrayList list = new ArrayList();\n        list.Add(10);\n        list.Add(\"строка\"); // Нет безопасности типов\n\n        try\n        {\n            int sum = 0;\n            foreach (int number in list) // Ошибка: Строка не может быть приведена к числу\n            {\n                sum += number;\n            }\n            Console.WriteLine($\"Сумма: {sum}\");\n        }\n        catch (InvalidCastException ex)\n        {\n            Console.WriteLine(\"Ошибка: Приведение типов не удалось!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Ошибка: Приведение типов не удалось!\n// Сообщение об ошибке: Specified cast is not valid."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ArrayList` — недженерик-коллекция, не обеспечивающая безопасность типов.\n- Добавление строки и попытка обработки её как числа вызывает `InvalidCastException`.\n- Решение: Используйте дженерик-коллекцию, например, `List<int>`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Pair<T, U>\n{\n    public T First { get; set; }\n    public U Second { get; set; }\n\n    public void Print()\n    {\n        Console.WriteLine($\"Первое: {First}, Второе: {Second}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Pair<int, string> pair1 = new Pair<int, string> { First = 100, Second = \"Тест\" };\n        pair1.Print();\n\n        Pair<string, double> pair2 = new Pair<string, double> { First = \"Привет\", Second = 3.14 };\n        pair2.Print();\n    }\n}\n// Output:\n// Первое: 100, Второе: Тест\n// Первое: Привет, Второе: 3.14"
+      }
+    ]
+  }
+}

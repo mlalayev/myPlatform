@@ -1,0 +1,486 @@
+{
+  "id": "delegates",
+  "az": {
+    "title": "Deleqatlar",
+    "icon": "FiArrowRight",
+    "language": "csharp",
+    "description": "Deleqatlar və funksiya göstəriciləri.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Deleqatlar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində deleqatlar (delegates) metodlara istinad saxlayan bir növdür, yəni bir metodu 'göstərici' kimi saxlayır və onu istənilən yerdə çağırmağa imkan verir. Deleqatları funksiya göstəriciləri kimi düşünə bilərsiniz: onlar metodun adını və ya yerini saxlayır, sonra isə o metodu işə salmaq üçün istifadə olunur. Deleqatlar xüsusilə hadisələr (events) və çevik proqramlaşdırma üçün vacibdir. Bu JSON faylda deleqatların yaradılması, istifadəsi, anonim metodlar, lambda ifadələri, çoxsaylı metodların çağırılması və nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Deleqatların Yaradılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "Deleqatlar `delegate` açar sözü ilə təyin edilir və metodun imzasını (parametrləri və qaytarış növünü) müəyyənləşdirir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\n// Deleqat təyini\npublic delegate void GreetHandler(string name);\n\nclass Greeter\n{\n    public void SayHello(string name)\n    {\n        Console.WriteLine($\"Salam, {name}!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Greeter greeter = new Greeter();\n        // Deleqata metod təyin etmək\n        GreetHandler greet = greeter.SayHello;\n        // Deleqatı çağırmaq\n        greet(\"Ali\");\n    }\n}\n// Output:\n// Salam, Ali!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `GreetHandler` deleqatı bir metodu təyin edir ki, o, bir string parametr qəbul edir və heç nə qaytarmır.\n- `SayHello` metodu bu deleqata uyğundur və deleqata təyin edilir.\n- `greet(\"Ali\")` çağırışı metodu işə salır.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Deleqatlar və Çoxsaylı Metodlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Deleqatlar bir neçə metodu saxlaya bilər və onları ardıcıl olaraq çağıra bilər. Bu, `+=` operatoru ilə həyata keçirilir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void MessageHandler(string message);\n\nclass Messenger\n{\n    public void SendEmail(string message)\n    {\n        Console.WriteLine($\"E-poçt göndərildi: {message}\");\n    }\n\n    public void SendSMS(string message)\n    {\n        Console.WriteLine($\"SMS göndərildi: {message}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Messenger messenger = new Messenger();\n        MessageHandler handler = messenger.SendEmail;\n        handler += messenger.SendSMS; // İkinci metodu əlavə etmək\n\n        // Deleqatı çağırmaq\n        handler(\"Yeni mesaj var!\");\n    }\n}\n// Output:\n// E-poçt göndərildi: Yeni mesaj var!\n// SMS göndərildi: Yeni mesaj var!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `MessageHandler` deleqatı iki metodu (`SendEmail` və `SendSMS`) saxlayır.\n- `+=` operatoru ilə ikinci metod əlavə edilir.\n- Deleqat çağırıldıqda hər iki metod ardıcıl olaraq işləyir."
+      },
+      {
+        "type": "heading",
+        "text": "Anonim Metodlar və Lambda İfadələri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Deleqatlara metodları birbaşa təyin etmək əvəzinə anonim metodlar və ya lambda ifadələri istifadə oluna bilər. Bu, kodu daha qısa və çevik edir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void CalculateHandler(int number);\n\nclass Calculator\n{\n    public void Process(CalculateHandler calc)\n    {\n        calc(42);\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Calculator calculator = new Calculator();\n\n        // Anonim metod\n        calculator.Process(delegate(int number) { Console.WriteLine($\"Anonim metod: {number}\"); });\n\n        // Lambda ifadəsi\n        calculator.Process(number => Console.WriteLine($\"Lambda ifadəsi: {number}\"));\n    }\n}\n// Output:\n// Anonim metod: 42\n// Lambda ifadəsi: 42"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `delegate(int number)` anonim metod kimi istifadə olunur.\n- `number =>` lambda ifadəsidir və eyni işi daha qısa şəkildə görür.\n- Hər iki halda deleqat vasitəsilə metod çağırılır."
+      },
+      {
+        "type": "heading",
+        "text": "Deleqatlar və Hadisələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Deleqatlar hadisələrin (events) əsasını təşkil edir. Hadisələr deleqatların xüsusi bir formasıdır və yalnız abunə olma və ləğv etmə əməliyyatlarına icazə verir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void AlarmHandler(string message);\n\nclass AlarmClock\n{\n    public event AlarmHandler OnAlarm;\n\n    public void TriggerAlarm()\n    {\n        OnAlarm?.Invoke(\"Zəngli saat çalır!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        AlarmClock alarm = new AlarmClock();\n\n        // Hadisəyə abunə olma\n        alarm.OnAlarm += message => Console.WriteLine($\"Lambda ilə: {message}\");\n\n        // Zəngi çalmaq\n        alarm.TriggerAlarm();\n    }\n}\n// Output:\n// Lambda ilə: Zəngli saat çalır!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `AlarmHandler` deleqatı hadisə üçün istifadə olunur.\n- `OnAlarm` hadisəsi deleqata əsaslanır və lambda ifadəsi ilə abunə olunur.\n- Hadisə çağırıldıqda lambda ifadəsi işə düşür."
+      },
+      {
+        "type": "heading",
+        "text": "Deleqatların Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Deleqatlar proqramın çevikliyini artırır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nÇeviklik: Deleqatlar metodları dinamik şəkildə çağırmağa imkan verir."
+          },
+          {
+            "description": "\nÇoxsaylı Metodlar: Bir deleqata birdən çox metod əlavə edilə bilər."
+          },
+          {
+            "description": "\nHadisələr: Deleqatlar hadisələrin əsasını təşkil edir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Deleqatlar yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: Deleqatların konsepsiyası yeni başlayanlar üçün qarışıq ola bilər."
+          },
+          {
+            "description": "\nYaddaş Sızması: Hadisələrdə olduğu kimi, deleqat abunəlikləri ləğv edilməzsə yaddaş sızması baş verə bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Deleqatların həddindən artıq istifadəsi və ya düzgün idarə edilməməsi kodu çətinləşdirə bilər. Abunəliklərin ləğv edilməməsi yaddaş sızmasına səbəb ola bilər.\n- **Tövsiyələr**: Sadə deleqatlardan başlayın. Lambda ifadələrindən istifadə edin ki, kod daha oxunaqlı olsun. Hadisələrdə abunəlikləri ləğv etməyi unutmayın. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə deleqatın null yoxlaması olmadan çağırılması səhvə səbəb ola bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void ErrorHandler(string message);\n\nclass BadProcessor\n{\n    public ErrorHandler OnProcess;\n\n    public void Process()\n    {\n        // Null yoxlaması yoxdur\n        OnProcess(\"Proses başa çatdı!\"); // NullReferenceException riski\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BadProcessor processor = new BadProcessor();\n        try\n        {\n            processor.Process();\n        }\n        catch (NullReferenceException ex)\n        {\n            Console.WriteLine(\"Səhv: Deleqata metod təyin edilməyib!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Səhv: Deleqata metod təyin edilməyib!\n// Səhv mesajı: Object reference not set to an instance of an object."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `OnProcess` deleqatı null yoxlaması olmadan çağırılır.\n- Əgər deleqata heç bir metod təyin edilməyibsə, `NullReferenceException` yaranır.\n- Həll: `OnProcess?.Invoke(...)` istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\npublic delegate void NotificationHandler(string message);\n\nclass Notifier\n{\n    public NotificationHandler OnNotify;\n\n    public void SendNotification(string message)\n    {\n        OnNotify?.Invoke(message);\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Notifier notifier = new Notifier();\n\n        // Deleqata lambda ifadələri ilə metodlar əlavə etmək\n        notifier.OnNotify += msg => Console.WriteLine($\"Xəbərdarlıq: {msg}\");\n        notifier.OnNotify += msg => Console.WriteLine($\"Jurnal: {msg}\");\n\n        // Bildiriş göndərmək\n        notifier.SendNotification(\"Vacib yeniləmə!\");\n\n        // Bir deleqatı ləğv etmək\n        notifier.OnNotify -= msg => Console.WriteLine($\"Jurnal: {msg}\");\n\n        // Yenidən bildiriş göndərmək\n        notifier.SendNotification(\"İkinci yeniləmə!\");\n    }\n}\n// Output:\n// Xəbərdarlıq: Vacib yeniləmə!\n// Jurnal: Vacib yeniləmə!\n// Xəbərdarlıq: İkinci yeniləmə!"
+      }
+    ]
+  },
+  "en": {
+    "title": "Delegates",
+    "icon": "FiArrowRight",
+    "language": "csharp",
+    "description": "Delegates and function pointers.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Delegates?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, delegates are types that hold references to methods, acting like function pointers. They allow you to store a method and call it dynamically. Delegates are crucial for events and flexible programming. This JSON file explains the creation, usage, anonymous methods, lambda expressions, invoking multiple methods, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input."
+      },
+      {
+        "type": "heading",
+        "text": "Creating Delegates"
+      },
+      {
+        "type": "paragraph",
+        "text": "Delegates are defined using the `delegate` keyword and specify a method's signature (parameters and return type)."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\n// Delegate definition\npublic delegate void GreetHandler(string name);\n\nclass Greeter\n{\n    public void SayHello(string name)\n    {\n        Console.WriteLine($\"Hello, {name}!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Greeter greeter = new Greeter();\n        // Assign a method to the delegate\n        GreetHandler greet = greeter.SayHello;\n        // Invoke the delegate\n        greet(\"Ali\");\n    }\n}\n// Output:\n// Hello, Ali!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `GreetHandler` is a delegate that defines a method taking a string parameter and returning nothing.\n- `SayHello` is a method compatible with the delegate and assigned to it.\n- `greet(\"Ali\")` invokes the method.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Delegates and Multiple Methods"
+      },
+      {
+        "type": "paragraph",
+        "text": "Delegates can hold multiple methods and invoke them sequentially using the `+=` operator."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void MessageHandler(string message);\n\nclass Messenger\n{\n    public void SendEmail(string message)\n    {\n        Console.WriteLine($\"Email sent: {message}\");\n    }\n\n    public void SendSMS(string message)\n    {\n        Console.WriteLine($\"SMS sent: {message}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Messenger messenger = new Messenger();\n        MessageHandler handler = messenger.SendEmail;\n        handler += messenger.SendSMS; // Add second method\n\n        // Invoke the delegate\n        handler(\"New message received!\");\n    }\n}\n// Output:\n// Email sent: New message received!\n// SMS sent: New message received!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `MessageHandler` delegate holds two methods (`SendEmail` and `SendSMS`).\n- The `+=` operator adds the second method.\n- Invoking the delegate calls both methods sequentially."
+      },
+      {
+        "type": "heading",
+        "text": "Anonymous Methods and Lambda Expressions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Instead of assigning named methods, delegates can use anonymous methods or lambda expressions for concise and flexible code."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void CalculateHandler(int number);\n\nclass Calculator\n{\n    public void Process(CalculateHandler calc)\n    {\n        calc(42);\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Calculator calculator = new Calculator();\n\n        // Anonymous method\n        calculator.Process(delegate(int number) { Console.WriteLine($\"Anonymous method: {number}\"); });\n\n        // Lambda expression\n        calculator.Process(number => Console.WriteLine($\"Lambda expression: {number}\"));\n    }\n}\n// Output:\n// Anonymous method: 42\n// Lambda expression: 42"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `delegate(int number)` is an anonymous method.\n- `number =>` is a lambda expression that does the same thing more concisely.\n- Both invoke the method via the delegate."
+      },
+      {
+        "type": "heading",
+        "text": "Delegates and Events"
+      },
+      {
+        "type": "paragraph",
+        "text": "Delegates form the foundation of events. Events are a special form of delegates that only allow subscription and unsubscription."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void AlarmHandler(string message);\n\nclass AlarmClock\n{\n    public event AlarmHandler OnAlarm;\n\n    public void TriggerAlarm()\n    {\n        OnAlarm?.Invoke(\"Alarm clock ringing!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        AlarmClock alarm = new AlarmClock();\n\n        // Subscribe to the event\n        alarm.OnAlarm += message => Console.WriteLine($\"Lambda: {message}\");\n\n        // Trigger the alarm\n        alarm.TriggerAlarm();\n    }\n}\n// Output:\n// Lambda: Alarm clock ringing!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `AlarmHandler` is a delegate used for the event.\n- `OnAlarm` is an event based on the delegate, subscribed to with a lambda expression.\n- The event triggers the lambda expression when invoked."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Delegates"
+      },
+      {
+        "type": "paragraph",
+        "text": "Delegates enhance program flexibility."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nFlexibility: Delegates allow dynamic method invocation."
+          },
+          {
+            "description": "\nMultiple Methods: A single delegate can invoke multiple methods."
+          },
+          {
+            "description": "\nEvents: Delegates are the foundation of the event system."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Delegates can pose challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: The concept of delegates can be confusing for beginners."
+          },
+          {
+            "description": "\nMemory Leaks: Failing to unsubscribe from delegates (especially in events) can cause memory leaks."
+          },
+          {
+            "description": "\nPyodide Limitation: C# code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Overusing delegates or mismanaging them can make code harder to understand. Failing to unsubscribe from delegates can cause memory leaks.\n- **Recommendations**: Start with simple delegates. Use lambda expressions for readability. Unsubscribe from delegates in events when no longer needed. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error by invoking a delegate without checking for null."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void ErrorHandler(string message);\n\nclass BadProcessor\n{\n    public ErrorHandler OnProcess;\n\n    public void Process()\n    {\n        // No null check\n        OnProcess(\"Process completed!\"); // Risk of NullReferenceException\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BadProcessor processor = new BadProcessor();\n        try\n        {\n            processor.Process();\n        }\n        catch (NullReferenceException ex)\n        {\n            Console.WriteLine(\"Error: No method assigned to delegate!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Error: No method assigned to delegate!\n// Error message: Object reference not set to an instance of an object."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `OnProcess` delegate is invoked without a null check.\n- If no method is assigned, a `NullReferenceException` occurs.\n- Solution: Use `OnProcess?.Invoke(...)` to avoid this error."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\npublic delegate void NotificationHandler(string message);\n\nclass Notifier\n{\n    public NotificationHandler OnNotify;\n\n    public void SendNotification(string message)\n    {\n        OnNotify?.Invoke(message);\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Notifier notifier = new Notifier();\n\n        // Assign methods to delegate using lambda expressions\n        notifier.OnNotify += msg => Console.WriteLine($\"Notification: {msg}\");\n        notifier.OnNotify += msg => Console.WriteLine($\"Log: {msg}\");\n\n        // Send notification\n        notifier.SendNotification(\"Important update!\");\n\n        // Unsubscribe one delegate\n        notifier.OnNotify -= msg => Console.WriteLine($\"Log: {msg}\");\n\n        // Send another notification\n        notifier.SendNotification(\"Second update!\");\n    }\n}\n// Output:\n// Notification: Important update!\n// Log: Important update!\n// Notification: Second update!"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Делегаты",
+    "icon": "FiArrowRight",
+    "language": "csharp",
+    "description": "Делегаты и указатели на функции.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое делегаты?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# делегаты (delegates) — это типы, которые содержат ссылки на методы, действуя как указатели на функции. Они позволяют сохранять метод и вызывать его динамически. Делегаты особенно важны для событий и гибкого программирования. Этот JSON-файл объясняет создание, использование, анонимные методы, лямбда-выражения, вызов нескольких методов и примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Создание делегатов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Делегаты определяются с помощью ключевого слова `delegate` и задают сигнатуру метода (параметры и возвращаемый тип)."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\n// Определение делегата\npublic delegate void GreetHandler(string name);\n\nclass Greeter\n{\n    public void SayHello(string name)\n    {\n        Console.WriteLine($\"Привет, {name}!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Greeter greeter = new Greeter();\n        // Назначение метода делегату\n        GreetHandler greet = greeter.SayHello;\n        // Вызов делегата\n        greet(\"Али\");\n    }\n}\n// Output:\n// Привет, Али!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `GreetHandler` — делегат, определяющий метод, принимающий строку и ничего не возвращающий.\n- `SayHello` — метод, совместимый с делегатом, назначенный ему.\n- `greet(\"Али\")` вызывает метод.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Делегаты и несколько методов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Делегаты могут содержать несколько методов и вызывать их последовательно с помощью оператора `+=`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void MessageHandler(string message);\n\nclass Messenger\n{\n    public void SendEmail(string message)\n    {\n        Console.WriteLine($\"Email отправлен: {message}\");\n    }\n\n    public void SendSMS(string message)\n    {\n        Console.WriteLine($\"SMS отправлен: {message}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Messenger messenger = new Messenger();\n        MessageHandler handler = messenger.SendEmail;\n        handler += messenger.SendSMS; // Добавление второго метода\n\n        // Вызов делегата\n        handler(\"Получено новое сообщение!\");\n    }\n}\n// Output:\n// Email отправлен: Получено новое сообщение!\n// SMS отправлен: Получено новое сообщение!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Делегат `MessageHandler` содержит два метода (`SendEmail` и `SendSMS`).\n- Оператор `+=` добавляет второй метод.\n- Вызов делегата вызывает оба метода последовательно."
+      },
+      {
+        "type": "heading",
+        "text": "Анонимные методы и лямбда-выражения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Вместо назначения именованных методов делегаты могут использовать анонимные методы или лямбда-выражения для краткого и гибкого кода."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void CalculateHandler(int number);\n\nclass Calculator\n{\n    public void Process(CalculateHandler calc)\n    {\n        calc(42);\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Calculator calculator = new Calculator();\n\n        // Анонимный метод\n        calculator.Process(delegate(int number) { Console.WriteLine($\"Анонимный метод: {number}\"); });\n\n        // Лямбда-выражение\n        calculator.Process(number => Console.WriteLine($\"Лямбда-выражение: {number}\"));\n    }\n}\n// Output:\n// Анонимный метод: 42\n// Лямбда-выражение: 42"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `delegate(int number)` — анонимный метод.\n- `number =>` — лямбда-выражение, выполняющее ту же задачу более кратко.\n- Оба вызывают метод через делегат."
+      },
+      {
+        "type": "heading",
+        "text": "Делегаты и события"
+      },
+      {
+        "type": "paragraph",
+        "text": "Делегаты составляют основу событий. События — это специальная форма делегатов, которая разрешает только подписку и отписку."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void AlarmHandler(string message);\n\nclass AlarmClock\n{\n    public event AlarmHandler OnAlarm;\n\n    public void TriggerAlarm()\n    {\n        OnAlarm?.Invoke(\"Будильник звонит!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        AlarmClock alarm = new AlarmClock();\n\n        // Подписка на событие\n        alarm.OnAlarm += message => Console.WriteLine($\"Лямбда: {message}\");\n\n        // Запуск будильника\n        alarm.TriggerAlarm();\n    }\n}\n// Output:\n// Лямбда: Будильник звонит!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `AlarmHandler` — делегат, используемый для события.\n- `OnAlarm` — событие, основанное на делегате, с подпиской через лямбда-выражение.\n- Событие вызывает лямбда-выражение при запуске."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества делегатов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Делегаты повышают гибкость программы."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nГибкость: Делегаты позволяют динамически вызывать методы."
+          },
+          {
+            "description": "\nНесколько методов: Один делегат может вызывать несколько методов."
+          },
+          {
+            "description": "\nСобытия: Делегаты являются основой системы событий."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Делегаты могут создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Концепция делегатов может быть запутанной для новичков."
+          },
+          {
+            "description": "\nУтечки памяти: Неправильная отписка от делегатов (особенно в событиях) может привести к утечкам памяти."
+          },
+          {
+            "description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Чрезмерное использование делегатов или их неправильное управление может усложнить код. Неотписка от делегатов может привести к утечкам памяти.\n- **Рекомендации**: Начинайте с простых делегатов. Используйте лямбда-выражения для читаемости. Отписывайтесь от делегатов в событиях, когда они больше не нужны. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку из-за вызова делегата без проверки на null."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\npublic delegate void ErrorHandler(string message);\n\nclass BadProcessor\n{\n    public ErrorHandler OnProcess;\n\n    public void Process()\n    {\n        // Без проверки на null\n        OnProcess(\"Процесс завершен!\"); // Риск NullReferenceException\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BadProcessor processor = new BadProcessor();\n        try\n        {\n            processor.Process();\n        }\n        catch (NullReferenceException ex)\n        {\n            Console.WriteLine(\"Ошибка: Метод не назначен делегату!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Ошибка: Метод не назначен делегату!\n// Сообщение об ошибке: Object reference not set to an instance of an object."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Делегат `OnProcess` вызывается без проверки на null.\n- Если метод не назначен, возникает `NullReferenceException`.\n- Решение: Используйте `OnProcess?.Invoke(...)` для избежания ошибки."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\npublic delegate void NotificationHandler(string message);\n\nclass Notifier\n{\n    public NotificationHandler OnNotify;\n\n    public void SendNotification(string message)\n    {\n        OnNotify?.Invoke(message);\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Notifier notifier = new Notifier();\n\n        // Назначение методов делегату с помощью лямбда-выражений\n        notifier.OnNotify += msg => Console.WriteLine($\"Уведомление: {msg}\");\n        notifier.OnNotify += msg => Console.WriteLine($\"Журнал: {msg}\");\n\n        // Отправка уведомления\n        notifier.SendNotification(\"Важное обновление!\");\n\n        // Отписка одного делегата\n        notifier.OnNotify -= msg => Console.WriteLine($\"Журнал: {msg}\");\n\n        // Отправка другого уведомления\n        notifier.SendNotification(\"Второе обновление!\");\n    }\n}\n// Output:\n// Уведомление: Важное обновление!\n// Журнал: Важное обновление!\n// Уведомление: Второе обновление!"
+      }
+    ]
+  }
+}

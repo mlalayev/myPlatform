@@ -1,0 +1,471 @@
+{
+  "id": "advanced-memory",
+  "az": {
+    "title": "Qabaqcıl Yaddaş İdarəetməsi",
+    "icon": "FiCpu",
+    "language": "c",
+    "description": "Yaddaş sızmaları, bufer daşmaları və yaddaş sazlaması.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Yaddaş İdarəetməsi Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində yaddaş idarəetməsi proqramın dinamik yaddaşı (heap) effektiv və təhlükəsiz istifadə etməsini təmin edir. Qabaqcıl yaddaş idarəetməsi yaddaş sızmaları (memory leaks), bufer daşmaları (buffer overflows) və yaddaş sazlaması (memory debugging) kimi məsələləri əhatə edir. Bu mövzular proqramın etibarlılığını artırmaq və səhvləri azaltmaq üçün vacibdir. Bu JSON faylda bu problemlərin nə olduğu, səbəbləri, təsirləri və həll yolları sadə şəkildə izah olunacaq. Kod nümunələri Pyodide mühitində işləyəcək, lakin sazlama alətləri (məsələn, `valgrind`) Pyodide-da dəstəklənmədiyi üçün onların istifadəsi ümumi şəkildə təsvir ediləcək."
+      },
+      {
+        "type": "heading",
+        "text": "Yaddaş Sızmaları (Memory Leaks)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yaddaş sızması, proqramın `malloc` və ya `calloc` ilə ayırdığı yaddaşı `free` ilə azad etməməsi nəticəsində yaranır. Bu, yaddaşın lazımsız yerə tutulmasına səbəb olur və uzun müddətdə proqramın yavaşlamasına və ya çökməsinə yol aça bilər. Məsələn, bir proqram hər dəfə yeni yaddaş ayırıb azad etməzsə, yaddaş tükənə bilər."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int* ptr = (int*)malloc(100 * sizeof(int)); // Yaddaş ayrılır\n  if (ptr == NULL) {\n    printf(\"Yaddaş ayrılmadı\\n\");\n    return 1;\n  }\n  ptr[0] = 42; // Yaddaş istifadə olunur\n  printf(\"Dəyər: %d\\n\", ptr[0]);\n  // Səhv: ptr azad edilmir (memory leak)\n  return 0;\n}\n// Output:\n// Dəyər: 42"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `malloc` ilə 100 tam ədəd üçün yaddaş ayrılır.\n- `ptr` istifadə olunur, lakin `free(ptr)` çağırılmır.\n- Bu, yaddaş sızmasına səbəb olur, çünki ayrılan yaddaş proqram bitdikdə azad edilmir.\n- Həll: Həmişə `malloc` və ya `calloc` ilə ayrılan yaddaşı `free` ilə azad edin."
+      },
+      {
+        "type": "heading",
+        "text": "Düzgün Yaddaş İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yaddaş sızmasının qarşısını almaq üçün ayrılan hər yaddaşı `free` ilə azad etmək lazımdır."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int* ptr = (int*)malloc(100 * sizeof(int));\n  if (ptr == NULL) {\n    printf(\"Yaddaş ayrılmadı\\n\");\n    return 1;\n  }\n  ptr[0] = 42;\n  printf(\"Dəyər: %d\\n\", ptr[0]);\n  free(ptr); // Yaddaş azad edilir\n  ptr = NULL; // Göstərici NULL-a təyin edilir\n  return 0;\n}\n// Output:\n// Dəyər: 42"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `free(ptr)` yaddaşı azad edir, sızmanın qarşısını alır.\n- `ptr = NULL` təyin etmək, göstəricinin təkrar istifadəsini (dangling pointer) önləyir.\n- Bu nümunə Pyodide-da işləyir, çünki yalnız dinamik yaddaşdan istifadə edir."
+      },
+      {
+        "type": "heading",
+        "text": "Bufer Daşmaları (Buffer Overflows)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bufer daşması, proqramın ayrılmış yaddaş sahəsindən kənara yazması nəticəsində yaranır. Bu, adətən massivlərdə və ya dinamik yaddaşda sərhədləri yoxlamadan məlumat yazılarkən baş verir. Bufer daşmaları proqramın çökməsinə və ya təhlükəsizlik boşluqlarına (məsələn, zərərli kodun icrasına) səbəb ola bilər."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n  char buffer[5]; // 5 simvol üçün yer\n  strcpy(buffer, \"HelloWorld\"); // Səhv: 10 simvol yazılır\n  printf(\"Buffer: %s\\n\", buffer);\n  return 0;\n}\n// Output (qeyri-müəyyən davranış):\n// Buffer: HelloWorld (və ya proqram çökə bilər)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `buffer` yalnız 5 simvol saxlaya bilər, lakin `strcpy` 10 simvol yazır.\n- Bu, bufer daşmasına səbəb olur, çünki yaddaşın ayrılmamış sahələrinə yazılır.\n- Nəticə: Proqram çökə bilər və ya qeyri-müəyyən davranış göstərə bilər.\n- Həll: `strncpy` kimi təhlükəsiz funksiyalar istifadə edin və sərhədləri yoxlayın."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsiz Bufer İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bufer daşmasının qarşısını almaq üçün təhlükəsiz funksiyalar (`strncpy`) və sərhəd yoxlamaları istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n  char buffer[5];\n  strncpy(buffer, \"HelloWorld\", sizeof(buffer) - 1); // 4 simvol yazılır\n  buffer[4] = '\\0'; // Null-terminator əlavə edilir\n  printf(\"Buffer: %s\\n\", buffer);\n  return 0;\n}\n// Output:\n// Buffer: Hell"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `strncpy` ilə yalnız `buffer`-in saxlaya biləcəyi qədər simvol yazılır.\n- `buffer[4] = '\\0'` null-terminator əlavə edir, düzgün sətir sonluğunu təmin edir.\n- Bu, bufer daşmasını önləyir.\n- Bu nümunə Pyodide-da işləyir."
+      },
+      {
+        "type": "heading",
+        "text": "Yaddaş Sazlaması (Memory Debugging)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yaddaş sazlaması yaddaş sızmalarını, bufer daşmalarını və digər yaddaş səhvlərini aşkar etmək üçün istifadə olunur. C-də bu məqsədlə alətlər, məsələn, `valgrind`, geniş yayılmışdır. `valgrind` proqramın yaddaş istifadəsini təhlil edir və səhvləri (məsələn, azad edilməmiş yaddaş, qeyri-qanuni yaddaş girişi) aşkar edir. Pyodide `valgrind`-i dəstəkləmədiyi üçün bu alətin istifadəsi Linux və ya digər uyğun mühitlərdə tövsiyə olunur."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int* ptr = (int*)malloc(100 * sizeof(int));\n  ptr[100] = 42; // Səhv: Bufer daşması (sərhəddən kənar yazma)\n  printf(\"Dəyər: %d\\n\", ptr[0]);\n  free(ptr);\n  return 0;\n}\n// Output (qeyri-müəyyən davranış):\n// Dəyər: [təsadüfi dəyər] (və ya çökə bilər)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ptr[100]` ayrılmış yaddaşın sərhədindən kənara yazır (100 elementdən yalnız 0-99 işlədilə bilər).\n- Bu, bufer daşmasına səbəb olur.\n- `valgrind` bu cür səhvləri aşkar edə bilər (məsələn, 'Invalid write of size 4').\n- Qeyd: `valgrind` istifadə etmək üçün kodu Linux-da `valgrind ./program` ilə işlədin."
+      },
+      {
+        "type": "heading",
+        "text": "Yaddaş Sızmalarının və Bufer Daşmalarının Üstünlükləri və Çətinlikləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yaddaş idarəetməsi düzgün aparılarsa, proqramın effektivliyini artırır, lakin səhvlər ciddi problemlər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nÜstünlüklər: Dinamik yaddaş proqramın çevikliyini artırır; düzgün idarəetmə ilə resurslar qənaət edilir."
+          },
+          {
+            "description": "\nÇətinliklər: Yaddaş sızmaları yaddaşın tükənməsinə, bufer daşmaları isə təhlükəsizlik boşluqlarına səbəb ola bilər."
+          },
+          {
+            "description": "\nSazlama çətinliyi: Pyodide kimi mühitlərdə sazlama alətləri məhduddur."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Yaddaş sızmaları proqramın yavaşlamasına, bufer daşmaları isə təhlükəsizlik problemlərinə səbəb ola bilər. Səhv yaddaş girişi proqramın çökməsinə yol açar.\n- **Tövsiyələr**: Həmişə `free` ilə yaddaşı azad edin. Təhlükəsiz funksiyalar (`strncpy`, `snprintf`) istifadə edin. Sərhədləri yoxlayın. Linux-da `valgrind` ilə sazlama aparın. Pyodide-da sadə yaddaş əməliyyatlarını sınaqdan keçirin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə yaddaş sızması və bufer daşması birləşir, bu da proqramın qeyri-müəyyən davranışına səbəb ola bilər."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main() {\n  char* buffer = (char*)malloc(5 * sizeof(char));\n  strcpy(buffer, \"HelloWorld\"); // Səhv: Bufer daşması\n  printf(\"Buffer: %s\\n\", buffer);\n  // Səhv: buffer azad edilmir (memory leak)\n  return 0;\n}\n// Output (qeyri-müəyyən davranış):\n// Buffer: HelloWorld (və ya çökə bilər)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `strcpy` ilə `buffer`-ə 5 simvoldan çox yazılır (bufer daşması).\n- `buffer` azad edilmir (yaddaş sızması).\n- Həll: `strncpy` istifadə edin və `free(buffer)` çağırın."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main() {\n  char* buffer = (char*)malloc(5 * sizeof(char));\n  if (buffer == NULL) {\n    printf(\"Yaddaş ayrılmadı\\n\");\n    return 1;\n  }\n  strncpy(buffer, \"HelloWorld\", 4); // 4 simvol yazılır\n  buffer[4] = '\\0'; // Null-terminator\n  printf(\"Buffer: %s\\n\", buffer);\n  free(buffer); // Yaddaş azad edilir\n  buffer = NULL;\n  return 0;\n}\n// Output:\n// Buffer: Hell"
+      }
+    ]
+  },
+  "en": {
+    "title": "Advanced Memory Management",
+    "icon": "FiCpu",
+    "language": "c",
+    "description": "Memory leaks, buffer overflows, and memory debugging.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Advanced Memory Management?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, memory management involves efficiently and safely using dynamic memory (heap). Advanced memory management covers memory leaks, buffer overflows, and memory debugging. These topics are critical for ensuring program reliability and reducing errors. This JSON file explains these issues, their causes, effects, and solutions in a simple way. Code examples will run in Pyodide, but debugging tools like `valgrind` are not supported in Pyodide, so their usage is described generically."
+      },
+      {
+        "type": "heading",
+        "text": "Memory Leaks"
+      },
+      {
+        "type": "paragraph",
+        "text": "A memory leak occurs when memory allocated with `malloc` or `calloc` is not freed with `free`. This causes memory to be unnecessarily occupied, potentially leading to program slowdown or crashes over time. For example, if a program repeatedly allocates memory without freeing it, memory may run out."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int* ptr = (int*)malloc(100 * sizeof(int)); // Allocate memory\n  if (ptr == NULL) {\n    printf(\"Memory allocation failed\\n\");\n    return 1;\n  }\n  ptr[0] = 42; // Use memory\n  printf(\"Value: %d\\n\", ptr[0]);\n  // Error: ptr not freed (memory leak)\n  return 0;\n}\n// Output:\n// Value: 42"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `malloc` allocates memory for 100 integers.\n- `ptr` is used but not freed with `free(ptr)`.\n- This causes a memory leak, as the allocated memory remains occupied.\n- Solution: Always free memory allocated with `malloc` or `calloc` using `free`."
+      },
+      {
+        "type": "heading",
+        "text": "Proper Memory Management"
+      },
+      {
+        "type": "paragraph",
+        "text": "To prevent memory leaks, always free allocated memory with `free`."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int* ptr = (int*)malloc(100 * sizeof(int));\n  if (ptr == NULL) {\n    printf(\"Memory allocation failed\\n\");\n    return 1;\n  }\n  ptr[0] = 42;\n  printf(\"Value: %d\\n\", ptr[0]);\n  free(ptr); // Free memory\n  ptr = NULL; // Set pointer to NULL\n  return 0;\n}\n// Output:\n// Value: 42"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `free(ptr)` releases the memory, preventing a leak.\n- Setting `ptr = NULL` avoids accidental reuse (dangling pointer).\n- This example works in Pyodide, as it uses only dynamic memory."
+      },
+      {
+        "type": "heading",
+        "text": "Buffer Overflows"
+      },
+      {
+        "type": "paragraph",
+        "text": "A buffer overflow occurs when a program writes beyond the allocated memory area, often in arrays or dynamic memory. This typically happens when boundaries are not checked. Buffer overflows can cause program crashes or security vulnerabilities (e.g., executing malicious code)."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n  char buffer[5]; // Space for 5 characters\n  strcpy(buffer, \"HelloWorld\"); // Error: Writes 10 characters\n  printf(\"Buffer: %s\\n\", buffer);\n  return 0;\n}\n// Output (undefined behavior):\n// Buffer: HelloWorld (or program may crash)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `buffer` can hold only 5 characters, but `strcpy` writes 10.\n- This causes a buffer overflow, writing to unallocated memory.\n- Result: The program may crash or behave unpredictably.\n- Solution: Use safer functions like `strncpy` and check boundaries."
+      },
+      {
+        "type": "heading",
+        "text": "Safe Buffer Management"
+      },
+      {
+        "type": "paragraph",
+        "text": "To prevent buffer overflows, use safe functions (`strncpy`) and boundary checks."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n  char buffer[5];\n  strncpy(buffer, \"HelloWorld\", sizeof(buffer) - 1); // Write 4 characters\n  buffer[4] = '\\0'; // Add null terminator\n  printf(\"Buffer: %s\\n\", buffer);\n  return 0;\n}\n// Output:\n// Buffer: Hell"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `strncpy` writes only as many characters as `buffer` can hold.\n- `buffer[4] = '\\0'` ensures proper string termination.\n- This prevents buffer overflow.\n- This example works in Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Memory Debugging"
+      },
+      {
+        "type": "paragraph",
+        "text": "Memory debugging involves detecting memory leaks, buffer overflows, and other memory errors. In C, tools like `valgrind` are widely used. `valgrind` analyzes memory usage and detects issues like unfreed memory or invalid memory access. Since Pyodide does not support `valgrind`, its usage is recommended in Linux or similar environments."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int* ptr = (int*)malloc(100 * sizeof(int));\n  ptr[100] = 42; // Error: Buffer overflow (out-of-bounds write)\n  printf(\"Value: %d\\n\", ptr[0]);\n  free(ptr);\n  return 0;\n}\n// Output (undefined behavior):\n// Value: [random value] (or may crash)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ptr[100]` writes beyond the allocated memory (only 0-99 are valid).\n- This causes a buffer overflow.\n- `valgrind` can detect such errors (e.g., 'Invalid write of size 4').\n- Note: Run with `valgrind ./program` in Linux to debug."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages and Challenges of Memory Management"
+      },
+      {
+        "type": "paragraph",
+        "text": "Proper memory management improves program efficiency, but errors can cause serious issues."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nAdvantages: Dynamic memory increases program flexibility; proper management saves resources."
+          },
+          {
+            "description": "\nChallenges: Memory leaks can exhaust memory; buffer overflows may create security vulnerabilities."
+          },
+          {
+            "description": "\nDebugging difficulty: Tools like `valgrind` are unavailable in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Memory leaks can slow down programs; buffer overflows may lead to security issues. Invalid memory access can crash the program.\n- **Recommendations**: Always free memory with `free`. Use safe functions (`strncpy`, `snprintf`). Check boundaries. Use `valgrind` in Linux for debugging. Test simple memory operations in Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example combines a memory leak and buffer overflow, leading to undefined behavior."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main() {\n  char* buffer = (char*)malloc(5 * sizeof(char));\n  strcpy(buffer, \"HelloWorld\"); // Error: Buffer overflow\n  printf(\"Buffer: %s\\n\", buffer);\n  // Error: buffer not freed (memory leak)\n  return 0;\n}\n// Output (undefined behavior):\n// Buffer: HelloWorld (or may crash)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `strcpy` writes more than 5 characters to `buffer` (buffer overflow).\n- `buffer` is not freed (memory leak).\n- Solution: Use `strncpy` and call `free(buffer)`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main() {\n  char* buffer = (char*)malloc(5 * sizeof(char));\n  if (buffer == NULL) {\n    printf(\"Memory allocation failed\\n\");\n    return 1;\n  }\n  strncpy(buffer, \"HelloWorld\", 4); // Write 4 characters\n  buffer[4] = '\\0'; // Null terminator\n  printf(\"Buffer: %s\\n\", buffer);\n  free(buffer); // Free memory\n  buffer = NULL;\n  return 0;\n}\n// Output:\n// Buffer: Hell"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Продвинутое управление памятью",
+    "icon": "FiCpu",
+    "language": "c",
+    "description": "Утечки памяти, переполнение буфера и отладка памяти.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое продвинутое управление памятью?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C управление памятью обеспечивает эффективное и безопасное использование динамической памяти (heap). Продвинутое управление памятью охватывает утечки памяти (memory leaks), переполнение буфера (buffer overflows) и отладку памяти (memory debugging). Эти темы важны для повышения надёжности программы и уменьшения ошибок. Этот JSON-файл объясняет эти проблемы, их причины, последствия и решения простым языком. Примеры кода будут работать в Pyodide, но инструменты отладки, такие как `valgrind`, не поддерживаются в Pyodide, поэтому их использование описано обобщённо."
+      },
+      {
+        "type": "heading",
+        "text": "Утечки памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "Утечка памяти происходит, когда память, выделенная с помощью `malloc` или `calloc`, не освобождается с помощью `free`. Это приводит к ненужному занятию памяти, что со временем может замедлить программу или вызвать её сбой. Например, если программа многократно выделяет память без её освобождения, память может закончиться."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int* ptr = (int*)malloc(100 * sizeof(int)); // Выделение памяти\n  if (ptr == NULL) {\n    printf(\"Ошибка выделения памяти\\n\");\n    return 1;\n  }\n  ptr[0] = 42; // Использование памяти\n  printf(\"Значение: %d\\n\", ptr[0]);\n  // Ошибка: ptr не освобождается (утечка памяти)\n  return 0;\n}\n// Output:\n// Значение: 42"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `malloc` выделяет память для 100 целых чисел.\n- `ptr` используется, но не освобождается с помощью `free(ptr)`.\n- Это вызывает утечку памяти, так как выделенная память остаётся занятой.\n- Решение: Всегда освобождайте память, выделенную с помощью `malloc` или `calloc`, используя `free`."
+      },
+      {
+        "type": "heading",
+        "text": "Правильное управление памятью"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы предотвратить утечки памяти, всегда освобождайте выделенную память с помощью `free`."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int* ptr = (int*)malloc(100 * sizeof(int));\n  if (ptr == NULL) {\n    printf(\"Ошибка выделения памяти\\n\");\n    return 1;\n  }\n  ptr[0] = 42;\n  printf(\"Значение: %d\\n\", ptr[0]);\n  free(ptr); // Освобождение памяти\n  ptr = NULL; // Установка указателя в NULL\n  return 0;\n}\n// Output:\n// Значение: 42"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `free(ptr)` освобождает память, предотвращая утечку.\n- Установка `ptr = NULL` предотвращает случайное повторное использование (dangling pointer).\n- Этот пример работает в Pyodide, так как использует только динамическую память."
+      },
+      {
+        "type": "heading",
+        "text": "Переполнение буфера"
+      },
+      {
+        "type": "paragraph",
+        "text": "Переполнение буфера происходит, когда программа записывает данные за пределы выделенной памяти, часто в массивах или динамической памяти. Это обычно случается при отсутствии проверки границ. Переполнение буфера может привести к сбою программы или уязвимостям безопасности (например, выполнению вредоносного кода)."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n  char buffer[5]; // Место для 5 символов\n  strcpy(buffer, \"HelloWorld\"); // Ошибка: Записывается 10 символов\n  printf(\"Буфер: %s\\n\", buffer);\n  return 0;\n}\n// Output (неопределённое поведение):\n// Буфер: HelloWorld (или программа может завершиться с ошибкой)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `buffer` может содержать только 5 символов, но `strcpy` записывает 10.\n- Это вызывает переполнение буфера, записывая в нераспределённую память.\n- Результат: Программа может завершиться с ошибкой или вести себя непредсказуемо.\n- Решение: Используйте безопасные функции, такие как `strncpy`, и проверяйте границы."
+      },
+      {
+        "type": "heading",
+        "text": "Безопасное управление буфером"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы предотвратить переполнение буфера, используйте безопасные функции (`strncpy`) и проверки границ."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n  char buffer[5];\n  strncpy(buffer, \"HelloWorld\", sizeof(buffer) - 1); // Записывается 4 символа\n  buffer[4] = '\\0'; // Добавляется нулевой терминатор\n  printf(\"Буфер: %s\\n\", buffer);\n  return 0;\n}\n// Output:\n// Буфер: Hell"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `strncpy` записывает только столько символов, сколько может содержать `buffer`.\n- `buffer[4] = '\\0'` обеспечивает правильное завершение строки.\n- Это предотвращает переполнение буфера.\n- Этот пример работает в Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Отладка памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "Отладка памяти включает обнаружение утечек памяти, переполнений буфера и других ошибок памяти. В C широко используются инструменты, такие как `valgrind`. `valgrind` анализирует использование памяти и обнаруживает проблемы, такие как неосвобождённая память или недопустимый доступ. Поскольку Pyodide не поддерживает `valgrind`, его использование рекомендуется в Linux или аналогичных средах."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n  int* ptr = (int*)malloc(100 * sizeof(int));\n  ptr[100] = 42; // Ошибка: Переполнение буфера (запись за границей)\n  printf(\"Значение: %d\\n\", ptr[0]);\n  free(ptr);\n  return 0;\n}\n// Output (неопределённое поведение):\n// Значение: [случайное значение] (или сбой)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ptr[100]` записывает за пределы выделенной памяти (допустимы только 0-99).\n- Это вызывает переполнение буфера.\n- `valgrind` может обнаружить такие ошибки (например, 'Invalid write of size 4').\n- Примечание: Запустите с `valgrind ./program` в Linux для отладки."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества и сложности управления памятью"
+      },
+      {
+        "type": "paragraph",
+        "text": "Правильное управление памятью повышает эффективность программы, но ошибки могут вызвать серьёзные проблемы."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nПреимущества: Динамическая память повышает гибкость программы; правильное управление экономит ресурсы."
+          },
+          {
+            "description": "\nСложности: Утечки памяти могут истощить память; переполнение буфера может создать уязвимости безопасности."
+          },
+          {
+            "description": "\nСложность отладки: Инструменты, такие как `valgrind`, недоступны в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Утечки памяти могут замедлить программу; переполнение буфера может привести к проблемам безопасности. Недопустимый доступ к памяти может вызвать сбой программы.\n- **Рекомендации**: Всегда освобождайте память с помощью `free`. Используйте безопасные функции (`strncpy`, `snprintf`). Проверяйте границы. Используйте `valgrind` в Linux для отладки. Тестируйте простые операции с памятью в Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример сочетает утечку памяти и переполнение буфера, что приводит к неопределённому поведению."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main() {\n  char* buffer = (char*)malloc(5 * sizeof(char));\n  strcpy(buffer, \"HelloWorld\"); // Ошибка: Переполнение буфера\n  printf(\"Буфер: %s\\n\", buffer);\n  // Ошибка: buffer не освобождается (утечка памяти)\n  return 0;\n}\n// Output (неопределённое поведение):\n// Буфер: HelloWorld (или сбой)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `strcpy` записывает больше 5 символов в `buffer` (переполнение буфера).\n- `buffer` не освобождается (утечка памяти).\n- Решение: Используйте `strncpy` и вызывайте `free(buffer)`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main() {\n  char* buffer = (char*)malloc(5 * sizeof(char));\n  if (buffer == NULL) {\n    printf(\"Ошибка выделения памяти\\n\");\n    return 1;\n  }\n  strncpy(buffer, \"HelloWorld\", 4); // Записывается 4 символа\n  buffer[4] = '\\0'; // Нулевой терминатор\n  printf(\"Буфер: %s\\n\", buffer);\n  free(buffer); // Освобождение памяти\n  buffer = NULL;\n  return 0;\n}\n// Output:\n// Буфер: Hell"
+      }
+    ]
+  }
+}

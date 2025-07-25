@@ -170,6 +170,22 @@ export default function JsTryEditor({
   const [error, setError] = useState("");
   const [showOutput, setShowOutput] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [parsedOutput, setParsedOutput] = useState<Array<{type: string, content: string, key: string}>>([]);
+
+  // Parse colored console output
+  const parseColoredOutput = (logs: string[]) => {
+    return logs.map((log, index) => {
+      if (log.startsWith('[LOG]')) {
+        return { type: 'log', content: log.substring(5), key: `log-${index}` };
+      } else if (log.startsWith('[ERROR]')) {
+        return { type: 'error', content: log.substring(7), key: `error-${index}` };
+      } else if (log.startsWith('[WARN]')) {
+        return { type: 'warn', content: log.substring(6), key: `warn-${index}` };
+      } else {
+        return { type: 'log', content: log, key: `log-${index}` };
+      }
+    });
+  };
   const workerRef = useRef<Worker | null>(null);
 
   console.log(language);
@@ -272,14 +288,13 @@ export default function JsTryEditor({
               self.close();
             }
 
-            // Override console.log to capture output with better object formatting
+            // Override console methods to capture output with colors
             const originalLog = console.log;
-            console.log = function(...args) {
-              logCount++;
-              if (logCount > maxLogs) {
-                throw new Error('Too many console.log calls');
-              }
-              const formattedArgs = args.map(arg => {
+            const originalError = console.error;
+            const originalWarn = console.warn;
+
+            function formatArgs(args) {
+              return args.map(arg => {
                 if (typeof arg === 'object' && arg !== null) {
                   try {
                     return JSON.stringify(arg, null, 2);
@@ -289,7 +304,37 @@ export default function JsTryEditor({
                 }
                 return String(arg);
               });
-              logs.push(formattedArgs.join(' '));
+            }
+
+            console.log = function(...args) {
+              logCount++;
+              if (logCount > maxLogs) {
+                throw new Error('Too many console.log calls');
+              }
+              const formattedArgs = formatArgs(args);
+              logs.push('[LOG]' + formattedArgs.join(' '));
+              if (logTimer) clearTimeout(logTimer);
+              logTimer = setTimeout(sendLogsAndExit, logDelay);
+            };
+
+            console.error = function(...args) {
+              logCount++;
+              if (logCount > maxLogs) {
+                throw new Error('Too many console calls');
+              }
+              const formattedArgs = formatArgs(args);
+              logs.push('[ERROR]' + formattedArgs.join(' '));
+              if (logTimer) clearTimeout(logTimer);
+              logTimer = setTimeout(sendLogsAndExit, logDelay);
+            };
+
+            console.warn = function(...args) {
+              logCount++;
+              if (logCount > maxLogs) {
+                throw new Error('Too many console calls');
+              }
+              const formattedArgs = formatArgs(args);
+              logs.push('[WARN]' + formattedArgs.join(' '));
               if (logTimer) clearTimeout(logTimer);
               logTimer = setTimeout(sendLogsAndExit, logDelay);
             };

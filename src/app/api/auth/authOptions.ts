@@ -1,11 +1,9 @@
-import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
-import { PrismaClient } from "@prisma/client";
+import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { Account, Profile, User } from "next-auth";
 import { AdapterUser } from "next-auth/adapters";
-
-const prisma = new PrismaClient();
 
 export const authOptions = {
   session: {
@@ -13,11 +11,11 @@ export const authOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   providers: [
-    GoogleProvider({
+    Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-    CredentialsProvider({
+    Credentials({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },

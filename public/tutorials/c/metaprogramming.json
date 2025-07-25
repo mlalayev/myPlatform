@@ -1,0 +1,457 @@
+{
+  "id": "metaprogramming",
+  "az": {
+    "title": "Metaproqramlaşdırma və Makroslar",
+    "icon": "FiCode",
+    "language": "c",
+    "description": "Qabaqcıl makro istifadəsi və kod generasiyası.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Metaproqramlaşdırma və Makroslar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C proqramlaşdırma dilində metaproqramlaşdırma, kodun özünü yaratmağa və ya dəyişdirməyə imkan verən texnikalardır. Makroslar isə C-nin preprocessor-u tərəfindən işlənən, kodun kompilyasiyadan əvvəl dəyişdirilməsinə imkan verən təlimatlardır. Makroslar `#define` direktivi ilə təyin edilir və kodun təkrar istifadəsini asanlaşdırır, həmçinin dinamik kod generasiyası üçün istifadə olunur. Bu JSON faylda makrosların nə olduğu, necə istifadə olunduğu və sadə nümunələr sadə şəkildə izah olunacaq. Kod nümunələri Pyodide-da işləyəcək, çünki makroslar C preprocessor-u tərəfindən dəstəklənir."
+      },
+      {
+        "type": "heading",
+        "text": "Makroslar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Makroslar C-də `#define` direktivi ilə təyin olunan sadə əvəzetmə qaydalarıdır. Preprocessor kodu kompilyasiya etməzdən əvvəl makrosları avtomatik olaraq əvəz edir. Məsələn, bir sabiti və ya təkrarlanan kodu makro ilə təyin edərək kodu daha oxunaqlı və idarəolunan edə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Makro Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Aşağıdakı nümunədə sabit və sadə bir funksiya makrosu istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define PI 3.14159\n#define SQUARE(x) ((x) * (x))\n\nint main() {\n  double radius = 5.0;\n  double area = PI * SQUARE(radius);\n  printf(\"Dairənin sahəsi: %f\\n\", area);\n  return 0;\n}\n// Output:\n// Dairənin sahəsi: 78.539750"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `#define PI 3.14159` sabit bir dəyər təyin edir.\n- `#define SQUARE(x) ((x) * (x))` bir ədədin kvadratını hesablayan makrodur.\n- Preprocessor `PI` və `SQUARE(radius)` ifadələrini kompilyasiyadan əvvəl əvəz edir.\n- Nəticə: Kod daha oxunaqlı olur və təkrar istifadə asanlaşır."
+      },
+      {
+        "type": "heading",
+        "text": "Şərti Makroslar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Makroslar şərti kompilyasiya üçün də istifadə olunur (`#ifdef`, `#ifndef`, `#endif`). Bu, müəyyən şərtlərə görə kodun müxtəlif hissələrinin kompilyasiya edilməsinə imkan verir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define DEBUG\n\nint main() {\n  int x = 10;\n  #ifdef DEBUG\n    printf(\"Debug rejimi: x = %d\\n\", x);\n  #else\n    printf(\"Normal rejim\\n\");\n  #endif\n  return 0;\n}\n// Output:\n// Debug rejimi: x = 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `#define DEBUG` təyin edildiyi üçün `#ifdef DEBUG` bloku işləyir.\n- Əgər `#define DEBUG` silinsə, `#else` bloku işləyəcək.\n- Bu, debug və ya müxtəlif platformalar üçün kodun idarə edilməsini asanlaşdırır."
+      },
+      {
+        "type": "heading",
+        "text": "Daha Mürəkkəb Makro Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə makro ilə dinamik kod generasiyası göstərilir."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define PRINT_ARRAY(arr, size) \\\n  do { \\\n    for (int i = 0; i < size; i++) { \\\n      printf(\"%d \", arr[i]); \\\n    } \\\n    printf(\"\\n\"); \\\n  } while (0)\n\nint main() {\n  int numbers[] = {1, 2, 3, 4, 5};\n  int size = 5;\n  PRINT_ARRAY(numbers, size);\n  return 0;\n}\n// Output:\n// 1 2 3 4 5"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `PRINT_ARRAY` makrosu massivin elementlərini çap edir.\n- `do { ... } while (0)` konstruksiyası makronun təhlükəsiz istifadəsini təmin edir (məsələn, şərtli ifadələrdə səhvlərin qarşısını alır).\n- Preprocessor bu makronu kompilyasiyadan əvvəl müvafiq kodla əvəz edir."
+      },
+      {
+        "type": "heading",
+        "text": "Makrosların Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Makroslar kodun idarə edilməsini və təkrar istifadəsini asanlaşdırır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nOxunaqlılıq: Təkrarlanan kod əvəzinə makrolar istifadə olunur."
+          },
+          {
+            "description": "\nŞərti kompilyasiya: Kodun müxtəlif versiyalarını idarə etmək mümkündür."
+          },
+          {
+            "description": "\nPerformans: Makrolar funksiya çağırışlarının əvəzinə birbaşa kod yerləşdirir, bu da kiçik optimallaşdırmalar təmin edə bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Makroslar yeni başlayanlar üçün mürəkkəb ola bilər, çünki onların davranışını başa düşmək və səhvləri tapmaq çətin ola bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nSəhvlər: Makrolar səhv yazıldıqda gözlənilməz nəticələrə səbəb ola bilər."
+          },
+          {
+            "description": "\nDebug çətinliyi: Preprocessor səhvləri kompilyator tərəfindən aşkar edilmir."
+          },
+          {
+            "description": "\nOxunmazlıq: Mürəkkəb makrolar kodu anlaşılmaz edə bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Səhv makro təyinləri kodu qarışdıra və ya gözlənilməz davranışa səbəb ola bilər. Mürəkkəb makrolar debug etməyi çətinləşdirir. Həddindən artıq makro istifadəsi kodu idarəetməni çətinləşdirir.\n- **Tövsiyələr**: Makroları yalnız zəruri hallarda istifadə edin. Sadə və başa düşülən makrolar yazın. Funksiya makrolarında mötərizələrdən istifadə edin (məsələn, `(x) * (x)`). `do { ... } while (0)` ilə təhlükəsiz makrolar yaradın. Kodunuzu `gcc -E` ilə preprocess edilmiş formada yoxlayın."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə səhv makro təyini səbəbindən yanlış nəticə yaranır."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define BAD_SQUARE(x) x * x\n\nint main() {\n  int result = BAD_SQUARE(3 + 2);\n rq printf(\"Nəticə: %d\\n\", result);\n  return 0;\n}\n// Output:\n// Nəticə: 11 (səhv, gözlənilən: 25)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `BAD_SQUARE(3 + 2)` makrosu `3 + 2 * 3 + 2` kimi əvəz olunur, bu da operator prioritetinə görə 11 verir.\n- Gözlənilən nəticə `(3 + 2) * (3 + 2) = 25` olmalıdır.\n- Həll: `#define GOOD_SQUARE(x) ((x) * (x))` istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\n#define MAX(a, b) ((a) > (b) ? (a) : (b))\n\nint main() {\n  int x = 10, y = 20;\n  int result = MAX(x, y);\n  printf(\"Böyük ədəd: %d\\n\", result);\n  return 0;\n}\n// Output:\n// Böyük ədəd: 20"
+      }
+    ]
+  },
+  "en": {
+    "title": "Metaprogramming & Macros",
+    "icon": "FiCode",
+    "language": "c",
+    "description": "Advanced macro usage and code generation.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Metaprogramming and Macros?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C programming, metaprogramming refers to techniques that allow code to generate or modify itself. Macros are preprocessor directives in C that enable code transformation before compilation, using the `#define` directive. They simplify code reuse and enable dynamic code generation. This JSON file explains what macros are, how they are used, and provides simple examples. Code examples will work in Pyodide, as macros are supported by the C preprocessor."
+      },
+      {
+        "type": "heading",
+        "text": "What are Macros?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Macros are defined using the `#define` directive in C and are simple substitution rules processed by the preprocessor before compilation. For example, macros can define constants or reusable code snippets, making the code more readable and maintainable."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Macro Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "The following example uses a constant and a function-like macro."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define PI 3.14159\n#define SQUARE(x) ((x) * (x))\n\nint main() {\n  double radius = 5.0;\n  double area = PI * SQUARE(radius);\n  printf(\"Area of circle: %f\\n\", area);\n  return 0;\n}\n// Output:\n// Area of circle: 78.539750"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `#define PI 3.14159` defines a constant.\n- `#define SQUARE(x) ((x) * (x))` creates a macro to compute the square of a number.\n- The preprocessor replaces `PI` and `SQUARE(radius)` with their definitions before compilation.\n- Result: The code is more readable and reusable."
+      },
+      {
+        "type": "heading",
+        "text": "Conditional Macros"
+      },
+      {
+        "type": "paragraph",
+        "text": "Macros are also used for conditional compilation (`#ifdef`, `#ifndef`, `#endif`), allowing different parts of the code to be compiled based on conditions."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define DEBUG\n\nint main() {\n  int x = 10;\n  #ifdef DEBUG\n    printf(\"Debug mode: x = %d\\n\", x);\n  #else\n    printf(\"Normal mode\\n\");\n  #endif\n  return 0;\n}\n// Output:\n// Debug mode: x = 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `#define DEBUG` enables the `#ifdef DEBUG` block.\n- If `#define DEBUG` is removed, the `#else` block runs.\n- This simplifies managing debug or platform-specific code."
+      },
+      {
+        "type": "heading",
+        "text": "More Complex Macro Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example demonstrates dynamic code generation with a macro."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define PRINT_ARRAY(arr, size) \\\n  do { \\\n    for (int i = 0; i < size; i++) { \\\n      printf(\"%d \", arr[i]); \\\n    } \\\n    printf(\"\\n\"); \\\n  } while (0)\n\nint main() {\n  int numbers[] = {1, 2, 3, 4, 5};\n  int size = 5;\n  PRINT_ARRAY(numbers, size);\n  return 0;\n}\n// Output:\n// 1 2 3 4 5"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `PRINT_ARRAY` macro prints the elements of an array.\n- `do { ... } while (0)` ensures safe macro usage (e.g., avoids errors in conditional statements).\n- The preprocessor replaces the macro with the corresponding code before compilation."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Macros"
+      },
+      {
+        "type": "paragraph",
+        "text": "Macros simplify code management and reuse."
+      },
+      {
+        "type": "list",
+        "items": [
+          { "description": "\nReadability: Macros replace repetitive code." },
+          {
+            "description": "\nConditional compilation: Enables managing different code versions."
+          },
+          {
+            "description": "\nPerformance: Macros inline code, avoiding function call overhead."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Macros can be complex for beginners, as their behavior can be hard to understand and debug."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nErrors: Incorrect macros can lead to unexpected results."
+          },
+          {
+            "description": "\nDebugging difficulty: Preprocessor errors are not caught by the compiler."
+          },
+          {
+            "description": "\nReadability: Complex macros can make code harder to understand."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Incorrect macro definitions can confuse code or cause unexpected behavior. Complex macros are hard to debug. Overusing macros can make code difficult to manage.\n- **Recommendations**: Use macros only when necessary. Write simple and clear macros. Use parentheses in function-like macros (e.g., `(x) * (x)`). Use `do { ... } while (0)` for safe macros. Check preprocessed code with `gcc -E`."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example produces incorrect results due to a poorly defined macro."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define BAD_SQUARE(x) x * x\n\nint main() {\n  int result = BAD_SQUARE(3 + 2);\n  printf(\"Result: %d\\n\", result);\n  return 0;\n}\n// Output:\n// Result: 11 (incorrect, expected: 25)"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `BAD_SQUARE(3 + 2)` expands to `3 + 2 * 3 + 2`, which evaluates to 11 due to operator precedence.\n- Expected result is `(3 + 2) * (3 + 2) = 25`.\n- Solution: Use `#define GOOD_SQUARE(x) ((x) * (x))`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\n#define MAX(a, b) ((a) > (b) ? (a) : (b))\n\nint main() {\n  int x = 10, y = 20;\n  int result = MAX(x, y);\n  printf(\"Larger number: %d\\n\", result);\n  return 0;\n}\n// Output:\n// Larger number: 20"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Метапрограммирование и макросы",
+    "icon": "FiCode",
+    "language": "c",
+    "description": "Продвинутое использование макросов и генерация кода.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое метапрограммирование и макросы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C метапрограммирование — это техники, позволяющие коду создавать или изменять самого себя. Макросы — это директивы препроцессора, которые позволяют изменять код перед компиляцией с помощью `#define`. Они упрощают повторное использование кода и позволяют генерировать код динамически. Этот JSON-файл объясняет, что такое макросы, как они используются, и предоставляет простые примеры. Примеры кода будут работать в Pyodide, так как макросы поддерживаются препроцессором C."
+      },
+      {
+        "type": "heading",
+        "text": "Что такое макросы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Макросы определяются с помощью директивы `#define` в C и представляют собой простые правила замены, обрабатываемые препроцессором перед компиляцией. Например, макросы могут определять константы или повторяющиеся фрагменты кода, делая код более читаемым и управляемым."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример макроса"
+      },
+      {
+        "type": "paragraph",
+        "text": "В следующем примере используются константа и функциональный макрос."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define PI 3.14159\n#define SQUARE(x) ((x) * (x))\n\nint main() {\n  double radius = 5.0;\n  double area = PI * SQUARE(radius);\n  printf(\"Площадь круга: %f\\n\", area);\n  return 0;\n}\n// Output:\n// Площадь круга: 78.539750"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `#define PI 3.14159` определяет константу.\n- `#define SQUARE(x) ((x) * (x))` создаёт макрос для вычисления квадрата числа.\n- Препроцессор заменяет `PI` и `SQUARE(radius)` их определениями перед компиляцией.\n- Результат: Код становится более читаемым и переиспользуемым."
+      },
+      {
+        "type": "heading",
+        "text": "Условные макросы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Макросы также используются для условной компиляции (`#ifdef`, `#ifndef`, `#endif`), позволяя компилировать разные части кода в зависимости от условий."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define DEBUG\n\nint main() {\n  int x = 10;\n  #ifdef DEBUG\n    printf(\"Режим отладки: x = %d\\n\", x);\n  #else\n    printf(\"Нормальный режим\\n\");\n  #endif\n  return 0;\n}\n// Output:\n// Режим отладки: x = 10"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `#define DEBUG` активирует блок `#ifdef DEBUG`.\n- Если убрать `#define DEBUG`, выполнится блок `#else`.\n- Это упрощает управление отладочным или платформозависимым кодом."
+      },
+      {
+        "type": "heading",
+        "text": "Более сложный пример макроса"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример демонстрирует динамическую генерацию кода с помощью макроса."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define PRINT_ARRAY(arr, size) \\\n  do { \\\n    for (int i = 0; i < size; i++) { \\\n      printf(\"%d \", arr[i]); \\\n    } \\\n    printf(\"\\n\"); \\\n  } while (0)\n\nint main() {\n  int numbers[] = {1, 2, 3, 4, 5};\n  int size = 5;\n  PRINT_ARRAY(numbers, size);\n  return 0;\n}\n// Output:\n// 1 2 3 4 5"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Макрос `PRINT_ARRAY` выводит элементы массива.\n- Конструкция `do { ... } while (0)` обеспечивает безопасное использование макроса (например, предотвращает ошибки в условных операторах).\n- Препроцессор заменяет макрос соответствующим кодом перед компиляцией."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества макросов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Макросы упрощают управление кодом и его повторное использование."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nЧитаемость: Макросы заменяют повторяющийся код."
+          },
+          {
+            "description": "\nУсловная компиляция: Позволяет управлять разными версиями кода."
+          },
+          {
+            "description": "\nПроизводительность: Макросы встраивают код, избегая накладных расходов на вызов функций."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Макросы могут быть сложными для новичков, так как их поведение трудно понять и отлаживать."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nОшибки: Неправильные макросы могут привести к непредсказуемым результатам."
+          },
+          {
+            "description": "\nСложность отладки: Ошибки препроцессора не обнаруживаются компилятором."
+          },
+          {
+            "description": "\nЧитаемость: Сложные макросы могут сделать код менее понятным."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильные определения макросов могут запутать код или вызвать непредсказуемое поведение. Сложные макросы трудно отлаживать. Чрезмерное использование макросов затрудняет управление кодом.\n- **Рекомендации**: Используйте макросы только при необходимости. Пишите простые и понятные макросы. Используйте скобки в функциональных макросах (например, `(x) * (x)`). Применяйте `do { ... } while (0)` для безопасных макросов. Проверяйте препроцессированный код с помощью `gcc -E`."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример даёт неверный результат из-за плохого определения макроса."
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "#include <stdio.h>\n\n#define BAD_SQUARE(x) x * x\n\nint main() {\n  int result = BAD_SQUARE(3 + 2);\n  printf(\"Результат: %d\\n\", result);\n  return 0;\n}\n// Output:\n// Результат: 11 (неверно, ожидается: 25)"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Макрос `BAD_SQUARE(3 + 2)` раскрывается как `3 + 2 * 3 + 2`, что даёт 11 из-за приоритета операторов.\n- Ожидаемый результат: `(3 + 2) * (3 + 2) = 25`.\n- Решение: Используйте `#define GOOD_SQUARE(x) ((x) * (x))`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "#include <stdio.h>\n\n#define MAX(a, b) ((a) > (b) ? (a) : (b))\n\nint main() {\n  int x = 10, y = 20;\n  int result = MAX(x, y);\n  printf(\"Большее число: %d\\n\", result);\n  return 0;\n}\n// Output:\n// Большее число: 20"
+      }
+    ]
+  }
+}

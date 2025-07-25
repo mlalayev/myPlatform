@@ -1,0 +1,501 @@
+{
+  "id": "interfaces",
+  "az": {
+    "title": "İnterfeyslər",
+    "icon": "FiLink2",
+    "language": "csharp",
+    "description": "İnterfeyslərin yaradılması və istifadəsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "İnterfeyslər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində interfeys (interface) bir sinfin hansı metodları, xassələri və ya hadisələri tətbiq etməli olduğunu təyin edən bir müqavilədir. İnterfeyslər yalnız bu elementlərin imzalarını (adlarını və parametrlərini) ehtiva edir, lakin onların necə işlədiyini (tətbiqetməni) göstərmir. Bu, siniflərə çeviklik qatır və polimorfizmi dəstəkləyir. Məsələn, bir interfeys vasitəsilə fərqli nəqliyyat vasitələrinin (avtomobil, velosiped) eyni şəkildə işə salınması təmin edilə bilər. Bu JSON faylda interfeyslərin yaradılması, istifadəsi, abstrakt siniflərlə fərqləri və nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "İnterfeysin Yaradılması və İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeys `interface` açar sözü ilə təyin edilir və adətən `I` hərfi ilə başlayır (məsələn, `IVehicle`). Sinif interfeysi tətbiq etmək üçün `:` simvolundan istifadə edir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IVehicle\n{\n    void Start();\n    void Stop();\n}\n\nclass Car : IVehicle\n{\n    public void Start()\n    {\n        Console.WriteLine(\"Avtomobil işə salındı.\");\n    }\n\n    public void Stop()\n    {\n        Console.WriteLine(\"Avtomobil dayandırıldı.\");\n    }\n}\n\nclass Bicycle : IVehicle\n{\n    public void Start()\n    {\n        Console.WriteLine(\"Velosiped hərəkətə başladı.\");\n    }\n\n    public void Stop()\n    {\n        Console.WriteLine(\"Velosiped dayandırıldı.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IVehicle car = new Car();\n        IVehicle bicycle = new Bicycle();\n\n        car.Start();\n        car.Stop();\n        bicycle.Start();\n        bicycle.Stop();\n    }\n}\n// Output:\n// Avtomobil işə salındı.\n// Avtomobil dayandırıldı.\n// Velosiped hərəkətə başladı.\n// Velosiped dayandırıldı."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `IVehicle` interfeysi `Start` və `Stop` metodlarını tələb edir.\n- `Car` və `Bicycle` sinifləri bu metodları özünəməxsus şəkildə tətbiq edir.\n- İnterfeys sayəsində fərqli siniflər eyni metodları fərqli davranışlarla təmin edir.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Çoxlu İnterfeyslərin Tətbiqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# dilində bir sinf çoxlu interfeysləri tətbiq edə bilər, bu da sinfə müxtəlif davranışlar əlavə etməyə imkan verir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IDrawable\n{\n    void Draw();\n}\n\ninterface IMovable\n{\n    void Move();\n}\n\nclass Robot : IDrawable, IMovable\n{\n    public void Draw()\n    {\n        Console.WriteLine(\"Robot çəkilir.\");\n    }\n\n    public void Move()\n    {\n        Console.WriteLine(\"Robot hərəkət edir.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Robot robot = new Robot();\n        IDrawable drawable = robot;\n        IMovable movable = robot;\n\n        drawable.Draw();\n        movable.Move();\n    }\n}\n// Output:\n// Robot çəkilir.\n// Robot hərəkət edir."
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Robot` sinfi həm `IDrawable`, həm də `IMovable` interfeyslərini tətbiq edir.\n- Bu, sinfə həm çəkmə, həm də hərəkət etmə qabiliyyəti verir.\n- İnterfeyslər sinfin çoxsaylı rollarını təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "İnterfeyslər və Abstrakt Siniflər Arasındakı Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeyslər və abstrakt siniflər oxşar məqsədlərə xidmət etsə də, onların istifadəsi fərqlidir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nİnterfeyslər: Yalnız metod və xassə imzalarını ehtiva edir. Çoxlu interfeyslər tətbiq oluna bilər."
+          },
+          {
+            "description": "\nAbstrakt Siniflər: Həm abstrakt, həm də tətbiq edilmiş metodlar ola bilər. Yalnız tək sinfdən miras alına bilər."
+          },
+          {
+            "description": "\nİstifadə: İnterfeyslər davranış müqavilələri yaradır, abstrakt sinflər isə ümumi funksionallıq təmin edir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "İnterfeyslər və Polimorfizm"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeyslər polimorfizmi dəstəkləyir, çünki fərqli siniflər eyni interfeysi tətbiq edərək fərqli davranışlar nümayiş etdirə bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IAnimal\n{\n    void MakeSound();\n}\n\nclass Dog : IAnimal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"İt: Hav-hav!\");\n    }\n}\n\nclass Cat : IAnimal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"Pişik: Miyav!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IAnimal[] animals = { new Dog(), new Cat() };\n\n        foreach (IAnimal animal in animals)\n        {\n            animal.MakeSound();\n        }\n    }\n}\n// Output:\n// İt: Hav-hav!\n// Pişik: Miyav!"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `IAnimal` interfeysi `MakeSound` metodunu tələb edir.\n- `Dog` və `Cat` sinifləri bu metodu fərqli şəkildə tətbiq edir.\n- İnterfeys sayəsində fərqli sinflər eyni şəkildə idarə oluna bilər."
+      },
+      {
+        "type": "heading",
+        "text": "İnterfeyslərin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeyslər kodun çevikliyini və təkrar istifadəsini artırır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nÇeviklik: Fərqli siniflər eyni metodları tətbiq edə bilər."
+          },
+          {
+            "description": "\nÇoxlu Tətbiq: Bir sinf çoxlu interfeysləri dəstəkləyə bilər."
+          },
+          {
+            "description": "\nAbstraksiya: Daxili detallar gizlənərək kod sadələşir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeyslər yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəblik: Çoxlu interfeyslərin idarə edilməsi qarışıq ola bilər."
+          },
+          {
+            "description": "\nSəhv Tətbiq: İnterfeysin tələb etdiyi metodların tətbiq edilməməsi xətalara səbəb olur."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Həddindən artıq interfeys istifadəsi və ya səhv dizayn kodu mürəkkəbləşdirə bilər.\n- **Tövsiyələr**: İnterfeysləri sadə saxlayın, yalnız zəruri metodları təyin edin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə interfeysin tələb etdiyi metodun tətbiq edilməməsi səhvə səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IDrawable\n{\n    void Draw();\n}\n\nclass Shape : IDrawable\n{\n    // Draw metodu tətbiq edilməyib\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IDrawable shape = new Shape(); // Səhv: Shape Draw metodunu tətbiq etməyib\n    }\n}\n// Kompilyasiya xətası: 'Shape' must implement 'Draw' method"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Shape` sinfi `IDrawable` interfeysinin tələb etdiyi `Draw` metodunu tətbiq etməyib.\n- Bu, kompilyasiya xətasına səbəb olur.\n- Həll: `Shape` sinfində `Draw` metodunu tətbiq edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\ninterface IPrintable\n{\n    void Print();\n}\n\nclass Document : IPrintable\n{\n    private string title;\n\n    public Document(string title)\n    {\n        this.title = title;\n    }\n\n    public void Print()\n    {\n        Console.WriteLine($\"Sənəd çap olunur: {title}\");\n    }\n}\n\nclass Photo : IPrintable\n{\n    private string description;\n\n    public Photo(string description)\n    {\n        this.description = description;\n    }\n\n    public void Print()\n    {\n        Console.WriteLine($\"Şəkil çap olunur: {description}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IPrintable document = new Document(\"Rəsmi sənəd\");\n        IPrintable photo = new Photo(\"Gün batımı\");\n\n        document.Print();\n        photo.Print();\n    }\n}\n// Output:\n// Sənəd çap olunur: Rəsmi sənəd\n// Şəkil çap olunur: Gün batımı"
+      }
+    ]
+  },
+  "en": {
+    "title": "Interfaces",
+    "icon": "FiLink2",
+    "language": "csharp",
+    "description": "Creating and using interfaces.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Interfaces?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, an interface is a contract that specifies which methods, properties, or events a class must implement. Interfaces contain only the signatures (names and parameters) of these elements, without providing their implementation. This adds flexibility to classes and supports polymorphism. For example, an interface can ensure that different vehicles (car, bicycle) are started in a consistent way. This JSON file explains the creation, usage, differences from abstract classes, and examples of interfaces in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input."
+      },
+      {
+        "type": "heading",
+        "text": "Creating and Using Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "An interface is defined using the `interface` keyword and typically starts with an `I` (e.g., `IVehicle`). A class implements an interface using the `:` symbol."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IVehicle\n{\n    void Start();\n    void Stop();\n}\n\nclass Car : IVehicle\n{\n    public void Start()\n    {\n        Console.WriteLine(\"Car started.\");\n    }\n\n    public void Stop()\n    {\n        Console.WriteLine(\"Car stopped.\");\n    }\n}\n\nclass Bicycle : IVehicle\n{\n    public void Start()\n    {\n        Console.WriteLine(\"Bicycle started moving.\");\n    }\n\n    public void Stop()\n    {\n        Console.WriteLine(\"Bicycle stopped.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IVehicle car = new Car();\n        IVehicle bicycle = new Bicycle();\n\n        car.Start();\n        car.Stop();\n        bicycle.Start();\n        bicycle.Stop();\n    }\n}\n// Output:\n// Car started.\n// Car stopped.\n// Bicycle started moving.\n// Bicycle stopped."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `IVehicle` interface requires `Start` and `Stop` methods.\n- `Car` and `Bicycle` implement these methods in their own way.\n- The interface allows different classes to provide distinct behaviors for the same methods.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Implementing Multiple Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C#, a class can implement multiple interfaces, allowing it to take on various behaviors."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IDrawable\n{\n    void Draw();\n}\n\ninterface IMovable\n{\n    void Move();\n}\n\nclass Robot : IDrawable, IMovable\n{\n    public void Draw()\n    {\n        Console.WriteLine(\"Robot is drawn.\");\n    }\n\n    public void Move()\n    {\n        Console.WriteLine(\"Robot is moving.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Robot robot = new Robot();\n        IDrawable drawable = robot;\n        IMovable movable = robot;\n\n        drawable.Draw();\n        movable.Move();\n    }\n}\n// Output:\n// Robot is drawn.\n// Robot is moving."
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Robot` class implements both `IDrawable` and `IMovable` interfaces.\n- This enables the class to both draw and move.\n- Interfaces allow the class to take on multiple roles."
+      },
+      {
+        "type": "heading",
+        "text": "Differences Between Interfaces and Abstract Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces and abstract classes serve similar purposes but differ in usage."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nInterfaces: Contain only method and property signatures. A class can implement multiple interfaces."
+          },
+          {
+            "description": "\nAbstract Classes: Can include both abstract and implemented methods. A class can inherit from only one abstract class."
+          },
+          {
+            "description": "\nUsage: Interfaces define behavioral contracts; abstract classes provide common functionality."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Interfaces and Polymorphism"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces support polymorphism by allowing different classes to implement the same methods with different behaviors."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IAnimal\n{\n    void MakeSound();\n}\n\nclass Dog : IAnimal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"Dog: Woof!\");\n    }\n}\n\nclass Cat : IAnimal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"Cat: Meow!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IAnimal[] animals = { new Dog(), new Cat() };\n\n        foreach (IAnimal animal in animals)\n        {\n            animal.MakeSound();\n        }\n    }\n}\n// Output:\n// Dog: Woof!\n// Cat: Meow!"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `IAnimal` interface requires the `MakeSound` method.\n- `Dog` and `Cat` implement this method differently.\n- The interface allows different classes to be managed uniformly."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces enhance code flexibility and reusability."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nFlexibility: Different classes can implement the same methods."
+          },
+          {
+            "description": "\nMultiple Implementation: A class can support multiple interfaces."
+          },
+          {
+            "description": "\nAbstraction: Hides internal details, simplifying code."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces can present challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplexity: Managing multiple interfaces can be confusing."
+          },
+          {
+            "description": "\nIncorrect Implementation: Failing to implement required methods causes errors."
+          },
+          {
+            "description": "\nPyodide Limitation: C# code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Overusing interfaces or poor design can complicate code.\n- **Recommendations**: Keep interfaces simple, defining only necessary methods. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error by failing to implement a required interface method."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IDrawable\n{\n    void Draw();\n}\n\nclass Shape : IDrawable\n{\n    // Draw method not implemented\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IDrawable shape = new Shape(); // Error: Shape does not implement Draw method\n    }\n}\n// Compilation error: 'Shape' must implement 'Draw' method"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Shape` class does not implement the `Draw` method required by the `IDrawable` interface.\n- This results in a compilation error.\n- Solution: Implement the `Draw` method in `Shape`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\ninterface IPrintable\n{\n    void Print();\n}\n\nclass Document : IPrintable\n{\n    private string title;\n\n    public Document(string title)\n    {\n        this.title = title;\n    }\n\n    public void Print()\n    {\n        Console.WriteLine($\"Printing document: {title}\");\n    }\n}\n\nclass Photo : IPrintable\n{\n    private string description;\n\n    public Photo(string description)\n    {\n        this.description = description;\n    }\n\n    public void Print()\n    {\n        Console.WriteLine($\"Printing photo: {description}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IPrintable document = new Document(\"Official document\");\n        IPrintable photo = new Photo(\"Sunset\");\n\n        document.Print();\n        photo.Print();\n    }\n}\n// Output:\n// Printing document: Official document\n// Printing photo: Sunset"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Интерфейсы",
+    "icon": "FiLink2",
+    "language": "csharp",
+    "description": "Создание и использование интерфейсов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое интерфейсы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# интерфейс — это контракт, который определяет, какие методы, свойства или события должен реализовать класс. Интерфейсы содержат только сигнатуры этих элементов (имена и параметры), не предоставляя их реализацию. Это добавляет гибкость классам и поддерживает полиморфизм. Например, интерфейс может обеспечить единообразный запуск различных транспортных средств (машина, велосипед). Этот JSON-файл объясняет создание, использование, различия с абстрактными классами и примеры интерфейсов простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Создание и использование интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейс определяется с помощью ключевого слова `interface` и обычно начинается с буквы `I` (например, `IVehicle`). Класс реализует интерфейс с помощью символа `:`. "
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IVehicle\n{\n    void Start();\n    void Stop();\n}\n\nclass Car : IVehicle\n{\n    public void Start()\n    {\n        Console.WriteLine(\"Машина заведена.\");\n    }\n\n    public void Stop()\n    {\n        Console.WriteLine(\"Машина остановлена.\");\n    }\n}\n\nclass Bicycle : IVehicle\n{\n    public void Start()\n    {\n        Console.WriteLine(\"Велосипед начал движение.\");\n    }\n\n    public void Stop()\n    {\n        Console.WriteLine(\"Велосипед остановлен.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IVehicle car = new Car();\n        IVehicle bicycle = new Bicycle();\n\n        car.Start();\n        car.Stop();\n        bicycle.Start();\n        bicycle.Stop();\n    }\n}\n// Output:\n// Машина заведена.\n// Машина остановлена.\n// Велосипед начал движение.\n// Велосипед остановлен."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `IVehicle` требует методы `Start` и `Stop`.\n- Классы `Car` и `Bicycle` реализуют эти методы по-своему.\n- Интерфейс позволяет разным классам предоставлять различные поведения для одних и тех же методов.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Реализация нескольких интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "В C# класс может реализовать несколько интерфейсов, что позволяет ему выполнять различные функции."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IDrawable\n{\n    void Draw();\n}\n\ninterface IMovable\n{\n    void Move();\n}\n\nclass Robot : IDrawable, IMovable\n{\n    public void Draw()\n    {\n        Console.WriteLine(\"Робот нарисован.\");\n    }\n\n    public void Move()\n    {\n        Console.WriteLine(\"Робот движется.\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Robot robot = new Robot();\n        IDrawable drawable = robot;\n        IMovable movable = robot;\n\n        drawable.Draw();\n        movable.Move();\n    }\n}\n// Output:\n// Робот нарисован.\n// Робот движется."
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Robot` реализует интерфейсы `IDrawable` и `IMovable`.\n- Это позволяет классу выполнять функции рисования и движения.\n- Интерфейсы обеспечивают выполнение классом нескольких ролей."
+      },
+      {
+        "type": "heading",
+        "text": "Различия между интерфейсами и абстрактными классами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы и абстрактные классы служат схожим целям, но их использование различается."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nИнтерфейсы: Содержат только сигнатуры методов и свойств. Класс может реализовать несколько интерфейсов."
+          },
+          {
+            "description": "\nАбстрактные классы: Могут содержать как абстрактные, так и реализованные методы. Класс может наследовать только один абстрактный класс."
+          },
+          {
+            "description": "\nИспользование: Интерфейсы определяют контракты поведения, а абстрактные классы предоставляют общую функциональность."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Интерфейсы и полиморфизм"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы поддерживают полиморфизм, позволяя разным классам реализовывать одни и те же методы с разным поведением."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IAnimal\n{\n    void MakeSound();\n}\n\nclass Dog : IAnimal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"Собака: Гав-гав!\");\n    }\n}\n\nclass Cat : IAnimal\n{\n    public void MakeSound()\n    {\n        Console.WriteLine(\"Кот: Мяу!\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IAnimal[] animals = { new Dog(), new Cat() };\n\n        foreach (IAnimal animal in animals)\n        {\n            animal.MakeSound();\n        }\n    }\n}\n// Output:\n// Собака: Гав-гав!\n// Кот: Мяу!"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `IAnimal` требует метод `MakeSound`.\n- Классы `Dog` и `Cat` реализуют этот метод по-разному.\n- Интерфейс позволяет единообразно управлять разными классами."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы повышают гибкость и повторное использование кода."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nГибкость: Разные классы могут реализовывать одни и те же методы."
+          },
+          {
+            "description": "\nМножественная реализация: Класс может поддерживать несколько интерфейсов."
+          },
+          {
+            "description": "\nАбстракция: Скрытие внутренних деталей упрощает код."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы могут создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложность: Управление несколькими интерфейсами может быть запутанным."
+          },
+          {
+            "description": "\nНеправильная реализация: Нереализованные методы интерфейса вызывают ошибки."
+          },
+          {
+            "description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Чрезмерное использование интерфейсов или их плохой дизайн может усложнить код.\n- **Рекомендации**: Сохраняйте интерфейсы простыми, определяйте только необходимые методы. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку из-за отсутствия реализации требуемого метода интерфейса."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\ninterface IDrawable\n{\n    void Draw();\n}\n\nclass Shape : IDrawable\n{\n    // Метод Draw не реализован\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IDrawable shape = new Shape(); // Ошибка: Shape не реализует метод Draw\n    }\n}\n// Ошибка компиляции: 'Shape' должен реализовать метод 'Draw'"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Shape` не реализует метод `Draw`, требуемый интерфейсом `IDrawable`.\n- Это приводит к ошибке компиляции.\n- Решение: Реализуйте метод `Draw` в классе `Shape`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\ninterface IPrintable\n{\n    void Print();\n}\n\nclass Document : IPrintable\n{\n    private string title;\n\n    public Document(string title)\n    {\n        this.title = title;\n    }\n\n    public void Print()\n    {\n        Console.WriteLine($\"Печать документа: {title}\");\n    }\n}\n\nclass Photo : IPrintable\n{\n    private string description;\n\n    public Photo(string description)\n    {\n        this.description = description;\n    }\n\n    public void Print()\n    {\n        Console.WriteLine($\"Печать фотографии: {description}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        IPrintable document = new Document(\"Официальный документ\");\n        IPrintable photo = new Photo(\"Закат\");\n\n        document.Print();\n        photo.Print();\n    }\n}\n// Output:\n// Печать документа: Официальный документ\n// Печать фотографии: Закат"
+      }
+    ]
+  }
+}

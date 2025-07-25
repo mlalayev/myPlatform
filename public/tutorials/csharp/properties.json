@@ -1,0 +1,537 @@
+{
+  "id": "properties",
+  "az": {
+    "title": "Xüsusiyyətlər (Properties)",
+    "icon": "FiSettings",
+    "language": "csharp",
+    "description": "Property-lərin yaradılması və istifadəsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Xüsusiyyətlər (Properties) Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində xüsusiyyətlər (properties) sinif daxilindəki məlumatlara (sahələrə) nəzarətli şəkildə daxil olmaq və onları dəyişdirmək üçün istifadə olunur. Xüsusiyyətlər sahələri (fields) 'kapsulyasiya' etməyə imkan verir, yəni məlumatları qoruyur və onların necə oxunacağını və ya dəyişdiriləcəyini idarə edir. Xüsusiyyətlər metodlara bənzəyir, lakin sintaksis baxımından dəyişənlər kimi istifadə olunur. Bu JSON faylda xüsusiyyətlərin yaradılması, istifadəsi, avtomatik xüsusiyyətlər, yalnız oxuma və yalnız yazma xüsusiyyətləri, həmçinin nümunələr sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Xüsusiyyətlərin Yaradılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xüsusiyyətlər `get` (almaq) və `set` (təyin etmək) aksessorları ilə yaradılır. `get` məlumatı qaytarır, `set` isə məlumatı dəyişdirir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    private string name; // Şəxsi sahə\n\n    public string Name\n    {\n        get { return name; }\n        set { name = value; }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person();\n        person.Name = \"Ali\"; // set istifadə olunur\n        Console.WriteLine($\"Ad: {person.Name}\"); // get istifadə olunur\n    }\n}\n// Output:\n// Ad: Ali"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `name` şəxsi sahədir (private field) və birbaşa daxil olmaq mümkün deyil.\n- `Name` xüsusiyyəti `get` və `set` aksessorları ilə bu sahəyə nəzarətli giriş təmin edir.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Avtomatik Xüsusiyyətlər (Auto-Implemented Properties)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əgər xüsusiyyət sadəcə bir sahəni saxlayıb qaytaracaqsa, avtomatik xüsusiyyətlərdən istifadə olunur. Bu, kodu daha qısa edir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    public string Name { get; set; } // Avtomatik xüsusiyyət\n    public int Age { get; set; }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person();\n        person.Name = \"Ayşə\";\n        person.Age = 25;\n        Console.WriteLine($\"Ad: {person.Name}, Yaş: {person.Age}\");\n    }\n}\n// Output:\n// Ad: Ayşə, Yaş: 25"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Name` və `Age` avtomatik xüsusiyyətlərdir.\n- Arxa planda kompilyator avtomatik olaraq şəxsi sahə yaradır.\n- Bu, sadə və oxunaqlı kod yazmağa imkan verir."
+      },
+      {
+        "type": "heading",
+        "text": "Yalnız Oxuma (Read-Only) Xüsusiyyətlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yalnız oxuma xüsusiyyətləri yalnız `get` aksessorumuza malikdir və xarici kod tərəfindən dəyişdirilə bilməz."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    private readonly string id; // Yalnız oxuma sahəsi\n\n    public Person(string id)\n    {\n        this.id = id;\n    }\n\n    public string Id { get { return id; } } // Yalnız oxuma xüsusiyyəti\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person(\"12345\");\n        Console.WriteLine($\"ID: {person.Id}\");\n        // person.Id = \"67890\"; // Kompilyator xətası: Yalnız oxuma xüsusiyyəti\n    }\n}\n// Output:\n// ID: 12345"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Id` xüsusiyyəti yalnız oxuma üçündür, çünki yalnız `get` aksessorumuz var.\n- `id` sahəsi konstruktor vasitəsilə təyin edilir və sonra dəyişdirilə bilməz."
+      },
+      {
+        "type": "heading",
+        "text": "Yalnız Yazma (Write-Only) Xüsusiyyətlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yalnız yazma xüsusiyyətləri yalnız `set` aksessorumuza malikdir və məlumatı oxumağa imkan vermir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Logger\n{\n    private string logMessage;\n\n    public string LogMessage\n    {\n        set { logMessage = value; }\n    }\n\n    public void ShowLog()\n    {\n        Console.WriteLine($\"Log: {logMessage}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Logger logger = new Logger();\n        logger.LogMessage = \"Xəta baş verdi\";\n        logger.ShowLog();\n        // Console.WriteLine(logger.LogMessage); // Kompilyator xətası: Yalnız yazma xüsusiyyəti\n    }\n}\n// Output:\n// Log: Xəta baş verdi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `LogMessage` yalnız yazma xüsusiyyətidir, çünki yalnız `set` aksessorumuz var.\n- Məlumat yalnız `ShowLog` metodu ilə oxuna bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Kapsulyasiya ilə Əlaqə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xüsusiyyətlər kapsulyasiyanı təmin edir, yəni şəxsi sahələrə nəzarətli giriş imkanı yaradır. Bu, məlumatların qorunmasını və düzgün istifadəsini təmin edir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    private decimal balance;\n\n    public decimal Balance\n    {\n        get { return balance; }\n        set\n        {\n            if (value >= 0)\n            {\n                balance = value;\n            }\n            else\n            {\n                Console.WriteLine(\"Balans mənfi ola bilməz!\");\n            }\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount();\n        account.Balance = 1000;\n        Console.WriteLine($\"Balans: {account.Balance}\");\n        account.Balance = -500; // Xəta mesajı göstəriləcək\n        Console.WriteLine($\"Balans: {account.Balance}\");\n    }\n}\n// Output:\n// Balans: 1000\n// Balans mənfi ola bilməz!\n// Balans: 1000"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Balance` xüsusiyyəti `set` aksessorunda mənfi dəyərləri qəbul etmir.\n- Bu, kapsulyasiya sayəsində məlumatların düzgünlüyünü təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Xüsusiyyətlərin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xüsusiyyətlər kodun idarə edilməsini asanlaşdırır."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nKapsulyasiya: Məlumatlara nəzarətli giriş təmin edir."
+          },
+          {
+            "description": "\nOxunaqlılıq: Kod daha sadə və başa düşülən olur."
+          },
+          {
+            "description": "\nÇeviklik: `get` və `set` aksessorlarında məntiq əlavə etmək mümkündür."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xüsusiyyətlər yeni başlayanlar üçün bəzi çətinliklər yarada bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nFərqləndirmə: Xüsusiyyətləri metodlardan və dəyişənlərdən fərqləndirmək çətin ola bilər."
+          },
+          {
+            "description": "\nMəntiq: Mürəkkəb `get` və `set` aksessorları kodun oxunaqlığını azalda bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# kodları Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Həddindən artıq mürəkkəb xüsusiyyətlər kodun başa düşülməsini çətinləşdirə bilər.\n- **Tövsiyələr**: Sadə xüsusiyyətlərdə avtomatik xüsusiyyətlərdən istifadə edin. Məlumat doğruluğunu təmin etmək üçün `set` aksessorunda yoxlamalar əlavə edin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə xüsusiyyətdə `set` aksessorunun olmaması səhvə səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    public string Name { get; } // Yalnız oxuma xüsusiyyəti\n\n    public Person(string name)\n    {\n        Name = name;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person(\"Veli\");\n        Console.WriteLine($\"Ad: {person.Name}\");\n        // person.Name = \"Ayşə\"; // Kompilyator xətası: Yalnız oxuma xüsusiyyəti\n    }\n}\n// Output:\n// Ad: Veli"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Name` yalnız oxuma xüsusiyyətidir, çünki yalnız `get` var.\n- Xarici kod tərəfindən dəyişdirilməyə cəhd edildikdə kompilyator xətası yaranır.\n- Həll: Əgər dəyişdirilmə lazımdırsa, `set` aksessorumuzu əlavə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Student\n{\n    private string name;\n    private int grade;\n\n    public string Name\n    {\n        get { return name; }\n        set { name = value; }\n    }\n\n    public int Grade\n    {\n        get { return grade; }\n        set\n        {\n            if (value >= 0 && value <= 100)\n            {\n                grade = value;\n            }\n            else\n            {\n                Console.WriteLine(\"Qiymət 0-100 aralığında olmalıdır!\");\n            }\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Student student = new Student();\n        student.Name = \"Zeynəb\";\n        student.Grade = 85;\n        Console.WriteLine($\"Tələbə: {student.Name}, Qiymət: {student.Grade}\");\n        student.Grade = 150; // Xəta mesajı göstəriləcək\n        Console.WriteLine($\"Tələbə: {student.Name}, Qiymət: {student.Grade}\");\n    }\n}\n// Output:\n// Tələbə: Zeynəb, Qiymət: 85\n// Qiymət 0-100 aralığında olmalıdır!\n// Tələbə: Zeynəb, Qiymət: 85"
+      }
+    ]
+  },
+  "en": {
+    "title": "Properties",
+    "icon": "FiSettings",
+    "language": "csharp",
+    "description": "Creating and using properties.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Properties?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, properties are used to provide controlled access to a class’s data (fields). Properties enable encapsulation, protecting data and controlling how it is accessed or modified. They behave like methods but are used syntactically like variables. This JSON file explains the creation, usage, auto-implemented properties, read-only and write-only properties, and examples in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values and do not require user input."
+      },
+      {
+        "type": "heading",
+        "text": "Creating Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Properties are created with `get` (retrieve) and `set` (assign) accessors. The `get` accessor returns data, and the `set` accessor modifies it."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    private string name; // Private field\n\n    public string Name\n    {\n        get { return name; }\n        set { name = value; }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person();\n        person.Name = \"Ali\"; // Uses set\n        Console.WriteLine($\"Name: {person.Name}\"); // Uses get\n    }\n}\n// Output:\n// Name: Ali"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `name` is a private field, inaccessible directly.\n- The `Name` property provides controlled access to the field using `get` and `set`.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Auto-Implemented Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "If a property only stores and retrieves a field, auto-implemented properties can be used to simplify the code."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    public string Name { get; set; } // Auto-implemented property\n    public int Age { get; set; }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person();\n        person.Name = \"Ayşe\";\n        person.Age = 25;\n        Console.WriteLine($\"Name: {person.Name}, Age: {person.Age}\");\n    }\n}\n// Output:\n// Name: Ayşe, Age: 25"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Name` and `Age` are auto-implemented properties.\n- The compiler automatically creates a private backing field.\n- This makes the code concise and readable."
+      },
+      {
+        "type": "heading",
+        "text": "Read-Only Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Read-only properties have only a `get` accessor and cannot be modified by external code."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    private readonly string id; // Read-only field\n\n    public Person(string id)\n    {\n        this.id = id;\n    }\n\n    public string Id { get { return id; } } // Read-only property\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person(\"12345\");\n        Console.WriteLine($\"ID: {person.Id}\");\n        // person.Id = \"67890\"; // Compile-time error: Read-only property\n    }\n}\n// Output:\n// ID: 12345"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Id` property is read-only because it has only a `get` accessor.\n- The `id` field is set via the constructor and cannot be changed afterward."
+      },
+      {
+        "type": "heading",
+        "text": "Write-Only Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Write-only properties have only a `set` accessor and do not allow data retrieval."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Logger\n{\n    private string logMessage;\n\n    public string LogMessage\n    {\n        set { logMessage = value; }\n    }\n\n    public void ShowLog()\n    {\n        Console.WriteLine($\"Log: {logMessage}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Logger logger = new Logger();\n        logger.LogMessage = \"Error occurred\";\n        logger.ShowLog();\n        // Console.WriteLine(logger.LogMessage); // Compile-time error: Write-only property\n    }\n}\n// Output:\n// Log: Error occurred"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `LogMessage` is a write-only property because it has only a `set` accessor.\n- The data can only be retrieved via the `ShowLog` method."
+      },
+      {
+        "type": "heading",
+        "text": "Relation to Encapsulation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Properties enable encapsulation by providing controlled access to private fields, ensuring data protection and proper usage."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    private decimal balance;\n\n    public decimal Balance\n    {\n        get { return balance; }\n        set\n        {\n            if (value >= 0)\n            {\n                balance = value;\n            }\n            else\n            {\n                Console.WriteLine(\"Balance cannot be negative!\");\n            }\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount();\n        account.Balance = 1000;\n        Console.WriteLine($\"Balance: {account.Balance}\");\n        account.Balance = -500; // Error message will be displayed\n        Console.WriteLine($\"Balance: {account.Balance}\");\n    }\n}\n// Output:\n// Balance: 1000\n// Balance cannot be negative!\n// Balance: 1000"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Balance` property prevents negative values in the `set` accessor.\n- This ensures data integrity through encapsulation."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Properties simplify data management."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nEncapsulation: Provides controlled access to data."
+          },
+          {
+            "description": "\nReadability: Makes code simpler and more intuitive."
+          },
+          {
+            "description": "\nFlexibility: Allows logic in `get` and `set` accessors."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Properties can present challenges for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nDifferentiation: Distinguishing properties from methods or variables can be confusing."
+          },
+          {
+            "description": "\nLogic: Complex `get` and `set` accessors may reduce readability."
+          },
+          {
+            "description": "\nPyodide Limitation: C# code is not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Overly complex properties can make code harder to understand.\n- **Recommendations**: Use auto-implemented properties for simple cases. Add validation logic in `set` accessors to ensure data integrity. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error by attempting to modify a read-only property."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    public string Name { get; } // Read-only property\n\n    public Person(string name)\n    {\n        Name = name;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person(\"Veli\");\n        Console.WriteLine($\"Name: {person.Name}\");\n        // person.Name = \"Ayşe\"; // Compile-time error: Read-only property\n    }\n}\n// Output:\n// Name: Veli"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Name` is a read-only property because it has only a `get` accessor.\n- Attempting to modify it from external code causes a compile-time error.\n- Solution: Add a `set` accessor if modification is needed."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Student\n{\n    private string name;\n    private int grade;\n\n    public string Name\n    {\n        get { return name; }\n        set { name = value; }\n    }\n\n    public int Grade\n    {\n        get { return grade; }\n        set\n        {\n            if (value >= 0 && value <= 100)\n            {\n                grade = value;\n            }\n            else\n            {\n                Console.WriteLine(\"Grade must be between 0 and 100!\");\n            }\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Student student = new Student();\n        student.Name = \"Zeyneb\";\n        student.Grade = 85;\n        Console.WriteLine($\"Student: {student.Name}, Grade: {student.Grade}\");\n        student.Grade = 150; // Error message will be displayed\n        Console.WriteLine($\"Student: {student.Name}, Grade: {student.Grade}\");\n    }\n}\n// Output:\n// Student: Zeyneb, Grade: 85\n// Grade must be between 0 and 100!\n// Student: Zeyneb, Grade: 85"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Свойства (Properties)",
+    "icon": "FiSettings",
+    "language": "csharp",
+    "description": "Создание и использование свойств.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое свойства?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# свойства (properties) используются для контролируемого доступа к данным класса (полям). Свойства обеспечивают инкапсуляцию, защищая данные и управляя тем, как они считываются или изменяются. Они похожи на методы, но используются как переменные в синтаксисе. Этот JSON-файл объясняет создание, использование, автоматически реализуемые свойства, свойства только для чтения и только для записи, а также примеры простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения и не требуют ввода от пользователя."
+      },
+      {
+        "type": "heading",
+        "text": "Создание свойств"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства создаются с помощью аксессоров `get` (получение) и `set` (установка). Аксессор `get` возвращает данные, а `set` изменяет их."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    private string name; // Приватное поле\n\n    public string Name\n    {\n        get { return name; }\n        set { name = value; }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person();\n        person.Name = \"Али\"; // Используется set\n        Console.WriteLine($\"Имя: {person.Name}\"); // Используется get\n    }\n}\n// Output:\n// Имя: Али"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `name` — приватное поле, недоступное напрямую.\n- Свойство `Name` предоставляет контролируемый доступ к полю с помощью `get` и `set`.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Автоматически реализуемые свойства"
+      },
+      {
+        "type": "paragraph",
+        "text": "Если свойство только сохраняет и возвращает поле, можно использовать автоматически реализуемые свойства для упрощения кода."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    public string Name { get; set; } // Автоматически реализуемое свойство\n    public int Age { get; set; }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person();\n        person.Name = \"Айше\";\n        person.Age = 25;\n        Console.WriteLine($\"Имя: {person.Name}, Возраст: {person.Age}\");\n    }\n}\n// Output:\n// Имя: Айше, Возраст: 25"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Name` и `Age` — автоматически реализуемые свойства.\n- Компилятор автоматически создаёт приватное поле.\n- Это делает код лаконичным и читаемым."
+      },
+      {
+        "type": "heading",
+        "text": "Свойства только для чтения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства только для чтения имеют только аксессор `get` и не могут быть изменены внешним кодом."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    private readonly string id; // Поле только для чтения\n\n    public Person(string id)\n    {\n        this.id = id;\n    }\n\n    public string Id { get { return id; } } // Свойство только для чтения\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person(\"12345\");\n        Console.WriteLine($\"ID: {person.Id}\");\n        // person.Id = \"67890\"; // Ошибка компиляции: Свойство только для чтения\n    }\n}\n// Output:\n// ID: 12345"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Свойство `Id` предназначено только для чтения, так как имеет только аксессор `get`.\n- Поле `id` устанавливается через конструктор и не может быть изменено позже."
+      },
+      {
+        "type": "heading",
+        "text": "Свойства только для записи"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства только для записи имеют только аксессор `set` и не позволяют считывать данные."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Logger\n{\n    private string logMessage;\n\n    public string LogMessage\n    {\n        set { logMessage = value; }\n    }\n\n    public void ShowLog()\n    {\n        Console.WriteLine($\"Лог: {logMessage}\");\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Logger logger = new Logger();\n        logger.LogMessage = \"Произошла ошибка\";\n        logger.ShowLog();\n        // Console.WriteLine(logger.LogMessage); // Ошибка компиляции: Свойство только для записи\n    }\n}\n// Output:\n// Лог: Произошла ошибка"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `LogMessage` — свойство только для записи, так как имеет только аксессор `set`.\n- Данные могут быть считаны только через метод `ShowLog`."
+      },
+      {
+        "type": "heading",
+        "text": "Связь с инкапсуляцией"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства обеспечивают инкапсуляцию, предоставляя контролируемый доступ к приватным полям, что защищает данные и обеспечивает их правильное использование."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass BankAccount\n{\n    private decimal balance;\n\n    public decimal Balance\n    {\n        get { return balance; }\n        set\n        {\n            if (value >= 0)\n            {\n                balance = value;\n            }\n            else\n            {\n                Console.WriteLine(\"Balans mənfi ola bilməz!\");\n            }\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        BankAccount account = new BankAccount();\n        account.Balance = 1000;\n        Console.WriteLine($\"Balans: {account.Balance}\");\n        account.Balance = -500; // Xəta mesajı göstəriləcək\n        Console.WriteLine($\"Balans: {account.Balance}\");\n    }\n}\n// Output:\n// Balans: 1000\n// Balans mənfi ola bilməz!\n// Balans: 1000"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Свойство `Balance` предотвращает установку отрицательных значений в аксессоре `set`.\n- Это обеспечивает целостность данных благодаря инкапсуляции."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества свойств"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства упрощают управление данными."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nИнкапсуляция: Обеспечивает контролируемый доступ к данным."
+          },
+          {
+            "description": "\nЧитаемость: Делает код проще и понятнее."
+          },
+          {
+            "description": "\nГибкость: Позволяет добавлять логику в аксессоры `get` и `set`."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства могут создавать трудности для начинающих."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nРазличение: Отличить свойства от методов или переменных может быть сложно."
+          },
+          {
+            "description": "\nЛогика: Сложные аксессоры `get` и `set` могут снизить читаемость кода."
+          },
+          {
+            "description": "\nОграничение Pyodide: Код на C# не полностью поддерживается в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Слишком сложные свойства могут затруднить понимание кода.\n- **Рекомендации**: Используйте автоматически реализуемые свойства для простых случаев. Добавляйте проверки в аксессоры `set` для обеспечения целостности данных. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку при попытке изменить свойство только для чтения."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Person\n{\n    public string Name { get; } // Свойство только для чтения\n\n    public Person(string name)\n    {\n        Name = name;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Person person = new Person(\"Вели\");\n        Console.WriteLine($\"Имя: {person.Name}\");\n        // person.Name = \"Айше\"; // Ошибка компиляции: Свойство только для чтения\n    }\n}\n// Output:\n// Имя: Вели"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Name` — свойство только для чтения, так как имеет только аксессор `get`.\n- Попытка изменить его из внешнего кода вызывает ошибку компиляции.\n- Решение: Добавьте аксессор `set`, если требуется возможность изменения."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\n\nclass Student\n{\n    private string name;\n    private int grade;\n\n    public string Name\n    {\n        get { return name; }\n        set { name = value; }\n    }\n\n    public int Grade\n    {\n        get { return grade; }\n        set\n        {\n            if (value >= 0 && value <= 100)\n            {\n                grade = value;\n            }\n            else\n            {\n                Console.WriteLine(\"Оценка должна быть в диапазоне от 0 до 100!\");\n            }\n        }\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Student student = new Student();\n        student.Name = \"Зейнеб\";\n        student.Grade = 85;\n        Console.WriteLine($\"Студент: {student.Name}, Оценка: {student.Grade}\");\n        student.Grade = 150; // Сообщение об ошибке будет выведено\n        Console.WriteLine($\"Студент: {student.Name}, Оценка: {student.Grade}\");\n    }\n}\n// Output:\n// Студент: Зейнеб, Оценка: 85\n// Оценка должна быть в диапазоне от 0 до 100!\n// Студент: Зейнеб, Оценка: 85"
+      }
+    ]
+  }
+}

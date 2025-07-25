@@ -1,0 +1,537 @@
+{
+  "id": "dynamic",
+  "az": {
+    "title": "Dinamik Proqramlaşdırma & DLR",
+    "icon": "FiZap",
+    "language": "csharp",
+    "description": "Dinamik obyektlər və Dynamic Language Runtime.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Dinamik Proqramlaşdırma və DLR Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C# proqramlaşdırma dilində dinamik proqramlaşdırma icra zamanı obyektlərin tiplərini və ya davranışlarını müəyyənləşdirməyə imkan verir. `dynamic` açar sözü ilə statik tip yoxlamasını keçərək icra zamanı əməliyyatlar yerinə yetirilir. Dynamic Language Runtime (DLR) isə C#-ın dinamik dillərlə (məsələn, Python və ya JavaScript) işləməsini asanlaşdıran infrastruktur təmin edir. DLR dinamik metod çağırışlarını, xassələri və obyektləri idarə edir. Bu JSON faylda `dynamic` açar sözü, `ExpandoObject`, `DynamicObject`, DLR-nin rolu, dinamik metod çağırışları, üstünlükləri və çətinlikləri sadə şəkildə izah olunacaq. Kod nümunələri .NET 8 ilə uyğundur, lakin Pyodide-da C# dəstəyi məhdud olduğu üçün Visual Studio Code və ya Visual Studio ilə .NET SDK istifadə edilərək sınaqdan keçirilməlidir. Kodları işə salmaq üçün `dotnet run` əmrindən istifadə edin. Nümunələr istifadəçi girişi tələb etmir, statik dəyərlərdən istifadə olunur və Pyodide məhdudiyyətlərinə uyğun olaraq şəbəkə çağırışları və fayl əməliyyatları əvəzinə sadə dinamik obyektlər üzərində əməliyyatlar icra edilir."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Dinamik Obyekt Nümunəsi: `dynamic` Açar Sözü"
+      },
+      {
+        "type": "paragraph",
+        "text": "`dynamic` açar sözü ilə tiplər icra zamanı müəyyənləşdirilir."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Dinamik obyekt istifadəsi...\");\n        dynamic person = new { Name = \"Ayxan\", Age = 25 };\n        Console.WriteLine($\"Ad: {person.Name}\");\n        Console.WriteLine($\"Yaş: {person.Age}\");\n    }\n}\n// Output:\n// Dinamik obyekt istifadəsi...\n// Ad: Ayxan\n// Yaş: 25"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `dynamic` ilə anonim obyekt yaradılır.\n- Xassələrə icra zamanı daxil olunur, statik tip yoxlaması keçirilmir.\n- Qeyd: Kod .NET SDK ilə Visual Studio Code-da `dotnet run` əmri ilə işə salına bilər."
+      },
+      {
+        "type": "heading",
+        "text": "`ExpandoObject` ilə Dinamik Obyektlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "`ExpandoObject` ilə icra zamanı xassələr əlavə edilə və ya silinə bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Dynamic;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"ExpandoObject istifadəsi...\");\n        dynamic person = new ExpandoObject();\n        person.Name = \"Ayxan\";\n        person.Age = 25;\n        Console.WriteLine($\"Ad: {person.Name}\");\n        Console.WriteLine($\"Yaş: {person.Age}\");\n\n        // Yeni xassə əlavə etmək\n        person.City = \"Bakı\";\n        Console.WriteLine($\"Şəhər: {person.City}\");\n    }\n}\n// Output:\n// ExpandoObject istifadəsi...\n// Ad: Ayxan\n// Yaş: 25\n// Şəhər: Bakı"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ExpandoObject` ilə dinamik obyekt yaradılır.\n- Xassələr icra zamanı əlavə edilir.\n- DLR xassələrin idarə olunmasını təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "`DynamicObject` ilə Xüsusi Dinamik Davranış"
+      },
+      {
+        "type": "paragraph",
+        "text": "`DynamicObject` sinfi ilə öz dinamik davranışınızı müəyyənləşdirə bilərsiniz."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Dynamic;\nusing System.Collections.Generic;\n\nclass DynamicDictionary : DynamicObject\n{\n    private Dictionary<string, object> _data = new Dictionary<string, object>();\n\n    public override bool TryGetMember(GetMemberBinder binder, out object result)\n    {\n        return _data.TryGetValue(binder.Name, out result);\n    }\n\n    public override bool TrySetMember(SetMemberBinder binder, object value)\n    {\n        _data[binder.Name] = value;\n        return true;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"DynamicObject istifadəsi...\");\n        dynamic obj = new DynamicDictionary();\n        obj.Name = \"Ayxan\";\n        obj.Age = 25;\n        Console.WriteLine($\"Ad: {obj.Name}\");\n        Console.WriteLine($\"Yaş: {obj.Age}\");\n    }\n}\n// Output:\n// DynamicObject istifadəsi...\n// Ad: Ayxan\n// Yaş: 25"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `DynamicDictionary` sinfi `DynamicObject`-dən miras alır.\n- `TryGetMember` və `TrySetMember` metodları ilə xassələrə daxil olma və təyin etmə idarə olunur.\n- DLR bu dinamik davranışları dəstəkləyir."
+      },
+      {
+        "type": "heading",
+        "text": "Dinamik Metod Çağırışı"
+      },
+      {
+        "type": "paragraph",
+        "text": "`dynamic` ilə metodlar icra zamanı çağırıla bilər."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Dynamic;\nusing System.Collections.Generic;\n\nclass DynamicCalculator : DynamicObject\n{\n    private Dictionary<string, Func<int, int, int>> _methods = new Dictionary<string, Func<int, int, int>>\n    {\n        { \"Add\", (a, b) => a + b },\n        { \"Multiply\", (a, b) => a * b }\n    };\n\n    public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)\n    {\n        if (_methods.TryGetValue(binder.Name, out var method))\n        {\n            result = method((int)args[0], (int)args[1]);\n            return true;\n        }\n        result = null;\n        return false;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Dinamik metod çağırışı...\");\n        dynamic calc = new DynamicCalculator();\n        int sum = calc.Add(5, 3);\n        int product = calc.Multiply(5, 3);\n        Console.WriteLine($\"Toplama: 5 + 3 = {sum}\");\n        Console.WriteLine($\"Vurma: 5 * 3 = {product}\");\n    }\n}\n// Output:\n// Dinamik metod çağırışı...\n// Toplama: 5 + 3 = 8\n// Vurma: 5 * 3 = 15"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `DynamicCalculator` sinfi dinamik metod çağırışlarını idarə edir.\n- `TryInvokeMember` ilə metodlar icra edilir.\n- DLR metod çağırışlarını dəstəkləyir."
+      },
+      {
+        "type": "heading",
+        "text": "İstisna İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dinamik proqramlaşdırmada səhvlər, məsələn, mövcud olmayan xassəyə daxil olma, `try-catch` ilə idarə olunur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Dynamic;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Dinamik səhv idarəetməsi...\");\n        dynamic person = new ExpandoObject();\n        person.Name = \"Ayxan\";\n        try\n        {\n            Console.WriteLine($\"Mövcud olmayan xassə: {person.NonExistent}\");\n        }\n        catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException ex)\n        {\n            Console.WriteLine(\"Səhv: Xassə tapılmadı!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Dinamik səhv idarəetməsi...\n// Səhv: Xassə tapılmadı!\n// Səhv mesajı: 'System.Dynamic.ExpandoObject' does not contain a definition for 'NonExistent'"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Mövcud olmayan xassəyə daxil olmağa cəhd edilir.\n- `RuntimeBinderException` yaranır və `try-catch` ilə idarə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Dinamik Proqramlaşdırmanın Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dinamik proqramlaşdırma və DLR çeviklik təmin edir."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nEsneklik: İcra zamanı xassələr və metodlar əlavə edilə bilər."
+          },
+          {
+            "description": "\nDinamik Dillərlə Inteqrasiya: Python və ya JavaScript kimi dillərlə işləməyi asanlaşdırır."
+          },
+          {
+            "description": "\nSadəlik: Mürəkkəb refleksiyaya alternativ olaraq daha sadə sintaksis təklif edir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dinamik proqramlaşdırma yeni başlayanlar üçün çətin ola bilər."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nTip Təhlükəsizliyi: Statik tip yoxlaması olmadığı üçün icra zamanı səhvlər ola bilər."
+          },
+          {
+            "description": "\nPerformans: DLR ilə dinamik əməliyyatlar statik kodlardan yavaş ola bilər."
+          },
+          {
+            "description": "\nPyodide Məhdudiyyəti: C# dinamik obyektləri Pyodide-da tam dəstəklənmir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Mövcud olmayan xassə və ya metodlara daxil olma icra zamanı səhvlərə səbəb ola bilər.\n- **Tövsiyələr**: Dinamik obyektləri yalnız zəruri hallarda istifadə edin. `try-catch` ilə səhvləri idarə edin. Kodları Visual Studio Code-da .NET SDK ilə sınaqdan keçirin (`dotnet run`). Microsoft-un rəsmi sənədlərindən (https://learn.microsoft.com/dotnet/csharp/) istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu nümunədə mövcud olmayan metodun çağırılması səhvə səbəb olur."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Dynamic;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Səhvə yol açan dinamik çağırış...\");\n        dynamic calc = new ExpandoObject();\n        try\n        {\n            calc.NonExistentMethod(5, 3);\n        }\n        catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException ex)\n        {\n            Console.WriteLine(\"Səhv: Metod tapılmadı!\");\n            Console.WriteLine($\"Səhv mesajı: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Səhvə yol açan dinamik çağırış...\n// Səhv: Metod tapılmadı!\n// Səhv mesajı: 'System.Dynamic.ExpandoObject' does not contain a definition for 'NonExistentMethod'"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Mövcud olmayan metod çağırılır.\n- `RuntimeBinderException` yaranır və `try-catch` ilə idarə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Dynamic;\nusing System.Collections.Generic;\n\nclass DynamicBag : DynamicObject\n{\n    private Dictionary<string, object> _data = new Dictionary<string, object>();\n\n    public override bool TryGetMember(GetMemberBinder binder, out object result)\n    {\n        return _data.TryGetValue(binder.Name, out result);\n    }\n\n    public override bool TrySetMember(SetMemberBinder binder, object value)\n    {\n        _data[binder.Name] = value;\n        return true;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Dinamik sınaq...\");\n        try\n        {\n            dynamic bag = new DynamicBag();\n            bag.Name = \"Ayxan\";\n            bag.City = \"Bakı\";\n            Console.WriteLine($\"Ad: {bag.Name}\");\n            Console.WriteLine($\"Şəhər: {bag.City}\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Səhv: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Dinamik sınaq...\n// Ad: Ayxan\n// Şəhər: Bakı"
+      }
+    ]
+  },
+  "en": {
+    "title": "Dynamic Programming & DLR",
+    "icon": "FiZap",
+    "language": "csharp",
+    "description": "Dynamic objects and the Dynamic Language Runtime.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Dynamic Programming and DLR?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In C# programming, dynamic programming allows determining object types or behaviors at runtime. The `dynamic` keyword bypasses static type checking, enabling operations resolved at runtime. The Dynamic Language Runtime (DLR) provides infrastructure for C# to interact with dynamic languages like Python or JavaScript. The DLR manages dynamic method calls, properties, and objects. This JSON file explains the `dynamic` keyword, `ExpandoObject`, `DynamicObject`, the role of DLR, dynamic method invocation, advantages, and challenges in a simple way. Code examples are compatible with .NET 8, but due to limited C# support in Pyodide, they should be tested with Visual Studio Code or Visual Studio using .NET SDK. Run the code with the `dotnet run` command. Examples use static values, avoid user input, and perform operations on simple dynamic objects instead of network or file operations due to Pyodide limitations."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Dynamic Object Example: `dynamic` Keyword"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `dynamic` keyword allows types to be resolved at runtime."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Using dynamic object...\");\n        dynamic person = new { Name = \"John\", Age = 25 };\n        Console.WriteLine($\"Name: {person.Name}\");\n        Console.WriteLine($\"Age: {person.Age}\");\n    }\n}\n// Output:\n// Using dynamic object...\n// Name: John\n// Age: 25"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- A dynamic anonymous object is created with `dynamic`.\n- Properties are accessed at runtime, bypassing static type checking.\n- Note: Run this code with .NET SDK in Visual Studio Code using `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Dynamic Objects with `ExpandoObject`"
+      },
+      {
+        "type": "paragraph",
+        "text": "`ExpandoObject` allows adding or removing properties at runtime."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Dynamic;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Using ExpandoObject...\");\n        dynamic person = new ExpandoObject();\n        person.Name = \"John\";\n        person.Age = 25;\n        Console.WriteLine($\"Name: {person.Name}\");\n        Console.WriteLine($\"Age: {person.Age}\");\n\n        // Adding a new property\n        person.City = \"London\";\n        Console.WriteLine($\"City: {person.City}\");\n    }\n}\n// Output:\n// Using ExpandoObject...\n// Name: John\n// Age: 25\n// City: London"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- An `ExpandoObject` creates a dynamic object.\n- Properties are added at runtime.\n- The DLR manages property operations."
+      },
+      {
+        "type": "heading",
+        "text": "Custom Dynamic Behavior with `DynamicObject`"
+      },
+      {
+        "type": "paragraph",
+        "text": "`DynamicObject` allows defining custom dynamic behavior."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Dynamic;\nusing System.Collections.Generic;\n\nclass DynamicDictionary : DynamicObject\n{\n    private Dictionary<string, object> _data = new Dictionary<string, object>();\n\n    public override bool TryGetMember(GetMemberBinder binder, out object result)\n    {\n        return _data.TryGetValue(binder.Name, out result);\n    }\n\n    public override bool TrySetMember(SetMemberBinder binder, object value)\n    {\n        _data[binder.Name] = value;\n        return true;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Using DynamicObject...\");\n        dynamic obj = new DynamicDictionary();\n        obj.Name = \"John\";\n        obj.Age = 25;\n        Console.WriteLine($\"Name: {obj.Name}\");\n        Console.WriteLine($\"Age: {obj.Age}\");\n    }\n}\n// Output:\n// Using DynamicObject...\n// Name: John\n// Age: 25"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `DynamicDictionary` inherits from `DynamicObject`.\n- `TryGetMember` and `TrySetMember` manage property access and assignment.\n- The DLR supports these dynamic behaviors."
+      },
+      {
+        "type": "heading",
+        "text": "Dynamic Method Invocation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Methods can be invoked dynamically at runtime using `dynamic`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Dynamic;\nusing System.Collections.Generic;\n\nclass DynamicCalculator : DynamicObject\n{\n    private Dictionary<string, Func<int, int, int>> _methods = new Dictionary<string, Func<int, int, int>>\n    {\n        { \"Add\", (a, b) => a + b },\n        { \"Multiply\", (a, b) => a * b }\n    };\n\n    public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)\n    {\n        if (_methods.TryGetValue(binder.Name, out var method))\n        {\n            result = method((int)args[0], (int)args[1]);\n            return true;\n        }\n        result = null;\n        return false;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Dynamic method invocation...\");\n        dynamic calc = new DynamicCalculator();\n        int sum = calc.Add(5, 3);\n        int product = calc.Multiply(5, 3);\n        Console.WriteLine($\"Addition: 5 + 3 = {sum}\");\n        Console.WriteLine($\"Multiplication: 5 * 3 = {product}\");\n    }\n}\n// Output:\n// Dynamic method invocation...\n// Addition: 5 + 3 = 8\n// Multiplication: 5 * 3 = 15"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `DynamicCalculator` handles dynamic method invocations.\n- `TryInvokeMember` executes methods.\n- The DLR supports method calls."
+      },
+      {
+        "type": "heading",
+        "text": "Exception Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "Errors in dynamic programming, such as accessing non-existent properties, are handled with `try-catch`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Dynamic;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Dynamic error handling...\");\n        dynamic person = new ExpandoObject();\n        person.Name = \"John\";\n        try\n        {\n            Console.WriteLine($\"Non-existent property: {person.NonExistent}\");\n        }\n        catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException ex)\n        {\n            Console.WriteLine(\"Error: Property not found!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Dynamic error handling...\n// Error: Property not found!\n// Error message: 'System.Dynamic.ExpandoObject' does not contain a definition for 'NonExistent'"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- An attempt to access a non-existent property triggers a `RuntimeBinderException`.\n- The `try-catch` block handles the error."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Dynamic Programming"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dynamic programming and the DLR provide flexibility."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nFlexibility: Properties and methods can be added at runtime."
+          },
+          {
+            "description": "\nDynamic Language Integration: Simplifies interaction with languages like Python or JavaScript."
+          },
+          {
+            "description": "\nSimplicity: Offers a simpler syntax compared to complex reflection."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dynamic programming can be challenging for beginners."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nType Safety: Lack of static type checking can lead to runtime errors."
+          },
+          {
+            "description": "\nPerformance: Dynamic operations with DLR may be slower than static code."
+          },
+          {
+            "description": "\nPyodide Limitation: C# dynamic objects are not fully supported in Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Accessing non-existent properties or methods can cause runtime errors.\n- **Recommendations**: Use dynamic objects only when necessary. Handle errors with `try-catch`. Test code with .NET SDK in Visual Studio Code (`dotnet run`). Refer to Microsoft’s official documentation (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Example Causing an Error"
+      },
+      {
+        "type": "paragraph",
+        "text": "This example causes an error by invoking a non-existent method."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Dynamic;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Error-prone dynamic invocation...\");\n        dynamic calc = new ExpandoObject();\n        try\n        {\n            calc.NonExistentMethod(5, 3);\n        }\n        catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException ex)\n        {\n            Console.WriteLine(\"Error: Method not found!\");\n            Console.WriteLine($\"Error message: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Error-prone dynamic invocation...\n// Error: Method not found!\n// Error message: 'System.Dynamic.ExpandoObject' does not contain a definition for 'NonExistentMethod'"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- A non-existent method is invoked.\n- A `RuntimeBinderException` is triggered and handled with `try-catch`."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Dynamic;\nusing System.Collections.Generic;\n\nclass DynamicBag : DynamicObject\n{\n    private Dictionary<string, object> _data = new Dictionary<string, object>();\n\n    public override bool TryGetMember(GetMemberBinder binder, out object result)\n    {\n        return _data.TryGetValue(binder.Name, out result);\n    }\n\n    public override bool TrySetMember(SetMemberBinder binder, object value)\n    {\n        _data[binder.Name] = value;\n        return true;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Dynamic test...\");\n        try\n        {\n            dynamic bag = new DynamicBag();\n            bag.Name = \"John\";\n            bag.City = \"London\";\n            Console.WriteLine($\"Name: {bag.Name}\");\n            Console.WriteLine($\"City: {bag.City}\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Error: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Dynamic test...\n// Name: John\n// City: London"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Динамическое программирование и DLR",
+    "icon": "FiZap",
+    "language": "csharp",
+    "description": "Динамические объекты и Dynamic Language Runtime.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое динамическое программирование и DLR?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В языке программирования C# динамическое программирование позволяет определять типы или поведение объектов во время выполнения. Ключевое слово `dynamic` обходит статическую проверку типов, позволяя выполнять операции, разрешаемые во время выполнения. Dynamic Language Runtime (DLR) предоставляет инфраструктуру для взаимодействия C# с динамическими языками, такими как Python или JavaScript. DLR управляет динамическими вызовами методов, свойствами и объектами. Этот JSON-файл объясняет ключевое слово `dynamic`, `ExpandoObject`, `DynamicObject`, роль DLR, динамические вызовы методов, преимущества и сложности простым образом. Примеры кода совместимы с .NET 8, но из-за ограниченной поддержки C# в Pyodide их следует тестировать в Visual Studio Code или Visual Studio с использованием .NET SDK. Запускайте код с помощью команды `dotnet run`. Примеры используют статические значения, не требуют ввода от пользователя и выполняют операции на простых динамических объектах вместо сетевых операций или операций с файлами из-за ограничений Pyodide."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример динамического объекта: Ключевое слово `dynamic`"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ключевое слово `dynamic` позволяет разрешать типы во время выполнения."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Использование динамического объекта...\");\n        dynamic person = new { Name = \"Иван\", Age = 25 };\n        Console.WriteLine($\"Имя: {person.Name}\");\n        Console.WriteLine($\"Возраст: {person.Age}\");\n    }\n}\n// Output:\n// Использование динамического объекта...\n// Имя: Иван\n// Возраст: 25"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- С помощью `dynamic` создаётся анонимный динамический объект.\n- Свойства доступны во время выполнения, обходя статическую проверку типов.\n- Примечание: Запустите этот код с .NET SDK в Visual Studio Code с помощью `dotnet run`."
+      },
+      {
+        "type": "heading",
+        "text": "Динамические объекты с `ExpandoObject`"
+      },
+      {
+        "type": "paragraph",
+        "text": "`ExpandoObject` позволяет добавлять или удалять свойства во время выполнения."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Dynamic;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Использование ExpandoObject...\");\n        dynamic person = new ExpandoObject();\n        person.Name = \"Иван\";\n        person.Age = 25;\n        Console.WriteLine($\"Имя: {person.Name}\");\n        Console.WriteLine($\"Возраст: {person.Age}\");\n\n        // Добавление нового свойства\n        person.City = \"Москва\";\n        Console.WriteLine($\"Город: {person.City}\");\n    }\n}\n// Output:\n// Использование ExpandoObject...\n// Имя: Иван\n// Возраст: 25\n// Город: Москва"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ExpandoObject` создаёт динамический объект.\n- Свойства добавляются во время выполнения.\n- DLR управляет операциями со свойствами."
+      },
+      {
+        "type": "heading",
+        "text": "Пользовательское динамическое поведение с `DynamicObject`"
+      },
+      {
+        "type": "paragraph",
+        "text": "`DynamicObject` позволяет определять собственное динамическое поведение."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Dynamic;\nusing System.Collections.Generic;\n\nclass DynamicDictionary : DynamicObject\n{\n    private Dictionary<string, object> _data = new Dictionary<string, object>();\n\n    public override bool TryGetMember(GetMemberBinder binder, out object result)\n    {\n        return _data.TryGetValue(binder.Name, out result);\n    }\n\n    public override bool TrySetMember(SetMemberBinder binder, object value)\n    {\n        _data[binder.Name] = value;\n        return true;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Использование DynamicObject...\");\n        dynamic obj = new DynamicDictionary();\n        obj.Name = \"Иван\";\n        obj.Age = 25;\n        Console.WriteLine($\"Имя: {obj.Name}\");\n        Console.WriteLine($\"Возраст: {obj.Age}\");\n    }\n}\n// Output:\n// Использование DynamicObject...\n// Имя: Иван\n// Возраст: 25"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `DynamicDictionary` наследуется от `DynamicObject`.\n- Методы `TryGetMember` и `TrySetMember` управляют доступом и присваиванием свойств.\n- DLR поддерживает эти динамические поведения."
+      },
+      {
+        "type": "heading",
+        "text": "Динамический вызов методов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Методы могут быть вызваны динамически во время выполнения с помощью `dynamic`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Dynamic;\nusing System.Collections.Generic;\n\nclass DynamicCalculator : DynamicObject\n{\n    private Dictionary<string, Func<int, int, int>> _methods = new Dictionary<string, Func<int, int, int>>\n    {\n        { \"Add\", (a, b) => a + b },\n        { \"Multiply\", (a, b) => a * b }\n    };\n\n    public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)\n    {\n        if (_methods.TryGetValue(binder.Name, out var method))\n        {\n            result = method((int)args[0], (int)args[1]);\n            return true;\n        }\n        result = null;\n        return false;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Динамический вызов метода...\");\n        dynamic calc = new DynamicCalculator();\n        int sum = calc.Add(5, 3);\n        int product = calc.Multiply(5, 3);\n        Console.WriteLine($\"Сложение: 5 + 3 = {sum}\");\n        Console.WriteLine($\"Умножение: 5 * 3 = {product}\");\n    }\n}\n// Output:\n// Динамический вызов метода...\n// Сложение: 5 + 3 = 8\n// Умножение: 5 * 3 = 15"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `DynamicCalculator` обрабатывает динамические вызовы методов.\n- `TryInvokeMember` выполняет методы.\n- DLR поддерживает вызовы методов."
+      },
+      {
+        "type": "heading",
+        "text": "Обработка исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ошибки в динамическом программировании, такие как доступ к несуществующим свойствам, обрабатываются с помощью `try-catch`."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Dynamic;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Обработка динамических ошибок...\");\n        dynamic person = new ExpandoObject();\n        person.Name = \"Иван\";\n        try\n        {\n            Console.WriteLine($\"Несуществующее свойство: {person.NonExistent}\");\n        }\n        catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException ex)\n        {\n            Console.WriteLine(\"Ошибка: Свойство не найдено!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Обработка динамических ошибок...\n// Ошибка: Свойство не найдено!\n// Сообщение об ошибке: 'System.Dynamic.ExpandoObject' does not contain a definition for 'NonExistent'"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Попытка доступа к несуществующему свойству вызывает `RuntimeBinderException`.\n- Блок `try-catch` обрабатывает ошибку."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества динамического программирования"
+      },
+      {
+        "type": "paragraph",
+        "text": "Динамическое программирование и DLR обеспечивают гибкость."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nГибкость: Свойства и методы могут быть добавлены во время выполнения."
+          },
+          {
+            "description": "\nИнтеграция с динамическими языками: Упрощает взаимодействие с языками, такими как Python или JavaScript."
+          },
+          {
+            "description": "\nПростота: Предлагает более простой синтаксис по сравнению со сложной рефлексией."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Динамическое программирование может быть сложным для новичков."
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nБезопасность типов: Отсутствие статической проверки типов может привести к ошибкам во время выполнения."
+          },
+          {
+            "description": "\nПроизводительность: Динамические операции с DLR могут быть медленнее, чем статический код."
+          },
+          {
+            "description": "\nОграничение Pyodide: Динамические объекты C# не полностью поддерживаются в Pyodide."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Доступ к несуществующим свойствам или методам может вызвать ошибки во время выполнения.\n- **Рекомендации**: Используйте динамические объекты только при необходимости. Обрабатывайте ошибки с помощью `try-catch`. Тестируйте код с .NET SDK в Visual Studio Code (`dotnet run`). Обращайтесь к официальной документации Microsoft (https://learn.microsoft.com/dotnet/csharp/)."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот пример вызывает ошибку при вызове несуществующего метода."
+      },
+      {
+        "type": "code",
+        "language": "csharp",
+        "code": "using System;\nusing System.Dynamic;\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Динамический вызов с ошибкой...\");\n        dynamic calc = new ExpandoObject();\n        try\n        {\n            calc.NonExistentMethod(5, 3);\n        }\n        catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException ex)\n        {\n            Console.WriteLine(\"Ошибка: Метод не найден!\");\n            Console.WriteLine($\"Сообщение об ошибке: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Динамический вызов с ошибкой...\n// Ошибка: Метод не найден!\n// Сообщение об ошибке: 'System.Dynamic.ExpandoObject' does not contain a definition for 'NonExistentMethod'"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Вызывается несуществующий метод.\n- Возникает `RuntimeBinderException`, которая обрабатывается с помощью `try-catch`."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуй сам"
+      },
+      {
+        "type": "editor",
+        "initialCode": "using System;\nusing System.Dynamic;\nusing System.Collections.Generic;\n\nclass DynamicBag : DynamicObject\n{\n    private Dictionary<string, object> _data = new Dictionary<string, object>();\n\n    public override bool TryGetMember(GetMemberBinder binder, out object result)\n    {\n        return _data.TryGetValue(binder.Name, out result);\n    }\n\n    public override bool TrySetMember(SetMemberBinder binder, object value)\n    {\n        _data[binder.Name] = value;\n        return true;\n    }\n}\n\nclass Program\n{\n    static void Main(string[] args)\n    {\n        Console.WriteLine(\"Тест динамического объекта...\");\n        try\n        {\n            dynamic bag = new DynamicBag();\n            bag.Name = \"Иван\";\n            bag.City = \"Москва\";\n            Console.WriteLine($\"Имя: {bag.Name}\");\n            Console.WriteLine($\"Город: {bag.City}\");\n        }\n        catch (Exception ex)\n        {\n            Console.WriteLine($\"Ошибка: {ex.Message}\");\n        }\n    }\n}\n// Output:\n// Тест динамического объекта...\n// Имя: Иван\n// Город: Москва"
+      }
+    ]
+  }
+}
