@@ -30,6 +30,11 @@ model User {
   dailyLoginPoints  Int               @default(0)
   lastLoginDate     DateTime?
   visitedLessons    Json?
+  
+  // New relations for activity tracking
+  activities        UserActivity[]
+  sessions          UserSession[]
+  dailyActivities   DailyActivity[]
 }
 
 model Tutorial {
@@ -59,6 +64,49 @@ model QuizSubmission {
   answers    Json     // Store answers as JSON for flexibility
 }
 
+// New Activity Tracking Tables
+
+model UserActivity {
+  id          Int           @id @default(autoincrement())
+  user        User          @relation(fields: [userId], references: [id])
+  userId      Int
+  type        ActivityType  // LOGIN, LESSON_VIEW, QUIZ_SUBMIT, EXERCISE_SOLVE, etc.
+  description String        // Human readable description
+  metadata    Json?         // Additional data (lesson ID, quiz ID, etc.)
+  timestamp   DateTime      @default(now())
+  
+  @@index([userId, timestamp])
+}
+
+model UserSession {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  startTime DateTime @default(now())
+  endTime   DateTime?
+  duration  Int?     // Duration in seconds
+  ipAddress String?
+  userAgent String?
+  
+  @@index([userId, startTime])
+}
+
+model DailyActivity {
+  id           Int      @id @default(autoincrement())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       Int
+  date         DateTime @db.Date // Only date part
+  loginCount   Int      @default(0)
+  studyTime    Int      @default(0) // Total study time in seconds
+  lessonsViewed Int     @default(0)
+  quizzesTaken Int      @default(0)
+  exercisesSolved Int   @default(0)
+  pointsEarned Int      @default(0)
+  
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
 enum Role {
   USER
   ADMIN
@@ -68,4 +116,24 @@ enum PremiumStatus {
   FREE
   STANDARD
   PREMIUM
+}
+
+enum ActivityType {
+  LOGIN
+  LOGOUT
+  LESSON_VIEW
+  LESSON_COMPLETE
+  QUIZ_START
+  QUIZ_SUBMIT
+  QUIZ_PASS
+  EXERCISE_START
+  EXERCISE_SUBMIT
+  EXERCISE_SOLVE
+  PROFILE_UPDATE
+  SETTINGS_CHANGE
+  DAILY_LOGIN_BONUS
+  ACHIEVEMENT_EARNED
+  COURSE_ENROLL
+  BOOKMARK_ADD
+  BOOKMARK_REMOVE
 }

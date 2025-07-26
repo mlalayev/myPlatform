@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/authOptions';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { auth } from '../../auth/authOptions';
+import { prisma } from '@/lib/prisma';
 
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session?.user?.email) {
       return NextResponse.json(
@@ -64,7 +61,7 @@ export async function PUT(request: NextRequest) {
 
     // Check if username is already taken by another user
     if (username !== currentUser.username) {
-      const existingUserWithUsername = await prisma.user.findFirst({
+      const existingUserWithUsername = await prisma.user.findUnique({
         where: { username }
       });
       
@@ -76,7 +73,7 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    // Update user
+    // Update user information
     const updatedUser = await prisma.user.update({
       where: { email: session.user.email },
       data: {
@@ -86,25 +83,25 @@ export async function PUT(request: NextRequest) {
         email,
         phone: phone || null,
         avatarUrl: avatarUrl || null,
+      },
+      select: {
+        id: true,
+        name: true,
+        surname: true,
+        username: true,
+        email: true,
+        phone: true,
+        avatarUrl: true,
       }
     });
 
-    // Return success response
     return NextResponse.json({
-      message: 'Settings updated successfully',
-      user: {
-        id: updatedUser.id,
-        name: updatedUser.name,
-        surname: updatedUser.surname,
-        username: updatedUser.username,
-        email: updatedUser.email,
-        avatarUrl: updatedUser.avatarUrl,
-        phone: updatedUser.phone,
-      }
+      message: 'Profile updated successfully',
+      user: updatedUser
     });
 
   } catch (error) {
-    console.error('Settings update error:', error);
+    console.error('Error updating user profile:', error);
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }

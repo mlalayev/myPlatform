@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/authOptions';
-import { PrismaClient } from '@prisma/client';
+import { auth } from '../../auth/authOptions';
+import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-
-const prisma = new PrismaClient();
 
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session?.user?.email) {
       return NextResponse.json(
@@ -28,7 +25,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Validate new password length
+    // Validate new password strength
     if (newPassword.length < 6) {
       return NextResponse.json(
         { message: 'New password must be at least 6 characters long' },
@@ -38,7 +35,12 @@ export async function PUT(request: NextRequest) {
 
     // Get current user
     const currentUser = await prisma.user.findUnique({
-      where: { email: session.user.email }
+      where: { email: session.user.email },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+      }
     });
 
     if (!currentUser) {
@@ -48,43 +50,40 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Verify current password
-    if (currentUser.passwordHash) {
-      const isCurrentPasswordValid = await bcrypt.compare(currentPassword, currentUser.passwordHash);
-      
-      if (!isCurrentPasswordValid) {
-        return NextResponse.json(
-          { message: 'Current password is incorrect' },
-          { status: 400 }
-        );
-      }
-    } else {
-      // If user doesn't have a password hash (e.g., OAuth user), 
-      // you might want to handle this differently
+    // Check if user has a password (might be Google user)
+    if (!currentUser.passwordHash) {
       return NextResponse.json(
-        { message: 'Password change not available for OAuth accounts' },
+        { message: 'Cannot change password for Google account' },
+        { status: 400 }
+      );
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, currentUser.passwordHash);
+    if (!isCurrentPasswordValid) {
+      return NextResponse.json(
+        { message: 'Current password is incorrect' },
         { status: 400 }
       );
     }
 
     // Hash new password
-    const hashedNewPassword = await bcrypt.hash(newPassword, 12);
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
 
-    // Update password
+    // Update user password
     await prisma.user.update({
       where: { email: session.user.email },
       data: {
-        passwordHash: hashedNewPassword
+        passwordHash: newPasswordHash,
       }
     });
 
-    // Return success response
     return NextResponse.json({
       message: 'Password updated successfully'
     });
 
   } catch (error) {
-    console.error('Password update error:', error);
+    console.error('Error updating password:', error);
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }
