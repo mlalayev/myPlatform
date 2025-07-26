@@ -24,6 +24,9 @@ import {
   FiCheckCircle,
   FiChevronDown,
   FiChevronUp,
+  FiZap,
+  FiLock,
+  FiUnlock,
 } from "react-icons/fi";
 import { useSession } from "next-auth/react";
 import Header from "../components/header/Header";
@@ -97,6 +100,12 @@ const profileTabs = [
     name: "Favorites",
     icon: <FiHeart size={24} />,
     description: "Access your bookmarked content.",
+  },
+  {
+    key: "recent-activities",
+    name: "Recent Activities",
+    icon: <FiActivity size={24} />,
+    description: "View all your recent learning activities.",
   },
 ];
 
@@ -264,6 +273,76 @@ export default function ProfilePage() {
     );
   };
 
+  // Filter function to exclude navigation activities
+  const filterNavigationActivities = (activities) => {
+    return activities.filter(activity => {
+      // Filter by text content that indicates navigation
+      const hasNavigationText = activity.text?.includes('Navigated to') || 
+                                activity.text?.includes('navigated to') ||
+                                activity.text?.includes('Navigated from') ||
+                                activity.text?.includes('navigated from') ||
+                                activity.description?.includes('Navigated to') ||
+                                activity.description?.includes('navigated to') ||
+                                activity.description?.includes('Navigated from') ||
+                                activity.description?.includes('navigated from');
+      
+      // Return true only if it's not a navigation activity
+      return !hasNavigationText;
+    });
+  };
+
+  // Render All Activities tab
+  const renderAllActivities = () => {
+    if (loading) {
+      return (
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner}></div>
+          <span className={styles.loadingText}>Loading activities...</span>
+        </div>
+      );
+    }
+
+    if (!userStats || !userStats.recentActivities) {
+      return (
+        <div className={styles.loadingContainer}>
+          <span className={styles.loadingText}>No activities found</span>
+        </div>
+      );
+    }
+
+    const filteredActivities = filterNavigationActivities(userStats.recentActivities);
+
+    return (
+      <div className={styles.allActivitiesContainer}>
+        <div className={styles.allActivitiesHeader}>
+          <h2 className={styles.allActivitiesTitle}>All Activities</h2>
+          <p className={styles.allActivitiesDesc}>Complete history of your learning activities</p>
+        </div>
+        
+        <div className={styles.activityList}>
+          {filteredActivities.map((activity, index) => (
+            <div key={index} className={styles.activityItem}>
+              <div className={styles.activityIcon}>
+                {getActivityIcon(activity.type)}
+              </div>
+              <div className={styles.activityContent}>
+                <span className={styles.activityText}>{activity.text}</span>
+                <span className={styles.activityTime}>{activity.time}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filteredActivities.length === 0 && (
+          <div className={styles.emptyActivities}>
+            <FiActivity size={48} style={{ opacity: 0.3 }} />
+            <p>No activities yet. Start learning to see your progress here!</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // Render Profile Overview with real backend data
   const renderProfileOverview = () => {
     if (loading) {
@@ -416,9 +495,17 @@ export default function ProfilePage() {
 
         {/* Activity Summary */}
         <div className={styles.activitySection}>
-          <h3 className={styles.sectionTitle}>Recent Activity</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <h3 className={styles.sectionTitle} style={{ margin: 0 }}>Recent Activity</h3>
+            <button 
+              className={styles.viewAllBtn}
+              onClick={() => setSelectedTab('recent-activities')}
+            >
+              View All Activities
+            </button>
+          </div>
           <div className={styles.activityList}>
-            {userStats.recentActivities.map((activity, index) => (
+            {filterNavigationActivities(userStats.recentActivities).slice(0, 5).map((activity, index) => (
               <div key={index} className={styles.activityItem}>
                 <div className={styles.activityIcon}>
                   {getActivityIcon(activity.type)}
@@ -438,20 +525,14 @@ export default function ProfilePage() {
           <div className={styles.actionGrid}>
             <button 
               className={styles.actionCard} 
-              onClick={() => {
-                logActivity('LESSON_VIEW', 'Navigated to lessons from profile');
-                setSelectedTab('lessons');
-              }}
+              onClick={() => setSelectedTab('lessons')}
             >
               <FiBookOpen className={styles.actionIcon} />
               <span>Continue Learning</span>
             </button>
             <button 
               className={styles.actionCard} 
-              onClick={() => {
-                logActivity('EXERCISE_START', 'Navigated to exercises from profile');
-                setSelectedTab('exercises');
-              }}
+              onClick={() => setSelectedTab('exercises')}
             >
               <FiCode className={styles.actionIcon} />
               <span>Practice Coding</span>
@@ -462,15 +543,295 @@ export default function ProfilePage() {
             </button>
             <button 
               className={styles.actionCard} 
-              onClick={() => {
-                logActivity('PROFILE_UPDATE', 'Navigated to settings from profile');
-                window.location.href = `/${session?.user?.language || 'en'}/settings`;
-              }}
+              onClick={() => window.location.href = `/${session?.user?.language || 'en'}/settings`}
             >
               <FiUser className={styles.actionIcon} />
               <span>Account Settings</span>
             </button>
           </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Achievement data structure
+  const achievementCategories = [
+    {
+      id: "learning",
+      name: "🎓 Learning Master",
+      description: "Complete lessons and expand your knowledge",
+      achievements: [
+        {
+          id: "first_lesson",
+          name: "First Steps",
+          description: "Complete your first lesson",
+          icon: <FiBookOpen />,
+          rarity: "bronze",
+          progress: userStats?.completedLessons > 0 ? 100 : 0,
+          target: 1,
+          unlocked: userStats?.completedLessons > 0,
+          reward: "50 coins",
+        },
+        {
+          id: "lesson_explorer",
+          name: "Knowledge Seeker",
+          description: "Complete 10 lessons",
+          icon: <FiTarget />,
+          rarity: "silver",
+          progress: Math.min((userStats?.completedLessons || 0) / 10 * 100, 100),
+          target: 10,
+          unlocked: (userStats?.completedLessons || 0) >= 10,
+          reward: "200 coins",
+        },
+        {
+          id: "lesson_master",
+          name: "Learning Legend",
+          description: "Complete 50 lessons",
+          icon: <FiStar />,
+          rarity: "gold",
+          progress: Math.min((userStats?.completedLessons || 0) / 50 * 100, 100),
+          target: 50,
+          unlocked: (userStats?.completedLessons || 0) >= 50,
+          reward: "1000 coins",
+        },
+      ],
+    },
+    {
+      id: "coding",
+      name: "💻 Code Warrior",
+      description: "Solve coding challenges and exercises",
+      achievements: [
+        {
+          id: "first_solve",
+          name: "Problem Solver",
+          description: "Solve your first exercise",
+          icon: <FiCode />,
+          rarity: "bronze",
+          progress: userStats?.solvedExercises > 0 ? 100 : 0,
+          target: 1,
+          unlocked: userStats?.solvedExercises > 0,
+          reward: "75 coins",
+        },
+        {
+          id: "coding_ninja",
+          name: "Code Ninja",
+          description: "Solve 25 exercises",
+          icon: <FiZap />,
+          rarity: "silver",
+          progress: Math.min((userStats?.solvedExercises || 0) / 25 * 100, 100),
+          target: 25,
+          unlocked: (userStats?.solvedExercises || 0) >= 25,
+          reward: "500 coins",
+        },
+        {
+          id: "algorithm_master",
+          name: "Algorithm Master",
+          description: "Solve 100 exercises",
+          icon: <FiAward />,
+          rarity: "legendary",
+          progress: Math.min((userStats?.solvedExercises || 0) / 100 * 100, 100),
+          target: 100,
+          unlocked: (userStats?.solvedExercises || 0) >= 100,
+          reward: "2500 coins",
+        },
+      ],
+    },
+    {
+      id: "consistency",
+      name: "🔥 Consistency King",
+      description: "Build daily learning habits",
+      achievements: [
+        {
+          id: "daily_learner",
+          name: "Daily Learner",
+          description: "Login for 3 days in a row",
+          icon: <FiActivity />,
+          rarity: "bronze",
+          progress: Math.min((userStats?.loginStreak || 0) / 3 * 100, 100),
+          target: 3,
+          unlocked: (userStats?.loginStreak || 0) >= 3,
+          reward: "100 coins",
+        },
+        {
+          id: "week_warrior",
+          name: "Week Warrior",
+          description: "Login for 7 days in a row",
+          icon: <FiShield />,
+          rarity: "silver",
+          progress: Math.min((userStats?.loginStreak || 0) / 7 * 100, 100),
+          target: 7,
+          unlocked: (userStats?.loginStreak || 0) >= 7,
+          reward: "300 coins",
+        },
+        {
+          id: "month_master",
+          name: "Month Master",
+          description: "Login for 30 days in a row",
+          icon: <FiShield />,
+          rarity: "legendary",
+          progress: Math.min((userStats?.loginStreak || 0) / 30 * 100, 100),
+          target: 30,
+          unlocked: (userStats?.loginStreak || 0) >= 30,
+          reward: "1500 coins",
+        },
+      ],
+    },
+    {
+      id: "special",
+      name: "⭐ Special Edition",
+      description: "Rare and unique achievements",
+      achievements: [
+        {
+          id: "early_bird",
+          name: "Early Bird",
+          description: "Join during beta testing",
+          icon: <FiStar />,
+          rarity: "platinum",
+          progress: 100,
+          target: 1,
+          unlocked: true,
+          reward: "Beta Badge",
+        },
+        {
+          id: "night_owl",
+          name: "Night Owl",
+          description: "Study after midnight",
+          icon: <FiClock />,
+          rarity: "gold",
+          progress: 0,
+          target: 1,
+          unlocked: false,
+          reward: "Night Badge",
+        },
+      ],
+    },
+  ];
+
+  const renderAchievements = () => {
+    const totalAchievements = achievementCategories.reduce((acc, cat) => acc + cat.achievements.length, 0);
+    const unlockedAchievements = achievementCategories.reduce(
+      (acc, cat) => acc + cat.achievements.filter(ach => ach.unlocked).length, 0
+    );
+
+    return (
+      <div className={styles.achievementsContainer}>
+        {/* Achievements Header */}
+        <div className={styles.achievementsHeader}>
+          <div className={styles.achievementsStats}>
+            <div className={styles.achievementsSummary}>
+              <div className={styles.achievementsCount}>
+                <div className={styles.countHeader}>
+                  <FiAward className={styles.trophyIcon} />
+                  <span className={styles.countText}>
+                    {unlockedAchievements} / {totalAchievements}
+                  </span>
+                </div>
+                <span className={styles.countLabel}>Achievements Unlocked</span>
+              </div>
+              <div className={styles.achievementsProgress}>
+                <span className={styles.progressText}>
+                  {Math.round((unlockedAchievements / totalAchievements) * 100)}% Complete
+                </span>
+                <div className={styles.progressBarContainer}>
+                  <div 
+                    className={styles.progressBarFill}
+                    style={{ width: `${(unlockedAchievements / totalAchievements) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div className={styles.rarityStats}>
+              <div className={styles.rarityBadge}>
+                <span className={styles.rarityDot + ' ' + styles.bronze}></span>
+                <span>Bronze: {achievementCategories.reduce((acc, cat) => acc + cat.achievements.filter(ach => ach.rarity === 'bronze' && ach.unlocked).length, 0)}</span>
+              </div>
+              <div className={styles.rarityBadge}>
+                <span className={styles.rarityDot + ' ' + styles.silver}></span>
+                <span>Silver: {achievementCategories.reduce((acc, cat) => acc + cat.achievements.filter(ach => ach.rarity === 'silver' && ach.unlocked).length, 0)}</span>
+              </div>
+              <div className={styles.rarityBadge}>
+                <span className={styles.rarityDot + ' ' + styles.gold}></span>
+                <span>Gold: {achievementCategories.reduce((acc, cat) => acc + cat.achievements.filter(ach => ach.rarity === 'gold' && ach.unlocked).length, 0)}</span>
+              </div>
+              <div className={styles.rarityBadge}>
+                <span className={styles.rarityDot + ' ' + styles.legendary}></span>
+                <span>Legendary: {achievementCategories.reduce((acc, cat) => acc + cat.achievements.filter(ach => ach.rarity === 'legendary' && ach.unlocked).length, 0)}</span>
+              </div>
+              <div className={styles.rarityBadge}>
+                <span className={styles.rarityDot + ' ' + styles.platinum}></span>
+                <span>Platinum: {achievementCategories.reduce((acc, cat) => acc + cat.achievements.filter(ach => ach.rarity === 'platinum' && ach.unlocked).length, 0)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Achievement Categories */}
+        <div className={styles.achievementCategories}>
+          {achievementCategories.map((category) => (
+            <div key={category.id} className={styles.categorySection}>
+              <div className={styles.categoryHeader}>
+                <div className={styles.categoryInfo}>
+                  <h3 className={styles.categoryTitle}>{category.name}</h3>
+                  <p className={styles.categoryDescription}>{category.description}</p>
+                </div>
+                <div className={styles.categoryProgress}>
+                  <span>{category.achievements.filter(ach => ach.unlocked).length} / {category.achievements.length}</span>
+                </div>
+              </div>
+              
+              <div className={styles.achievementsGrid}>
+                {category.achievements.map((achievement) => (
+                  <div 
+                    key={achievement.id} 
+                    className={`${styles.achievementCard} ${styles[achievement.rarity]} ${achievement.unlocked ? styles.unlocked : styles.locked}`}
+                  >
+                    <div className={styles.achievementIcon}>
+                      {achievement.unlocked ? achievement.icon : <FiLock />}
+                    </div>
+                    
+                    <div className={styles.achievementContent}>
+                      <div className={styles.achievementHeader}>
+                        <h4 className={styles.achievementName}>{achievement.name}</h4>
+                        <div className={styles.rarityBadgeSmall}>
+                          <span className={styles.rarityText}>{achievement.rarity}</span>
+                        </div>
+                      </div>
+                      
+                      <p className={styles.achievementDescription}>
+                        {achievement.description}
+                      </p>
+                      
+                      {!achievement.unlocked && (
+                        <div className={styles.achievementProgress}>
+                          <div className={styles.progressBar}>
+                            <div 
+                              className={styles.progressFill}
+                              style={{ width: `${achievement.progress}%` }}
+                            ></div>
+                          </div>
+                          <span className={styles.progressLabel}>
+                            {Math.round(achievement.progress)}% ({Math.floor(achievement.progress / 100 * achievement.target)}/{achievement.target})
+                          </span>
+                        </div>
+                      )}
+                      
+                      <div className={styles.achievementReward}>
+                        <FiGift className={styles.rewardIcon} />
+                        <span>{achievement.reward}</span>
+                      </div>
+                      
+                      {achievement.unlocked && (
+                        <div className={styles.unlockedBadge}>
+                          <FiUnlock className={styles.unlockedIcon} />
+                          <span>Unlocked!</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -482,7 +843,7 @@ export default function ProfilePage() {
       case "overview":
         return renderProfileOverview();
       case "achievements":
-        return <div className={styles.tabContent}>Achievements content</div>;
+        return renderAchievements();
       case "progress":
         return <div className={styles.tabContent}>Progress content</div>;
       case "lessons":
@@ -503,6 +864,8 @@ export default function ProfilePage() {
         return <div className={styles.tabContent}>Notifications content</div>;
       case "favorites":
         return <div className={styles.tabContent}>Favorites content</div>;
+      case "recent-activities":
+        return renderAllActivities();
       default:
         return null;
     }
