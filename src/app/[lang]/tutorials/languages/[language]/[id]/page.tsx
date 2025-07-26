@@ -9,6 +9,7 @@ import JsTryEditor from "../../../../components/tryeditor/JsTryEditor";
 import CodeLoader from "../../../../components/loading/CodeLoader";
 import { useSession } from "next-auth/react";
 import { useMemo } from "react";
+import { useAppContext } from "../../../../../../contexts/AppContext";
 import mainPageTryEditorStyles from "../../../../components/mainpageTryEditor/MainPageTryEditor.module.css";
 
 interface ContentBlock {
@@ -194,6 +195,7 @@ export default function TutorialTopicPage() {
   const [topicContent, setTopicContent] = useState<any>(null);
   const [editorStates, setEditorStates] = useState<Record<string, string>>({});
   const { data: session } = useSession();
+  const { logActivity } = useAppContext();
   const [visitedLessons, setVisitedLessons] = useState<string[]>([]);
   const [algoLang, setAlgoLang] = useState(ALGO_DEFAULT_LANG);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -297,6 +299,21 @@ export default function TutorialTopicPage() {
     };
     markVisited();
   }, [safeTopicId, session, safeLanguage]);
+
+  // Log lesson view activity
+  useEffect(() => {
+    if (selectedTopic && session?.user) {
+      logActivity(
+        'LESSON_VIEW',
+        `Viewed lesson: ${selectedTopic.title}`,
+        {
+          language: safeLanguage,
+          lessonId: safeTopicId,
+          lessonTitle: selectedTopic.title
+        }
+      );
+    }
+  }, [selectedTopic, session, logActivity, safeLanguage, safeTopicId]);
 
   // Algoritm mövzusu üçün localStorage-dan oxu
   useEffect(() => {

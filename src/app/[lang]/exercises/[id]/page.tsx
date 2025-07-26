@@ -23,6 +23,7 @@ import {
   FiEye,
 } from "react-icons/fi";
 import { useI18n } from "@/contexts/I18nContext";
+import { useAppContext } from "@/contexts/AppContext";
 
 interface ExerciseDetailPageProps {
   params: Promise<{ id: string }>;
@@ -85,6 +86,7 @@ export default function ExerciseDetailPage({
   );
   const codeInitialized = useRef(false);
   const { t } = useI18n();
+  const { logActivity } = useAppContext();
   const getInitialLanguage = () => {
     if (typeof window !== "undefined") {
       const globalLang = localStorage.getItem("quiz_global_lang");
@@ -146,6 +148,22 @@ export default function ExerciseDetailPage({
   useEffect(() => {
     refreshLatestSubmission();
   }, [refreshLatestSubmission]);
+
+  // Log exercise view activity
+  useEffect(() => {
+    if (exercise) {
+      logActivity(
+        'EXERCISE_START',
+        `Started working on exercise: ${exercise.title}`,
+        {
+          exerciseId: id,
+          exerciseTitle: exercise.title,
+          difficulty: exercise.difficulty,
+          language: language
+        }
+      );
+    }
+  }, [exercise, id, logActivity]);
 
   // Autosave code to localStorage on every change
   useEffect(() => {
@@ -279,6 +297,21 @@ export default function ExerciseDetailPage({
     let passedCount = 0;
     let failedCase = null;
     const failedCasesArr: FailedCase[] = [];
+    
+    // Log exercise submission activity
+    if (exercise) {
+      logActivity(
+        'EXERCISE_SUBMIT',
+        `Submitted solution for exercise: ${exercise.title}`,
+        {
+          exerciseId: id,
+          exerciseTitle: exercise.title,
+          language: language,
+          codeLength: userCode.length
+        }
+      );
+    }
+    
     if (!isSafeCode(userCode)) {
       setFeedback("Kod təhlükəli əmrlər ehtiva edir!");
       setFeedbackType("error");
@@ -472,6 +505,21 @@ export default function ExerciseDetailPage({
         : "Bütün testlər uğurla keçdi!"
     );
     setFeedbackType("success");
+    
+    // Log successful exercise completion
+    if (exercise) {
+      logActivity(
+        'EXERCISE_SOLVE',
+        `Successfully solved exercise: ${exercise.title}`,
+        {
+          exerciseId: id,
+          exerciseTitle: exercise.title,
+          language: language,
+          testCasesPassed: exercise.testCases.length,
+          attempts: 1 // Could track this if needed
+        }
+      );
+    }
   };
 
   const visibleCases = exercise ? exercise.testCases.filter((tc) => !tc.hidden) : [];
