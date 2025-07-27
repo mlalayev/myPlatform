@@ -75,6 +75,14 @@ const languageSamples = {
 function solution(nums, target) {
     
 }`,
+  typescript: `/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number[]}
+ */
+function solution(nums: number[], target: number): number[] {
+    
+}`,
   python: `class Solution(object):
     def solution(self, nums, target):
         """
@@ -105,15 +113,25 @@ int* solution(int* nums, int numsSize, int target, int* returnSize) {
         
     }
 }`,
+  php: `/**
+ * @param Integer[] $nums
+ * @param Integer $target
+ * @return Integer[]
+ */
+function solution($nums, $target) {
+    
+}`,
 };
 
 const languageOptions = [
   { value: "javascript", label: "JavaScript" },
+  { value: "typescript", label: "TypeScript" },
   { value: "python", label: "Python" },
   { value: "cpp", label: "C++" },
   { value: "c", label: "C" },
   { value: "java", label: "Java" },
   { value: "csharp", label: "C#" },
+  { value: "php", label: "PHP" },
 ];
 
 // Add this interface for latestSubmission
@@ -386,23 +404,29 @@ export default function ExerciseDetailPage({
   };
 
   function isSafeCode(code: string): boolean {
-    const blacklist = [
-      /window\b/i,
-      /document\b/i,
-      /fetch\b/i,
-      /require\b/i,
-      /import\b/i,
-      /\bFunction\s*\(/,
-      /setInterval\b/i,
-      /setTimeout\b/i,
-      /XMLHttpRequest\b/i,
-      /localStorage\b/i,
-      /sessionStorage\b/i,
-      /globalThis\b/i,
-      /process\b/i,
-      /eval\b/i,
-    ];
-    return !blacklist.some((re) => re.test(code));
+    // Only apply JavaScript-specific blacklist for JavaScript/TypeScript
+    if (language === "javascript" || language === "typescript") {
+      const blacklist = [
+        /window\b/i,
+        /document\b/i,
+        /fetch\b/i,
+        /require\b/i,
+        /import\b/i,
+        /\bFunction\s*\(/,
+        /setInterval\b/i,
+        /setTimeout\b/i,
+        /XMLHttpRequest\b/i,
+        /localStorage\b/i,
+        /sessionStorage\b/i,
+        /globalThis\b/i,
+        /process\b/i,
+        /eval\b/i,
+      ];
+      return !blacklist.some((re) => re.test(code));
+    }
+    
+    // For other languages, allow all code (they run in Docker containers)
+    return true;
   }
 
   function isEqual(result: unknown, expected: unknown): boolean {
@@ -513,91 +537,417 @@ export default function ExerciseDetailPage({
         let result, error;
         let functionName = "solution";
         let functionFound = true;
+
+        // Language-specific code execution
         if (language === "python") {
-          // Detect function name in user code
+          // Python execution
           const match = userCode.match(/def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
           if (match) functionName = match[1];
           else functionFound = false;
+          
           if (!functionFound) {
-            setFeedback(
-              "Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: def myfunc(...):"
-            );
+            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: def myfunc(...):");
             setFeedbackType("error");
             setFailedCases([]);
             setSubmitted(true);
             setIsSubmitting(false);
             setDetectedComplexity(null);
             setActiveLeftTab(4);
-            updateStatusIcon(false); // Update status icon for error
+            updateStatusIcon(false);
             return;
           }
-          // Prepare Python code to call the detected function and print result as JSON if needed
-          let callCode = "";
-          let argsStr = "";
-          if (Array.isArray(args)) {
-            argsStr = args
-              .map((a) =>
-                typeof a === "string" ? `\"${a}\"` : JSON.stringify(a)
-              )
-              .join(", ");
-          } else {
-            argsStr = JSON.stringify(args);
-          }
-          callCode = `\nimport json\nresult = ${functionName}(${argsStr})\nif isinstance(result, (list, dict)):\n    print(json.dumps(result))\nelse:\n    print(result)`;
+
+          let argsStr = Array.isArray(args) 
+            ? args.map(a => typeof a === "string" ? `"${a}"` : JSON.stringify(a)).join(", ")
+            : JSON.stringify(args);
+          
+          const callCode = `\nimport json\nresult = ${functionName}(${argsStr})\nif isinstance(result, (list, dict)):\n    print(json.dumps(result))\nelse:\n    print(result)`;
           const fullCode = `${userCode}${callCode}`;
+          
           const resp = await fetch("/api/execute", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code: fullCode, language: "python" }),
           });
           const data = await resp.json();
+          
           try {
-            // Try to parse as JSON (for lists, dicts, etc.)
             result = JSON.parse(data.output);
           } catch {
-            // Fallback to string
             result = data.output;
           }
           error = data.error;
-        } else {
-          // Detect function name in JS code
-          const match = userCode.match(
-            /function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/
-          );
+
+        } else if (language === "javascript") {
+          // JavaScript execution
+          let match = userCode.match(/function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          if (!match) {
+            // Try arrow function pattern
+            match = userCode.match(/(?:const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*[:=]\s*(?:\([^)]*\)\s*=>|function\s*\()/);
+          }
           if (match) functionName = match[1];
           else functionFound = false;
+          
           if (!functionFound) {
-            setFeedback(
-              "Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: function myfunc(...) {} və ya const/let/var myfunc = ..."
-            );
+            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: function myfunc(...) {} və ya const myfunc = (...) => {}");
             setFeedbackType("error");
             setFailedCases([]);
             setSubmitted(true);
             setIsSubmitting(false);
             setDetectedComplexity(null);
             setActiveLeftTab(4);
-            updateStatusIcon(false); // Update status icon for error
+            updateStatusIcon(false);
             return;
           }
-          // JS/TS: use worker, pass functionName
+
           const worker = createSandboxWorker();
-          const resultPromise = new Promise<{ result?: unknown; error?: string }>(
-            (resolve) => {
-              worker.onmessage = (e: MessageEvent) => resolve(e.data);
-              worker.postMessage({ code: userCode, args });
-            }
-          );
+          const resultPromise = new Promise<{ result?: unknown; error?: string }>((resolve) => {
+            worker.onmessage = (e: MessageEvent) => resolve(e.data);
+            worker.postMessage({ code: userCode, args });
+          });
           const timeoutPromise = new Promise<{ error: string }>((resolve) =>
             setTimeout(() => {
               worker.terminate();
               resolve({ error: "Kodun icrası çox uzun çəkdi (timeout)!" });
             }, 2000)
           );
-          const response: { result?: unknown; error?: string } = await Promise.race(
-            [resultPromise, timeoutPromise]
-          );
+          const response: { result?: unknown; error?: string } = await Promise.race([resultPromise, timeoutPromise]);
           result = response.result;
           error = response.error;
+
+        } else if (language === "typescript") {
+          // TypeScript execution - use API instead of worker
+          let match = userCode.match(/function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          if (!match) {
+            // Try arrow function pattern
+            match = userCode.match(/(?:const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*[:=]\s*(?:\([^)]*\)\s*=>|function\s*\()/);
+          }
+          if (!match) {
+            // Try TypeScript function pattern
+            match = userCode.match(/([a-zA-Z_][a-zA-Z0-9_]*)\s*\([^)]*\)\s*:\s*[^{]*{/);
+          }
+          if (match) functionName = match[1];
+          else functionFound = false;
+          
+          if (!functionFound) {
+            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: function myfunc(...) {} və ya const myfunc = (...) => {}");
+            setFeedbackType("error");
+            setFailedCases([]);
+            setSubmitted(true);
+            setIsSubmitting(false);
+            setDetectedComplexity(null);
+            setActiveLeftTab(4);
+            updateStatusIcon(false);
+            return;
+          }
+
+          // Convert args to proper format for TypeScript
+          let argsStr = Array.isArray(args) 
+            ? args.map(a => typeof a === "string" ? `"${a}"` : JSON.stringify(a)).join(", ")
+            : JSON.stringify(args);
+          
+          const callCode = `\nconsole.log(JSON.stringify(${functionName}(${argsStr})));`;
+          const fullCode = `${userCode}${callCode}`;
+          
+          const resp = await fetch("/api/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: fullCode, language: "typescript" }),
+          });
+          const data = await resp.json();
+          
+          try {
+            result = JSON.parse(data.output);
+          } catch {
+            result = data.output;
+          }
+          error = data.error;
+
+        } else if (language === "cpp") {
+          // C++ execution
+          const match = userCode.match(/vector<[^>]*>\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          if (match) functionName = match[1];
+          else functionFound = false;
+          
+          if (!functionFound) {
+            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: vector<int> solution(...)");
+            setFeedbackType("error");
+            setFailedCases([]);
+            setSubmitted(true);
+            setIsSubmitting(false);
+            setDetectedComplexity(null);
+            setActiveLeftTab(4);
+            updateStatusIcon(false);
+            return;
+          }
+
+          // Convert args to proper C++ format
+          let numsArray = "";
+          let target = 0;
+          
+          if (Array.isArray(args) && args.length === 2) {
+            const nums = args[0];
+            target = args[1];
+            if (Array.isArray(nums)) {
+              numsArray = `{${nums.join(', ')}}`;
+            } else {
+              numsArray = JSON.stringify(nums);
+            }
+          } else {
+            numsArray = JSON.stringify(args);
+            target = 0;
+          }
+          
+          const callCode = `\nint main() {\n    vector<int> nums = ${numsArray};\n    int target = ${target};\n    auto result = ${functionName}(nums, target);\n    for (int i = 0; i < result.size(); i++) {\n        cout << result[i];\n        if (i < result.size() - 1) cout << " ";\n    }\n    return 0;\n}`;
+          const fullCode = `${userCode}\n#include <iostream>\n#include <vector>\nusing namespace std;\n${callCode}`;
+          
+          const resp = await fetch("/api/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: fullCode, language: "cpp" }),
+          });
+          const data = await resp.json();
+          
+          try {
+            result = data.output.trim().split(" ").map(Number);
+          } catch {
+            result = data.output;
+          }
+          error = data.error;
+
+        } else if (language === "c") {
+          // C execution
+          const match = userCode.match(/int\*\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          if (match) functionName = match[1];
+          else functionFound = false;
+          
+          if (!functionFound) {
+            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: int* solution(...)");
+            setFeedbackType("error");
+            setFailedCases([]);
+            setSubmitted(true);
+            setIsSubmitting(false);
+            setDetectedComplexity(null);
+            setActiveLeftTab(4);
+            updateStatusIcon(false);
+            return;
+          }
+
+          // Convert args to proper C format
+          let numsArray = "";
+          let numsSize = 0;
+          let target = 0;
+          
+          if (Array.isArray(args) && args.length === 2) {
+            const nums = args[0];
+            target = args[1];
+            if (Array.isArray(nums)) {
+              numsArray = `{${nums.join(', ')}}`;
+              numsSize = nums.length;
+            } else {
+              numsArray = JSON.stringify(nums);
+              numsSize = 1;
+            }
+          } else {
+            numsArray = JSON.stringify(args);
+            numsSize = 1;
+            target = 0;
+          }
+          
+          const callCode = `\nint main() {\n    int returnSize;\n    int nums[] = ${numsArray};\n    int numsSize = ${numsSize};\n    int target = ${target};\n    int* result = ${functionName}(nums, numsSize, target, &returnSize);\n    for (int i = 0; i < returnSize; i++) {\n        printf("%d", result[i]);\n        if (i < returnSize - 1) printf(" ");\n    }\n    return 0;\n}`;
+          const fullCode = `${userCode}\n#include <stdio.h>\n#include <stdlib.h>\n${callCode}`;
+          
+          const resp = await fetch("/api/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: fullCode, language: "c" }),
+          });
+          const data = await resp.json();
+          
+          try {
+            result = data.output.trim().split(" ").map(Number);
+          } catch {
+            result = data.output;
+          }
+          error = data.error;
+
+        } else if (language === "java") {
+          // Java execution
+          const match = userCode.match(/public\s+int\[\]\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          if (match) functionName = match[1];
+          else functionFound = false;
+          
+          if (!functionFound) {
+            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: public int[] solution(...)");
+            setFeedbackType("error");
+            setFailedCases([]);
+            setSubmitted(true);
+            setIsSubmitting(false);
+            setDetectedComplexity(null);
+            setActiveLeftTab(4);
+            updateStatusIcon(false);
+            return;
+          }
+
+          // Convert args to proper Java format
+          let numsArray = "";
+          let target = 0;
+          
+          if (Array.isArray(args) && args.length === 2) {
+            const nums = args[0];
+            target = args[1];
+            if (Array.isArray(nums)) {
+              numsArray = `new int[] {${nums.join(', ')}}`;
+            } else {
+              numsArray = JSON.stringify(nums);
+            }
+          } else {
+            numsArray = JSON.stringify(args);
+            target = 0;
+          }
+          
+          // Extract imports from user code
+          const importMatch = userCode.match(/import\s+[^;]+;/g);
+          const imports = importMatch ? importMatch.join('\n') : '';
+          const codeWithoutImports = userCode.replace(/import\s+[^;]+;/g, '').trim();
+          
+          const callCode = `\n    public static void main(String[] args) {\n        Solution solution = new Solution();\n        int[] result = solution.${functionName}(${numsArray}, ${target});\n        for (int i = 0; i < result.length; i++) {\n            System.out.print(result[i]);\n            if (i < result.length - 1) System.out.print(" ");\n        }\n    }`;
+          const fullCode = `${imports}\npublic class Solution {\n${codeWithoutImports}${callCode}\n}`;
+          
+          const resp = await fetch("/api/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: fullCode, language: "java" }),
+          });
+          const data = await resp.json();
+          
+          try {
+            result = data.output.trim().split(" ").map(Number);
+          } catch {
+            result = data.output;
+          }
+          error = data.error;
+
+        } else if (language === "csharp") {
+          // C# execution
+          const match = userCode.match(/public\s+int\[\]\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          if (match) functionName = match[1];
+          else functionFound = false;
+          
+          if (!functionFound) {
+            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: public int[] Solution(...)");
+            setFeedbackType("error");
+            setFailedCases([]);
+            setSubmitted(true);
+            setIsSubmitting(false);
+            setDetectedComplexity(null);
+            setActiveLeftTab(4);
+            updateStatusIcon(false);
+            return;
+          }
+
+          // Convert args to proper C# format
+          let numsArray = "";
+          let target = 0;
+          
+          if (Array.isArray(args) && args.length === 2) {
+            const nums = args[0];
+            target = args[1];
+            if (Array.isArray(nums)) {
+              numsArray = `new int[] {${nums.join(', ')}}`;
+            } else {
+              numsArray = JSON.stringify(nums);
+            }
+          } else {
+            numsArray = JSON.stringify(args);
+            target = 0;
+          }
+          
+          // Extract using statements from user code
+          const usingMatch = userCode.match(/using\s+[^;]+;/g);
+          const usings = usingMatch ? usingMatch.join('\n') : '';
+          const codeWithoutUsings = userCode.replace(/using\s+[^;]+;/g, '').trim();
+          
+          const callCode = `\n    public static void Main(string[] args) {\n        Solution solution = new Solution();\n        int[] result = solution.${functionName}(${numsArray}, ${target});\n        Console.WriteLine(string.Join(" ", result));\n    }`;
+          const fullCode = `${usings}\n\npublic class Solution {\n${codeWithoutUsings}${callCode}\n}`;
+          
+          const resp = await fetch("/api/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: fullCode, language: "csharp" }),
+          });
+          const data = await resp.json();
+          
+          try {
+            result = data.output.trim().split(" ").map(Number);
+          } catch {
+            result = data.output;
+          }
+          error = data.error;
+
+        } else if (language === "php") {
+          // PHP execution
+          const match = userCode.match(/function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          if (match) functionName = match[1];
+          else functionFound = false;
+          
+          if (!functionFound) {
+            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: function solution(...)");
+            setFeedbackType("error");
+            setFailedCases([]);
+            setSubmitted(true);
+            setIsSubmitting(false);
+            setDetectedComplexity(null);
+            setActiveLeftTab(4);
+            updateStatusIcon(false);
+            return;
+          }
+
+          // Convert args to proper PHP format
+          let numsArray = "";
+          let target = 0;
+          
+          if (Array.isArray(args) && args.length === 2) {
+            const nums = args[0];
+            target = args[1];
+            if (Array.isArray(nums)) {
+              numsArray = `[${nums.join(', ')}]`;
+            } else {
+              numsArray = JSON.stringify(nums);
+            }
+          } else {
+            numsArray = JSON.stringify(args);
+            target = 0;
+          }
+          
+          const callCode = `\n$result = ${functionName}(${numsArray}, ${target});\necho implode(" ", $result);`;
+          const fullCode = `<?php\n${userCode}${callCode}\n?>`;
+          
+          const resp = await fetch("/api/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: fullCode, language: "php" }),
+          });
+          const data = await resp.json();
+          
+          try {
+            result = data.output.trim().split(" ").map(Number);
+          } catch {
+            result = data.output;
+          }
+          error = data.error;
+
+        } else {
+          // Unsupported language
+          setFeedback(`Bu dil hələ dəstəklənmir: ${language}`);
+          setFeedbackType("error");
+          setFailedCases([]);
+          setSubmitted(true);
+          setIsSubmitting(false);
+          setDetectedComplexity(null);
+          setActiveLeftTab(4);
+          updateStatusIcon(false);
+          return;
         }
         if (error) {
           setFeedback(error);
