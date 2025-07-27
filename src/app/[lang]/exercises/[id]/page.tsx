@@ -265,10 +265,47 @@ export default function ExerciseDetailPage({
     }
   }, [exercise, id]);
 
+  // Function to update status icon based on current submission result
+  const updateStatusIcon = useCallback((isCorrect: boolean) => {
+    // Check if user has ever passed this quiz before
+    const hasEverPassed = localStorage.getItem(`quiz_ever_passed_${id}`) === 'true';
+    
+    if (isCorrect || hasEverPassed) {
+      setStatusIcon(<FiCheckCircle color="green" title="Correct" />);
+      // Mark as ever passed
+      if (id) {
+        localStorage.setItem(`quiz_ever_passed_${id}`, 'true');
+        localStorage.setItem(`quiz_status_${id}`, 'correct');
+      }
+    } else {
+      setStatusIcon(<FiXCircle color="red" title="Incorrect" />);
+      // Save status to localStorage
+      if (id) {
+        localStorage.setItem(`quiz_status_${id}`, 'incorrect');
+      }
+    }
+  }, [id]);
+
   // On mount, fetch latest submission
   useEffect(() => {
-    refreshLatestSubmission();
-  }, [refreshLatestSubmission]);
+    if (exercise) {
+      refreshLatestSubmission();
+    }
+  }, [exercise]); // Only run when exercise changes, not after every submission
+
+  // Load status from localStorage on mount
+  useEffect(() => {
+    if (id) {
+      const hasEverPassed = localStorage.getItem(`quiz_ever_passed_${id}`) === 'true';
+      const savedStatus = localStorage.getItem(`quiz_status_${id}`);
+      
+      if (hasEverPassed || savedStatus === 'correct') {
+        setStatusIcon(<FiCheckCircle color="green" title="Correct" />);
+      } else if (savedStatus === 'incorrect') {
+        setStatusIcon(<FiXCircle color="red" title="Incorrect" />);
+      }
+    }
+  }, [id]);
 
   // Log exercise view activity (optional)
   useEffect(() => {
@@ -449,6 +486,7 @@ export default function ExerciseDetailPage({
       setSubmitted(true);
       setIsSubmitting(false);
       setActiveLeftTab(4);
+      updateStatusIcon(false); // Update status icon for error
       return;
     }
 
@@ -490,6 +528,7 @@ export default function ExerciseDetailPage({
             setIsSubmitting(false);
             setDetectedComplexity(null);
             setActiveLeftTab(4);
+            updateStatusIcon(false); // Update status icon for error
             return;
           }
           // Prepare Python code to call the detected function and print result as JSON if needed
@@ -537,6 +576,7 @@ export default function ExerciseDetailPage({
             setIsSubmitting(false);
             setDetectedComplexity(null);
             setActiveLeftTab(4);
+            updateStatusIcon(false); // Update status icon for error
             return;
           }
           // JS/TS: use worker, pass functionName
@@ -567,6 +607,7 @@ export default function ExerciseDetailPage({
           setIsSubmitting(false);
           setDetectedComplexity(null);
           setActiveLeftTab(4);
+          updateStatusIcon(false); // Update status icon for error
           return;
         }
         console.log(`[DEBUG] Test case ${i}: result=`, result, 'expected=', tc.expectedOutput, 'passed=', isEqual(result, tc.expectedOutput));
@@ -590,12 +631,17 @@ export default function ExerciseDetailPage({
       setIsSubmitting(false);
       setDetectedComplexity(null);
       setActiveLeftTab(4);
+      updateStatusIcon(false); // Update status icon for error
       return;
     }
 
     setSubmitted(true);
     setIsSubmitting(false);
     setActiveLeftTab(4);
+
+    // Immediately update status icon based on current result
+    const isCorrect = failedCasesArr.length === 0;
+    updateStatusIcon(isCorrect);
 
     // Submit to backend - ALWAYS submit regardless of correctness (optional)
     try {
@@ -623,8 +669,8 @@ export default function ExerciseDetailPage({
       if (id) {
         localStorage.setItem(`quiz_code_${id}_${language}`, userCode);
       }
-      // After submit, refresh latest submission and status icon
-      await refreshLatestSubmission();
+      // Don't refresh latest submission here since we already updated the status icon
+      // await refreshLatestSubmission();
     } catch (e) {
       console.warn("Backend submission not available:", e);
       // Save code to localStorage even if API fails
@@ -691,7 +737,7 @@ export default function ExerciseDetailPage({
       });
     } else {
       leftTabs.push({
-        label: isCorrect ? "Doğru Cavab" : "Yalnış Cavab",
+        label: isCorrect ? "Doğru" : "Yalnış",
         result: true,
         icon: isCorrect ? <FiCheckCircle /> : <FiXCircle />,
       });

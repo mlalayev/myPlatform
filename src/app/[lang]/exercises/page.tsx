@@ -205,22 +205,62 @@ export default function ExercisesPage() {
     pagination.limit,
   ]);
 
+  // Listen for storage changes to update statuses in real-time
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key && e.key.startsWith('quiz_ever_passed_')) {
+        // Refresh statuses when localStorage changes
+        const exerciseId = e.key.replace('quiz_ever_passed_', '');
+        setStatuses(prev => ({
+          ...prev,
+          [Number(exerciseId)]: e.newValue === 'true' ? 'correct' : prev[Number(exerciseId)]
+        }));
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   // Fetch user statuses
   useEffect(() => {
     async function fetchStatuses() {
       try {
-        const response = await fetch("/api/quiz/statuses");
-        if (response.ok) {
-          const data = await response.json();
-          setStatuses(data.statuses);
-        }
+        // Fetch real statuses from backend for all exercises
+        const statusPromises = exercises.map(async (exercise) => {
+          try {
+            const response = await fetch(`/api/quiz/${exercise.id}/latest?maxTestCases=${exercise.content.testCases.length}`);
+            if (response.ok) {
+              const data = await response.json();
+              return {
+                id: exercise.id,
+                status: data.hasPassed ? "correct" : data.hasWrong ? "wrong" : "not_submitted"
+              };
+            }
+          } catch (error) {
+            console.warn(`Failed to fetch status for exercise ${exercise.id}:`, error);
+          }
+          return { id: exercise.id, status: "not_submitted" };
+        });
+
+        const statusResults = await Promise.all(statusPromises);
+        const newStatuses: { [id: number]: "not_submitted" | "wrong" | "correct" } = {};
+        
+        statusResults.forEach(({ id, status }) => {
+          newStatuses[id] = status;
+        });
+
+        setStatuses(newStatuses);
+        console.log("Real statuses loaded:", newStatuses);
       } catch (error) {
         console.error("Error fetching statuses:", error);
       }
     }
 
-    fetchStatuses();
-  }, []);
+    if (exercises.length > 0) {
+      fetchStatuses();
+    }
+  }, [exercises]);
 
   // Fetch user stats
   useEffect(() => {
@@ -603,24 +643,38 @@ export default function ExercisesPage() {
                             {getDifficultyText(ex.difficulty)}
                           </span>
                           <div className={styles.statusIcons}>
-                            {statuses[Number(ex.id)] === "correct" && (
-                              <FiCheckCircle
-                                className={styles.statusIcon}
-                                title="Doğru"
-                              />
-                            )}
-                            {statuses[Number(ex.id)] === "wrong" && (
-                              <FiXCircle
-                                className={styles.statusIcon}
-                                title="Yanlış"
-                              />
-                            )}
-                            {statuses[Number(ex.id)] === "not_submitted" && (
-                              <FiMinusCircle
-                                className={styles.statusIcon}
-                                title="Göndərilməyib"
-                              />
-                            )}
+                            {(() => {
+                              const status = statuses[Number(ex.id)];
+                              const hasEverPassed = localStorage.getItem(`quiz_ever_passed_${ex.id}`) === 'true';
+                              console.log(`Exercise ${ex.id} status:`, status, 'hasEverPassed:', hasEverPassed);
+                              
+                              // If user has ever passed this exercise, always show green tick
+                              if (hasEverPassed || status === "correct") {
+                                return (
+                                  <FiCheckCircle
+                                    className={styles.statusIcon}
+                                    title="Doğru"
+                                    style={{ color: "#48bb78", fontSize: "1.4rem" }}
+                                  />
+                                );
+                              } else if (status === "wrong") {
+                                return (
+                                  <FiXCircle
+                                    className={styles.statusIcon}
+                                    title="Yanlış"
+                                    style={{ color: "#f56565", fontSize: "1.4rem" }}
+                                  />
+                                );
+                              } else {
+                                return (
+                                  <FiMinusCircle
+                                    className={styles.statusIcon}
+                                    title="Göndərilməyib"
+                                    style={{ color: "#a0aec0", fontSize: "1.4rem" }}
+                                  />
+                                );
+                              }
+                            })()}
                           </div>
                         </div>
                       </div>
