@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { exercises, Exercise } from "./exercisesData";
 import styles from "./ExercisesList.module.css";
 import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
@@ -15,6 +14,44 @@ import {
   SiGo,
   SiOpenjdk,
 } from "react-icons/si";
+
+interface Exercise {
+  id: number;
+  title: string;
+  description: string;
+  difficulty: string;
+  category: string;
+  content: {
+    acceptance: number;
+    constraints: string[];
+    examples: { input: string; output: string; explanation?: string }[];
+    tags: string[];
+    solution: string;
+    timeComplexity: string;
+    spaceComplexity: string;
+    hints?: string[];
+    testCases: { input: string; expectedOutput: string; hidden?: boolean }[];
+  };
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ExercisesResponse {
+  exercises: Exercise[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+  filters: {
+    difficulties: Array<{ difficulty: string; count: number }>;
+    categories: Array<{ category: string; count: number }>;
+  };
+}
 
 const difficultyColor = (diff: string) =>
   diff === "Asan"
@@ -37,25 +74,65 @@ const difficultyIcon = (diff: string) => {
 };
 
 export default function ExercisesPage() {
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("Bütün");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("ALL");
+  const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [statuses, setStatuses] = useState<{ [id: number]: "not_submitted" | "wrong" | "correct" }>({});
+  const [pagination, setPagination] = useState({
+    page: 1,
+    total: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrev: false
+  });
+  const [filters, setFilters] = useState({
+    difficulties: [] as Array<{ difficulty: string; count: number }>,
+    categories: [] as Array<{ category: string; count: number }>
+  });
   
   const pathname = usePathname();
   const currentLang = pathname.split("/")[1] || "en";
 
-  // Removed setGlobalLanguage logic as it is not defined or used
+  // Fetch exercises from API
+  useEffect(() => {
+    async function fetchExercises() {
+      try {
+        setLoading(true);
+        const params = new URLSearchParams({
+          page: pagination.page.toString(),
+          limit: '10',
+          difficulty: selectedDifficulty,
+          category: selectedCategory,
+          search: search
+        });
+
+        const response = await fetch(`/api/exercises?${params}`);
+        const data: ExercisesResponse = await response.json();
+
+        setExercises(data.exercises);
+        setPagination(data.pagination);
+        setFilters(data.filters);
+      } catch (error) {
+        console.error('Error fetching exercises:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchExercises();
+  }, [pagination.page, selectedDifficulty, selectedCategory, search]);
 
   // Fetch latest submission status for each exercise
-  React.useEffect(() => {
+  useEffect(() => {
     async function fetchStatuses() {
       const statusObj: { [id: number]: "not_submitted" | "wrong" | "correct" } = {};
       await Promise.all(
         exercises.map(async (ex: Exercise) => {
           const exId = Number(ex.id);
           try {
-            const maxTestCases = ex.testCases ? ex.testCases.length : 0;
-            const res = await fetch(`/api/quiz/${exId}/latest?maxTestCases=${maxTestCases}`);
+            const res = await fetch(`/api/quiz/${exId}/latest`);
             const data = await res.json();
             if (!data.latest) statusObj[exId] = "not_submitted";
             else if (data.hasPassed) statusObj[exId] = "correct";
@@ -68,24 +145,17 @@ export default function ExercisesPage() {
       );
       setStatuses(statusObj);
     }
+    
+    if (exercises.length > 0) {
     fetchStatuses();
-  }, []);
-
-  const filtered = exercises.filter((ex) => {
-    const matchesSearch = ex.title.toLowerCase().includes(search.toLowerCase()) ||
-                         ex.description.toLowerCase().includes(search.toLowerCase()) ||
-                         ex.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()));
-    
-    const matchesDifficulty = selectedDifficulty === "Bütün" || ex.difficulty === selectedDifficulty;
-    
-    return matchesSearch && matchesDifficulty;
-  });
+    }
+  }, [exercises]);
 
   const stats = {
-    total: exercises.length,
-    easy: exercises.filter(ex => ex.difficulty === "Asan").length,
-    medium: exercises.filter(ex => ex.difficulty === "Orta").length,
-    hard: exercises.filter(ex => ex.difficulty === "Çətin").length,
+    total: pagination.total,
+    easy: filters.difficulties.find(d => d.difficulty === 'EASY')?.count || 0,
+    medium: filters.difficulties.find(d => d.difficulty === 'MEDIUM')?.count || 0,
+    hard: filters.difficulties.find(d => d.difficulty === 'HARD')?.count || 0,
   };
 
   // Exercise-specific hero boxes
@@ -208,7 +278,7 @@ export default function ExercisesPage() {
             {/* Results Count */}
             <div className={styles.resultsInfo}>
               <span className={styles.resultsCount}>
-                {filtered.length} tapşırıq tapıldı
+                {exercises.length} tapşırıq tapıldı
               </span>
               {search && (
                 <span className={styles.searchTerm}>
@@ -219,7 +289,7 @@ export default function ExercisesPage() {
 
             {/* Exercises List */}
             <div className={styles.list}>
-              {filtered.map((ex) => (
+              {exercises.map((ex) => (
                 <Link
                   href={`/${currentLang}/exercises/${ex.id}`}
                   key={ex.id}
@@ -246,20 +316,20 @@ export default function ExercisesPage() {
                     <div className={styles.cardStats}>
                       <span className={styles.cellAcc}>
                         <FiUsers className={styles.statIconSmall} />
-                        {ex.acceptance}% Qəbul
+                        {ex.content?.acceptance || 0}% Qəbul
                       </span>
                       <span className={styles.timeComplexity}>
                         <FiClock className={styles.statIconSmall} />
-                        {ex.timeComplexity}
+                        {ex.content?.timeComplexity || 'O(1)'}
                       </span>
                     </div>
                     <div className={styles.cardTags}>
-                      {ex.tags.map((tag) => (
+                      {ex.content?.tags?.map((tag: string) => (
                         <span className={styles.cardTag} key={tag}>
                           <FiCode className={styles.tagIcon} />
                           {tag}
                         </span>
-                      ))}
+                      )) || []}
                     </div>
                   </div>
                 </Link>
@@ -267,7 +337,7 @@ export default function ExercisesPage() {
             </div>
 
             {/* Empty State */}
-            {filtered.length === 0 && (
+            {exercises.length === 0 && (
               <div className={styles.emptyState}>
                 <div className={styles.emptyIcon}>🔍</div>
                 <h3 className={styles.emptyTitle}>Heç bir tapşırıq tapılmadı</h3>

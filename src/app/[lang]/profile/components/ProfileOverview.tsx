@@ -204,6 +204,29 @@ export default function ProfileOverview({
 
         <div className={overviewStyles.statCard}>
           <div className={overviewStyles.statIcon}>
+            <FiAward />
+          </div>
+          <div className={overviewStyles.statContent}>
+            <div className={overviewStyles.statNumber}>
+              {userStats.unlockedAchievements}/{userStats.totalAchievements}
+            </div>
+            <div className={overviewStyles.statLabel}>{t("profile.overview.stats.totalAchievements")}</div>
+            <div className={overviewStyles.statProgress}>
+              <div
+                className={overviewStyles.statProgressBar}
+                style={{
+                  width: `${
+                    (userStats.unlockedAchievements / userStats.totalAchievements) *
+                      100 || 0
+                  }%`,
+                }}
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <div className={overviewStyles.statCard}>
+          <div className={overviewStyles.statIcon}>
             <FiClock />
           </div>
           <div className={overviewStyles.statContent}>
@@ -221,12 +244,57 @@ export default function ProfileOverview({
         </div>
       </div>
 
-      {/* Calendar Section - Temporarily disabled until activity tracking is ready */}
+      {/* Calendar Section */}
       <div className={overviewStyles.calendarSection}>
         <h3>📅 {t("profile.overview.calendar.title")}</h3>
-        <p>
-          {t("profile.overview.calendar.setup")}
-        </p>
+        <div className={overviewStyles.calendarGrid}>
+          {userStats.calendarData?.dailyActivities?.map((day: any, i: number) => {
+            const date = new Date(day.date);
+            const dayName = date.toLocaleDateString('az-AZ', { weekday: 'short' });
+            const dayNumber = date.getDate();
+            const isToday = i === 6;
+            const hasActivity = day.hasActivity;
+            
+            return (
+              <div 
+                key={i} 
+                className={`${overviewStyles.calendarDay} ${isToday ? overviewStyles.today : ''} ${hasActivity ? overviewStyles.hasActivity : ''}`}
+                title={`${dayName} ${dayNumber}${hasActivity ? ` - Aktiv gün (${day.lessonsViewed} dərs, ${day.exercisesSolved} məşq)` : ' - Aktivlik yoxdur'}`}
+              >
+                <div className={overviewStyles.dayName}>{dayName}</div>
+                <div className={overviewStyles.dayNumber}>{dayNumber}</div>
+                {hasActivity && <div className={overviewStyles.activityDot}></div>}
+              </div>
+            );
+          }) || Array.from({ length: 7 }, (_, i) => {
+            const date = new Date();
+            date.setDate(date.getDate() - 6 + i);
+            const dayName = date.toLocaleDateString('az-AZ', { weekday: 'short' });
+            const dayNumber = date.getDate();
+            const isToday = i === 6;
+            
+            return (
+              <div 
+                key={i} 
+                className={`${overviewStyles.calendarDay} ${isToday ? overviewStyles.today : ''}`}
+                title={`${dayName} ${dayNumber} - Məlumat yoxdur`}
+              >
+                <div className={overviewStyles.dayName}>{dayName}</div>
+                <div className={overviewStyles.dayNumber}>{dayNumber}</div>
+              </div>
+            );
+          })}
+        </div>
+        <div className={overviewStyles.calendarStats}>
+          <div className={overviewStyles.calendarStat}>
+            <span className={overviewStyles.statNumber}>{userStats.calendarData?.activeDays || userStats.learningStreak || 0}</span>
+            <span className={overviewStyles.statLabel}>{t("profile.overview.calendar.activeDays")}</span>
+          </div>
+          <div className={overviewStyles.calendarStat}>
+            <span className={overviewStyles.statNumber}>{userStats.calendarData?.thisWeekStudyTime || userStats.weeklyProgress?.studyTimeThisWeek || 0}h</span>
+            <span className={overviewStyles.statLabel}>{t("profile.overview.calendar.thisWeek")}</span>
+          </div>
+        </div>
       </div>
 
       {/* Activity Summary */}

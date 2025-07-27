@@ -41,84 +41,84 @@ import { useI18n } from "../../../contexts/I18nContext";
 
 export default function ProfilePage() {
   const { t } = useI18n();
-  
-  const profileTabs = [
-    {
-      key: "overview",
+
+const profileTabs = [
+  {
+    key: "overview",
       name: t("profile.tabs.overview.name"),
-      icon: <FiUser size={24} />,
+    icon: <FiUser size={24} />,
       description: t("profile.tabs.overview.description"),
-    },
-    {
-      key: "achievements",
+  },
+  {
+    key: "achievements",
       name: t("profile.tabs.achievements.name"),
-      icon: <FiAward size={24} />,
+    icon: <FiAward size={24} />,
       description: t("profile.tabs.achievements.description"),
-    },
-    {
-      key: "progress",
+  },
+  {
+    key: "progress",
       name: t("profile.tabs.progress.name"),
-      icon: <FiTrendingUp size={24} />,
+    icon: <FiTrendingUp size={24} />,
       description: t("profile.tabs.progress.description"),
-    },
-    {
-      key: "lessons",
+  },
+  {
+    key: "lessons",
       name: t("profile.tabs.lessons.name"),
-      icon: <FiBookOpen size={24} />,
+    icon: <FiBookOpen size={24} />,
       description: t("profile.tabs.lessons.description"),
-    },
-    {
-      key: "exercises",
+  },
+  {
+    key: "exercises",
       name: t("profile.tabs.exercises.name"),
-      icon: <FiActivity size={24} />,
+    icon: <FiActivity size={24} />,
       description: t("profile.tabs.exercises.description"),
-    },
-    {
-      key: "goals",
+  },
+  {
+    key: "goals",
       name: t("profile.tabs.goals.name"),
-      icon: <FiTarget size={24} />,
+    icon: <FiTarget size={24} />,
       description: t("profile.tabs.goals.description"),
-    },
-    {
-      key: "analytics",
+  },
+  {
+    key: "analytics",
       name: t("profile.tabs.analytics.name"),
-      icon: <FiBarChart2 size={24} />,
+    icon: <FiBarChart2 size={24} />,
       description: t("profile.tabs.analytics.description"),
-    },
-    /* Temporarily disabled until activity tracking is ready
-    {
-      key: "calendar",
+  },
+  /* Temporarily disabled until activity tracking is ready
+  {
+    key: "calendar",
       name: t("profile.tabs.calendar.name"),
-      icon: <FiCalendar size={24} />,
+    icon: <FiCalendar size={24} />,
       description: t("profile.tabs.calendar.description"),
-    },
-    */
-    {
-      key: "security",
+  },
+  */
+  {
+    key: "security",
       name: t("profile.tabs.security.name"),
-      icon: <FiShield size={24} />,
+    icon: <FiShield size={24} />,
       description: t("profile.tabs.security.description"),
-    },
-    {
-      key: "notifications",
+  },
+  {
+    key: "notifications",
       name: t("profile.tabs.notifications.name"),
-      icon: <FiBell size={24} />,
+    icon: <FiBell size={24} />,
       description: t("profile.tabs.notifications.description"),
-    },
-    {
-      key: "favorites",
+  },
+  {
+    key: "favorites",
       name: t("profile.tabs.favorites.name"),
-      icon: <FiHeart size={24} />,
+    icon: <FiHeart size={24} />,
       description: t("profile.tabs.favorites.description"),
-    },
-    {
-      key: "recent-activities",
+  },
+  {
+    key: "recent-activities",
       name: t("profile.tabs.recentActivities.name"),
-      icon: <FiActivity size={24} />,
+    icon: <FiActivity size={24} />,
       description: t("profile.tabs.recentActivities.description"),
-    },
-  ];
-  
+  },
+];
+
   const [selectedTab, setSelectedTab] = useState(profileTabs[0].key);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [userStats, setUserStats] = useState<any>(null);
