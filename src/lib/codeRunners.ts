@@ -208,7 +208,7 @@ const csharpRunner = async (
       "--memory=256m --cpus=0.5",
       images.csharp,
       "sh -c",
-      `"echo '${base64Code}' | base64 -d > /tmp/Program.cs && dotnet new console -o /tmp/app --force --no-restore && cp /tmp/Program.cs /tmp/app/Program.cs && dotnet run --project /tmp/app --no-restore --verbosity quiet"`,
+      `"echo '${base64Code}' | base64 -d > /tmp/Program.cs && dotnet new console -o /tmp/app --force && cp /tmp/Program.cs /tmp/app/Program.cs && cd /tmp/app && dotnet run"`,
     ].join(" ");
 
     console.log(`[csharpRunner] executing: ${dockerCmd}`);
@@ -324,7 +324,7 @@ const typescriptRunner = async (
       "--memory=256m --cpus=0.5",
       images.typescript,
       "sh -c",
-      `"echo '${base64Code}' | base64 -d > /tmp/main.ts && npx --yes tsc /tmp/main.ts --target es2020 --module commonjs --outDir /tmp --skipLibCheck --noEmitOnError && node /tmp/main.js"`,
+      `"echo '${base64Code}' | base64 -d > /tmp/main.ts && npx --yes typescript@latest /tmp/main.ts --target es2020 --module commonjs --outDir /tmp --skipLibCheck --noEmitOnError && node /tmp/main.js"`,
     ].join(" ");
 
     console.log(`[typescriptRunner] executing: ${dockerCmd}`);

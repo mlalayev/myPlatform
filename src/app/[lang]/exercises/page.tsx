@@ -213,7 +213,14 @@ export default function ExercisesPage() {
         const exerciseId = e.key.replace('quiz_ever_passed_', '');
         setStatuses(prev => ({
           ...prev,
-          [Number(exerciseId)]: e.newValue === 'true' ? 'correct' : prev[Number(exerciseId)]
+          [Number(exerciseId)]: e.newValue === 'true' ? 'correct' : 'wrong'
+        }));
+      } else if (e.key && e.key.startsWith('quiz_status_')) {
+        // Also listen for quiz_status changes
+        const exerciseId = e.key.replace('quiz_status_', '');
+        setStatuses(prev => ({
+          ...prev,
+          [Number(exerciseId)]: e.newValue === 'correct' ? 'correct' : 'wrong'
         }));
       }
     };
@@ -283,6 +290,37 @@ export default function ExercisesPage() {
 
     fetchUserStats();
   }, []);
+
+  // Refresh statuses when localStorage changes (for real-time updates)
+  useEffect(() => {
+    const refreshStatuses = () => {
+      setStatuses(prev => {
+        const newStatuses = { ...prev };
+        exercises.forEach(ex => {
+          const hasEverPassed = localStorage.getItem(`quiz_ever_passed_${ex.id}`) === 'true';
+          const currentStatus = localStorage.getItem(`quiz_status_${ex.id}`);
+          
+          if (hasEverPassed || currentStatus === "correct") {
+            newStatuses[ex.id] = "correct";
+          } else if (currentStatus === "incorrect") {
+            newStatuses[ex.id] = "wrong";
+          }
+        });
+        return newStatuses;
+      });
+    };
+
+    // Initial refresh
+    refreshStatuses();
+
+    // Listen for storage changes
+    const handleStorageChange = () => {
+      refreshStatuses();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [exercises]);
 
   const stats = {
     total: exercises.length,
@@ -646,10 +684,11 @@ export default function ExercisesPage() {
                             {(() => {
                               const status = statuses[Number(ex.id)];
                               const hasEverPassed = localStorage.getItem(`quiz_ever_passed_${ex.id}`) === 'true';
-                              console.log(`Exercise ${ex.id} status:`, status, 'hasEverPassed:', hasEverPassed);
+                              const currentStatus = localStorage.getItem(`quiz_status_${ex.id}`);
+                              console.log(`Exercise ${ex.id} status:`, status, 'hasEverPassed:', hasEverPassed, 'currentStatus:', currentStatus);
                               
                               // If user has ever passed this exercise, always show green tick
-                              if (hasEverPassed || status === "correct") {
+                              if (hasEverPassed || status === "correct" || currentStatus === "correct") {
                                 return (
                                   <FiCheckCircle
                                     className={styles.statusIcon}
@@ -657,7 +696,7 @@ export default function ExercisesPage() {
                                     style={{ color: "#48bb78", fontSize: "1.4rem" }}
                                   />
                                 );
-                              } else if (status === "wrong") {
+                              } else if (status === "wrong" || currentStatus === "incorrect") {
                                 return (
                                   <FiXCircle
                                     className={styles.statusIcon}

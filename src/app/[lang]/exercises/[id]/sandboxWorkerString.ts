@@ -1,97 +1,195 @@
 const workerCode = `
 self.onmessage = async function (e) {
   const { code, args } = e.data;
-  let timer = setTimeout(() => self.close(), 2000);
+  let timer = setTimeout(() => self.close(), 5000); // Increased timeout to 5 seconds
 
   try {
-    // Əvvəlcə eval + self.solution metodu
-    try {
-      const wrappedCode = \`\${code}\nself.solution = solution;\`;
-      eval(wrappedCode);
-      console.log('[worker] eval wrappedCode success');
-    } catch (err) {
-      console.log('[worker] eval wrappedCode error:', err);
+    // Security: Block dangerous global objects and functions
+    const dangerousGlobals = [
+      'setTimeout', 'setInterval', 'setImmediate',
+      'fetch', 'XMLHttpRequest', 'WebSocket', 'Worker', 'SharedWorker',
+      'localStorage', 'sessionStorage', 'indexedDB',
+      'document', 'window', 'global', 'process', 'require', 'import',
+      'console.log', 'console.error', 'console.warn', 'console.info'
+    ];
+
+    // Override dangerous functions to prevent execution
+    dangerousGlobals.forEach(global => {
+      if (global in self) {
+        const original = self[global];
+        self[global] = function() {
+          throw new Error(\`Təhlükəli funksiya '\${global}' icra edilə bilməz!\`);
+        };
+      }
+    });
+
+    // Block access to global scope
+    Object.defineProperty(self, 'global', {
+      get: function() {
+        throw new Error('Global scope-ə giriş məhdudlaşdırılıb!');
+      }
+    });
+
+    // Block process object
+    Object.defineProperty(self, 'process', {
+      get: function() {
+        throw new Error('Process obyektinə giriş məhdudlaşdırılıb!');
+      }
+    });
+
+    // Block require and import
+    Object.defineProperty(self, 'require', {
+      get: function() {
+        throw new Error('require() funksiyası məhdudlaşdırılıb!');
+      }
+    });
+
+    Object.defineProperty(self, 'import', {
+      get: function() {
+        throw new Error('import() funksiyası məhdudlaşdırılıb!');
+      }
+    });
+
+    // Safe function parsing with limited eval/Function usage
+    console.log('[worker] Starting safe function parsing');
+    
+    // Try to find solution function using regex patterns
+    const patterns = [
+      // TypeScript function declarations
+      /function\\s+solution\\s*\\(([^)]*)\\)\\s*:\\s*[^{]*\\{([\\s\\S]*)\\}/,              // function solution(...): type {...}
+      /function\\s+solution\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,                       // function solution(...) {...}
+      
+      // Function expressions
+      /const\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*:\\s*[^{]*\\{([\\s\\S]*)\\}/, // const solution = function(...): type {...}
+      /const\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,         // const solution = function(...) {...}
+      /let\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*:\\s*[^{]*\\{([\\s\\S]*)\\}/,
+      /let\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,
+      /var\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*:\\s*[^{]*\\{([\\s\\S]*)\\}/,
+      /var\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,
+      
+      // Arrow functions
+      /const\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*:\\s*[^{]*\\s*=>\\s*\\{([\\s\\S]*)\\}/,   // const solution = (...): type => {...}
+      /const\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/,               // const solution = (...) => {...}
+      /let\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*:\\s*[^{]*\\s*=>\\s*\\{([\\s\\S]*)\\}/,
+      /let\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/,
+      /var\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*:\\s*[^{]*\\s*=>\\s*\\{([\\s\\S]*)\\}/,
+      /var\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/,
+      
+      // Simple arrow functions
+      /const\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*:\\s*[^;\\n]*\\s*=>\\s*([^;\\n]+)/,     // const solution = (...): type => expression
+      /const\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*([^;\\n]+)/,                     // const solution = (...) => expression
+      /let\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*:\\s*[^;\\n]*\\s*=>\\s*([^;\\n]+)/,
+      /let\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*([^;\\n]+)/,
+      /var\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*:\\s*[^;\\n]*\\s*=>\\s*([^;\\n]+)/,
+      /var\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*([^;\\n]+)/
+    ];
+
+    let solutionFunction = null;
+    let params = '';
+    let body = '';
+
+    // Try to use the simple test results directly
+    const simpleTest = code.match(/function\\s+solution/);
+    const paramTest = code.match(/function\\s+solution\\s*\\(([^)]*)\\)/);
+    const bodyTest = code.match(/function\\s+solution[^{]*\\{([\\s\\S]*)\\}/);
+
+    if (simpleTest && paramTest && bodyTest) {
+      console.log('[worker] Using simple test results directly');
+      params = paramTest[1].trim();
+      body = bodyTest[1].trim();
+      
+      // Remove TypeScript type annotations from parameters
+      params = params
+        .replace(/:\s*number\[\]\[\]/g, '')  // Remove number[][] type
+        .replace(/:\s*number\[\]/g, '')      // Remove number[] type
+        .replace(/:\s*string\[\]/g, '')      // Remove string[] type
+        .replace(/:\s*number/g, '')          // Remove number type
+        .replace(/:\s*string/g, '')          // Remove string type
+        .replace(/:\s*boolean/g, '')         // Remove boolean type
+        .replace(/:\s*any/g, '')             // Remove any type
+        .replace(/:\s*Record<[^>]*>/g, '')   // Remove Record type
+        .replace(/<number,\s*number>/g, '')  // Remove Map type
+        .replace(/<number>/g, '')            // Remove generic types
+        .replace(/\[\]/g, '')                // Remove [] from parameter names
+        .trim();
+      
+      try {
+        const functionCode = \`function solution(\${params}) {\${body}}\`;
+        eval(functionCode);
+        solutionFunction = solution;
+        console.log('[worker] Simple test function loaded successfully');
+      } catch (err) {
+        console.log('[worker] Simple test function creation error:', err);
+      }
     }
 
-    // Əgər hələ də function tapılmayıbsa, regex ilə axtar
-    if (typeof self.solution !== 'function') {
-      try {
-        console.log('[worker] Trying regex patterns');
-        const patterns = [
-          /function\\s+solution\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,                       // function solution(...) {...}
-          /const\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,         // const solution = function(...) {...}
-          /let\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,
-          /var\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,
-          /const\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/,               // const solution = (...) => {...}
-          /let\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/,
-          /var\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/,
-          /(?:const|let|var)\\\\s+solution\\\\s*=\\\\s*\\\\(([^)]*)\\\\)\\\\s*=>\\\\s*([^\\\\{;\\\\n]+)/
-        ];
+    // If simple test didn't work, try the patterns
+    if (!solutionFunction) {
+      console.log('[worker] Simple test failed, trying patterns...');
+      
+      for (let i = 0; i < patterns.length; i++) {
+        const pattern = patterns[i];
+        const match = code.match(pattern);
+        if (match) {
+          console.log('[worker] Regex matched pattern:', i + 1);
+          
+          // Extract parameters and body from the matched pattern
+          params = match[1].trim();
+          body = match[2].trim();
+          
+          // Remove TypeScript type annotations from parameters
+          params = params
+            .replace(/:\s*number\[\]\[\]/g, '')  // Remove number[][] type
+            .replace(/:\s*number\[\]/g, '')      // Remove number[] type
+            .replace(/:\s*string\[\]/g, '')      // Remove string[] type
+            .replace(/:\s*number/g, '')          // Remove number type
+            .replace(/:\s*string/g, '')          // Remove string type
+            .replace(/:\s*boolean/g, '')         // Remove boolean type
+            .replace(/:\s*any/g, '')             // Remove any type
+            .replace(/:\s*Record<[^>]*>/g, '')   // Remove Record type
+            .replace(/<number,\s*number>/g, '')  // Remove Map type
+            .replace(/<number>/g, '')            // Remove generic types
+            .replace(/\[\]/g, '')                // Remove [] from parameter names
+            .trim();
 
-        for (const pattern of patterns) {
-          const match = code.match(pattern);
-          if (match) {
-            console.log('[worker] Regex matched:', pattern);
-            const params = match[1].trim();
-            const body = match[2].trim();
+          if (!params && args.length > 0) {
+            console.log('[worker] No params but args needed');
+            self.postMessage({ error: 'Funksiya parametr qəbul etmir! Ən azı 1 input parameter yazılmalıdır.' });
+            clearTimeout(timer);
+            return;
+          }
 
-            if (!params && args.length > 0) {
-              console.log('[worker] No params but args needed');
-              self.postMessage({ error: 'Funksiya parametr qəbul etmir! Ən azı 1 input parameter yazılmalıdır.' });
-              clearTimeout(timer);
-              return;
-            }
+          const finalBody = pattern.source.includes('=>') && !body.includes('return')
+            ? \`return \${body};\`
+            : body;
 
-            const finalBody = pattern.source.includes('=>') && !body.includes('return')
-              ? \`return \${body};\`
-              : body;
-
-            self.solution = new Function(params, finalBody);
+          // Create function safely using Function constructor (allowed in worker)
+          try {
+            // Create the function in global scope so it can call itself recursively
+            const functionCode = \`function solution(\${params}) {\${finalBody}}\`;
+            eval(functionCode);
+            solutionFunction = solution;
             break;
+          } catch (err) {
+            console.log('[worker] Function creation error:', err);
+            continue;
           }
         }
-      } catch (err) {
-        console.log('[worker] Regex or parsing error:', err);
-        self.postMessage({ error: 'Regex və ya kod parsing xətası: ' + err.message });
-        clearTimeout(timer);
-        return;
       }
     }
 
-    // Hələ də tapılmayıbsa
-    if (typeof self.solution !== 'function') {
-      console.log('[worker] Trying to fallback to first found function in code');
-
-      const singleFunctionMatch = code.match(/function\s+([a-zA-Z0-9_$]+)?\s*\(([^)]*)\)\s*\{([\s\S]*)\}/);
-      if (singleFunctionMatch) {
-        const params = singleFunctionMatch[2].trim();
-        const body = singleFunctionMatch[3].trim();
-        self.solution = new Function(params, body);
-        console.log('[worker] Fallback function loaded');
-      } else {
-        const arrowFuncMatch = code.match(/(?:const|let|var)?\s*[a-zA-Z0-9_$]*\s*=\s*\(([^)]*)\)\s*=>\s*\{([\s\S]*)\}/);
-        if (arrowFuncMatch) {
-          const params = arrowFuncMatch[1].trim();
-          const body = arrowFuncMatch[2].trim();
-          self.solution = new Function(params, body);
-          console.log('[worker] Arrow function fallback loaded');
-        }
-      }
-
-      // Əgər hələ də function tapılmadısa, error qaytar
-      if (typeof self.solution !== 'function') {
-        console.log('[worker] No fallback function found');
-        self.postMessage({ error: 'Funksiya tapılmadı! Kod daxilində heç bir function aşkarlanmadı.' });
-        clearTimeout(timer);
-        return;
-      }
+    // Check if function was found
+    if (!solutionFunction || typeof solutionFunction !== 'function') {
+      console.log('[worker] No function found');
+      self.postMessage({ error: 'Funksiya tapılmadı! Kod daxilində heç bir function aşkarlanmadı.' });
+      clearTimeout(timer);
+      return;
     }
 
-    // Parametr sayı yoxlaması - yalnız minimum lazım olanları yoxla
-    const fnParamsCount = self.solution.length;
+    // Parametr sayı yoxlaması
+    const fnParamsCount = solutionFunction.length;
     console.log('[worker] solution param count:', fnParamsCount, 'args.length:', args.length, 'args:', args);
     
-    // Yalnız çox az parametr varsa xəta ver, artıq parametrlər problemə səbəb olmasın
     if (fnParamsCount === 0 && args.length > 0) {
       console.log('[worker] No parameters but args needed');
       self.postMessage({ error: 'Funksiya parametr qəbul etmir! Ən azı 1 input parameter yazılmalıdır.' });
@@ -103,7 +201,7 @@ self.onmessage = async function (e) {
     let result;
     try {
       console.log('[worker] Calling solution with args:', args);
-      result = self.solution(...args);
+      result = solutionFunction(...args);
       if (result instanceof Promise) {
         result = await result;
       }

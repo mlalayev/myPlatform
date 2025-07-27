@@ -23,6 +23,8 @@ import {
 } from "react-icons/fi";
 import { useI18n } from "@/contexts/I18nContext";
 import { useAppContext } from "@/contexts/AppContext";
+// Remove Babel import since it's causing issues
+// import Babel from "@babel/standalone";
 
 interface ExerciseDetailPageProps {
   params: Promise<{ id: string }>;
@@ -578,45 +580,8 @@ export default function ExerciseDetailPage({
           }
           error = data.error;
 
-        } else if (language === "javascript") {
-          // JavaScript execution
-          let match = userCode.match(/function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
-          if (!match) {
-            // Try arrow function pattern
-            match = userCode.match(/(?:const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*[:=]\s*(?:\([^)]*\)\s*=>|function\s*\()/);
-          }
-          if (match) functionName = match[1];
-          else functionFound = false;
-          
-          if (!functionFound) {
-            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: function myfunc(...) {} və ya const myfunc = (...) => {}");
-            setFeedbackType("error");
-            setFailedCases([]);
-            setSubmitted(true);
-            setIsSubmitting(false);
-            setDetectedComplexity(null);
-            setActiveLeftTab(4);
-            updateStatusIcon(false);
-            return;
-          }
-
-          const worker = createSandboxWorker();
-          const resultPromise = new Promise<{ result?: unknown; error?: string }>((resolve) => {
-            worker.onmessage = (e: MessageEvent) => resolve(e.data);
-            worker.postMessage({ code: userCode, args });
-          });
-          const timeoutPromise = new Promise<{ error: string }>((resolve) =>
-            setTimeout(() => {
-              worker.terminate();
-              resolve({ error: "Kodun icrası çox uzun çəkdi (timeout)!" });
-            }, 2000)
-          );
-          const response: { result?: unknown; error?: string } = await Promise.race([resultPromise, timeoutPromise]);
-          result = response.result;
-          error = response.error;
-
-        } else if (language === "typescript") {
-          // TypeScript execution - use API instead of worker
+        } else if (language === "javascript" || language === "typescript" || language === "js" || language === "ts") {
+          // JavaScript/TypeScript execution - both use worker for now
           let match = userCode.match(/function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
           if (!match) {
             // Try arrow function pattern
@@ -641,27 +606,150 @@ export default function ExerciseDetailPage({
             return;
           }
 
-          // Convert args to proper format for TypeScript
-          let argsStr = Array.isArray(args) 
-            ? args.map(a => typeof a === "string" ? `"${a}"` : JSON.stringify(a)).join(", ")
-            : JSON.stringify(args);
-          
-          const callCode = `\nconsole.log(JSON.stringify(${functionName}(${argsStr})));`;
-          const fullCode = `${userCode}${callCode}`;
-          
-          const resp = await fetch("/api/execute", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code: fullCode, language: "typescript" }),
-          });
-          const data = await resp.json();
-          
-          try {
-            result = JSON.parse(data.output);
-          } catch {
-            result = data.output;
+          // Handle TypeScript transpilation like in mainpage editor
+          let transpiled = userCode;
+          if (language === "typescript" || language === "ts") {
+            try {
+              // Check for unsupported features
+              const unsupported = /(Promise|async\s+function|await\s|private |public |protected )/;
+              if (unsupported.test(userCode)) {
+                setFeedback("TypeScript-də dəstəklənməyən xüsusiyyətlər istifadə olunub!");
+                setFeedbackType("error");
+                setFailedCases([]);
+                setSubmitted(true);
+                setIsSubmitting(false);
+                setDetectedComplexity(null);
+                setActiveLeftTab(4);
+                updateStatusIcon(false);
+                return;
+              }
+
+              // Security check for dangerous code
+              const dangerousPatterns = [
+                /require\s*\(/,
+                /import\s+.*from\s+['"]/,
+                /eval\s*\(/,
+                /Function\s*\(/,
+                /new\s+Function/,
+                /process\./,
+                /global\./,
+                /window\./,
+                /document\./,
+                /localStorage\./,
+                /sessionStorage\./,
+                /indexedDB\./,
+                /fetch\s*\(/,
+                /XMLHttpRequest/,
+                /WebSocket/,
+                /Worker/,
+                /SharedWorker/,
+                /setInterval\s*\(/,
+                /setTimeout\s*\(/,
+                /while\s*\(\s*true\s*\)/,
+                /for\s*\(\s*;\s*;\s*\)/,
+                /while\s*\(\s*1\s*\)/,
+                /while\s*\(\s*!0\s*\)/,
+              ];
+
+              for (const pattern of dangerousPatterns) {
+                if (pattern.test(userCode)) {
+                  setFeedback("Təhlükəli kod aşkarlanıb! Bu kod icra edilə bilməz.");
+                  setFeedbackType("error");
+                  setFailedCases([]);
+                  setSubmitted(true);
+                  setIsSubmitting(false);
+                  setDetectedComplexity(null);
+                  setActiveLeftTab(4);
+                  updateStatusIcon(false);
+                  return;
+                }
+              }
+
+              // Remove TypeScript type annotations and use as JavaScript
+              transpiled = userCode
+                .replace(/:\s*number\[\]\[\]/g, '')  // Remove number[][] type
+                .replace(/:\s*number\[\]/g, '')  // Remove number[] type
+                .replace(/:\s*string\[\]/g, '')  // Remove string[] type
+                .replace(/:\s*number/g, '')     // Remove number type
+                .replace(/:\s*string/g, '')     // Remove string type
+                .replace(/:\s*boolean/g, '')    // Remove boolean type
+                .replace(/:\s*any/g, '')        // Remove any type
+                .replace(/:\s*Record<[^>]*>/g, '')  // Remove Record type
+                .replace(/<number,\s*number>/g, '')  // Remove Map type
+                .replace(/<number>/g, '')       // Remove generic types
+                .replace(/!\s*;/g, ';')         // Remove non-null assertion
+                .replace(/!\s*\)/g, ')')        // Remove non-null assertion
+                .replace(/!\s*,/g, ',')         // Remove non-null assertion
+                .replace(/!\s*]/g, ']')         // Remove non-null assertion
+                .replace(/!\s*}/g, '}');        // Remove non-null assertion
+            } catch (tsErr: unknown) {
+              setFeedback("TypeScript kompilasiya xətası: " + (tsErr instanceof Error ? tsErr.message : String(tsErr)));
+              setFeedbackType("error");
+              setFailedCases([]);
+              setSubmitted(true);
+              setIsSubmitting(false);
+              setDetectedComplexity(null);
+              setActiveLeftTab(4);
+              updateStatusIcon(false);
+              return;
+            }
+          } else if (language === "javascript" || language === "js") {
+            // Security check for JavaScript code too
+            const dangerousPatterns = [
+              /require\s*\(/,
+              /import\s+.*from\s+['"]/,
+              /eval\s*\(/,
+              /Function\s*\(/,
+              /new\s+Function/,
+              /process\./,
+              /global\./,
+              /window\./,
+              /document\./,
+              /localStorage\./,
+              /sessionStorage\./,
+              /indexedDB\./,
+              /fetch\s*\(/,
+              /XMLHttpRequest/,
+              /WebSocket/,
+              /Worker/,
+              /SharedWorker/,
+              /setInterval\s*\(/,
+              /setTimeout\s*\(/,
+              /while\s*\(\s*true\s*\)/,
+              /for\s*\(\s*;\s*;\s*\)/,
+              /while\s*\(\s*1\s*\)/,
+              /while\s*\(\s*!0\s*\)/,
+            ];
+
+            for (const pattern of dangerousPatterns) {
+              if (pattern.test(userCode)) {
+                setFeedback("Təhlükəli kod aşkarlanıb! Bu kod icra edilə bilməz.");
+                setFeedbackType("error");
+                setFailedCases([]);
+                setSubmitted(true);
+                setIsSubmitting(false);
+                setDetectedComplexity(null);
+                setActiveLeftTab(4);
+                updateStatusIcon(false);
+                return;
+              }
+            }
           }
-          error = data.error;
+
+          const worker = createSandboxWorker();
+          const resultPromise = new Promise<{ result?: unknown; error?: string }>((resolve) => {
+            worker.onmessage = (e: MessageEvent) => resolve(e.data);
+            worker.postMessage({ code: transpiled, args });
+          });
+          const timeoutPromise = new Promise<{ error: string }>((resolve) =>
+            setTimeout(() => {
+              worker.terminate();
+              resolve({ error: "Kodun icrası çox uzun çəkdi (timeout)!" });
+            }, 5000) // Increased timeout to 5 seconds
+          );
+          const response: { result?: unknown; error?: string } = await Promise.race([resultPromise, timeoutPromise]);
+          result = response.result;
+          error = response.error;
 
         } else if (language === "cpp") {
           // C++ execution

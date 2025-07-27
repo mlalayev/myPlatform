@@ -55,10 +55,10 @@ async function seedExercises() {
             "Hər element üçün target - element hesablayın",
           ],
           testCases: [
-            { input: "2 7 11 15|9", expectedOutput: [0,1] },
-            { input: "3 2 4|6", expectedOutput: [1,2] },
-            { input: "3 3|6", expectedOutput: [0,1], hidden: true },
-            { input: "1 2 3 4 5|9", expectedOutput: [3,4], hidden: true },
+            { input: "2 7 11 15|9", expectedOutput: [0, 1] },
+            { input: "3 2 4|6", expectedOutput: [1, 2] },
+            { input: "3 3|6", expectedOutput: [0, 1], hidden: true },
+            { input: "1 2 3 4 5|9", expectedOutput: [3, 4], hidden: true },
           ],
           inputParser: `(input) => {
             const parts = input.split('|');
@@ -141,7 +141,7 @@ int* solution(int* nums, int numsSize, int target, int* returnSize) {
           testCases: [
             { input: "1 3|2", expectedOutput: "2.0" },
             { input: "1 2|3 4", expectedOutput: "2.5" },
-            { input: "0 0|0 0", expectedOutput: "0.0", hidden: true }
+            { input: "0 0|0 0", expectedOutput: "0.0", hidden: true },
           ],
           inputParser: `(input) => {
             const parts = input.split('|');
@@ -222,7 +222,7 @@ double solution(int* nums1, int nums1Size, int* nums2, int nums2Size) {
           ],
           testCases: [
             { input: "1 8 6 2 5 4 8 3 7", expectedOutput: "49" },
-            { input: "1 1", expectedOutput: "1", hidden: true }
+            { input: "1 1", expectedOutput: "1", hidden: true },
           ],
           inputParser: `(input) => {
             return [input.split(' ').map(Number)];
@@ -233,6 +233,10 @@ double solution(int* nums1, int nums1Size, int* nums2, int nums2Size) {
  * @return {number}
  */
 function solution(height) {
+    
+}`,
+            typescript: `
+function solution(height: number[]): number {
     
 }`,
             python: `class Solution(object):
