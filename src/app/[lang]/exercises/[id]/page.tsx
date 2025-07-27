@@ -45,6 +45,9 @@ interface Exercise {
     hints?: string[];
     testCases: { input: string; expectedOutput: string; hidden?: boolean }[];
     inputParser?: (input: string) => any;
+    functionTemplates?: {
+      [key: string]: string;
+    };
   };
   published: boolean;
   createdAt: string;
@@ -64,14 +67,53 @@ function createSandboxWorker() {
 
 // Add languageSamples for default code templates
 const languageSamples = {
-  javascript: `function solution() {\n  \n}`,
-  python: `def solution():\n    pass`,
+  javascript: `/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number[]}
+ */
+function solution(nums, target) {
+    
+}`,
+  python: `class Solution(object):
+    def solution(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: List[int]
+        """
+        `,
+  cpp: `class Solution {
+public:
+    vector<int> solution(vector<int>& nums, int target) {
+        
+    }
+};`,
+  c: `/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* solution(int* nums, int numsSize, int target, int* returnSize) {
+    
+}`,
+  java: `class Solution {
+    public int[] solution(int[] nums, int target) {
+        
+    }
+}`,
+  csharp: `public class Solution {
+    public int[] Solution(int[] nums, int target) {
+        
+    }
+}`,
 };
 
 const languageOptions = [
   { value: "javascript", label: "JavaScript" },
   { value: "python", label: "Python" },
-  // Add more languages here as needed
+  { value: "cpp", label: "C++" },
+  { value: "c", label: "C" },
+  { value: "java", label: "Java" },
+  { value: "csharp", label: "C#" },
 ];
 
 // Add this interface for latestSubmission
@@ -702,18 +744,16 @@ export default function ExerciseDetailPage({
   };
 
   useEffect(() => {
-    // Only update code if it matches the previous language's default or is empty
-    if (
-      !userCode ||
-      userCode === languageSamples.javascript ||
-      userCode === languageSamples.python
-    ) {
-      setUserCode(
-        languageSamples[language as keyof typeof languageSamples] || ""
-      );
+    // Always update code when language changes or when exercise loads
+    if (exercise?.content?.functionTemplates?.[language]) {
+      // Use exercise-specific template
+      setUserCode(exercise.content.functionTemplates[language]);
+    } else if (languageSamples[language as keyof typeof languageSamples]) {
+      // Use default template for this language
+      setUserCode(languageSamples[language as keyof typeof languageSamples]);
     }
     // eslint-disable-next-line
-  }, [language]);
+  }, [language, exercise]);
 
   // Close dropdown on outside click
   useEffect(() => {

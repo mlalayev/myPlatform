@@ -66,6 +66,46 @@ async function seedExercises() {
             const target = Number(parts[1]);
             return [nums, target];
           }`,
+          functionTemplates: {
+            javascript: `/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number[]}
+ */
+function solution(nums, target) {
+    
+}`,
+            python: `class Solution(object):
+    def solution(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: List[int]
+        """
+        `,
+            cpp: `class Solution {
+public:
+    vector<int> solution(vector<int>& nums, int target) {
+        
+    }
+};`,
+            c: `/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* solution(int* nums, int numsSize, int target, int* returnSize) {
+    
+}`,
+            java: `class Solution {
+    public int[] solution(int[] nums, int target) {
+        
+    }
+}`,
+            csharp: `public class Solution {
+    public int[] Solution(int[] nums, int target) {
+        
+    }
+}`,
+          },
         },
       },
       {
@@ -103,7 +143,52 @@ async function seedExercises() {
             { input: "1 2|3 4", expectedOutput: "2.5" },
             { input: "0 0|0 0", expectedOutput: "0.0", hidden: true }
           ],
-          inputParser: null,
+          inputParser: `(input) => {
+            const parts = input.split('|');
+            const nums1 = parts[0].split(' ').map(Number);
+            const nums2 = parts[1].split(' ').map(Number);
+            return [nums1, nums2];
+          }`,
+          functionTemplates: {
+            javascript: `/**
+ * @param {number[]} nums1
+ * @param {number[]} nums2
+ * @return {number}
+ */
+function solution(nums1, nums2) {
+    
+}`,
+            python: `class Solution(object):
+    def solution(self, nums1, nums2):
+        """
+        :type nums1: List[int]
+        :type nums2: List[int]
+        :rtype: float
+        """
+        `,
+            cpp: `class Solution {
+public:
+    double solution(vector<int>& nums1, vector<int>& nums2) {
+        
+    }
+};`,
+            c: `/**
+ * Note: The returned value should be a double.
+ */
+double solution(int* nums1, int nums1Size, int* nums2, int nums2Size) {
+    
+}`,
+            java: `class Solution {
+    public double solution(int[] nums1, int[] nums2) {
+        
+    }
+}`,
+            csharp: `public class Solution {
+    public double Solution(int[] nums1, int[] nums2) {
+        
+    }
+}`,
+          },
         },
       },
       {
@@ -142,6 +227,44 @@ async function seedExercises() {
           inputParser: `(input) => {
             return [input.split(' ').map(Number)];
           }`,
+          functionTemplates: {
+            javascript: `/**
+ * @param {number[]} height
+ * @return {number}
+ */
+function solution(height) {
+    
+}`,
+            python: `class Solution(object):
+    def solution(self, height):
+        """
+        :type height: List[int]
+        :rtype: int
+        """
+        `,
+            cpp: `class Solution {
+public:
+    int solution(vector<int>& height) {
+        
+    }
+};`,
+            c: `/**
+ * Note: The returned value should be an integer.
+ */
+int solution(int* height, int heightSize) {
+    
+}`,
+            java: `class Solution {
+    public int solution(int[] height) {
+        
+    }
+}`,
+            csharp: `public class Solution {
+    public int Solution(int[] height) {
+        
+    }
+}`,
+          },
         },
       },
       {
@@ -193,6 +316,46 @@ async function seedExercises() {
             const matrix = parts.slice(0, -1).map(row => row.split(' ').map(Number));
             return [matrix, target];
           }`,
+          functionTemplates: {
+            javascript: `/**
+ * @param {number[][]} matrix
+ * @param {number} target
+ * @return {boolean}
+ */
+function solution(matrix, target) {
+    
+}`,
+            python: `class Solution(object):
+    def solution(self, matrix, target):
+        """
+        :type matrix: List[List[int]]
+        :type target: int
+        :rtype: bool
+        """
+        `,
+            cpp: `class Solution {
+public:
+    bool solution(vector<vector<int>>& matrix, int target) {
+        
+    }
+};`,
+            c: `/**
+ * Note: The returned value should be a boolean.
+ */
+bool solution(int** matrix, int matrixSize, int* matrixColSize, int target) {
+    
+}`,
+            java: `class Solution {
+    public boolean solution(int[][] matrix, int target) {
+        
+    }
+}`,
+            csharp: `public class Solution {
+    public bool Solution(int[][] matrix, int target) {
+        
+    }
+}`,
+          },
         },
       },
       {
@@ -249,6 +412,44 @@ async function seedExercises() {
           inputParser: `(input) => {
             return [input];
           }`,
+          functionTemplates: {
+            javascript: `/**
+ * @param {string} s
+ * @return {boolean}
+ */
+function solution(s) {
+    
+}`,
+            python: `class Solution(object):
+    def solution(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+        `,
+            cpp: `class Solution {
+public:
+    bool solution(string s) {
+        
+    }
+};`,
+            c: `/**
+ * Note: The returned value should be a boolean.
+ */
+bool solution(char* s) {
+    
+}`,
+            java: `class Solution {
+    public boolean solution(String s) {
+        
+    }
+}`,
+            csharp: `public class Solution {
+    public bool Solution(string s) {
+        
+    }
+}`,
+          },
         },
       },
       {
@@ -288,6 +489,44 @@ async function seedExercises() {
           inputParser: `(input) => {
             return [input];
           }`,
+          functionTemplates: {
+            javascript: `/**
+ * @param {string} s
+ * @return {string}
+ */
+function solution(s) {
+    
+}`,
+            python: `class Solution(object):
+    def solution(self, s):
+        """
+        :type s: str
+        :rtype: str
+        """
+        `,
+            cpp: `class Solution {
+public:
+    string solution(string s) {
+        
+    }
+};`,
+            c: `/**
+ * Note: The returned string should be modified in place.
+ */
+void solution(char* s) {
+    
+}`,
+            java: `class Solution {
+    public String solution(String s) {
+        
+    }
+}`,
+            csharp: `public class Solution {
+    public string Solution(string s) {
+        
+    }
+}`,
+          },
         },
       },
       {
@@ -330,6 +569,44 @@ async function seedExercises() {
           inputParser: `(input) => {
             return [input.split(' ').map(Number)];
           }`,
+          functionTemplates: {
+            javascript: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+function solution(nums) {
+    
+}`,
+            python: `class Solution(object):
+    def solution(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        `,
+            cpp: `class Solution {
+public:
+    int solution(vector<int>& nums) {
+        
+    }
+};`,
+            c: `/**
+ * Note: The returned value should be an integer.
+ */
+int solution(int* nums, int numsSize) {
+    
+}`,
+            java: `class Solution {
+    public int solution(int[] nums) {
+        
+    }
+}`,
+            csharp: `public class Solution {
+    public int Solution(int[] nums) {
+        
+    }
+}`,
+          },
         },
       },
       {
@@ -372,6 +649,48 @@ async function seedExercises() {
             { input: "[]", expectedOutput: "[]" },
             { input: "[1]", expectedOutput: "[1]" },
           ],
+          inputParser: `(input) => {
+            // Parse binary tree from string representation
+            return [input];
+          }`,
+          functionTemplates: {
+            javascript: `/**
+ * @param {TreeNode} root
+ * @return {number[]}
+ */
+function solution(root) {
+    
+}`,
+            python: `class Solution(object):
+    def solution(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[int]
+        """
+        `,
+            cpp: `class Solution {
+public:
+    vector<int> solution(TreeNode* root) {
+        
+    }
+};`,
+            c: `/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* solution(struct TreeNode* root, int* returnSize) {
+    
+}`,
+            java: `class Solution {
+    public List<Integer> solution(TreeNode root) {
+        
+    }
+}`,
+            csharp: `public class Solution {
+    public IList<int> Solution(TreeNode root) {
+        
+    }
+}`,
+          },
         },
       },
       {
@@ -433,6 +752,50 @@ async function seedExercises() {
               expectedOutput: "[null,null,null,2,2,false]",
             },
           ],
+          inputParser: `(input) => {
+            // Parse stack operations from string
+            return [input];
+          }`,
+          functionTemplates: {
+            javascript: `/**
+ * @param {string[]} operations
+ * @param {any[]} values
+ * @return {any[]}
+ */
+function solution(operations, values) {
+    
+}`,
+            python: `class Solution(object):
+    def solution(self, operations, values):
+        """
+        :type operations: List[str]
+        :type values: List[List[int]]
+        :rtype: List[any]
+        """
+        `,
+            cpp: `class Solution {
+public:
+    vector<string> solution(vector<string>& operations, vector<vector<int>>& values) {
+        
+    }
+};`,
+            c: `/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** solution(char** operations, int operationsSize, int** values, int valuesSize, int* returnSize) {
+    
+}`,
+            java: `class Solution {
+    public List<String> solution(String[] operations, int[][] values) {
+        
+    }
+}`,
+            csharp: `public class Solution {
+    public IList<string> Solution(string[] operations, int[][] values) {
+        
+    }
+}`,
+          },
         },
       },
       {
@@ -471,6 +834,47 @@ async function seedExercises() {
             { input: "race a car", expectedOutput: "false" },
             { input: "", expectedOutput: "true" },
           ],
+          inputParser: `(input) => {
+            return [input];
+          }`,
+          functionTemplates: {
+            javascript: `/**
+ * @param {string} s
+ * @return {boolean}
+ */
+function solution(s) {
+    
+}`,
+            python: `class Solution(object):
+    def solution(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+        `,
+            cpp: `class Solution {
+public:
+    bool solution(string s) {
+        
+    }
+};`,
+            c: `/**
+ * Note: The returned value should be a boolean.
+ */
+bool solution(char* s) {
+    
+}`,
+            java: `class Solution {
+    public boolean solution(String s) {
+        
+    }
+}`,
+            csharp: `public class Solution {
+    public bool Solution(string s) {
+        
+    }
+}`,
+          },
         },
       },
     ];
