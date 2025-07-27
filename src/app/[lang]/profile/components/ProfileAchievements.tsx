@@ -8,6 +8,7 @@ import {
   FiLock,
 } from "react-icons/fi";
 import achievementStyles from "../ProfileAchievements.module.css";
+import { useI18n } from "../../../../contexts/I18nContext";
 
 interface ProfileAchievementsProps {
   userStats: any;
@@ -18,6 +19,7 @@ export default function ProfileAchievements({
   userStats,
   loading,
 }: ProfileAchievementsProps) {
+  const { t } = useI18n();
   // Achievement data structure
   const achievementCategories = [
     {

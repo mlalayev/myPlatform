@@ -33,85 +33,92 @@ import ProfileLessons from "./components/ProfileLessons";
 import ProfileExercises from "./components/ProfileExercises";
 import ProfileGoals from "./components/ProfileGoals";
 import ProfileAnalytics from "./components/ProfileAnalytics";
-
-const profileTabs = [
-  {
-    key: "overview",
-    name: "Profile Overview",
-    icon: <FiUser size={24} />,
-    description: "View your profile information and learning stats.",
-  },
-  {
-    key: "achievements",
-    name: "Achievements",
-    icon: <FiAward size={24} />,
-    description: "View your earned badges and accomplishments.",
-  },
-  {
-    key: "progress",
-    name: "Learning Progress",
-    icon: <FiTrendingUp size={24} />,
-    description: "Track your learning journey and statistics.",
-  },
-  {
-    key: "lessons",
-    name: "My Lessons",
-    icon: <FiBookOpen size={24} />,
-    description: "Access your saved and completed lessons.",
-  },
-  {
-    key: "exercises",
-    name: "Exercise History",
-    icon: <FiActivity size={24} />,
-    description: "Review your coding exercise submissions.",
-  },
-  {
-    key: "goals",
-    name: "Learning Goals",
-    icon: <FiTarget size={24} />,
-    description: "Set and track your learning objectives.",
-  },
-  {
-    key: "analytics",
-    name: "Analytics",
-    icon: <FiBarChart2 size={24} />,
-    description: "Detailed insights about your learning patterns.",
-  },
-  /* Temporarily disabled until activity tracking is ready
-  {
-    key: "calendar",
-    name: "Study Calendar",
-    icon: <FiCalendar size={24} />,
-    description: "Plan and view your study schedule.",
-  },
-  */
-  {
-    key: "security",
-    name: "Security",
-    icon: <FiShield size={24} />,
-    description: "Manage your account security settings.",
-  },
-  {
-    key: "notifications",
-    name: "Notifications",
-    icon: <FiBell size={24} />,
-    description: "Configure your notification preferences.",
-  },
-  {
-    key: "favorites",
-    name: "Favorites",
-    icon: <FiHeart size={24} />,
-    description: "Access your bookmarked content.",
-  },
-  {
-    key: "recent-activities",
-    name: "Recent Activities",
-    icon: <FiActivity size={24} />,
-    description: "View all your recent learning activities.",
-  },
-];
+import ProfileSecurity from "./components/ProfileSecurity";
+import ProfileNotifications from "./components/ProfileNotifications";
+import ProfileFavourites from "./components/ProfileFavourites";
+import ProfileRecentActivities from "./components/ProfileRecentActivities";
+import { useI18n } from "../../../contexts/I18nContext";
 
 export default function ProfilePage() {
+  const { t } = useI18n();
+  
+  const profileTabs = [
+    {
+      key: "overview",
+      name: t("profile.tabs.overview.name"),
+      icon: <FiUser size={24} />,
+      description: t("profile.tabs.overview.description"),
+    },
+    {
+      key: "achievements",
+      name: t("profile.tabs.achievements.name"),
+      icon: <FiAward size={24} />,
+      description: t("profile.tabs.achievements.description"),
+    },
+    {
+      key: "progress",
+      name: t("profile.tabs.progress.name"),
+      icon: <FiTrendingUp size={24} />,
+      description: t("profile.tabs.progress.description"),
+    },
+    {
+      key: "lessons",
+      name: t("profile.tabs.lessons.name"),
+      icon: <FiBookOpen size={24} />,
+      description: t("profile.tabs.lessons.description"),
+    },
+    {
+      key: "exercises",
+      name: t("profile.tabs.exercises.name"),
+      icon: <FiActivity size={24} />,
+      description: t("profile.tabs.exercises.description"),
+    },
+    {
+      key: "goals",
+      name: t("profile.tabs.goals.name"),
+      icon: <FiTarget size={24} />,
+      description: t("profile.tabs.goals.description"),
+    },
+    {
+      key: "analytics",
+      name: t("profile.tabs.analytics.name"),
+      icon: <FiBarChart2 size={24} />,
+      description: t("profile.tabs.analytics.description"),
+    },
+    /* Temporarily disabled until activity tracking is ready
+    {
+      key: "calendar",
+      name: t("profile.tabs.calendar.name"),
+      icon: <FiCalendar size={24} />,
+      description: t("profile.tabs.calendar.description"),
+    },
+    */
+    {
+      key: "security",
+      name: t("profile.tabs.security.name"),
+      icon: <FiShield size={24} />,
+      description: t("profile.tabs.security.description"),
+    },
+    {
+      key: "notifications",
+      name: t("profile.tabs.notifications.name"),
+      icon: <FiBell size={24} />,
+      description: t("profile.tabs.notifications.description"),
+    },
+    {
+      key: "favorites",
+      name: t("profile.tabs.favorites.name"),
+      icon: <FiHeart size={24} />,
+      description: t("profile.tabs.favorites.description"),
+    },
+    {
+      key: "recent-activities",
+      name: t("profile.tabs.recentActivities.name"),
+      icon: <FiActivity size={24} />,
+      description: t("profile.tabs.recentActivities.description"),
+    },
+  ];
+  
   const [selectedTab, setSelectedTab] = useState(profileTabs[0].key);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [userStats, setUserStats] = useState<any>(null);
@@ -399,7 +406,7 @@ export default function ProfilePage() {
         {filteredActivities.length === 0 && (
           <div className={calendarStyles.emptyActivities}>
             <FiActivity size={48} style={{ opacity: 0.3 }} />
-            <p>No activities yet. Start learning to see your progress here!</p>
+            <p>{t("profile.calendar.noActivities")}</p>
           </div>
         )}
       </div>
@@ -475,15 +482,33 @@ export default function ProfilePage() {
         return <div className={layoutStyles.tabContent}>{renderCalendar()}</div>;
       */
       case "security":
-        return <div className={layoutStyles.tabContent}>Security content</div>;
+        return (
+          <ProfileSecurity 
+            userStats={userStats}
+            loading={loading}
+          />
+        );
       case "notifications":
         return (
-          <div className={layoutStyles.tabContent}>Notifications content</div>
+          <ProfileNotifications 
+            userStats={userStats}
+            loading={loading}
+          />
         );
       case "favorites":
-        return <div className={layoutStyles.tabContent}>Favorites content</div>;
+        return (
+          <ProfileFavourites 
+            userStats={userStats}
+            loading={loading}
+          />
+        );
       case "recent-activities":
-        return renderAllActivities();
+        return (
+          <ProfileRecentActivities 
+            userStats={userStats}
+            loading={loading}
+          />
+        );
       default:
         return null;
     }
@@ -500,13 +525,13 @@ export default function ProfilePage() {
         >
           <div className={layoutStyles.sidebarHeader}>
             {!sidebarCollapsed && (
-              <span className={layoutStyles.sidebarTitle}>Profile</span>
+              <span className={layoutStyles.sidebarTitle}>{t("profile.sidebar.title")}</span>
             )}
             <button
               className={layoutStyles.collapseBtn}
               onClick={() => setSidebarCollapsed((v) => !v)}
               aria-label={
-                sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
+                sidebarCollapsed ? t("profile.sidebar.expand") : t("profile.sidebar.collapse")
               }
               style={sidebarCollapsed ? { margin: "0 auto" } : {}}
             >

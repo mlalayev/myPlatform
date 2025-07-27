@@ -16,6 +16,7 @@ import {
 } from "react-icons/fi";
 import overviewStyles from "../ProfileOverview.module.css";
 import calendarStyles from "../ProfileCalendar.module.css";
+import { useI18n } from "../../../../contexts/I18nContext";
 
 interface ProfileOverviewProps {
   userStats: any;
@@ -32,6 +33,7 @@ export default function ProfileOverview({
   filterNavigationActivities,
   getActivityIcon,
 }: ProfileOverviewProps) {
+  const { t } = useI18n();
   if (loading) {
     return (
       <div className={overviewStyles.overviewContainer}>
@@ -46,7 +48,7 @@ export default function ProfileOverview({
               animation: 'spin 1s linear infinite',
               margin: '0 auto 16px'
             }}></div>
-            <span style={{ color: '#718096' }}>Loading your profile...</span>
+            <span style={{ color: '#718096' }}>{t("profile.overview.loading")}</span>
           </div>
         </div>
       </div>
@@ -57,7 +59,7 @@ export default function ProfileOverview({
     return (
       <div className={overviewStyles.overviewContainer}>
         <div style={{ textAlign: 'center', padding: '60px 20px', color: '#718096' }}>
-          Failed to load profile data
+          {t("profile.overview.error")}
         </div>
       </div>
     );
@@ -89,7 +91,7 @@ export default function ProfileOverview({
             <h1 className={overviewStyles.userName}>
               {userStats.user.name ||
                 userStats.user.username ||
-                "Anonymous User"}
+                t("profile.overview.anonymousUser")}
             </h1>
             <p className={overviewStyles.userEmail}>{userStats.user.email}</p>
             <div className={overviewStyles.userBadge}>
@@ -104,32 +106,32 @@ export default function ProfileOverview({
           <div className={overviewStyles.coinCard}>
             <div className={overviewStyles.coinHeader}>
               <FiDollarSign className={overviewStyles.coinIcon} />
-              <span className={overviewStyles.coinTitle}>Daily Coins</span>
+              <span className={overviewStyles.coinTitle}>{t("profile.overview.stats.coins")}</span>
             </div>
             <div className={overviewStyles.coinAmount}>
               <span className={overviewStyles.totalCoins}>
                 {userStats.dailyLoginPoints}
               </span>
-              <span className={overviewStyles.coinLabel}>Total Coins</span>
+              <span className={overviewStyles.coinLabel}>{t("profile.overview.stats.earned")}</span>
             </div>
             <div className={overviewStyles.coinToday}>
               <FiGift className={overviewStyles.todayIcon} />
-              <span>+{userStats.todayCoins} today</span>
+              <span>+{userStats.todayCoins} {t("profile.overview.stats.today")}</span>
             </div>
           </div>
 
           <div className={overviewStyles.streakCard}>
             <div className={overviewStyles.streakHeader}>
               <FiTrendingUp className={overviewStyles.streakIcon} />
-              <span className={overviewStyles.streakTitle}>Login Streak</span>
+              <span className={overviewStyles.streakTitle}>{t("profile.overview.stats.learningStreak")}</span>
             </div>
             <div className={overviewStyles.streakAmount}>
               <span className={overviewStyles.streakNumber}>
                 {userStats.loginStreak}
               </span>
-              <span className={overviewStyles.streakLabel}>Days</span>
+              <span className={overviewStyles.streakLabel}>{t("profile.overview.stats.days")}</span>
             </div>
-            <div className={overviewStyles.streakMessage}>Keep it up! 🔥</div>
+            <div className={overviewStyles.streakMessage}>{t("profile.overview.stats.keepItUp")}</div>
           </div>
         </div>
       </div>
@@ -144,7 +146,7 @@ export default function ProfileOverview({
             <div className={overviewStyles.statNumber}>
               {userStats.completedLessons}/{userStats.totalLessons}
             </div>
-            <div className={overviewStyles.statLabel}>Lessons</div>
+            <div className={overviewStyles.statLabel}>{t("profile.overview.stats.totalLessons")}</div>
             <div className={overviewStyles.statProgress}>
               <div
                 className={overviewStyles.statProgressBar}
@@ -167,7 +169,7 @@ export default function ProfileOverview({
             <div className={overviewStyles.statNumber}>
               {userStats.solvedExercises}/{userStats.totalExercises}
             </div>
-            <div className={overviewStyles.statLabel}>Exercises</div>
+            <div className={overviewStyles.statLabel}>{t("profile.overview.stats.totalExercises")}</div>
             <div className={overviewStyles.statProgress}>
               <div
                 className={overviewStyles.statProgressBar}
@@ -190,11 +192,11 @@ export default function ProfileOverview({
             <div className={overviewStyles.statNumber}>
               {userStats.completionRate}%
             </div>
-            <div className={overviewStyles.statLabel}>Completion</div>
+            <div className={overviewStyles.statLabel}>{t("profile.overview.stats.completion")}</div>
             <div className={overviewStyles.statTrend}>
               <FiTrendingUp className={overviewStyles.trendIcon} />
               <span>
-                +{userStats.weeklyProgress.lessonsThisWeek} this week
+                +{userStats.weeklyProgress.lessonsThisWeek} {t("profile.overview.stats.thisWeek")}
               </span>
             </div>
           </div>
@@ -208,12 +210,12 @@ export default function ProfileOverview({
             <div className={overviewStyles.statNumber}>
               {userStats.studyTimeHours}h
             </div>
-            <div className={overviewStyles.statLabel}>Study Time</div>
+            <div className={overviewStyles.statLabel}>{t("profile.overview.stats.studyTime")}</div>
             <div className={overviewStyles.statTrend}>
               <FiTrendingUp className={overviewStyles.trendIcon} />
-              <span>
-                {userStats.weeklyProgress.studyTimeThisWeek}h this week
-              </span>
+                              <span>
+                  {userStats.weeklyProgress.studyTimeThisWeek}h {t("profile.overview.stats.thisWeek")}
+                </span>
             </div>
           </div>
         </div>
@@ -221,9 +223,9 @@ export default function ProfileOverview({
 
       {/* Calendar Section - Temporarily disabled until activity tracking is ready */}
       <div className={overviewStyles.calendarSection}>
-        <h3>📅 Study Calendar</h3>
+        <h3>📅 {t("profile.overview.calendar.title")}</h3>
         <p>
-          Activity tracking is being set up. Calendar will be available soon!
+          {t("profile.overview.calendar.setup")}
         </p>
       </div>
 
@@ -238,13 +240,13 @@ export default function ProfileOverview({
           }}
         >
           <h3 className={overviewStyles.sectionTitle} style={{ margin: 0 }}>
-            Recent Activity
+            {t("profile.overview.recentActivity.title")}
           </h3>
           <button
             className={calendarStyles.viewAllBtn}
             onClick={() => setSelectedTab("recent-activities")}
           >
-            View All Activities
+            {t("profile.overview.recentActivity.viewAll")}
           </button>
         </div>
         <div className={overviewStyles.activityList}>
@@ -270,35 +272,35 @@ export default function ProfileOverview({
 
       {/* Quick Actions */}
       <div className={overviewStyles.quickActions}>
-        <h3 className={overviewStyles.sectionTitle}>Quick Actions</h3>
+        <h3 className={overviewStyles.sectionTitle}>{t("profile.overview.quickActions.title")}</h3>
         <div className={overviewStyles.actionGrid}>
           <button
             className={overviewStyles.actionCard}
             onClick={() => setSelectedTab("lessons")}
           >
             <FiBookOpen className={overviewStyles.actionIcon} />
-            <span>Continue Learning</span>
+            <span>{t("profile.overview.quickActions.continueLearning")}</span>
           </button>
           <button
             className={overviewStyles.actionCard}
             onClick={() => setSelectedTab("exercises")}
           >
             <FiCode className={overviewStyles.actionIcon} />
-            <span>Practice Coding</span>
+            <span>{t("profile.overview.quickActions.practiceCoding")}</span>
           </button>
           <button
             className={overviewStyles.actionCard}
             onClick={() => setSelectedTab("achievements")}
           >
             <FiAward className={overviewStyles.actionIcon} />
-            <span>View Achievements</span>
+            <span>{t("profile.overview.quickActions.viewAchievements")}</span>
           </button>
           <button
             className={overviewStyles.actionCard}
             onClick={() => (window.location.href = `/en/settings`)}
           >
             <FiUser className={overviewStyles.actionIcon} />
-            <span>Account Settings</span>
+            <span>{t("profile.overview.quickActions.accountSettings")}</span>
           </button>
         </div>
       </div>
