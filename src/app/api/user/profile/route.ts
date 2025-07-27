@@ -292,47 +292,57 @@ export async function GET(request: NextRequest) {
     } catch (error: any) {
       console.log("Activity tracking tables not available:", error.message);
     }
-
+    
     // Calculate study time from session data
     const studyTimeHours = Math.floor((sessionStats._sum.duration || 0) / 3600);
-
+    
     // Get user rank based on points and activity
     let rank = "Beginner";
     const totalPoints = user.dailyLoginPoints || 0;
     if (totalPoints >= 5000) rank = "Expert";
     else if (totalPoints >= 2000) rank = "Advanced";
     else if (totalPoints >= 500) rank = "Intermediate";
-
+    
     // Calculate today's coins based on today's activity
     const todayCoins = todayActivity?.pointsEarned || 0;
-
+    
     // Calculate learning streak (consecutive days with activity)
     const learningStreak = loginStreak;
 
     // Format recent activities for frontend
-    const formattedActivities = recentActivities.length > 0 
-      ? recentActivities
-          .map(activity => ({
-            type: activity.type.toLowerCase(),
-            text: activity.description,
-            time: formatTimeAgo(activity.timestamp),
-            metadata: activity.metadata,
-            id: activity.id
-          }))
-          // Remove duplicates based on description (keep only the first occurrence)
-          .filter((activity, index, array) => {
-            const firstIndex = array.findIndex(a => a.text === activity.text);
-            return firstIndex === index;
-          })
-          .slice(0, 10) // Limit to 10 activities
-      : [
+    let formattedActivities = [];
+    
+    if (recentActivities.length > 0) {
+      formattedActivities = recentActivities
+        .map(activity => ({
+          type: activity.type.toLowerCase(),
+          text: activity.description,
+          time: formatTimeAgo(activity.timestamp),
+          metadata: activity.metadata,
+          id: activity.id
+        }))
+        .filter((activity, index, array) => {
+          const firstIndex = array.findIndex(a => a.text === activity.text);
+          return firstIndex === index;
+        })
+        .slice(0, 10);
+    } else {
+      // Show default activities if no real activities exist
+      formattedActivities = [
           {
             type: "login",
             text: "Welcome to the platform!",
             time: "Just now",
             metadata: {}
+        },
+        {
+          type: "lesson_view",
+          text: "Start exploring tutorials",
+          time: "Just now",
+          metadata: {}
           }
         ];
+    }
 
     const userStats = {
       // User info

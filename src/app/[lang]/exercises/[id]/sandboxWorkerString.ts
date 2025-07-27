@@ -34,7 +34,7 @@ self.onmessage = async function (e) {
     Object.defineProperty(self, 'process', {
       get: function() {
         throw new Error('Process obyektinə giriş məhdudlaşdırılıb!');
-      }
+    }
     });
 
     // Block require and import
@@ -54,26 +54,26 @@ self.onmessage = async function (e) {
     console.log('[worker] Starting safe function parsing');
     
     // Try to find solution function using regex patterns
-    const patterns = [
+        const patterns = [
       // TypeScript function declarations
       /function\\s+solution\\s*\\(([^)]*)\\)\\s*:\\s*[^{]*\\{([\\s\\S]*)\\}/,              // function solution(...): type {...}
-      /function\\s+solution\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,                       // function solution(...) {...}
+          /function\\s+solution\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,                       // function solution(...) {...}
       
       // Function expressions
       /const\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*:\\s*[^{]*\\{([\\s\\S]*)\\}/, // const solution = function(...): type {...}
-      /const\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,         // const solution = function(...) {...}
+          /const\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,         // const solution = function(...) {...}
       /let\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*:\\s*[^{]*\\{([\\s\\S]*)\\}/,
-      /let\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,
+          /let\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,
       /var\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*:\\s*[^{]*\\{([\\s\\S]*)\\}/,
-      /var\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,
+          /var\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,
       
       // Arrow functions
       /const\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*:\\s*[^{]*\\s*=>\\s*\\{([\\s\\S]*)\\}/,   // const solution = (...): type => {...}
-      /const\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/,               // const solution = (...) => {...}
+          /const\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/,               // const solution = (...) => {...}
       /let\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*:\\s*[^{]*\\s*=>\\s*\\{([\\s\\S]*)\\}/,
-      /let\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/,
+          /let\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/,
       /var\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*:\\s*[^{]*\\s*=>\\s*\\{([\\s\\S]*)\\}/,
-      /var\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/,
+          /var\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/,
       
       // Simple arrow functions
       /const\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*:\\s*[^;\\n]*\\s*=>\\s*([^;\\n]+)/,     // const solution = (...): type => expression
@@ -129,8 +129,8 @@ self.onmessage = async function (e) {
       
       for (let i = 0; i < patterns.length; i++) {
         const pattern = patterns[i];
-        const match = code.match(pattern);
-        if (match) {
+          const match = code.match(pattern);
+          if (match) {
           console.log('[worker] Regex matched pattern:', i + 1);
           
           // Extract parameters and body from the matched pattern
@@ -152,16 +152,16 @@ self.onmessage = async function (e) {
             .replace(/\[\]/g, '')                // Remove [] from parameter names
             .trim();
 
-          if (!params && args.length > 0) {
-            console.log('[worker] No params but args needed');
-            self.postMessage({ error: 'Funksiya parametr qəbul etmir! Ən azı 1 input parameter yazılmalıdır.' });
-            clearTimeout(timer);
-            return;
-          }
+            if (!params && args.length > 0) {
+              console.log('[worker] No params but args needed');
+              self.postMessage({ error: 'Funksiya parametr qəbul etmir! Ən azı 1 input parameter yazılmalıdır.' });
+              clearTimeout(timer);
+              return;
+            }
 
-          const finalBody = pattern.source.includes('=>') && !body.includes('return')
-            ? \`return \${body};\`
-            : body;
+            const finalBody = pattern.source.includes('=>') && !body.includes('return')
+              ? \`return \${body};\`
+              : body;
 
           // Create function safely using Function constructor (allowed in worker)
           try {
@@ -170,7 +170,7 @@ self.onmessage = async function (e) {
             eval(functionCode);
             solutionFunction = solution;
             break;
-          } catch (err) {
+      } catch (err) {
             console.log('[worker] Function creation error:', err);
             continue;
           }
@@ -181,9 +181,9 @@ self.onmessage = async function (e) {
     // Check if function was found
     if (!solutionFunction || typeof solutionFunction !== 'function') {
       console.log('[worker] No function found');
-      self.postMessage({ error: 'Funksiya tapılmadı! Kod daxilində heç bir function aşkarlanmadı.' });
-      clearTimeout(timer);
-      return;
+        self.postMessage({ error: 'Funksiya tapılmadı! Kod daxilində heç bir function aşkarlanmadı.' });
+        clearTimeout(timer);
+        return;
     }
 
     // Parametr sayı yoxlaması

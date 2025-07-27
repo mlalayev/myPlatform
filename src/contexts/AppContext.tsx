@@ -129,7 +129,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Activity logging function (internal)
   const logActivityInternal = useCallback(async (type: string, description: string, metadata: any = {}) => {
     if (!session?.user?.email) return;
-
+    
     try {
       const response = await fetch('/api/user/activity', {
         method: 'POST',

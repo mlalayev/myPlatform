@@ -37,39 +37,39 @@ export async function GET(request: NextRequest) {
       const tableExists = await prisma.$queryRaw`SELECT 1 FROM dailyActivity LIMIT 1`.catch(() => null);
       
       if (tableExists) {
-        // Get daily activities for the month
-        dailyActivities = await prisma.dailyActivity.findMany({
-          where: {
-            userId: user.id,
-            date: {
-              gte: startDate,
-              lte: endDate
-            }
-          },
-          orderBy: {
-            date: 'asc'
+      // Get daily activities for the month
+      dailyActivities = await prisma.dailyActivity.findMany({
+        where: {
+          userId: user.id,
+          date: {
+            gte: startDate,
+            lte: endDate
           }
-        });
+        },
+        orderBy: {
+          date: 'asc'
+        }
+      });
 
-        // Get all activities for the month to show detailed view
-        detailedActivities = await prisma.userActivity.findMany({
-          where: {
-            userId: user.id,
-            timestamp: {
-              gte: startDate,
-              lte: new Date(endDate.getTime() + 24 * 60 * 60 * 1000) // Add one day to include end date
-            }
-          },
-          orderBy: {
-            timestamp: 'desc'
-          },
-          select: {
-            type: true,
-            description: true,
-            timestamp: true,
-            metadata: true
+      // Get all activities for the month to show detailed view
+      detailedActivities = await prisma.userActivity.findMany({
+        where: {
+          userId: user.id,
+          timestamp: {
+            gte: startDate,
+            lte: new Date(endDate.getTime() + 24 * 60 * 60 * 1000) // Add one day to include end date
           }
-        });
+        },
+        orderBy: {
+          timestamp: 'desc'
+        },
+        select: {
+          type: true,
+          description: true,
+          timestamp: true,
+          metadata: true
+        }
+      });
       } else {
         console.log("Activity tracking tables not available");
         dailyActivities = [];

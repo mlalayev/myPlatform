@@ -332,17 +332,17 @@ export default function ExerciseDetailPage({
   // Log exercise view activity
   useEffect(() => {
     if (exercise && session?.user) {
-      logActivity(
-        'EXERCISE_START',
+        logActivity(
+          'EXERCISE_START',
         `Started exercise: ${exercise.title}`,
-        {
-          exerciseId: id,
-          exerciseTitle: exercise.title,
-          difficulty: exercise.difficulty,
+          {
+            exerciseId: id,
+            exerciseTitle: exercise.title,
+            difficulty: exercise.difficulty,
           category: exercise.category
-        }
-      );
-    }
+          }
+        );
+      }
   }, [exercise, id, session]);
 
   // Autosave code to localStorage on every change
