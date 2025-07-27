@@ -54,22 +54,40 @@ interface ExercisesResponse {
 }
 
 const difficultyColor = (diff: string) =>
-  diff === "Asan"
+  diff === "EASY" || diff === "Asan"
     ? styles.diffEasy
-    : diff === "Orta"
+    : diff === "MEDIUM" || diff === "Orta"
     ? styles.diffMed
+    : diff === "HARD" || diff === "Çətin"
+    ? styles.diffHard
     : styles.diffHard;
 
 const difficultyIcon = (diff: string) => {
   switch (diff) {
+    case "EASY":
     case "Asan":
-      return "🟢";
+      return ""; // Emoji CSS-də əlavə edilir
+    case "MEDIUM":
     case "Orta":
-      return "🟡";
+      return ""; // Emoji CSS-də əlavə edilir
+    case "HARD":
     case "Çətin":
-      return "🔴";
+      return ""; // Emoji CSS-də əlavə edilir
     default:
       return "⚪";
+  }
+};
+
+const getDifficultyText = (diff: string) => {
+  switch (diff) {
+    case "EASY":
+      return "Asan";
+    case "MEDIUM":
+      return "Orta";
+    case "HARD":
+      return "Çətin";
+    default:
+      return diff;
   }
 };
 
@@ -77,7 +95,7 @@ export default function ExercisesPage() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("ALL");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("Bütün");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [statuses, setStatuses] = useState<{ [id: number]: "not_submitted" | "wrong" | "correct" }>({});
   const [pagination, setPagination] = useState({
@@ -100,10 +118,21 @@ export default function ExercisesPage() {
     async function fetchExercises() {
       try {
         setLoading(true);
+        // Convert difficulty filter to English for API
+        const getDifficultyForAPI = (diff: string) => {
+          switch (diff) {
+            case "Bütün": return "ALL";
+            case "Asan": return "EASY";
+            case "Orta": return "MEDIUM";
+            case "Çətin": return "HARD";
+            default: return diff;
+          }
+        };
+
         const params = new URLSearchParams({
           page: pagination.page.toString(),
           limit: '10',
-          difficulty: selectedDifficulty,
+          difficulty: getDifficultyForAPI(selectedDifficulty),
           category: selectedCategory,
           search: search
         });
@@ -289,11 +318,39 @@ export default function ExercisesPage() {
 
             {/* Exercises List */}
             <div className={styles.list}>
-              {exercises.map((ex) => (
+              {loading ? (
+                // Loading shimmer cards
+                Array.from({ length: 6 }).map((_, index) => (
+                  <div key={index} className={`${styles.row} ${styles.loading}`}>
+                    <div className={styles.cardHeader}>
+                      <div className={styles.cardLeft}>
+                        <div style={{ width: '50px', height: '24px', background: '#e2e8f0', borderRadius: '8px' }}></div>
+                        <div style={{ width: '200px', height: '20px', background: '#e2e8f0', borderRadius: '4px' }}></div>
+                      </div>
+                      <div className={styles.cardRight}>
+                        <div style={{ width: '80px', height: '24px', background: '#e2e8f0', borderRadius: '20px' }}></div>
+                      </div>
+                    </div>
+                    <div style={{ width: '100%', height: '16px', background: '#e2e8f0', borderRadius: '4px', marginBottom: '16px' }}></div>
+                    <div className={styles.cardFooter}>
+                      <div className={styles.cardStats}>
+                        <div style={{ width: '100px', height: '20px', background: '#e2e8f0', borderRadius: '6px' }}></div>
+                        <div style={{ width: '80px', height: '20px', background: '#e2e8f0', borderRadius: '6px' }}></div>
+                      </div>
+                      <div className={styles.cardTags}>
+                        <div style={{ width: '60px', height: '20px', background: '#e2e8f0', borderRadius: '12px' }}></div>
+                        <div style={{ width: '80px', height: '20px', background: '#e2e8f0', borderRadius: '12px' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                exercises.map((ex) => (
                 <Link
                   href={`/${currentLang}/exercises/${ex.id}`}
                   key={ex.id}
                   className={styles.row}
+                  data-difficulty={ex.difficulty === "EASY" ? "Asan" : ex.difficulty === "MEDIUM" ? "Orta" : ex.difficulty === "HARD" ? "Çətin" : ex.difficulty}
                 >
                   <div className={styles.cardHeader}>
                     <div className={styles.cardLeft}>
@@ -302,7 +359,7 @@ export default function ExercisesPage() {
                     </div>
                     <div className={styles.cardRight}>
                       <span className={`${styles.cellDiff} ${difficultyColor(ex.difficulty)}`}>
-                        {difficultyIcon(ex.difficulty)} {ex.difficulty}
+                        {difficultyIcon(ex.difficulty)} {getDifficultyText(ex.difficulty)}
                       </span>
                       {statuses[Number(ex.id)] === "correct" && <FiCheckCircle color="green" title="Doğru" style={{marginLeft:8, fontSize:22}} />}
                       {statuses[Number(ex.id)] === "wrong" && <FiXCircle color="red" title="Yanlış" style={{marginLeft:8, fontSize:22}} />}
@@ -333,7 +390,8 @@ export default function ExercisesPage() {
                     </div>
                   </div>
                 </Link>
-              ))}
+              ))
+              )}
             </div>
 
             {/* Empty State */}

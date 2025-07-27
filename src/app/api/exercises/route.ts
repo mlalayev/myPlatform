@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
         createdAt: true,
         updatedAt: true
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { id: 'asc' },
       skip: (page - 1) * limit,
       take: limit
     });

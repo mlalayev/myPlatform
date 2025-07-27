@@ -1,0 +1,516 @@
+{
+  "id": "promise",
+  "az": {
+    "title": "JavaScript Promise Obyektləri",
+    "icon": "FiClock",
+    "language": "javascript",
+    "description": "Promise obyektlərinin təyini və istifadəsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Promise Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "JavaScript-də **Promise** asinxron əməliyyatları idarə etmək üçün istifadə olunan bir obyektdir. Promise gələcəkdə bir dəyər qaytaracaq (və ya xəta ilə nəticələnəcək) bir əməliyyatı təmsil edir. Promise obyektləri asinxron kodun daha oxunaqlı və idarə oluna bilən şəkildə yazılmasını təmin edir, xüsusilə də callback funksiyalarına alternativ olaraq. Promise üç vəziyyətdə ola bilər: `pending` (gözləyir), `fulfilled` (uğurlu) və `rejected` (xəta). Bu JSON faylda Promise obyektlərinin necə işlədiyi, sintaksisi, nümunələri, üstünlükləri və çətinlikləri sadə şəkildə izah olunacaq. Aşağıda kodları yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Promise Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Promise aşağıdakı şəkildə yaradılır:\n```javascript\nconst promise = new Promise((resolve, reject) => {\n  // Asinxron əməliyyat\n  if (/* uğurlu nəticə */) {\n    resolve(deyer);\n  } else {\n    reject(xeta);\n  }\n});\n```\n- `resolve`: Əməliyyat uğurlu olduqda çağırılır və dəyəri qaytarır.\n- `reject`: Əməliyyat uğursuz olduqda çağırılır və xəta qaytarır.\nPromise-dən istifadə üçün `.then()` və `.catch()` metodları istifadə olunur."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Sadə Promise nümunəsi\nconst myPromise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    const data = { id: 1, name: 'Ali' };\n    resolve(data);\n  }, 1000);\n});\n\nmyPromise\n  .then(data => console.log('Məlumat alındı: ', data.name))\n  .catch(error => console.log('Xəta: ', error)); // 1 saniyə sonra: Məlumat alındı: Ali"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `myPromise` bir Promise yaradır və 1 saniyəlik gecikmədən sonra `resolve` ilə məlumat qaytarır.\n- `.then()` uğurlu nəticəni idarə edir, `.catch()` isə xətaları tutur.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Promise-in Vəziyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Promise-in üç vəziyyəti var:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nPending: Promise hələ nəticələnməyib, gözləmə vəziyyətindədir."
+          },
+          {
+            "description": "\nFulfilled: Promise uğurla tamamlanıb və dəyər qaytarıb."
+          },
+          { "description": "\nRejected: Promise xəta ilə nəticələnib." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Promise ilə Xəta İdarəetmə"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Xəta ilə Promise nümunəsi\nconst errorPromise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    reject('Məlumat alınmadı');\n  }, 1000);\n});\n\nerrorPromise\n  .then(data => console.log(data))\n  .catch(error => console.log('Xəta: ', error)); // 1 saniyə sonra: Xəta: Məlumat alınmadı"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `errorPromise` xəta ilə nəticələnir və `reject` çağırılır.\n- `.catch()` xətanı tutur və konsola yazdırır.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Promise Zəncirləmə (Chaining)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Promise-lər `.then()` metodları ilə zəncirlənə bilər, bu da ardıcıl asinxron əməliyyatları idarə etməyə imkan verir."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Promise zəncirləmə nümunəsi\nconst fetchData = new Promise((resolve) => {\n  setTimeout(() => {\n    resolve({ id: 2, name: 'Veli' });\n  }, 1000);\n});\n\nfetchData\n  .then(data => {\n    console.log('İlk məlumat: ', data.name);\n    return data.name.toUpperCase();\n  })\n  .then(upperName => console.log('Böyük hərflərlə: ', upperName))\n  .catch(error => console.log('Xəta: ', error)); // 1 saniyə sonra: İlk məlumat: Veli, Böyük hərflərlə: VELI"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk `.then()` məlumatı alır və adı böyük hərflərə çevirir.\n- İkinci `.then()` çevrilmiş adı konsola yazdırır.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Promise-in Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Promise obyektləri aşağıdakı üstünlüklərə malikdir:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nOxunaqlılıq: Callback-lərə nisbətən daha oxunaqlı və strukturlaşdırılmış kod yaradır."
+          },
+          {
+            "description": "\nXəta idarəetmə: `.catch()` ilə xətaları asanlıqla tutmaq olar."
+          },
+          { "description": "\nZəncirləmə: Ardıcıl əməliyyatları asanlaşdırır." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Promise ilə işləyərkən bəzi çətinliklər ola bilər:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nÖyrənmə əyrisi: Yeni başlayanlar üçün Promise mexanizmi qarışıq ola bilər."
+          },
+          {
+            "description": "\nXəta idarəetmə: Xətaları düzgün tutmaq unudulduqda məntiq səhvləri baş verə bilər."
+          },
+          {
+            "description": "\nÇoxsaylı Promise-lər: Birdən çox Promise ilə işləmək mürəkkəb ola bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Xətaları tutmaq üçün `.catch()` istifadə edilmədikdə kod gözlənilməz şəkildə işləyə bilər. Çoxsaylı Promise-lərin səhv idarə olunması mürəkkəb xətalara səbəb ola bilər.\n- **Tövsiyələr**: Həmişə `.catch()` ilə xətaları idarə edin. Promise zəncirləməsini sadə saxlayın. Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) sənədlərindən istifadə edin. Aşağıda kodları yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Səhvə yol açan nümunə\nconst badPromise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    const data = null;\n    resolve(data);\n  }, 1000);\n});\n\nbadPromise.then(data => console.log(data.name)); // TypeError: Cannot read property 'name' of null\n\n// Düzgün yol\nconst safePromise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    const data = null;\n    if (data) {\n      resolve(data);\n    } else {\n      reject('Məlumat yoxdur');\n    }\n  }, 1000);\n});\n\nsafePromise\n  .then(data => console.log('Məlumat: ', data.name))\n  .catch(error => console.log('Xəta: ', error)); // Xəta: Məlumat yoxdur"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `badPromise` xəta idarəetməsi olmadan null dəyəri səbəbindən xəta verir.\n- `safePromise` xətaları `.catch()` ilə tutaraq düzgün nəticə verir.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Promise.all ilə Çoxsaylı Promise-lər"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Promise.all` bir neçə Promise-in eyni anda tamamlanmasını gözləyir və hamısı uğurla başa çatdıqda nəticələri qaytarır."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Promise.all nümunəsi\nconst promise1 = new Promise((resolve) => {\n  setTimeout(() => resolve('Birinci nəticə'), 1000);\n});\n\nconst promise2 = new Promise((resolve) => {\n  setTimeout(() => resolve('İkinci nəticə'), 2000);\n});\n\nPromise.all([promise1, promise2])\n  .then(results => console.log('Bütün nəticələr: ', results))\n  .catch(error => console.log('Xəta: ', error)); // 2 saniyə sonra: Bütün nəticələr: ['Birinci nəticə', 'İkinci nəticə']"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Promise.all` iki Promise-in tamamlanmasını gözləyir.\n- Nəticələr massiv şəklində qaytarılır.\n- Aşağıda bu kodu yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sadə Promise nümunəsi\nconst fetchUser = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    const user = { id: 1, name: 'Aysu' };\n    resolve(user);\n  }, 1000);\n});\n\nfetchUser\n  .then(user => console.log('İstifadəçi: ', user.name))\n  .catch(error => console.log('Xəta: ', error)); // İstifadəçi: Aysu\n\n// Xəta ilə Promise\nconst fetchDataError = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    reject('Məlumat alınmadı');\n  }, 1000);\n});\n\nfetchDataError\n  .then(data => console.log(data))\n  .catch(error => console.log('Xəta: ', error)); // Xəta: Məlumat alınmadı\n\n// Promise zəncirləmə\nconst processData = new Promise((resolve) => {\n  setTimeout(() => {\n    resolve('İlkin məlumat');\n  }, 1000);\n});\n\nprocessData\n  .then(data => {\n    console.log('Məlumat: ', data);\n    return data.toUpperCase();\n  })\n  .then(upperData => console.log('Böyük hərflə: ', upperData))\n  .catch(error => console.log('Xəta: ', error)); // Məlumat: İlkin məlumat, Böyük hərflə: İLKİN MƏLUMAT"
+      }
+    ]
+  },
+  "en": {
+    "title": "JavaScript Promise Objects",
+    "icon": "FiClock",
+    "language": "javascript",
+    "description": "Defining and using Promise objects.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is a Promise?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In JavaScript, a **Promise** is an object used to handle asynchronous operations. It represents an operation that will complete in the future, either with a value (successful) or an error (failed). Promises make asynchronous code more readable and manageable, serving as an alternative to callback functions. A Promise can be in one of three states: `pending` (waiting), `fulfilled` (successful), or `rejected` (failed). This JSON file explains how Promises work, their syntax, examples, advantages, and challenges in a simple way. You can test the code below."
+      },
+      {
+        "type": "heading",
+        "text": "Promise Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "A Promise is created as follows:\n```javascript\nconst promise = new Promise((resolve, reject) => {\n  // Asynchronous operation\n  if (/* successful result */) {\n    resolve(value);\n  } else {\n    reject(error);\n  }\n});\n```\n- `resolve`: Called when the operation succeeds, returning a value.\n- `reject`: Called when the operation fails, returning an error.\nPromises are handled using `.then()` and `.catch()` methods."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Simple Promise example\nconst myPromise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    const data = { id: 1, name: 'Ali' };\n    resolve(data);\n  }, 1000);\n});\n\nmyPromise\n  .then(data => console.log('Data received: ', data.name))\n  .catch(error => console.log('Error: ', error)); // After 1 second: Data received: Ali"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `myPromise` creates a Promise that resolves with data after a 1-second delay.\n- `.then()` handles the successful result, and `.catch()` catches errors.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Promise States"
+      },
+      {
+        "type": "paragraph",
+        "text": "A Promise has three states:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nPending: The Promise is still waiting and has not yet resolved."
+          },
+          {
+            "description": "\nFulfilled: The Promise has completed successfully and returned a value."
+          },
+          { "description": "\nRejected: The Promise has failed with an error." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Error Handling with Promises"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Promise with error example\nconst errorPromise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    reject('Data fetch failed');\n  }, 1000);\n});\n\nerrorPromise\n  .then(data => console.log(data))\n  .catch(error => console.log('Error: ', error)); // After 1 second: Error: Data fetch failed"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `errorPromise` fails and calls `reject`.\n- `.catch()` catches the error and logs it.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Promise Chaining"
+      },
+      {
+        "type": "paragraph",
+        "text": "Promises can be chained using multiple `.then()` methods, allowing sequential asynchronous operations."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Promise chaining example\nconst fetchData = new Promise((resolve) => {\n  setTimeout(() => {\n    resolve({ id: 2, name: 'Veli' });\n  }, 1000);\n});\n\nfetchData\n  .then(data => {\n    console.log('Initial data: ', data.name);\n    return data.name.toUpperCase();\n  })\n  .then(upperName => console.log('Uppercase: ', upperName))\n  .catch(error => console.log('Error: ', error)); // After 1 second: Initial data: Veli, Uppercase: VELI"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first `.then()` retrieves the data and returns the name in uppercase.\n- The second `.then()` logs the uppercase name.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of Promises"
+      },
+      {
+        "type": "paragraph",
+        "text": "Promises offer the following advantages:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nReadability: More readable and structured than callbacks."
+          },
+          {
+            "description": "\nError Handling: Errors are easily caught with `.catch()`."
+          },
+          { "description": "\nChaining: Simplifies sequential operations." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Working with Promises can present challenges:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nLearning Curve: Promises can be confusing for beginners."
+          },
+          {
+            "description": "\nError Handling: Forgetting to handle errors can lead to logical issues."
+          },
+          {
+            "description": "\nMultiple Promises: Managing multiple Promises can be complex."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Failing to use `.catch()` can cause unhandled errors. Mismanaging multiple Promises can lead to complex errors.\n- **Recommendations**: Always handle errors with `.catch()`. Keep Promise chains simple. Refer to Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) for guidance. You can test the code below."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Error-prone example\nconst badPromise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    const data = null;\n    resolve(data);\n  }, 1000);\n});\n\nbadPromise.then(data => console.log(data.name)); // TypeError: Cannot read property 'name' of null\n\n// Correct approach\nconst safePromise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    const data = null;\n    if (data) {\n      resolve(data);\n    } else {\n      reject('No data available');\n    }\n  }, 1000);\n});\n\nsafePromise\n  .then(data => console.log('Data: ', data.name))\n  .catch(error => console.log('Error: ', error)); // Error: No data available"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `badPromise` causes an error due to a null value without error handling.\n- `safePromise` handles errors with `.catch()`, producing a correct result.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Promise.all for Multiple Promises"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Promise.all` waits for multiple Promises to complete and returns their results as an array."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Promise.all example\nconst promise1 = new Promise((resolve) => {\n  setTimeout(() => resolve('First result'), 1000);\n});\n\nconst promise2 = new Promise((resolve) => {\n  setTimeout(() => resolve('Second result'), 2000);\n});\n\nPromise.all([promise1, promise2])\n  .then(results => console.log('All results: ', results))\n  .catch(error => console.log('Error: ', error)); // After 2 seconds: All results: ['First result', 'Second result']"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Promise.all` waits for both Promises to resolve.\n- Results are returned as an array.\n- You can test this code below."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Simple Promise example\nconst fetchUser = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    const user = { id: 1, name: 'Aysu' };\n    resolve(user);\n  }, 1000);\n});\n\nfetchUser\n  .then(user => console.log('User: ', user.name))\n  .catch(error => console.log('Error: ', error)); // User: Aysu\n\n// Promise with error\nconst fetchDataError = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    reject('Data fetch failed');\n  }, 1000);\n});\n\nfetchDataError\n  .then(data => console.log(data))\n  .catch(error => console.log('Error: ', error)); // Error: Data fetch failed\n\n// Promise chaining\nconst processData = new Promise((resolve) => {\n  setTimeout(() => {\n    resolve('Initial data');\n  }, 1000);\n});\n\nprocessData\n  .then(data => {\n    console.log('Data: ', data);\n    return data.toUpperCase();\n  })\n  .then(upperData => console.log('Uppercase: ', upperData))\n  .catch(error => console.log('Error: ', error)); // Data: Initial data, Uppercase: INITIAL DATA"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Объекты Promise в JavaScript",
+    "icon": "FiClock",
+    "language": "javascript",
+    "description": "Определение и использование объектов Promise.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Promise?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В JavaScript **Promise** — это объект, используемый для управления асинхронными операциями. Он представляет операцию, которая завершится в будущем, возвращая значение (успешно) или ошибку (неудача). Promise делают асинхронный код более читаемым и управляемым, являясь альтернативой функциям обратного вызова. Promise может находиться в одном из трех состояний: `pending` (ожидание), `fulfilled` (успешно), `rejected` (ошибка). Этот JSON-файл объясняет, как работают Promise, их синтаксис, примеры, преимущества и сложности простым языком. Вы можете протестировать код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис Promise"
+      },
+      {
+        "type": "paragraph",
+        "text": "Promise создается следующим образом:\n```javascript\nconst promise = new Promise((resolve, reject) => {\n  // Асинхронная операция\n  if (/* успешный результат */) {\n    resolve(значение);\n  } else {\n    reject(ошибка);\n  }\n});\n```\n- `resolve`: Вызывается при успешном завершении операции, возвращает значение.\n- `reject`: Вызывается при неудаче, возвращает ошибку.\nPromise управляются с помощью методов `.then()` и `.catch()`."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Простой пример Promise\nconst myPromise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    const data = { id: 1, name: 'Али' };\n    resolve(data);\n  }, 1000);\n});\n\nmyPromise\n  .then(data => console.log('Данные получены: ', data.name))\n  .catch(error => console.log('Ошибка: ', error)); // Через 1 секунду: Данные получены: Али"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `myPromise` создает Promise, который разрешается с данными после задержки в 1 секунду.\n- `.then()` обрабатывает успешный результат, а `.catch()` ловит ошибки.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Состояния Promise"
+      },
+      {
+        "type": "paragraph",
+        "text": "Promise имеет три состояния:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nPending: Promise находится в ожидании и еще не разрешился."
+          },
+          {
+            "description": "\nFulfilled: Promise успешно завершился и вернул значение."
+          },
+          { "description": "\nRejected: Promise завершился с ошибкой." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Обработка ошибок с Promise"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример Promise с ошибкой\nconst errorPromise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    reject('Не удалось получить данные');\n  }, 1000);\n});\n\nerrorPromise\n  .then(data => console.log(data))\n  .catch(error => console.log('Ошибка: ', error)); // Через 1 секунду: Ошибка: Не удалось получить данные"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `errorPromise` завершается с ошибкой, вызывая `reject`.\n- `.catch()` ловит ошибку и выводит ее в консоль.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Цепочка Promise"
+      },
+      {
+        "type": "paragraph",
+        "text": "Promise можно объединять в цепочку с помощью нескольких методов `.then()`, что позволяет выполнять последовательные асинхронные операции."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример цепочки Promise\nconst fetchData = new Promise((resolve) => {\n  setTimeout(() => {\n    resolve({ id: 2, name: 'Вали' });\n  }, 1000);\n});\n\nfetchData\n  .then(data => {\n    console.log('Исходные данные: ', data.name);\n    return data.name.toUpperCase();\n  })\n  .then(upperName => console.log('В верхнем регистре: ', upperName))\n  .catch(error => console.log('Ошибка: ', error)); // Через 1 секунду: Исходные данные: Вали, В верхнем регистре: ВАЛИ"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый `.then()` получает данные и возвращает имя в верхнем регистре.\n- Второй `.then()` выводит имя в верхнем регистре.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества Promise"
+      },
+      {
+        "type": "paragraph",
+        "text": "Promise имеют следующие преимущества:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nЧитаемость: Более читаемый и структурированный код по сравнению с callback."
+          },
+          {
+            "description": "\nОбработка ошибок: Ошибки легко ловятся с помощью `.catch()`."
+          },
+          { "description": "\nЦепочка: Упрощает последовательные операции." }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Работа с Promise может представлять сложности:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nКривая обучения: Promise могут быть сложными для новичков."
+          },
+          {
+            "description": "\nОбработка ошибок: Забыв обработать ошибки, можно получить логические проблемы."
+          },
+          {
+            "description": "\nМножественные Promise: Управление несколькими Promise может быть сложным."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Отсутствие `.catch()` может привести к необработанным ошибкам. Неправильное управление множественными Promise может вызвать сложные ошибки.\n- **Рекомендации**: Всегда обрабатывайте ошибки с помощью `.catch()`. Делайте цепочки Promise простыми. Обратитесь к документации Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise). Вы можете протестировать код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример с ошибкой\nconst badPromise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    const data = null;\n    resolve(data);\n  }, 1000);\n});\n\nbadPromise.then(data => console.log(data.name)); // TypeError: Cannot read property 'name' of null\n\n// Правильный подход\nconst safePromise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    const data = null;\n    if (data) {\n      resolve(data);\n    } else {\n      reject('Данные отсутствуют');\n    }\n  }, 1000);\n});\n\nsafePromise\n  .then(data => console.log('Данные: ', data.name))\n  .catch(error => console.log('Ошибка: ', error)); // Ошибка: Данные отсутствуют"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `badPromise` вызывает ошибку из-за значения null без обработки ошибок.\n- `safePromise` обрабатывает ошибки с помощью `.catch()`, возвращая корректный результат.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Promise.all для нескольких Promise"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Promise.all` ожидает завершения нескольких Promise и возвращает их результаты в виде массива."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример Promise.all\nconst promise1 = new Promise((resolve) => {\n  setTimeout(() => resolve('Первый результат'), 1000);\n});\n\nconst promise2 = new Promise((resolve) => {\n  setTimeout(() => resolve('Второй результат'), 2000);\n});\n\nPromise.all([promise1, promise2])\n  .then(results => console.log('Все результаты: ', results))\n  .catch(error => console.log('Ошибка: ', error)); // Через 2 секунды: Все результаты: ['Первый результат', 'Второй результат']"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Promise.all` ожидает завер敞т завершения обоих Promise.\n- Результаты возвращаются в виде массива.\n- Вы можете протестировать этот код ниже."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Простой пример Promise\nconst fetchUser = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    const user = { id: 1, name: 'Айсу' };\n    resolve(user);\n  }, 1000);\n});\n\nfetchUser\n  .then(user => console.log('Пользователь: ', user.name))\n  .catch(error => console.log('Ошибка: ', error)); // Пользователь: Айсу\n\n// Promise с ошибкой\nconst fetchDataError = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    reject('Не удалось получить данные');\n  }, 1000);\n});\n\nfetchDataError\n  .then(data => console.log(data))\n  .catch(error => console.log('Ошибка: ', error)); // Ошибка: Не удалось получить данные\n\n// Цепочка Promise\nconst processData = new Promise((resolve) => {\n  setTimeout(() => {\n    resolve('Исходные данные');\n  }, 1000);\n});\n\nprocessData\n  .then(data => {\n    console.log('Данные: ', data);\n    return data.toUpperCase();\n  })\n  .then(upperData => console.log('В верхнем регистре: ', upperData))\n  .catch(error => console.log('Ошибка: ', error)); // Данные: Исходные данные, В верхнем регистре: ИСХОДНЫЕ ДАННЫЕ"
+      }
+    ]
+  }
+}

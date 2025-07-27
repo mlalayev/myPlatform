@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { use } from "react";
-import { exercises } from "../exercisesData";
 import JsTryEditor from "../../components/tryeditor/JsTryEditor";
 import Header from "../../components/header/Header";
 import Footer from "../../components/footer/Footer";
@@ -29,15 +28,38 @@ interface ExerciseDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-function createSandboxWorker() {
-  const blob = new Blob([workerCode], { type: "application/javascript" });
-  return new Worker(URL.createObjectURL(blob));
+interface Exercise {
+  id: number;
+  title: string;
+  description: string;
+  difficulty: string;
+  category: string;
+  content: {
+    acceptance: number;
+    constraints: string[];
+    examples: { input: string; output: string; explanation?: string }[];
+    tags: string[];
+    solution: string;
+    timeComplexity: string;
+    spaceComplexity: string;
+    hints?: string[];
+    testCases: { input: string; expectedOutput: string; hidden?: boolean }[];
+    inputParser?: (input: string) => any;
+  };
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface FailedCase {
   input: string;
   output: string;
   expected: string;
+}
+
+function createSandboxWorker() {
+  const blob = new Blob([workerCode], { type: "application/javascript" });
+  return new Worker(URL.createObjectURL(blob));
 }
 
 // Add languageSamples for default code templates
@@ -62,6 +84,9 @@ export default function ExerciseDetailPage({
   params,
 }: ExerciseDetailPageProps) {
   const { id } = use(params);
+  const [exercise, setExercise] = useState<Exercise | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [customInput, setCustomInput] = useState("");
   const [output, setOutput] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -87,6 +112,51 @@ export default function ExerciseDetailPage({
   const codeInitialized = useRef(false);
   const { t } = useI18n();
   const { logActivity } = useAppContext();
+
+  // Fetch exercise data from API
+  useEffect(() => {
+    async function fetchExercise() {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/exercises/${id}`);
+        if (!response.ok) {
+          throw new Error('Exercise not found');
+        }
+        const data = await response.json();
+        
+        // Parse inputParser if it exists as a string
+        if (data.content && data.content.inputParser && typeof data.content.inputParser === 'string') {
+          try {
+            // Use eval to compile the arrow function string directly
+            console.log('InputParser string:', data.content.inputParser);
+            data.content.inputParser = eval(`(${data.content.inputParser})`);
+            console.log('InputParser compiled successfully');
+          } catch (error) {
+            console.error('Error parsing inputParser:', error);
+            // Fallback to default Two Sum parser
+            data.content.inputParser = (input: string) => {
+              const parts = input.split('|');
+              const nums = parts[0].split(' ').map(Number);
+              const target = Number(parts[1]);
+              return [nums, target];
+            };
+          }
+        }
+        
+        setExercise(data);
+      } catch (error) {
+        console.error('Error fetching exercise:', error);
+        setError('Exercise not found');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (id) {
+      fetchExercise();
+    }
+  }, [id]);
+
   const getInitialLanguage = () => {
     if (typeof window !== "undefined") {
       const globalLang = localStorage.getItem("quiz_global_lang");
@@ -98,7 +168,6 @@ export default function ExerciseDetailPage({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const exercise = exercises.find((ex) => ex.id === id);
   // All hooks must be called before any early return
   // When quiz id changes, reset codeInitialized
   useEffect(() => {
@@ -121,25 +190,35 @@ export default function ExerciseDetailPage({
   // Add a function to fetch and update latest submission and status icon
   const refreshLatestSubmission = useCallback(async () => {
     if (!exercise) return;
-    const res = await fetch(
-      `/api/quiz/${id}/latest?maxTestCases=${exercise.testCases.length}`
-    );
-    const data = await res.json();
-    console.log(
-      "Latest submission from backend:",
-      data.latest,
-      "hasPassed:",
-      data.hasPassed,
-      "hasWrong:",
-      data.hasWrong
-    );
-    setLatestSubmission(data.latest);
-    // Improved status icon logic
-    if (data.hasPassed) {
-      setStatusIcon(<FiCheckCircle color="green" title="Correct" />);
-    } else if (data.hasWrong) {
-      setStatusIcon(<FiXCircle color="red" title="Incorrect" />);
-    } else {
+    try {
+      const res = await fetch(
+        `/api/quiz/${id}/latest?maxTestCases=${exercise.content.testCases.length}`
+      );
+      if (!res.ok) {
+        console.warn('Latest submission API not available');
+        return;
+      }
+      const data = await res.json();
+      console.log(
+        "Latest submission from backend:",
+        data.latest,
+        "hasPassed:",
+        data.hasPassed,
+        "hasWrong:",
+        data.hasWrong
+      );
+      setLatestSubmission(data.latest);
+      // Improved status icon logic
+      if (data.hasPassed) {
+        setStatusIcon(<FiCheckCircle color="green" title="Correct" />);
+      } else if (data.hasWrong) {
+        setStatusIcon(<FiXCircle color="red" title="Incorrect" />);
+      } else {
+        setStatusIcon(<FiXCircle color="gray" title="Not submitted" />);
+      }
+    } catch (error) {
+      console.warn('Failed to fetch latest submission:', error);
+      // Set default status
       setStatusIcon(<FiXCircle color="gray" title="Not submitted" />);
     }
   }, [exercise, id]);
@@ -149,19 +228,24 @@ export default function ExerciseDetailPage({
     refreshLatestSubmission();
   }, [refreshLatestSubmission]);
 
-  // Log exercise view activity
+  // Log exercise view activity (optional)
   useEffect(() => {
     if (exercise) {
-      logActivity(
-        'EXERCISE_START',
-        `Started working on exercise: ${exercise.title}`,
-        {
-          exerciseId: id,
-          exerciseTitle: exercise.title,
-          difficulty: exercise.difficulty,
-          language: language
-        }
-      );
+      try {
+        logActivity(
+          'EXERCISE_START',
+          `Started working on exercise: ${exercise.title}`,
+          {
+            exerciseId: id,
+            exerciseTitle: exercise.title,
+            difficulty: exercise.difficulty,
+            language: language
+          }
+        );
+      } catch (error) {
+        // Ignore activity logging errors
+        console.warn('Activity logging failed:', error);
+      }
     }
   }, [exercise, id, logActivity]);
 
@@ -298,18 +382,22 @@ export default function ExerciseDetailPage({
     let failedCase = null;
     const failedCasesArr: FailedCase[] = [];
     
-    // Log exercise submission activity
+    // Log exercise submission activity (optional)
     if (exercise) {
-      logActivity(
-        'EXERCISE_SUBMIT',
-        `Submitted solution for exercise: ${exercise.title}`,
-        {
-          exerciseId: id,
-          exerciseTitle: exercise.title,
-          language: language,
-          codeLength: userCode.length
-        }
-      );
+      try {
+        logActivity(
+          'EXERCISE_SUBMIT',
+          `Submitted solution for exercise: ${exercise.title}`,
+          {
+            exerciseId: id,
+            exerciseTitle: exercise.title,
+            language: language,
+            codeLength: userCode.length
+          }
+        );
+      } catch (error) {
+        console.warn('Activity logging failed:', error);
+      }
     }
     
     if (!isSafeCode(userCode)) {
@@ -326,14 +414,20 @@ export default function ExerciseDetailPage({
     if (bodyMatch) setDetectedComplexity(analyzeTimeComplexity(bodyMatch[1]));
 
     try {
-      if (!exercise || !exercise.testCases) throw new Error("Exercise or test cases not found");
-      for (let i = 0; i < exercise.testCases.length; i++) {
-        const tc = exercise.testCases[i];
+      if (!exercise || !exercise.content.testCases) throw new Error("Exercise or test cases not found");
+      for (let i = 0; i < exercise.content.testCases.length; i++) {
+        const tc = exercise.content.testCases[i];
         let args;
-        if (exercise.inputParser) {
-          args = exercise.inputParser(tc.input);
+        if (exercise.content.inputParser) {
+          args = exercise.content.inputParser(tc.input);
+          console.log(`[DEBUG] Test case ${i}: input="${tc.input}", parsed args=`, args);
         } else {
-          args = tc.input.split(" ").map(Number);
+          // Default parser for Two Sum: last number is target, rest is array
+          const numbers = tc.input.split(" ").map(Number);
+          const target = numbers.pop(); // Remove and get last number
+          const nums = numbers; // Rest is the array
+          args = [nums, target];
+          console.log(`[DEBUG] Test case ${i}: input="${tc.input}", parsed args=`, args);
         }
 
         let result, error;
@@ -408,7 +502,7 @@ export default function ExerciseDetailPage({
           const resultPromise = new Promise<{ result?: unknown; error?: string }>(
             (resolve) => {
               worker.onmessage = (e: MessageEvent) => resolve(e.data);
-              worker.postMessage({ code: userCode, args, functionName });
+              worker.postMessage({ code: userCode, args });
             }
           );
           const timeoutPromise = new Promise<{ error: string }>((resolve) =>
@@ -433,6 +527,7 @@ export default function ExerciseDetailPage({
           setActiveLeftTab(4);
           return;
         }
+        console.log(`[DEBUG] Test case ${i}: result=`, result, 'expected=', tc.expectedOutput, 'passed=', isEqual(result, tc.expectedOutput));
         const passed = isEqual(result, tc.expectedOutput);
         if (passed) {
           passedCount++;
@@ -460,37 +555,46 @@ export default function ExerciseDetailPage({
     setIsSubmitting(false);
     setActiveLeftTab(4);
 
-    // Submit to backend - ALWAYS submit regardless of correctness
+    // Submit to backend - ALWAYS submit regardless of correctness (optional)
     try {
-      await fetch("/api/quiz/submit", {
+      const response = await fetch("/api/quiz/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           quizId: Number(id),
           score: exercise
             ? failedCasesArr.length === 0
-              ? exercise.testCases.length
-              : exercise.testCases.length - failedCasesArr.length
+              ? exercise.content.testCases.length
+              : exercise.content.testCases.length - failedCasesArr.length
             : 0,
           answers: { failedCases: failedCasesArr },
           code: userCode,
           language,
         }),
       });
-      // Save code to localStorage after submit
+      
+      if (!response.ok) {
+        console.warn('Backend submission API not available');
+      }
+      
+      // Save code to localStorage regardless of API success
       if (id) {
         localStorage.setItem(`quiz_code_${id}_${language}`, userCode);
       }
       // After submit, refresh latest submission and status icon
       await refreshLatestSubmission();
     } catch (e) {
-      console.error("Error submitting to backend:", e);
+      console.warn("Backend submission not available:", e);
+      // Save code to localStorage even if API fails
+      if (id) {
+        localStorage.setItem(`quiz_code_${id}_${language}`, userCode);
+      }
     }
 
     if (failedCasesArr.length > 0) {
       setFailedCases(failedCasesArr);
       setFeedback(
-        `${passedCount}/${exercise.testCases.length} test keçdi. İlk səhv test: input = ${failedCasesArr[0].input}, gözlənilən = ${failedCasesArr[0].expected}, sənin çıxışın = ${failedCasesArr[0].output}`
+        `${passedCount}/${exercise.content.testCases.length} test keçdi. İlk səhv test: input = ${failedCasesArr[0].input}, gözlənilən = ${failedCasesArr[0].expected}, sənin çıxışın = ${failedCasesArr[0].output}`
       );
       setFeedbackType("wrong");
       setDetectedComplexity(null);
@@ -501,28 +605,32 @@ export default function ExerciseDetailPage({
     setFailedCases([]);
     setFeedback(
       exercise
-        ? `${exercise.testCases.length}/${exercise.testCases.length} test uğurla keçdi!`
+        ? `${exercise.content.testCases.length}/${exercise.content.testCases.length} test uğurla keçdi!`
         : "Bütün testlər uğurla keçdi!"
     );
     setFeedbackType("success");
     
-    // Log successful exercise completion
+    // Log successful exercise completion (optional)
     if (exercise) {
-      logActivity(
-        'EXERCISE_SOLVE',
-        `Successfully solved exercise: ${exercise.title}`,
-        {
-          exerciseId: id,
-          exerciseTitle: exercise.title,
-          language: language,
-          testCasesPassed: exercise.testCases.length,
-          attempts: 1 // Could track this if needed
-        }
-      );
+      try {
+        logActivity(
+          'EXERCISE_SOLVE',
+          `Successfully solved exercise: ${exercise.title}`,
+          {
+            exerciseId: id,
+            exerciseTitle: exercise.title,
+            language: language,
+            testCasesPassed: exercise.content.testCases.length,
+            attempts: 1 // Could track this if needed
+          }
+        );
+      } catch (error) {
+        console.warn('Activity logging failed:', error);
+      }
     }
   };
 
-  const visibleCases = exercise ? exercise.testCases.filter((tc) => !tc.hidden) : [];
+  const visibleCases = exercise ? exercise.content.testCases.filter((tc) => !tc.hidden) : [];
 
   type LeftTab = { label: string; result?: boolean; icon: React.ReactNode };
   const leftTabs: LeftTab[] = [
@@ -550,10 +658,13 @@ export default function ExerciseDetailPage({
 
   const difficultyColor = (diff: string) => {
     switch (diff) {
+      case "EASY":
       case "Asan":
         return detailStyles.easy;
+      case "MEDIUM":
       case "Orta":
         return detailStyles.medium;
+      case "HARD":
       case "Çətin":
         return detailStyles.hard;
       default:
@@ -563,14 +674,30 @@ export default function ExerciseDetailPage({
 
   const difficultyIcon = (diff: string) => {
     switch (diff) {
+      case "EASY":
       case "Asan":
         return "🟢";
+      case "MEDIUM":
       case "Orta":
         return "🟡";
+      case "HARD":
       case "Çətin":
         return "🔴";
       default:
         return "⚪";
+    }
+  };
+
+  const getDifficultyText = (diff: string) => {
+    switch (diff) {
+      case "EASY":
+        return "Asan";
+      case "MEDIUM":
+        return "Orta";
+      case "HARD":
+        return "Çətin";
+      default:
+        return diff;
     }
   };
 
@@ -603,6 +730,8 @@ export default function ExerciseDetailPage({
   }, []);
 
   // Place the early return here, after all hooks
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
   if (!exercise) return <div>Tapşırıq tapılmadı.</div>;
 
   return (
@@ -628,15 +757,15 @@ export default function ExerciseDetailPage({
             <div className={detailStyles.heroStats}>
               <div className={detailStyles.statItem}>
                 <FiUsers className={detailStyles.statIcon} />
-                <span>{exercise?.acceptance}% Qəbul</span>
+                <span>{exercise?.content.acceptance}% Qəbul</span>
               </div>
               <div className={detailStyles.statItem}>
                 <FiClock className={detailStyles.statIcon} />
-                <span>{exercise?.timeComplexity}</span>
+                <span>{exercise?.content.timeComplexity}</span>
               </div>
               <div className={detailStyles.statItem}>
                 <FiTarget className={detailStyles.statIcon} />
-                <span>{exercise?.spaceComplexity}</span>
+                <span>{exercise?.content.spaceComplexity}</span>
               </div>
             </div>
           </div>
@@ -650,11 +779,11 @@ export default function ExerciseDetailPage({
                     exercise.difficulty
                   )}`}
                 >
-                  {exercise ? difficultyIcon(exercise.difficulty) : ''} {exercise?.difficulty}
+                  {exercise ? difficultyIcon(exercise.difficulty) : ''} {exercise ? getDifficultyText(exercise.difficulty) : ''}
                 </span>
               </div>
               <div className={detailStyles.tagsContainer}>
-                {exercise?.tags.map((tag) => (
+                {exercise?.content.tags.map((tag) => (
                   <span key={tag} className={detailStyles.tag}>
                     <FiCode className={detailStyles.tagIcon} />
                     {tag}
@@ -708,7 +837,7 @@ export default function ExerciseDetailPage({
                 <div className={detailStyles.section}>
                   <h3 className={detailStyles.sectionTitle}>Məhdudiyyətlər</h3>
                   <ul className={detailStyles.constraintsList}>
-                    {exercise?.constraints?.map((constraint, i) => (
+                    {exercise?.content.constraints?.map((constraint, i) => (
                       <li key={i} className={detailStyles.constraintItem}>
                         {constraint}
                       </li>
@@ -718,7 +847,7 @@ export default function ExerciseDetailPage({
 
                 <div className={detailStyles.section}>
                   <h3 className={detailStyles.sectionTitle}>Nümunələr</h3>
-                  {exercise?.examples?.map((ex, i) => (
+                  {exercise?.content.examples?.map((ex, i) => (
                     <div key={i} className={detailStyles.exampleCard}>
                       <div className={detailStyles.exampleHeader}>
                         <span className={detailStyles.exampleNumber}>
@@ -798,10 +927,10 @@ export default function ExerciseDetailPage({
                   status={isCorrect ? "correct" : "wrong"}
                   passedCount={
                     isCorrect
-                      ? (exercise?.testCases.length ?? 0)
-                      : (exercise ? exercise.testCases.length - failedCases.length : 0)
+                      ? (exercise?.content.testCases.length ?? 0)
+                      : (exercise ? exercise.content.testCases.length - failedCases.length : 0)
                   }
-                  totalCount={exercise?.testCases.length ?? 0}
+                  totalCount={exercise?.content.testCases.length ?? 0}
                   failedCases={failedCases}
                   onAnalyzeComplexity={() => setIsComplexityModalOpen(true)}
                 />

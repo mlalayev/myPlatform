@@ -31,6 +31,12 @@ function LoginPointPopup() {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
+    // Skip popup for exercises pages to avoid API calls
+    if (typeof window !== 'undefined' && window.location.pathname.includes('/exercises/')) {
+      setChecked(true);
+      return;
+    }
+    
     if (
       status !== "authenticated" ||
       !(session?.user && (session.user as unknown as { id: string }).id)
@@ -61,17 +67,17 @@ function LoginPointPopup() {
       return;
     }
     
-    // Fetch user profile to check if user logged in today
-    fetch(`/api/admin/users/${userId}`)
-      .then((res) => {
+    // Fetch user profile to check if user logged in today (optional)
+    const fetchUserData = async () => {
+      try {
+        const res = await fetch(`/api/admin/users/${userId}`);
         if (!res.ok) {
-          console.error('Failed to fetch user data:', res.status);
+          console.warn('User data API not available:', res.status);
           setChecked(true);
-          return null;
+          return;
         }
-        return res.json();
-      })
-      .then((user) => {
+        
+        const user = await res.json();
         if (!user) {
           setChecked(true);
           return;
@@ -87,14 +93,15 @@ function LoginPointPopup() {
             today.getDate() === lastLogin.getDate()) {
           setShow(true);
           localStorage.setItem(lastPopupKey, todayStr);
-        } else {
         }
         setChecked(true);
-      })
-      .catch((error) => {
-        console.error('Error fetching user data:', error);
+      } catch (error) {
+        console.warn('User data fetch failed:', error);
         setChecked(true);
-      });
+      }
+    };
+    
+    fetchUserData();
   }, [session, status, update]);
 
   useEffect(() => {

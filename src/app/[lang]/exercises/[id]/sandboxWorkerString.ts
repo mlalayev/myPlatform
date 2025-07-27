@@ -18,14 +18,14 @@ self.onmessage = async function (e) {
       try {
         console.log('[worker] Trying regex patterns');
         const patterns = [
-          /function\s+solution\s*\(([^)]*)\)\s*\{([\s\S]*)\}/,                       // function solution(...) {...}
-          /const\s+solution\s*=\s*function\s*\(([^)]*)\)\s*\{([\s\S]*)\}/,         // const solution = function(...) {...}
-          /let\s+solution\s*=\s*function\s*\(([^)]*)\)\s*\{([\s\S]*)\}/,
-          /var\s+solution\s*=\s*function\s*\(([^)]*)\)\s*\{([\s\S]*)\}/,
-          /const\s+solution\s*=\s*\(([^)]*)\)\s*=>\s*\{([\s\S]*)\}/,               // const solution = (...) => {...}
-          /let\s+solution\s*=\s*\(([^)]*)\)\s*=>\s*\{([\s\S]*)\}/,
-          /var\s+solution\s*=\s*\(([^)]*)\)\s*=>\s*\{([\s\S]*)\}/,
-          /(?:const|let|var)\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*([^\\{;\\n]+)/
+          /function\\s+solution\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,                       // function solution(...) {...}
+          /const\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,         // const solution = function(...) {...}
+          /let\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,
+          /var\\s+solution\\s*=\\s*function\\s*\\(([^)]*)\\)\\s*\\{([\\s\\S]*)\\}/,
+          /const\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/,               // const solution = (...) => {...}
+          /let\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/,
+          /var\\s+solution\\s*=\\s*\\(([^)]*)\\)\\s*=>\\s*\\{([\\s\\S]*)\\}/,
+          /(?:const|let|var)\\\\s+solution\\\\s*=\\\\s*\\\\(([^)]*)\\\\)\\\\s*=>\\\\s*([^\\\\{;\\\\n]+)/
         ];
 
         for (const pattern of patterns) {
@@ -87,12 +87,14 @@ self.onmessage = async function (e) {
       }
     }
 
-    // Əgər input göndərilir amma funksiya parametrləri yoxdursa və ya azdır
+    // Parametr sayı yoxlaması - yalnız minimum lazım olanları yoxla
     const fnParamsCount = self.solution.length;
-    console.log('[worker] solution param count:', fnParamsCount, 'args.length:', args.length);
-    if (fnParamsCount < args.length) {
-      console.log('[worker] Not enough parameters');
-      self.postMessage({ error: 'Funksiya kifayət qədər parametr qəbul etmir! Gözlənilən: ' + args.length + ', tapıldı: ' + fnParamsCount });
+    console.log('[worker] solution param count:', fnParamsCount, 'args.length:', args.length, 'args:', args);
+    
+    // Yalnız çox az parametr varsa xəta ver, artıq parametrlər problemə səbəb olmasın
+    if (fnParamsCount === 0 && args.length > 0) {
+      console.log('[worker] No parameters but args needed');
+      self.postMessage({ error: 'Funksiya parametr qəbul etmir! Ən azı 1 input parameter yazılmalıdır.' });
       clearTimeout(timer);
       return;
     }
