@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 
 interface AppContextType {
@@ -127,28 +127,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   */
 
   // Activity logging function (internal)
-  const logActivityInternal = async (type: string, description: string, metadata: any = {}) => {
-    if (!session || status !== 'authenticated') return;
-    
+  const logActivityInternal = useCallback(async (type: string, description: string, metadata: any = {}) => {
+    if (!session?.user?.email) return;
+
     try {
-      await fetch('/api/user/activity', {
+      const response = await fetch('/api/user/activity', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type, description, metadata })
       });
+
+      if (!response.ok) {
+        console.warn('Failed to log activity:', response.status);
+      }
     } catch (error) {
-      console.error('Error logging activity:', error);
+      console.warn('Activity logging failed:', error);
     }
-  };
+  }, [session?.user?.email]);
 
   // Public activity logging function
-  const logActivity = async (type: string, description: string, metadata: any = {}) => {
+  const logActivity = useCallback(async (type: string, description: string, metadata: any = {}) => {
     // Skip activity logging on exercises pages
     if (typeof window !== 'undefined' && window.location.pathname.includes('/exercises/')) {
       return;
     }
     await logActivityInternal(type, description, metadata);
-  };
+  }, [logActivityInternal]);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);

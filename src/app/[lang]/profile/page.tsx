@@ -135,19 +135,114 @@ const profileTabs = [
         const response = await fetch("/api/user/profile");
         if (response.ok) {
           const data = await response.json();
+          console.log('User stats fetched:', data);
           setUserStats(data);
         } else {
           const errorData = await response.json().catch(() => null);
           console.error(
             "Failed to fetch user stats:",
             response.status,
-            response.statusText
+            response.statusText,
+            errorData
           );
-          console.error("Error details:", errorData);
+          
+          // Set default stats if API is not available
+          setUserStats({
+            user: {
+              name: session?.user?.name || "User",
+              surname: "",
+              username: session?.user?.email?.split('@')[0] || "user",
+              email: session?.user?.email || "",
+              avatarUrl: session?.user?.image || "",
+              role: "user",
+              premiumStatus: false,
+              joinDate: new Date(),
+              lastActive: new Date(),
+            },
+            dailyLoginPoints: 0,
+            todayCoins: 0,
+            loginStreak: 0,
+            totalLessons: 150,
+            completedLessons: 0,
+            totalExercises: 300,
+            solvedExercises: 0,
+            completionRate: 0,
+            studyTimeHours: 0,
+            rank: "Beginner",
+            totalAchievements: 0,
+            unlockedAchievements: 0,
+            learningStreak: 0,
+            recentActivities: [
+              {
+                type: "login",
+                text: "Welcome to the platform!",
+                time: "Just now",
+                metadata: {}
+              }
+            ],
+            weeklyProgress: {
+              lessonsThisWeek: 0,
+              exercisesThisWeek: 0,
+              studyTimeThisWeek: 0,
+              pointsThisWeek: 0,
+            },
+            calendarData: {
+              activeDays: 0,
+              thisWeekStudyTime: 0,
+              dailyActivities: []
+            }
+          });
         }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching user stats:", error);
+        
+        // Set default stats on network error
+        setUserStats({
+          user: {
+            name: session?.user?.name || "User",
+            surname: "",
+            username: session?.user?.email?.split('@')[0] || "user",
+            email: session?.user?.email || "",
+            avatarUrl: session?.user?.image || "",
+            role: "user",
+            premiumStatus: false,
+            joinDate: new Date(),
+            lastActive: new Date(),
+          },
+          dailyLoginPoints: 0,
+          todayCoins: 0,
+          loginStreak: 0,
+          totalLessons: 150,
+          completedLessons: 0,
+          totalExercises: 300,
+          solvedExercises: 0,
+          completionRate: 0,
+          studyTimeHours: 0,
+          rank: "Beginner",
+          totalAchievements: 0,
+          unlockedAchievements: 0,
+          learningStreak: 0,
+          recentActivities: [
+            {
+              type: "login",
+              text: "Welcome to the platform!",
+              time: "Just now",
+              metadata: {}
+            }
+          ],
+          weeklyProgress: {
+            lessonsThisWeek: 0,
+            exercisesThisWeek: 0,
+            studyTimeThisWeek: 0,
+            pointsThisWeek: 0,
+          },
+          calendarData: {
+            activeDays: 0,
+            thisWeekStudyTime: 0,
+            dailyActivities: []
+          }
+        });
         setLoading(false);
       }
     };
@@ -167,9 +262,25 @@ const profileTabs = [
         if (response.ok) {
           const data = await response.json();
           setCalendarData(data);
+        } else {
+          console.error("Failed to fetch calendar data:", response.status, response.statusText);
+          // Set default calendar data if API is not available
+          setCalendarData({
+            days: [],
+            totalStudyTime: 0,
+            totalLessons: 0,
+            totalExercises: 0
+          });
         }
       } catch (error) {
         console.error("Error fetching calendar data:", error);
+        // Set default calendar data on network error
+        setCalendarData({
+          days: [],
+          totalStudyTime: 0,
+          totalLessons: 0,
+          totalExercises: 0
+        });
       }
     };
 

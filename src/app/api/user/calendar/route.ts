@@ -33,39 +33,48 @@ export async function GET(request: NextRequest) {
 
     // Try to get activity tracking data - use try/catch for new tables
     try {
-      // Get daily activities for the month
-      dailyActivities = await prisma.dailyActivity.findMany({
-        where: {
-          userId: user.id,
-          date: {
-            gte: startDate,
-            lte: endDate
+      // Check if dailyActivity table exists by trying a simple query
+      const tableExists = await prisma.$queryRaw`SELECT 1 FROM dailyActivity LIMIT 1`.catch(() => null);
+      
+      if (tableExists) {
+        // Get daily activities for the month
+        dailyActivities = await prisma.dailyActivity.findMany({
+          where: {
+            userId: user.id,
+            date: {
+              gte: startDate,
+              lte: endDate
+            }
+          },
+          orderBy: {
+            date: 'asc'
           }
-        },
-        orderBy: {
-          date: 'asc'
-        }
-      });
+        });
 
-      // Get all activities for the month to show detailed view
-      detailedActivities = await prisma.userActivity.findMany({
-        where: {
-          userId: user.id,
-          timestamp: {
-            gte: startDate,
-            lte: new Date(endDate.getTime() + 24 * 60 * 60 * 1000) // Add one day to include end date
+        // Get all activities for the month to show detailed view
+        detailedActivities = await prisma.userActivity.findMany({
+          where: {
+            userId: user.id,
+            timestamp: {
+              gte: startDate,
+              lte: new Date(endDate.getTime() + 24 * 60 * 60 * 1000) // Add one day to include end date
+            }
+          },
+          orderBy: {
+            timestamp: 'desc'
+          },
+          select: {
+            type: true,
+            description: true,
+            timestamp: true,
+            metadata: true
           }
-        },
-        orderBy: {
-          timestamp: 'desc'
-        },
-        select: {
-          type: true,
-          description: true,
-          timestamp: true,
-          metadata: true
-        }
-      });
+        });
+      } else {
+        console.log("Activity tracking tables not available");
+        dailyActivities = [];
+        detailedActivities = [];
+      }
     } catch (activityError) {
       console.log("Activity tracking not available yet:", activityError.message);
       // Use empty arrays when activity tracking tables are not available
@@ -163,6 +172,24 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error("Error fetching calendar data:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    
+    // Return default calendar data on error
+    const year = parseInt(new URL(request.url).searchParams.get('year') || new Date().getFullYear().toString());
+    const month = parseInt(new URL(request.url).searchParams.get('month') || (new Date().getMonth() + 1).toString());
+    
+    return NextResponse.json({
+      year,
+      month,
+      calendarData: [],
+      monthlyStats: {
+        totalLoginDays: 0,
+        totalStudyTimeHours: 0,
+        totalLessonsViewed: 0,
+        totalQuizzesTaken: 0,
+        totalExercisesSolved: 0,
+        totalPointsEarned: 0,
+        currentStreak: 0
+      }
+    });
   }
 } 

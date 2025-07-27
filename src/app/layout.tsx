@@ -70,20 +70,20 @@ function LoginPointPopup() {
     // Fetch user profile to check if user logged in today (optional)
     const fetchUserData = async () => {
       try {
-        const res = await fetch(`/api/admin/users/${userId}`);
+        const res = await fetch(`/api/user/profile`);
         if (!res.ok) {
           console.warn('User data API not available:', res.status);
           setChecked(true);
           return;
         }
         
-        const user = await res.json();
-        if (!user) {
+        const userData = await res.json();
+        if (!userData || !userData.user) {
           setChecked(true);
           return;
         }
         
-        const lastLogin = user.lastLoginDate ? new Date(user.lastLoginDate) : null;
+        const lastLogin = userData.user.lastActive ? new Date(userData.user.lastActive) : null;
         const today = new Date();
         
         // Show popup if user logged in today (regardless of whether they already got points)

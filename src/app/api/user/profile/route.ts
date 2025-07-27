@@ -38,8 +38,142 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Initialize variables for activity tracking data
-    let recentActivities = [];
+    // Get solved exercises data separately
+    let solvedExercises = 0;
+    let solvedExercisesData: any[] = [];
+    try {
+      const userWithSolved = await prisma.user.findUnique({
+        where: { id: user.id }
+      }) as any;
+      
+      solvedExercises = (userWithSolved?.solvedExercises || []).length;
+      
+      if (solvedExercises > 0) {
+        const solvedExerciseIds = userWithSolved?.solvedExercises || [];
+        solvedExercisesData = await prisma.exercise.findMany({
+          where: { 
+            id: { in: solvedExerciseIds },
+            published: true
+          },
+          select: {
+            id: true,
+            title: true,
+            difficulty: true,
+            category: true,
+            content: true
+          },
+          orderBy: { id: 'desc' },
+          take: 10
+        });
+      }
+    } catch (error: any) {
+      console.log("Solved exercises data not available:", error.message);
+      solvedExercises = 0;
+      solvedExercisesData = [];
+    }
+
+    // Get total lessons count
+    let totalLessons = 0;
+    try {
+      totalLessons = await prisma.tutorial.count({
+        where: { published: true }
+      });
+    } catch (error: any) {
+      console.log("Tutorial table not available, using fallback:", error.message);
+      totalLessons = 150; // Fallback value
+    }
+
+    // Get completed lessons count
+    let completedLessons = 0;
+    try {
+      console.log('Raw visitedLessons data:', {
+        type: typeof user.visitedLessons,
+        value: user.visitedLessons,
+        isArray: Array.isArray(user.visitedLessons),
+        isObject: typeof user.visitedLessons === 'object' && user.visitedLessons !== null
+      });
+      
+      if (user.visitedLessons) {
+        if (Array.isArray(user.visitedLessons)) {
+          // If it's an array, count directly
+          completedLessons = user.visitedLessons.length;
+          console.log('VisitedLessons is array, count:', completedLessons);
+        } else if (typeof user.visitedLessons === 'object') {
+          // If it's an object, count lessons in each language
+          const visitedData = user.visitedLessons as any;
+          console.log('VisitedLessons is object:', visitedData);
+          
+          // Count all lessons across all languages
+          Object.keys(visitedData).forEach(language => {
+            const lessons = visitedData[language];
+            if (Array.isArray(lessons)) {
+              completedLessons += lessons.length;
+              console.log(`Language ${language}: ${lessons.length} lessons`);
+            }
+          });
+          
+          console.log('Total completed lessons:', completedLessons);
+        }
+      } else {
+        console.log('No visitedLessons data found');
+      }
+    } catch (error: any) {
+      console.log("Error parsing visitedLessons:", error.message);
+      completedLessons = 0;
+    }
+
+    console.log('Lessons data:', {
+      totalLessons,
+      completedLessons,
+      visitedLessons: user.visitedLessons
+    });
+
+    // Get total exercises count
+    let totalExercises = 0;
+    try {
+      totalExercises = await prisma.exercise.count({
+        where: { published: true }
+      });
+    } catch (error: any) {
+      console.log("Exercise table not available, using fallback:", error.message);
+      totalExercises = 300; // Fallback value
+    }
+
+    // Calculate completion percentage
+    const completionRate = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+    // Get achievements data
+    let totalAchievements = 0;
+    let unlockedAchievements = 0;
+    try {
+      const achievements = await prisma.achievement.findMany({
+        where: { userId: user.id },
+        select: {
+          id: true,
+          type: true,
+          name: true,
+          description: true,
+          unlockedAt: true,
+          points: true
+        }
+      });
+      
+      totalAchievements = achievements.length;
+      unlockedAchievements = achievements.filter(a => a.unlockedAt).length;
+      
+      console.log('Achievements data:', {
+        totalAchievements,
+        unlockedAchievements,
+        achievements: achievements.map(a => ({ name: a.name, unlocked: !!a.unlockedAt }))
+      });
+    } catch (error: any) {
+      console.log("Achievements table not available:", error.message);
+      totalAchievements = 0;
+      unlockedAchievements = 0;
+    }
+
+    // Get activity tracking data
+    let recentActivities: any[] = [];
     let sessionStats = { _sum: { duration: 0 } };
     let todayActivity = null;
     let loginStreak = 0;
@@ -52,14 +186,14 @@ export async function GET(request: NextRequest) {
       } 
     };
 
-    // Try to get activity tracking data - use try/catch for new tables
     try {
-      // Get recent activities from the new tracking system
+      // Get recent activities
       recentActivities = await prisma.userActivity.findMany({
         where: { userId: user.id },
         orderBy: { timestamp: 'desc' },
         take: 10,
         select: {
+          id: true,
           type: true,
           description: true,
           timestamp: true,
@@ -67,8 +201,18 @@ export async function GET(request: NextRequest) {
         }
       });
 
+      console.log('Recent activities data:', {
+        count: recentActivities.length,
+        activities: recentActivities.map(a => ({ 
+          id: a.id, 
+          type: a.type, 
+          description: a.description, 
+          timestamp: a.timestamp 
+        }))
+      });
+
       // Get session statistics
-      sessionStats = await prisma.userSession.aggregate({
+      const sessionResult = await prisma.userSession.aggregate({
         where: { 
           userId: user.id,
           duration: { not: null }
@@ -76,6 +220,14 @@ export async function GET(request: NextRequest) {
         _sum: {
           duration: true
         }
+      });
+      
+      sessionStats = { _sum: { duration: sessionResult._sum.duration || 0 } };
+      
+      console.log('Study time data:', {
+        totalDuration: sessionResult._sum.duration,
+        studyTimeHours: Math.floor((sessionResult._sum.duration || 0) / 3600),
+        sessions: await prisma.userSession.count({ where: { userId: user.id } })
       });
 
       // Get today's activity
@@ -103,23 +255,19 @@ export async function GET(request: NextRequest) {
           }
         });
         
-        if (dayActivity && dayActivity.loginCount > 0) {
+        if (dayActivity && (dayActivity.loginCount > 0 || dayActivity.exercisesSolved > 0 || dayActivity.lessonsViewed > 0)) {
           loginStreak++;
           checkDate.setDate(checkDate.getDate() - 1);
         } else {
           break;
         }
-        
-        // Limit to prevent infinite loop
-        if (loginStreak > 365) break;
       }
 
-      // Get this week's statistics
+      // Get weekly stats
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
-      weekAgo.setHours(0, 0, 0, 0);
 
-      weeklyStats = await prisma.dailyActivity.aggregate({
+      const weeklyResult = await prisma.dailyActivity.aggregate({
         where: {
           userId: user.id,
           date: { gte: weekAgo }
@@ -131,87 +279,52 @@ export async function GET(request: NextRequest) {
           pointsEarned: true
         }
       });
-    } catch (activityError) {
-      console.log("Activity tracking not available yet:", activityError.message);
-      // Use fallback mock data when activity tracking tables are not available
+
+      weeklyStats = { 
+        _sum: { 
+          lessonsViewed: weeklyResult._sum.lessonsViewed || 0, 
+          exercisesSolved: weeklyResult._sum.exercisesSolved || 0, 
+          studyTime: weeklyResult._sum.studyTime || 0, 
+          pointsEarned: weeklyResult._sum.pointsEarned || 0 
+        } 
+      };
+
+    } catch (error: any) {
+      console.log("Activity tracking tables not available:", error.message);
     }
 
-    // Calculate stats
-    const visitedLessonsArray = Array.isArray(user.visitedLessons) 
-      ? user.visitedLessons 
-      : (user.visitedLessons && typeof user.visitedLessons === 'object') 
-        ? Object.values(user.visitedLessons).flat()
-        : [];
-    
-    // Get real data for lessons and exercises
-    let totalLessons = 0;
-    let totalExercises = 0;
-    
-    try {
-      totalLessons = await prisma.tutorial.count({
-        where: { published: true }
-      });
-    } catch (error) {
-      console.log("Tutorial table not available, using fallback:", error.message);
-      totalLessons = 150; // Fallback value
-    }
-    
-    const completedLessons = visitedLessonsArray.length;
-    
-    try {
-      totalExercises = await prisma.exercise.count({
-        where: { published: true }
-      });
-    } catch (error) {
-      console.log("Exercise table not available, using fallback:", error.message);
-      totalExercises = 300; // Fallback value
-    }
-    
-    const solvedExercises = user.completedChallenges || 0;
-    
-    // Calculate completion percentage
-    const completionRate = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
-    
     // Calculate study time from session data
     const studyTimeHours = Math.floor((sessionStats._sum.duration || 0) / 3600);
-    
+
     // Get user rank based on points and activity
     let rank = "Beginner";
     const totalPoints = user.dailyLoginPoints || 0;
     if (totalPoints >= 5000) rank = "Expert";
     else if (totalPoints >= 2000) rank = "Advanced";
     else if (totalPoints >= 500) rank = "Intermediate";
-    
+
     // Calculate today's coins based on today's activity
     const todayCoins = todayActivity?.pointsEarned || 0;
-    
-    // Get achievements data
-    const achievements = await prisma.achievement.findMany({
-      where: { userId: user.id },
-      select: {
-        id: true,
-        type: true,
-        name: true,
-        description: true,
-        unlockedAt: true,
-        points: true
-      }
-    });
-    
-    const totalAchievements = achievements.length;
-    const unlockedAchievements = achievements.filter(a => a.unlockedAt).length;
-    
+
     // Calculate learning streak (consecutive days with activity)
-    const learningStreak = loginStreak; // Using login streak as learning streak for now
+    const learningStreak = loginStreak;
 
     // Format recent activities for frontend
     const formattedActivities = recentActivities.length > 0 
-      ? recentActivities.map(activity => ({
-          type: activity.type.toLowerCase(),
-          text: activity.description,
-          time: formatTimeAgo(activity.timestamp),
-          metadata: activity.metadata
-        }))
+      ? recentActivities
+          .map(activity => ({
+            type: activity.type.toLowerCase(),
+            text: activity.description,
+            time: formatTimeAgo(activity.timestamp),
+            metadata: activity.metadata,
+            id: activity.id
+          }))
+          // Remove duplicates based on description (keep only the first occurrence)
+          .filter((activity, index, array) => {
+            const firstIndex = array.findIndex(a => a.text === activity.text);
+            return firstIndex === index;
+          })
+          .slice(0, 10) // Limit to 10 activities
       : [
           {
             type: "login",
@@ -245,6 +358,7 @@ export async function GET(request: NextRequest) {
       completedLessons,
       totalExercises,
       solvedExercises,
+      solvedExercisesData,
       completionRate,
       studyTimeHours,
       rank,
@@ -273,9 +387,18 @@ export async function GET(request: NextRequest) {
       }
     };
 
+    console.log('Profile API response:', {
+      solvedExercises,
+      totalExercises,
+      totalAchievements,
+      unlockedAchievements,
+      studyTimeHours,
+      completionRate
+    });
+
     return NextResponse.json(userStats);
     
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching user profile:", error);
     return NextResponse.json(
       { error: "Internal server error", details: error.message },
@@ -301,7 +424,7 @@ function formatTimeAgo(date: Date): string {
 }
 
 // Helper function to get daily activities for calendar
-async function getDailyActivities(userId: string, days: number) {
+async function getDailyActivities(userId: number, days: number) {
   try {
     const activities = [];
     const today = new Date();
@@ -331,7 +454,7 @@ async function getDailyActivities(userId: string, days: number) {
     }
     
     return activities;
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error getting daily activities:", error.message);
     // Return mock data if table doesn't exist
     return Array.from({ length: days }, (_, i) => ({

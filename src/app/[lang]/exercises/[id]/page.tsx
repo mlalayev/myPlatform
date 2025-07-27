@@ -23,6 +23,7 @@ import {
 } from "react-icons/fi";
 import { useI18n } from "@/contexts/I18nContext";
 import { useAppContext } from "@/contexts/AppContext";
+import { useSession } from "next-auth/react";
 // Remove Babel import since it's causing issues
 // import Babel from "@babel/standalone";
 
@@ -174,6 +175,7 @@ export default function ExerciseDetailPage({
   const codeInitialized = useRef(false);
   const { t } = useI18n();
   const { logActivity } = useAppContext();
+  const { data: session } = useSession();
 
   // Fetch exercise data from API
   useEffect(() => {
@@ -327,26 +329,21 @@ export default function ExerciseDetailPage({
     }
   }, [id]);
 
-  // Log exercise view activity (optional)
+  // Log exercise view activity
   useEffect(() => {
-    if (exercise) {
-      try {
-        logActivity(
-          'EXERCISE_START',
-          `Started working on exercise: ${exercise.title}`,
-          {
-            exerciseId: id,
-            exerciseTitle: exercise.title,
-            difficulty: exercise.difficulty,
-            language: language
-          }
-        );
-      } catch (error) {
-        // Ignore activity logging errors
-        console.warn('Activity logging failed:', error);
-      }
+    if (exercise && session?.user) {
+      logActivity(
+        'EXERCISE_START',
+        `Started exercise: ${exercise.title}`,
+        {
+          exerciseId: id,
+          exerciseTitle: exercise.title,
+          difficulty: exercise.difficulty,
+          category: exercise.category
+        }
+      );
     }
-  }, [exercise, id, logActivity]);
+  }, [exercise, id, session]);
 
   // Autosave code to localStorage on every change
   useEffect(() => {
@@ -1135,6 +1132,38 @@ export default function ExerciseDetailPage({
         : "Bütün testlər uğurla keçdi!"
     );
     setFeedbackType("success");
+    
+    // Mark exercise as solved in backend
+    if (exercise && id) {
+      try {
+        console.log('Marking exercise as solved:', { exerciseId: parseInt(id), exerciseTitle: exercise.title });
+        
+        const response = await fetch('/api/user/exercise-solved', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ exerciseId: parseInt(id) })
+        });
+        
+        console.log('Exercise solved API response status:', response.status);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Exercise marked as solved:', data);
+          
+          // Update localStorage to sync with backend
+          localStorage.setItem(`quiz_ever_passed_${id}`, 'true');
+          localStorage.setItem(`quiz_status_${id}`, 'passed');
+          
+          // Update status icon
+          updateStatusIcon(true);
+        } else {
+          const errorData = await response.json().catch(() => null);
+          console.error('Failed to mark exercise as solved:', response.status, errorData);
+        }
+      } catch (error) {
+        console.warn('Failed to mark exercise as solved:', error);
+      }
+    }
     
     // Log successful exercise completion (optional)
     if (exercise) {
