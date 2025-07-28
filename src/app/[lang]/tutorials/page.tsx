@@ -20,34 +20,40 @@ import { usePathname } from "next/navigation";
 
 const mainCategories = [
   {
+    key: "languages",
+    name: "Proqramlaşdırma Dilləri",
+    icon: <FiCode size={32} color="#374151" />,
+    description: "JavaScript, Python, Java, C++ və s.",
+    stats: "12+ Dillər",
+    featured: true,
+  },
+  {
     key: "algorithms",
     name: "Alqoritmlər",
-    icon: <FiSettings size={44} color="#6c3fc5" />,
-    description: "Əsas metodlar və alqoritmlər.",
+    icon: <FiSettings size={32} color="#374151" />,
+    description: "Sorting, searching, dynamic programming",
+    stats: "25+ Alqoritm",
   },
   {
     key: "data-structures",
     name: "Məlumat Strukturları",
-    icon: <FiLayers size={44} color="#6c3fc5" />,
-    description: "Massiv, ağac, qraf və s.",
+    icon: <FiLayers size={32} color="#374151" />,
+    description: "Arrays, trees, graphs, heaps",
+    stats: "15+ Struktur",
   },
   {
     key: "frameworks",
     name: "Frameworklər",
-    icon: <FiCode size={44} color="#61dafb" />,
-    description: "React, Vue, Angular, Svelte və s.",
-  },
-  {
-    key: "languages",
-    name: "Proqramlaşdırma Dilləri",
-    icon: <FiCode size={44} color="#23242a" />,
-    description: "JavaScript, Python, Java və s.",
+    icon: <FiPackage size={32} color="#374151" />,
+    description: "React, Vue, Angular, Svelte",
+    stats: "8+ Framework",
   },
   {
     key: "topics",
     name: "Proqramlaşdırma Mövzuları",
-    icon: <FiBook size={44} color="#e67e22" />,
-    description: "OOP, Rekursiya, Polimorfizm və s.",
+    icon: <FiBook size={32} color="#374151" />,
+    description: "OOP, Design Patterns, Clean Code",
+    stats: "20+ Mövzu",
   },
 ];
 
@@ -102,25 +108,42 @@ export default function TutorialsPage() {
       />
 
       <div className={styles.tutorialsWrapper}>
-        <div className={styles.mainCategoriesGrid}>
-          {mainCategories.map((cat, idx) => (
-            <Link
-              href={`/${currentLang}/tutorials/${cat.key}`}
-              className={
-                idx === mainCategories.length - 1
-                  ? `${styles.mainCategoryCard} ${styles.mainCategoryCardFull}`
-                  : styles.mainCategoryCard
-              }
-              key={cat.key}
-            >
-              <div className={styles.mainCategoryIcon}>{cat.icon}</div>
-              <div className={styles.mainCategoryName}>{cat.name}</div>
-              <div className={styles.mainCategoryDesc}>{cat.description}</div>
-              <span className={styles.languageArrow}>
-                <FiChevronRight size={22} />
-              </span>
-            </Link>
-          ))}
+        <div className={styles.categoriesSection}>
+          <div className={styles.categoriesHeader}>
+            <h2 className={styles.categoriesTitle}>Öyrənmə Kateqoriyaları</h2>
+            <p className={styles.categoriesSubtitle}>
+              Proqramlaşdırma dünyasını kəşf edin
+            </p>
+          </div>
+          
+          <div className={styles.categoriesList}>
+            {mainCategories.map((cat, idx) => (
+              <Link
+                href={`/${currentLang}/tutorials/${cat.key}`}
+                className={`${styles.categoryItem} ${cat.featured ? styles.featuredItem : ''}`}
+                key={cat.key}
+              >
+                <div className={styles.itemContent}>
+                  <div className={styles.itemLeft}>
+                    <div className={styles.itemIcon}>
+                      {cat.icon}
+                    </div>
+                    <div className={styles.itemInfo}>
+                      <h3 className={styles.itemTitle}>{cat.name}</h3>
+                      <p className={styles.itemDescription}>{cat.description}</p>
+                    </div>
+                  </div>
+                  <div className={styles.itemRight}>
+                    <span className={styles.itemStats}>{cat.stats}</span>
+                    <div className={styles.itemArrow}>
+                      <FiChevronRight size={20} />
+                    </div>
+                  </div>
+                </div>
+                {cat.featured && <div className={styles.featuredBadge}>Əsas</div>}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
       <Footer />
