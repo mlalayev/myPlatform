@@ -64,6 +64,11 @@ import ProfileAchievements from "./components/ProfileAchievements";
 import ProfileAnalytics from "./components/ProfileAnalytics";
 import ProfileRecentActivities from "./components/ProfileRecentActivities";
 import ProfileSecurity from "./components/ProfileSecurity";
+import ProfileProgress from "./components/ProfileProgress";
+import ProfileLessons from "./components/ProfileLessons";
+import ProfileGoals from "./components/ProfileGoals";
+import ProfileNotifications from "./components/ProfileNotifications";
+import ProfileFavourites from "./components/ProfileFavourites";
 
 export default function ProfilePage() {
   const { t } = useI18n();

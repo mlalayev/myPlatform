@@ -20,7 +20,7 @@ import {
   FiGitBranch,
   FiCpu,
 } from "react-icons/fi";
-import { useTranslation } from "@/contexts/I18nContext";
+import { useI18n } from "@/contexts/I18nContext";
 import exercisesStyles from "../ProfileExercises.module.css";
 
 // Helper function to format study time

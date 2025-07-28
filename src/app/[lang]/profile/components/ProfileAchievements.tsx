@@ -89,7 +89,7 @@ export default function ProfileAchievements({
         
         // Check if there are achievements in the profile data
         if (data.achievements && Array.isArray(data.achievements)) {
-          const claimedNames = new Set();
+          const claimedNames = new Set<string>();
           data.achievements.forEach((achievement: any) => {
             if (achievement.claimed) {
               claimedNames.add(achievement.name);
