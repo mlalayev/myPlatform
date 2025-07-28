@@ -9,6 +9,7 @@ import {
   FiBookOpen,
   FiCode,
   FiCheckCircle,
+  FiCheckSquare,
   FiClock,
   FiActivity,
   FiUser,
@@ -37,6 +38,38 @@ function formatStudyTime(totalSeconds: number): string {
   }
 
   return parts.length > 0 ? parts.join(" ") : "0dəq";
+}
+
+// Helper function to format language names for display
+function formatLanguageDisplay(language: string): string {
+  const languageMap: any = {
+    'c': 'C',
+    'java': 'Java',
+    'c++': 'C++',
+    'c%2B%2B': 'C++',
+    'cpp': 'C++',
+    'algorithms': 'Algorithms',
+    'javascript': 'JavaScript',
+    'python': 'Python',
+    'csharp': 'C#',
+    'data-structures': 'Data Structures',
+    'typescript': 'TypeScript',
+    'php': 'PHP',
+    'go': 'Go',
+    'rust': 'Rust',
+    'swift': 'Swift',
+    'kotlin': 'Kotlin',
+    'ruby': 'Ruby',
+    'r': 'R',
+    'sql': 'SQL',
+    'dart': 'Dart',
+    'haskell': 'Haskell',
+    'scala': 'Scala',
+    'bash': 'Bash',
+    'matlab': 'MATLAB'
+  };
+  
+  return languageMap[language] || language;
 }
 
 interface ProfileOverviewProps {
@@ -307,6 +340,29 @@ export default function ProfileOverview({
 
           <div className={overviewStyles.statCard}>
             <div className={overviewStyles.statIcon}>
+              <FiCheckSquare />
+            </div>
+            <div className={overviewStyles.statContent}>
+              <div className={overviewStyles.statNumber}>
+                {userStats.completedLanguages || 0}
+              </div>
+              <div className={overviewStyles.statLabel}>
+                100% Bitirilmiş Dillər
+              </div>
+              <div className={overviewStyles.statTrend}>
+                <FiStar className={overviewStyles.trendIcon} />
+                <span>
+                  {userStats.completedLanguagesList?.length > 0 
+                    ? userStats.completedLanguagesList.join(', ')
+                    : 'Hələ yox'
+                  }
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className={overviewStyles.statCard}>
+            <div className={overviewStyles.statIcon}>
               <FiClock />
             </div>
             <div className={overviewStyles.statContent}>
@@ -520,11 +576,11 @@ export default function ProfileOverview({
                         {activity.time}
                       </span>
                     </div>
-                    {activity.type === "lesson_view" && language && (
-                      <div style={{ marginLeft: "auto", marginRight: "8px" }}>
-                        {getLanguageIcon(language)}
-                      </div>
-                    )}
+                                         {activity.type === "lesson_view" && language && (
+                       <div style={{ marginLeft: "auto", marginRight: "8px" }}>
+                         {getLanguageIcon(formatLanguageDisplay(language))}
+                       </div>
+                     )}
                     {(activity.type === "daily_login_bonus" ||
                       activity.type === "DAILY_LOGIN_BONUS") && (
                       <div style={{ marginLeft: "auto", marginRight: "8px" }}>

@@ -43,7 +43,7 @@ const LANGUAGE_MAPPING: { [key: string]: string } = {
   Python: "python",
   Java: "java",
   C: "c",
-  "C++": "c++",
+  "C++": "c%2B%2B",
   "Go (Golang)": "go",
   Rust: "rust",
   TypeScript: "typescript",
@@ -316,6 +316,7 @@ export default function TutorialLanguagePage() {
       }
       for (const lang of languages) {
         const apiLangName = getApiLanguageName(lang.name);
+        console.log(`Language: ${lang.name}, API Name: ${apiLangName}`);
         if (!lang.available) {
           progressData[apiLangName] = { percent: 0, visited: 0, total: 0 };
           continue;
@@ -326,6 +327,7 @@ export default function TutorialLanguagePage() {
           if (res.ok) {
             const data = await res.json();
             topics = data[langKey] || [];
+            console.log(`${apiLangName} topics from API:`, topics.length);
           }
         } catch (e) {
           try {
@@ -333,9 +335,11 @@ export default function TutorialLanguagePage() {
             if (res.ok) {
               const data = await res.json();
               topics = data[langKey] || [];
+              console.log(`${apiLangName} topics from JSON:`, topics.length);
             }
           } catch (e2) {
             topics = [];
+            console.log(`${apiLangName} no topics found`);
           }
         }
         const total = topics.length;
@@ -348,6 +352,7 @@ export default function TutorialLanguagePage() {
         ).length;
         const percent =
           total > 0 ? Math.round((visitedCount / total) * 100) : 0;
+        console.log(`${apiLangName} progress: ${visitedCount}/${total} = ${percent}%`);
         progressData[apiLangName] = { percent, visited: visitedCount, total };
       }
       setLanguageProgress(progressData);

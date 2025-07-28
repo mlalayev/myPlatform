@@ -181,6 +181,91 @@ export async function GET(request: NextRequest) {
     // Calculate completion percentage
     const completionRate = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
+    // Calculate completed languages (100% completed)
+    let completedLanguages = 0;
+    let completedLanguagesList: string[] = [];
+    
+    try {
+      if (user.visitedLessons && typeof user.visitedLessons === 'object') {
+        const visitedData = user.visitedLessons as any;
+        
+        // Fixed lesson counts for each language
+        const languageLessonCounts: any = {
+          'c': 25,
+          'java': 30,
+          'c++': 25,
+          'c%2B%2B': 25,
+          'cpp': 25,
+          'algorithms': 20,
+          'javascript': 35,
+          'python': 30,
+          'csharp': 30,
+          'data-structures': 25,
+          'typescript': 25,
+          'php': 20,
+          'go': 20,
+          'rust': 20,
+          'swift': 20,
+          'kotlin': 20,
+          'ruby': 20,
+          'r': 15,
+          'sql': 15,
+          'dart': 15,
+          'haskell': 15,
+          'scala': 15,
+          'bash': 15,
+          'matlab': 15
+        };
+
+        // Helper function to format language names
+        const formatLanguageName = (language: string): string => {
+          const languageMap: any = {
+            'c': 'C',
+            'java': 'Java',
+            'c++': 'C++',
+            'c%2B%2B': 'C++',
+            'cpp': 'C++',
+            'algorithms': 'Algorithms',
+            'javascript': 'JavaScript',
+            'python': 'Python',
+            'csharp': 'C#',
+            'data-structures': 'Data Structures',
+            'typescript': 'TypeScript',
+            'php': 'PHP',
+            'go': 'Go',
+            'rust': 'Rust',
+            'swift': 'Swift',
+            'kotlin': 'Kotlin',
+            'ruby': 'Ruby',
+            'r': 'R',
+            'sql': 'SQL',
+            'dart': 'Dart',
+            'haskell': 'Haskell',
+            'scala': 'Scala',
+            'bash': 'Bash',
+            'matlab': 'MATLAB'
+          };
+          
+          return languageMap[language] || language;
+        };
+
+        // Check each language for 100% completion
+        Object.keys(visitedData).forEach(language => {
+          const lessons = visitedData[language];
+          const totalForLanguage = languageLessonCounts[language] || 0;
+          
+          if (Array.isArray(lessons) && lessons.length >= totalForLanguage && totalForLanguage > 0) {
+            completedLanguages++;
+            completedLanguagesList.push(formatLanguageName(language));
+          }
+        });
+      }
+    } catch (error: any) {
+      console.log("Error calculating completed languages:", error.message);
+      completedLanguages = 0;
+      completedLanguagesList = [];
+    }
+
     // Get achievements data
     let totalAchievements = 0;
     let unlockedAchievements = 0;
@@ -451,6 +536,8 @@ export async function GET(request: NextRequest) {
       solvedExercises,
       solvedExercisesData,
       completionRate,
+      completedLanguages,
+      completedLanguagesList,
       studyTimeHours: studyTimeHoursSimple, // Keep old format for compatibility
       formattedStudyTime, // New formatted time
       rank,
