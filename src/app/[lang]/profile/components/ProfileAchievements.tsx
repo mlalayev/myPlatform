@@ -469,6 +469,20 @@ export default function ProfileAchievements({
     (acc, cat) => acc + cat.achievements.filter((ach) => ach.unlocked).length,
     0
   );
+  
+  // Log frontend achievement data for debugging
+  console.log('Frontend achievements:', {
+    totalAchievements,
+    unlockedAchievements,
+    userStatsTotal: userStats?.totalAchievements,
+    userStatsUnlocked: userStats?.unlockedAchievements
+  });
+  
+  // Log which achievements are unlocked in frontend
+  const frontendUnlockedAchievements = achievementCategories.flatMap(cat => 
+    cat.achievements.filter(ach => ach.unlocked).map(ach => `${ach.name} (${ach.id})`)
+  );
+  console.log('Frontend unlocked achievements:', frontendUnlockedAchievements);
 
   return (
     <div className={achievementStyles.achievementsContainer}>

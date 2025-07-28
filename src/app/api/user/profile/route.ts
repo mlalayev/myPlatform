@@ -495,7 +495,7 @@ export async function GET(request: NextRequest) {
         // Learning achievements
         { id: "first_lesson", name: "First Steps", unlocked: completedLessons > 0 },
         { id: "lesson_explorer", name: "Knowledge Seeker", unlocked: completedLessons >= 10 },
-        { id: "lesson_master", name: "Lesson Master", unlocked: completedLessons >= 50 },
+        { id: "lesson_master", name: "Learning Legend", unlocked: completedLessons >= 50 },
         { id: "language_master", name: "Polyglot", unlocked: completedLanguages >= 5 },
         { id: "completionist", name: "Completionist", unlocked: completedLessons >= 100 },
         
@@ -538,8 +538,13 @@ export async function GET(request: NextRequest) {
         solvedExercises,
         savedLessonsCount,
         loginStreak,
-        studyTimeHours
+        studyTimeHours,
+        totalSeconds: sessionStats._sum.duration || 0
       });
+      
+      // Log which achievements are unlocked
+      const unlockedAchievementList = achievementDefinitions.filter(ach => ach.unlocked);
+      console.log('Unlocked achievements:', unlockedAchievementList.map(ach => `${ach.name} (${ach.id})`));
     } catch (error: any) {
       console.log("Achievements calculation error:", error.message);
       totalAchievements = 24; // Fallback to total number of achievements
