@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
         completedChallenges: true,
         visitedLessons: true,
         savedLessons: true,
+        solvedExercises: true,
         progress: true,
         premiumStatus: true,
       },
@@ -266,11 +267,10 @@ export async function GET(request: NextRequest) {
       completedLanguagesList = [];
     }
 
-    // Get achievements data
-    let totalAchievements = 0;
-    let unlockedAchievements = 0;
+    // Get achievements from database
+    let achievements: any[] = [];
     try {
-      const achievements = await prisma.achievement.findMany({
+      achievements = await prisma.achievement.findMany({
         where: { userId: user.id },
         select: {
           id: true,
@@ -278,22 +278,13 @@ export async function GET(request: NextRequest) {
           name: true,
           description: true,
           unlockedAt: true,
-          points: true
+          points: true,
+          claimed: true
         }
-      });
-      
-      totalAchievements = achievements.length;
-      unlockedAchievements = achievements.filter(a => a.unlockedAt).length;
-      
-      console.log('Achievements data:', {
-        totalAchievements,
-        unlockedAchievements,
-        achievements: achievements.map(a => ({ name: a.name, unlocked: !!a.unlockedAt }))
       });
     } catch (error: any) {
       console.log("Achievements table not available:", error.message);
-      totalAchievements = 0;
-      unlockedAchievements = 0;
+      achievements = [];
     }
 
     // Get activity tracking data
@@ -472,6 +463,89 @@ export async function GET(request: NextRequest) {
     // Calculate learning streak (consecutive days with activity)
     const learningStreak = loginStreak;
 
+    // Calculate achievements data - use same logic as frontend
+    let totalAchievements = 0;
+    let unlockedAchievements = 0;
+    
+    try {
+      // Calculate user stats for achievement conditions
+      let completedLessons = 0;
+      let completedLanguages = 0;
+      
+      if (user.visitedLessons) {
+        if (Array.isArray(user.visitedLessons)) {
+          completedLessons = user.visitedLessons.length;
+        } else if (typeof user.visitedLessons === 'object') {
+          const visitedData = user.visitedLessons as any;
+          Object.keys(visitedData).forEach(language => {
+            const lessons = visitedData[language];
+            if (Array.isArray(lessons)) {
+              completedLessons += lessons.length;
+            }
+          });
+          completedLanguages = Object.keys(visitedData).length;
+        }
+      }
+
+      const solvedExercises = (user.solvedExercises || []).length;
+      const savedLessonsCount = (user.savedLessons || []).length;
+      
+      // Define achievement definitions (same as frontend)
+      const achievementDefinitions = [
+        // Learning achievements
+        { id: "first_lesson", name: "First Steps", unlocked: completedLessons > 0 },
+        { id: "lesson_explorer", name: "Knowledge Seeker", unlocked: completedLessons >= 10 },
+        { id: "lesson_master", name: "Lesson Master", unlocked: completedLessons >= 50 },
+        { id: "polyglot", name: "Polyglot", unlocked: completedLanguages >= 5 },
+        { id: "completionist", name: "Completionist", unlocked: completedLessons >= 100 },
+        
+        // Coding achievements
+        { id: "first_solve", name: "Problem Solver", unlocked: solvedExercises > 0 },
+        { id: "coding_ninja", name: "Code Ninja", unlocked: solvedExercises >= 25 },
+        { id: "algorithm_master", name: "Algorithm Master", unlocked: solvedExercises >= 100 },
+        { id: "speed_demon", name: "Speed Demon", unlocked: false }, // Would need weekly tracking
+        { id: "perfect_score", name: "Perfect Score", unlocked: false }, // Would need separate tracking
+        
+        // Consistency achievements - now using calculated values
+        { id: "daily_learner", name: "Daily Learner", unlocked: loginStreak >= 3 },
+        { id: "week_warrior", name: "Week Warrior", unlocked: loginStreak >= 7 },
+        { id: "month_master", name: "Month Master", unlocked: loginStreak >= 30 },
+        { id: "dedicated_student", name: "Dedicated Student", unlocked: studyTimeHours >= 10 },
+        { id: "time_investor", name: "Time Investor", unlocked: studyTimeHours >= 50 },
+        
+        // Social achievements
+        { id: "early_bird", name: "Early Bird", unlocked: true }, // Always true for existing users
+        { id: "bookmark_collector", name: "Bookmark Collector", unlocked: savedLessonsCount >= 20 },
+        { id: "helpful_member", name: "Helpful Member", unlocked: false }, // Future feature
+        { id: "feedback_provider", name: "Feedback Provider", unlocked: false }, // Future feature
+        { id: "community_ambassador", name: "Community Ambassador", unlocked: false }, // Future feature
+        
+        // Special achievements
+        { id: "night_owl", name: "Night Owl", unlocked: false }, // Would need time tracking
+        { id: "weekend_warrior", name: "Weekend Warrior", unlocked: false }, // Would need date tracking
+        { id: "multitasker", name: "Multitasker", unlocked: false }, // Would need daily tracking
+        { id: "persistent", name: "Persistent", unlocked: false }, // Would need attempt tracking
+      ];
+      
+      totalAchievements = achievementDefinitions.length;
+      unlockedAchievements = achievementDefinitions.filter(ach => ach.unlocked).length;
+      
+      console.log('Achievements data:', {
+        totalAchievements,
+        unlockedAchievements,
+        completedLessons,
+        completedLanguages,
+        solvedExercises,
+        savedLessonsCount,
+        loginStreak,
+        studyTimeHours
+      });
+    } catch (error: any) {
+      console.log("Achievements calculation error:", error.message);
+      totalAchievements = 24; // Fallback to total number of achievements
+      unlockedAchievements = 0;
+    }
+
     // Format recent activities for frontend
     let formattedActivities = [];
     
@@ -527,7 +601,7 @@ export async function GET(request: NextRequest) {
       // Coin system
       dailyLoginPoints: user.dailyLoginPoints || 0,
       todayCoins,
-      loginStreak,
+      loginStreak, // This is the calculated streak from daily activity
       
       // Learning stats
       totalLessons,
@@ -546,6 +620,7 @@ export async function GET(request: NextRequest) {
       totalAchievements,
       unlockedAchievements,
       learningStreak,
+      achievements, // Include the full achievements data
       
       // Real activities from tracking system
       recentActivities: formattedActivities,
@@ -590,7 +665,11 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error("Error fetching user profile:", error);
     return NextResponse.json(
-      { error: "Internal server error", details: error.message },
+      { 
+        error: "Internal server error", 
+        details: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
       { status: 500 }
     );
   }
@@ -699,11 +778,11 @@ async function getDailyActivities(userId: number, days: number) {
       
       return {
         date: dateStr,
-        hasActivity: Math.random() > 0.3,
-        studyTime: Math.floor(Math.random() * 3600),
-        lessonsViewed: Math.floor(Math.random() * 3),
-        exercisesSolved: Math.floor(Math.random() * 2),
-        pointsEarned: Math.floor(Math.random() * 50)
+      hasActivity: Math.random() > 0.3,
+      studyTime: Math.floor(Math.random() * 3600),
+      lessonsViewed: Math.floor(Math.random() * 3),
+      exercisesSolved: Math.floor(Math.random() * 2),
+      pointsEarned: Math.floor(Math.random() * 50)
       };
     });
   }

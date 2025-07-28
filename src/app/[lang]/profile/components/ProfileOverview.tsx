@@ -318,7 +318,7 @@ export default function ProfileOverview({
             </div>
             <div className={overviewStyles.statContent}>
               <div className={overviewStyles.statNumber}>
-                {userStats.unlockedAchievements}/{userStats.totalAchievements}
+                {userStats.unlockedAchievements || 0}/{userStats.totalAchievements || 0}
               </div>
               <div className={overviewStyles.statLabel}>
                 {t("profile.overview.stats.totalAchievements")}
@@ -328,9 +328,9 @@ export default function ProfileOverview({
                   className={overviewStyles.statProgressBar}
                   style={{
                     width: `${
-                      (userStats.unlockedAchievements /
-                        userStats.totalAchievements) *
-                        100 || 0
+                      userStats.totalAchievements > 0
+                        ? ((userStats.unlockedAchievements || 0) / userStats.totalAchievements) * 100
+                        : 0
                     }%`,
                   }}
                 ></div>
