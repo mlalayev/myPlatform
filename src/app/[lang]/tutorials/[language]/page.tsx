@@ -32,9 +32,10 @@ import {
   SiHaskell,
   SiOpenjdk,
 } from "react-icons/si";
-import styles from "../TutorialsPage.module.css";
+import styles from "../TutorialsLanguagePage.module.css";
 import Header from "../../components/header/Header";
 import Footer from "../../components/footer/Footer";
+import HeroSection from "../../components/heroSection/HeroSection";
 
 // Language name mapping for API calls and file paths
 const LANGUAGE_MAPPING: { [key: string]: string } = {
@@ -449,7 +450,7 @@ export default function TutorialLanguagePage() {
           unavailable
             ? `${styles.languageItem} ${styles.languageItemUnavailable}`
             : isCompleted
-            ? `${styles.languageItem} ${styles.completedItem}`
+            ? `${styles.languageItem} ${styles.completed}`
             : styles.languageItem
         }
       >
@@ -471,9 +472,9 @@ export default function TutorialLanguagePage() {
                 {progress.visited}/{progress.total}
               </span>
             )}
-            <div className={styles.itemArrow}>
+            {/* <div className={styles.itemArrow}>
               <FiIcons.FiChevronRight size={20} />
-            </div>
+            </div> */}
           </div>
         </div>
         
@@ -523,8 +524,11 @@ export default function TutorialLanguagePage() {
     return (
       <>
         <Header />
+        <HeroSection 
+          titleKey="tutorials.frameworks.title"
+          subtitleKey="tutorials.frameworks.subtitle"
+        />
         <div className={styles.categoryListWrapper}>
-          <h2 className={styles.tutorialsTitle}>Frameworklər</h2>
           <div className={styles.tutorialsGrid}>
             {frameworks.map((fw) => (
               <TutorialCard key={fw.name} item={fw} />
@@ -553,23 +557,17 @@ export default function TutorialLanguagePage() {
     return (
       <>
         <Header />
-        <div className={styles.categoryListWrapper}>
-          <h2 className={styles.tutorialsTitle}>Proqramlaşdırma Dilləri</h2>
-          <div
-            className={styles.tutorialsGrid}
-            style={
-              loadingLangs
-                ? {
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    minHeight: 300,
-                  }
-                : {}
-            }
-          >
+        <HeroSection 
+          titleKey="tutorials.languages.title"
+          subtitleKey="tutorials.languages.subtitle"
+        />
+        <div className={styles.languagesWrapper}>
+          <div className={styles.languagesList}>
             {loadingLangs ? (
-              <CodeLoader />
+              <div className={styles.loadingContainer}>
+                <CodeLoader />
+                <div className={styles.loadingText}>Dillər yüklənir...</div>
+              </div>
             ) : (
               languages
                 .slice()
@@ -586,6 +584,7 @@ export default function TutorialLanguagePage() {
                 ))
             )}
           </div>
+          
           <button className={styles.backButton} onClick={handleBack}>
             <FiIcons.FiChevronLeft /> Geri
           </button>
@@ -608,43 +607,17 @@ export default function TutorialLanguagePage() {
   return (
     <>
       <Header />
-      <div className={styles.languagesHero}>
-        <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>
-            Proqramlaşdırma <span className={styles.heroHighlight}>Dilləri</span>
-          </h1>
-          <p className={styles.heroSubtitle}>
-            Dünyanın ən populyar proqramlaşdırma dillərini öyrənin
-          </p>
-        </div>
-        
-        <div className={styles.heroStats}>
-          <div className={styles.statItem}>
-            <div className={styles.statNumber}>{languages.filter(l => l.available).length}</div>
-            <div className={styles.statLabel}>Mövcud Dillər</div>
-          </div>
-          <div className={styles.statItem}>
-            <div className={styles.statNumber}>500+</div>
-            <div className={styles.statLabel}>Dərs</div>
-          </div>
-          <div className={styles.statItem}>
-            <div className={styles.statNumber}>50+</div>
-            <div className={styles.statLabel}>Mövzu</div>
-          </div>
-        </div>
-      </div>
-
+      <HeroSection 
+        titleKey="tutorials.languages.title"
+        subtitleKey="tutorials.languages.subtitle"
+      />
       <div className={styles.languagesWrapper}>
-        <div className={styles.languagesHeader}>
-          <h2 className={styles.languagesTitle}>Dillər</h2>
-          <p className={styles.languagesSubtitle}>
-            Öyrənmək istədiyiniz dili seçin
-          </p>
-        </div>
-        
         <div className={styles.languagesList}>
           {loadingLangs ? (
-            <CodeLoader />
+            <div className={styles.loadingContainer}>
+              <CodeLoader />
+              <div className={styles.loadingText}>Dillər yüklənir...</div>
+            </div>
           ) : (
             languages
               .slice()

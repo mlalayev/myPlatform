@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react";
-import styles from "./TutorialsPage.module.css";
+import styles from "./TutorialsMainPage.module.css";
 import {
   FiCode,
   FiSettings,

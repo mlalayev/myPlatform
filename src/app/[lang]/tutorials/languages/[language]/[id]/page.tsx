@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import styles from "../../../TutorialsPage.module.css";
+import styles from "../../../TutorialsTopicPage.module.css";
 import * as FiIcons from "react-icons/fi";
 import Header from "../../../../components/header/Header";
 import Footer from "../../../../components/footer/Footer";
