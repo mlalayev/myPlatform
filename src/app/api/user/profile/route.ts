@@ -496,7 +496,7 @@ export async function GET(request: NextRequest) {
         { id: "first_lesson", name: "First Steps", unlocked: completedLessons > 0 },
         { id: "lesson_explorer", name: "Knowledge Seeker", unlocked: completedLessons >= 10 },
         { id: "lesson_master", name: "Lesson Master", unlocked: completedLessons >= 50 },
-        { id: "polyglot", name: "Polyglot", unlocked: completedLanguages >= 5 },
+        { id: "language_master", name: "Polyglot", unlocked: completedLanguages >= 5 },
         { id: "completionist", name: "Completionist", unlocked: completedLessons >= 100 },
         
         // Coding achievements
@@ -510,8 +510,8 @@ export async function GET(request: NextRequest) {
         { id: "daily_learner", name: "Daily Learner", unlocked: loginStreak >= 3 },
         { id: "week_warrior", name: "Week Warrior", unlocked: loginStreak >= 7 },
         { id: "month_master", name: "Month Master", unlocked: loginStreak >= 30 },
-        { id: "dedicated_student", name: "Dedicated Student", unlocked: studyTimeHours >= 10 },
-        { id: "time_investor", name: "Time Investor", unlocked: studyTimeHours >= 50 },
+        { id: "study_hours", name: "Study Enthusiast", unlocked: studyTimeHours >= 10 },
+        { id: "dedicated_learner", name: "Dedicated Learner", unlocked: studyTimeHours >= 50 },
         
         // Social achievements
         { id: "early_bird", name: "Early Bird", unlocked: true }, // Always true for existing users

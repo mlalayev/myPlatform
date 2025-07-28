@@ -460,11 +460,12 @@ export default function ProfileAchievements({
     },
   ];
 
-  const totalAchievements = achievementCategories.reduce(
+  // Use API-provided achievement counts for consistency
+  const totalAchievements = userStats?.totalAchievements || achievementCategories.reduce(
     (acc, cat) => acc + cat.achievements.length,
     0
   );
-  const unlockedAchievements = achievementCategories.reduce(
+  const unlockedAchievements = userStats?.unlockedAchievements || achievementCategories.reduce(
     (acc, cat) => acc + cat.achievements.filter((ach) => ach.unlocked).length,
     0
   );
