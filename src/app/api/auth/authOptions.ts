@@ -109,18 +109,27 @@ const authConfig: NextAuthConfig = {
                 lastLoginDate: new Date(),
               },
             });
+
             // Update the user object with the database ID
             user.id = String(newUser.id);
           } else {
             // Update existing user's Google info
+            const today = new Date();
+            const lastLogin = existingUser.lastLoginDate ? new Date(existingUser.lastLoginDate) : null;
+            const isNewDay = !lastLogin ||
+              today.getFullYear() !== lastLogin.getFullYear() ||
+              today.getMonth() !== lastLogin.getMonth() ||
+              today.getDate() !== lastLogin.getDate();
+
             await prisma.user.update({
               where: { id: existingUser.id },
               data: {
                 avatarUrl: user.image || existingUser.avatarUrl,
                 lastLoginDate: new Date(),
-                dailyLoginPoints: (existingUser.dailyLoginPoints || 0) + 1,
+                dailyLoginPoints: isNewDay ? (existingUser.dailyLoginPoints || 0) + 1 : existingUser.dailyLoginPoints,
               },
             });
+
             // Update the user object with the database ID
             user.id = String(existingUser.id);
           }

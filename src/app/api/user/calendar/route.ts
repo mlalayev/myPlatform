@@ -23,9 +23,22 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Get start and end dates for the month
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0);
+    // Get Azərbaycan vaxtı ilə bugünkü gün
+    const now = new Date();
+    const azerbaijanTime = new Date(now.getTime() + (4 * 60 * 60 * 1000)); // UTC+4
+    const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
+    
+    // Son 7 günü hesabla (bugünkü gün də daxil olmaqla)
+    const endDate = new Date(today);
+    const startDate = new Date(today);
+    startDate.setDate(startDate.getDate() - 6); // 7 gün əvvəl
+
+    console.log('Calendar date range:', {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      today: today.toISOString(),
+      azerbaijanTime: azerbaijanTime.toISOString()
+    });
 
     // Initialize variables for calendar data
     let dailyActivities = [];
@@ -33,7 +46,11 @@ export async function GET(request: NextRequest) {
 
     // Try to get activity tracking data - use try/catch for new tables
     try {
-      // Get daily activities for the month
+      // Check if dailyActivity table exists by trying a simple query
+      const tableExists = await prisma.$queryRaw`SELECT 1 FROM dailyActivity LIMIT 1`.catch(() => null);
+      
+      if (tableExists) {
+      // Get daily activities for the last 7 days
       dailyActivities = await prisma.dailyActivity.findMany({
         where: {
           userId: user.id,
@@ -47,7 +64,7 @@ export async function GET(request: NextRequest) {
         }
       });
 
-      // Get all activities for the month to show detailed view
+      // Get all activities for the last 7 days to show detailed view
       detailedActivities = await prisma.userActivity.findMany({
         where: {
           userId: user.id,
@@ -66,6 +83,11 @@ export async function GET(request: NextRequest) {
           metadata: true
         }
       });
+      } else {
+        console.log("Activity tracking tables not available");
+        dailyActivities = [];
+        detailedActivities = [];
+      }
     } catch (activityError) {
       console.log("Activity tracking not available yet:", activityError.message);
       // Use empty arrays when activity tracking tables are not available
@@ -73,25 +95,30 @@ export async function GET(request: NextRequest) {
       detailedActivities = [];
     }
 
-    // Format calendar data
+    // Format calendar data for last 7 days
     const calendarData = [];
     const currentDate = new Date(startDate);
 
     while (currentDate <= endDate) {
-      const dateStr = currentDate.toISOString().split('T')[0];
-      const dayActivity = dailyActivities.find(
-        activity => activity.date.toISOString().split('T')[0] === dateStr
-      );
+      // Azərbaycan vaxtı ilə tarix formatı
+      const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+      
+      const dayActivity = dailyActivities.find(activity => {
+        const activityDate = new Date(activity.date);
+        const activityDateStr = `${activityDate.getFullYear()}-${String(activityDate.getMonth() + 1).padStart(2, '0')}-${String(activityDate.getDate()).padStart(2, '0')}`;
+        return activityDateStr === dateStr;
+      });
 
       const dayActivities = detailedActivities.filter(activity => {
-        const activityDate = new Date(activity.timestamp).toISOString().split('T')[0];
-        return activityDate === dateStr;
+        const activityDate = new Date(activity.timestamp);
+        const activityDateStr = `${activityDate.getFullYear()}-${String(activityDate.getMonth() + 1).padStart(2, '0')}-${String(activityDate.getDate()).padStart(2, '0')}`;
+        return activityDateStr === dateStr;
       });
 
       calendarData.push({
         date: dateStr,
         day: currentDate.getDate(),
-        hasActivity: !!dayActivity,
+        hasActivity: dayActivity ? (dayActivity.studyTime > 0 || dayActivity.lessonsViewed > 0 || dayActivity.exercisesSolved > 0) : false,
         loginCount: dayActivity?.loginCount || 0,
         studyTimeMinutes: dayActivity ? Math.floor(dayActivity.studyTime / 60) : 0,
         lessonsViewed: dayActivity?.lessonsViewed || 0,
@@ -112,8 +139,8 @@ export async function GET(request: NextRequest) {
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    // Get monthly summary
-    const monthlyStats = dailyActivities.reduce(
+    // Get weekly summary (last 7 days)
+    const weeklyStats = dailyActivities.reduce(
       (acc, day) => ({
         totalLoginDays: acc.totalLoginDays + (day.loginCount > 0 ? 1 : 0),
         totalStudyTimeHours: acc.totalStudyTimeHours + Math.floor(day.studyTime / 3600),
@@ -132,16 +159,17 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    // Calculate current streak
+    // Calculate current streak using Azərbaycan vaxtı
     let currentStreak = 0;
-    const today = new Date();
     let checkDate = new Date(today);
     
     while (checkDate >= startDate && dailyActivities.length > 0) {
-      const dateStr = checkDate.toISOString().split('T')[0];
-      const dayActivity = dailyActivities.find(
-        activity => activity.date.toISOString().split('T')[0] === dateStr
-      );
+      const dateStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(checkDate.getDate()).padStart(2, '0')}`;
+      const dayActivity = dailyActivities.find(activity => {
+        const activityDate = new Date(activity.date);
+        const activityDateStr = `${activityDate.getFullYear()}-${String(activityDate.getMonth() + 1).padStart(2, '0')}-${String(activityDate.getDate()).padStart(2, '0')}`;
+        return activityDateStr === dateStr;
+      });
       
       if (dayActivity && dayActivity.loginCount > 0) {
         currentStreak++;
@@ -155,14 +183,32 @@ export async function GET(request: NextRequest) {
       year,
       month,
       calendarData,
-      monthlyStats: {
-        ...monthlyStats,
+      weeklyStats: {
+        ...weeklyStats,
         currentStreak
       }
     });
 
   } catch (error) {
     console.error("Error fetching calendar data:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    
+    // Return default calendar data on error
+    const year = parseInt(new URL(request.url).searchParams.get('year') || new Date().getFullYear().toString());
+    const month = parseInt(new URL(request.url).searchParams.get('month') || (new Date().getMonth() + 1).toString());
+    
+    return NextResponse.json({
+      year,
+      month,
+      calendarData: [],
+      weeklyStats: {
+        totalLoginDays: 0,
+        totalStudyTimeHours: 0,
+        totalLessonsViewed: 0,
+        totalQuizzesTaken: 0,
+        totalExercisesSolved: 0,
+        totalPointsEarned: 0,
+        currentStreak: 0
+      }
+    });
   }
 } 

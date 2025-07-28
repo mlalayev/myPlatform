@@ -14,6 +14,7 @@ const images: Record<string, string> = {
   csharp: "mcr.microsoft.com/dotnet/sdk:8.0",
   go: "golang:1.21",
   rust: "rust:1.72",
+  typescript: "node:18",
 };
 
 // File names for each language
@@ -27,6 +28,7 @@ const filenames: Record<string, string> = {
   csharp: "Program.cs",
   go: "main.go",
   rust: "main.rs",
+  typescript: "main.ts",
 };
 
 // Base Docker command template
@@ -150,7 +152,7 @@ const javaRunner = async (
       "--memory=256m --cpus=0.5",
       images.java,
       "sh -c",
-      `"echo '${base64Code}' | base64 -d > /tmp/Main.java && javac /tmp/Main.java && java -cp /tmp Main"`,
+      `"echo '${base64Code}' | base64 -d > /tmp/Main.java && javac -encoding UTF-8 /tmp/Main.java && java -cp /tmp Main"`,
     ].join(" ");
 
     console.log(`[javaRunner] executing: ${dockerCmd}`);
@@ -165,20 +167,20 @@ const javaRunner = async (
   }
 };
 
-// PHP runner - using direct execution for simple code
+// PHP runner - using base64 encoding for consistency
 const phpRunner = async (
   code: string
 ): Promise<{ stdout: string; stderr: string }> => {
   try {
-    // For simple PHP code, we can use a different approach
-    const safeCode = code.replace(/"/g, '\\"').replace(/\n/g, "\\n");
+    // Use base64 encoding to avoid shell escaping issues
+    const base64Code = Buffer.from(code).toString("base64");
     const dockerCmd = [
       "docker run --rm",
       "--network none",
       "--memory=256m --cpus=0.5",
       images.php,
       "sh -c",
-      `"echo '${safeCode}' > /tmp/main.php && php /tmp/main.php"`,
+      `"echo '${base64Code}' | base64 -d > /tmp/main.php && php /tmp/main.php"`,
     ].join(" ");
 
     console.log(`[phpRunner] executing: ${dockerCmd}`);
@@ -206,7 +208,7 @@ const csharpRunner = async (
       "--memory=256m --cpus=0.5",
       images.csharp,
       "sh -c",
-      `"echo '${base64Code}' | base64 -d > /tmp/Program.cs && appdir=/tmp/app_\\$RANDOM\\$RANDOM && dotnet new console -o \\$appdir --force && cp /tmp/Program.cs \\$appdir/Program.cs && dotnet run --project \\$appdir && rm -rf \\$appdir"`,
+      `"echo '${base64Code}' | base64 -d > /tmp/Program.cs && dotnet new console -o /tmp/app --force && cp /tmp/Program.cs /tmp/app/Program.cs && cd /tmp/app && dotnet run"`,
     ].join(" ");
 
     console.log(`[csharpRunner] executing: ${dockerCmd}`);
@@ -309,6 +311,34 @@ const rustRunner = async (
   }
 };
 
+// TypeScript runner - compiles to JavaScript and executes
+const typescriptRunner = async (
+  code: string
+): Promise<{ stdout: string; stderr: string }> => {
+  try {
+    // Use base64 encoding to avoid shell escaping issues
+    const base64Code = Buffer.from(code).toString("base64");
+    const dockerCmd = [
+      "docker run --rm",
+      "--network none",
+      "--memory=256m --cpus=0.5",
+      images.typescript,
+      "sh -c",
+      `"echo '${base64Code}' | base64 -d > /tmp/main.ts && npx --yes typescript@latest /tmp/main.ts --target es2020 --module commonjs --outDir /tmp --skipLibCheck --noEmitOnError && node /tmp/main.js"`,
+    ].join(" ");
+
+    console.log(`[typescriptRunner] executing: ${dockerCmd}`);
+    const { stdout, stderr } = await execAsync(dockerCmd, { timeout: 30000 });
+
+    return { stdout, stderr };
+  } catch (error) {
+    return {
+      stdout: "",
+      stderr: error instanceof Error ? error.message : String(error),
+    };
+  }
+};
+
 // Main runners object - O(1) lookup
 export const codeRunners: Record<
   string,
@@ -323,6 +353,7 @@ export const codeRunners: Record<
   csharp: csharpRunner,
   go: goRunner,
   rust: rustRunner,
+  typescript: typescriptRunner,
 };
 
 // Helper function to check if language is supported

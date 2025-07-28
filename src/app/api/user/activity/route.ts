@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
+      // Update activity stats (no login tracking)
       await prisma.dailyActivity.upsert({
         where: {
           userId_date: {
@@ -59,6 +60,7 @@ export async function POST(request: NextRequest) {
         create: {
           userId: user.id,
           date: today,
+          loginCount: 0,
           lessonsViewed: type === 'LESSON_VIEW' ? 1 : 0,
           quizzesTaken: type === 'QUIZ_SUBMIT' ? 1 : 0,
           exercisesSolved: type === 'EXERCISE_SOLVE' ? 1 : 0,
@@ -123,7 +125,8 @@ export async function GET(request: NextRequest) {
         text: activity.description,
         time: formatTimeAgo(activity.timestamp),
         metadata: activity.metadata,
-        timestamp: activity.timestamp
+        timestamp: activity.timestamp,
+        language: activity.metadata?.language || null // Add language info for icons
       }));
 
       return NextResponse.json({ activities: formattedActivities });

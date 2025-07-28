@@ -1,119 +1,154 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import styles from "./ProfilePage.module.css";
-import {
-  FiUser,
-  FiAward,
-  FiTrendingUp,
-  FiBookOpen,
-  FiActivity,
-  FiTarget,
-  FiBarChart2,
-  FiCalendar,
-  FiChevronRight,
-  FiChevronLeft,
-  FiShield,
-  FiBell,
-  FiHeart,
-  FiDollarSign,
-  FiGift,
-  FiStar,
-  FiClock,
-  FiCode,
-  FiCheckCircle,
-  FiChevronDown,
-  FiChevronUp,
-  FiZap,
-  FiLock,
-  FiUnlock,
-} from "react-icons/fi";
 import { useSession } from "next-auth/react";
+import { useI18n } from "@/contexts/I18nContext";
 import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
+import {
+  FiBookOpen,
+  FiCode,
+  FiAward,
+  FiActivity,
+  FiCheckCircle,
+  FiDollarSign,
+  FiTrendingUp,
+  FiClock,
+  FiUser,
+  FiSettings,
+  FiCalendar,
+  FiStar,
+  FiTarget,
+  FiZap,
+  FiBarChart2,
+  FiEye,
+  FiPlay,
+  FiCheck,
+  FiX,
+  FiPlus,
+  FiMinus,
+  FiFilter,
+  FiRefreshCw,
+  FiDownload,
+  FiShare2,
+  FiUsers,
+  FiLogIn,
+} from "react-icons/fi";
+import { 
+  SiJavascript, 
+  SiPython, 
+  SiOpenjdk, 
+  SiC, 
+  SiCplusplus, 
+  SiTypescript, 
+  SiPhp,
+  SiGo,
+  SiRust,
+  SiSwift,
+  SiKotlin,
+  SiRuby,
+  SiR
+} from "react-icons/si";
+import * as FiIcons from "react-icons/fi";
+import layoutStyles from "./ProfileLayout.module.css";
+import overviewStyles from "./ProfileOverview.module.css";
+import calendarStyles from "./ProfileCalendar.module.css";
+import exercisesStyles from "./ProfileExercises.module.css";
+import achievementsStyles from "./ProfileAchievements.module.css";
+import analyticsStyles from "./ProfileAnalytics.module.css";
+import recentActivitiesStyles from "./ProfileRecentActivities.module.css";
+import securityStyles from "./ProfileSecurity.module.css";
+import ProfileOverview from "./components/ProfileOverview";
+import ProfileExercises from "./components/ProfileExercises";
+import ProfileAchievements from "./components/ProfileAchievements";
+import ProfileAnalytics from "./components/ProfileAnalytics";
+import ProfileRecentActivities from "./components/ProfileRecentActivities";
+import ProfileSecurity from "./components/ProfileSecurity";
+
+export default function ProfilePage() {
+  const { t } = useI18n();
 
 const profileTabs = [
   {
     key: "overview",
-    name: "Profile Overview",
+      name: t("profile.tabs.overview.name"),
     icon: <FiUser size={24} />,
-    description: "View your profile information and learning stats.",
+      description: t("profile.tabs.overview.description"),
   },
   {
     key: "achievements",
-    name: "Achievements",
+      name: t("profile.tabs.achievements.name"),
     icon: <FiAward size={24} />,
-    description: "View your earned badges and accomplishments.",
+      description: t("profile.tabs.achievements.description"),
   },
   {
     key: "progress",
-    name: "Learning Progress",
+      name: t("profile.tabs.progress.name"),
     icon: <FiTrendingUp size={24} />,
-    description: "Track your learning journey and statistics.",
+      description: t("profile.tabs.progress.description"),
   },
   {
     key: "lessons",
-    name: "My Lessons",
+      name: t("profile.tabs.lessons.name"),
     icon: <FiBookOpen size={24} />,
-    description: "Access your saved and completed lessons.",
+      description: t("profile.tabs.lessons.description"),
   },
   {
     key: "exercises",
-    name: "Exercise History",
+      name: t("profile.tabs.exercises.name"),
     icon: <FiActivity size={24} />,
-    description: "Review your coding exercise submissions.",
+      description: t("profile.tabs.exercises.description"),
   },
   {
     key: "goals",
-    name: "Learning Goals",
+      name: t("profile.tabs.goals.name"),
     icon: <FiTarget size={24} />,
-    description: "Set and track your learning objectives.",
+      description: t("profile.tabs.goals.description"),
   },
   {
     key: "analytics",
-    name: "Analytics",
+      name: t("profile.tabs.analytics.name"),
     icon: <FiBarChart2 size={24} />,
-    description: "Detailed insights about your learning patterns.",
+      description: t("profile.tabs.analytics.description"),
   },
   /* Temporarily disabled until activity tracking is ready
   {
     key: "calendar",
-    name: "Study Calendar",
+      name: t("profile.tabs.calendar.name"),
     icon: <FiCalendar size={24} />,
-    description: "Plan and view your study schedule.",
+      description: t("profile.tabs.calendar.description"),
   },
   */
   {
     key: "security",
-    name: "Security",
-    icon: <FiShield size={24} />,
-    description: "Manage your account security settings.",
+      name: t("profile.tabs.security.name"),
+    icon: <FiSettings size={24} />,
+      description: t("profile.tabs.security.description"),
   },
   {
     key: "notifications",
-    name: "Notifications",
-    icon: <FiBell size={24} />,
-    description: "Configure your notification preferences.",
+      name: t("profile.tabs.notifications.name"),
+    icon: <FiEye size={24} />,
+      description: t("profile.tabs.notifications.description"),
   },
   {
     key: "favorites",
-    name: "Favorites",
-    icon: <FiHeart size={24} />,
-    description: "Access your bookmarked content.",
+      name: t("profile.tabs.favorites.name"),
+    icon: <FiStar size={24} />,
+      description: t("profile.tabs.favorites.description"),
   },
   {
     key: "recent-activities",
-    name: "Recent Activities",
-    icon: <FiActivity size={24} />,
-    description: "View all your recent learning activities.",
+      name: t("profile.tabs.recentActivities.name"),
+    icon: <FiClock size={24} />,
+      description: t("profile.tabs.recentActivities.description"),
   },
 ];
 
-export default function ProfilePage() {
   const [selectedTab, setSelectedTab] = useState(profileTabs[0].key);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [userStats, setUserStats] = useState(null);
-  const [calendarData, setCalendarData] = useState(null);
+  const [userStats, setUserStats] = useState<any>(null);
+  const [calendarData, setCalendarData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -123,18 +158,117 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchUserStats = async () => {
       try {
-        const response = await fetch('/api/user/profile');
+        const response = await fetch("/api/user/profile");
         if (response.ok) {
           const data = await response.json();
+          console.log('User stats fetched:', data);
           setUserStats(data);
         } else {
           const errorData = await response.json().catch(() => null);
-          console.error('Failed to fetch user stats:', response.status, response.statusText);
-          console.error('Error details:', errorData);
+          console.error(
+            "Failed to fetch user stats:",
+            response.status,
+            response.statusText,
+            errorData
+          );
+          
+          // Set default stats if API is not available
+          setUserStats({
+            user: {
+              name: session?.user?.name || "User",
+              surname: "",
+              username: session?.user?.email?.split('@')[0] || "user",
+              email: session?.user?.email || "",
+              avatarUrl: session?.user?.image || "",
+              role: "user",
+              premiumStatus: false,
+              joinDate: new Date(),
+              lastActive: new Date(),
+            },
+            dailyLoginPoints: 0,
+            todayCoins: 0,
+            loginStreak: 0,
+            totalLessons: 150,
+            completedLessons: 0,
+            totalExercises: 300,
+            solvedExercises: 0,
+            completionRate: 0,
+            studyTimeHours: 0,
+            rank: "Beginner",
+            totalAchievements: 0,
+            unlockedAchievements: 0,
+            learningStreak: 0,
+            recentActivities: [
+              {
+                type: "login",
+                text: "Welcome to the platform!",
+                time: "Just now",
+                metadata: {}
+              }
+            ],
+            weeklyProgress: {
+              lessonsThisWeek: 0,
+              exercisesThisWeek: 0,
+              studyTimeThisWeek: 0,
+              pointsThisWeek: 0,
+            },
+            calendarData: {
+              activeDays: 0,
+              thisWeekStudyTime: 0,
+              dailyActivities: []
+            }
+          });
         }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching user stats:", error);
+        
+        // Set default stats on network error
+        setUserStats({
+          user: {
+            name: session?.user?.name || "User",
+            surname: "",
+            username: session?.user?.email?.split('@')[0] || "user",
+            email: session?.user?.email || "",
+            avatarUrl: session?.user?.image || "",
+            role: "user",
+            premiumStatus: false,
+            joinDate: new Date(),
+            lastActive: new Date(),
+          },
+          dailyLoginPoints: 0,
+          todayCoins: 0,
+          loginStreak: 0,
+          totalLessons: 150,
+          completedLessons: 0,
+          totalExercises: 300,
+          solvedExercises: 0,
+          completionRate: 0,
+          studyTimeHours: 0,
+          rank: "Beginner",
+          totalAchievements: 0,
+          unlockedAchievements: 0,
+          learningStreak: 0,
+          recentActivities: [
+            {
+              type: "login",
+              text: "Welcome to the platform!",
+              time: "Just now",
+              metadata: {}
+            }
+          ],
+          weeklyProgress: {
+            lessonsThisWeek: 0,
+            exercisesThisWeek: 0,
+            studyTimeThisWeek: 0,
+            pointsThisWeek: 0,
+          },
+          calendarData: {
+            activeDays: 0,
+            thisWeekStudyTime: 0,
+            dailyActivities: []
+          }
+        });
         setLoading(false);
       }
     };
@@ -144,17 +278,38 @@ export default function ProfilePage() {
     }
   }, [session]);
 
+  // Trigger login point popup check when profile page loads
+  // Removed profile page popup trigger since popup now works on all pages
+
   // Fetch calendar data
   useEffect(() => {
     const fetchCalendarData = async () => {
       try {
-        const response = await fetch(`/api/user/calendar?year=${currentYear}&month=${currentMonth}`);
+        const response = await fetch(
+          `/api/user/calendar?year=${currentYear}&month=${currentMonth}`
+        );
         if (response.ok) {
           const data = await response.json();
           setCalendarData(data);
+        } else {
+          console.error("Failed to fetch calendar data:", response.status, response.statusText);
+          // Set default calendar data if API is not available
+          setCalendarData({
+            days: [],
+            totalStudyTime: 0,
+            totalLessons: 0,
+            totalExercises: 0
+          });
         }
       } catch (error) {
         console.error("Error fetching calendar data:", error);
+        // Set default calendar data on network error
+        setCalendarData({
+          days: [],
+          totalStudyTime: 0,
+          totalLessons: 0,
+          totalExercises: 0
+        });
       }
     };
 
@@ -164,12 +319,16 @@ export default function ProfilePage() {
   }, [session, currentMonth, currentYear]);
 
   // Log activity function
-  const logActivity = async (type, description, metadata = {}) => {
+  const logActivity = async (
+    type: string,
+    description: string,
+    metadata: any = {}
+  ) => {
     try {
-      await fetch('/api/user/activity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, description, metadata })
+      await fetch("/api/user/activity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, description, metadata }),
       });
     } catch (error) {
       console.error("Error logging activity:", error);
@@ -177,21 +336,65 @@ export default function ProfilePage() {
   };
 
   // Get activity icon based on type
-  const getActivityIcon = (type) => {
+  const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'login':
-      case 'daily_login_bonus':
+      case "login":
+      case "daily_login_bonus":
         return <FiDollarSign />;
-      case 'lesson_view':
-      case 'lesson_complete':
+      case "lesson_view":
+      case "lesson_complete":
         return <FiCheckCircle />;
-      case 'quiz_submit':
-      case 'quiz_pass':
-      case 'exercise_submit':
-      case 'exercise_solve':
+      case "quiz_submit":
+      case "quiz_pass":
+      case "exercise_submit":
+      case "exercise_solve":
         return <FiCode />;
       default:
         return <FiActivity />;
+    }
+  };
+
+  // Helper function to get language icon
+  const getLanguageIcon = (language: string) => {
+    switch (language?.toLowerCase()) {
+      case 'javascript':
+        return <SiJavascript size={20} color="#f7df1e" />;
+      case 'python':
+        return <SiPython size={20} color="#3572A5" />;
+      case 'java':
+        return <SiOpenjdk size={20} color="#b07219" />;
+      case 'c':
+        return <SiC size={20} color="#00599C" />;
+      case 'c++':
+      case 'cpp':
+      case 'c%2b%2b':
+        return <SiCplusplus size={20} color="#00599C" />;
+      case 'c#':
+      case 'csharp':
+        return <FiIcons.FiHash size={20} color="#178600" />;
+      case 'typescript':
+        return <SiTypescript size={20} color="#3178c6" />;
+      case 'php':
+        return <SiPhp size={20} color="#777bb4" />;
+      case 'go':
+      case 'golang':
+        return <SiGo size={20} color="#00ADD8" />;
+      case 'rust':
+        return <SiRust size={20} color="#dea584" />;
+      case 'swift':
+        return <SiSwift size={20} color="#ffac45" />;
+      case 'kotlin':
+        return <SiKotlin size={20} color="#7f52ff" />;
+      case 'ruby':
+        return <SiRuby size={20} color="#cc342d" />;
+      case 'r':
+        return <SiR size={20} color="#276dc3" />;
+      case 'algorithms':
+        return <FiCode size={20} color="#667eea" />;
+      case 'data-structures':
+        return <FiCode size={20} color="#48bb78" />;
+      default:
+        return <FiBookOpen size={20} color="#667eea" />;
     }
   };
 
@@ -200,14 +403,24 @@ export default function ProfilePage() {
     if (!calendarData) return <div>Loading calendar...</div>;
 
     const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
 
-    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-    const navigateMonth = (direction) => {
-      if (direction === 'prev') {
+    const navigateMonth = (direction: "prev" | "next") => {
+      if (direction === "prev") {
         if (currentMonth === 1) {
           setCurrentMonth(12);
           setCurrentYear(currentYear - 1);
@@ -225,48 +438,78 @@ export default function ProfilePage() {
     };
 
     return (
-      <div className={styles.calendarSection}>
-        <div className={styles.calendarHeader}>
-          <button onClick={() => navigateMonth('prev')} className={styles.calendarNavBtn}>
-            <FiChevronLeft />
+      <div className={calendarStyles.calendarSection}>
+        <div className={calendarStyles.calendarHeader}>
+          <button
+            onClick={() => navigateMonth("prev")}
+            className={calendarStyles.calendarNavBtn}
+          >
+            <FiIcons.FiChevronLeft />
           </button>
-          <h3 className={styles.calendarTitle}>
+          <h3 className={calendarStyles.calendarTitle}>
             {monthNames[currentMonth - 1]} {currentYear}
           </h3>
-          <button onClick={() => navigateMonth('next')} className={styles.calendarNavBtn}>
-            <FiChevronRight />
+          <button
+            onClick={() => navigateMonth("next")}
+            className={calendarStyles.calendarNavBtn}
+          >
+            <FiIcons.FiChevronRight />
           </button>
         </div>
 
-        <div className={styles.calendarGrid}>
-          {daysOfWeek.map(day => (
-            <div key={day} className={styles.calendarDayHeader}>{day}</div>
+        <div className={calendarStyles.calendarGrid}>
+          {daysOfWeek.map((day) => (
+            <div key={day} className={calendarStyles.calendarDayHeader}>
+              {day}
+            </div>
           ))}
-          
-          {calendarData.calendarData.map((dayData, index) => (
-            <div 
-              key={index} 
-              className={`${styles.calendarDay} ${dayData.hasActivity ? styles.calendarDayActive : ''}`}
-              title={dayData.hasActivity ? `${dayData.studyTimeMinutes}min study time, ${dayData.pointsEarned} points` : 'No activity'}
+
+          {calendarData.calendarData.map((dayData: any, index: number) => (
+            <div
+              key={index}
+              className={`${calendarStyles.calendarDay} ${
+                dayData.hasActivity ? calendarStyles.calendarDayActive : ""
+              }`}
+              title={
+                dayData.hasActivity
+                  ? `${dayData.studyTimeMinutes}min study time, ${dayData.pointsEarned} points`
+                  : "No activity"
+              }
             >
-              <span className={styles.calendarDayNumber}>{dayData.day}</span>
-              {dayData.hasActivity && <div className={styles.calendarActivityDot}></div>}
+              <span className={calendarStyles.calendarDayNumber}>
+                {dayData.day}
+              </span>
+              {dayData.hasActivity && (
+                <div className={calendarStyles.calendarActivityDot}></div>
+              )}
             </div>
           ))}
         </div>
 
-        <div className={styles.calendarStats}>
-          <div className={styles.calendarStat}>
-            <span className={styles.calendarStatLabel}>Active Days</span>
-            <span className={styles.calendarStatValue}>{calendarData.monthlyStats.totalLoginDays}</span>
+        <div className={calendarStyles.calendarStats}>
+          <div className={calendarStyles.calendarStat}>
+            <span className={calendarStyles.calendarStatLabel}>
+              Active Days
+            </span>
+            <span className={calendarStyles.calendarStatValue}>
+              {calendarData.monthlyStats.totalLoginDays}
+            </span>
           </div>
-          <div className={styles.calendarStat}>
-            <span className={styles.calendarStatLabel}>Study Hours</span>
-            <span className={styles.calendarStatValue}>{calendarData.monthlyStats.totalStudyTimeHours}h</span>
+          <div className={calendarStyles.calendarStat}>
+            <span className={calendarStyles.calendarStatLabel}>
+              Study Hours
+            </span>
+            <span className={calendarStyles.calendarStatValue}>
+              {calendarData.monthlyStats.totalStudyTimeHours}h
+            </span>
           </div>
-          <div className={styles.calendarStat}>
-            <span className={styles.calendarStatLabel}>Current Streak</span>
-            <span className={styles.calendarStatValue}>{calendarData.monthlyStats.currentStreak} days</span>
+          <div className={calendarStyles.calendarStat}>
+            <span className={calendarStyles.calendarStatLabel}>
+              Current Streak
+            </span>
+            <span className={calendarStyles.calendarStatValue}>
+              {calendarData.monthlyStats.currentStreak} days
+            </span>
           </div>
         </div>
       </div>
@@ -274,18 +517,19 @@ export default function ProfilePage() {
   };
 
   // Filter function to exclude navigation activities
-  const filterNavigationActivities = (activities) => {
-    return activities.filter(activity => {
+  const filterNavigationActivities = (activities: any[]) => {
+    return activities.filter((activity: any) => {
       // Filter by text content that indicates navigation
-      const hasNavigationText = activity.text?.includes('Navigated to') || 
-                                activity.text?.includes('navigated to') ||
-                                activity.text?.includes('Navigated from') ||
-                                activity.text?.includes('navigated from') ||
-                                activity.description?.includes('Navigated to') ||
-                                activity.description?.includes('navigated to') ||
-                                activity.description?.includes('Navigated from') ||
-                                activity.description?.includes('navigated from');
-      
+      const hasNavigationText =
+        activity.text?.includes("Navigated to") ||
+        activity.text?.includes("navigated to") ||
+        activity.text?.includes("Navigated from") ||
+        activity.text?.includes("navigated from") ||
+        activity.description?.includes("Navigated to") ||
+        activity.description?.includes("navigated to") ||
+        activity.description?.includes("Navigated from") ||
+        activity.description?.includes("navigated from");
+
       // Return true only if it's not a navigation activity
       return !hasNavigationText;
     });
@@ -295,577 +539,165 @@ export default function ProfilePage() {
   const renderAllActivities = () => {
     if (loading) {
       return (
-        <div className={styles.loadingContainer}>
-          <div className={styles.spinner}></div>
-          <span className={styles.loadingText}>Loading activities...</span>
+        <div className={layoutStyles.loadingContainer}>
+          <div className={layoutStyles.spinner}></div>
+          <span className={layoutStyles.loadingText}>
+            Loading activities...
+          </span>
         </div>
       );
     }
 
     if (!userStats || !userStats.recentActivities) {
       return (
-        <div className={styles.loadingContainer}>
-          <span className={styles.loadingText}>No activities found</span>
+        <div className={layoutStyles.loadingContainer}>
+          <span className={layoutStyles.loadingText}>No activities found</span>
         </div>
       );
     }
 
-    const filteredActivities = filterNavigationActivities(userStats.recentActivities);
+    const filteredActivities = filterNavigationActivities(
+      userStats.recentActivities
+    );
 
     return (
-      <div className={styles.allActivitiesContainer}>
-        <div className={styles.allActivitiesHeader}>
-          <h2 className={styles.allActivitiesTitle}>All Activities</h2>
-          <p className={styles.allActivitiesDesc}>Complete history of your learning activities</p>
+      <div className={calendarStyles.allActivitiesContainer}>
+        <div className={calendarStyles.allActivitiesHeader}>
+          <h2 className={calendarStyles.allActivitiesTitle}>All Activities</h2>
+          <p className={calendarStyles.allActivitiesDesc}>
+            Complete history of your learning activities
+          </p>
         </div>
-        
-        <div className={styles.activityList}>
+
+        <div className={overviewStyles.activityList}>
           {filteredActivities.map((activity, index) => (
-            <div key={index} className={styles.activityItem}>
-              <div className={styles.activityIcon}>
-                {getActivityIcon(activity.type)}
+            <div key={index} className={overviewStyles.activityItem}>
+              <div className={overviewStyles.activityIcon}>
+                {activity.type === 'LESSON_VIEW' && activity.language ? (
+                  getLanguageIcon(activity.language)
+                ) : (
+                  getActivityIcon(activity.type)
+                )}
               </div>
-              <div className={styles.activityContent}>
-                <span className={styles.activityText}>{activity.text}</span>
-                <span className={styles.activityTime}>{activity.time}</span>
+              <div className={overviewStyles.activityContent}>
+                <span className={overviewStyles.activityText}>
+                  {activity.text}
+                </span>
+                <span className={overviewStyles.activityTime}>
+                  {activity.time}
+                </span>
               </div>
             </div>
           ))}
         </div>
 
         {filteredActivities.length === 0 && (
-          <div className={styles.emptyActivities}>
+          <div className={calendarStyles.emptyActivities}>
             <FiActivity size={48} style={{ opacity: 0.3 }} />
-            <p>No activities yet. Start learning to see your progress here!</p>
+            <p>{t("profile.calendar.noActivities")}</p>
           </div>
         )}
       </div>
     );
   };
 
-  // Render Profile Overview with real backend data
-  const renderProfileOverview = () => {
-    if (loading) {
-      return (
-        <div className={styles.loadingContainer}>
-          <div className={styles.spinner}></div>
-          <span className={styles.loadingText}>Loading your profile...</span>
-        </div>
-      );
-    }
 
-    if (!userStats) {
-      return (
-        <div className={styles.loadingContainer}>
-          <span className={styles.loadingText}>Failed to load profile data</span>
-        </div>
-      );
-    }
 
-    return (
-      <div className={styles.overviewContainer}>
-        {/* Header Section with User Info */}
-        <div className={styles.profileHeader}>
-          <div className={styles.userAvatarSection}>
-            <div className={styles.avatarContainer}>
-              <div className={styles.avatar}>
-                {userStats.user.avatarUrl ? (
-                  <img src={userStats.user.avatarUrl} alt="Profile" className={styles.avatarImage} />
-                ) : (
-                  <span className={styles.avatarInitial}>
-                    {userStats.user.name?.charAt(0).toUpperCase() || userStats.user.username?.charAt(0).toUpperCase() || 'U'}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className={styles.userInfo}>
-              <h1 className={styles.userName}>
-                {userStats.user.name || userStats.user.username || 'Anonymous User'}
-              </h1>
-              <p className={styles.userEmail}>{userStats.user.email}</p>
-              <div className={styles.userBadge}>
-                <FiStar className={styles.badgeIcon} />
-                <span>{userStats.rank}</span>
-              </div>
-            </div>
-          </div>
 
-          {/* Coin System Section */}
-          <div className={styles.coinSection}>
-            <div className={styles.coinCard}>
-              <div className={styles.coinHeader}>
-                <FiDollarSign className={styles.coinIcon} />
-                <span className={styles.coinTitle}>Daily Coins</span>
-              </div>
-              <div className={styles.coinAmount}>
-                <span className={styles.totalCoins}>{userStats.dailyLoginPoints}</span>
-                <span className={styles.coinLabel}>Total Coins</span>
-              </div>
-              <div className={styles.coinToday}>
-                <FiGift className={styles.todayIcon} />
-                <span>+{userStats.todayCoins} today</span>
-              </div>
-            </div>
 
-            <div className={styles.streakCard}>
-              <div className={styles.streakHeader}>
-                <FiTrendingUp className={styles.streakIcon} />
-                <span className={styles.streakTitle}>Login Streak</span>
-              </div>
-              <div className={styles.streakAmount}>
-                <span className={styles.streakNumber}>{userStats.loginStreak}</span>
-                <span className={styles.streakLabel}>Days</span>
-              </div>
-              <div className={styles.streakMessage}>
-                Keep it up! 🔥
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Stats Grid */}
-        <div className={styles.statsGrid}>
-          <div className={styles.statCard}>
-            <div className={styles.statIcon}>
-              <FiBookOpen />
-            </div>
-            <div className={styles.statContent}>
-              <div className={styles.statNumber}>{userStats.completedLessons}/{userStats.totalLessons}</div>
-              <div className={styles.statLabel}>Lessons</div>
-              <div className={styles.statProgress}>
-                <div 
-                  className={styles.statProgressBar}
-                  style={{ width: `${(userStats.completedLessons / userStats.totalLessons * 100) || 0}%` }}
-                ></div>
-              </div>
-            </div>
-          </div>
 
-          <div className={styles.statCard}>
-            <div className={styles.statIcon}>
-              <FiCode />
-            </div>
-            <div className={styles.statContent}>
-              <div className={styles.statNumber}>{userStats.solvedExercises}/{userStats.totalExercises}</div>
-              <div className={styles.statLabel}>Exercises</div>
-              <div className={styles.statProgress}>
-                <div 
-                  className={styles.statProgressBar}
-                  style={{ width: `${(userStats.solvedExercises / userStats.totalExercises * 100) || 0}%` }}
-                ></div>
-              </div>
-            </div>
-          </div>
 
-          <div className={styles.statCard}>
-            <div className={styles.statIcon}>
-              <FiCheckCircle />
-            </div>
-            <div className={styles.statContent}>
-              <div className={styles.statNumber}>{userStats.completionRate}%</div>
-              <div className={styles.statLabel}>Completion</div>
-              <div className={styles.statTrend}>
-                <FiTrendingUp className={styles.trendIcon} />
-                <span>+{userStats.weeklyProgress.lessonsThisWeek} this week</span>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.statCard}>
-            <div className={styles.statIcon}>
-              <FiClock />
-            </div>
-            <div className={styles.statContent}>
-              <div className={styles.statNumber}>{userStats.studyTimeHours}h</div>
-              <div className={styles.statLabel}>Study Time</div>
-              <div className={styles.statTrend}>
-                <FiTrendingUp className={styles.trendIcon} />
-                <span>{userStats.weeklyProgress.studyTimeThisWeek}h this week</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Calendar Section - Temporarily disabled until activity tracking is ready */}
-        {/* {renderCalendar()} */}
-        <div className={styles.calendarSection}>
-          <h3>📅 Study Calendar</h3>
-          <p>Activity tracking is being set up. Calendar will be available soon!</p>
-        </div>
-
-        {/* Activity Summary */}
-        <div className={styles.activitySection}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-            <h3 className={styles.sectionTitle} style={{ margin: 0 }}>Recent Activity</h3>
-            <button 
-              className={styles.viewAllBtn}
-              onClick={() => setSelectedTab('recent-activities')}
-            >
-              View All Activities
-            </button>
-          </div>
-          <div className={styles.activityList}>
-            {filterNavigationActivities(userStats.recentActivities).slice(0, 5).map((activity, index) => (
-              <div key={index} className={styles.activityItem}>
-                <div className={styles.activityIcon}>
-                  {getActivityIcon(activity.type)}
-                </div>
-                <div className={styles.activityContent}>
-                  <span className={styles.activityText}>{activity.text}</span>
-                  <span className={styles.activityTime}>{activity.time}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className={styles.quickActions}>
-          <h3 className={styles.sectionTitle}>Quick Actions</h3>
-          <div className={styles.actionGrid}>
-            <button 
-              className={styles.actionCard} 
-              onClick={() => setSelectedTab('lessons')}
-            >
-              <FiBookOpen className={styles.actionIcon} />
-              <span>Continue Learning</span>
-            </button>
-            <button 
-              className={styles.actionCard} 
-              onClick={() => setSelectedTab('exercises')}
-            >
-              <FiCode className={styles.actionIcon} />
-              <span>Practice Coding</span>
-            </button>
-            <button className={styles.actionCard} onClick={() => setSelectedTab('achievements')}>
-              <FiAward className={styles.actionIcon} />
-              <span>View Achievements</span>
-            </button>
-            <button 
-              className={styles.actionCard} 
-              onClick={() => window.location.href = `/${session?.user?.language || 'en'}/settings`}
-            >
-              <FiUser className={styles.actionIcon} />
-              <span>Account Settings</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Achievement data structure
-  const achievementCategories = [
-    {
-      id: "learning",
-      name: "🎓 Learning Master",
-      description: "Complete lessons and expand your knowledge",
-      achievements: [
-        {
-          id: "first_lesson",
-          name: "First Steps",
-          description: "Complete your first lesson",
-          icon: <FiBookOpen />,
-          rarity: "bronze",
-          progress: userStats?.completedLessons > 0 ? 100 : 0,
-          target: 1,
-          unlocked: userStats?.completedLessons > 0,
-          reward: "50 coins",
-        },
-        {
-          id: "lesson_explorer",
-          name: "Knowledge Seeker",
-          description: "Complete 10 lessons",
-          icon: <FiTarget />,
-          rarity: "silver",
-          progress: Math.min((userStats?.completedLessons || 0) / 10 * 100, 100),
-          target: 10,
-          unlocked: (userStats?.completedLessons || 0) >= 10,
-          reward: "200 coins",
-        },
-        {
-          id: "lesson_master",
-          name: "Learning Legend",
-          description: "Complete 50 lessons",
-          icon: <FiStar />,
-          rarity: "gold",
-          progress: Math.min((userStats?.completedLessons || 0) / 50 * 100, 100),
-          target: 50,
-          unlocked: (userStats?.completedLessons || 0) >= 50,
-          reward: "1000 coins",
-        },
-      ],
-    },
-    {
-      id: "coding",
-      name: "💻 Code Warrior",
-      description: "Solve coding challenges and exercises",
-      achievements: [
-        {
-          id: "first_solve",
-          name: "Problem Solver",
-          description: "Solve your first exercise",
-          icon: <FiCode />,
-          rarity: "bronze",
-          progress: userStats?.solvedExercises > 0 ? 100 : 0,
-          target: 1,
-          unlocked: userStats?.solvedExercises > 0,
-          reward: "75 coins",
-        },
-        {
-          id: "coding_ninja",
-          name: "Code Ninja",
-          description: "Solve 25 exercises",
-          icon: <FiZap />,
-          rarity: "silver",
-          progress: Math.min((userStats?.solvedExercises || 0) / 25 * 100, 100),
-          target: 25,
-          unlocked: (userStats?.solvedExercises || 0) >= 25,
-          reward: "500 coins",
-        },
-        {
-          id: "algorithm_master",
-          name: "Algorithm Master",
-          description: "Solve 100 exercises",
-          icon: <FiAward />,
-          rarity: "legendary",
-          progress: Math.min((userStats?.solvedExercises || 0) / 100 * 100, 100),
-          target: 100,
-          unlocked: (userStats?.solvedExercises || 0) >= 100,
-          reward: "2500 coins",
-        },
-      ],
-    },
-    {
-      id: "consistency",
-      name: "🔥 Consistency King",
-      description: "Build daily learning habits",
-      achievements: [
-        {
-          id: "daily_learner",
-          name: "Daily Learner",
-          description: "Login for 3 days in a row",
-          icon: <FiActivity />,
-          rarity: "bronze",
-          progress: Math.min((userStats?.loginStreak || 0) / 3 * 100, 100),
-          target: 3,
-          unlocked: (userStats?.loginStreak || 0) >= 3,
-          reward: "100 coins",
-        },
-        {
-          id: "week_warrior",
-          name: "Week Warrior",
-          description: "Login for 7 days in a row",
-          icon: <FiShield />,
-          rarity: "silver",
-          progress: Math.min((userStats?.loginStreak || 0) / 7 * 100, 100),
-          target: 7,
-          unlocked: (userStats?.loginStreak || 0) >= 7,
-          reward: "300 coins",
-        },
-        {
-          id: "month_master",
-          name: "Month Master",
-          description: "Login for 30 days in a row",
-          icon: <FiShield />,
-          rarity: "legendary",
-          progress: Math.min((userStats?.loginStreak || 0) / 30 * 100, 100),
-          target: 30,
-          unlocked: (userStats?.loginStreak || 0) >= 30,
-          reward: "1500 coins",
-        },
-      ],
-    },
-    {
-      id: "special",
-      name: "⭐ Special Edition",
-      description: "Rare and unique achievements",
-      achievements: [
-        {
-          id: "early_bird",
-          name: "Early Bird",
-          description: "Join during beta testing",
-          icon: <FiStar />,
-          rarity: "platinum",
-          progress: 100,
-          target: 1,
-          unlocked: true,
-          reward: "Beta Badge",
-        },
-        {
-          id: "night_owl",
-          name: "Night Owl",
-          description: "Study after midnight",
-          icon: <FiClock />,
-          rarity: "gold",
-          progress: 0,
-          target: 1,
-          unlocked: false,
-          reward: "Night Badge",
-        },
-      ],
-    },
-  ];
-
-  const renderAchievements = () => {
-    const totalAchievements = achievementCategories.reduce((acc, cat) => acc + cat.achievements.length, 0);
-    const unlockedAchievements = achievementCategories.reduce(
-      (acc, cat) => acc + cat.achievements.filter(ach => ach.unlocked).length, 0
-    );
-
-    return (
-      <div className={styles.achievementsContainer}>
-        {/* Achievements Header */}
-        <div className={styles.achievementsHeader}>
-          <div className={styles.achievementsStats}>
-            <div className={styles.achievementsSummary}>
-              <div className={styles.achievementsCount}>
-                <div className={styles.countHeader}>
-                  <FiAward className={styles.trophyIcon} />
-                  <span className={styles.countText}>
-                    {unlockedAchievements} / {totalAchievements}
-                  </span>
-                </div>
-                <span className={styles.countLabel}>Achievements Unlocked</span>
-              </div>
-              <div className={styles.achievementsProgress}>
-                <span className={styles.progressText}>
-                  {Math.round((unlockedAchievements / totalAchievements) * 100)}% Complete
-                </span>
-                <div className={styles.progressBarContainer}>
-                  <div 
-                    className={styles.progressBarFill}
-                    style={{ width: `${(unlockedAchievements / totalAchievements) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-            <div className={styles.rarityStats}>
-              <div className={styles.rarityBadge}>
-                <span className={styles.rarityDot + ' ' + styles.bronze}></span>
-                <span>Bronze: {achievementCategories.reduce((acc, cat) => acc + cat.achievements.filter(ach => ach.rarity === 'bronze' && ach.unlocked).length, 0)}</span>
-              </div>
-              <div className={styles.rarityBadge}>
-                <span className={styles.rarityDot + ' ' + styles.silver}></span>
-                <span>Silver: {achievementCategories.reduce((acc, cat) => acc + cat.achievements.filter(ach => ach.rarity === 'silver' && ach.unlocked).length, 0)}</span>
-              </div>
-              <div className={styles.rarityBadge}>
-                <span className={styles.rarityDot + ' ' + styles.gold}></span>
-                <span>Gold: {achievementCategories.reduce((acc, cat) => acc + cat.achievements.filter(ach => ach.rarity === 'gold' && ach.unlocked).length, 0)}</span>
-              </div>
-              <div className={styles.rarityBadge}>
-                <span className={styles.rarityDot + ' ' + styles.legendary}></span>
-                <span>Legendary: {achievementCategories.reduce((acc, cat) => acc + cat.achievements.filter(ach => ach.rarity === 'legendary' && ach.unlocked).length, 0)}</span>
-              </div>
-              <div className={styles.rarityBadge}>
-                <span className={styles.rarityDot + ' ' + styles.platinum}></span>
-                <span>Platinum: {achievementCategories.reduce((acc, cat) => acc + cat.achievements.filter(ach => ach.rarity === 'platinum' && ach.unlocked).length, 0)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Achievement Categories */}
-        <div className={styles.achievementCategories}>
-          {achievementCategories.map((category) => (
-            <div key={category.id} className={styles.categorySection}>
-              <div className={styles.categoryHeader}>
-                <div className={styles.categoryInfo}>
-                  <h3 className={styles.categoryTitle}>{category.name}</h3>
-                  <p className={styles.categoryDescription}>{category.description}</p>
-                </div>
-                <div className={styles.categoryProgress}>
-                  <span>{category.achievements.filter(ach => ach.unlocked).length} / {category.achievements.length}</span>
-                </div>
-              </div>
-              
-              <div className={styles.achievementsGrid}>
-                {category.achievements.map((achievement) => (
-                  <div 
-                    key={achievement.id} 
-                    className={`${styles.achievementCard} ${styles[achievement.rarity]} ${achievement.unlocked ? styles.unlocked : styles.locked}`}
-                  >
-                    <div className={styles.achievementIcon}>
-                      {achievement.unlocked ? achievement.icon : <FiLock />}
-                    </div>
-                    
-                    <div className={styles.achievementContent}>
-                      <div className={styles.achievementHeader}>
-                        <h4 className={styles.achievementName}>{achievement.name}</h4>
-                        <div className={styles.rarityBadgeSmall}>
-                          <span className={styles.rarityText}>{achievement.rarity}</span>
-                        </div>
-                      </div>
-                      
-                      <p className={styles.achievementDescription}>
-                        {achievement.description}
-                      </p>
-                      
-                      {!achievement.unlocked && (
-                        <div className={styles.achievementProgress}>
-                          <div className={styles.progressBar}>
-                            <div 
-                              className={styles.progressFill}
-                              style={{ width: `${achievement.progress}%` }}
-                            ></div>
-                          </div>
-                          <span className={styles.progressLabel}>
-                            {Math.round(achievement.progress)}% ({Math.floor(achievement.progress / 100 * achievement.target)}/{achievement.target})
-                          </span>
-                        </div>
-                      )}
-                      
-                      <div className={styles.achievementReward}>
-                        <FiGift className={styles.rewardIcon} />
-                        <span>{achievement.reward}</span>
-                      </div>
-                      
-                      {achievement.unlocked && (
-                        <div className={styles.unlockedBadge}>
-                          <FiUnlock className={styles.unlockedIcon} />
-                          <span>Unlocked!</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
 
   // Render content for each tab
   const renderTabContent = () => {
     switch (selectedTab) {
       case "overview":
-        return renderProfileOverview();
+        return (
+          <ProfileOverview
+            userStats={userStats}
+            loading={loading}
+            setSelectedTab={setSelectedTab}
+            filterNavigationActivities={filterNavigationActivities}
+            getActivityIcon={getActivityIcon}
+            getLanguageIcon={getLanguageIcon}
+          />
+        );
       case "achievements":
-        return renderAchievements();
+        return (
+          <ProfileAchievements 
+            userStats={userStats}
+            loading={loading}
+          />
+        );
       case "progress":
-        return <div className={styles.tabContent}>Progress content</div>;
+        return (
+          <ProfileProgress 
+            userStats={userStats}
+            loading={loading}
+            setSelectedTab={setSelectedTab}
+          />
+        );
       case "lessons":
-        return <div className={styles.tabContent}>My Lessons content</div>;
+        return (
+          <ProfileLessons 
+            userStats={userStats}
+            loading={loading}
+          />
+        );
       case "exercises":
-        return <div className={styles.tabContent}>Exercise History content</div>;
+        return (
+          <ProfileExercises 
+            userStats={userStats}
+            loading={loading}
+          />
+        );
       case "goals":
-        return <div className={styles.tabContent}>Learning Goals content</div>;
+        return (
+          <ProfileGoals 
+            userStats={userStats}
+            loading={loading}
+          />
+        );
       case "analytics":
-        return <div className={styles.tabContent}>Analytics content</div>;
+        return (
+          <ProfileAnalytics 
+            userStats={userStats}
+            loading={loading}
+          />
+        );
       /* Temporarily disabled until activity tracking is ready
       case "calendar":
-        return <div className={styles.tabContent}>{renderCalendar()}</div>;
+        return <div className={layoutStyles.tabContent}>{renderCalendar()}</div>;
       */
       case "security":
-        return <div className={styles.tabContent}>Security content</div>;
+        return (
+          <ProfileSecurity 
+            userStats={userStats}
+            loading={loading}
+          />
+        );
       case "notifications":
-        return <div className={styles.tabContent}>Notifications content</div>;
+        return (
+          <ProfileNotifications 
+            userStats={userStats}
+            loading={loading}
+          />
+        );
       case "favorites":
-        return <div className={styles.tabContent}>Favorites content</div>;
+        return (
+          <ProfileFavourites 
+            userStats={userStats}
+            loading={loading}
+          />
+        );
       case "recent-activities":
-        return renderAllActivities();
+        return (
+          <ProfileRecentActivities 
+            userStats={userStats}
+            loading={loading}
+          />
+        );
       default:
         return null;
     }
@@ -874,43 +706,53 @@ export default function ProfilePage() {
   return (
     <>
       <Header />
-      <div className={styles.profileLayout}>
-        <div className={`${styles.sidebar} ${sidebarCollapsed ? styles.sidebarCollapsed : ""}`}> 
-          <div className={styles.sidebarHeader}>
+      <div className={layoutStyles.profileLayout}>
+        <div
+          className={`${layoutStyles.sidebar} ${
+            sidebarCollapsed ? layoutStyles.sidebarCollapsed : ""
+          }`}
+        >
+          <div className={layoutStyles.sidebarHeader}>
             {!sidebarCollapsed && (
-              <span className={styles.sidebarTitle}>Profile</span>
+              <span className={layoutStyles.sidebarTitle}>{t("profile.sidebar.title")}</span>
             )}
             <button
-              className={styles.collapseBtn}
+              className={layoutStyles.collapseBtn}
               onClick={() => setSidebarCollapsed((v) => !v)}
-              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-label={
+                sidebarCollapsed ? t("profile.sidebar.expand") : t("profile.sidebar.collapse")
+              }
               style={sidebarCollapsed ? { margin: "0 auto" } : {}}
             >
-              {sidebarCollapsed ? <FiChevronRight /> : <FiChevronLeft />}
+              {sidebarCollapsed ? <FiIcons.FiChevronRight /> : <FiIcons.FiChevronLeft />}
             </button>
           </div>
-          <div className={styles.tabList}>
+          <div className={layoutStyles.tabList}>
             {profileTabs.map((tab) => (
               <button
                 key={tab.key}
-                className={`${styles.tabBtn} ${selectedTab === tab.key ? styles.tabBtnSelected : ""}`}
+                className={`${layoutStyles.tabBtn} ${
+                  selectedTab === tab.key ? layoutStyles.tabBtnSelected : ""
+                }`}
                 onClick={() => setSelectedTab(tab.key)}
                 title={tab.name}
               >
-                <span className={styles.tabIcon}>{tab.icon}</span>
+                <span className={layoutStyles.tabIcon}>{tab.icon}</span>
                 {!sidebarCollapsed && (
-                  <div className={styles.tabInfo}>
-                    <span className={styles.tabName}>{tab.name}</span>
-                    <span className={styles.tabDescription}>{tab.description}</span>
+                  <div className={layoutStyles.tabInfo}>
+                    <span className={layoutStyles.tabName}>{tab.name}</span>
+                    <span className={layoutStyles.tabDescription}>
+                      {tab.description}
+                    </span>
                   </div>
                 )}
               </button>
             ))}
           </div>
         </div>
-        <div className={styles.content}>{renderTabContent()}</div>
+        <div className={layoutStyles.content}>{renderTabContent()}</div>
       </div>
       <Footer />
     </>
   );
-} 
+}

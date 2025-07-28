@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 
 interface AppContextType {
@@ -55,12 +55,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [isDarkMode, isClient]);
 
-  // Session tracking functionality - TEMPORARILY DISABLED
-  /* 
-  useEffect(() => {
-    if (!isClient || status !== 'authenticated' || !session) return;
+  // Activity logging function (internal) - moved before useEffect
+  const logActivityInternal = useCallback(async (type: string, description: string, metadata: any = {}) => {
+    if (!session?.user?.email) return;
+    
+    try {
+      const response = await fetch('/api/user/activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, description, metadata })
+      });
 
-    // Start session when user is authenticated
+      if (!response.ok) {
+        console.warn('Failed to log activity:', response.status);
+      }
+    } catch (error) {
+      console.warn('Activity logging failed:', error);
+    }
+  }, [session?.user?.email]);
+
+  // Session tracking functionality - SIMPLIFIED (no login/logout tracking)
+  useEffect(() => {
+    if (!isClient || status !== 'authenticated' || !session || sessionId) return;
+
+    // Start session when user is authenticated (only once)
     const startSession = async () => {
       try {
         const response = await fetch('/api/user/session', {
@@ -69,34 +87,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (response.ok) {
           const data = await response.json();
           setSessionId(data.sessionId);
-          
-          // Log login activity
-          await logActivityInternal('LOGIN', 'User logged in');
         }
       } catch (error) {
         console.error('Error starting session:', error);
       }
     };
 
-    // End session when page is unloaded
+    startSession();
+  }, [isClient, session, status, sessionId]);
+
+  // End session when page is unloaded
+  useEffect(() => {
+    if (!sessionId) return;
+
     const endSession = async () => {
-      if (sessionId) {
-        try {
-          await fetch('/api/user/session', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionId })
-          });
-          
-          // Log logout activity
-          await logActivityInternal('LOGOUT', 'User logged out');
-        } catch (error) {
-          console.error('Error ending session:', error);
-        }
+      try {
+        await fetch('/api/user/session', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId })
+        });
+      } catch (error) {
+        console.error('Error ending session:', error);
       }
     };
-
-    startSession();
 
     // Add event listeners for page unload
     const handleBeforeUnload = () => {
@@ -123,28 +137,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       endSession();
     };
-  }, [isClient, session, status, sessionId]);
-  */
-
-  // Activity logging function (internal)
-  const logActivityInternal = async (type: string, description: string, metadata: any = {}) => {
-    if (!session || status !== 'authenticated') return;
-    
-    try {
-      await fetch('/api/user/activity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, description, metadata })
-      });
-    } catch (error) {
-      console.error('Error logging activity:', error);
-    }
-  };
+  }, [sessionId]);
 
   // Public activity logging function
-  const logActivity = async (type: string, description: string, metadata: any = {}) => {
+  const logActivity = useCallback(async (type: string, description: string, metadata: any = {}) => {
+    // Skip activity logging on exercises pages
+    if (typeof window !== 'undefined' && window.location.pathname.includes('/exercises/')) {
+      return;
+    }
     await logActivityInternal(type, description, metadata);
-  };
+  }, [logActivityInternal]);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);

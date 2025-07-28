@@ -30,8 +30,8 @@ export async function GET(req: Request, context: { params: Promise<{ quizId: str
     orderBy: { timestamp: "desc" },
   });
 
-  // Check if user has ever passed this quiz
-  const hasPassed = await prisma.quizSubmission.findFirst({
+  // Check if user has ever passed this quiz (score === maxTestCases)
+  const hasEverPassed = await prisma.quizSubmission.findFirst({
     where: {
       userId: user.id,
       quizId: quizIdNum,
@@ -39,14 +39,12 @@ export async function GET(req: Request, context: { params: Promise<{ quizId: str
     },
   }) != null;
 
-  // Check if user has ever submitted a wrong answer (score < maxTestCases)
-  const hasWrong = await prisma.quizSubmission.findFirst({
-    where: {
-      userId: user.id,
-      quizId: quizIdNum,
-      score: { lt: maxTestCases },
-    },
-  }) != null;
+  // If user has ever passed, always show as passed
+  const hasPassed = hasEverPassed;
+
+  // Check if the latest submission had wrong answers (score < maxTestCases)
+  // But only if user has never passed
+  const hasWrong = !hasEverPassed && latest && latest.score < maxTestCases;
 
   return NextResponse.json({ latest, hasPassed, hasWrong });
 } 

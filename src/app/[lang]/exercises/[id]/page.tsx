@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { use } from "react";
-import { exercises } from "../exercisesData";
 import JsTryEditor from "../../components/tryeditor/JsTryEditor";
 import Header from "../../components/header/Header";
 import Footer from "../../components/footer/Footer";
@@ -24,14 +23,38 @@ import {
 } from "react-icons/fi";
 import { useI18n } from "@/contexts/I18nContext";
 import { useAppContext } from "@/contexts/AppContext";
+import { useSession } from "next-auth/react";
+// Remove Babel import since it's causing issues
+// import Babel from "@babel/standalone";
 
 interface ExerciseDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-function createSandboxWorker() {
-  const blob = new Blob([workerCode], { type: "application/javascript" });
-  return new Worker(URL.createObjectURL(blob));
+interface Exercise {
+  id: number;
+  title: string;
+  description: string;
+  difficulty: string;
+  category: string;
+  content: {
+    acceptance: number;
+    constraints: string[];
+    examples: { input: string; output: string; explanation?: string }[];
+    tags: string[];
+    solution: string;
+    timeComplexity: string;
+    spaceComplexity: string;
+    hints?: string[];
+    testCases: { input: string; expectedOutput: string; hidden?: boolean }[];
+    inputParser?: (input: string) => any;
+    functionTemplates?: {
+      [key: string]: string;
+    };
+  };
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface FailedCase {
@@ -40,16 +63,78 @@ interface FailedCase {
   expected: string;
 }
 
+function createSandboxWorker() {
+  const blob = new Blob([workerCode], { type: "application/javascript" });
+  return new Worker(URL.createObjectURL(blob));
+}
+
 // Add languageSamples for default code templates
 const languageSamples = {
-  javascript: `function solution() {\n  \n}`,
-  python: `def solution():\n    pass`,
+  javascript: `/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number[]}
+ */
+function solution(nums, target) {
+    
+}`,
+  typescript: `/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number[]}
+ */
+function solution(nums: number[], target: number): number[] {
+    
+}`,
+  python: `class Solution(object):
+    def solution(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: List[int]
+        """
+        `,
+  cpp: `class Solution {
+public:
+    vector<int> solution(vector<int>& nums, int target) {
+        
+    }
+};`,
+  c: `/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* solution(int* nums, int numsSize, int target, int* returnSize) {
+    
+}`,
+  java: `class Solution {
+    public int[] solution(int[] nums, int target) {
+        
+    }
+}`,
+  csharp: `public class Solution {
+    public int[] Solution(int[] nums, int target) {
+        
+    }
+}`,
+  php: `/**
+ * @param Integer[] $nums
+ * @param Integer $target
+ * @return Integer[]
+ */
+function solution($nums, $target) {
+    
+}`,
 };
 
 const languageOptions = [
   { value: "javascript", label: "JavaScript" },
+  { value: "typescript", label: "TypeScript" },
   { value: "python", label: "Python" },
-  // Add more languages here as needed
+  { value: "cpp", label: "C++" },
+  { value: "c", label: "C" },
+  { value: "java", label: "Java" },
+  { value: "csharp", label: "C#" },
+  { value: "php", label: "PHP" },
 ];
 
 // Add this interface for latestSubmission
@@ -62,6 +147,9 @@ export default function ExerciseDetailPage({
   params,
 }: ExerciseDetailPageProps) {
   const { id } = use(params);
+  const [exercise, setExercise] = useState<Exercise | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [customInput, setCustomInput] = useState("");
   const [output, setOutput] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -87,6 +175,52 @@ export default function ExerciseDetailPage({
   const codeInitialized = useRef(false);
   const { t } = useI18n();
   const { logActivity } = useAppContext();
+  const { data: session } = useSession();
+
+  // Fetch exercise data from API
+  useEffect(() => {
+    async function fetchExercise() {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/exercises/${id}`);
+        if (!response.ok) {
+          throw new Error('Exercise not found');
+        }
+        const data = await response.json();
+        
+        // Parse inputParser if it exists as a string
+        if (data.content && data.content.inputParser && typeof data.content.inputParser === 'string') {
+          try {
+            // Use eval to compile the arrow function string directly
+            console.log('InputParser string:', data.content.inputParser);
+            data.content.inputParser = eval(`(${data.content.inputParser})`);
+            console.log('InputParser compiled successfully');
+          } catch (error) {
+            console.error('Error parsing inputParser:', error);
+            // Fallback to default Two Sum parser
+            data.content.inputParser = (input: string) => {
+              const parts = input.split('|');
+              const nums = parts[0].split(' ').map(Number);
+              const target = Number(parts[1]);
+              return [nums, target];
+            };
+          }
+        }
+        
+        setExercise(data);
+      } catch (error) {
+        console.error('Error fetching exercise:', error);
+        setError('Exercise not found');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (id) {
+      fetchExercise();
+    }
+  }, [id]);
+
   const getInitialLanguage = () => {
     if (typeof window !== "undefined") {
       const globalLang = localStorage.getItem("quiz_global_lang");
@@ -98,7 +232,6 @@ export default function ExerciseDetailPage({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const exercise = exercises.find((ex) => ex.id === id);
   // All hooks must be called before any early return
   // When quiz id changes, reset codeInitialized
   useEffect(() => {
@@ -121,49 +254,96 @@ export default function ExerciseDetailPage({
   // Add a function to fetch and update latest submission and status icon
   const refreshLatestSubmission = useCallback(async () => {
     if (!exercise) return;
-    const res = await fetch(
-      `/api/quiz/${id}/latest?maxTestCases=${exercise.testCases.length}`
-    );
-    const data = await res.json();
-    console.log(
-      "Latest submission from backend:",
-      data.latest,
-      "hasPassed:",
-      data.hasPassed,
-      "hasWrong:",
-      data.hasWrong
-    );
-    setLatestSubmission(data.latest);
-    // Improved status icon logic
-    if (data.hasPassed) {
-      setStatusIcon(<FiCheckCircle color="green" title="Correct" />);
-    } else if (data.hasWrong) {
-      setStatusIcon(<FiXCircle color="red" title="Incorrect" />);
-    } else {
+    try {
+      const res = await fetch(
+        `/api/quiz/${id}/latest?maxTestCases=${exercise.content.testCases.length}`
+      );
+      if (!res.ok) {
+        console.warn('Latest submission API not available');
+        return;
+      }
+      const data = await res.json();
+      console.log(
+        "Latest submission from backend:",
+        data.latest,
+        "hasPassed:",
+        data.hasPassed,
+        "hasWrong:",
+        data.hasWrong
+      );
+      setLatestSubmission(data.latest);
+      // Improved status icon logic
+      if (data.hasPassed) {
+        setStatusIcon(<FiCheckCircle color="green" title="Correct" />);
+      } else if (data.hasWrong) {
+        setStatusIcon(<FiXCircle color="red" title="Incorrect" />);
+      } else {
+        setStatusIcon(<FiXCircle color="gray" title="Not submitted" />);
+      }
+    } catch (error) {
+      console.warn('Failed to fetch latest submission:', error);
+      // Set default status
       setStatusIcon(<FiXCircle color="gray" title="Not submitted" />);
     }
   }, [exercise, id]);
 
+  // Function to update status icon based on current submission result
+  const updateStatusIcon = useCallback((isCorrect: boolean) => {
+    // Check if user has ever passed this quiz before
+    const hasEverPassed = localStorage.getItem(`quiz_ever_passed_${id}`) === 'true';
+    
+    if (isCorrect || hasEverPassed) {
+      setStatusIcon(<FiCheckCircle color="green" title="Correct" />);
+      // Mark as ever passed
+      if (id) {
+        localStorage.setItem(`quiz_ever_passed_${id}`, 'true');
+        localStorage.setItem(`quiz_status_${id}`, 'correct');
+      }
+    } else {
+      setStatusIcon(<FiXCircle color="red" title="Incorrect" />);
+      // Save status to localStorage
+      if (id) {
+        localStorage.setItem(`quiz_status_${id}`, 'incorrect');
+      }
+    }
+  }, [id]);
+
   // On mount, fetch latest submission
   useEffect(() => {
-    refreshLatestSubmission();
-  }, [refreshLatestSubmission]);
+    if (exercise) {
+      refreshLatestSubmission();
+    }
+  }, [exercise]); // Only run when exercise changes, not after every submission
+
+  // Load status from localStorage on mount
+  useEffect(() => {
+    if (id) {
+      const hasEverPassed = localStorage.getItem(`quiz_ever_passed_${id}`) === 'true';
+      const savedStatus = localStorage.getItem(`quiz_status_${id}`);
+      
+      if (hasEverPassed || savedStatus === 'correct') {
+        setStatusIcon(<FiCheckCircle color="green" title="Correct" />);
+      } else if (savedStatus === 'incorrect') {
+        setStatusIcon(<FiXCircle color="red" title="Incorrect" />);
+      }
+    }
+  }, [id]);
 
   // Log exercise view activity
   useEffect(() => {
-    if (exercise) {
-      logActivity(
-        'EXERCISE_START',
-        `Started working on exercise: ${exercise.title}`,
-        {
-          exerciseId: id,
-          exerciseTitle: exercise.title,
-          difficulty: exercise.difficulty,
-          language: language
-        }
-      );
-    }
-  }, [exercise, id, logActivity]);
+    if (exercise && session?.user) {
+        logActivity(
+          'EXERCISE_START',
+        `Started exercise: ${exercise.title}`,
+          {
+            exerciseId: id,
+            exerciseTitle: exercise.title,
+            difficulty: exercise.difficulty,
+          category: exercise.category
+          }
+        );
+      }
+  }, [exercise, id, session]);
 
   // Autosave code to localStorage on every change
   useEffect(() => {
@@ -223,23 +403,29 @@ export default function ExerciseDetailPage({
   };
 
   function isSafeCode(code: string): boolean {
-    const blacklist = [
-      /window\b/i,
-      /document\b/i,
-      /fetch\b/i,
-      /require\b/i,
-      /import\b/i,
-      /\bFunction\s*\(/,
-      /setInterval\b/i,
-      /setTimeout\b/i,
-      /XMLHttpRequest\b/i,
-      /localStorage\b/i,
-      /sessionStorage\b/i,
-      /globalThis\b/i,
-      /process\b/i,
-      /eval\b/i,
-    ];
-    return !blacklist.some((re) => re.test(code));
+    // Only apply JavaScript-specific blacklist for JavaScript/TypeScript
+    if (language === "javascript" || language === "typescript") {
+      const blacklist = [
+        /window\b/i,
+        /document\b/i,
+        /fetch\b/i,
+        /require\b/i,
+        /import\b/i,
+        /\bFunction\s*\(/,
+        /setInterval\b/i,
+        /setTimeout\b/i,
+        /XMLHttpRequest\b/i,
+        /localStorage\b/i,
+        /sessionStorage\b/i,
+        /globalThis\b/i,
+        /process\b/i,
+        /eval\b/i,
+      ];
+      return !blacklist.some((re) => re.test(code));
+    }
+    
+    // For other languages, allow all code (they run in Docker containers)
+    return true;
   }
 
   function isEqual(result: unknown, expected: unknown): boolean {
@@ -298,18 +484,22 @@ export default function ExerciseDetailPage({
     let failedCase = null;
     const failedCasesArr: FailedCase[] = [];
     
-    // Log exercise submission activity
+    // Log exercise submission activity (optional)
     if (exercise) {
-      logActivity(
-        'EXERCISE_SUBMIT',
-        `Submitted solution for exercise: ${exercise.title}`,
-        {
-          exerciseId: id,
-          exerciseTitle: exercise.title,
-          language: language,
-          codeLength: userCode.length
-        }
-      );
+      try {
+        logActivity(
+          'EXERCISE_SUBMIT',
+          `Submitted solution for exercise: ${exercise.title}`,
+          {
+            exerciseId: id,
+            exerciseTitle: exercise.title,
+            language: language,
+            codeLength: userCode.length
+          }
+        );
+      } catch (error) {
+        console.warn('Activity logging failed:', error);
+      }
     }
     
     if (!isSafeCode(userCode)) {
@@ -319,6 +509,7 @@ export default function ExerciseDetailPage({
       setSubmitted(true);
       setIsSubmitting(false);
       setActiveLeftTab(4);
+      updateStatusIcon(false); // Update status icon for error
       return;
     }
 
@@ -326,102 +517,522 @@ export default function ExerciseDetailPage({
     if (bodyMatch) setDetectedComplexity(analyzeTimeComplexity(bodyMatch[1]));
 
     try {
-      if (!exercise || !exercise.testCases) throw new Error("Exercise or test cases not found");
-      for (let i = 0; i < exercise.testCases.length; i++) {
-        const tc = exercise.testCases[i];
+      if (!exercise || !exercise.content.testCases) throw new Error("Exercise or test cases not found");
+      for (let i = 0; i < exercise.content.testCases.length; i++) {
+        const tc = exercise.content.testCases[i];
         let args;
-        if (exercise.inputParser) {
-          args = exercise.inputParser(tc.input);
+        if (exercise.content.inputParser) {
+          args = exercise.content.inputParser(tc.input);
+          console.log(`[DEBUG] Test case ${i}: input="${tc.input}", parsed args=`, args);
         } else {
-          args = tc.input.split(" ").map(Number);
+          // Default parser for Two Sum: last number is target, rest is array
+          const numbers = tc.input.split(" ").map(Number);
+          const target = numbers.pop(); // Remove and get last number
+          const nums = numbers; // Rest is the array
+          args = [nums, target];
+          console.log(`[DEBUG] Test case ${i}: input="${tc.input}", parsed args=`, args);
         }
 
         let result, error;
         let functionName = "solution";
         let functionFound = true;
+
+        // Language-specific code execution
         if (language === "python") {
-          // Detect function name in user code
+          // Python execution
           const match = userCode.match(/def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
           if (match) functionName = match[1];
           else functionFound = false;
+          
           if (!functionFound) {
-            setFeedback(
-              "Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: def myfunc(...):"
-            );
+            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: def myfunc(...):");
             setFeedbackType("error");
             setFailedCases([]);
             setSubmitted(true);
             setIsSubmitting(false);
             setDetectedComplexity(null);
             setActiveLeftTab(4);
+            updateStatusIcon(false);
             return;
           }
-          // Prepare Python code to call the detected function and print result as JSON if needed
-          let callCode = "";
-          let argsStr = "";
-          if (Array.isArray(args)) {
-            argsStr = args
-              .map((a) =>
-                typeof a === "string" ? `\"${a}\"` : JSON.stringify(a)
-              )
-              .join(", ");
-          } else {
-            argsStr = JSON.stringify(args);
-          }
-          callCode = `\nimport json\nresult = ${functionName}(${argsStr})\nif isinstance(result, (list, dict)):\n    print(json.dumps(result))\nelse:\n    print(result)`;
+
+          let argsStr = Array.isArray(args) 
+            ? args.map(a => typeof a === "string" ? `"${a}"` : JSON.stringify(a)).join(", ")
+            : JSON.stringify(args);
+          
+          const callCode = `\nimport json\nresult = ${functionName}(${argsStr})\nif isinstance(result, (list, dict)):\n    print(json.dumps(result))\nelse:\n    print(result)`;
           const fullCode = `${userCode}${callCode}`;
+          
           const resp = await fetch("/api/execute", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code: fullCode, language: "python" }),
           });
           const data = await resp.json();
+          
           try {
-            // Try to parse as JSON (for lists, dicts, etc.)
             result = JSON.parse(data.output);
           } catch {
-            // Fallback to string
             result = data.output;
           }
           error = data.error;
-        } else {
-          // Detect function name in JS code
-          const match = userCode.match(
-            /function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/
-          );
+
+        } else if (language === "javascript" || language === "typescript" || language === "js" || language === "ts") {
+          // JavaScript/TypeScript execution - both use worker for now
+          let match = userCode.match(/function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          if (!match) {
+            // Try arrow function pattern
+            match = userCode.match(/(?:const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*[:=]\s*(?:\([^)]*\)\s*=>|function\s*\()/);
+          }
+          if (!match) {
+            // Try TypeScript function pattern
+            match = userCode.match(/([a-zA-Z_][a-zA-Z0-9_]*)\s*\([^)]*\)\s*:\s*[^{]*{/);
+          }
           if (match) functionName = match[1];
           else functionFound = false;
+          
           if (!functionFound) {
-            setFeedback(
-              "Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: function myfunc(...) {} və ya const/let/var myfunc = ..."
-            );
+            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: function myfunc(...) {} və ya const myfunc = (...) => {}");
             setFeedbackType("error");
             setFailedCases([]);
             setSubmitted(true);
             setIsSubmitting(false);
             setDetectedComplexity(null);
             setActiveLeftTab(4);
+            updateStatusIcon(false);
             return;
           }
-          // JS/TS: use worker, pass functionName
-          const worker = createSandboxWorker();
-          const resultPromise = new Promise<{ result?: unknown; error?: string }>(
-            (resolve) => {
-              worker.onmessage = (e: MessageEvent) => resolve(e.data);
-              worker.postMessage({ code: userCode, args, functionName });
+
+          // Handle TypeScript transpilation like in mainpage editor
+          let transpiled = userCode;
+          if (language === "typescript" || language === "ts") {
+            try {
+              // Check for unsupported features
+              const unsupported = /(Promise|async\s+function|await\s|private |public |protected )/;
+              if (unsupported.test(userCode)) {
+                setFeedback("TypeScript-də dəstəklənməyən xüsusiyyətlər istifadə olunub!");
+                setFeedbackType("error");
+                setFailedCases([]);
+                setSubmitted(true);
+                setIsSubmitting(false);
+                setDetectedComplexity(null);
+                setActiveLeftTab(4);
+                updateStatusIcon(false);
+                return;
+              }
+
+              // Security check for dangerous code
+              const dangerousPatterns = [
+                /require\s*\(/,
+                /import\s+.*from\s+['"]/,
+                /eval\s*\(/,
+                /Function\s*\(/,
+                /new\s+Function/,
+                /process\./,
+                /global\./,
+                /window\./,
+                /document\./,
+                /localStorage\./,
+                /sessionStorage\./,
+                /indexedDB\./,
+                /fetch\s*\(/,
+                /XMLHttpRequest/,
+                /WebSocket/,
+                /Worker/,
+                /SharedWorker/,
+                /setInterval\s*\(/,
+                /setTimeout\s*\(/,
+                /while\s*\(\s*true\s*\)/,
+                /for\s*\(\s*;\s*;\s*\)/,
+                /while\s*\(\s*1\s*\)/,
+                /while\s*\(\s*!0\s*\)/,
+              ];
+
+              for (const pattern of dangerousPatterns) {
+                if (pattern.test(userCode)) {
+                  setFeedback("Təhlükəli kod aşkarlanıb! Bu kod icra edilə bilməz.");
+                  setFeedbackType("error");
+                  setFailedCases([]);
+                  setSubmitted(true);
+                  setIsSubmitting(false);
+                  setDetectedComplexity(null);
+                  setActiveLeftTab(4);
+                  updateStatusIcon(false);
+                  return;
+                }
+              }
+
+              // Remove TypeScript type annotations and use as JavaScript
+              transpiled = userCode
+                .replace(/:\s*number\[\]\[\]/g, '')  // Remove number[][] type
+                .replace(/:\s*number\[\]/g, '')  // Remove number[] type
+                .replace(/:\s*string\[\]/g, '')  // Remove string[] type
+                .replace(/:\s*number/g, '')     // Remove number type
+                .replace(/:\s*string/g, '')     // Remove string type
+                .replace(/:\s*boolean/g, '')    // Remove boolean type
+                .replace(/:\s*any/g, '')        // Remove any type
+                .replace(/:\s*Record<[^>]*>/g, '')  // Remove Record type
+                .replace(/<number,\s*number>/g, '')  // Remove Map type
+                .replace(/<number>/g, '')       // Remove generic types
+                .replace(/!\s*;/g, ';')         // Remove non-null assertion
+                .replace(/!\s*\)/g, ')')        // Remove non-null assertion
+                .replace(/!\s*,/g, ',')         // Remove non-null assertion
+                .replace(/!\s*]/g, ']')         // Remove non-null assertion
+                .replace(/!\s*}/g, '}');        // Remove non-null assertion
+            } catch (tsErr: unknown) {
+              setFeedback("TypeScript kompilasiya xətası: " + (tsErr instanceof Error ? tsErr.message : String(tsErr)));
+              setFeedbackType("error");
+              setFailedCases([]);
+              setSubmitted(true);
+              setIsSubmitting(false);
+              setDetectedComplexity(null);
+              setActiveLeftTab(4);
+              updateStatusIcon(false);
+              return;
             }
-          );
+          } else if (language === "javascript" || language === "js") {
+            // Security check for JavaScript code too
+            const dangerousPatterns = [
+              /require\s*\(/,
+              /import\s+.*from\s+['"]/,
+              /eval\s*\(/,
+              /Function\s*\(/,
+              /new\s+Function/,
+              /process\./,
+              /global\./,
+              /window\./,
+              /document\./,
+              /localStorage\./,
+              /sessionStorage\./,
+              /indexedDB\./,
+              /fetch\s*\(/,
+              /XMLHttpRequest/,
+              /WebSocket/,
+              /Worker/,
+              /SharedWorker/,
+              /setInterval\s*\(/,
+              /setTimeout\s*\(/,
+              /while\s*\(\s*true\s*\)/,
+              /for\s*\(\s*;\s*;\s*\)/,
+              /while\s*\(\s*1\s*\)/,
+              /while\s*\(\s*!0\s*\)/,
+            ];
+
+            for (const pattern of dangerousPatterns) {
+              if (pattern.test(userCode)) {
+                setFeedback("Təhlükəli kod aşkarlanıb! Bu kod icra edilə bilməz.");
+                setFeedbackType("error");
+                setFailedCases([]);
+                setSubmitted(true);
+                setIsSubmitting(false);
+                setDetectedComplexity(null);
+                setActiveLeftTab(4);
+                updateStatusIcon(false);
+                return;
+              }
+            }
+          }
+
+          const worker = createSandboxWorker();
+          const resultPromise = new Promise<{ result?: unknown; error?: string }>((resolve) => {
+            worker.onmessage = (e: MessageEvent) => resolve(e.data);
+            worker.postMessage({ code: transpiled, args });
+          });
           const timeoutPromise = new Promise<{ error: string }>((resolve) =>
             setTimeout(() => {
               worker.terminate();
               resolve({ error: "Kodun icrası çox uzun çəkdi (timeout)!" });
-            }, 2000)
+            }, 5000) // Increased timeout to 5 seconds
           );
-          const response: { result?: unknown; error?: string } = await Promise.race(
-            [resultPromise, timeoutPromise]
-          );
+          const response: { result?: unknown; error?: string } = await Promise.race([resultPromise, timeoutPromise]);
           result = response.result;
           error = response.error;
+
+        } else if (language === "cpp") {
+          // C++ execution
+          const match = userCode.match(/vector<[^>]*>\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          if (match) functionName = match[1];
+          else functionFound = false;
+          
+          if (!functionFound) {
+            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: vector<int> solution(...)");
+            setFeedbackType("error");
+            setFailedCases([]);
+            setSubmitted(true);
+            setIsSubmitting(false);
+            setDetectedComplexity(null);
+            setActiveLeftTab(4);
+            updateStatusIcon(false);
+            return;
+          }
+
+          // Convert args to proper C++ format
+          let numsArray = "";
+          let target = 0;
+          
+          if (Array.isArray(args) && args.length === 2) {
+            const nums = args[0];
+            target = args[1];
+            if (Array.isArray(nums)) {
+              numsArray = `{${nums.join(', ')}}`;
+            } else {
+              numsArray = JSON.stringify(nums);
+            }
+          } else {
+            numsArray = JSON.stringify(args);
+            target = 0;
+          }
+          
+          const callCode = `\nint main() {\n    vector<int> nums = ${numsArray};\n    int target = ${target};\n    auto result = ${functionName}(nums, target);\n    for (int i = 0; i < result.size(); i++) {\n        cout << result[i];\n        if (i < result.size() - 1) cout << " ";\n    }\n    return 0;\n}`;
+          const fullCode = `${userCode}\n#include <iostream>\n#include <vector>\nusing namespace std;\n${callCode}`;
+          
+          const resp = await fetch("/api/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: fullCode, language: "cpp" }),
+          });
+          const data = await resp.json();
+          
+          try {
+            result = data.output.trim().split(" ").map(Number);
+          } catch {
+            result = data.output;
+          }
+          error = data.error;
+
+        } else if (language === "c") {
+          // C execution
+          const match = userCode.match(/int\*\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          if (match) functionName = match[1];
+          else functionFound = false;
+          
+          if (!functionFound) {
+            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: int* solution(...)");
+            setFeedbackType("error");
+            setFailedCases([]);
+            setSubmitted(true);
+            setIsSubmitting(false);
+            setDetectedComplexity(null);
+            setActiveLeftTab(4);
+            updateStatusIcon(false);
+            return;
+          }
+
+          // Convert args to proper C format
+          let numsArray = "";
+          let numsSize = 0;
+          let target = 0;
+          
+          if (Array.isArray(args) && args.length === 2) {
+            const nums = args[0];
+            target = args[1];
+            if (Array.isArray(nums)) {
+              numsArray = `{${nums.join(', ')}}`;
+              numsSize = nums.length;
+            } else {
+              numsArray = JSON.stringify(nums);
+              numsSize = 1;
+            }
+          } else {
+            numsArray = JSON.stringify(args);
+            numsSize = 1;
+            target = 0;
+          }
+          
+          const callCode = `\nint main() {\n    int returnSize;\n    int nums[] = ${numsArray};\n    int numsSize = ${numsSize};\n    int target = ${target};\n    int* result = ${functionName}(nums, numsSize, target, &returnSize);\n    for (int i = 0; i < returnSize; i++) {\n        printf("%d", result[i]);\n        if (i < returnSize - 1) printf(" ");\n    }\n    return 0;\n}`;
+          const fullCode = `${userCode}\n#include <stdio.h>\n#include <stdlib.h>\n${callCode}`;
+          
+          const resp = await fetch("/api/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: fullCode, language: "c" }),
+          });
+          const data = await resp.json();
+          
+          try {
+            result = data.output.trim().split(" ").map(Number);
+          } catch {
+            result = data.output;
+          }
+          error = data.error;
+
+        } else if (language === "java") {
+          // Java execution
+          const match = userCode.match(/public\s+int\[\]\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          if (match) functionName = match[1];
+          else functionFound = false;
+          
+          if (!functionFound) {
+            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: public int[] solution(...)");
+            setFeedbackType("error");
+            setFailedCases([]);
+            setSubmitted(true);
+            setIsSubmitting(false);
+            setDetectedComplexity(null);
+            setActiveLeftTab(4);
+            updateStatusIcon(false);
+            return;
+          }
+
+          // Convert args to proper Java format
+          let numsArray = "";
+          let target = 0;
+          
+          if (Array.isArray(args) && args.length === 2) {
+            const nums = args[0];
+            target = args[1];
+            if (Array.isArray(nums)) {
+              numsArray = `new int[] {${nums.join(', ')}}`;
+            } else {
+              numsArray = JSON.stringify(nums);
+            }
+          } else {
+            numsArray = JSON.stringify(args);
+            target = 0;
+          }
+          
+          // Extract imports from user code
+          const importMatch = userCode.match(/import\s+[^;]+;/g);
+          const imports = importMatch ? importMatch.join('\n') : '';
+          const codeWithoutImports = userCode.replace(/import\s+[^;]+;/g, '').trim();
+          
+          const callCode = `\n    public static void main(String[] args) {\n        Solution solution = new Solution();\n        int[] result = solution.${functionName}(${numsArray}, ${target});\n        for (int i = 0; i < result.length; i++) {\n            System.out.print(result[i]);\n            if (i < result.length - 1) System.out.print(" ");\n        }\n    }`;
+          const fullCode = `${imports}\npublic class Solution {\n${codeWithoutImports}${callCode}\n}`;
+          
+          const resp = await fetch("/api/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: fullCode, language: "java" }),
+          });
+          const data = await resp.json();
+          
+          try {
+            result = data.output.trim().split(" ").map(Number);
+          } catch {
+            result = data.output;
+          }
+          error = data.error;
+
+        } else if (language === "csharp") {
+          // C# execution
+          const match = userCode.match(/public\s+int\[\]\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          if (match) functionName = match[1];
+          else functionFound = false;
+          
+          if (!functionFound) {
+            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: public int[] Solution(...)");
+            setFeedbackType("error");
+            setFailedCases([]);
+            setSubmitted(true);
+            setIsSubmitting(false);
+            setDetectedComplexity(null);
+            setActiveLeftTab(4);
+            updateStatusIcon(false);
+            return;
+          }
+
+          // Convert args to proper C# format
+          let numsArray = "";
+          let target = 0;
+          
+          if (Array.isArray(args) && args.length === 2) {
+            const nums = args[0];
+            target = args[1];
+            if (Array.isArray(nums)) {
+              numsArray = `new int[] {${nums.join(', ')}}`;
+            } else {
+              numsArray = JSON.stringify(nums);
+            }
+          } else {
+            numsArray = JSON.stringify(args);
+            target = 0;
+          }
+          
+          // Extract using statements from user code
+          const usingMatch = userCode.match(/using\s+[^;]+;/g);
+          const usings = usingMatch ? usingMatch.join('\n') : '';
+          const codeWithoutUsings = userCode.replace(/using\s+[^;]+;/g, '').trim();
+          
+          const callCode = `\n    public static void Main(string[] args) {\n        Solution solution = new Solution();\n        int[] result = solution.${functionName}(${numsArray}, ${target});\n        Console.WriteLine(string.Join(" ", result));\n    }`;
+          const fullCode = `${usings}\n\npublic class Solution {\n${codeWithoutUsings}${callCode}\n}`;
+          
+          const resp = await fetch("/api/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: fullCode, language: "csharp" }),
+          });
+          const data = await resp.json();
+          
+          try {
+            result = data.output.trim().split(" ").map(Number);
+          } catch {
+            result = data.output;
+          }
+          error = data.error;
+
+        } else if (language === "php") {
+          // PHP execution
+          const match = userCode.match(/function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
+          if (match) functionName = match[1];
+          else functionFound = false;
+          
+          if (!functionFound) {
+            setFeedback("Funksiya tapılmadı! Zəhmət olmasa, funksiyanı düzgün şəkildə yazın, məsələn: function solution(...)");
+            setFeedbackType("error");
+            setFailedCases([]);
+            setSubmitted(true);
+            setIsSubmitting(false);
+            setDetectedComplexity(null);
+            setActiveLeftTab(4);
+            updateStatusIcon(false);
+            return;
+          }
+
+          // Convert args to proper PHP format
+          let numsArray = "";
+          let target = 0;
+          
+          if (Array.isArray(args) && args.length === 2) {
+            const nums = args[0];
+            target = args[1];
+            if (Array.isArray(nums)) {
+              numsArray = `[${nums.join(', ')}]`;
+            } else {
+              numsArray = JSON.stringify(nums);
+            }
+          } else {
+            numsArray = JSON.stringify(args);
+            target = 0;
+          }
+          
+          const callCode = `\n$result = ${functionName}(${numsArray}, ${target});\necho implode(" ", $result);`;
+          const fullCode = `<?php\n${userCode}${callCode}\n?>`;
+          
+          const resp = await fetch("/api/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: fullCode, language: "php" }),
+          });
+          const data = await resp.json();
+          
+          try {
+            result = data.output.trim().split(" ").map(Number);
+          } catch {
+            result = data.output;
+          }
+          error = data.error;
+
+        } else {
+          // Unsupported language
+          setFeedback(`Bu dil hələ dəstəklənmir: ${language}`);
+          setFeedbackType("error");
+          setFailedCases([]);
+          setSubmitted(true);
+          setIsSubmitting(false);
+          setDetectedComplexity(null);
+          setActiveLeftTab(4);
+          updateStatusIcon(false);
+          return;
         }
         if (error) {
           setFeedback(error);
@@ -431,8 +1042,10 @@ export default function ExerciseDetailPage({
           setIsSubmitting(false);
           setDetectedComplexity(null);
           setActiveLeftTab(4);
+          updateStatusIcon(false); // Update status icon for error
           return;
         }
+        console.log(`[DEBUG] Test case ${i}: result=`, result, 'expected=', tc.expectedOutput, 'passed=', isEqual(result, tc.expectedOutput));
         const passed = isEqual(result, tc.expectedOutput);
         if (passed) {
           passedCount++;
@@ -453,6 +1066,7 @@ export default function ExerciseDetailPage({
       setIsSubmitting(false);
       setDetectedComplexity(null);
       setActiveLeftTab(4);
+      updateStatusIcon(false); // Update status icon for error
       return;
     }
 
@@ -460,37 +1074,50 @@ export default function ExerciseDetailPage({
     setIsSubmitting(false);
     setActiveLeftTab(4);
 
-    // Submit to backend - ALWAYS submit regardless of correctness
+    // Immediately update status icon based on current result
+    const isCorrect = failedCasesArr.length === 0;
+    updateStatusIcon(isCorrect);
+
+    // Submit to backend - ALWAYS submit regardless of correctness (optional)
     try {
-      await fetch("/api/quiz/submit", {
+      const response = await fetch("/api/quiz/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           quizId: Number(id),
           score: exercise
             ? failedCasesArr.length === 0
-              ? exercise.testCases.length
-              : exercise.testCases.length - failedCasesArr.length
+              ? exercise.content.testCases.length
+              : exercise.content.testCases.length - failedCasesArr.length
             : 0,
           answers: { failedCases: failedCasesArr },
           code: userCode,
           language,
         }),
       });
-      // Save code to localStorage after submit
+      
+      if (!response.ok) {
+        console.warn('Backend submission API not available');
+      }
+      
+      // Save code to localStorage regardless of API success
       if (id) {
         localStorage.setItem(`quiz_code_${id}_${language}`, userCode);
       }
-      // After submit, refresh latest submission and status icon
-      await refreshLatestSubmission();
+      // Don't refresh latest submission here since we already updated the status icon
+      // await refreshLatestSubmission();
     } catch (e) {
-      console.error("Error submitting to backend:", e);
+      console.warn("Backend submission not available:", e);
+      // Save code to localStorage even if API fails
+      if (id) {
+        localStorage.setItem(`quiz_code_${id}_${language}`, userCode);
+      }
     }
 
     if (failedCasesArr.length > 0) {
       setFailedCases(failedCasesArr);
       setFeedback(
-        `${passedCount}/${exercise.testCases.length} test keçdi. İlk səhv test: input = ${failedCasesArr[0].input}, gözlənilən = ${failedCasesArr[0].expected}, sənin çıxışın = ${failedCasesArr[0].output}`
+        `${passedCount}/${exercise.content.testCases.length} test keçdi. İlk səhv test: input = ${failedCasesArr[0].input}, gözlənilən = ${failedCasesArr[0].expected}, sənin çıxışın = ${failedCasesArr[0].output}`
       );
       setFeedbackType("wrong");
       setDetectedComplexity(null);
@@ -501,28 +1128,64 @@ export default function ExerciseDetailPage({
     setFailedCases([]);
     setFeedback(
       exercise
-        ? `${exercise.testCases.length}/${exercise.testCases.length} test uğurla keçdi!`
+        ? `${exercise.content.testCases.length}/${exercise.content.testCases.length} test uğurla keçdi!`
         : "Bütün testlər uğurla keçdi!"
     );
     setFeedbackType("success");
     
-    // Log successful exercise completion
-    if (exercise) {
-      logActivity(
-        'EXERCISE_SOLVE',
-        `Successfully solved exercise: ${exercise.title}`,
-        {
-          exerciseId: id,
-          exerciseTitle: exercise.title,
-          language: language,
-          testCasesPassed: exercise.testCases.length,
-          attempts: 1 // Could track this if needed
+    // Mark exercise as solved in backend
+    if (exercise && id) {
+      try {
+        console.log('Marking exercise as solved:', { exerciseId: parseInt(id), exerciseTitle: exercise.title });
+        
+        const response = await fetch('/api/user/exercise-solved', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ exerciseId: parseInt(id) })
+        });
+        
+        console.log('Exercise solved API response status:', response.status);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Exercise marked as solved:', data);
+          
+          // Update localStorage to sync with backend
+          localStorage.setItem(`quiz_ever_passed_${id}`, 'true');
+          localStorage.setItem(`quiz_status_${id}`, 'passed');
+          
+          // Update status icon
+          updateStatusIcon(true);
+        } else {
+          const errorData = await response.json().catch(() => null);
+          console.error('Failed to mark exercise as solved:', response.status, errorData);
         }
-      );
+      } catch (error) {
+        console.warn('Failed to mark exercise as solved:', error);
+      }
+    }
+    
+    // Log successful exercise completion (optional)
+    if (exercise) {
+      try {
+        logActivity(
+          'EXERCISE_SOLVE',
+          `Successfully solved exercise: ${exercise.title}`,
+          {
+            exerciseId: id,
+            exerciseTitle: exercise.title,
+            language: language,
+            testCasesPassed: exercise.content.testCases.length,
+            attempts: 1 // Could track this if needed
+          }
+        );
+      } catch (error) {
+        console.warn('Activity logging failed:', error);
+      }
     }
   };
 
-  const visibleCases = exercise ? exercise.testCases.filter((tc) => !tc.hidden) : [];
+  const visibleCases = exercise ? exercise.content.testCases.filter((tc) => !tc.hidden) : [];
 
   type LeftTab = { label: string; result?: boolean; icon: React.ReactNode };
   const leftTabs: LeftTab[] = [
@@ -541,7 +1204,7 @@ export default function ExerciseDetailPage({
       });
     } else {
       leftTabs.push({
-        label: isCorrect ? "Doğru Cavab" : "Yalnış Cavab",
+        label: isCorrect ? "Doğru" : "Yalnış",
         result: true,
         icon: isCorrect ? <FiCheckCircle /> : <FiXCircle />,
       });
@@ -550,10 +1213,13 @@ export default function ExerciseDetailPage({
 
   const difficultyColor = (diff: string) => {
     switch (diff) {
+      case "EASY":
       case "Asan":
         return detailStyles.easy;
+      case "MEDIUM":
       case "Orta":
         return detailStyles.medium;
+      case "HARD":
       case "Çətin":
         return detailStyles.hard;
       default:
@@ -563,10 +1229,13 @@ export default function ExerciseDetailPage({
 
   const difficultyIcon = (diff: string) => {
     switch (diff) {
+      case "EASY":
       case "Asan":
         return "🟢";
+      case "MEDIUM":
       case "Orta":
         return "🟡";
+      case "HARD":
       case "Çətin":
         return "🔴";
       default:
@@ -574,19 +1243,30 @@ export default function ExerciseDetailPage({
     }
   };
 
+  const getDifficultyText = (diff: string) => {
+    switch (diff) {
+      case "EASY":
+        return "Asan";
+      case "MEDIUM":
+        return "Orta";
+      case "HARD":
+        return "Çətin";
+      default:
+        return diff;
+    }
+  };
+
   useEffect(() => {
-    // Only update code if it matches the previous language's default or is empty
-    if (
-      !userCode ||
-      userCode === languageSamples.javascript ||
-      userCode === languageSamples.python
-    ) {
-      setUserCode(
-        languageSamples[language as keyof typeof languageSamples] || ""
-      );
+    // Always update code when language changes or when exercise loads
+    if (exercise?.content?.functionTemplates?.[language]) {
+      // Use exercise-specific template
+      setUserCode(exercise.content.functionTemplates[language]);
+    } else if (languageSamples[language as keyof typeof languageSamples]) {
+      // Use default template for this language
+      setUserCode(languageSamples[language as keyof typeof languageSamples]);
     }
     // eslint-disable-next-line
-  }, [language]);
+  }, [language, exercise]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -603,6 +1283,8 @@ export default function ExerciseDetailPage({
   }, []);
 
   // Place the early return here, after all hooks
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
   if (!exercise) return <div>Tapşırıq tapılmadı.</div>;
 
   return (
@@ -628,15 +1310,15 @@ export default function ExerciseDetailPage({
             <div className={detailStyles.heroStats}>
               <div className={detailStyles.statItem}>
                 <FiUsers className={detailStyles.statIcon} />
-                <span>{exercise?.acceptance}% Qəbul</span>
+                <span>{exercise?.content.acceptance}% Qəbul</span>
               </div>
               <div className={detailStyles.statItem}>
                 <FiClock className={detailStyles.statIcon} />
-                <span>{exercise?.timeComplexity}</span>
+                <span>{exercise?.content.timeComplexity}</span>
               </div>
               <div className={detailStyles.statItem}>
                 <FiTarget className={detailStyles.statIcon} />
-                <span>{exercise?.spaceComplexity}</span>
+                <span>{exercise?.content.spaceComplexity}</span>
               </div>
             </div>
           </div>
@@ -650,11 +1332,11 @@ export default function ExerciseDetailPage({
                     exercise.difficulty
                   )}`}
                 >
-                  {exercise ? difficultyIcon(exercise.difficulty) : ''} {exercise?.difficulty}
+                  {exercise ? difficultyIcon(exercise.difficulty) : ''} {exercise ? getDifficultyText(exercise.difficulty) : ''}
                 </span>
               </div>
               <div className={detailStyles.tagsContainer}>
-                {exercise?.tags.map((tag) => (
+                {exercise?.content.tags.map((tag) => (
                   <span key={tag} className={detailStyles.tag}>
                     <FiCode className={detailStyles.tagIcon} />
                     {tag}
@@ -708,7 +1390,7 @@ export default function ExerciseDetailPage({
                 <div className={detailStyles.section}>
                   <h3 className={detailStyles.sectionTitle}>Məhdudiyyətlər</h3>
                   <ul className={detailStyles.constraintsList}>
-                    {exercise?.constraints?.map((constraint, i) => (
+                    {exercise?.content.constraints?.map((constraint, i) => (
                       <li key={i} className={detailStyles.constraintItem}>
                         {constraint}
                       </li>
@@ -718,7 +1400,7 @@ export default function ExerciseDetailPage({
 
                 <div className={detailStyles.section}>
                   <h3 className={detailStyles.sectionTitle}>Nümunələr</h3>
-                  {exercise?.examples?.map((ex, i) => (
+                  {exercise?.content.examples?.map((ex, i) => (
                     <div key={i} className={detailStyles.exampleCard}>
                       <div className={detailStyles.exampleHeader}>
                         <span className={detailStyles.exampleNumber}>
@@ -798,10 +1480,10 @@ export default function ExerciseDetailPage({
                   status={isCorrect ? "correct" : "wrong"}
                   passedCount={
                     isCorrect
-                      ? (exercise?.testCases.length ?? 0)
-                      : (exercise ? exercise.testCases.length - failedCases.length : 0)
+                      ? (exercise?.content.testCases.length ?? 0)
+                      : (exercise ? exercise.content.testCases.length - failedCases.length : 0)
                   }
-                  totalCount={exercise?.testCases.length ?? 0}
+                  totalCount={exercise?.content.testCases.length ?? 0}
                   failedCases={failedCases}
                   onAnalyzeComplexity={() => setIsComplexityModalOpen(true)}
                 />
