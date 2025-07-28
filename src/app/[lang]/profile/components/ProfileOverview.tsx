@@ -426,6 +426,45 @@ export default function ProfileOverview({
                       {getLanguageIcon(language)}
                     </div>
                   )}
+                  {(activity.type === 'daily_login_bonus' || activity.type === 'DAILY_LOGIN_BONUS') && (
+                    <div style={{ marginLeft: 'auto', marginRight: '8px' }}>
+                      <div className={overviewStyles.coinSpinSlow}>
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 38 38"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <defs>
+                            <radialGradient id="coinGradient" cx="50%" cy="50%" r="50%">
+                              <stop offset="0%" stopColor="#fff7c1" />
+                              <stop offset="100%" stopColor="#ffd700" />
+                            </radialGradient>
+                          </defs>
+                          <circle
+                            cx="19"
+                            cy="19"
+                            r="18"
+                            fill="url(#coinGradient)"
+                            stroke="#e6c200"
+                            strokeWidth="2"
+                          />
+                          <text
+                            x="50%"
+                            y="54%"
+                            textAnchor="middle"
+                            fontSize="18"
+                            fontWeight="bold"
+                            fill="#e6c200"
+                            fontFamily="Helvetica Neue, Arial, sans-serif"
+                          >
+                            ₵
+                          </text>
+                        </svg>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}

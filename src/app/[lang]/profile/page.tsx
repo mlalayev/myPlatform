@@ -279,31 +279,7 @@ const profileTabs = [
   }, [session]);
 
   // Trigger login point popup check when profile page loads
-  useEffect(() => {
-    if (session && typeof window !== 'undefined') {
-      // Get current time in Azerbaijan (UTC+4)
-      const now = new Date();
-      const azerbaijanTime = new Date(now.getTime() + (4 * 60 * 60 * 1000)); // UTC+4
-      const currentHour = azerbaijanTime.getHours();
-      
-      console.log('Profile page loaded - checking popup conditions:', {
-        currentHour: currentHour,
-        isAfterMidnight: currentHour >= 0,
-        azerbaijanTime: azerbaijanTime.toLocaleString()
-      });
-      
-      // If it's after 12:00 AM (midnight) Azerbaijan time, trigger popup check
-      if (currentHour >= 0) {
-        console.log('Triggering popup check - it\'s after 12:00 AM Azerbaijan time');
-        // Small delay to ensure the popup component is ready
-        setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('profilePageLoaded'));
-        }, 100);
-      } else {
-        console.log('Not triggering popup - it\'s before 12:00 AM Azerbaijan time');
-      }
-    }
-  }, [session]);
+  // Removed profile page popup trigger since popup now works on all pages
 
   // Fetch calendar data
   useEffect(() => {

@@ -83,7 +83,7 @@ function LoginPointPopup() {
     
     // Show popup on any page if it's after 12:00 AM
     if (isAfterMidnight) {
-      console.log('Profile page detected and after 12:00 AM, checking user login status');
+      console.log('After 12:00 AM detected, checking user login status');
       // Fetch user profile to check if user logged in today
       try {
         const res = await fetch(`/api/user/profile`);
@@ -122,7 +122,7 @@ function LoginPointPopup() {
         
         // Show popup if it's after 12:00 AM Azerbaijan time (regardless of login date)
         // The popup should show every day when user visits profile page after midnight
-        console.log('Showing login point popup - it\'s after 12:00 AM Azerbaijan time and user is on profile page');
+        console.log('Showing login point popup - it\'s after 12:00 AM Azerbaijan time');
         setShow(true);
         localStorage.setItem(lastPopupKey, todayStr);
         setChecked(true);
@@ -131,8 +131,7 @@ function LoginPointPopup() {
         setChecked(true);
       }
     } else {
-      console.log('Not showing popup - not on profile page or before 12:00 AM:', {
-        isProfilePage: isProfilePage,
+      console.log('Not showing popup - before 12:00 AM:', {
         isAfterMidnight: isAfterMidnight,
         currentHour: currentHour
       });
@@ -153,24 +152,35 @@ function LoginPointPopup() {
     }
   }, [checkAndShowPopup, checked]);
 
-  // Listen for profile page loaded event
-  useEffect(() => {
-    const handleProfilePageLoaded = () => {
-      console.log('Profile page loaded event received, checking popup conditions');
-      checkAndShowPopup();
-    };
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener('profilePageLoaded', handleProfilePageLoaded);
-      
-      return () => {
-        window.removeEventListener('profilePageLoaded', handleProfilePageLoaded);
-      };
-    }
-  }, [checkAndShowPopup]);
+  // Removed profile page event listener since popup now works on all pages
 
   useEffect(() => {
     if (show) {
+      // Add coin when popup shows
+      const addCoin = async () => {
+        try {
+          const response = await fetch('/api/user/activity', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'DAILY_LOGIN_BONUS',
+              description: 'Daily login bonus +1 point',
+              metadata: { points: 1 }
+            })
+          });
+          
+          if (response.ok) {
+            console.log('Daily login bonus added successfully');
+          } else {
+            console.warn('Failed to add daily login bonus');
+          }
+        } catch (error) {
+          console.error('Error adding daily login bonus:', error);
+        }
+      };
+      
+      addCoin();
+      
       const timer = setTimeout(() => {
         setFadeOut(true);
         setTimeout(() => setShow(false), 400); // match fade duration
