@@ -1,43 +1,69 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useI18n } from "@/contexts/I18nContext";
+import Header from "../components/header/Header";
+import Footer from "../components/footer/Footer";
+import {
+  FiBookOpen,
+  FiCode,
+  FiAward,
+  FiActivity,
+  FiCheckCircle,
+  FiDollarSign,
+  FiTrendingUp,
+  FiClock,
+  FiUser,
+  FiSettings,
+  FiCalendar,
+  FiStar,
+  FiTarget,
+  FiZap,
+  FiBarChart2,
+  FiEye,
+  FiPlay,
+  FiCheck,
+  FiX,
+  FiPlus,
+  FiMinus,
+  FiFilter,
+  FiRefreshCw,
+  FiDownload,
+  FiShare2,
+  FiUsers,
+  FiLogIn,
+} from "react-icons/fi";
+import { 
+  SiJavascript, 
+  SiPython, 
+  SiOpenjdk, 
+  SiC, 
+  SiCplusplus, 
+  SiTypescript, 
+  SiPhp,
+  SiGo,
+  SiRust,
+  SiSwift,
+  SiKotlin,
+  SiRuby,
+  SiR
+} from "react-icons/si";
+import * as FiIcons from "react-icons/fi";
 import layoutStyles from "./ProfileLayout.module.css";
 import overviewStyles from "./ProfileOverview.module.css";
 import calendarStyles from "./ProfileCalendar.module.css";
-import {
-  FiUser,
-  FiAward,
-  FiTrendingUp,
-  FiBookOpen,
-  FiActivity,
-  FiTarget,
-  FiBarChart2,
-  FiCalendar,
-  FiChevronRight,
-  FiChevronLeft,
-  FiShield,
-  FiBell,
-  FiHeart,
-  FiDollarSign,
-  FiCheckCircle,
-  FiCode,
-} from "react-icons/fi";
-import { useSession } from "next-auth/react";
-import Header from "../components/header/Header";
-import Footer from "../components/footer/Footer";
-// Import modular components
+import exercisesStyles from "./ProfileExercises.module.css";
+import achievementsStyles from "./ProfileAchievements.module.css";
+import analyticsStyles from "./ProfileAnalytics.module.css";
+import recentActivitiesStyles from "./ProfileRecentActivities.module.css";
+import securityStyles from "./ProfileSecurity.module.css";
 import ProfileOverview from "./components/ProfileOverview";
-import ProfileAchievements from "./components/ProfileAchievements";
-import ProfileProgress from "./components/ProfileProgress";
-import ProfileLessons from "./components/ProfileLessons";
 import ProfileExercises from "./components/ProfileExercises";
-import ProfileGoals from "./components/ProfileGoals";
+import ProfileAchievements from "./components/ProfileAchievements";
 import ProfileAnalytics from "./components/ProfileAnalytics";
-import ProfileSecurity from "./components/ProfileSecurity";
-import ProfileNotifications from "./components/ProfileNotifications";
-import ProfileFavourites from "./components/ProfileFavourites";
 import ProfileRecentActivities from "./components/ProfileRecentActivities";
-import { useI18n } from "../../../contexts/I18nContext";
+import ProfileSecurity from "./components/ProfileSecurity";
 
 export default function ProfilePage() {
   const { t } = useI18n();
@@ -96,25 +122,25 @@ const profileTabs = [
   {
     key: "security",
       name: t("profile.tabs.security.name"),
-    icon: <FiShield size={24} />,
+    icon: <FiSettings size={24} />,
       description: t("profile.tabs.security.description"),
   },
   {
     key: "notifications",
       name: t("profile.tabs.notifications.name"),
-    icon: <FiBell size={24} />,
+    icon: <FiEye size={24} />,
       description: t("profile.tabs.notifications.description"),
   },
   {
     key: "favorites",
       name: t("profile.tabs.favorites.name"),
-    icon: <FiHeart size={24} />,
+    icon: <FiStar size={24} />,
       description: t("profile.tabs.favorites.description"),
   },
   {
     key: "recent-activities",
       name: t("profile.tabs.recentActivities.name"),
-    icon: <FiActivity size={24} />,
+    icon: <FiClock size={24} />,
       description: t("profile.tabs.recentActivities.description"),
   },
 ];
@@ -252,6 +278,33 @@ const profileTabs = [
     }
   }, [session]);
 
+  // Trigger login point popup check when profile page loads
+  useEffect(() => {
+    if (session && typeof window !== 'undefined') {
+      // Get current time in Azerbaijan (UTC+4)
+      const now = new Date();
+      const azerbaijanTime = new Date(now.getTime() + (4 * 60 * 60 * 1000)); // UTC+4
+      const currentHour = azerbaijanTime.getHours();
+      
+      console.log('Profile page loaded - checking popup conditions:', {
+        currentHour: currentHour,
+        isAfterMidnight: currentHour >= 0,
+        azerbaijanTime: azerbaijanTime.toLocaleString()
+      });
+      
+      // If it's after 12:00 AM (midnight) Azerbaijan time, trigger popup check
+      if (currentHour >= 0) {
+        console.log('Triggering popup check - it\'s after 12:00 AM Azerbaijan time');
+        // Small delay to ensure the popup component is ready
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('profilePageLoaded'));
+        }, 100);
+      } else {
+        console.log('Not triggering popup - it\'s before 12:00 AM Azerbaijan time');
+      }
+    }
+  }, [session]);
+
   // Fetch calendar data
   useEffect(() => {
     const fetchCalendarData = async () => {
@@ -325,6 +378,50 @@ const profileTabs = [
     }
   };
 
+  // Helper function to get language icon
+  const getLanguageIcon = (language: string) => {
+    switch (language?.toLowerCase()) {
+      case 'javascript':
+        return <SiJavascript size={20} color="#f7df1e" />;
+      case 'python':
+        return <SiPython size={20} color="#3572A5" />;
+      case 'java':
+        return <SiOpenjdk size={20} color="#b07219" />;
+      case 'c':
+        return <SiC size={20} color="#00599C" />;
+      case 'c++':
+      case 'cpp':
+      case 'c%2b%2b':
+        return <SiCplusplus size={20} color="#00599C" />;
+      case 'c#':
+      case 'csharp':
+        return <FiIcons.FiHash size={20} color="#178600" />;
+      case 'typescript':
+        return <SiTypescript size={20} color="#3178c6" />;
+      case 'php':
+        return <SiPhp size={20} color="#777bb4" />;
+      case 'go':
+      case 'golang':
+        return <SiGo size={20} color="#00ADD8" />;
+      case 'rust':
+        return <SiRust size={20} color="#dea584" />;
+      case 'swift':
+        return <SiSwift size={20} color="#ffac45" />;
+      case 'kotlin':
+        return <SiKotlin size={20} color="#7f52ff" />;
+      case 'ruby':
+        return <SiRuby size={20} color="#cc342d" />;
+      case 'r':
+        return <SiR size={20} color="#276dc3" />;
+      case 'algorithms':
+        return <FiCode size={20} color="#667eea" />;
+      case 'data-structures':
+        return <FiCode size={20} color="#48bb78" />;
+      default:
+        return <FiBookOpen size={20} color="#667eea" />;
+    }
+  };
+
   // Calendar component
   const renderCalendar = () => {
     if (!calendarData) return <div>Loading calendar...</div>;
@@ -371,7 +468,7 @@ const profileTabs = [
             onClick={() => navigateMonth("prev")}
             className={calendarStyles.calendarNavBtn}
           >
-            <FiChevronLeft />
+            <FiIcons.FiChevronLeft />
           </button>
           <h3 className={calendarStyles.calendarTitle}>
             {monthNames[currentMonth - 1]} {currentYear}
@@ -380,7 +477,7 @@ const profileTabs = [
             onClick={() => navigateMonth("next")}
             className={calendarStyles.calendarNavBtn}
           >
-            <FiChevronRight />
+            <FiIcons.FiChevronRight />
           </button>
         </div>
 
@@ -500,7 +597,11 @@ const profileTabs = [
           {filteredActivities.map((activity, index) => (
             <div key={index} className={overviewStyles.activityItem}>
               <div className={overviewStyles.activityIcon}>
-                {getActivityIcon(activity.type)}
+                {activity.type === 'LESSON_VIEW' && activity.language ? (
+                  getLanguageIcon(activity.language)
+                ) : (
+                  getActivityIcon(activity.type)
+                )}
               </div>
               <div className={overviewStyles.activityContent}>
                 <span className={overviewStyles.activityText}>
@@ -537,12 +638,13 @@ const profileTabs = [
     switch (selectedTab) {
       case "overview":
         return (
-          <ProfileOverview 
+          <ProfileOverview
             userStats={userStats}
             loading={loading}
             setSelectedTab={setSelectedTab}
             filterNavigationActivities={filterNavigationActivities}
             getActivityIcon={getActivityIcon}
+            getLanguageIcon={getLanguageIcon}
           />
         );
       case "achievements":
@@ -646,7 +748,7 @@ const profileTabs = [
               }
               style={sidebarCollapsed ? { margin: "0 auto" } : {}}
             >
-              {sidebarCollapsed ? <FiChevronRight /> : <FiChevronLeft />}
+              {sidebarCollapsed ? <FiIcons.FiChevronRight /> : <FiIcons.FiChevronLeft />}
             </button>
           </div>
           <div className={layoutStyles.tabList}>

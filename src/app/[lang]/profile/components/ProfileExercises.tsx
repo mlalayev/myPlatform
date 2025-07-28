@@ -20,7 +20,28 @@ import {
   FiGitBranch,
   FiCpu,
 } from "react-icons/fi";
+import { useTranslation } from "@/contexts/I18nContext";
 import exercisesStyles from "../ProfileExercises.module.css";
+
+// Helper function to format study time
+function formatStudyTime(totalSeconds: number): string {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const parts = [];
+  if (hours > 0) {
+    parts.push(`${hours}s`);
+  }
+  if (minutes > 0) {
+    parts.push(`${minutes}dəq`);
+  }
+  if (seconds > 0 && hours === 0 && minutes === 0) {
+    parts.push(`${seconds}san`);
+  }
+
+  return parts.length > 0 ? parts.join(' ') : '0dəq';
+}
 
 interface ProfileExercisesProps {
   userStats: any;
@@ -325,7 +346,7 @@ export default function ProfileExercises({
               </div>
               <div className={exercisesStyles.statItem}>
                 <span className={exercisesStyles.statNumber}>
-                  {userStats?.studyTimeHours || 0}h
+                  {formatStudyTime((userStats?.studyTimeHours || 0) * 3600)}
                 </span>
                 <span className={exercisesStyles.statLabel}>Code Time</span>
               </div>

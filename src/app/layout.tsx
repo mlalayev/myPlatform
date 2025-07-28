@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./globals.css";
 import ClientRedirect from "./ClientRedirect";
 import { SessionProvider, useSession } from "next-auth/react";
@@ -30,13 +30,8 @@ function LoginPointPopup() {
   const [checked, setChecked] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
 
-  useEffect(() => {
-    // Skip popup for exercises pages to avoid API calls
-    if (typeof window !== 'undefined' && window.location.pathname.includes('/exercises/')) {
-      setChecked(true);
-      return;
-    }
-    
+  // Function to check and show popup
+  const checkAndShowPopup = useCallback(async () => {
     if (
       status !== "authenticated" ||
       !(session?.user && (session.user as unknown as { id: string }).id)
@@ -47,11 +42,26 @@ function LoginPointPopup() {
     const isNewUser = (session.user as unknown as { isNewUser: boolean }).isNewUser;
     const lastPopupKey = `loginPointPopup_${userId}`;
     const lastShown = localStorage.getItem(lastPopupKey);
-    const today = new Date();
-    const todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+    
+    // Get current time in Azerbaijan (UTC+4)
+    const now = new Date();
+    const azerbaijanTime = new Date(now.getTime() + (4 * 60 * 60 * 1000)); // UTC+4
+    const todayStr = `${azerbaijanTime.getFullYear()}-${azerbaijanTime.getMonth()}-${azerbaijanTime.getDate()}`;
+    const currentHour = azerbaijanTime.getHours();
+    
+    console.log('Checking popup conditions:', {
+      userId: userId,
+      isNewUser: isNewUser,
+      lastShown: lastShown,
+      todayStr: todayStr,
+      currentHour: currentHour,
+      isAfterMidnight: currentHour >= 0,
+      pathname: typeof window !== 'undefined' ? window.location.pathname : 'unknown'
+    });
     
     // For new users, show popup and clear the isNewUser flag
     if (isNewUser && lastShown !== todayStr) {
+      console.log('Showing popup for new user');
       setShow(true);
       localStorage.setItem(lastPopupKey, todayStr);
       setChecked(true);
@@ -63,12 +73,18 @@ function LoginPointPopup() {
     
     // If we already showed the popup today, don't show it again
     if (lastShown === todayStr) {
+      console.log('Popup already shown today, skipping');
       setChecked(true);
       return;
     }
     
-    // Fetch user profile to check if user logged in today (optional)
-    const fetchUserData = async () => {
+    // Check if it's after 12:00 AM (midnight) Azerbaijan time
+    const isAfterMidnight = currentHour >= 0; // After midnight (12:00 AM)
+    
+    // Show popup on any page if it's after 12:00 AM
+    if (isAfterMidnight) {
+      console.log('Profile page detected and after 12:00 AM, checking user login status');
+      // Fetch user profile to check if user logged in today
       try {
         const res = await fetch(`/api/user/profile`);
         if (!res.ok) {
@@ -79,30 +95,79 @@ function LoginPointPopup() {
         
         const userData = await res.json();
         if (!userData || !userData.user) {
+          console.warn('No user data available');
           setChecked(true);
           return;
         }
         
         const lastLogin = userData.user.lastActive ? new Date(userData.user.lastActive) : null;
-        const today = new Date();
         
-        // Show popup if user logged in today (regardless of whether they already got points)
-        if (lastLogin && 
-            today.getFullYear() === lastLogin.getFullYear() &&
-            today.getMonth() === lastLogin.getMonth() &&
-            today.getDate() === lastLogin.getDate()) {
-          setShow(true);
-          localStorage.setItem(lastPopupKey, todayStr);
-        }
+        // Convert both dates to Azerbaijan time for comparison
+        const now = new Date();
+        const azerbaijanTime = new Date(now.getTime() + (4 * 60 * 60 * 1000)); // UTC+4
+        const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
+        
+        // Convert lastLogin to Azerbaijan time
+        const lastLoginAzerbaijan = lastLogin ? new Date(lastLogin.getTime() + (4 * 60 * 60 * 1000)) : null;
+        const lastLoginDate = lastLoginAzerbaijan ? new Date(lastLoginAzerbaijan.getFullYear(), lastLoginAzerbaijan.getMonth(), lastLoginAzerbaijan.getDate()) : null;
+        
+        console.log('User login check:', {
+          lastLogin: lastLogin,
+          lastLoginAzerbaijan: lastLoginAzerbaijan,
+          lastLoginDate: lastLoginDate,
+          today: today,
+          lastLoginDateStr: lastLoginDate ? `${lastLoginDate.getFullYear()}-${lastLoginDate.getMonth()}-${lastLoginDate.getDate()}` : 'null',
+          todayDateStr: `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`
+        });
+        
+        // Show popup if it's after 12:00 AM Azerbaijan time (regardless of login date)
+        // The popup should show every day when user visits profile page after midnight
+        console.log('Showing login point popup - it\'s after 12:00 AM Azerbaijan time and user is on profile page');
+        setShow(true);
+        localStorage.setItem(lastPopupKey, todayStr);
         setChecked(true);
       } catch (error) {
         console.warn('User data fetch failed:', error);
         setChecked(true);
       }
-    };
-    
-    fetchUserData();
+    } else {
+      console.log('Not showing popup - not on profile page or before 12:00 AM:', {
+        isProfilePage: isProfilePage,
+        isAfterMidnight: isAfterMidnight,
+        currentHour: currentHour
+      });
+      setChecked(true);
+    }
   }, [session, status, update]);
+
+  useEffect(() => {
+    // Skip popup for exercises pages to avoid API calls
+    if (typeof window !== 'undefined' && window.location.pathname.includes('/exercises/')) {
+      setChecked(true);
+      return;
+    }
+    
+    // Only check popup on initial load, not on every session change
+    if (!checked) {
+      checkAndShowPopup();
+    }
+  }, [checkAndShowPopup, checked]);
+
+  // Listen for profile page loaded event
+  useEffect(() => {
+    const handleProfilePageLoaded = () => {
+      console.log('Profile page loaded event received, checking popup conditions');
+      checkAndShowPopup();
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('profilePageLoaded', handleProfilePageLoaded);
+      
+      return () => {
+        window.removeEventListener('profilePageLoaded', handleProfilePageLoaded);
+      };
+    }
+  }, [checkAndShowPopup]);
 
   useEffect(() => {
     if (show) {
@@ -115,6 +180,9 @@ function LoginPointPopup() {
   }, [show]);
 
   if (!show || !checked) return null;
+  
+  console.log('Rendering login point popup');
+  
   return (
     <>
       <div className={`login-point-popup${fadeOut ? " fade-out" : ""}`}>

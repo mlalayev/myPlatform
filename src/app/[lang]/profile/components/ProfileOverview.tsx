@@ -19,12 +19,33 @@ import overviewStyles from "../ProfileOverview.module.css";
 import calendarStyles from "../ProfileCalendar.module.css";
 import { useI18n } from "../../../../contexts/I18nContext";
 
+// Helper function to format study time
+function formatStudyTime(totalSeconds: number): string {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const parts = [];
+  if (hours > 0) {
+    parts.push(`${hours}s`);
+  }
+  if (minutes > 0) {
+    parts.push(`${minutes}dəq`);
+  }
+  if (seconds > 0 && hours === 0 && minutes === 0) {
+    parts.push(`${seconds}san`);
+  }
+
+  return parts.length > 0 ? parts.join(' ') : '0dəq';
+}
+
 interface ProfileOverviewProps {
   userStats: any;
   loading: boolean;
   setSelectedTab: (tab: string) => void;
   filterNavigationActivities: (activities: any[]) => any[];
   getActivityIcon: (type: string) => React.ReactNode;
+  getLanguageIcon: (language: string) => React.ReactNode;
 }
 
 export default function ProfileOverview({
@@ -33,6 +54,7 @@ export default function ProfileOverview({
   setSelectedTab,
   filterNavigationActivities,
   getActivityIcon,
+  getLanguageIcon,
 }: ProfileOverviewProps) {
   const { t } = useI18n();
   const [showExercisesModal, setShowExercisesModal] = useState(false);
@@ -210,7 +232,7 @@ export default function ProfileOverview({
             <div className={overviewStyles.statTrend}>
               <FiTrendingUp className={overviewStyles.trendIcon} />
               <span>
-                +{userStats.weeklyProgress.lessonsThisWeek} {t("profile.overview.stats.thisWeek")}
+                +{userStats.weeklyProgress.lessonsThisWeek || 0} {t("profile.overview.stats.thisWeek")}
               </span>
             </div>
           </div>
@@ -245,13 +267,13 @@ export default function ProfileOverview({
           </div>
           <div className={overviewStyles.statContent}>
             <div className={overviewStyles.statNumber}>
-              {userStats.studyTimeHours}h
+              {userStats.formattedStudyTime || `${userStats.studyTimeHours || 0}h`}
             </div>
             <div className={overviewStyles.statLabel}>{t("profile.overview.stats.studyTime")}</div>
             <div className={overviewStyles.statTrend}>
               <FiTrendingUp className={overviewStyles.trendIcon} />
                               <span>
-                  {userStats.weeklyProgress.studyTimeThisWeek}h {t("profile.overview.stats.thisWeek")}
+                  {userStats.weeklyProgress.studyTimeThisWeekFormatted || `${userStats.weeklyProgress.studyTimeThisWeek || 0}h`} {t("profile.overview.stats.thisWeek")}
                 </span>
             </div>
           </div>
@@ -266,7 +288,14 @@ export default function ProfileOverview({
             const date = new Date(day.date);
             const dayName = date.toLocaleDateString('az-AZ', { weekday: 'short' });
             const dayNumber = date.getDate();
-            const isToday = i === 6;
+
+            // Azərbaycan vaxtı ilə bugünkü gün
+            const now = new Date();
+            const azerbaijanTime = new Date(now.getTime() + (4 * 60 * 60 * 1000));
+            const todayStr = `${azerbaijanTime.getFullYear()}-${String(azerbaijanTime.getMonth() + 1).padStart(2, '0')}-${String(azerbaijanTime.getDate()).padStart(2, '0')}`;
+            const dayStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            const isToday = dayStr === todayStr;
+
             const hasActivity = day.hasActivity;
             
             return (
@@ -285,7 +314,13 @@ export default function ProfileOverview({
             date.setDate(date.getDate() - 6 + i);
             const dayName = date.toLocaleDateString('az-AZ', { weekday: 'short' });
             const dayNumber = date.getDate();
-            const isToday = i === 6;
+            
+            // Azərbaycan vaxtı ilə bugünkü gün
+            const now = new Date();
+            const azerbaijanTime = new Date(now.getTime() + (4 * 60 * 60 * 1000));
+            const todayStr = `${azerbaijanTime.getFullYear()}-${String(azerbaijanTime.getMonth() + 1).padStart(2, '0')}-${String(azerbaijanTime.getDate()).padStart(2, '0')}`;
+            const dayStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            const isToday = dayStr === todayStr;
             
             return (
               <div 
@@ -305,7 +340,9 @@ export default function ProfileOverview({
             <span className={overviewStyles.statLabel}>{t("profile.overview.calendar.activeDays")}</span>
           </div>
           <div className={overviewStyles.calendarStat}>
-            <span className={overviewStyles.statNumber}>{userStats.calendarData?.thisWeekStudyTime || userStats.weeklyProgress?.studyTimeThisWeek || 0}h</span>
+            <span className={overviewStyles.statNumber}>
+              {userStats.calendarData?.thisWeekStudyTimeFormatted || formatStudyTime(userStats.calendarData?.thisWeekStudyTime || 0)}
+            </span>
             <span className={overviewStyles.statLabel}>{t("profile.overview.calendar.thisWeek")}</span>
           </div>
         </div>
@@ -331,24 +368,67 @@ export default function ProfileOverview({
             {t("profile.overview.recentActivity.viewAll")}
           </button>
         </div>
-        <div className={overviewStyles.activityList}>
-          {filterNavigationActivities(userStats.recentActivities)
+                <div className={overviewStyles.activityList}>
+          {userStats.recentActivities
+            .filter((activity: any) => {
+              // Filter navigation activities
+              const hasNavigationText =
+                activity.text?.includes("Navigated to") ||
+                activity.text?.includes("navigated to") ||
+                activity.text?.includes("Navigated from") ||
+                activity.text?.includes("navigated from") ||
+                activity.description?.includes("Navigated to") ||
+                activity.description?.includes("navigated to") ||
+                activity.description?.includes("Navigated from") ||
+                activity.description?.includes("navigated from");
+              
+              return !hasNavigationText;
+            })
             .slice(0, 5)
-            .map((activity, index) => (
-              <div key={index} className={overviewStyles.activityItem}>
-                <div className={overviewStyles.activityIcon}>
-                  {getActivityIcon(activity.type)}
+            .map((activity: any, index: number) => {
+              // Language is already available in activity.language from backend
+              const language = activity.language;
+              
+
+              
+
+              
+              return (
+                <div key={index} className={overviewStyles.activityItem}>
+                  <div className={overviewStyles.activityIcon}>
+                    {activity.type === 'lesson_view' ? (
+                      <div style={{
+                        width: '40px',
+                        height: '40px',
+                        backgroundColor: '#667eea',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white'
+                      }}>
+                        <FiBookOpen size={20} />
+                      </div>
+                    ) : (
+                      getActivityIcon(activity.type)
+                    )}
+                  </div>
+                  <div className={overviewStyles.activityContent}>
+                    <span className={overviewStyles.activityText}>
+                      {activity.text}
+                    </span>
+                    <span className={overviewStyles.activityTime}>
+                      {activity.time}
+                    </span>
+                  </div>
+                  {activity.type === 'lesson_view' && language && (
+                    <div style={{ marginLeft: 'auto', marginRight: '8px' }}>
+                      {getLanguageIcon(language)}
+                    </div>
+                  )}
                 </div>
-                <div className={overviewStyles.activityContent}>
-                  <span className={overviewStyles.activityText}>
-                    {activity.text}
-                  </span>
-                  <span className={overviewStyles.activityTime}>
-                    {activity.time}
-                  </span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
         </div>
       </div>
 

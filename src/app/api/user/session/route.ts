@@ -38,27 +38,6 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // Update daily login count
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      await prisma.dailyActivity.upsert({
-        where: {
-          userId_date: {
-            userId: user.id,
-            date: today
-          }
-        },
-        update: {
-          loginCount: { increment: 1 }
-        },
-        create: {
-          userId: user.id,
-          date: today,
-          loginCount: 1,
-        }
-      });
-
       return NextResponse.json({ success: true, sessionId: userSession.id });
     } catch (sessionError) {
       console.log("Session tracking not available yet:", sessionError.message);

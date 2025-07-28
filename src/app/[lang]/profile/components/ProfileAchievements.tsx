@@ -349,8 +349,20 @@ export default function ProfileAchievements({
                       : achievementStyles.locked
                   }`}
                 >
-                  <div className={achievementStyles.achievementIcon}>
-                    {achievement.unlocked ? achievement.icon : <FiLock />}
+                  {/* Achievement Icon and Status Section */}
+                  <div className={achievementStyles.iconAndStatus}>
+                    <div className={achievementStyles.achievementIcon}>
+                      {achievement.unlocked ? achievement.icon : <FiLock />}
+                    </div>
+                    <div className={achievementStyles.statusSection}>
+                      <div className={achievementStyles.statusIcon}>
+                        {achievement.unlocked ? <FiUnlock /> : <FiLock />}
+                      </div>
+                      <div className={achievementStyles.rewardInfo}>
+                        <FiGift className={achievementStyles.rewardIcon} />
+                        <span>{achievement.reward}</span>
+                      </div>
+                    </div>
                   </div>
 
                   <div className={achievementStyles.achievementContent}>
@@ -384,20 +396,6 @@ export default function ProfileAchievements({
                           )}
                           /{achievement.target})
                         </span>
-                      </div>
-                    )}
-
-                    <div className={achievementStyles.achievementReward}>
-                      <FiGift className={achievementStyles.rewardIcon} />
-                      <span>{achievement.reward}</span>
-                    </div>
-
-                    {achievement.unlocked && (
-                      <div className={achievementStyles.unlockedBadge}>
-                        <FiUnlock
-                          className={achievementStyles.unlockedIcon}
-                        />
-                        <span>Unlocked!</span>
                       </div>
                     )}
                   </div>

@@ -31,12 +31,24 @@ export async function POST(req: NextRequest) {
   let current = user?.visitedLessons || {};
   if (typeof current !== 'object' || Array.isArray(current)) current = {};
   const arr = Array.isArray(current[language]) ? current[language] : [];
+  
+  // Only add if not already exists (prevent duplicates)
   if (!arr.includes(lessonId)) {
     current[language] = [...arr, lessonId];
+    
+    // Update user's visitedLessons
     await prisma.user.update({
       where: { id: user.id },
       data: { visitedLessons: current }
     });
+    
+    // Note: We no longer update dailyActivity.lessonsViewed here
+    // Weekly stats are now calculated from UserActivity table for accuracy
+    // This prevents double counting and ensures accurate lesson view tracking
+    
+    return NextResponse.json({ success: true, added: true });
+  } else {
+    // Already exists, no change needed
+    return NextResponse.json({ success: true, added: false, message: 'Lesson already visited' });
   }
-  return NextResponse.json({ success: true });
 } 
