@@ -447,46 +447,56 @@ export default function TutorialLanguagePage() {
       <div
         className={
           unavailable
-            ? `${styles.tutorialCard} ${styles.tutorialCardUnavailable}`
+            ? `${styles.languageItem} ${styles.languageItemUnavailable}`
             : isCompleted
-            ? `${styles.tutorialCard} ${styles.platinumCard}`
-            : styles.tutorialCard
+            ? `${styles.languageItem} ${styles.completedItem}`
+            : styles.languageItem
         }
       >
-        {isCompleted && <div className={styles.platinumGlow}></div>}
-        <div className={styles.availableBadge}>
-          {unavailable ? "Tezliklə" : `${progress.visited}/${progress.total}`}
-        </div>
-        <div className={styles.cardTopRow}>
-          <div className={`${styles.tutorialCardIcon} ${isCompleted ? styles.platinumIcon : ''}`}>
-            {item.icon}
-          </div>
-          <div className={styles.tutorialCardInfo}>
-            <div className={`${styles.tutorialCardTitle} ${isCompleted ? styles.platinumTitle : ''}`}>
-              {item.name}
+        <div className={styles.itemContent}>
+          <div className={styles.itemLeft}>
+            <div className={styles.itemIcon}>
+              {item.icon}
             </div>
-            <div className={`${styles.tutorialCardDesc} ${isCompleted ? styles.platinumDesc : ''}`}>
-              {item.description}
+            <div className={styles.itemInfo}>
+              <h3 className={styles.itemTitle}>{item.name}</h3>
+              <p className={styles.itemDescription}>{item.description}</p>
             </div>
           </div>
-        </div>
-        <div className={styles.progressBarSection}>
-          <div className={styles.progressBarContainer}>
-            <div
-              className={
-                unavailable
-                  ? `${styles.progressBarFill} ${styles.unavailable}`
-                  : isCompleted
-                  ? `${styles.progressBarFill} ${styles.platinumProgress}`
-                  : styles.progressBarFill
-              }
-              style={{ width: `${progress.percent}%` }}
-            />
+          <div className={styles.itemRight}>
+            {unavailable ? (
+              <span className={styles.comingSoonBadge}>Tezliklə</span>
+            ) : (
+              <span className={styles.progressBadge}>
+                {progress.visited}/{progress.total}
+              </span>
+            )}
+            <div className={styles.itemArrow}>
+              <FiIcons.FiChevronRight size={20} />
+            </div>
           </div>
-          <span className={`${styles.progressPercent} ${isCompleted ? styles.platinumPercent : ''}`}>
-            {progress.percent}%
-          </span>
         </div>
+        
+        {!unavailable && (
+          <div className={styles.progressSection}>
+            <div className={styles.progressBar}>
+              <div
+                className={`${styles.progressFill} ${isCompleted ? styles.completedProgress : ''}`}
+                style={{ width: `${progress.percent}%` }}
+              />
+            </div>
+            <span className={`${styles.progressText} ${isCompleted ? styles.completedText : ''}`}>
+              {progress.percent}% tamamlandı
+            </span>
+          </div>
+        )}
+        
+        {isCompleted && (
+          <div className={styles.completedBadge}>
+            <FiIcons.FiCheck size={16} />
+            Tamamlandı
+          </div>
+        )}
       </div>
     );
     if (isLink) {
@@ -598,52 +608,60 @@ export default function TutorialLanguagePage() {
   return (
     <>
       <Header />
-      <div className={styles.categoryListWrapper}>
-        <h2 className={styles.tutorialsTitle}>
-          {language === "algorithms" ? "Alqoritmlər" : "Məlumat Strukturları"}
-        </h2>
-        <div className={styles.tutorialsGrid}>
-          {loading ? (
-            <CodeLoader />
-          ) : topics.length === 0 ? (
-            <div
-              style={{
-                color: "#aaa",
-                textAlign: "center",
-                marginTop: 40,
-                gridColumn: "1 / -1",
-              }}
-            >
-              Mövzu yoxdur.
-            </div>
-          ) : (
-            topics.map((topic: Topic) => {
-              const Icon =
-                (
-                  FiIcons as Record<
-                    string,
-                    React.ComponentType<{ size: number; color: string }>
-                  >
-                )[topic.icon || "FiBookOpen"] || FiIcons.FiBookOpen;
-              const topicItem = {
-                name: topic.title,
-                icon: <Icon size={32} color="#007bff" />,
-                available: topic.available ?? true,
-                description: topic.description ?? "Təlimat və nümunələr",
-                progress: topic.progress ?? 0,
-              };
+      <div className={styles.languagesHero}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.heroTitle}>
+            Proqramlaşdırma <span className={styles.heroHighlight}>Dilləri</span>
+          </h1>
+          <p className={styles.heroSubtitle}>
+            Dünyanın ən populyar proqramlaşdırma dillərini öyrənin
+          </p>
+        </div>
+        
+        <div className={styles.heroStats}>
+          <div className={styles.statItem}>
+            <div className={styles.statNumber}>{languages.filter(l => l.available).length}</div>
+            <div className={styles.statLabel}>Mövcud Dillər</div>
+          </div>
+          <div className={styles.statItem}>
+            <div className={styles.statNumber}>500+</div>
+            <div className={styles.statLabel}>Dərs</div>
+          </div>
+          <div className={styles.statItem}>
+            <div className={styles.statNumber}>50+</div>
+            <div className={styles.statLabel}>Mövzu</div>
+          </div>
+        </div>
+      </div>
 
-              return (
+      <div className={styles.languagesWrapper}>
+        <div className={styles.languagesHeader}>
+          <h2 className={styles.languagesTitle}>Dillər</h2>
+          <p className={styles.languagesSubtitle}>
+            Öyrənmək istədiyiniz dili seçin
+          </p>
+        </div>
+        
+        <div className={styles.languagesList}>
+          {loadingLangs ? (
+            <CodeLoader />
+          ) : (
+            languages
+              .slice()
+              .sort((a, b) =>
+                a.available === b.available ? 0 : a.available ? -1 : 1
+              )
+              .map((lang) => (
                 <TutorialCard
-                  key={topic.id}
-                  item={topicItem}
-                  isLink={true}
-                  href={`/${langKey}/tutorials/languages/${language}/${topic.id}`}
+                  key={lang.name}
+                  item={lang}
+                  isLink={lang.available}
+                  href={getFirstTopicHref(lang.name)}
                 />
-              );
-            })
+              ))
           )}
         </div>
+        
         <button className={styles.backButton} onClick={handleBack}>
           <FiIcons.FiChevronLeft /> Geri
         </button>
