@@ -614,7 +614,7 @@ const profileTabs = [
     switch (selectedTab) {
       case "overview":
         return (
-          <ProfileOverview
+          <ProfileOverview 
             userStats={userStats}
             loading={loading}
             setSelectedTab={setSelectedTab}

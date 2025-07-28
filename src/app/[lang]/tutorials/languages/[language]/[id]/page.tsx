@@ -302,7 +302,7 @@ export default function TutorialTopicPage() {
           });
           
           const result = await response.json();
-          
+
           // Only log activity if the lesson was actually added (not already visited)
           if (result.added) {
             console.log('Logging lesson view activity for:', safeTopicId, 'language:', safeLanguage);
@@ -310,12 +310,12 @@ export default function TutorialTopicPage() {
               language: safeLanguage,
               lessonId: safeTopicId,
             });
-            logActivity(
-              'LESSON_VIEW',
+      logActivity(
+        'LESSON_VIEW',
               `Viewed lesson: ${safeTopicId}`,
-              {
-                language: safeLanguage,
-                lessonId: safeTopicId,
+        {
+          language: safeLanguage,
+          lessonId: safeTopicId,
               }
             );
           } else {
@@ -323,7 +323,7 @@ export default function TutorialTopicPage() {
           }
         } catch (e) {
           console.error('Failed to sync lesson to server:', e);
-        }
+    }
       } else {
         console.log('Lesson already visited locally:', safeTopicId);
         // Already visited, just set the state

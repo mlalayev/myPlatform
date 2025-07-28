@@ -96,19 +96,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     startSession();
   }, [isClient, session, status, sessionId]);
 
-  // End session when page is unloaded
+    // End session when page is unloaded
   useEffect(() => {
     if (!sessionId) return;
 
     const endSession = async () => {
-      try {
-        await fetch('/api/user/session', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId })
-        });
-      } catch (error) {
-        console.error('Error ending session:', error);
+        try {
+          await fetch('/api/user/session', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId })
+          });
+        } catch (error) {
+          console.error('Error ending session:', error);
       }
     };
 

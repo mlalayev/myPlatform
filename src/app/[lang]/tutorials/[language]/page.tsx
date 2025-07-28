@@ -441,23 +441,33 @@ export default function TutorialLanguagePage() {
       total: 0,
     };
     const unavailable = !item.available;
+    const isCompleted = progress.percent === 100 && progress.total > 0;
 
     const cardContent = (
       <div
         className={
           unavailable
             ? `${styles.tutorialCard} ${styles.tutorialCardUnavailable}`
+            : isCompleted
+            ? `${styles.tutorialCard} ${styles.platinumCard}`
             : styles.tutorialCard
         }
       >
+        {isCompleted && <div className={styles.platinumGlow}></div>}
         <div className={styles.availableBadge}>
           {unavailable ? "Tezliklə" : `${progress.visited}/${progress.total}`}
         </div>
         <div className={styles.cardTopRow}>
-          <div className={styles.tutorialCardIcon}>{item.icon}</div>
+          <div className={`${styles.tutorialCardIcon} ${isCompleted ? styles.platinumIcon : ''}`}>
+            {item.icon}
+          </div>
           <div className={styles.tutorialCardInfo}>
-            <div className={styles.tutorialCardTitle}>{item.name}</div>
-            <div className={styles.tutorialCardDesc}>{item.description}</div>
+            <div className={`${styles.tutorialCardTitle} ${isCompleted ? styles.platinumTitle : ''}`}>
+              {item.name}
+            </div>
+            <div className={`${styles.tutorialCardDesc} ${isCompleted ? styles.platinumDesc : ''}`}>
+              {item.description}
+            </div>
           </div>
         </div>
         <div className={styles.progressBarSection}>
@@ -466,12 +476,16 @@ export default function TutorialLanguagePage() {
               className={
                 unavailable
                   ? `${styles.progressBarFill} ${styles.unavailable}`
+                  : isCompleted
+                  ? `${styles.progressBarFill} ${styles.platinumProgress}`
                   : styles.progressBarFill
               }
               style={{ width: `${progress.percent}%` }}
             />
           </div>
-          <span className={styles.progressPercent}>{progress.percent}%</span>
+          <span className={`${styles.progressPercent} ${isCompleted ? styles.platinumPercent : ''}`}>
+            {progress.percent}%
+          </span>
         </div>
       </div>
     );
