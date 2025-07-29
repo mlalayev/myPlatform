@@ -32,9 +32,10 @@ import {
   SiHaskell,
   SiOpenjdk,
 } from "react-icons/si";
-import styles from "../TutorialsPage.module.css";
+import styles from "../TutorialsLanguagePage.module.css";
 import Header from "../../components/header/Header";
 import Footer from "../../components/footer/Footer";
+import HeroSection from "../../components/heroSection/HeroSection";
 
 // Language name mapping for API calls and file paths
 const LANGUAGE_MAPPING: { [key: string]: string } = {
@@ -43,7 +44,7 @@ const LANGUAGE_MAPPING: { [key: string]: string } = {
   Python: "python",
   Java: "java",
   C: "c",
-  "C++": "c++",
+  "C++": "c%2B%2B",
   "Go (Golang)": "go",
   Rust: "rust",
   TypeScript: "typescript",
@@ -316,6 +317,7 @@ export default function TutorialLanguagePage() {
       }
       for (const lang of languages) {
         const apiLangName = getApiLanguageName(lang.name);
+        console.log(`Language: ${lang.name}, API Name: ${apiLangName}`);
         if (!lang.available) {
           progressData[apiLangName] = { percent: 0, visited: 0, total: 0 };
           continue;
@@ -326,6 +328,7 @@ export default function TutorialLanguagePage() {
           if (res.ok) {
             const data = await res.json();
             topics = data[langKey] || [];
+            console.log(`${apiLangName} topics from API:`, topics.length);
           }
         } catch (e) {
           try {
@@ -333,9 +336,11 @@ export default function TutorialLanguagePage() {
             if (res.ok) {
               const data = await res.json();
               topics = data[langKey] || [];
+              console.log(`${apiLangName} topics from JSON:`, topics.length);
             }
           } catch (e2) {
             topics = [];
+            console.log(`${apiLangName} no topics found`);
           }
         }
         const total = topics.length;
@@ -348,6 +353,7 @@ export default function TutorialLanguagePage() {
         ).length;
         const percent =
           total > 0 ? Math.round((visitedCount / total) * 100) : 0;
+        console.log(`${apiLangName} progress: ${visitedCount}/${total} = ${percent}%`);
         progressData[apiLangName] = { percent, visited: visitedCount, total };
       }
       setLanguageProgress(progressData);
@@ -436,38 +442,62 @@ export default function TutorialLanguagePage() {
       total: 0,
     };
     const unavailable = !item.available;
+    const isCompleted = progress.percent === 100 && progress.total > 0;
 
     const cardContent = (
       <div
         className={
           unavailable
-            ? `${styles.tutorialCard} ${styles.tutorialCardUnavailable}`
-            : styles.tutorialCard
+            ? `${styles.languageItem} ${styles.languageItemUnavailable}`
+            : isCompleted
+            ? `${styles.languageItem} ${styles.completed}`
+            : styles.languageItem
         }
       >
-        <div className={styles.availableBadge}>
-          {unavailable ? "Tezliklə" : `${progress.visited}/${progress.total}`}
-        </div>
-        <div className={styles.cardTopRow}>
-          <div className={styles.tutorialCardIcon}>{item.icon}</div>
-          <div className={styles.tutorialCardInfo}>
-            <div className={styles.tutorialCardTitle}>{item.name}</div>
-            <div className={styles.tutorialCardDesc}>{item.description}</div>
+        <div className={styles.itemContent}>
+          <div className={styles.itemLeft}>
+            <div className={styles.itemIcon}>
+              {item.icon}
+            </div>
+            <div className={styles.itemInfo}>
+              <h3 className={styles.itemTitle}>{item.name}</h3>
+              <p className={styles.itemDescription}>{item.description}</p>
+            </div>
+          </div>
+          <div className={styles.itemRight}>
+            {unavailable ? (
+              <span className={styles.comingSoonBadge}>Tezliklə</span>
+            ) : (
+              <span className={styles.progressBadge}>
+                {progress.visited}/{progress.total}
+              </span>
+            )}
+            {/* <div className={styles.itemArrow}>
+              <FiIcons.FiChevronRight size={20} />
+            </div> */}
           </div>
         </div>
-        <div className={styles.progressBarSection}>
-          <div className={styles.progressBarContainer}>
-            <div
-              className={
-                unavailable
-                  ? `${styles.progressBarFill} ${styles.unavailable}`
-                  : styles.progressBarFill
-              }
-              style={{ width: `${progress.percent}%` }}
-            />
+        
+        {!unavailable && (
+          <div className={styles.progressSection}>
+            <div className={styles.progressBar}>
+              <div
+                className={`${styles.progressFill} ${isCompleted ? styles.completedProgress : ''}`}
+                style={{ width: `${progress.percent}%` }}
+              />
+            </div>
+            <span className={`${styles.progressText} ${isCompleted ? styles.completedText : ''}`}>
+              {progress.percent}% tamamlandı
+            </span>
           </div>
-          <span className={styles.progressPercent}>{progress.percent}%</span>
-        </div>
+        )}
+        
+        {isCompleted && (
+          <div className={styles.completedBadge}>
+            <FiIcons.FiCheck size={16} />
+            Tamamlandı
+          </div>
+        )}
       </div>
     );
     if (isLink) {
@@ -494,8 +524,11 @@ export default function TutorialLanguagePage() {
     return (
       <>
         <Header />
+        <HeroSection 
+          titleKey="tutorials.frameworks.title"
+          subtitleKey="tutorials.frameworks.subtitle"
+        />
         <div className={styles.categoryListWrapper}>
-          <h2 className={styles.tutorialsTitle}>Frameworklər</h2>
           <div className={styles.tutorialsGrid}>
             {frameworks.map((fw) => (
               <TutorialCard key={fw.name} item={fw} />
@@ -524,23 +557,17 @@ export default function TutorialLanguagePage() {
     return (
       <>
         <Header />
-        <div className={styles.categoryListWrapper}>
-          <h2 className={styles.tutorialsTitle}>Proqramlaşdırma Dilləri</h2>
-          <div
-            className={styles.tutorialsGrid}
-            style={
-              loadingLangs
-                ? {
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    minHeight: 300,
-                  }
-                : {}
-            }
-          >
+        <HeroSection 
+          titleKey="tutorials.languages.title"
+          subtitleKey="tutorials.languages.subtitle"
+        />
+        <div className={styles.languagesWrapper}>
+          <div className={styles.languagesList}>
             {loadingLangs ? (
-              <CodeLoader />
+              <div className={styles.loadingContainer}>
+                <CodeLoader />
+                <div className={styles.loadingText}>Dillər yüklənir...</div>
+              </div>
             ) : (
               languages
                 .slice()
@@ -557,6 +584,7 @@ export default function TutorialLanguagePage() {
                 ))
             )}
           </div>
+          
           <button className={styles.backButton} onClick={handleBack}>
             <FiIcons.FiChevronLeft /> Geri
           </button>
@@ -579,52 +607,34 @@ export default function TutorialLanguagePage() {
   return (
     <>
       <Header />
-      <div className={styles.categoryListWrapper}>
-        <h2 className={styles.tutorialsTitle}>
-          {language === "algorithms" ? "Alqoritmlər" : "Məlumat Strukturları"}
-        </h2>
-        <div className={styles.tutorialsGrid}>
-          {loading ? (
-            <CodeLoader />
-          ) : topics.length === 0 ? (
-            <div
-              style={{
-                color: "#aaa",
-                textAlign: "center",
-                marginTop: 40,
-                gridColumn: "1 / -1",
-              }}
-            >
-              Mövzu yoxdur.
+      <HeroSection 
+        titleKey="tutorials.languages.title"
+        subtitleKey="tutorials.languages.subtitle"
+      />
+      <div className={styles.languagesWrapper}>
+        <div className={styles.languagesList}>
+          {loadingLangs ? (
+            <div className={styles.loadingContainer}>
+              <CodeLoader />
+              <div className={styles.loadingText}>Dillər yüklənir...</div>
             </div>
           ) : (
-            topics.map((topic: Topic) => {
-              const Icon =
-                (
-                  FiIcons as Record<
-                    string,
-                    React.ComponentType<{ size: number; color: string }>
-                  >
-                )[topic.icon || "FiBookOpen"] || FiIcons.FiBookOpen;
-              const topicItem = {
-                name: topic.title,
-                icon: <Icon size={32} color="#007bff" />,
-                available: topic.available ?? true,
-                description: topic.description ?? "Təlimat və nümunələr",
-                progress: topic.progress ?? 0,
-              };
-
-              return (
+            languages
+              .slice()
+              .sort((a, b) =>
+                a.available === b.available ? 0 : a.available ? -1 : 1
+              )
+              .map((lang) => (
                 <TutorialCard
-                  key={topic.id}
-                  item={topicItem}
-                  isLink={true}
-                  href={`/${langKey}/tutorials/languages/${language}/${topic.id}`}
+                  key={lang.name}
+                  item={lang}
+                  isLink={lang.available}
+                  href={getFirstTopicHref(lang.name)}
                 />
-              );
-            })
+              ))
           )}
         </div>
+        
         <button className={styles.backButton} onClick={handleBack}>
           <FiIcons.FiChevronLeft /> Geri
         </button>

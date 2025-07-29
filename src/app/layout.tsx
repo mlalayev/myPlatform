@@ -123,8 +123,8 @@ function LoginPointPopup() {
         // Show popup if it's after 12:00 AM Azerbaijan time (regardless of login date)
         // The popup should show every day when user visits profile page after midnight
         console.log('Showing login point popup - it\'s after 12:00 AM Azerbaijan time');
-        setShow(true);
-        localStorage.setItem(lastPopupKey, todayStr);
+          setShow(true);
+          localStorage.setItem(lastPopupKey, todayStr);
         setChecked(true);
       } catch (error) {
         console.warn('User data fetch failed:', error);
