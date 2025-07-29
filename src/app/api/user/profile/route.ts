@@ -182,9 +182,125 @@ export async function GET(request: NextRequest) {
     // Calculate completion percentage
     const completionRate = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
-    // Calculate completed languages (100% completed)
+    // Get activity tracking data first
+    let recentActivities: any[] = [];
+    let sessionStats = { _sum: { duration: 0 } };
+    let todayActivity = null;
+    let loginStreak = 0;
+    let weeklyStats = { 
+      _sum: { 
+        lessonsViewed: 0, 
+        exercisesSolved: 0, 
+        studyTime: 0, 
+        pointsEarned: 0 
+      } 
+    };
+
+    try {
+      // Get recent activities
+      recentActivities = await prisma.userActivity.findMany({
+        where: { userId: user.id },
+        orderBy: { timestamp: 'desc' },
+        take: 10,
+        select: {
+          id: true,
+          type: true,
+          description: true,
+          timestamp: true,
+          metadata: true
+        }
+      });
+
+      console.log('Raw recent activities:', recentActivities.map(a => ({
+        id: a.id,
+        type: a.type,
+        description: a.description,
+        metadata: a.metadata
+      })));
+
+      console.log('Recent activities data:', {
+        count: recentActivities.length,
+        activities: recentActivities.map(a => ({ 
+          id: a.id, 
+          type: a.type, 
+          description: a.description, 
+          timestamp: a.timestamp 
+        }))
+      });
+
+      // Get session statistics
+      const sessionResult = await prisma.userSession.aggregate({
+        where: { 
+          userId: user.id,
+          duration: { not: null }
+        },
+        _sum: {
+          duration: true
+        }
+      });
+      
+      sessionStats = { _sum: { duration: sessionResult._sum.duration || 0 } };
+      
+      console.log('Study time data:', {
+        totalDuration: sessionResult._sum.duration,
+        studyTimeHours: Math.floor((sessionResult._sum.duration || 0) / 3600),
+        sessions: await prisma.userSession.count({ where: { userId: user.id } })
+      });
+
+      // Get weekly statistics
+      const weekStart = new Date();
+      weekStart.setDate(weekStart.getDate() - 7);
+      
+      weeklyStats = await prisma.userActivity.aggregate({
+        where: {
+          userId: user.id,
+          timestamp: { gte: weekStart }
+        },
+        _sum: {
+          lessonsViewed: true,
+          exercisesSolved: true,
+          studyTime: true,
+          pointsEarned: true
+        }
+      });
+
+      // Get login streak
+      const dailyActivities = await prisma.dailyActivity.findMany({
+        where: { userId: user.id },
+        orderBy: { date: 'desc' },
+        take: 30
+      });
+
+      loginStreak = 0;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      for (let i = 0; i < dailyActivities.length; i++) {
+        const activityDate = new Date(dailyActivities[i].date);
+        activityDate.setHours(0, 0, 0, 0);
+        
+        const expectedDate = new Date(today);
+        expectedDate.setDate(today.getDate() - i);
+        
+        if (activityDate.getTime() === expectedDate.getTime()) {
+          loginStreak++;
+        } else {
+          break;
+        }
+      }
+
+    } catch (error: any) {
+      console.log("Activity tracking tables not available");
+      recentActivities = [];
+      sessionStats = { _sum: { duration: 0 } };
+      weeklyStats = { _sum: { lessonsViewed: 0, exercisesSolved: 0, studyTime: 0, pointsEarned: 0 } };
+      loginStreak = 0;
+    }
+
+    // Calculate completed languages (100% completed) and language progress
     let completedLanguages = 0;
     let completedLanguagesList: string[] = [];
+    let languageProgress: any = {};
     
     try {
       if (user.visitedLessons && typeof user.visitedLessons === 'object') {
@@ -250,14 +366,51 @@ export async function GET(request: NextRequest) {
           return languageMap[language] || language;
         };
 
-        // Check each language for 100% completion
+        // Calculate progress for each language
         Object.keys(visitedData).forEach(language => {
           const lessons = visitedData[language];
           const totalForLanguage = languageLessonCounts[language] || 0;
           
-          if (Array.isArray(lessons) && lessons.length >= totalForLanguage && totalForLanguage > 0) {
-            completedLanguages++;
-            completedLanguagesList.push(formatLanguageName(language));
+          if (Array.isArray(lessons)) {
+            const completedLessons = lessons.length;
+            const progress = totalForLanguage > 0 ? Math.round((completedLessons / totalForLanguage) * 100) : 0;
+            
+            // Find the most recent lesson date
+            let lastStudied = null;
+            if (lessons.length > 0) {
+              // Find the most recent activity for this language from recentActivities
+              const languageActivities = recentActivities.filter((activity: any) => 
+                activity.metadata?.language === language && activity.type === 'LESSON_VIEW'
+              );
+              
+              if (languageActivities.length > 0) {
+                // Sort by timestamp and get the most recent
+                const sortedActivities = languageActivities.sort((a: any, b: any) => 
+                  new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+                );
+                lastStudied = sortedActivities[0].timestamp;
+              } else {
+                // Fallback: use a date based on lesson count (more recent for more lessons)
+                const now = new Date();
+                const daysAgo = Math.max(1, 10 - lessons.length); // More lessons = more recent
+                const recentDate = new Date(now.getTime() - (daysAgo * 24 * 60 * 60 * 1000));
+                lastStudied = recentDate.toISOString();
+              }
+            }
+            
+            languageProgress[language] = {
+              displayName: formatLanguageName(language),
+              lessons: completedLessons,
+              totalLessons: totalForLanguage,
+              progress: progress,
+              lastStudied: lastStudied
+            };
+            
+            // Check for 100% completion
+            if (completedLessons >= totalForLanguage && totalForLanguage > 0) {
+              completedLanguages++;
+              completedLanguagesList.push(formatLanguageName(language));
+            }
           }
         });
       }
@@ -265,6 +418,7 @@ export async function GET(request: NextRequest) {
       console.log("Error calculating completed languages:", error.message);
       completedLanguages = 0;
       completedLanguagesList = [];
+      languageProgress = {};
     }
 
     // Get achievements from database
@@ -287,19 +441,7 @@ export async function GET(request: NextRequest) {
       achievements = [];
     }
 
-    // Get activity tracking data
-    let recentActivities: any[] = [];
-    let sessionStats = { _sum: { duration: 0 } };
-    let todayActivity = null;
-    let loginStreak = 0;
-    let weeklyStats = { 
-      _sum: { 
-        lessonsViewed: 0, 
-        exercisesSolved: 0, 
-        studyTime: 0, 
-        pointsEarned: 0 
-      } 
-    };
+    // Activity tracking data is already fetched above
 
     try {
       // Get recent activities
@@ -617,6 +759,7 @@ export async function GET(request: NextRequest) {
       completionRate,
       completedLanguages,
       completedLanguagesList,
+      languageProgress,
       studyTimeHours: studyTimeHoursSimple, // Keep old format for compatibility
       formattedStudyTime, // New formatted time
       rank,

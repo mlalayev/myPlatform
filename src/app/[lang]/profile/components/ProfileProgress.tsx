@@ -8,6 +8,30 @@ import {
   FiCpu,
   FiHash,
 } from "react-icons/fi";
+import {
+  SiJavascript,
+  SiPython,
+  SiCplusplus,
+  SiC,
+  SiSharp,
+  SiTypescript,
+  SiPhp,
+  SiGo,
+  SiRust,
+  SiSwift,
+  SiKotlin,
+  SiRuby,
+  SiR,
+  SiMysql,
+  SiDart,
+  SiHaskell,
+  SiScala
+} from "react-icons/si";
+import {
+  FaJava,
+  FaTerminal,
+  FaCalculator
+} from "react-icons/fa";
 import progressStyles from "../ProfileProgress.module.css";
 
 interface ProfileProgressProps {
@@ -49,48 +73,88 @@ export default function ProfileProgress({
   const currentLevelXP = totalXP % 1000;
   const levelProgress = (currentLevelXP / 1000) * 100;
 
-  const skills = [
-    {
-      name: "JavaScript",
-      level: "Intermediate",
-      progress: Math.min(((userStats?.completedLessons || 0) / 20) * 100, 100),
-      xp: (userStats?.completedLessons || 0) * 50,
-      icon: <FiCode />,
-      lessons: Math.min(userStats?.completedLessons || 0, 15),
-      exercises: Math.min(userStats?.solvedExercises || 0, 10),
-      className: "javascript"
-    },
-    {
-      name: "Python",
-      level: "Beginner",
-      progress: Math.min(((userStats?.completedLessons || 0) / 30) * 100, 100),
-      xp: (userStats?.completedLessons || 0) * 35,
-      icon: <FiDatabase />,
-      lessons: Math.max(0, (userStats?.completedLessons || 0) - 10),
-      exercises: Math.max(0, (userStats?.solvedExercises || 0) - 5),
-      className: "python"
-    },
-    {
-      name: "C++",
-      level: "Advanced",
-      progress: Math.min(((userStats?.solvedExercises || 0) / 15) * 100, 100),
-      xp: (userStats?.solvedExercises || 0) * 75,
-      icon: <FiCpu />,
-      lessons: Math.max(0, (userStats?.completedLessons || 0) - 5),
-      exercises: Math.max(0, (userStats?.solvedExercises || 0) - 8),
-      className: "cpp"
-    },
-    {
-      name: "Algorithms",
-      level: "Expert",
-      progress: Math.min(((userStats?.solvedExercises || 0) / 25) * 100, 100),
-      xp: (userStats?.solvedExercises || 0) * 100,
-      icon: <FiHash />,
-      lessons: Math.max(0, (userStats?.completedLessons || 0) - 8),
-      exercises: userStats?.solvedExercises || 0,
-      className: "algorithms"
+  // Helper function to get language icon
+  const getLanguageIcon = (language: string) => {
+    const iconMap: { [key: string]: React.ReactNode } = {
+      'javascript': <SiJavascript />,
+      'python': <SiPython />,
+      'c++': <SiCplusplus />,
+      'c': <SiC />,
+      'java': <FaJava />, // Using FaJava for Java
+      'csharp': <SiSharp />,
+      'typescript': <SiTypescript />,
+      'php': <SiPhp />,
+      'go': <SiGo />,
+      'rust': <SiRust />,
+      'swift': <SiSwift />,
+      'kotlin': <SiKotlin />,
+      'ruby': <SiRuby />,
+      'r': <SiR />,
+      'sql': <SiMysql />,
+      'dart': <SiDart />,
+      'haskell': <SiHaskell />,
+      'scala': <SiScala />,
+      'bash': <FaTerminal />, // Using FaTerminal for Bash
+      'matlab': <FaCalculator />, // Using FaCalculator for MATLAB
+      'algorithms': <FiHash />, // Using FiHash for algorithms
+      'data-structures': <FiDatabase /> // Using FiDatabase for data structures
+    };
+    return iconMap[language.toLowerCase()] || <FiCode />;
+  };
+
+  // Helper function to get skill level
+  const getSkillLevel = (progress: number): string => {
+    if (progress >= 80) return "Expert";
+    if (progress >= 60) return "Advanced";
+    if (progress >= 40) return "Intermediate";
+    if (progress >= 20) return "Beginner";
+    return "Novice";
+  };
+
+  // Helper function to get skill class name
+  const getSkillClassName = (language: string): string => {
+    return language.toLowerCase().replace(/[^a-z0-9]/g, '');
+  };
+
+  // Generate dynamic skills from userStats.languageProgress
+  const generateSkills = () => {
+    if (!userStats?.languageProgress || Object.keys(userStats.languageProgress).length === 0) {
+      return [];
     }
-  ];
+
+    const skills = Object.entries(userStats.languageProgress)
+      .map(([language, data]: [string, any]) => {
+        const progress = data.progress || 0;
+        const lessons = data.lessons || 0;
+        const totalLessons = data.totalLessons || 1;
+        const lastStudied = data.lastStudied ? new Date(data.lastStudied) : null;
+        
+        return {
+          name: data.displayName || language,
+          level: getSkillLevel(progress),
+          progress: progress,
+          xp: lessons * 50,
+          icon: getLanguageIcon(language),
+          lessons: lessons,
+          totalLessons: totalLessons,
+          lastStudied: lastStudied,
+          className: getSkillClassName(language)
+        };
+      })
+      .sort((a, b) => {
+        // Sort by last studied date (most recent first)
+        if (a.lastStudied && b.lastStudied) {
+          return b.lastStudied.getTime() - a.lastStudied.getTime();
+        }
+        // If no lastStudied, sort by progress
+        return b.progress - a.progress;
+      })
+      .slice(0, 4); // Take only the last 4 languages
+
+    return skills;
+  };
+
+  const skills = generateSkills();
 
   // Generate streak days (last 28 days)
   const today = new Date();
@@ -216,56 +280,65 @@ export default function ProfileProgress({
         <div className={progressStyles.skillsHeader}>
           <h3 className={progressStyles.skillsTitle}>Skill Progression</h3>
         </div>
-        <div className={progressStyles.skillsGrid}>
-          {skills.map((skill, index) => (
-            <div key={index} className={progressStyles.skillCard}>
-              <div className={progressStyles.skillHeader}>
-                <div className={progressStyles.skillInfo}>
-                  <div className={progressStyles.skillIcon}>
+        {skills.length > 0 ? (
+          <div className={progressStyles.skillsGrid}>
+            {skills.map((skill, index) => (
+              <div key={index} className={progressStyles.skillCard}>
+                <div className={progressStyles.skillHeader}>
+                                  <div className={progressStyles.skillInfo}>
+                  <div 
+                    className={progressStyles.skillIcon}
+                    data-language={skill.className}
+                  >
                     {skill.icon}
                   </div>
-                  <div>
-                    <h4 className={progressStyles.skillName}>{skill.name}</h4>
-                    <p className={progressStyles.skillLevel}>{skill.level}</p>
+                    <div>
+                      <h4 className={progressStyles.skillName}>{skill.name}</h4>
+                      <p className={progressStyles.skillLevel}>{skill.level}</p>
+                    </div>
                   </div>
-                </div>
-                <div className={progressStyles.skillBadge}>
-                  {Math.round(skill.progress)}%
-                </div>
-              </div>
-              <div className={progressStyles.skillProgress}>
-                <div className={progressStyles.skillProgressBar}>
-                  <div 
-                    className={`${progressStyles.skillProgressFill} ${progressStyles[skill.className]}`}
-                    style={{ width: `${skill.progress}%` }}
-                  ></div>
-                </div>
-                <div className={progressStyles.skillProgressText}>
-                  <span className={progressStyles.skillPercent}>
+                  <div className={progressStyles.skillBadge}>
                     {Math.round(skill.progress)}%
-                  </span>
-                  <span className={progressStyles.skillXp}>
-                    {skill.xp} XP
-                  </span>
+                  </div>
+                </div>
+                <div className={progressStyles.skillProgress}>
+                  <div className={progressStyles.skillProgressBar}>
+                    <div 
+                      className={`${progressStyles.skillProgressFill} ${progressStyles[skill.className]}`}
+                      style={{ width: `${skill.progress}%` }}
+                    ></div>
+                  </div>
+                  <div className={progressStyles.skillProgressText}>
+                    <span className={progressStyles.skillPercent}>
+                      {Math.round(skill.progress)}%
+                    </span>
+                    <span className={progressStyles.skillXp}>
+                      {skill.xp} XP
+                    </span>
+                  </div>
+                </div>
+                <div className={progressStyles.skillStats}>
+                  <div className={progressStyles.skillStatItem}>
+                    <div className={progressStyles.skillStatNumber}>
+                      {skill.lessons}/{skill.totalLessons}
+                    </div>
+                    <div className={progressStyles.skillStatLabel}>Lessons</div>
+                  </div>
+                  <div className={progressStyles.skillStatItem}>
+                    <div className={progressStyles.skillStatNumber}>
+                      {skill.lastStudied ? skill.lastStudied.toLocaleDateString() : 'Never'}
+                    </div>
+                    <div className={progressStyles.skillStatLabel}>Last Studied</div>
+                  </div>
                 </div>
               </div>
-              <div className={progressStyles.skillStats}>
-                <div className={progressStyles.skillStatItem}>
-                  <div className={progressStyles.skillStatNumber}>
-                    {skill.lessons}
-                  </div>
-                  <div className={progressStyles.skillStatLabel}>Lessons</div>
-                </div>
-                <div className={progressStyles.skillStatItem}>
-                  <div className={progressStyles.skillStatNumber}>
-                    {skill.exercises}
-                  </div>
-                  <div className={progressStyles.skillStatLabel}>Exercises</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className={progressStyles.noSkills}>
+            <p>No programming languages studied yet. Start your learning journey!</p>
+          </div>
+        )}
       </div>
 
       {/* Recent Achievements Preview */}
