@@ -297,6 +297,30 @@ export async function GET(request: NextRequest) {
       loginStreak = 0;
     }
 
+    // Get recent activities for last studied calculation
+    let recentActivitiesForLanguages: any[] = [];
+    try {
+      recentActivitiesForLanguages = await prisma.userActivity.findMany({
+        where: { 
+          userId: user.id,
+          type: 'LESSON_VIEW'
+        },
+        orderBy: { timestamp: 'desc' },
+        take: 50,
+        select: {
+          id: true,
+          type: true,
+          description: true,
+          timestamp: true,
+          metadata: true
+        }
+      });
+      console.log('Recent activities for languages:', recentActivitiesForLanguages.length);
+    } catch (error: any) {
+      console.log("Could not fetch recent activities for languages:", error.message);
+      recentActivitiesForLanguages = [];
+    }
+
     // Calculate completed languages (100% completed) and language progress
     let completedLanguages = 0;
     let completedLanguagesList: string[] = [];
@@ -378,10 +402,12 @@ export async function GET(request: NextRequest) {
             // Find the most recent lesson date
             let lastStudied = null;
             if (lessons.length > 0) {
-              // Find the most recent activity for this language from recentActivities
-              const languageActivities = recentActivities.filter((activity: any) => 
-                activity.metadata?.language === language && activity.type === 'LESSON_VIEW'
+              // Find the most recent activity for this language from recentActivitiesForLanguages
+              const languageActivities = recentActivitiesForLanguages.filter((activity: any) => 
+                activity.metadata?.language === language
               );
+              
+              console.log(`Language ${language} activities:`, languageActivities);
               
               if (languageActivities.length > 0) {
                 // Sort by timestamp and get the most recent
@@ -389,12 +415,14 @@ export async function GET(request: NextRequest) {
                   new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
                 );
                 lastStudied = sortedActivities[0].timestamp;
+                console.log(`Language ${language} last studied:`, lastStudied);
               } else {
                 // Fallback: use a date based on lesson count (more recent for more lessons)
                 const now = new Date();
                 const daysAgo = Math.max(1, 10 - lessons.length); // More lessons = more recent
                 const recentDate = new Date(now.getTime() - (daysAgo * 24 * 60 * 60 * 1000));
                 lastStudied = recentDate.toISOString();
+                console.log(`Language ${language} fallback last studied:`, lastStudied);
               }
             }
             
