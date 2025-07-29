@@ -7,31 +7,24 @@ import {
   FiDatabase,
   FiCpu,
   FiHash,
+  FiBookOpen,
 } from "react-icons/fi";
-import {
-  SiJavascript,
-  SiPython,
-  SiCplusplus,
-  SiC,
-  SiSharp,
-  SiTypescript,
+import { 
+  SiJavascript, 
+  SiPython, 
+  SiOpenjdk, 
+  SiC, 
+  SiCplusplus, 
+  SiTypescript, 
   SiPhp,
   SiGo,
   SiRust,
   SiSwift,
   SiKotlin,
   SiRuby,
-  SiR,
-  SiMysql,
-  SiDart,
-  SiHaskell,
-  SiScala
+  SiR
 } from "react-icons/si";
-import {
-  FaJava,
-  FaTerminal,
-  FaCalculator
-} from "react-icons/fa";
+import * as FiIcons from "react-icons/fi";
 import progressStyles from "../ProfileProgress.module.css";
 
 interface ProfileProgressProps {
@@ -73,33 +66,48 @@ export default function ProfileProgress({
   const currentLevelXP = totalXP % 1000;
   const levelProgress = (currentLevelXP / 1000) * 100;
 
-  // Helper function to get language icon
+  // Helper function to get language icon (same as ProfileOverview)
   const getLanguageIcon = (language: string) => {
-    const iconMap: { [key: string]: React.ReactNode } = {
-      'javascript': <SiJavascript />,
-      'python': <SiPython />,
-      'c++': <SiCplusplus />,
-      'c': <SiC />,
-      'java': <FaJava />, // Using FaJava for Java
-      'csharp': <SiSharp />,
-      'typescript': <SiTypescript />,
-      'php': <SiPhp />,
-      'go': <SiGo />,
-      'rust': <SiRust />,
-      'swift': <SiSwift />,
-      'kotlin': <SiKotlin />,
-      'ruby': <SiRuby />,
-      'r': <SiR />,
-      'sql': <SiMysql />,
-      'dart': <SiDart />,
-      'haskell': <SiHaskell />,
-      'scala': <SiScala />,
-      'bash': <FaTerminal />, // Using FaTerminal for Bash
-      'matlab': <FaCalculator />, // Using FaCalculator for MATLAB
-      'algorithms': <FiHash />, // Using FiHash for algorithms
-      'data-structures': <FiDatabase /> // Using FiDatabase for data structures
-    };
-    return iconMap[language.toLowerCase()] || <FiCode />;
+    switch (language?.toLowerCase()) {
+      case 'javascript':
+        return <SiJavascript size={20} color="#f7df1e" />;
+      case 'python':
+        return <SiPython size={20} color="#3572A5" />;
+      case 'java':
+        return <SiOpenjdk size={20} color="#b07219" />;
+      case 'c':
+        return <SiC size={20} color="#00599C" />;
+      case 'c++':
+      case 'cpp':
+      case 'c%2b%2b':
+        return <SiCplusplus size={20} color="#00599C" />;
+      case 'c#':
+      case 'csharp':
+        return <FiIcons.FiHash size={20} color="#178600" />;
+      case 'typescript':
+        return <SiTypescript size={20} color="#3178c6" />;
+      case 'php':
+        return <SiPhp size={20} color="#777bb4" />;
+      case 'go':
+      case 'golang':
+        return <SiGo size={20} color="#00ADD8" />;
+      case 'rust':
+        return <SiRust size={20} color="#dea584" />;
+      case 'swift':
+        return <SiSwift size={20} color="#ffac45" />;
+      case 'kotlin':
+        return <SiKotlin size={20} color="#7f52ff" />;
+      case 'ruby':
+        return <SiRuby size={20} color="#cc342d" />;
+      case 'r':
+        return <SiR size={20} color="#276dc3" />;
+      case 'algorithms':
+        return <FiCode size={20} color="#667eea" />;
+      case 'data-structures':
+        return <FiCode size={20} color="#48bb78" />;
+      default:
+        return <FiBookOpen size={20} color="#667eea" />;
+    }
   };
 
   // Helper function to get skill level
@@ -113,7 +121,18 @@ export default function ProfileProgress({
 
   // Helper function to get skill class name
   const getSkillClassName = (language: string): string => {
+    // Special handling for C++ to preserve the plus signs
+    if (language.toLowerCase() === 'c++' || language.toLowerCase() === 'c%2b%2b') {
+      return 'cpp';
+    }
     return language.toLowerCase().replace(/[^a-z0-9]/g, '');
+  };
+
+  // Helper function to get language icon with debug
+  const getLanguageIconWithDebug = (language: string) => {
+    const icon = getLanguageIcon(language);
+    console.log(`Language: ${language}, Icon found:`, icon ? 'Yes' : 'No');
+    return icon;
   };
 
   // Generate dynamic skills from userStats.languageProgress
@@ -129,12 +148,13 @@ export default function ProfileProgress({
         const totalLessons = data.totalLessons || 1;
         const lastStudied = data.lastStudied ? new Date(data.lastStudied) : null;
         
+        console.log(`Processing language: ${language}, className: ${getSkillClassName(language)}`);
         return {
           name: data.displayName || language,
           level: getSkillLevel(progress),
           progress: progress,
           xp: lessons * 50,
-          icon: getLanguageIcon(language),
+          icon: getLanguageIconWithDebug(language),
           lessons: lessons,
           totalLessons: totalLessons,
           lastStudied: lastStudied,
