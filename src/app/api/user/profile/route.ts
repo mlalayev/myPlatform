@@ -180,6 +180,7 @@ export async function GET(request: NextRequest) {
     let sessionStats = { _sum: { duration: 0 } };
     let todayActivity = null;
     let loginStreak = 0;
+    let longestStreak = 0;
     let weeklyStats = { 
       _sum: { 
         lessonsViewed: 0, 
@@ -260,14 +261,16 @@ export async function GET(request: NextRequest) {
         }
       };
 
-      // Get login streak
+      // Calculate study streak (consecutive days with study activity)
       const dailyActivities = await prisma.dailyActivity.findMany({
         where: { userId: user.id },
         orderBy: { date: 'desc' },
-        take: 30
+        take: 60 // Get more days to calculate longest streak
       });
 
+      // Calculate current streak
       loginStreak = 0;
+      let longestStreak = 0;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -279,9 +282,34 @@ export async function GET(request: NextRequest) {
         expectedDate.setDate(today.getDate() - i);
         
         if (activityDate.getTime() === expectedDate.getTime()) {
-          loginStreak++;
+          // Check if there was study activity on this day
+          const hasStudyActivity = dailyActivities[i].lessonsViewed > 0 || 
+                                  dailyActivities[i].exercisesSolved > 0 || 
+                                  dailyActivities[i].quizzesTaken > 0;
+          
+          if (hasStudyActivity) {
+            loginStreak++;
+          } else {
+            break; // Break streak if no study activity
+          }
         } else {
           break;
+        }
+      }
+
+      // Calculate longest streak
+      let currentStreak = 0;
+      
+      for (let i = 0; i < dailyActivities.length; i++) {
+        const hasStudyActivity = dailyActivities[i].lessonsViewed > 0 || 
+                                dailyActivities[i].exercisesSolved > 0 || 
+                                dailyActivities[i].quizzesTaken > 0;
+        
+        if (hasStudyActivity) {
+          currentStreak++;
+          longestStreak = Math.max(longestStreak, currentStreak);
+        } else {
+          currentStreak = 0;
         }
       }
 
@@ -291,6 +319,7 @@ export async function GET(request: NextRequest) {
       sessionStats = { _sum: { duration: 0 } };
       weeklyStats = { _sum: { lessonsViewed: 0, exercisesSolved: 0, studyTime: 0, pointsEarned: 0 } };
       loginStreak = 0;
+      longestStreak = 0;
     }
 
     // Get recent activities for last studied calculation
@@ -358,12 +387,15 @@ export async function GET(request: NextRequest) {
           return languageMap[language] || language;
         };
 
-        // Helper function to format date as "31 iyun"
+        // Helper function to format date as "31 iyun" using Azerbaijan timezone
         const formatDateAsText = (dateString: string): string => {
           try {
             const date = new Date(dateString);
-            const day = date.getDate();
-            const month = date.getMonth();
+            
+            // Convert to Azerbaijan timezone (UTC+4)
+            const azerbaijanTime = new Date(date.getTime() + (4 * 60 * 60 * 1000));
+            const day = azerbaijanTime.getUTCDate();
+            const month = azerbaijanTime.getUTCMonth();
             
             const monthNames = [
               'yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun',
@@ -451,11 +483,11 @@ export async function GET(request: NextRequest) {
                 lastStudiedFormatted = formatDateAsText(lastStudied);
                 console.log(`Language ${language} last studied:`, lastStudied);
               } else {
-                // Fallback: use a date based on lesson count (more recent for more lessons)
+                // Fallback: use current date in Azerbaijan timezone
                 const now = new Date();
-                const daysAgo = Math.max(1, 10 - lessons.length); // More lessons = more recent
-                const recentDate = new Date(now.getTime() - (daysAgo * 24 * 60 * 60 * 1000));
-                lastStudied = recentDate.toISOString();
+                // Convert to Azerbaijan timezone (UTC+4)
+                const azerbaijanNow = new Date(now.getTime() + (4 * 60 * 60 * 1000));
+                lastStudied = azerbaijanNow.toISOString();
                 lastStudiedFormatted = formatDateAsText(lastStudied);
                 console.log(`Language ${language} fallback last studied:`, lastStudied);
               }
@@ -812,7 +844,8 @@ export async function GET(request: NextRequest) {
       // Coin system
       dailyLoginPoints: user.dailyLoginPoints || 0,
       todayCoins,
-      loginStreak, // This is the calculated streak from daily activity
+      loginStreak, // This is the calculated current streak from daily activity
+      longestStreak, // Longest consecutive study streak
       
       // Learning stats
       totalLessons,
@@ -852,7 +885,10 @@ export async function GET(request: NextRequest) {
         thisWeekStudyTime: weeklyStats._sum.studyTime || 0, // Keep in seconds for proper formatting
         thisWeekStudyTimeFormatted: formatStudyTime(weeklyStats._sum.studyTime || 0), // Pre-formatted
         dailyActivities: await getDailyActivities(user.id, 7) // Last 7 days
-      }
+      },
+
+      // Streak data for the last 28 days
+      streakData: await getStreakData(user.id)
     };
 
     console.log('Profile API response:', {
@@ -997,5 +1033,56 @@ async function getDailyActivities(userId: number, days: number) {
       pointsEarned: Math.floor(Math.random() * 50)
       };
     });
+  }
+}
+
+// Helper function to get streak data for the last 28 days
+async function getStreakData(userId: number) {
+  try {
+    // Get daily activities for the last 28 days
+    const twentyEightDaysAgo = new Date();
+    twentyEightDaysAgo.setDate(twentyEightDaysAgo.getDate() - 28);
+    twentyEightDaysAgo.setHours(0, 0, 0, 0);
+
+    const dailyActivities = await prisma.dailyActivity.findMany({
+      where: {
+        userId,
+        date: { gte: twentyEightDaysAgo }
+      },
+      orderBy: { date: 'asc' }
+    });
+
+    // Calculate streak data
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const streakDays = Array.from({ length: 28 }, (_, i) => {
+      const date = new Date(today);
+      date.setDate(date.getDate() - (27 - i));
+      date.setHours(0, 0, 0, 0);
+      
+      const dayActivity = dailyActivities.find(activity => {
+        const activityDate = new Date(activity.date);
+        activityDate.setHours(0, 0, 0, 0);
+        return activityDate.getTime() === date.getTime();
+      });
+      
+      const isActive = dayActivity && (dayActivity.lessonsViewed > 0 || dayActivity.exercisesSolved > 0 || dayActivity.quizzesTaken > 0);
+      const isToday = i === 27;
+      
+      return { 
+        date: date.toISOString(), 
+        isActive, 
+        isToday,
+        lessonsViewed: dayActivity?.lessonsViewed || 0,
+        exercisesSolved: dayActivity?.exercisesSolved || 0,
+        quizzesTaken: dayActivity?.quizzesTaken || 0
+      };
+    });
+
+    return streakDays;
+  } catch (error) {
+    console.error("Error getting streak data:", error);
+    return [];
   }
 } 

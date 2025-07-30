@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   FiTrendingUp,
   FiCode,
@@ -207,15 +207,8 @@ export default function ProfileProgress({
 
   const skills = generateSkills();
 
-  // Generate streak days (last 28 days)
-  const today = new Date();
-  const streakDays = Array.from({ length: 28 }, (_, i) => {
-    const date = new Date(today);
-    date.setDate(date.getDate() - (27 - i));
-    const isActive = Math.random() > 0.3; // Random activity for demo
-    const isToday = i === 27;
-    return { date, isActive, isToday };
-  });
+  // Use streak data from userStats
+  const streakDays = userStats?.streakData || [];
 
   return (
     <div className={progressStyles.progressContainer}>
@@ -294,15 +287,26 @@ export default function ProfileProgress({
           </h3>
           <div className={progressStyles.streakContent}>
             <div className={progressStyles.streakGrid}>
-              {streakDays.map((day, index) => (
-                <div
-                  key={index}
-                  className={`${progressStyles.streakDay} ${
-                    day.isActive ? progressStyles.active : ''
-                  } ${day.isToday ? progressStyles.today : ''}`}
-                  title={day.date.toLocaleDateString()}
-                ></div>
-              ))}
+              {streakDays.length > 0 ? (
+                streakDays.map((day: any, index: number) => (
+                  <div
+                    key={index}
+                    className={`${progressStyles.streakDay} ${
+                      day.isActive ? progressStyles.active : ''
+                    } ${day.isToday ? progressStyles.today : ''}`}
+                    title={new Date(day.date).toLocaleDateString()}
+                  ></div>
+                ))
+              ) : (
+                // Show placeholder when no streak data is available
+                Array.from({ length: 28 }, (_, i) => (
+                  <div
+                    key={i}
+                    className={progressStyles.streakDay}
+                    title={`Day ${i + 1}`}
+                  ></div>
+                ))
+              )}
             </div>
             <div className={progressStyles.streakStats}>
               <div className={progressStyles.streakStat}>
@@ -311,12 +315,12 @@ export default function ProfileProgress({
                   {userStats?.loginStreak || 0} days
                 </span>
               </div>
-              <div className={progressStyles.streakStat}>
-                <span className={progressStyles.streakStatLabel}>Longest Streak</span>
-                <span className={progressStyles.streakStatValue}>
-                  {Math.max(userStats?.loginStreak || 0, 12)} days
-                </span>
-              </div>
+                          <div className={progressStyles.streakStat}>
+              <span className={progressStyles.streakStatLabel}>Longest Streak</span>
+              <span className={progressStyles.streakStatValue}>
+                {(userStats?.longestStreak || 0) > 0 ? userStats.longestStreak : userStats?.loginStreak || 0} days
+              </span>
+            </div>
               <div className={progressStyles.streakStat}>
                 <span className={progressStyles.streakStatLabel}>This Week</span>
                 <span className={progressStyles.streakStatValue}>
