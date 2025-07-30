@@ -135,6 +135,36 @@ export default function ProfileProgress({
     return icon;
   };
 
+  // Helper function to get achievement icon based on name
+  const getAchievementIcon = (achievementName: string): string => {
+    const iconMap: { [key: string]: string } = {
+      'Learning Legend': '🏆',
+      'Knowledge Seeker': '📚',
+      'Polyglot': '🌍',
+      'Completionist': '✅',
+      'Problem Solver': '🎯',
+      'Code Ninja': '⚡',
+      'Algorithm Master': '🧮',
+      'Speed Demon': '🏃',
+      'Perfect Score': '💯',
+      'Daily Learner': '📅',
+      'Week Warrior': '🔥',
+      'Month Master': '📊',
+      'Study Enthusiast': '📖',
+      'Dedicated Learner': '🎓',
+      'Early Bird': '🌅',
+      'Bookmark Collector': '🔖',
+      'Feedback Provider': '💬',
+      'Community Ambassador': '🤝',
+      'Night Owl': '🦉',
+      'Weekend Warrior': '🎉',
+      'Multitasker': '⚙️',
+      'Persistent': '💪'
+    };
+    
+    return iconMap[achievementName] || '🏅'; // Default icon
+  };
+
   // Generate dynamic skills from userStats.languageProgress
   const generateSkills = () => {
     if (!userStats?.languageProgress || Object.keys(userStats.languageProgress).length === 0) {
@@ -262,35 +292,37 @@ export default function ProfileProgress({
             <FiTrendingUp className={progressStyles.streakIcon} />
             Study Streak
           </h3>
-          <div className={progressStyles.streakGrid}>
-            {streakDays.map((day, index) => (
-              <div
-                key={index}
-                className={`${progressStyles.streakDay} ${
-                  day.isActive ? progressStyles.active : ''
-                } ${day.isToday ? progressStyles.today : ''}`}
-                title={day.date.toLocaleDateString()}
-              ></div>
-            ))}
-          </div>
-          <div className={progressStyles.streakStats}>
-            <div className={progressStyles.streakStat}>
-              <span className={progressStyles.streakStatLabel}>Current Streak</span>
-              <span className={progressStyles.streakStatValue}>
-                {userStats?.loginStreak || 0} days
-              </span>
+          <div className={progressStyles.streakContent}>
+            <div className={progressStyles.streakGrid}>
+              {streakDays.map((day, index) => (
+                <div
+                  key={index}
+                  className={`${progressStyles.streakDay} ${
+                    day.isActive ? progressStyles.active : ''
+                  } ${day.isToday ? progressStyles.today : ''}`}
+                  title={day.date.toLocaleDateString()}
+                ></div>
+              ))}
             </div>
-            <div className={progressStyles.streakStat}>
-              <span className={progressStyles.streakStatLabel}>Longest Streak</span>
-              <span className={progressStyles.streakStatValue}>
-                {Math.max(userStats?.loginStreak || 0, 12)} days
-              </span>
-            </div>
-            <div className={progressStyles.streakStat}>
-              <span className={progressStyles.streakStatLabel}>This Week</span>
-              <span className={progressStyles.streakStatValue}>
-                {userStats?.weeklyProgress?.lessonsThisWeek || 0} lessons
-              </span>
+            <div className={progressStyles.streakStats}>
+              <div className={progressStyles.streakStat}>
+                <span className={progressStyles.streakStatLabel}>Current Streak</span>
+                <span className={progressStyles.streakStatValue}>
+                  {userStats?.loginStreak || 0} days
+                </span>
+              </div>
+              <div className={progressStyles.streakStat}>
+                <span className={progressStyles.streakStatLabel}>Longest Streak</span>
+                <span className={progressStyles.streakStatValue}>
+                  {Math.max(userStats?.loginStreak || 0, 12)} days
+                </span>
+              </div>
+              <div className={progressStyles.streakStat}>
+                <span className={progressStyles.streakStatLabel}>This Week</span>
+                <span className={progressStyles.streakStatValue}>
+                  {userStats?.weeklyProgress?.lessonsThisWeek || 0} lessons
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -376,30 +408,30 @@ export default function ProfileProgress({
           </button>
         </div>
         <div className={progressStyles.recentAchievements}>
-          <div className={`${progressStyles.miniAchievement} ${progressStyles.gold}`}>
-            <div className={progressStyles.miniAchievementIcon}>🏆</div>
-            <div className={progressStyles.miniAchievementName}>
-              Learning Legend
+          {userStats?.achievements && userStats.achievements.length > 0 ? (
+            userStats.achievements
+              .filter((achievement: any) => achievement.unlockedAt) // Only show unlocked achievements
+              .sort((a: any, b: any) => new Date(b.unlockedAt).getTime() - new Date(a.unlockedAt).getTime()) // Sort by most recent
+              .slice(0, 4) // Take only the 4 most recent
+              .map((achievement: any, index: number) => (
+                <div 
+                  key={achievement.id} 
+                  className={`${progressStyles.miniAchievement} ${progressStyles[achievement.rarity?.toLowerCase() || 'common']}`}
+                >
+                  <div className={progressStyles.miniAchievementIcon}>
+                    {achievement.icon || getAchievementIcon(achievement.name)}
+                  </div>
+                  <div className={progressStyles.miniAchievementName}>
+                    {achievement.name}
+                  </div>
+                </div>
+              ))
+          ) : (
+            // Show placeholder when no achievements
+            <div className={progressStyles.noAchievements}>
+              <p>No achievements earned yet. Keep learning to unlock achievements!</p>
             </div>
-          </div>
-          <div className={`${progressStyles.miniAchievement} ${progressStyles.silver}`}>
-            <div className={progressStyles.miniAchievementIcon}>⚡</div>
-            <div className={progressStyles.miniAchievementName}>
-              Code Ninja
-            </div>
-          </div>
-          <div className={`${progressStyles.miniAchievement} ${progressStyles.bronze}`}>
-            <div className={progressStyles.miniAchievementIcon}>🎯</div>
-            <div className={progressStyles.miniAchievementName}>
-              Problem Solver
-            </div>
-          </div>
-          <div className={`${progressStyles.miniAchievement} ${progressStyles.gold}`}>
-            <div className={progressStyles.miniAchievementIcon}>🔥</div>
-            <div className={progressStyles.miniAchievementName}>
-              Week Warrior
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
