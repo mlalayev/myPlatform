@@ -318,7 +318,7 @@ export default function ProfileProgress({
                           <div className={progressStyles.streakStat}>
               <span className={progressStyles.streakStatLabel}>Longest Streak</span>
               <span className={progressStyles.streakStatValue}>
-                {(userStats?.longestStreak || 0) > 0 ? userStats.longestStreak : userStats?.loginStreak || 0} days
+                {Math.max(userStats?.longestStreak || 0, userStats?.loginStreak || 0)} days
               </span>
             </div>
               <div className={progressStyles.streakStat}>
