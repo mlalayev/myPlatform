@@ -23,6 +23,8 @@ import {
 } from "react-icons/fi";
 import achievementStyles from "../ProfileAchievements.module.css";
 import { useI18n } from "../../../../contexts/I18nContext";
+import { useAchievement } from "../../../../contexts/AchievementContext";
+
 
 interface ProfileAchievementsProps {
   userStats: any;
@@ -36,6 +38,7 @@ export default function ProfileAchievements({
   onAchievementClaimed,
 }: ProfileAchievementsProps) {
   const { t } = useI18n();
+  const { showAchievementPopup } = useAchievement();
   const [claimingAchievement, setClaimingAchievement] = useState<string | null>(null);
   const [claimedAchievements, setClaimedAchievements] = useState<Set<string>>(new Set());
   const [dbAchievements, setDbAchievements] = useState<any[]>([]);
@@ -61,6 +64,23 @@ export default function ProfileAchievements({
         console.log("Achievements synced:", data.message);
         // Refresh achievements after sync
         fetchAchievements();
+        
+        // Show popup for newly created achievements
+        if (data.newAchievementsForPopup && data.newAchievementsForPopup.length > 0) {
+          console.log(`New achievements for popup:`, data.newAchievementsForPopup);
+          
+          // Show popup for the first new achievement
+          const firstAchievement = data.newAchievementsForPopup[0];
+          showAchievementPopup(firstAchievement);
+          
+          // If there are multiple achievements, show them with a delay
+          if (data.newAchievementsForPopup.length > 1) {
+            setTimeout(() => {
+              const secondAchievement = data.newAchievementsForPopup[1];
+              showAchievementPopup(secondAchievement);
+            }, 6000); // Show second achievement after 6 seconds
+          }
+        }
         
         // Show success message if achievements were created or updated
         if (data.createdAchievements.length > 0 || data.updatedAchievements.length > 0) {
@@ -530,6 +550,23 @@ export default function ProfileAchievements({
                 )}
                 {syncingAchievements ? "Syncing..." : "Sync Achievements"}
               </button>
+              
+              {/* Test popup button */}
+              <button
+                className={achievementStyles.syncButton}
+                onClick={() => {
+                  const testAchievement = {
+                    name: "Test Achievement",
+                    description: "This is a test achievement to verify popup works globally",
+                    rarity: "gold" as const,
+                    coins: 100
+                  };
+                  showAchievementPopup(testAchievement);
+                }}
+                style={{ marginLeft: '10px', backgroundColor: '#ff6b35' }}
+              >
+                Test Popup
+              </button>
             </div>
           </div>
           <div className={achievementStyles.rarityStats}>
@@ -755,6 +792,8 @@ export default function ProfileAchievements({
           </div>
         ))}
       </div>
+      
+
     </div>
   );
 } 

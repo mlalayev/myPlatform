@@ -436,8 +436,8 @@ export async function GET(request: NextRequest) {
             
             // Check for 100% completion
             if (completedLessons >= totalForLanguage && totalForLanguage > 0) {
-              completedLanguages++;
-              completedLanguagesList.push(formatLanguageName(language));
+            completedLanguages++;
+            completedLanguagesList.push(formatLanguageName(language));
             }
           }
         });

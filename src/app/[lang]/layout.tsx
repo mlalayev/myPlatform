@@ -1,6 +1,7 @@
 import React from "react";
 import I18nProvider from "@/contexts/I18nProvider";
 import { AppProvider } from "@/contexts/AppContext";
+import GlobalAchievementPopupWrapper from "./GlobalAchievementPopupWrapper";
 
 interface LangLayoutProps {
   children: React.ReactNode;
@@ -12,6 +13,7 @@ export default async function LangLayout({ children, params }: LangLayoutProps) 
   return (
     <I18nProvider lang={lang}>
       <AppProvider>
+        <GlobalAchievementPopupWrapper />
         {children}
       </AppProvider>
     </I18nProvider>

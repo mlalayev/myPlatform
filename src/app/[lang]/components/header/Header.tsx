@@ -18,6 +18,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
+import { useAchievement } from "@/contexts/AchievementContext";
+
 
 const languages = [
   { code: "en", label: "EN" },
@@ -30,6 +32,9 @@ const Header: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useI18n();
+
+  
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -267,6 +272,8 @@ const Header: React.FC = () => {
           </div>
         )}
       </div>
+      
+
     </header>
   );
 };

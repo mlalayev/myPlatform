@@ -4,6 +4,7 @@ import "./globals.css";
 import ClientRedirect from "./ClientRedirect";
 import { SessionProvider, useSession } from "next-auth/react";
 import CodeLoader from "./[lang]/components/loading/CodeLoader";
+import { AchievementProvider } from "../contexts/AchievementContext";
 
 function SessionGate({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
@@ -23,6 +24,8 @@ function SessionGate({ children }: { children: React.ReactNode }) {
   }
   return <>{children}</>;
 }
+
+
 
 function LoginPointPopup() {
   const { data: session, status, update } = useSession();
@@ -286,6 +289,10 @@ function LoginPointPopup() {
   );
 }
 
+
+
+
+
 export default function RootLayout({
   children,
 }: {
@@ -300,11 +307,15 @@ export default function RootLayout({
         }}
       >
         <SessionProvider>
-          <LoginPointPopup />
-          <ClientRedirect />
-          <SessionGate>{children}</SessionGate>
+          <AchievementProvider>
+            <LoginPointPopup />
+            <ClientRedirect />
+            <SessionGate>{children}</SessionGate>
+          </AchievementProvider>
         </SessionProvider>
       </body>
     </html>
   );
 }
+
+

@@ -159,24 +159,86 @@ const profileTabs = [
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const { data: session } = useSession();
 
+  // Check URL parameters for tab selection
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabParam = urlParams.get('tab');
+      if (tabParam && profileTabs.some(tab => tab.key === tabParam)) {
+        setSelectedTab(tabParam);
+      }
+    }
+  }, []);
+
   // Fetch user stats from backend
-  const fetchUserStats = async () => {
-    try {
-      const response = await fetch("/api/user/profile");
-      if (response.ok) {
-        const data = await response.json();
-        console.log('User stats fetched:', data);
-        setUserStats(data);
-      } else {
-        const errorData = await response.json().catch(() => null);
-        console.error(
-          "Failed to fetch user stats:",
-          response.status,
-          response.statusText,
-          errorData
-        );
+    const fetchUserStats = async () => {
+      try {
+        const response = await fetch("/api/user/profile");
+        if (response.ok) {
+          const data = await response.json();
+          console.log('User stats fetched:', data);
+          setUserStats(data);
+        } else {
+          const errorData = await response.json().catch(() => null);
+          console.error(
+            "Failed to fetch user stats:",
+            response.status,
+            response.statusText,
+            errorData
+          );
+          
+          // Set default stats if API is not available
+          setUserStats({
+            user: {
+              name: session?.user?.name || "User",
+              surname: "",
+              username: session?.user?.email?.split('@')[0] || "user",
+              email: session?.user?.email || "",
+              avatarUrl: session?.user?.image || "",
+              role: "user",
+              premiumStatus: false,
+              joinDate: new Date(),
+              lastActive: new Date(),
+            },
+            dailyLoginPoints: 0,
+            todayCoins: 0,
+            loginStreak: 0,
+            totalLessons: 150,
+            completedLessons: 0,
+            totalExercises: 300,
+            solvedExercises: 0,
+            completionRate: 0,
+            studyTimeHours: 0,
+            rank: "Beginner",
+            totalAchievements: 0,
+            unlockedAchievements: 0,
+            learningStreak: 0,
+            recentActivities: [
+              {
+                type: "login",
+                text: "Welcome to the platform!",
+                time: "Just now",
+                metadata: {}
+              }
+            ],
+            weeklyProgress: {
+              lessonsThisWeek: 0,
+              exercisesThisWeek: 0,
+              studyTimeThisWeek: 0,
+              pointsThisWeek: 0,
+            },
+            calendarData: {
+              activeDays: 0,
+              thisWeekStudyTime: 0,
+              dailyActivities: []
+            }
+          });
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching user stats:", error);
         
-        // Set default stats if API is not available
+        // Set default stats on network error
         setUserStats({
           user: {
             name: session?.user?.name || "User",
@@ -222,60 +284,9 @@ const profileTabs = [
             dailyActivities: []
           }
         });
+        setLoading(false);
       }
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching user stats:", error);
-      
-      // Set default stats on network error
-      setUserStats({
-        user: {
-          name: session?.user?.name || "User",
-          surname: "",
-          username: session?.user?.email?.split('@')[0] || "user",
-          email: session?.user?.email || "",
-          avatarUrl: session?.user?.image || "",
-          role: "user",
-          premiumStatus: false,
-          joinDate: new Date(),
-          lastActive: new Date(),
-        },
-        dailyLoginPoints: 0,
-        todayCoins: 0,
-        loginStreak: 0,
-        totalLessons: 150,
-        completedLessons: 0,
-        totalExercises: 300,
-        solvedExercises: 0,
-        completionRate: 0,
-        studyTimeHours: 0,
-        rank: "Beginner",
-        totalAchievements: 0,
-        unlockedAchievements: 0,
-        learningStreak: 0,
-        recentActivities: [
-          {
-            type: "login",
-            text: "Welcome to the platform!",
-            time: "Just now",
-            metadata: {}
-          }
-        ],
-        weeklyProgress: {
-          lessonsThisWeek: 0,
-          exercisesThisWeek: 0,
-          studyTimeThisWeek: 0,
-          pointsThisWeek: 0,
-        },
-        calendarData: {
-          activeDays: 0,
-          thisWeekStudyTime: 0,
-          dailyActivities: []
-        }
-      });
-      setLoading(false);
-    }
-  };
+    };
 
   // Fetch user stats on component mount
   useEffect(() => {

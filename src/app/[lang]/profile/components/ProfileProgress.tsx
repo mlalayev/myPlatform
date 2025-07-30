@@ -301,59 +301,59 @@ export default function ProfileProgress({
           <h3 className={progressStyles.skillsTitle}>Skill Progression</h3>
         </div>
         {skills.length > 0 ? (
-          <div className={progressStyles.skillsGrid}>
-            {skills.map((skill, index) => (
-              <div key={index} className={progressStyles.skillCard}>
-                <div className={progressStyles.skillHeader}>
-                                  <div className={progressStyles.skillInfo}>
+        <div className={progressStyles.skillsGrid}>
+          {skills.map((skill, index) => (
+            <div key={index} className={progressStyles.skillCard}>
+              <div className={progressStyles.skillHeader}>
+                <div className={progressStyles.skillInfo}>
                   <div 
                     className={progressStyles.skillIcon}
                     data-language={skill.className}
                   >
                     {skill.icon}
                   </div>
-                    <div>
-                      <h4 className={progressStyles.skillName}>{skill.name}</h4>
-                      <p className={progressStyles.skillLevel}>{skill.level}</p>
-                    </div>
-                  </div>
-                  <div className={progressStyles.skillBadge}>
-                    {Math.round(skill.progress)}%
+                  <div>
+                    <h4 className={progressStyles.skillName}>{skill.name}</h4>
+                    <p className={progressStyles.skillLevel}>{skill.level}</p>
                   </div>
                 </div>
-                <div className={progressStyles.skillProgress}>
-                  <div className={progressStyles.skillProgressBar}>
-                    <div 
-                      className={`${progressStyles.skillProgressFill} ${progressStyles[skill.className]}`}
-                      style={{ width: `${skill.progress}%` }}
-                    ></div>
-                  </div>
-                  <div className={progressStyles.skillProgressText}>
-                    <span className={progressStyles.skillPercent}>
-                      {Math.round(skill.progress)}%
-                    </span>
-                    <span className={progressStyles.skillXp}>
-                      {skill.xp} XP
-                    </span>
-                  </div>
-                </div>
-                <div className={progressStyles.skillStats}>
-                  <div className={progressStyles.skillStatItem}>
-                    <div className={progressStyles.skillStatNumber}>
-                      {skill.lessons}/{skill.totalLessons}
-                    </div>
-                    <div className={progressStyles.skillStatLabel}>Lessons</div>
-                  </div>
-                  <div className={progressStyles.skillStatItem}>
-                    <div className={progressStyles.skillStatNumber}>
-                      {skill.lastStudied ? skill.lastStudied.toLocaleDateString() : 'Never'}
-                    </div>
-                    <div className={progressStyles.skillStatLabel}>Last Studied</div>
-                  </div>
+                <div className={progressStyles.skillBadge}>
+                  {Math.round(skill.progress)}%
                 </div>
               </div>
-            ))}
-          </div>
+              <div className={progressStyles.skillProgress}>
+                <div className={progressStyles.skillProgressBar}>
+                  <div 
+                    className={`${progressStyles.skillProgressFill} ${progressStyles[skill.className]}`}
+                    style={{ width: `${skill.progress}%` }}
+                  ></div>
+                </div>
+                <div className={progressStyles.skillProgressText}>
+                  <span className={progressStyles.skillPercent}>
+                    {Math.round(skill.progress)}%
+                  </span>
+                  <span className={progressStyles.skillXp}>
+                    {skill.xp} XP
+                  </span>
+                </div>
+              </div>
+              <div className={progressStyles.skillStats}>
+                <div className={progressStyles.skillStatItem}>
+                  <div className={progressStyles.skillStatNumber}>
+                      {skill.lessons}/{skill.totalLessons}
+                  </div>
+                  <div className={progressStyles.skillStatLabel}>Lessons</div>
+                </div>
+                <div className={progressStyles.skillStatItem}>
+                  <div className={progressStyles.skillStatNumber}>
+                      {skill.lastStudied ? skill.lastStudied.toLocaleDateString() : 'Never'}
+                  </div>
+                    <div className={progressStyles.skillStatLabel}>Last Studied</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
         ) : (
           <div className={progressStyles.noSkills}>
             <p>No programming languages studied yet. Start your learning journey!</p>
