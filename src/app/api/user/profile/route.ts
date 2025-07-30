@@ -73,44 +73,37 @@ export async function GET(request: NextRequest) {
       solvedExercisesData = [];
     }
 
-    // Get total lessons count - use fixed values to prevent fluctuations
+    // Get total lessons count - fetch from tutorials API
     let totalLessons = 0;
     try {
+      // Try to get from database first
       totalLessons = await prisma.tutorial.count({
         where: { published: true }
       });
       
-      // If no tutorials in database, use fixed estimates
+      // If no tutorials in database, fetch from tutorials API
       if (totalLessons === 0) {
-        // Fixed total lessons count based on available content
-        const fixedLanguageTotals: any = {
-          'c': 25,
-          'java': 30,
-          'c++': 25,
-          'c%2B%2B': 25,
-          'algorithms': 20,
-          'javascript': 35,
-          'python': 30,
-          'csharp': 30,
-          'data-structures': 25,
-          'typescript': 25,
-          'php': 20,
-          'go': 20,
-          'rust': 20,
-          'swift': 20,
-          'kotlin': 20,
-          'ruby': 20,
-          'r': 15,
-          'sql': 15,
-          'dart': 15,
-          'haskell': 15,
-          'scala': 15,
-          'bash': 15,
-          'matlab': 15
-        };
+        // List of all available languages
+        const availableLanguages = [
+          'c', 'java', 'c++', 'c%2B%2B', 'cpp', 'algorithms', 'javascript', 
+          'python', 'csharp', 'data-structures', 'typescript', 'php', 'go', 
+          'rust', 'swift', 'kotlin', 'ruby', 'r', 'sql', 'dart', 'haskell', 
+          'scala', 'bash', 'matlab'
+        ];
         
-        // Calculate total based on all available languages (not just visited ones)
-        totalLessons = Object.values(fixedLanguageTotals).reduce((sum: number, count: any) => sum + count, 0);
+        // Fetch topic counts for all languages
+        for (const language of availableLanguages) {
+          try {
+            const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/tutorials/${language}/topics`);
+            if (response.ok) {
+              const data = await response.json();
+              const allTopics = data.az || data.en || data.ru || [];
+              totalLessons += allTopics.length;
+            }
+          } catch (error) {
+            console.log(`Error fetching topics for ${language}:`, error);
+          }
+        }
         
         // If still 0, use a reasonable default
         if (totalLessons === 0) {
@@ -247,22 +240,25 @@ export async function GET(request: NextRequest) {
         sessions: await prisma.userSession.count({ where: { userId: user.id } })
       });
 
-      // Get weekly statistics
+      // Get weekly statistics from DailyActivity
       const weekStart = new Date();
       weekStart.setDate(weekStart.getDate() - 7);
       
-      weeklyStats = await prisma.userActivity.aggregate({
+      const weeklyDailyActivities = await prisma.dailyActivity.findMany({
         where: {
           userId: user.id,
-          timestamp: { gte: weekStart }
-        },
-        _sum: {
-          lessonsViewed: true,
-          exercisesSolved: true,
-          studyTime: true,
-          pointsEarned: true
+          date: { gte: weekStart }
         }
       });
+      
+      weeklyStats = {
+        _sum: {
+          lessonsViewed: weeklyDailyActivities.reduce((sum, activity) => sum + activity.lessonsViewed, 0),
+          exercisesSolved: weeklyDailyActivities.reduce((sum, activity) => sum + activity.exercisesSolved, 0),
+          studyTime: weeklyDailyActivities.reduce((sum, activity) => sum + activity.studyTime, 0),
+          pointsEarned: weeklyDailyActivities.reduce((sum, activity) => sum + activity.pointsEarned, 0)
+        }
+      };
 
       // Get login streak
       const dailyActivities = await prisma.dailyActivity.findMany({
@@ -330,34 +326,6 @@ export async function GET(request: NextRequest) {
       if (user.visitedLessons && typeof user.visitedLessons === 'object') {
         const visitedData = user.visitedLessons as any;
         
-        // Fixed lesson counts for each language
-        const languageLessonCounts: any = {
-          'c': 25,
-          'java': 30,
-          'c++': 25,
-          'c%2B%2B': 25,
-          'cpp': 25,
-          'algorithms': 20,
-          'javascript': 35,
-          'python': 30,
-          'csharp': 30,
-          'data-structures': 25,
-          'typescript': 25,
-          'php': 20,
-          'go': 20,
-          'rust': 20,
-          'swift': 20,
-          'kotlin': 20,
-          'ruby': 20,
-          'r': 15,
-          'sql': 15,
-          'dart': 15,
-          'haskell': 15,
-          'scala': 15,
-          'bash': 15,
-          'matlab': 15
-        };
-
         // Helper function to format language names
         const formatLanguageName = (language: string): string => {
           const languageMap: any = {
@@ -390,17 +358,82 @@ export async function GET(request: NextRequest) {
           return languageMap[language] || language;
         };
 
+        // Helper function to format date as "31 iyun"
+        const formatDateAsText = (dateString: string): string => {
+          try {
+            const date = new Date(dateString);
+            const day = date.getDate();
+            const month = date.getMonth();
+            
+            const monthNames = [
+              'yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun',
+              'iyul', 'avqust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'
+            ];
+            
+            return `${day} ${monthNames[month]}`;
+          } catch (error) {
+            return 'Never';
+          }
+        };
+
+        // Helper function to fetch topic count for a language
+        const fetchTopicCount = async (language: string): Promise<number> => {
+          try {
+            const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/tutorials/${language}/topics`);
+            if (response.ok) {
+              const data = await response.json();
+              // Count topics from all available languages (az, en, ru)
+              const allTopics = data.az || data.en || data.ru || [];
+              return allTopics.length;
+            }
+          } catch (error) {
+            console.log(`Error fetching topics for ${language}:`, error);
+          }
+          
+          // Fallback to hardcoded values if API fails
+          const fallbackCounts: any = {
+            'c': 25,
+            'java': 30,
+            'c++': 25,
+            'c%2B%2B': 25,
+            'cpp': 25,
+            'algorithms': 20,
+            'javascript': 35,
+            'python': 30,
+            'csharp': 30,
+            'data-structures': 25,
+            'typescript': 25,
+            'php': 20,
+            'go': 20,
+            'rust': 20,
+            'swift': 20,
+            'kotlin': 20,
+            'ruby': 20,
+            'r': 15,
+            'sql': 15,
+            'dart': 15,
+            'haskell': 15,
+            'scala': 15,
+            'bash': 15,
+            'matlab': 15
+          };
+          
+          return fallbackCounts[language] || 0;
+        };
+
         // Calculate progress for each language
-        Object.keys(visitedData).forEach(language => {
+        for (const language of Object.keys(visitedData)) {
           const lessons = visitedData[language];
-          const totalForLanguage = languageLessonCounts[language] || 0;
           
           if (Array.isArray(lessons)) {
             const completedLessons = lessons.length;
+            const totalForLanguage = await fetchTopicCount(language);
             const progress = totalForLanguage > 0 ? Math.round((completedLessons / totalForLanguage) * 100) : 0;
             
             // Find the most recent lesson date
             let lastStudied = null;
+            let lastStudiedFormatted = 'Never';
+            
             if (lessons.length > 0) {
               // Find the most recent activity for this language from recentActivitiesForLanguages
               const languageActivities = recentActivitiesForLanguages.filter((activity: any) => 
@@ -415,6 +448,7 @@ export async function GET(request: NextRequest) {
                   new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
                 );
                 lastStudied = sortedActivities[0].timestamp;
+                lastStudiedFormatted = formatDateAsText(lastStudied);
                 console.log(`Language ${language} last studied:`, lastStudied);
               } else {
                 // Fallback: use a date based on lesson count (more recent for more lessons)
@@ -422,6 +456,7 @@ export async function GET(request: NextRequest) {
                 const daysAgo = Math.max(1, 10 - lessons.length); // More lessons = more recent
                 const recentDate = new Date(now.getTime() - (daysAgo * 24 * 60 * 60 * 1000));
                 lastStudied = recentDate.toISOString();
+                lastStudiedFormatted = formatDateAsText(lastStudied);
                 console.log(`Language ${language} fallback last studied:`, lastStudied);
               }
             }
@@ -431,16 +466,17 @@ export async function GET(request: NextRequest) {
               lessons: completedLessons,
               totalLessons: totalForLanguage,
               progress: progress,
-              lastStudied: lastStudied
+              lastStudied: lastStudied,
+              lastStudiedFormatted: lastStudiedFormatted
             };
             
             // Check for 100% completion
             if (completedLessons >= totalForLanguage && totalForLanguage > 0) {
-            completedLanguages++;
-            completedLanguagesList.push(formatLanguageName(language));
+              completedLanguages++;
+              completedLanguagesList.push(formatLanguageName(language));
             }
           }
-        });
+        }
       }
     } catch (error: any) {
       console.log("Error calculating completed languages:", error.message);

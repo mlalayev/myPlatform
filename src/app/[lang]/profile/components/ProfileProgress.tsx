@@ -158,6 +158,7 @@ export default function ProfileProgress({
           lessons: lessons,
           totalLessons: totalLessons,
           lastStudied: lastStudied,
+          lastStudiedFormatted: data.lastStudiedFormatted || 'Never',
           className: getSkillClassName(language)
         };
       })
@@ -346,7 +347,7 @@ export default function ProfileProgress({
                 </div>
                 <div className={progressStyles.skillStatItem}>
                   <div className={progressStyles.skillStatNumber}>
-                      {skill.lastStudied ? skill.lastStudied.toLocaleDateString() : 'Never'}
+                      {skill.lastStudiedFormatted || 'Never'}
                   </div>
                     <div className={progressStyles.skillStatLabel}>Last Studied</div>
                 </div>
