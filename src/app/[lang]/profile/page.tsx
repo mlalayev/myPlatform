@@ -65,7 +65,7 @@ import ProfileAnalytics from "./components/ProfileAnalytics";
 import ProfileRecentActivities from "./components/ProfileRecentActivities";
 import ProfileSecurity from "./components/ProfileSecurity";
 import ProfileProgress from "./components/ProfileProgress";
-import ProfileLessons from "./components/ProfileLessons";
+
 import ProfileGoals from "./components/ProfileGoals";
 import ProfileNotifications from "./components/ProfileNotifications";
 import ProfileFavourites from "./components/ProfileFavourites";
@@ -92,12 +92,7 @@ const profileTabs = [
     icon: <FiTrendingUp size={24} />,
       description: t("profile.tabs.progress.description"),
   },
-  {
-    key: "lessons",
-      name: t("profile.tabs.lessons.name"),
-    icon: <FiBookOpen size={24} />,
-      description: t("profile.tabs.lessons.description"),
-  },
+
   {
     key: "exercises",
       name: t("profile.tabs.exercises.name"),
@@ -656,13 +651,7 @@ const profileTabs = [
             setSelectedTab={setSelectedTab}
           />
         );
-      case "lessons":
-        return (
-          <ProfileLessons 
-            userStats={userStats}
-            loading={loading}
-          />
-        );
+
       case "exercises":
         return (
           <ProfileExercises 

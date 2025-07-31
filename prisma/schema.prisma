@@ -36,6 +36,7 @@ model User {
   activities        UserActivity[]
   sessions          UserSession[]
   dailyActivities   DailyActivity[]
+  lessonProgress    UserLessonProgress[]
   achievements      Achievement[]
 }
 
@@ -122,6 +123,20 @@ model DailyActivity {
   quizzesTaken Int      @default(0)
   exercisesSolved Int   @default(0)
   pointsEarned Int      @default(0)
+  
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+model UserLessonProgress {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  date        DateTime @db.Date // Only date part
+  totalLessonsCompleted Int @default(0) // Cumulative total lessons completed up to this date
+  lessonsCompletedToday Int @default(0) // Lessons completed on this specific date
+  exercisesCompletedToday Int @default(0) // Exercises completed on this specific date
+  studyTimeToday Int @default(0) // Study time on this specific date in seconds
   
   @@unique([userId, date])
   @@index([userId, date])

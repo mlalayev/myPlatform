@@ -8,8 +8,12 @@ import {
   FiCpu,
   FiHash,
   FiBookOpen,
+  FiPlay,
+  FiEye,
+  FiArrowRight,
+  FiClock,
+  FiCheckCircle,
 } from "react-icons/fi";
-import LearningAnalytics from "./LearningAnalytics";
 import { 
   SiJavascript, 
   SiPython, 
@@ -102,117 +106,126 @@ export default function ProfileProgress({
         return <SiRuby size={20} color="#cc342d" />;
       case 'r':
         return <SiR size={20} color="#276dc3" />;
-      case 'algorithms':
-        return <FiCode size={20} color="#667eea" />;
-      case 'data-structures':
-        return <FiCode size={20} color="#48bb78" />;
       default:
         return <FiBookOpen size={20} color="#667eea" />;
     }
   };
 
-  // Helper function to get skill level
-  const getSkillLevel = (progress: number): string => {
-    if (progress >= 80) return "Expert";
-    if (progress >= 60) return "Advanced";
-    if (progress >= 40) return "Intermediate";
-    if (progress >= 20) return "Beginner";
-    return "Novice";
-  };
-
-  // Helper function to get skill class name
-  const getSkillClassName = (language: string): string => {
-    // Special handling for C++ to preserve the plus signs
-    if (language.toLowerCase() === 'c++' || language.toLowerCase() === 'c%2b%2b') {
-      return 'cpp';
-    }
-    return language.toLowerCase().replace(/[^a-z0-9]/g, '');
-  };
-
-  // Helper function to get language icon with debug
-  const getLanguageIconWithDebug = (language: string) => {
-    const icon = getLanguageIcon(language);
-    console.log(`Language: ${language}, Icon found:`, icon ? 'Yes' : 'No');
-    return icon;
-  };
-
-  // Helper function to get achievement icon based on name
-  const getAchievementIcon = (achievementName: string): string => {
-    const iconMap: { [key: string]: string } = {
-      'Learning Legend': '🏆',
-      'Knowledge Seeker': '📚',
-      'Polyglot': '🌍',
-      'Completionist': '✅',
-      'Problem Solver': '🎯',
-      'Code Ninja': '⚡',
-      'Algorithm Master': '🧮',
-      'Speed Demon': '🏃',
-      'Perfect Score': '💯',
-      'Daily Learner': '📅',
-      'Week Warrior': '🔥',
-      'Month Master': '📊',
-      'Study Enthusiast': '📖',
-      'Dedicated Learner': '🎓',
-      'Early Bird': '🌅',
-      'Bookmark Collector': '🔖',
-      'Feedback Provider': '💬',
-      'Community Ambassador': '🤝',
-      'Night Owl': '🦉',
-      'Weekend Warrior': '🎉',
-      'Multitasker': '⚙️',
-      'Persistent': '💪'
-    };
-    
-    return iconMap[achievementName] || '🏅'; // Default icon
-  };
-
-  // Generate dynamic skills from userStats.languageProgress
-  const generateSkills = () => {
+  // Generate lesson cards from real data
+  const generateLessonCards = () => {
     if (!userStats?.languageProgress || Object.keys(userStats.languageProgress).length === 0) {
       return [];
     }
 
-    const skills = Object.entries(userStats.languageProgress)
+    return Object.entries(userStats.languageProgress)
       .map(([language, data]: [string, any]) => {
         const progress = data.progress || 0;
-        const lessons = data.lessons || 0;
-        const totalLessons = data.totalLessons || 1;
-        const lastStudied = data.lastStudied ? new Date(data.lastStudied) : null;
+        const completed = data.lessons || 0;
+        const total = data.totalLessons || 1;
+        const lastTopic = data.lastViewedTopic;
         
-        console.log(`Processing language: ${language}, className: ${getSkillClassName(language)}`);
+        // Determine status based on progress
+        let status = 'notStarted';
+        if (progress >= 100) status = 'completed';
+        else if (progress > 0) status = 'inProgress';
+        
         return {
-          name: data.displayName || language,
-          level: getSkillLevel(progress),
+          id: language,
+          title: `${data.displayName || language} Course`,
+          description: `Master ${data.displayName || language} programming with comprehensive lessons and exercises.`,
+          category: data.displayName || language,
+          categoryClass: language.toLowerCase().replace(/[^a-z0-9]/g, ''),
+          status: status,
           progress: progress,
-          xp: lessons * 50,
-          icon: getLanguageIconWithDebug(language),
-          lessons: lessons,
-          totalLessons: totalLessons,
-          lastStudied: lastStudied,
-          lastStudiedFormatted: data.lastStudiedFormatted || 'Never',
-          className: getSkillClassName(language)
+          duration: `${Math.floor(total * 5)} min`, // Estimate 5 min per lesson
+          difficulty: progress > 50 ? 'medium' : 'easy',
+          lessons: total,
+          exercises: Math.floor(total * 0.8), // Estimate 80% of lessons have exercises
+          bookmarked: false,
+          lastTopic: lastTopic,
+          lastTopicId: data.lastViewedTopicId,
+          language: language
         };
       })
-      .sort((a, b) => {
-        // Sort by last studied date (most recent first)
-        if (a.lastStudied && b.lastStudied) {
-          return b.lastStudied.getTime() - a.lastStudied.getTime();
-        }
-        // If no lastStudied, sort by progress
-        return b.progress - a.progress;
-      })
-      .slice(0, 4); // Take only the last 4 languages
-
-    return skills;
+      .sort((a, b) => b.progress - a.progress); // Sort by progress
   };
 
-  const skills = generateSkills();
+  const lessonCards = generateLessonCards();
+
+  const getDifficultyDots = (difficulty: string) => {
+    const levels: { [key: string]: number } = { easy: 1, medium: 2, hard: 3 };
+    const level = levels[difficulty] || 1;
+    
+    return Array.from({ length: 3 }, (_, i) => (
+      <div
+        key={i}
+        className={`${progressStyles.difficultyDot} ${
+          i < level ? `${progressStyles.filled} ${progressStyles[difficulty]}` : ''
+        }`}
+      ></div>
+    ));
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <FiCheckCircle />;
+      case 'inProgress':
+        return <FiPlay />;
+      default:
+        return <FiBookOpen />;
+    }
+  };
+
+  const handleLessonClick = (lesson: any) => {
+    if (lesson.lastTopicId) {
+      // Navigate to the last viewed topic
+      window.location.href = `/az/tutorials/languages/${lesson.language}/${lesson.lastTopicId}`;
+    } else {
+      // Navigate to the language overview
+      window.location.href = `/az/tutorials/languages/${lesson.language}`;
+    }
+  };
+
+  const getActionButton = (lesson: any) => {
+    const handleClick = () => handleLessonClick(lesson);
+    
+    switch (lesson.status) {
+      case 'completed':
+        return (
+          <button 
+            className={`${progressStyles.actionButton} ${progressStyles.reviewButton} ${progressStyles[lesson.categoryClass]}`}
+            onClick={handleClick}
+          >
+            <FiEye />
+            Review
+          </button>
+        );
+      case 'inProgress':
+        return (
+          <button 
+            className={`${progressStyles.actionButton} ${progressStyles.continueButton} ${progressStyles[lesson.categoryClass]}`}
+            onClick={handleClick}
+          >
+            <FiPlay />
+            Continue
+          </button>
+        );
+      default:
+        return (
+          <button 
+            className={`${progressStyles.actionButton} ${progressStyles.startButton} ${progressStyles[lesson.categoryClass]}`}
+            onClick={handleClick}
+          >
+            <FiArrowRight />
+            Start
+          </button>
+        );
+    }
+  };
 
   // Use streak data from userStats
   const streakDays = userStats?.streakData || [];
-
-  // Chart tab state
-  const [activeTab, setActiveTab] = useState<'weekly' | 'monthly' | 'allTime'>('weekly');
 
   return (
     <div className={progressStyles.progressContainer}>
@@ -263,195 +276,136 @@ export default function ProfileProgress({
         </div>
       </div>
 
-      {/* Charts Section */}
-      <div className={progressStyles.chartsSection}>
-        <div className={progressStyles.learningChart}>
-          <div className={progressStyles.chartHeader}>
-            <h3 className={progressStyles.chartTitle}>Learning Analytics</h3>
-            <div className={progressStyles.chartTabs}>
-              <button 
-                className={`${progressStyles.chartTab} ${activeTab === 'weekly' ? progressStyles.active : ''}`}
-                onClick={() => setActiveTab('weekly')}
+      {/* Study Streak Section */}
+      <div className={progressStyles.streakSection}>
+        <h4 className={progressStyles.sectionTitle} style={{ fontSize: '1.2rem', marginBottom: '16px', color: '#1e293b' }}>
+          <FiTrendingUp className={progressStyles.sectionIcon} style={{ fontSize: '1.3rem' }} />
+          Study Streak
+        </h4>
+        <div className={progressStyles.streakContent}>
+          <div className={progressStyles.streakGrid}>
+            {/* Weekday labels */}
+            <div className={progressStyles.weekdayLabel}>B</div>
+            <div className={progressStyles.weekdayLabel}>B</div>
+            <div className={progressStyles.weekdayLabel}>Ç</div>
+            <div className={progressStyles.weekdayLabel}>Ç</div>
+            <div className={progressStyles.weekdayLabel}>C</div>
+            <div className={progressStyles.weekdayLabel}>C</div>
+            <div className={progressStyles.weekdayLabel}>Ş</div>
+            {streakDays.map((day: any, index: number) => (
+              <div 
+                key={index} 
+                className={`${progressStyles.streakDay} ${
+                  day.isActive ? progressStyles.active : ''
+                } ${day.isToday ? progressStyles.today : ''}`}
+                title={`${day.date} - ${day.isActive ? 'Active' : 'Inactive'}`}
               >
-                Weekly
-              </button>
-              <button 
-                className={`${progressStyles.chartTab} ${activeTab === 'monthly' ? progressStyles.active : ''}`}
-                onClick={() => setActiveTab('monthly')}
-              >
-                Monthly
-              </button>
-              <button 
-                className={`${progressStyles.chartTab} ${activeTab === 'allTime' ? progressStyles.active : ''}`}
-                onClick={() => setActiveTab('allTime')}
-              >
-                All Time
-              </button>
-            </div>
-          </div>
-          <div className={progressStyles.chartArea}>
-            <LearningAnalytics userStats={userStats} activeTab={activeTab} />
-          </div>
-        </div>
-
-        <div className={progressStyles.streakChart}>
-          <h3 className={progressStyles.streakTitle}>
-            <FiTrendingUp className={progressStyles.streakIcon} />
-            Study Streak
-          </h3>
-          <div className={progressStyles.streakContent}>
-            <div className={progressStyles.streakGrid}>
-              {streakDays.length > 0 ? (
-                streakDays.map((day: any, index: number) => (
-                  <div
-                    key={index}
-                    className={`${progressStyles.streakDay} ${
-                      day.isActive ? progressStyles.active : ''
-                    } ${day.isToday ? progressStyles.today : ''}`}
-                    title={new Date(day.date).toLocaleDateString()}
-                  ></div>
-                ))
-              ) : (
-                // Show placeholder when no streak data is available
-                Array.from({ length: 28 }, (_, i) => (
-                  <div
-                    key={i}
-                    className={progressStyles.streakDay}
-                    title={`Day ${i + 1}`}
-                  ></div>
-                ))
-              )}
-            </div>
-            <div className={progressStyles.streakStats}>
-              <div className={progressStyles.streakStat}>
-                <span className={progressStyles.streakStatLabel}>Current Streak</span>
-                <span className={progressStyles.streakStatValue}>
-                  {userStats?.loginStreak || 0} days
-                </span>
+                {day.day}
               </div>
-                          <div className={progressStyles.streakStat}>
-              <span className={progressStyles.streakStatLabel}>Longest Streak</span>
-              <span className={progressStyles.streakStatValue}>
-                {Math.max(userStats?.longestStreak || 0, userStats?.loginStreak || 0)} days
+            ))}
+          </div>
+          <div className={progressStyles.streakInfo}>
+            <div className={progressStyles.streakCount}>
+              <span className={progressStyles.streakCountNumber}>
+                {userStats?.loginStreak || 0}
+              </span>
+              <span className={progressStyles.streakCountLabel}>
+                day streak
               </span>
             </div>
-              <div className={progressStyles.streakStat}>
-                <span className={progressStyles.streakStatLabel}>This Week</span>
-                <span className={progressStyles.streakStatValue}>
-                  {userStats?.weeklyProgress?.lessonsThisWeek || 0} lessons
-                </span>
-              </div>
+            <div className={progressStyles.streakLongest}>
+              <span className={progressStyles.streakLongestLabel}>
+                Longest streak
+              </span>
+              <span className={progressStyles.streakLongestNumber}>
+                {userStats?.longestStreak || 0} days
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Skills Section */}
-      <div className={progressStyles.skillsSection}>
-        <div className={progressStyles.skillsHeader}>
-          <h3 className={progressStyles.skillsTitle}>Skill Progression</h3>
-        </div>
-        {skills.length > 0 ? (
-        <div className={progressStyles.skillsGrid}>
-          {skills.map((skill, index) => (
-            <div key={index} className={progressStyles.skillCard}>
-              <div className={progressStyles.skillHeader}>
-                <div className={progressStyles.skillInfo}>
-                  <div 
-                    className={progressStyles.skillIcon}
-                    data-language={skill.className}
-                  >
-                    {skill.icon}
+      {/* Lessons Section */}
+      <div className={progressStyles.lessonsSection}>
+        <h3 className={progressStyles.sectionTitle}>
+          <FiBookOpen className={progressStyles.sectionIcon} />
+          My Learning Courses
+        </h3>
+        <div className={progressStyles.lessonsGrid}>
+          {lessonCards.map((lesson) => (
+            <div 
+              key={lesson.id} 
+              className={`${progressStyles.lessonCard} ${progressStyles[lesson.status]}`}
+            >
+              <div className={`${progressStyles.lessonHeader} ${progressStyles[lesson.categoryClass]}`}>
+                <div className={progressStyles.lessonMeta}>
+                  <div className={progressStyles.lessonInfo}>
+                    <div className={progressStyles.lessonCategory}>
+                      {lesson.category}
+                    </div>
+                    <h4 className={progressStyles.lessonTitle}>
+                      {lesson.title}
+                    </h4>
+                    <p className={progressStyles.lessonDescription}>
+                      {lesson.description}
+                    </p>
                   </div>
-                  <div>
-                    <h4 className={progressStyles.skillName}>{skill.name}</h4>
-                    <p className={progressStyles.skillLevel}>{skill.level}</p>
+                  <div className={`${progressStyles.lessonStatus} ${progressStyles[lesson.status]}`}>
+                    {getStatusIcon(lesson.status)}
+                    {lesson.status === 'completed' ? 'Completed' : 
+                     lesson.status === 'inProgress' ? 'In Progress' : 'Start'}
                   </div>
-                </div>
-                <div className={progressStyles.skillBadge}>
-                  {Math.round(skill.progress)}%
                 </div>
               </div>
-              <div className={progressStyles.skillProgress}>
-                <div className={progressStyles.skillProgressBar}>
-                  <div 
-                    className={`${progressStyles.skillProgressFill} ${progressStyles[skill.className]}`}
-                    style={{ width: `${skill.progress}%` }}
-                  ></div>
-                </div>
-                <div className={progressStyles.skillProgressText}>
-                  <span className={progressStyles.skillPercent}>
-                    {Math.round(skill.progress)}%
-                  </span>
-                  <span className={progressStyles.skillXp}>
-                    {skill.xp} XP
-                  </span>
-                </div>
-              </div>
-              <div className={progressStyles.skillStats}>
-                <div className={progressStyles.skillStatItem}>
-                  <div className={progressStyles.skillStatNumber}>
-                      {skill.lessons}/{skill.totalLessons}
+
+              <div className={progressStyles.lessonContent}>
+                <div className={progressStyles.lessonProgress}>
+                  <div className={progressStyles.progressLabel}>
+                    <span className={progressStyles.progressText}>Progress</span>
+                    <span className={progressStyles.progressPercent}>
+                      {lesson.progress}%
+                    </span>
                   </div>
-                  <div className={progressStyles.skillStatLabel}>Lessons</div>
-                </div>
-                <div className={progressStyles.skillStatItem}>
-                  <div className={progressStyles.skillStatNumber}>
-                      {skill.lastStudiedFormatted || 'Never'}
+                  <div className={progressStyles.progressBar}>
+                    <div 
+                      className={`${progressStyles.progressFill} ${progressStyles[lesson.status]} ${progressStyles[lesson.categoryClass]}`}
+                      style={{ width: `${lesson.progress}%` }}
+                    ></div>
                   </div>
-                    <div className={progressStyles.skillStatLabel}>Last Studied</div>
+                </div>
+
+                <div className={progressStyles.lessonDetails}>
+                  <div className={progressStyles.lessonStats}>
+                    <div className={progressStyles.lessonStat}>
+                      <FiClock className={progressStyles.statIcon} />
+                      {lesson.duration}
+                    </div>
+                    <div className={progressStyles.lessonStat}>
+                      <FiBookOpen className={progressStyles.statIcon} />
+                      {lesson.lessons} lessons
+                    </div>
+                    <div className={progressStyles.lessonStat}>
+                      <FiCode className={progressStyles.statIcon} />
+                      {lesson.exercises} exercises
+                    </div>
+                  </div>
+                  
+                  <div className={progressStyles.lessonDifficulty}>
+                    <span>Difficulty</span>
+                    <div className={progressStyles.difficultyDots}>
+                      {getDifficultyDots(lesson.difficulty)}
+                    </div>
+                  </div>
+                </div>
+
+                <div className={progressStyles.lessonActions}>
+                  {getActionButton(lesson)}
                 </div>
               </div>
             </div>
           ))}
         </div>
-        ) : (
-          <div className={progressStyles.noSkills}>
-            <p>No programming languages studied yet. Start your learning journey!</p>
-          </div>
-        )}
-      </div>
-
-      {/* Recent Achievements Preview */}
-      <div className={progressStyles.achievementsPreview}>
-        <div className={progressStyles.achievementsPreviewHeader}>
-          <h3 className={progressStyles.achievementsPreviewTitle}>
-            Recent Achievements
-          </h3>
-          <button 
-            className={progressStyles.viewAllBtn}
-            onClick={() => setSelectedTab("achievements")}
-          >
-            View All
-          </button>
-        </div>
-        <div className={progressStyles.recentAchievements}>
-          {userStats?.achievements && userStats.achievements.length > 0 ? (
-            userStats.achievements
-              .filter((achievement: any) => achievement.unlockedAt) // Only show unlocked achievements
-              .sort((a: any, b: any) => new Date(b.unlockedAt).getTime() - new Date(a.unlockedAt).getTime()) // Sort by most recent
-              .slice(0, 4) // Take only the 4 most recent
-              .map((achievement: any, index: number) => (
-                <div 
-                  key={achievement.id} 
-                  className={`${progressStyles.miniAchievement} ${progressStyles[achievement.rarity?.toLowerCase() || 'common']}`}
-                >
-                  <div className={progressStyles.miniAchievementIcon}>
-                    {achievement.icon || getAchievementIcon(achievement.name)}
-                  </div>
-                  <div className={progressStyles.miniAchievementName}>
-                    {achievement.name}
-                  </div>
-                </div>
-              ))
-          ) : (
-            // Show placeholder when no achievements
-            <div className={progressStyles.noAchievements}>
-              <p>No achievements earned yet. Keep learning to unlock achievements!</p>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
-} 
+}

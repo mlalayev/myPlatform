@@ -1,145 +1,211 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/authOptions";
+import { auth } from "../../auth/authOptions";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
+
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { type, description, metadata } = await request.json();
-    
-    // Get user
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
+      where: { email: session.user.email },
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // For LESSON_VIEW, check if user has already been tracked today
-    if (type === 'LESSON_VIEW') {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
+    const body = await request.json();
+    const { type, description, metadata } = body;
 
-      // Check if user already has a LESSON_VIEW activity today
-      const existingActivity = await prisma.userActivity.findFirst({
-        where: {
-          userId: user.id,
-          type: 'LESSON_VIEW',
-          timestamp: {
-            gte: today,
-            lt: tomorrow
-          }
-        }
-      });
-
-      // If already tracked today, don't create another record
-      if (existingActivity) {
-        return NextResponse.json({ success: true, message: "Already tracked today" });
-      }
-    }
-
-    // Create activity record
-    const activity = await prisma.userActivity.create({
+    // Always create the activity record for tracking
+    await prisma.userActivity.create({
       data: {
         userId: user.id,
         type,
         description,
-        metadata: metadata || {},
-        timestamp: new Date()
-      }
+        metadata,
+      },
     });
 
-    // Update daily activity for streak tracking
+    // Update or create daily activity record
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Check if today's activity record exists
     let dailyActivity = await prisma.dailyActivity.findUnique({
       where: {
         userId_date: {
           userId: user.id,
-          date: today
-        }
-      }
+          date: today,
+        },
+      },
     });
 
     if (!dailyActivity) {
-      // Create new daily activity record
       dailyActivity = await prisma.dailyActivity.create({
         data: {
           userId: user.id,
           date: today,
-          loginCount: 0,
+          loginCount: type === 'LOGIN' ? 1 : 0,
           studyTime: 0,
-          lessonsViewed: 0,
-          quizzesTaken: 0,
-          exercisesSolved: 0,
-          pointsEarned: 0
-        }
+          lessonsViewed: type === 'LESSON_VIEW' ? 1 : 0,
+          quizzesTaken: type === 'QUIZ_SUBMIT' ? 1 : 0,
+          exercisesSolved: type === 'EXERCISE_SOLVE' ? 1 : 0,
+          pointsEarned: 0,
+        },
+      });
+    } else {
+      // Update existing daily activity
+      const updateData: any = {};
+      
+      if (type === 'LOGIN') {
+        updateData.loginCount = dailyActivity.loginCount + 1;
+      }
+      if (type === 'LESSON_VIEW') {
+        updateData.lessonsViewed = dailyActivity.lessonsViewed + 1; // Always increment lesson views
+      }
+      if (type === 'QUIZ_SUBMIT') {
+        updateData.quizzesTaken = dailyActivity.quizzesTaken + 1;
+      }
+      if (type === 'EXERCISE_SOLVE') {
+        updateData.exercisesSolved = dailyActivity.exercisesSolved + 1;
+      }
+
+      if (Object.keys(updateData).length > 0) {
+        await prisma.dailyActivity.update({
+          where: { id: dailyActivity.id },
+          data: updateData,
+        });
+      }
+    }
+
+    // Update lesson progress tracking
+    await updateLessonProgress(user.id, type, metadata);
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error("Error logging activity:", error);
+    return NextResponse.json(
+      { error: "Failed to log activity", details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+// Function to update lesson progress tracking
+async function updateLessonProgress(userId: number, activityType: string, metadata: any) {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Get user's current visited lessons
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { visitedLessons: true }
+    });
+
+    if (!user?.visitedLessons || typeof user.visitedLessons !== 'object') {
+      return;
+    }
+
+    const visitedData = user.visitedLessons;
+    let totalVisitedLessons = 0;
+    
+    Object.keys(visitedData).forEach(language => {
+      const lessons = visitedData[language];
+      if (Array.isArray(lessons)) {
+        totalVisitedLessons += lessons.length;
+      }
+    });
+
+    // Get today's progress record
+    let todayProgress = await prisma.userLessonProgress.findUnique({
+      where: {
+        userId_date: {
+          userId,
+          date: today,
+        },
+      },
+    });
+
+    if (!todayProgress) {
+      // Create today's record
+      todayProgress = await prisma.userLessonProgress.create({
+        data: {
+          userId,
+          date: today,
+          totalLessonsCompleted: totalVisitedLessons,
+          lessonsCompletedToday: 0,
+          exercisesCompletedToday: 0,
+          studyTimeToday: 0,
+        },
       });
     }
 
-    // Update daily activity based on activity type
+    // Calculate new lessons completed today
+    const previousTotal = todayProgress.totalLessonsCompleted;
+    const newLessonsToday = totalVisitedLessons - previousTotal;
+
+    // Update today's record
     const updateData: any = {};
     
-    switch (type) {
-      case 'LESSON_VIEW':
-        // Only increment if this is the first lesson view of the day
-        if (!dailyActivity.lessonsViewed || dailyActivity.lessonsViewed === 0) {
-          updateData.lessonsViewed = 1;
-          updateData.pointsEarned = { increment: 10 };
-        }
-        break;
-      case 'EXERCISE_SOLVE':
-        updateData.exercisesSolved = { increment: 1 };
-        updateData.pointsEarned = { increment: 50 };
-        break;
-      case 'QUIZ_SUBMIT':
-        updateData.quizzesTaken = { increment: 1 };
-        updateData.pointsEarned = { increment: 25 };
-        break;
-      case 'LOGIN':
-        updateData.loginCount = { increment: 1 };
-        break;
+    if (newLessonsToday > 0) {
+      updateData.lessonsCompletedToday = todayProgress.lessonsCompletedToday + newLessonsToday;
+      updateData.totalLessonsCompleted = totalVisitedLessons;
     }
 
-    // Update daily activity
+    if (activityType === 'EXERCISE_SOLVE') {
+      updateData.exercisesCompletedToday = todayProgress.exercisesCompletedToday + 1;
+    }
+
     if (Object.keys(updateData).length > 0) {
-      await prisma.dailyActivity.update({
-        where: { id: dailyActivity.id },
-        data: updateData
+      await prisma.userLessonProgress.update({
+        where: { id: todayProgress.id },
+        data: updateData,
       });
     }
 
-    // Update user's daily login points
-    if (type === 'LOGIN') {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          dailyLoginPoints: { increment: 10 },
-          lastLoginDate: new Date()
-        }
+    // Ensure we have records for the last 7 days
+    for (let i = 1; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      date.setHours(0, 0, 0, 0);
+
+      const existingRecord = await prisma.userLessonProgress.findUnique({
+        where: {
+          userId_date: {
+            userId,
+            date: date,
+          },
+        },
       });
+
+      if (!existingRecord) {
+        // Create empty record for historical days
+        await prisma.userLessonProgress.create({
+          data: {
+            userId,
+            date: date,
+            totalLessonsCompleted: totalVisitedLessons,
+            lessonsCompletedToday: 0,
+            exercisesCompletedToday: 0,
+            studyTimeToday: 0,
+          },
+        });
+      }
     }
 
-    return NextResponse.json({ success: true, activity });
-  } catch (error: any) {
-    console.error("Activity tracking error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  } catch (error) {
+    console.error("Error updating lesson progress:", error);
   }
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -150,6 +216,69 @@ export async function GET(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Check if this is a test request
+    const { searchParams } = new URL(request.url);
+    const test = searchParams.get('test');
+    
+    if (test === 'lesson_views') {
+      // Create some test lesson view activities
+      const today = new Date();
+      const activities = [];
+      
+      for (let i = 0; i < 5; i++) {
+        const activity = await prisma.userActivity.create({
+          data: {
+            userId: user.id,
+            type: 'LESSON_VIEW',
+            description: `Test lesson view ${i + 1}`,
+            metadata: {
+              path: `/az/tutorials/javascript/test-${i + 1}`,
+              timestamp: new Date(today.getTime() - i * 60000).toISOString() // 1 minute apart
+            },
+          },
+        });
+        activities.push(activity);
+      }
+      
+      // Update daily activity
+      let dailyActivity = await prisma.dailyActivity.findUnique({
+        where: {
+          userId_date: {
+            userId: user.id,
+            date: today,
+          },
+        },
+      });
+
+      if (!dailyActivity) {
+        dailyActivity = await prisma.dailyActivity.create({
+          data: {
+            userId: user.id,
+            date: today,
+            loginCount: 0,
+            studyTime: 0,
+            lessonsViewed: 5,
+            quizzesTaken: 0,
+            exercisesSolved: 0,
+            pointsEarned: 0,
+          },
+        });
+      } else {
+        await prisma.dailyActivity.update({
+          where: { id: dailyActivity.id },
+          data: {
+            lessonsViewed: dailyActivity.lessonsViewed + 5
+          },
+        });
+      }
+      
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Created 5 test lesson views',
+        activities: activities.length
+      });
     }
 
     // Get recent activities
