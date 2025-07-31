@@ -250,32 +250,7 @@ export default function ProfileExercises({
             </div>
           </div>
           <div className={exercisesStyles.heroRight}>
-            <div className={exercisesStyles.exerciseStats}>
-              <div className={exercisesStyles.statItem}>
-                <span className={exercisesStyles.statNumber}>
-                  {performanceStats.totalSolved}
-                </span>
-                <span className={exercisesStyles.statLabel}>Solved</span>
-              </div>
-              <div className={exercisesStyles.statItem}>
-                <span className={exercisesStyles.statNumber}>
-                  {performanceStats.successRate}%
-                </span>
-                <span className={exercisesStyles.statLabel}>Success Rate</span>
-              </div>
-              <div className={exercisesStyles.statItem}>
-                <span className={exercisesStyles.statNumber}>
-                  {formatStudyTime((userStats?.studyTimeHours || 0) * 3600)}
-                </span>
-                <span className={exercisesStyles.statLabel}>Code Time</span>
-              </div>
-              <div className={exercisesStyles.statItem}>
-                <span className={exercisesStyles.statNumber}>
-                  {exerciseData?.recentExercises?.length || 0}
-                </span>
-                <span className={exercisesStyles.statLabel}>Recent</span>
-              </div>
-            </div>
+            {/* exerciseStats div removed */}
           </div>
         </div>
       </div>
@@ -424,19 +399,16 @@ export default function ProfileExercises({
               className={`${exercisesStyles.exerciseCard} ${exercisesStyles[exercise.status]}`}
             >
               {/* Card Header */}
-              <div className={exercisesStyles.cardHeader}>
+              <div className={`${exercisesStyles.cardHeader} ${exercisesStyles[exercise.categoryClass]}`}>
                 <div className={exercisesStyles.cardHeaderLeft}>
-                  <div className={`${exercisesStyles.categoryBadge} ${exercisesStyles[exercise.categoryClass]}`}>
+                  <div className={exercisesStyles.categoryBadge}>
                     {exercise.category}
                   </div>
-                  <div className={`${exercisesStyles.difficultyBadge} ${exercisesStyles[exercise.difficulty]}`}>
+                  <div className={exercisesStyles.difficultyBadge}>
                     {exercise.difficulty}
                   </div>
                 </div>
-                <div className={`${exercisesStyles.statusBadge} ${exercisesStyles[exercise.status]}`}>
-                  {exercise.status === 'solved' ? '✅ Həll edildi' : 
-                   exercise.status === 'attempted' ? '🔄 Cəhd edildi' : '🆕 Yeni'}
-                </div>
+
               </div>
 
               {/* Card Content */}
@@ -447,26 +419,6 @@ export default function ProfileExercises({
                 <p className={exercisesStyles.exerciseDescription}>
                   {exercise.description}
                 </p>
-
-                {/* Exercise Stats */}
-                <div className={exercisesStyles.exerciseStats}>
-                  <div className={exercisesStyles.statItem}>
-                    <FiClock className={exercisesStyles.statIcon} />
-                    <span>{exercise.timeComplexity}</span>
-                  </div>
-                  <div className={exercisesStyles.statItem}>
-                    <FiDatabase className={exercisesStyles.statIcon} />
-                    <span>{exercise.spaceComplexity}</span>
-                  </div>
-                  <div className={exercisesStyles.statItem}>
-                    <FiTarget className={exercisesStyles.statIcon} />
-                    <span>{exercise.acceptanceRate}%</span>
-                  </div>
-                  <div className={exercisesStyles.statItem}>
-                    <FiTrendingUp className={exercisesStyles.statIcon} />
-                    <span>{exercise.averageTime}</span>
-                  </div>
-                </div>
 
                 {/* Submission History */}
                 {exercise.submissions && exercise.submissions.length > 0 && (

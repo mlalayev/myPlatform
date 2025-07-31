@@ -141,10 +141,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Public activity logging function
   const logActivity = useCallback(async (type: string, description: string, metadata: any = {}) => {
-    // Skip activity logging on exercises pages
-    if (typeof window !== 'undefined' && window.location.pathname.includes('/exercises/')) {
-      return;
-    }
     await logActivityInternal(type, description, metadata);
   }, [logActivityInternal]);
 

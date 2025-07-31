@@ -70,16 +70,23 @@ export async function GET(request: NextRequest) {
 
         if (isSolved) {
           status = "solved";
-        } else if (latestActivity.type === 'EXERCISE_SUBMIT' || latestActivity.type === 'EXERCISE_SOLVE') {
+        } else if (exerciseActivitiesForThis.length > 0) {
           status = "attempted";
         }
         
         // Create submission history from all activities
-        submissions = sortedActivities.slice(0, 3).map((activity: any) => ({
-          status: isSolved && activity === sortedActivities[0] ? "accepted" : "wrong",
-          time: formatTimeAgo(activity.timestamp),
-          runtime: isSolved && activity === sortedActivities[0] ? "68ms" : "-"
-        }));
+        submissions = sortedActivities.slice(0, 3).map((activity: any, index: number) => {
+          // Determine if this was the final successful submission
+          const isFinalSuccess = isSolved && index === 0;
+          // Determine if this was a wrong submission
+          const isWrongSubmission = !isSolved || (isSolved && index > 0);
+          
+          return {
+            status: isFinalSuccess ? "accepted" : "wrong",
+            time: formatTimeAgo(activity.timestamp),
+            runtime: isFinalSuccess ? "68ms" : "-"
+          };
+        });
       }
 
       return {
@@ -103,7 +110,7 @@ export async function GET(request: NextRequest) {
     const totalExercises = allExercises.length;
     const solvedExercises = exerciseHistory.filter(ex => ex.status === 'solved');
     const attemptedExercises = exerciseHistory.filter(ex => ex.status === 'attempted');
-    
+
     const easyExercises = exerciseHistory.filter(ex => ex.difficulty === 'easy');
     const mediumExercises = exerciseHistory.filter(ex => ex.difficulty === 'medium');
     const hardExercises = exerciseHistory.filter(ex => ex.difficulty === 'hard');
@@ -158,11 +165,15 @@ export async function GET(request: NextRequest) {
         }));
       exercisesToShow = randomExercises;
     } else {
-      // Show user's actual exercise history (solved + attempted)
-      exercisesToShow = exerciseHistory.filter(ex => ex.status === 'solved' || ex.status === 'attempted');
+      // Show ALL exercises that have any activity (solved, attempted, or wrong submissions)
+      const exercisesWithAnyActivity = exerciseHistory.filter(ex => 
+        ex.submissions.length > 0 || ex.lastAttempt !== null
+      );
       
-      // If user has no solved/attempted exercises but has activities, show those
-      if (exercisesToShow.length === 0 && exerciseActivities.length > 0) {
+      exercisesToShow = exercisesWithAnyActivity;
+      
+      // If no exercises with activity found, show some new exercises
+      if (exercisesToShow.length === 0) {
         exercisesToShow = exerciseHistory.filter(ex => ex.status === 'new').slice(0, 2);
       }
     }
@@ -203,15 +214,21 @@ export async function GET(request: NextRequest) {
 function formatTimeAgo(date: Date): string {
   const now = new Date();
   const diffInMs = now.getTime() - new Date(date).getTime();
-  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+  const diffInSeconds = Math.floor(diffInMs / 1000);
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  const diffInHours = Math.floor(diffInMinutes / 60);
   const diffInDays = Math.floor(diffInHours / 24);
 
   if (diffInDays > 0) {
-    return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+    return `${diffInDays} gün əvvəl`;
   } else if (diffInHours > 0) {
-    return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    return `${diffInHours} saat əvvəl`;
+  } else if (diffInMinutes > 0) {
+    return `${diffInMinutes} dəqiqə əvvəl`;
+  } else if (diffInSeconds > 30) {
+    return `${diffInSeconds} saniyə əvvəl`;
   } else {
-    return "Just now";
+    return "İndicə";
   }
 }
 

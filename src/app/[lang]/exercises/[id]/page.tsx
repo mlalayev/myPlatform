@@ -484,24 +484,6 @@ export default function ExerciseDetailPage({
     let failedCase = null;
     const failedCasesArr: FailedCase[] = [];
     
-    // Log exercise submission activity (optional)
-    if (exercise) {
-      try {
-        logActivity(
-          'EXERCISE_SUBMIT',
-          `Submitted solution for exercise: ${exercise.title}`,
-          {
-            exerciseId: id,
-            exerciseTitle: exercise.title,
-            language: language,
-            codeLength: userCode.length
-          }
-        );
-      } catch (error) {
-        console.warn('Activity logging failed:', error);
-      }
-    }
-    
     if (!isSafeCode(userCode)) {
       setFeedback("Kod təhlükəli əmrlər ehtiva edir!");
       setFeedbackType("error");
@@ -1162,25 +1144,6 @@ export default function ExerciseDetailPage({
         }
       } catch (error) {
         console.warn('Failed to mark exercise as solved:', error);
-      }
-    }
-    
-    // Log successful exercise completion (optional)
-    if (exercise) {
-      try {
-        logActivity(
-          'EXERCISE_SOLVE',
-          `Successfully solved exercise: ${exercise.title}`,
-          {
-            exerciseId: id,
-            exerciseTitle: exercise.title,
-            language: language,
-            testCasesPassed: exercise.content.testCases.length,
-            attempts: 1 // Could track this if needed
-          }
-        );
-      } catch (error) {
-        console.warn('Activity logging failed:', error);
       }
     }
   };

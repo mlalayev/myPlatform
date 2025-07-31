@@ -38,6 +38,8 @@ model User {
   dailyActivities   DailyActivity[]
   lessonProgress    UserLessonProgress[]
   achievements      Achievement[]
+  learningGoals     LearningGoal[]    // Relation to learning goals
+  favorites         Favorite[]        // Relation to favorites
 }
 
 model Tutorial {
@@ -160,6 +162,58 @@ model Achievement {
   @@unique([userId, name])
 }
 
+model LearningGoal {
+  id            Int                    @id @default(autoincrement())
+  user          User                   @relation(fields: [userId], references: [id])
+  userId        Int
+  title         String
+  description   String
+  category      String                 // Programming, Language, Framework, Project, Certification
+  status        GoalStatus             @default(ACTIVE)
+  progress      Int                    @default(0) // 0-100
+  deadline      DateTime?
+  priority      GoalPriority           @default(MEDIUM)
+  difficulty    GoalDifficulty         @default(MEDIUM)
+  timeSpent     Int                    @default(0) // in minutes
+  estimatedTime Int                    @default(0) // in minutes
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  milestones    LearningGoalMilestone[]
+  
+  @@index([userId, status])
+  @@index([category])
+}
+
+model LearningGoalMilestone {
+  id            Int         @id @default(autoincrement())
+  learningGoal  LearningGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  goalId        Int
+  text          String
+  completed     Boolean     @default(false)
+  order         Int         // For ordering milestones
+  createdAt     DateTime    @default(now())
+  completedAt   DateTime?
+  
+  @@index([goalId, order])
+}
+
+model Favorite {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  type        FavoriteType // LESSON, EXERCISE
+  itemId      Int         // ID of the lesson or exercise
+  title       String      // Title of the lesson or exercise
+  description String?     // Description (optional)
+  language    String?     // Programming language (for lessons)
+  category    String?     // Category (for exercises)
+  createdAt   DateTime    @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, type, itemId]) // Prevent duplicate favorites
+  @@index([userId, type])
+}
+
 enum Role {
   USER
   ADMIN
@@ -180,13 +234,40 @@ enum ActivityType {
   QUIZ_SUBMIT
   QUIZ_PASS
   EXERCISE_START
-  EXERCISE_SUBMIT
   EXERCISE_SOLVE
+  EXERCISE_SUBMIT
   PROFILE_UPDATE
   SETTINGS_CHANGE
   DAILY_LOGIN_BONUS
   ACHIEVEMENT_EARNED
+  ACHIEVEMENT_UNLOCKED
   COURSE_ENROLL
   BOOKMARK_ADD
   BOOKMARK_REMOVE
+  DAILY_LOGIN
+  STREAK_MAINTAINED
+}
+
+enum GoalStatus {
+  ACTIVE
+  COMPLETED
+  OVERDUE
+  PAUSED
+}
+
+enum GoalPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum GoalDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum FavoriteType {
+  LESSON
+  EXERCISE
 }

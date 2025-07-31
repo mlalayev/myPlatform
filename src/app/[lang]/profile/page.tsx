@@ -55,20 +55,14 @@ import overviewStyles from "./ProfileOverview.module.css";
 import calendarStyles from "./ProfileCalendar.module.css";
 import exercisesStyles from "./ProfileExercises.module.css";
 import achievementsStyles from "./ProfileAchievements.module.css";
-import analyticsStyles from "./ProfileAnalytics.module.css";
 import recentActivitiesStyles from "./ProfileRecentActivities.module.css";
-import securityStyles from "./ProfileSecurity.module.css";
 import ProfileOverview from "./components/ProfileOverview";
 import ProfileExercises from "./components/ProfileExercises";
 import ProfileAchievements from "./components/ProfileAchievements";
-import ProfileAnalytics from "./components/ProfileAnalytics";
 import ProfileRecentActivities from "./components/ProfileRecentActivities";
-import ProfileSecurity from "./components/ProfileSecurity";
 import ProfileProgress from "./components/ProfileProgress";
-
 import ProfileGoals from "./components/ProfileGoals";
-import ProfileNotifications from "./components/ProfileNotifications";
-import ProfileFavourites from "./components/ProfileFavourites";
+import ProfileFavorites from "./components/ProfileFavorites";
 
 export default function ProfilePage() {
   const { t } = useI18n();
@@ -104,32 +98,6 @@ const profileTabs = [
       name: t("profile.tabs.goals.name"),
     icon: <FiTarget size={24} />,
       description: t("profile.tabs.goals.description"),
-  },
-  {
-    key: "analytics",
-      name: t("profile.tabs.analytics.name"),
-    icon: <FiBarChart2 size={24} />,
-      description: t("profile.tabs.analytics.description"),
-  },
-  /* Temporarily disabled until activity tracking is ready
-  {
-    key: "calendar",
-      name: t("profile.tabs.calendar.name"),
-    icon: <FiCalendar size={24} />,
-      description: t("profile.tabs.calendar.description"),
-  },
-  */
-  {
-    key: "security",
-      name: t("profile.tabs.security.name"),
-    icon: <FiSettings size={24} />,
-      description: t("profile.tabs.security.description"),
-  },
-  {
-    key: "notifications",
-      name: t("profile.tabs.notifications.name"),
-    icon: <FiEye size={24} />,
-      description: t("profile.tabs.notifications.description"),
   },
   {
     key: "favorites",
@@ -666,34 +634,9 @@ const profileTabs = [
             loading={loading}
           />
         );
-      case "analytics":
-        return (
-          <ProfileAnalytics 
-            userStats={userStats}
-            loading={loading}
-          />
-        );
-      /* Temporarily disabled until activity tracking is ready
-      case "calendar":
-        return <div className={layoutStyles.tabContent}>{renderCalendar()}</div>;
-      */
-      case "security":
-        return (
-          <ProfileSecurity 
-            userStats={userStats}
-            loading={loading}
-          />
-        );
-      case "notifications":
-        return (
-          <ProfileNotifications 
-            userStats={userStats}
-            loading={loading}
-          />
-        );
       case "favorites":
         return (
-          <ProfileFavourites 
+          <ProfileFavorites 
             userStats={userStats}
             loading={loading}
           />

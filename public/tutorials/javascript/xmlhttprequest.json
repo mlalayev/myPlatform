@@ -1,0 +1,456 @@
+{
+  "id": "xmlhttprequest",
+  "az": {
+    "title": "XMLHttpRequest Obyekti",
+    "icon": "FiGlobe",
+    "language": "javascript",
+    "description": "JavaScript-də XMLHttpRequest obyektindən istifadə ilə asinxron sorğuların idarə edilməsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "XMLHttpRequest Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "`XMLHttpRequest` (qısaca XHR) JavaScript-də serverlə asinxron şəkildə məlumat göndərmək və almaq üçün istifadə olunan obyekt-dir. Bu, AJAX (Asynchronous JavaScript and XML) texnologiyasının əsasını təşkil edir və veb səhifələrin səhifəni yenidən yükləmədən məlumatları yeniləməsinə imkan verir. Məsələn, bir düyməyə klik edərək serverdən məlumat alıb səhifədə göstərmək mümkündür. Bu JSON faylda `XMLHttpRequest` obyektinin necə işlədiyi, nümunələri, üstünlükləri və çətinlikləri sadə şəkildə izah olunacaq. Aşağıda kodları sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "XMLHttpRequest-in Əsas Metod və Xüsusiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "`XMLHttpRequest` obyekti bir neçə əsas metod və xüsusiyyətə malikdir:\n- `open(method, url, async)`: Sorğunu konfiqurasiya edir (metod, URL və asinxronluq).\n- `send()`: Sorğunu serverə göndərir.\n- `onload`: Sorğu uğurla tamamlandıqda işə düşür.\n- `onerror`: Sorğu xətası olduqda işə düşür.\n- `status`: Serverin cavab status kodu (məsələn, 200 uğurlu, 404 tapılmadı).\n- `responseText`: Serverdən gələn cavab mətni.\nQeyd: `XMLHttpRequest` ilə JSON, XML və ya digər formatlarda məlumat almaq mümkündür."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// XMLHttpRequest ilə sadə GET sorğusu\nconst xhr = new XMLHttpRequest();\nxhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\nxhr.onload = function() {\n  if (xhr.status === 200) {\n    const data = JSON.parse(xhr.responseText);\n    console.log('Məlumat:', data);\n  } else {\n    console.log('Xəta:', xhr.status);\n  }\n};\nxhr.onerror = function() {\n  console.log('Şəbəkə xətası');\n};\nxhr.send();"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `XMLHttpRequest` ilə `GET` sorğusu göndərilir.\n- Cavab uğurlu olarsa (status 200), JSON məlumatı konsola yazılır.\n- Xəta olarsa, status kodu və ya şəbəkə xətası göstərilir.\n- Aşağıda bu kodu sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "XMLHttpRequest ilə POST Sorğusu"
+      },
+      {
+        "type": "paragraph",
+        "text": "`XMLHttpRequest` ilə məlumat göndərmək üçün `POST` sorğusu da istifadə edilə bilər. Bu zaman `setRequestHeader` ilə başlıqlar və `send` ilə məlumatlar göndərilir."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// XMLHttpRequest ilə POST sorğusu\nconst xhr = new XMLHttpRequest();\nxhr.open('POST', 'https://jsonplaceholder.typicode.com/posts', true);\nxhr.setRequestHeader('Content-Type', 'application/json');\nconst data = JSON.stringify({ title: 'Yeni başlıq', body: 'Məzmun', userId: 1 });\nxhr.onload = function() {\n  if (xhr.status === 201) {\n    const response = JSON.parse(xhr.responseText);\n    console.log('Cavab:', response);\n  } else {\n    console.log('Xəta:', xhr.status);\n  }\n};\nxhr.send(data);"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `POST` sorğusu ilə serverə JSON məlumatı göndərilir.\n- Uğurlu cavab (status 201) alındıqda cavab konsola yazılır.\n- Aşağıda bu kodu sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "XMLHttpRequest ilə Hadisə İdarəetmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "`XMLHttpRequest` istifadəçi hərəkətlərinə cavab olaraq məlumat almaq üçün istifadə edilə bilər."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Hadisə ilə XMLHttpRequest nümunəsi\nconst button = document.querySelector('#myButton');\nbutton.addEventListener('click', () => {\n  const xhr = new XMLHttpRequest();\n  xhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\n  xhr.onload = function() {\n    if (xhr.status === 200) {\n      const data = JSON.parse(xhr.responseText);\n      const container = document.querySelector('#myContainer');\n      container.innerText = data.title;\n      console.log('Məlumat yükləndi:', data);\n    } else {\n      console.log('Xəta:', xhr.status);\n    }\n  };\n  xhr.onerror = function() {\n    console.log('Şəbəkə xətası');\n  };\n  xhr.send();\n});"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Düyməyə klik edildikdə `XMLHttpRequest` ilə məlumat alınır.\n- Alınan məlumat səhifədə göstərilir.\n- Aşağıda bu kodu sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "XMLHttpRequest-in Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "`XMLHttpRequest` aşağıdakı üstünlüklərə malikdir:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nAsinxronluq: Səhifəni yenidən yükləmədən məlumat yükləyir."
+          },
+          { "description": "\nUyğunluq: Köhnə brauzerlərdə də işləyir." },
+          {
+            "description": "\nÇeviklik: Müxtəlif HTTP metodları və məlumat formatlarını dəstəkləyir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "`XMLHttpRequest` ilə işləyərkən bəzi çətinliklər ola bilər:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nMürəkkəb sintaksis: Yeni başlayanlar üçün `fetch` API-dan daha çətindir."
+          },
+          {
+            "description": "\nXəta idarəetmə: Server və ya şəbəkə xətalarını idarə etmək tələb olunur."
+          },
+          {
+            "description": "\nMüasir alternativlər: `fetch` API daha sadə və oxunaqlıdır."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Server cavabını yoxlamadan məlumatı emal etmək xətalara səbəb ola bilər. İstifadəçi məlumatları ilə işləyərkən təhlükəsizlik riskləri (məsələn, XSS) ola bilər.\n- **Tövsiyələr**: `status` kodunu yoxlayın. İstifadəçi məlumatlarını təmizləyin (sanitize). Mümkünsə, daha müasir `fetch` API-dan istifadə edin. Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) sənədlərindən istifadə edin. Aşağıda kodları sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Səhvə yol açan nümunə\nconst xhr = new XMLHttpRequest();\nxhr.open('GET', 'https://nonexistent.api/data', true);\nxhr.send();\nxhr.onload = function() {\n  const data = JSON.parse(xhr.responseText); // Xəta: Yanlış URL və ya cavab\n  console.log(data);\n};\n\n// Düzgün yol\nconst xhr = new XMLHttpRequest();\nxhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\nxhr.onload = function() {\n  if (xhr.status === 200) {\n    const data = JSON.parse(xhr.responseText);\n    console.log('Məlumat:', data);\n  } else {\n    console.log('Xəta:', xhr.status);\n  }\n};\nxhr.onerror = function() {\n  console.log('Şəbəkə xətası');\n};\nxhr.send();"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Mövcud olmayan URL-ə sorğu göndərildikdə xəta baş verir.\n- Düzgün yolda cavab yoxlanılır və xəta idarə olunur.\n- Aşağıda bu kodu sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "HTML ilə XMLHttpRequest Testi"
+      },
+      {
+        "type": "code",
+        "language": "html",
+        "code": "<!DOCTYPE html>\n<html>\n<head>\n  <title>XMLHttpRequest Testi</title>\n</head>\n<body>\n  <div id='myContainer'>Məlumat buraya yüklənəcək</div>\n  <button id='myButton'>Məlumatı yüklə</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      const xhr = new XMLHttpRequest();\n      xhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\n      xhr.onload = function() {\n        if (xhr.status === 200) {\n          const data = JSON.parse(xhr.responseText);\n          container.innerText = data.title;\n          console.log('Məlumat:', data);\n        } else {\n          container.innerText = 'Xəta baş verdi';\n          console.log('Xəta:', xhr.status);\n        }\n      };\n      xhr.onerror = function() {\n        container.innerText = 'Şəbəkə xətası';\n        console.log('Şəbəkə xətası');\n      };\n      xhr.send();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu HTML və JavaScript kodunu bir `.html` faylına kopyalayıb brauzerdə sınaqdan keçirə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<!DOCTYPE html>\n<html>\n<head>\n  <title>XMLHttpRequest Testi</title>\n</head>\n<body>\n  <div id='myContainer'>Məlumat buraya yüklənəcək</div>\n  <button id='myButton'>Məlumatı yüklə</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      if (container) {\n        const xhr = new XMLHttpRequest();\n        xhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\n        xhr.onload = function() {\n          if (xhr.status === 200) {\n            const data = JSON.parse(xhr.responseText);\n            container.innerText = data.title;\n            console.log('Məlumat:', data);\n          } else {\n            container.innerText = 'Xəta baş verdi';\n            console.log('Xəta:', xhr.status);\n          }\n        };\n        xhr.onerror = function() {\n          container.innerText = 'Şəbəkə xətası';\n          console.log('Şəbəkə xətası');\n        };\n        xhr.send();\n      } else {\n        console.log('Element tapılmadı');\n      }\n    });\n  </script>\n</body>\n</html>"
+      }
+    ]
+  },
+  "en": {
+    "title": "XMLHttpRequest Object",
+    "icon": "FiGlobe",
+    "language": "javascript",
+    "description": "Using the XMLHttpRequest object in JavaScript for asynchronous requests.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is XMLHttpRequest?"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `XMLHttpRequest` (XHR) object in JavaScript is used to send and receive data from a server asynchronously, forming the basis of AJAX (Asynchronous JavaScript and XML). It allows web pages to update content without reloading. For example, clicking a button can fetch data from a server and display it on the page. This JSON file explains how `XMLHttpRequest` works, its examples, advantages, and challenges in a simple way. You can test the code below in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "Main Methods and Properties of XMLHttpRequest"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `XMLHttpRequest` object has several key methods and properties:\n- `open(method, url, async)`: Configures the request (method, URL, and async).\n- `send()`: Sends the request to the server.\n- `onload`: Triggered when the request completes successfully.\n- `onerror`: Triggered on request errors.\n- `status`: The server’s response status code (e.g., 200 for success, 404 for not found).\n- `responseText`: The server’s response text.\nNote: `XMLHttpRequest` can handle JSON, XML, or other data formats."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Simple GET request with XMLHttpRequest\nconst xhr = new XMLHttpRequest();\nxhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\nxhr.onload = function() {\n  if (xhr.status === 200) {\n    const data = JSON.parse(xhr.responseText);\n    console.log('Data:', data);\n  } else {\n    console.log('Error:', xhr.status);\n  }\n};\nxhr.onerror = function() {\n  console.log('Network error');\n};\nxhr.send();"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `XMLHttpRequest` sends a `GET` request.\n- If the response is successful (status 200), the JSON data is logged to the console.\n- Errors are handled by checking the status or network issues.\n- You can test this code in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "POST Request with XMLHttpRequest"
+      },
+      {
+        "type": "paragraph",
+        "text": "`XMLHttpRequest` can also send data to the server using a `POST` request, with headers set via `setRequestHeader` and data sent via `send`."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// POST request with XMLHttpRequest\nconst xhr = new XMLHttpRequest();\nxhr.open('POST', 'https://jsonplaceholder.typicode.com/posts', true);\nxhr.setRequestHeader('Content-Type', 'application/json');\nconst data = JSON.stringify({ title: 'New title', body: 'Content', userId: 1 });\nxhr.onload = function() {\n  if (xhr.status === 201) {\n    const response = JSON.parse(xhr.responseText);\n    console.log('Response:', response);\n  } else {\n    console.log('Error:', xhr.status);\n  }\n};\nxhr.send(data);"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- A `POST` request sends JSON data to the server.\n- A successful response (status 201) is logged to the console.\n- You can test this code in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "XMLHttpRequest with Event Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "`XMLHttpRequest` can fetch data in response to user actions."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Event-driven XMLHttpRequest example\nconst button = document.querySelector('#myButton');\nbutton.addEventListener('click', () => {\n  const xhr = new XMLHttpRequest();\n  xhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\n  xhr.onload = function() {\n    if (xhr.status === 200) {\n      const data = JSON.parse(xhr.responseText);\n      const container = document.querySelector('#myContainer');\n      container.innerText = data.title;\n      console.log('Data loaded:', data);\n    } else {\n      console.log('Error:', xhr.status);\n    }\n  };\n  xhr.onerror = function() {\n    console.log('Network error');\n  };\n  xhr.send();\n});"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Clicking the button triggers an `XMLHttpRequest` to fetch data.\n- The fetched data is displayed on the page.\n- You can test this code in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of XMLHttpRequest"
+      },
+      {
+        "type": "paragraph",
+        "text": "`XMLHttpRequest` offers the following advantages:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nAsynchronous: Loads data without reloading the page."
+          },
+          { "description": "\nCompatibility: Works in older browsers." },
+          {
+            "description": "\nFlexibility: Supports various HTTP methods and data formats."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Working with `XMLHttpRequest` can present challenges:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nComplex Syntax: More complex than the `fetch` API for beginners."
+          },
+          {
+            "description": "\nError Handling: Requires handling server or network errors."
+          },
+          {
+            "description": "\nModern Alternatives: The `fetch` API is simpler and more readable."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Processing server responses without checking can cause errors. Handling user inputs can lead to security risks (e.g., XSS).\n- **Recommendations**: Check the `status` code. Sanitize user inputs. Consider using the more modern `fetch` API if possible. Refer to Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) for guidance. You can test the code below in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Error-prone example\nconst xhr = new XMLHttpRequest();\nxhr.open('GET', 'https://nonexistent.api/data', true);\nxhr.send();\nxhr.onload = function() {\n  const data = JSON.parse(xhr.responseText); // Error: Invalid URL or response\n  console.log(data);\n};\n\n// Correct approach\nconst xhr = new XMLHttpRequest();\nxhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\nxhr.onload = function() {\n  if (xhr.status === 200) {\n    const data = JSON.parse(xhr.responseText);\n    console.log('Data:', data);\n  } else {\n    console.log('Error:', xhr.status);\n  }\n};\nxhr.onerror = function() {\n  console.log('Network error');\n};\nxhr.send();"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Sending a request to a nonexistent URL causes an error.\n- The correct approach checks the response and handles errors.\n- You can test this code in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "Testing XMLHttpRequest with HTML"
+      },
+      {
+        "type": "code",
+        "language": "html",
+        "code": "<!DOCTYPE html>\n<html>\n<head>\n  <title>XMLHttpRequest Test</title>\n</head>\n<body>\n  <div id='myContainer'>Data will be loaded here</div>\n  <button id='myButton'>Load Data</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      const xhr = new XMLHttpRequest();\n      xhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\n      xhr.onload = function() {\n        if (xhr.status === 200) {\n          const data = JSON.parse(xhr.responseText);\n          container.innerText = data.title;\n          console.log('Data:', data);\n        } else {\n          container.innerText = 'An error occurred';\n          console.log('Error:', xhr.status);\n        }\n      };\n      xhr.onerror = function() {\n        container.innerText = 'Network error';\n        console.log('Network error');\n      };\n      xhr.send();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "type": "paragraph",
+        "text": "You can copy this HTML and JavaScript code into a `.html` file and test it in a browser."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<!DOCTYPE html>\n<html>\n<head>\n  <title>XMLHttpRequest Test</title>\n</head>\n<body>\n  <div id='myContainer'>Data will be loaded here</div>\n  <button id='myButton'>Load Data</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      if (container) {\n        const xhr = new XMLHttpRequest();\n        xhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\n        xhr.onload = function() {\n          if (xhr.status === 200) {\n            const data = JSON.parse(xhr.responseText);\n            container.innerText = data.title;\n            console.log('Data:', data);\n          } else {\n            container.innerText = 'An error occurred';\n            console.log('Error:', xhr.status);\n          }\n        };\n        xhr.onerror = function() {\n          container.innerText = 'Network error';\n          console.log('Network error');\n        };\n        xhr.send();\n      } else {\n        console.log('Element not found');\n      }\n    });\n  </script>\n</body>\n</html>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Объект XMLHttpRequest",
+    "icon": "FiGlobe",
+    "language": "javascript",
+    "description": "Использование объекта XMLHttpRequest в JavaScript для асинхронных запросов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое XMLHttpRequest?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Объект `XMLHttpRequest` (XHR) в JavaScript используется для отправки и получения данных с сервера асинхронно, являясь основой технологии AJAX (Asynchronous JavaScript and XML). Он позволяет обновлять содержимое веб-страниц без их перезагрузки. Например, нажатие на кнопку может загрузить данные с сервера и отобразить их на странице. Этот JSON-файл объясняет, как работает `XMLHttpRequest`, приводит примеры, преимущества и сложности простым языком. Вы можете протестировать код ниже в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Основные методы и свойства XMLHttpRequest"
+      },
+      {
+        "type": "paragraph",
+        "text": "Объект `XMLHttpRequest` имеет несколько ключевых методов и свойств:\n- `open(method, url, async)`: Настраивает запрос (метод, URL и асинхронность).\n- `send()`: Отправляет запрос на сервер.\n- `onload`: Срабатывает при успешном завершении запроса.\n- `onerror`: Срабатывает при ошибке запроса.\n- `status`: Код статуса ответа сервера (например, 200 — успех, 404 — не найдено).\n- `responseText`: Текст ответа сервера.\nПримечание: `XMLHttpRequest` поддерживает JSON, XML и другие форматы данных."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Простой GET-запрос с XMLHttpRequest\nconst xhr = new XMLHttpRequest();\nxhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\nxhr.onload = function() {\n  if (xhr.status === 200) {\n    const data = JSON.parse(xhr.responseText);\n    console.log('Данные:', data);\n  } else {\n    console.log('Ошибка:', xhr.status);\n  }\n};\nxhr.onerror = function() {\n  console.log('Сетевая ошибка');\n};\nxhr.send();"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `XMLHttpRequest` отправляет `GET`-запрос.\n- Если ответ успешен (status 200), данные JSON выводятся в консоль.\n- Ошибки обрабатываются через проверку статуса или сетевые проблемы.\n- Вы можете протестировать этот код в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "POST-запрос с XMLHttpRequest"
+      },
+      {
+        "type": "paragraph",
+        "text": "`XMLHttpRequest` может отправлять данные на сервер с помощью `POST`-запроса, используя `setRequestHeader` для заголовков и `send` для данных."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// POST-запрос с XMLHttpRequest\nconst xhr = new XMLHttpRequest();\nxhr.open('POST', 'https://jsonplaceholder.typicode.com/posts', true);\nxhr.setRequestHeader('Content-Type', 'application/json');\nconst data = JSON.stringify({ title: 'Новый заголовок', body: 'Содержимое', userId: 1 });\nxhr.onload = function() {\n  if (xhr.status === 201) {\n    const response = JSON.parse(xhr.responseText);\n    console.log('Ответ:', response);\n  } else {\n    console.log('Ошибка:', xhr.status);\n  }\n};\nxhr.send(data);"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `POST`-запрос отправляет JSON-данные на сервер.\n- Успешный ответ (status 201) выводится в консоль.\n- Вы можете протестировать этот код в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "XMLHttpRequest с обработкой событий"
+      },
+      {
+        "type": "paragraph",
+        "text": "`XMLHttpRequest` может загружать данные в ответ на действия пользователя."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример XMLHttpRequest с событием\nconst button = document.querySelector('#myButton');\nbutton.addEventListener('click', () => {\n  const xhr = new XMLHttpRequest();\n  xhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\n  xhr.onload = function() {\n    if (xhr.status === 200) {\n      const data = JSON.parse(xhr.responseText);\n      const container = document.querySelector('#myContainer');\n      container.innerText = data.title;\n      console.log('Данные загружены:', data);\n    } else {\n      console.log('Ошибка:', xhr.status);\n    }\n  };\n  xhr.onerror = function() {\n    console.log('Сетевая ошибка');\n  };\n  xhr.send();\n});"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Нажатие на кнопку запускает `XMLHttpRequest` для загрузки данных.\n- Полученные данные отображаются на странице.\n- Вы можете протестировать этот код в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества XMLHttpRequest"
+      },
+      {
+        "type": "paragraph",
+        "text": "`XMLHttpRequest` имеет следующие преимущества:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nАсинхронность: Загружает данные без перезагрузки страницы."
+          },
+          { "description": "\nСовместимость: Работает в старых браузерах." },
+          {
+            "description": "\nГибкость: Поддерживает различные HTTP-методы и форматы данных."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Работа с `XMLHttpRequest` может представлять сложности:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nСложный синтаксис: Для новичков сложнее, чем API `fetch`."
+          },
+          {
+            "description": "\nОбработка ошибок: Требуется обработка ошибок сервера или сети."
+          },
+          {
+            "description": "\nСовременные альтернативы: API `fetch` проще и читаемее."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Обработка ответов сервера без проверки может привести к ошибкам. Работа с пользовательскими данными может вызвать риски безопасности (например, XSS).\n- **Рекомендации**: Проверяйте код статуса (`status`). Очищайте пользовательские данные. По возможности используйте более современный API `fetch`. Обратитесь к документации Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest). Вы можете протестировать код ниже в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример с ошибкой\nconst xhr = new XMLHttpRequest();\nxhr.open('GET', 'https://nonexistent.api/data', true);\nxhr.send();\nxhr.onload = function() {\n  const data = JSON.parse(xhr.responseText); // Ошибка: Неверный URL или ответ\n  console.log(data);\n};\n\n// Правильный подход\nconst xhr = new XMLHttpRequest();\nxhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\nxhr.onload = function() {\n  if (xhr.status === 200) {\n    const data = JSON.parse(xhr.responseText);\n    console.log('Данные:', data);\n  } else {\n    console.log('Ошибка:', xhr.status);\n  }\n};\nxhr.onerror = function() {\n  console.log('Сетевая ошибка');\n};\nxhr.send();"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Отправка запроса на несуществующий URL вызывает ошибку.\n- Правильный подход проверяет ответ и обрабатывает ошибки.\n- Вы можете протестировать этот код в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Тестирование XMLHttpRequest с HTML"
+      },
+      {
+        "type": "code",
+        "language": "html",
+        "code": "<!DOCTYPE html>\n<html>\n<head>\n  <title>Тест XMLHttpRequest</title>\n</head>\n<body>\n  <div id='myContainer'>Данные будут загружены сюда</div>\n  <button id='myButton'>Загрузить данные</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      const xhr = new XMLHttpRequest();\n      xhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\n      xhr.onload = function() {\n        if (xhr.status === 200) {\n          const data = JSON.parse(xhr.responseText);\n          container.innerText = data.title;\n          console.log('Данные:', data);\n        } else {\n          container.innerText = 'Произошла ошибка';\n          console.log('Ошибка:', xhr.status);\n        }\n      };\n      xhr.onerror = function() {\n        container.innerText = 'Сетевая ошибка';\n        console.log('Сетевая ошибка');\n      };\n      xhr.send();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Вы можете скопировать этот HTML и JavaScript код в файл `.html` и протестировать его в браузере."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<!DOCTYPE html>\n<html>\n<head>\n  <title>Тест XMLHttpRequest</title>\n</head>\n<body>\n  <div id='myContainer'>Данные будут загружены сюда</div>\n  <button id='myButton'>Загрузить данные</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      if (container) {\n        const xhr = new XMLHttpRequest();\n        xhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\n        xhr.onload = function() {\n          if (xhr.status === 200) {\n            const data = JSON.parse(xhr.responseText);\n            container.innerText = data.title;\n            console.log('Данные:', data);\n          } else {\n            container.innerText = 'Произошла ошибка';\n            console.log('Ошибка:', xhr.status);\n          }\n        };\n        xhr.onerror = function() {\n          container.innerText = 'Сетевая ошибка';\n          console.log('Сетевая ошибка');\n        };\n        xhr.send();\n      } else {\n        console.log('Элемент не найден');\n      }\n    });\n  </script>\n</body>\n</html>"
+      }
+    ]
+  }
+}
