@@ -24,6 +24,7 @@ import {
 import { useI18n } from "@/contexts/I18nContext";
 import { useAppContext } from "@/contexts/AppContext";
 import { useSession } from "next-auth/react";
+import FavoriteButton from "../../../../components/FavoriteButton";
 // Remove Babel import since it's causing issues
 // import Babel from "@babel/standalone";
 
@@ -1307,6 +1308,13 @@ export default function ExerciseDetailPage({
                 ))}
               </div>
             </div>
+            <FavoriteButton
+              type="EXERCISE"
+              itemId={exercise.id}
+              title={exercise.title}
+              description={exercise.description}
+              category={exercise.category}
+            />
           </div>
         </div>
       </section>

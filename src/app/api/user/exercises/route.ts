@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     const exerciseActivities = user.activities || [];
 
     // Create exercise history with real data
-    const exerciseHistory = allExercises.map(exercise => {
+    const exerciseHistory = allExercises.map((exercise: any) => {
       const isSolved = userSolvedExercises.includes(exercise.id);
       
       // Find all activities for this exercise
@@ -108,16 +108,16 @@ export async function GET(request: NextRequest) {
 
     // Calculate real performance stats
     const totalExercises = allExercises.length;
-    const solvedExercises = exerciseHistory.filter(ex => ex.status === 'solved');
-    const attemptedExercises = exerciseHistory.filter(ex => ex.status === 'attempted');
+    const solvedExercises = exerciseHistory.filter((ex: any) => ex.status === 'solved');
+    const attemptedExercises = exerciseHistory.filter((ex: any) => ex.status === 'attempted');
 
-    const easyExercises = exerciseHistory.filter(ex => ex.difficulty === 'easy');
-    const mediumExercises = exerciseHistory.filter(ex => ex.difficulty === 'medium');
-    const hardExercises = exerciseHistory.filter(ex => ex.difficulty === 'hard');
+    const easyExercises = exerciseHistory.filter((ex: any) => ex.difficulty === 'easy');
+    const mediumExercises = exerciseHistory.filter((ex: any) => ex.difficulty === 'medium');
+    const hardExercises = exerciseHistory.filter((ex: any) => ex.difficulty === 'hard');
 
-    const easySolved = easyExercises.filter(ex => ex.status === 'solved').length;
-    const mediumSolved = mediumExercises.filter(ex => ex.status === 'solved').length;
-    const hardSolved = hardExercises.filter(ex => ex.status === 'solved').length;
+    const easySolved = easyExercises.filter((ex: any) => ex.status === 'solved').length;
+    const mediumSolved = mediumExercises.filter((ex: any) => ex.status === 'solved').length;
+    const hardSolved = hardExercises.filter((ex: any) => ex.status === 'solved').length;
 
     // Get exercise categories with real stats
     const exerciseCategories = [
@@ -125,8 +125,8 @@ export async function GET(request: NextRequest) {
         id: "algorithms",
         name: "Algorithms",
         icon: "FiCpu",
-        solved: exerciseHistory.filter(ex => ex.category === "Algorithms" && ex.status === 'solved').length,
-        total: exerciseHistory.filter(ex => ex.category === "Algorithms").length,
+        solved: exerciseHistory.filter((ex: any) => ex.category === "Algorithms" && ex.status === 'solved').length,
+        total: exerciseHistory.filter((ex: any) => ex.category === "Algorithms").length,
         progress: calculateProgress("Algorithms", exerciseHistory),
         className: "algorithms"
       },
@@ -134,8 +134,8 @@ export async function GET(request: NextRequest) {
         id: "data-structures",
         name: "Data Structures",
         icon: "FiLayers",
-        solved: exerciseHistory.filter(ex => ex.category === "Data Structures" && ex.status === 'solved').length,
-        total: exerciseHistory.filter(ex => ex.category === "Data Structures").length,
+        solved: exerciseHistory.filter((ex: any) => ex.category === "Data Structures" && ex.status === 'solved').length,
+        total: exerciseHistory.filter((ex: any) => ex.category === "Data Structures").length,
         progress: calculateProgress("Data Structures", exerciseHistory),
         className: "dataStructures"
       }
@@ -148,7 +148,7 @@ export async function GET(request: NextRequest) {
       const randomExercises = allExercises
         .sort(() => 0.5 - Math.random())
         .slice(0, 2)
-        .map(exercise => ({
+        .map((exercise: any) => ({
           id: exercise.id,
           title: exercise.title,
           description: exercise.description,
@@ -166,7 +166,7 @@ export async function GET(request: NextRequest) {
       exercisesToShow = randomExercises;
     } else {
       // Show ALL exercises that have any activity (solved, attempted, or wrong submissions)
-      const exercisesWithAnyActivity = exerciseHistory.filter(ex => 
+      const exercisesWithAnyActivity = exerciseHistory.filter((ex: any) => 
         ex.submissions.length > 0 || ex.lastAttempt !== null
       );
       
@@ -174,7 +174,7 @@ export async function GET(request: NextRequest) {
       
       // If no exercises with activity found, show some new exercises
       if (exercisesToShow.length === 0) {
-        exercisesToShow = exerciseHistory.filter(ex => ex.status === 'new').slice(0, 2);
+        exercisesToShow = exerciseHistory.filter((ex: any) => ex.status === 'new').slice(0, 2);
       }
     }
 

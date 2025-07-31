@@ -4,6 +4,15 @@ import { useState, useEffect } from 'react';
 import { useI18n } from '@/contexts/I18nContext';
 import styles from '../ProfileFavorites.module.css';
 
+// Polyfill for AbortSignal.timeout
+if (!AbortSignal.timeout) {
+  (AbortSignal as any).timeout = function timeout(ms: number) {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), ms);
+    return controller.signal;
+  };
+}
+
 interface Favorite {
   id: number;
   type: 'LESSON' | 'EXERCISE';
@@ -19,6 +28,7 @@ export default function ProfileFavorites() {
   const { t } = useI18n();
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'ALL' | 'LESSON' | 'EXERCISE'>('ALL');
 
   useEffect(() => {
@@ -27,13 +37,26 @@ export default function ProfileFavorites() {
 
   const fetchFavorites = async () => {
     try {
-      const response = await fetch('/api/user/favorites');
+      setError(null);
+      const response = await fetch('/api/user/favorites', {
+        signal: AbortSignal.timeout(10000) // 10 second timeout
+      });
+      
       if (response.ok) {
         const data = await response.json();
         setFavorites(data.favorites || []);
+      } else {
+        console.warn('Failed to fetch favorites:', response.status);
+        setError('Failed to load favorites');
       }
     } catch (error) {
-      console.error('Error fetching favorites:', error);
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.warn('Request timeout while fetching favorites');
+        setError('Request timeout');
+      } else {
+        console.error('Error fetching favorites:', error);
+        setError('Network error');
+      }
     } finally {
       setLoading(false);
     }
@@ -42,14 +65,24 @@ export default function ProfileFavorites() {
   const removeFavorite = async (type: string, itemId: number) => {
     try {
       const response = await fetch(`/api/user/favorites?type=${type}&itemId=${itemId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        signal: AbortSignal.timeout(5000) // 5 second timeout
       });
       
       if (response.ok) {
         setFavorites(favorites.filter(fav => !(fav.type === type && fav.itemId === itemId)));
+      } else {
+        console.warn('Failed to remove favorite:', response.status);
+        alert('Failed to remove from favorites');
       }
     } catch (error) {
-      console.error('Error removing favorite:', error);
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.warn('Request timeout while removing favorite');
+        alert('Request timeout');
+      } else {
+        console.error('Error removing favorite:', error);
+        alert('Network error');
+      }
     }
   };
 
@@ -78,39 +111,73 @@ export default function ProfileFavorites() {
 
   if (loading) {
     return (
-      <div className={styles.container}>
+      <div className={styles.favoritesContainer}>
         <div className={styles.loading}>Yüklənir...</div>
       </div>
     );
   }
 
-  return (
-    <div className={styles.container}>
-      {/* Hero Section */}
-      <div className={styles.hero}>
-        <div className={styles.heroContent}>
-          <h1>Sevimlilərim</h1>
-          <p>Əlavə etdiyin dərs və məşqlər</p>
-        </div>
-        <div className={styles.heroStats}>
-          <div className={styles.statCard}>
-            <span className={styles.statNumber}>{favorites.length}</span>
-            <span className={styles.statLabel}>Ümumi</span>
-          </div>
-          <div className={styles.statCard}>
-            <span className={styles.statNumber}>
-              {favorites.filter(f => f.type === 'LESSON').length}
-            </span>
-            <span className={styles.statLabel}>Dərs</span>
-          </div>
-          <div className={styles.statCard}>
-            <span className={styles.statNumber}>
-              {favorites.filter(f => f.type === 'EXERCISE').length}
-            </span>
-            <span className={styles.statLabel}>Məşq</span>
-          </div>
+  if (error) {
+    return (
+      <div className={styles.favoritesContainer}>
+        <div className={styles.loading}>
+          <div style={{ color: '#ef4444', marginBottom: '1rem' }}>⚠️</div>
+          <h3 style={{ color: '#ef4444', marginBottom: '0.5rem' }}>Xəta baş verdi</h3>
+          <p style={{ marginBottom: '1rem' }}>{error}</p>
+          <button 
+            onClick={() => {
+              setLoading(true);
+              setError(null);
+              fetchFavorites();
+            }}
+            style={{
+              background: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              padding: '0.5rem 1rem',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '0.9rem'
+            }}
+          >
+            Yenidən cəhd et
+          </button>
         </div>
       </div>
+    );
+  }
+
+                return (
+                <div className={styles.favoritesContainer}>
+                  {/* Hero Section */}
+                  <div className={styles.favoritesHero}>
+                    <div className={styles.heroContent}>
+                      <div className={styles.heroLeft}>
+                        <h1 className={styles.heroTitle}>Sevimlilərim</h1>
+                        <p className={styles.heroSubtitle}>Əlavə etdiyin dərs və məşqlər</p>
+                      </div>
+                      <div className={styles.heroRight}>
+                        <div className={styles.favoritesStats}>
+                          <div className={styles.statItem}>
+                            <span className={styles.statNumber}>{favorites.length}</span>
+                            <span className={styles.statLabel}>Ümumi</span>
+                          </div>
+                          <div className={styles.statItem}>
+                            <span className={styles.statNumber}>
+                              {favorites.filter(f => f.type === 'LESSON').length}
+                            </span>
+                            <span className={styles.statLabel}>Dərs</span>
+                          </div>
+                          <div className={styles.statItem}>
+                            <span className={styles.statNumber}>
+                              {favorites.filter(f => f.type === 'EXERCISE').length}
+                            </span>
+                            <span className={styles.statLabel}>Məşq</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
       {/* Filter Section */}
       <div className={styles.filterSection}>

@@ -11,6 +11,7 @@ import { useSession } from "next-auth/react";
 import { useMemo } from "react";
 import { useAppContext } from "../../../../../../contexts/AppContext";
 import mainPageTryEditorStyles from "../../../../components/mainpageTryEditor/MainPageTryEditor.module.css";
+import FavoriteButton from "../../../../../../components/FavoriteButton";
 
 interface ContentBlock {
   type: "heading" | "paragraph" | "code" | "editor" | "list";
@@ -544,7 +545,13 @@ export default function TutorialTopicPage() {
                 marginLeft: "auto",
               }}
             >
-              {/* Removed completion/scroll icons */}
+              <FavoriteButton
+                type="LESSON"
+                itemId={parseInt(topicId || '0')}
+                title={topicContent?.title || selectedTopic?.title || "Mövzu"}
+                description={topicContent?.description || selectedTopic?.description}
+                language={decodeURIComponent(safeLanguage)}
+              />
               <button className={styles.backButtonNew} onClick={handleBack}>
                 <FiIcons.FiChevronLeft /> Geri
               </button>
