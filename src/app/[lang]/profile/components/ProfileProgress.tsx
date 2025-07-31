@@ -9,6 +9,7 @@ import {
   FiHash,
   FiBookOpen,
 } from "react-icons/fi";
+import LearningAnalytics from "./LearningAnalytics";
 import { 
   SiJavascript, 
   SiPython, 
@@ -210,6 +211,9 @@ export default function ProfileProgress({
   // Use streak data from userStats
   const streakDays = userStats?.streakData || [];
 
+  // Chart tab state
+  const [activeTab, setActiveTab] = useState<'weekly' | 'monthly' | 'allTime'>('weekly');
+
   return (
     <div className={progressStyles.progressContainer}>
       {/* Hero Section */}
@@ -265,18 +269,28 @@ export default function ProfileProgress({
           <div className={progressStyles.chartHeader}>
             <h3 className={progressStyles.chartTitle}>Learning Analytics</h3>
             <div className={progressStyles.chartTabs}>
-              <button className={`${progressStyles.chartTab} ${progressStyles.active}`}>
+              <button 
+                className={`${progressStyles.chartTab} ${activeTab === 'weekly' ? progressStyles.active : ''}`}
+                onClick={() => setActiveTab('weekly')}
+              >
                 Weekly
               </button>
-              <button className={progressStyles.chartTab}>Monthly</button>
-              <button className={progressStyles.chartTab}>All Time</button>
+              <button 
+                className={`${progressStyles.chartTab} ${activeTab === 'monthly' ? progressStyles.active : ''}`}
+                onClick={() => setActiveTab('monthly')}
+              >
+                Monthly
+              </button>
+              <button 
+                className={`${progressStyles.chartTab} ${activeTab === 'allTime' ? progressStyles.active : ''}`}
+                onClick={() => setActiveTab('allTime')}
+              >
+                All Time
+              </button>
             </div>
           </div>
           <div className={progressStyles.chartArea}>
-            <div className={progressStyles.chartPlaceholder}>
-              📊 Interactive charts coming soon!<br />
-              Your learning data will be visualized here
-            </div>
+            <LearningAnalytics userStats={userStats} activeTab={activeTab} />
           </div>
         </div>
 
