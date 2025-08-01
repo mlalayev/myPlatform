@@ -6,7 +6,7 @@ import TutorialTracking from "./components/TutorialTracking";
 
 interface LangLayoutProps {
   children: React.ReactNode;
-  params: { lang: string };
+  params: Promise<{ lang: string }>;
 }
 
 export default async function LangLayout({ children, params }: LangLayoutProps) {

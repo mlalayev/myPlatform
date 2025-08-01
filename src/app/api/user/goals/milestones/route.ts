@@ -58,7 +58,7 @@ export async function PUT(request: NextRequest) {
       orderBy: { order: 'asc' }
     });
 
-    const completedMilestones = allMilestones.filter(m => m.completed).length;
+    const completedMilestones = allMilestones.filter((m: any) => m.completed).length;
     const totalMilestones = allMilestones.length;
     const newProgress = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
 

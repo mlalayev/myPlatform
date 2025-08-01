@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
     const solvedExerciseIds = user.solvedExercises || [];
 
     // Get exercise details for solved exercises
-    let solvedExercisesData = [];
+    let solvedExercisesData: any[] = [];
     if (solvedExerciseIds.length > 0) {
       solvedExercisesData = await prisma.exercise.findMany({
         where: { 
@@ -108,13 +108,7 @@ export async function GET(request: NextRequest) {
           title: true,
           difficulty: true,
           category: true,
-          content: {
-            select: {
-              acceptance: true,
-              timeComplexity: true,
-              spaceComplexity: true
-            }
-          }
+          content: true,
         },
         orderBy: { id: 'desc' },
         take: 50 // Limit to recent 50 solved exercises

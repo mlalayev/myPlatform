@@ -115,7 +115,7 @@ async function updateLessonProgress(userId: number, activityType: string, metada
     let totalVisitedLessons = 0;
     
     Object.keys(visitedData).forEach(language => {
-      const lessons = visitedData[language];
+      const lessons = (visitedData as any)[language];
       if (Array.isArray(lessons)) {
         totalVisitedLessons += lessons.length;
       }
@@ -310,7 +310,7 @@ export async function GET(request: NextRequest) {
       date.setDate(date.getDate() - (27 - i));
       date.setHours(0, 0, 0, 0);
       
-      const dayActivity = dailyActivities.find(activity => {
+      const dayActivity = dailyActivities.find((activity: any) => {
         const activityDate = new Date(activity.date);
         activityDate.setHours(0, 0, 0, 0);
         return activityDate.getTime() === date.getTime();
@@ -330,7 +330,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({ 
-      activities: activities.map(activity => ({
+      activities: activities.map((activity: any) => ({
         id: activity.id,
         type: activity.type,
         description: activity.description,

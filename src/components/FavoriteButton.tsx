@@ -14,7 +14,7 @@ if (!AbortSignal.timeout) {
 
 interface FavoriteButtonProps {
   type: 'LESSON' | 'EXERCISE';
-  itemId: number;
+  itemId: string | number;
   title: string;
   description?: string;
   language?: string;
@@ -40,6 +40,11 @@ export default function FavoriteButton({
   }, [type, itemId]);
 
   const checkFavoriteStatus = async () => {
+    // Skip if itemId is invalid
+    if (!itemId || itemId === '') {
+      return;
+    }
+
     try {
       setError(null);
       const response = await fetch(`/api/user/favorites/check?type=${type}&itemId=${itemId}`, {
@@ -119,6 +124,14 @@ export default function FavoriteButton({
       setIsLoading(false);
     }
   };
+
+  // Don't render if itemId is invalid
+  if (!itemId || itemId === '') {
+    console.log('FavoriteButton: Invalid itemId:', { itemId, type, title });
+    return null;
+  }
+
+  console.log('FavoriteButton: Rendering with:', { itemId, type, title });
 
   return (
     <div style={{ position: 'relative' }}>

@@ -38,6 +38,7 @@ import {
   SiGo,
   SiOpenjdk,
 } from "react-icons/si";
+import FavoriteButton from "../../../components/FavoriteButton";
 
 interface Exercise {
   id: number;
@@ -254,7 +255,7 @@ export default function ExercisesPage() {
         const newStatuses: { [id: number]: "not_submitted" | "wrong" | "correct" } = {};
         
         statusResults.forEach(({ id, status }) => {
-          newStatuses[id] = status;
+          newStatuses[id] = status as "not_submitted" | "wrong" | "correct";
         });
 
         setStatuses(newStatuses);
@@ -672,6 +673,14 @@ export default function ExercisesPage() {
                             )}
                         </div>
                         <div className={styles.cardRight}>
+                          <FavoriteButton
+                            type="EXERCISE"
+                            itemId={ex.id.toString()}
+                            title={ex.title}
+                            description={ex.description}
+                            category={ex.category}
+                            className={styles.exerciseFavoriteButton}
+                          />
                           <span
                             className={`${styles.cellDiff} ${difficultyColor(
                               ex.difficulty

@@ -636,10 +636,7 @@ const profileTabs = [
         );
       case "favorites":
         return (
-          <ProfileFavorites 
-            userStats={userStats}
-            loading={loading}
-          />
+          <ProfileFavorites />
         );
       case "recent-activities":
         return (

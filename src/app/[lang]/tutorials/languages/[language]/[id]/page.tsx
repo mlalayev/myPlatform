@@ -547,7 +547,7 @@ export default function TutorialTopicPage() {
             >
               <FavoriteButton
                 type="LESSON"
-                itemId={parseInt(topicId || '0')}
+                itemId={safeTopicId}
                 title={topicContent?.title || selectedTopic?.title || "Mövzu"}
                 description={topicContent?.description || selectedTopic?.description}
                 language={decodeURIComponent(safeLanguage)}

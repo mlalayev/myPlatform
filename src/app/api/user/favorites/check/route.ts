@@ -20,9 +20,9 @@ export async function GET(request: NextRequest) {
     const favorite = await prisma.favorite.findUnique({
       where: {
         userId_type_itemId: {
-          userId: session.user.id,
+          userId: parseInt(session.user.id),
           type: type as any,
-          itemId: parseInt(itemId)
+          itemId: itemId
         }
       }
     });

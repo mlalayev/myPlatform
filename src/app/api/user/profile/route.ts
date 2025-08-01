@@ -754,7 +754,7 @@ async function getStreakData(userId: number) {
       date.setDate(today.getDate() - (27 - i));
       date.setHours(0, 0, 0, 0);
       
-      const dayActivity = dailyActivities.find(activity => {
+      const dayActivity = dailyActivities.find((activity: any) => {
         const activityDate = new Date(activity.date);
         activityDate.setHours(0, 0, 0, 0);
         return activityDate.getTime() === date.getTime();

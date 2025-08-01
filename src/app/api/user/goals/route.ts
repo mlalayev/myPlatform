@@ -31,11 +31,11 @@ export async function GET(request: NextRequest) {
 
     // Calculate goal statistics
     const totalGoals = user.learningGoals.length;
-    const activeGoals = user.learningGoals.filter(goal => goal.status === 'ACTIVE').length;
-    const completedGoals = user.learningGoals.filter(goal => goal.status === 'COMPLETED').length;
-    const overdueGoals = user.learningGoals.filter(goal => goal.status === 'OVERDUE').length;
+    const activeGoals = user.learningGoals.filter((goal: any) => goal.status === 'ACTIVE').length;
+    const completedGoals = user.learningGoals.filter((goal: any) => goal.status === 'COMPLETED').length;
+    const overdueGoals = user.learningGoals.filter((goal: any) => goal.status === 'OVERDUE').length;
     const totalProgress = totalGoals > 0 
-      ? Math.round(user.learningGoals.reduce((acc, goal) => acc + goal.progress, 0) / totalGoals)
+      ? Math.round(user.learningGoals.reduce((acc: number, goal: any) => acc + goal.progress, 0) / totalGoals)
       : 0;
 
     // Calculate category statistics
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
       certification: { completed: 0, total: 0, progress: 0 }
     };
 
-    user.learningGoals.forEach(goal => {
+    user.learningGoals.forEach((goal: any) => {
       const category = goal.category.toLowerCase();
       if (categoryStats[category as keyof typeof categoryStats]) {
         categoryStats[category as keyof typeof categoryStats].total++;

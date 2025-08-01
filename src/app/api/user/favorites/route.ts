@@ -12,7 +12,7 @@ export async function GET() {
 
     const favorites = await prisma.favorite.findMany({
       where: {
-        userId: session.user.id
+        userId: parseInt(session.user.id)
       },
       orderBy: {
         createdAt: 'desc'
@@ -44,9 +44,9 @@ export async function POST(request: NextRequest) {
     const existingFavorite = await prisma.favorite.findUnique({
       where: {
         userId_type_itemId: {
-          userId: session.user.id,
+          userId: parseInt(session.user.id),
           type: type,
-          itemId: itemId
+          itemId: itemId.toString()
         }
       }
     });
@@ -57,9 +57,9 @@ export async function POST(request: NextRequest) {
 
     const favorite = await prisma.favorite.create({
       data: {
-        userId: session.user.id,
+        userId: parseInt(session.user.id),
         type: type,
-        itemId: itemId,
+        itemId: itemId.toString(),
         title: title,
         description: description,
         language: language,
@@ -92,9 +92,9 @@ export async function DELETE(request: NextRequest) {
 
     const favorite = await prisma.favorite.deleteMany({
       where: {
-        userId: session.user.id,
+        userId: parseInt(session.user.id),
         type: type as any,
-        itemId: parseInt(itemId)
+        itemId: itemId
       }
     });
 

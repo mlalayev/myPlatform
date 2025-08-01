@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       });
 
       return NextResponse.json({ success: true, sessionId: userSession.id });
-    } catch (sessionError) {
+    } catch (sessionError: any) {
       console.log("Session tracking not available yet:", sessionError.message);
       // Return mock session ID when tracking is not available
       return NextResponse.json({ success: true, sessionId: Date.now() });
@@ -125,7 +125,7 @@ export async function PUT(request: NextRequest) {
       });
 
       return NextResponse.json({ success: true, duration });
-    } catch (sessionError) {
+    } catch (sessionError: any) {
       console.log("Session tracking not available yet:", sessionError.message);
       // Return success anyway when tracking is not available
       return NextResponse.json({ success: true, duration: 0 });
@@ -199,7 +199,7 @@ export async function GET(request: NextRequest) {
       };
 
       return NextResponse.json({ stats });
-    } catch (sessionError) {
+    } catch (sessionError: any) {
       console.log("Session tracking not available yet:", sessionError.message);
       // Return empty stats when tracking is not available
       const stats = {

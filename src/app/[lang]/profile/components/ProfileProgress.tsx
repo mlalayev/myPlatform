@@ -235,7 +235,7 @@ export default function ProfileProgress({
           <div className={progressStyles.heroLeft}>
             <h1 className={progressStyles.heroTitle}>Learning Progress</h1>
             <p className={progressStyles.heroSubtitle}>
-              Track your learning journey and see how you're growing every day
+              Track your learning journey and see how you&apos;re growing every day
             </p>
             <div className={progressStyles.heroStats}>
               <div className={progressStyles.heroStat}>

@@ -539,7 +539,7 @@ export default function ExerciseDetailPage({
             return;
           }
 
-          let argsStr = Array.isArray(args) 
+          const argsStr = Array.isArray(args) 
             ? args.map(a => typeof a === "string" ? `"${a}"` : JSON.stringify(a)).join(", ")
             : JSON.stringify(args);
           
@@ -1310,7 +1310,7 @@ export default function ExerciseDetailPage({
             </div>
             <FavoriteButton
               type="EXERCISE"
-              itemId={exercise.id}
+              itemId={exercise.id.toString()}
               title={exercise.title}
               description={exercise.description}
               category={exercise.category}

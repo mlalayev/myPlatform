@@ -45,7 +45,7 @@ export async function GET(
   } catch (error) {
     console.error("Error fetching exercise:", error);
     return NextResponse.json(
-      { error: "Internal server error", details: error.message },
+      { error: "Internal server error", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

@@ -16,7 +16,7 @@ if (!AbortSignal.timeout) {
 interface Favorite {
   id: number;
   type: 'LESSON' | 'EXERCISE';
-  itemId: number;
+  itemId: string;
   title: string;
   description?: string;
   language?: string;
@@ -62,7 +62,7 @@ export default function ProfileFavorites() {
     }
   };
 
-  const removeFavorite = async (type: string, itemId: number) => {
+  const removeFavorite = async (type: string, itemId: string) => {
     try {
       const response = await fetch(`/api/user/favorites?type=${type}&itemId=${itemId}`, {
         method: 'DELETE',
@@ -86,13 +86,19 @@ export default function ProfileFavorites() {
     }
   };
 
-  const navigateToItem = (type: string, itemId: number) => {
-    if (type === 'LESSON') {
-      // Navigate to lesson page
-      window.location.href = `/az/tutorials/languages/${itemId}`;
-    } else if (type === 'EXERCISE') {
+  const navigateToItem = (favorite: Favorite) => {
+    if (favorite.type === 'LESSON') {
+      // Navigate to lesson page - we need language and lesson ID
+      // Since we store language in the favorite, we can construct the URL
+      if (favorite.language) {
+        window.location.href = `/az/tutorials/languages/${favorite.language}/${favorite.itemId}`;
+      } else {
+        // Fallback - try to find the lesson in tutorials
+        window.location.href = `/az/tutorials`;
+      }
+    } else if (favorite.type === 'EXERCISE') {
       // Navigate to exercise page
-      window.location.href = `/az/exercises/${itemId}`;
+      window.location.href = `/az/exercises/${favorite.itemId}`;
     }
   };
 
@@ -247,7 +253,7 @@ export default function ProfileFavorites() {
               <div className={styles.cardActions}>
                 <button
                   className={styles.viewButton}
-                  onClick={() => navigateToItem(favorite.type, favorite.itemId)}
+                  onClick={() => navigateToItem(favorite)}
                 >
                   Bax
                 </button>
