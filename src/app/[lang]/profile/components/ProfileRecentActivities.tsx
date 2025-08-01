@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FiActivity,
   FiBookOpen,
@@ -25,7 +25,28 @@ import {
   FiX,
   FiPlus,
   FiMinus,
+  FiDollarSign,
+  FiGift,
+  FiCheckCircle,
+  FiCheckSquare,
+  FiUser,
 } from "react-icons/fi";
+import { 
+  SiJavascript, 
+  SiPython, 
+  SiOpenjdk, 
+  SiC, 
+  SiCplusplus, 
+  SiTypescript, 
+  SiPhp,
+  SiGo,
+  SiRust,
+  SiSwift,
+  SiKotlin,
+  SiRuby,
+  SiR
+} from "react-icons/si";
+import * as FiIcons from "react-icons/fi";
 import { useI18n } from "../../../../contexts/I18nContext";
 import recentActivitiesStyles from "../ProfileRecentActivities.module.css";
 
@@ -34,136 +55,235 @@ interface ProfileRecentActivitiesProps {
   loading: boolean;
 }
 
+// Helper function to format study time
+function formatStudyTime(totalSeconds: number): string {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const parts = [];
+  if (hours > 0) {
+    parts.push(`${hours}s`);
+  }
+  if (minutes > 0) {
+    parts.push(`${minutes}dəq`);
+  }
+  if (seconds > 0 && hours === 0 && minutes === 0) {
+    parts.push(`${seconds}san`);
+  }
+
+  return parts.length > 0 ? parts.join(" ") : "0dəq";
+}
+
+// Helper function to format language names for display
+function formatLanguageDisplay(language: string): string {
+  const languageMap: any = {
+    'c': 'C',
+    'java': 'Java',
+    'c++': 'C++',
+    'c%2B%2B': 'C++',
+    'cpp': 'C++',
+    'algorithms': 'Algorithms',
+    'javascript': 'JavaScript',
+    'python': 'Python',
+    'csharp': 'C#',
+    'data-structures': 'Data Structures',
+    'typescript': 'TypeScript',
+    'php': 'PHP',
+    'go': 'Go',
+    'rust': 'Rust',
+    'swift': 'Swift',
+    'kotlin': 'Kotlin',
+    'ruby': 'Ruby',
+    'r': 'R',
+    'sql': 'SQL',
+    'dart': 'Dart',
+    'haskell': 'Haskell',
+    'scala': 'Scala',
+    'bash': 'Bash',
+    'matlab': 'MATLAB'
+  };
+  
+  return languageMap[language] || language;
+}
+
 export default function ProfileRecentActivities({
   userStats,
   loading,
 }: ProfileRecentActivitiesProps) {
   const { t } = useI18n();
   const [activeFilter, setActiveFilter] = useState("all");
+  const [activities, setActivities] = useState<any[]>([]);
+  const [activityStats, setActivityStats] = useState<any>({
+    total: 0,
+    today: 0,
+    thisWeek: 0,
+    thisMonth: 0
+  });
 
-  if (loading) {
-    return (
-      <div className={recentActivitiesStyles.recentActivitiesContainer}>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ 
-              width: '40px', 
-              height: '40px', 
-              border: '4px solid #f3f3f3', 
-              borderTop: '4px solid #4facfe', 
-              borderRadius: '50%', 
-              animation: 'spin 1s linear infinite',
-              margin: '0 auto 16px'
-            }}></div>
-            <span style={{ color: '#718096' }}>{t("recentActivities.loading")}</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Process activities from userStats
+  useEffect(() => {
+    if (userStats?.recentActivities) {
+      const filteredActivities = userStats.recentActivities.filter((activity: any) => {
+        // Filter navigation activities
+        const hasNavigationText =
+          activity.text?.includes("Navigated to") ||
+          activity.text?.includes("navigated to") ||
+          activity.text?.includes("Navigated from") ||
+          activity.text?.includes("navigated from") ||
+          activity.description?.includes("Navigated to") ||
+          activity.description?.includes("navigated to") ||
+          activity.description?.includes("Navigated from") ||
+          activity.description?.includes("navigated from");
 
-  // Activity statistics
-  const activityStats = {
-    total: 156,
-    today: 12,
-    thisWeek: 45,
-    thisMonth: 89
+        return !hasNavigationText;
+      });
+
+      setActivities(filteredActivities);
+
+      // Calculate activity statistics
+      const today = new Date();
+      const todayStr = today.toDateString();
+      const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      const todayActivities = filteredActivities.filter((activity: any) => {
+        const activityDate = new Date(activity.timestamp || Date.now());
+        return activityDate.toDateString() === todayStr;
+      });
+
+      const weekActivities = filteredActivities.filter((activity: any) => {
+        const activityDate = new Date(activity.timestamp || Date.now());
+        return activityDate >= weekAgo;
+      });
+
+      const monthActivities = filteredActivities.filter((activity: any) => {
+        const activityDate = new Date(activity.timestamp || Date.now());
+        return activityDate >= monthAgo;
+      });
+
+      setActivityStats({
+        total: filteredActivities.length,
+        today: todayActivities.length,
+        thisWeek: weekActivities.length,
+        thisMonth: monthActivities.length
+      });
+    }
+  }, [userStats]);
+
+  // Helper function to get language icon
+  const getLanguageIcon = (language: string) => {
+    switch (language?.toLowerCase()) {
+      case 'javascript':
+        return <SiJavascript size={20} color="#f7df1e" />;
+      case 'python':
+        return <SiPython size={20} color="#3572A5" />;
+      case 'java':
+        return <SiOpenjdk size={20} color="#b07219" />;
+      case 'c':
+        return <SiC size={20} color="#00599C" />;
+      case 'c++':
+      case 'cpp':
+      case 'c%2b%2b':
+        return <SiCplusplus size={20} color="#00599C" />;
+      case 'c#':
+      case 'csharp':
+        return <FiIcons.FiHash size={20} color="#178600" />;
+      case 'typescript':
+        return <SiTypescript size={20} color="#3178c6" />;
+      case 'php':
+        return <SiPhp size={20} color="#777bb4" />;
+      case 'go':
+      case 'golang':
+        return <SiGo size={20} color="#00ADD8" />;
+      case 'rust':
+        return <SiRust size={20} color="#dea584" />;
+      case 'swift':
+        return <SiSwift size={20} color="#ffac45" />;
+      case 'kotlin':
+        return <SiKotlin size={20} color="#7f52ff" />;
+      case 'ruby':
+        return <SiRuby size={20} color="#cc342d" />;
+      case 'r':
+        return <SiR size={20} color="#276dc3" />;
+      case 'algorithms':
+        return <FiCode size={20} color="#667eea" />;
+      case 'data-structures':
+        return <FiCode size={20} color="#48bb78" />;
+      default:
+        return <FiBookOpen size={20} color="#667eea" />;
+    }
   };
 
-  // Sample activities data
-  const activities = [
-    {
-      id: 1,
-      type: "lesson",
-      title: t("recentActivities.items.advancedAlgorithms.title"),
-      description: t("recentActivities.items.advancedAlgorithms.description"),
-      category: "algorithms",
-      icon: <FiBookOpen />,
-      stats: { duration: "45 min", progress: "85%" },
-      time: "2 saat əvvəl",
-      status: "completed"
-    },
-    {
-      id: 2,
-      type: "exercise",
-      title: t("recentActivities.items.dynamicProgramming.title"),
-      description: t("recentActivities.items.dynamicProgramming.description"),
-      category: "algorithms",
-      icon: <FiCode />,
-      stats: { duration: "30 min", progress: "100%" },
-      time: "4 saat əvvəl",
-      status: "completed"
-    },
-    {
-      id: 3,
-      type: "achievement",
-      title: t("recentActivities.items.codeMaster.title"),
-      description: t("recentActivities.items.codeMaster.description"),
-      category: "achievements",
-      icon: <FiAward />,
-      stats: { points: "+500", level: "15" },
-      time: "1 gün əvvəl",
-      status: "earned"
-    },
-    {
-      id: 4,
-      type: "login",
-      title: t("recentActivities.items.login.title"),
-      description: t("recentActivities.items.login.description"),
-      category: "account",
-      icon: <FiLogIn />,
-      stats: { device: "Chrome", location: "Baku" },
-      time: "2 gün əvvəl",
-      status: "successful"
-    },
-    {
-      id: 5,
-      type: "progress",
-      title: t("recentActivities.items.streakMilestone.title"),
-      description: t("recentActivities.items.streakMilestone.description"),
-      category: "progress",
-      icon: <FiTrendingUp />,
-      stats: { streak: "30 days", points: "+100" },
-      time: "3 gün əvvəl",
-      status: "achieved"
-    },
-    {
-      id: 6,
-      type: "community",
-      title: t("recentActivities.items.communityChallenge.title"),
-      description: t("recentActivities.items.communityChallenge.description"),
-      category: "community",
-      icon: <FiUsers />,
-      stats: { participants: "1.2k", rank: "#15" },
-      time: "1 həftə əvvəl",
-      status: "participated"
-    },
-    {
-      id: 7,
-      type: "lesson",
-      title: t("recentActivities.items.reactHooks.title"),
-      description: t("recentActivities.items.reactHooks.description"),
-      category: "frontend",
-      icon: <FiBookOpen />,
-      stats: { duration: "1h 15min", progress: "60%" },
-      time: "1 həftə əvvəl",
-      status: "in-progress"
-    },
-    {
-      id: 8,
-      type: "exercise",
-      title: t("recentActivities.items.systemDesign.title"),
-      description: t("recentActivities.items.systemDesign.description"),
-      category: "architecture",
-      icon: <FiCode />,
-      stats: { duration: "2h 30min", progress: "75%" },
-      time: "2 həftə əvvəl",
-      status: "completed"
+  // Get activity icon based on type
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case "login":
+      case "daily_login_bonus":
+      case "DAILY_LOGIN_BONUS":
+        return <FiDollarSign />;
+      case "lesson_view":
+      case "LESSON_VIEW":
+      case "lesson_complete":
+        return <FiCheckCircle />;
+      case "quiz_submit":
+      case "QUIZ_SUBMIT":
+      case "quiz_pass":
+      case "exercise_submit":
+      case "exercise_solve":
+      case "EXERCISE_SOLVE":
+        return <FiCode />;
+      default:
+        return <FiActivity />;
     }
-  ];
+  };
+
+  // Get activity type for filtering
+  const getActivityType = (activity: any) => {
+    if (activity.type === "lesson_view" || activity.type === "LESSON_VIEW") return "lesson";
+    if (activity.type === "exercise_solve" || activity.type === "EXERCISE_SOLVE") return "exercise";
+    if (activity.type === "daily_login_bonus" || activity.type === "DAILY_LOGIN_BONUS") return "login";
+    if (activity.type === "quiz_submit" || activity.type === "QUIZ_SUBMIT") return "quiz";
+    return "other";
+  };
+
+  // Get activity status
+  const getActivityStatus = (activity: any) => {
+    const type = getActivityType(activity);
+    switch (type) {
+      case "lesson":
+        return "completed";
+      case "exercise":
+        return "completed";
+      case "login":
+        return "successful";
+      case "quiz":
+        return "completed";
+      default:
+        return "completed";
+    }
+  };
+
+  // Get activity stats
+  const getActivityStats = (activity: any) => {
+    const type = getActivityType(activity);
+    switch (type) {
+      case "lesson":
+        return { duration: "45 dəq", progress: "100%" };
+      case "exercise":
+        return { duration: "30 dəq", progress: "100%" };
+      case "login":
+        return { points: "+50", bonus: "Günlük bonus" };
+      case "quiz":
+        return { duration: "15 dəq", score: "85%" };
+      default:
+        return { duration: "10 dəq", status: "Tamamlandı" };
+    }
+  };
 
   const filteredActivities = activities.filter(activity => {
-    return activeFilter === "all" || activity.type === activeFilter;
+    const activityType = getActivityType(activity);
+    return activeFilter === "all" || activityType === activeFilter;
   });
 
   const getStatusIcon = (status: string) => {
@@ -204,28 +324,49 @@ export default function ProfileRecentActivities({
     }
   };
 
+  if (loading) {
+    return (
+      <div className={recentActivitiesStyles.recentActivitiesContainer}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ 
+              width: '40px', 
+              height: '40px', 
+              border: '4px solid #f3f3f3', 
+              borderTop: '4px solid #4facfe', 
+              borderRadius: '50%', 
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 16px'
+            }}></div>
+            <span style={{ color: '#718096' }}>Fəaliyyətlər yüklənir...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={recentActivitiesStyles.recentActivitiesContainer}>
       {/* Hero Section */}
       <div className={recentActivitiesStyles.recentActivitiesHero}>
         <div className={recentActivitiesStyles.heroContent}>
           <div className={recentActivitiesStyles.heroLeft}>
-            <h1 className={recentActivitiesStyles.heroTitle}>{t("recentActivities.hero.title")}</h1>
+            <h1 className={recentActivitiesStyles.heroTitle}>Son Fəaliyyətlər</h1>
             <p className={recentActivitiesStyles.heroSubtitle}>
-              {t("recentActivities.hero.subtitle")}
+              Öyrənmə yolculuğunuzun detallı xronologiyası və nailiyyətləriniz
             </p>
             <div className={recentActivitiesStyles.heroActions}>
               <button className={`${recentActivitiesStyles.heroButton} ${recentActivitiesStyles.primary}`}>
                 <FiDownload />
-                {t("recentActivities.hero.actions.export")}
+                İxrac et
               </button>
               <button className={recentActivitiesStyles.heroButton}>
                 <FiRefreshCw />
-                {t("recentActivities.hero.actions.refresh")}
+                Yenilə
               </button>
               <button className={recentActivitiesStyles.heroButton}>
                 <FiBarChart2 />
-                {t("recentActivities.hero.actions.analytics")}
+                Analitika
               </button>
             </div>
           </div>
@@ -236,7 +377,7 @@ export default function ProfileRecentActivities({
                   {activityStats.total}
                 </span>
                 <span className={recentActivitiesStyles.statLabel}>
-                  {t("recentActivities.stats.total")}
+                  Ümumi
                 </span>
               </div>
               <div className={recentActivitiesStyles.statItem}>
@@ -244,7 +385,7 @@ export default function ProfileRecentActivities({
                   {activityStats.today}
                 </span>
                 <span className={recentActivitiesStyles.statLabel}>
-                  {t("recentActivities.stats.today")}
+                  Bu gün
                 </span>
               </div>
               <div className={recentActivitiesStyles.statItem}>
@@ -252,7 +393,7 @@ export default function ProfileRecentActivities({
                   {activityStats.thisWeek}
                 </span>
                 <span className={recentActivitiesStyles.statLabel}>
-                  {t("recentActivities.stats.thisWeek")}
+                  Bu həftə
                 </span>
               </div>
               <div className={recentActivitiesStyles.statItem}>
@@ -260,7 +401,7 @@ export default function ProfileRecentActivities({
                   {activityStats.thisMonth}
                 </span>
                 <span className={recentActivitiesStyles.statLabel}>
-                  {t("recentActivities.stats.thisMonth")}
+                  Bu ay
                 </span>
               </div>
             </div>
@@ -271,7 +412,7 @@ export default function ProfileRecentActivities({
       {/* Activity Overview */}
       <div className={recentActivitiesStyles.activityOverview}>
         <div className={recentActivitiesStyles.overviewHeader}>
-          <h3 className={recentActivitiesStyles.overviewTitle}>{t("recentActivities.overview.title")}</h3>
+          <h3 className={recentActivitiesStyles.overviewTitle}>Fəaliyyət Xronologiyası</h3>
         </div>
 
         {/* Filters */}
@@ -280,153 +421,156 @@ export default function ProfileRecentActivities({
             className={`${recentActivitiesStyles.filterButton} ${activeFilter === "all" ? recentActivitiesStyles.active : ""}`}
             onClick={() => setActiveFilter("all")}
           >
-            {t("recentActivities.filters.all")}
+            Hamısı
           </button>
           <button 
             className={`${recentActivitiesStyles.filterButton} ${activeFilter === "lesson" ? recentActivitiesStyles.active : ""}`}
             onClick={() => setActiveFilter("lesson")}
           >
-            {t("recentActivities.filters.lessons")}
+            Dərslər
           </button>
           <button 
             className={`${recentActivitiesStyles.filterButton} ${activeFilter === "exercise" ? recentActivitiesStyles.active : ""}`}
             onClick={() => setActiveFilter("exercise")}
           >
-            {t("recentActivities.filters.exercises")}
-          </button>
-          <button 
-            className={`${recentActivitiesStyles.filterButton} ${activeFilter === "achievement" ? recentActivitiesStyles.active : ""}`}
-            onClick={() => setActiveFilter("achievement")}
-          >
-            {t("recentActivities.filters.achievements")}
+            Məşqlər
           </button>
           <button 
             className={`${recentActivitiesStyles.filterButton} ${activeFilter === "login" ? recentActivitiesStyles.active : ""}`}
             onClick={() => setActiveFilter("login")}
           >
-            {t("recentActivities.filters.login")}
+            Girişlər
           </button>
           <button 
-            className={`${recentActivitiesStyles.filterButton} ${activeFilter === "progress" ? recentActivitiesStyles.active : ""}`}
-            onClick={() => setActiveFilter("progress")}
+            className={`${recentActivitiesStyles.filterButton} ${activeFilter === "quiz" ? recentActivitiesStyles.active : ""}`}
+            onClick={() => setActiveFilter("quiz")}
           >
-            {t("recentActivities.filters.progress")}
+            Testlər
           </button>
         </div>
 
         {/* Activity Timeline */}
         <div className={recentActivitiesStyles.activityTimeline}>
-          {filteredActivities.map((activity) => (
-            <div key={activity.id} className={`${recentActivitiesStyles.activityItem} ${recentActivitiesStyles[activity.type]}`}>
-              <div className={recentActivitiesStyles.activityHeader}>
-                <div className={`${recentActivitiesStyles.activityIcon} ${recentActivitiesStyles[activity.type]}`}>
-                  {activity.icon}
-                </div>
-                <div className={recentActivitiesStyles.activityInfo}>
-                  <h4 className={recentActivitiesStyles.activityTitle}>
-                    {activity.title}
-                  </h4>
-                  <div className={recentActivitiesStyles.activityCategory}>
-                    {activity.category.toUpperCase()}
+          {filteredActivities.length > 0 ? (
+            filteredActivities.map((activity, index) => {
+              const activityType = getActivityType(activity);
+              const status = getActivityStatus(activity);
+              const stats = getActivityStats(activity);
+              const language = activity.language;
+
+              return (
+                <div key={index} className={`${recentActivitiesStyles.activityItem} ${recentActivitiesStyles[activityType]}`}>
+                  <div className={recentActivitiesStyles.activityHeader}>
+                    <div className={`${recentActivitiesStyles.activityIcon} ${recentActivitiesStyles[activityType]}`}>
+                      {activityType === 'lesson' && language ? (
+                        getLanguageIcon(formatLanguageDisplay(language))
+                      ) : (
+                        getActivityIcon(activity.type)
+                      )}
+                    </div>
+                    <div className={recentActivitiesStyles.activityInfo}>
+                      <h4 className={recentActivitiesStyles.activityTitle}>
+                        {activity.text || activity.description}
+                      </h4>
+                      <div className={recentActivitiesStyles.activityCategory}>
+                        {activityType === 'lesson' && language ? 
+                          formatLanguageDisplay(language).toUpperCase() :
+                          activityType.toUpperCase()
+                        }
+                      </div>
+                      <p className={recentActivitiesStyles.activityDescription}>
+                        {activityType === 'lesson' && language ? 
+                          `${formatLanguageDisplay(language)} dilində dərs öyrəndiniz` :
+                          activityType === 'exercise' ? 
+                          'Məşq həll etdiniz' :
+                          activityType === 'login' ? 
+                          'Günlük giriş bonusu qazandınız' :
+                          activityType === 'quiz' ? 
+                          'Test verdiniz' :
+                          'Fəaliyyət tamamlandı'
+                        }
+                      </p>
+                    </div>
                   </div>
-                  <p className={recentActivitiesStyles.activityDescription}>
-                    {activity.description}
-                  </p>
-                </div>
-              </div>
 
-              <div className={recentActivitiesStyles.activityMeta}>
-                <div className={recentActivitiesStyles.activityStats}>
-                  {activity.type === "lesson" && (
-                    <>
-                      <div className={recentActivitiesStyles.activityStat}>
-                        <FiClock className={recentActivitiesStyles.activityStatIcon} />
-                        {activity.stats.duration}
-                      </div>
-                      <div className={recentActivitiesStyles.activityStat}>
-                        <FiTarget className={recentActivitiesStyles.activityStatIcon} />
-                        {activity.stats.progress}
-                      </div>
-                    </>
-                  )}
-                  {activity.type === "exercise" && (
-                    <>
-                      <div className={recentActivitiesStyles.activityStat}>
-                        <FiClock className={recentActivitiesStyles.activityStatIcon} />
-                        {activity.stats.duration}
-                      </div>
-                      <div className={recentActivitiesStyles.activityStat}>
-                        <FiCheck className={recentActivitiesStyles.activityStatIcon} />
-                        {activity.stats.progress}
-                      </div>
-                    </>
-                  )}
-                  {activity.type === "achievement" && (
-                    <>
-                      <div className={recentActivitiesStyles.activityStat}>
-                        <FiStar className={recentActivitiesStyles.activityStatIcon} />
-                        {activity.stats.points}
-                      </div>
-                      <div className={recentActivitiesStyles.activityStat}>
-                        <FiTrendingUp className={recentActivitiesStyles.activityStatIcon} />
-                        Level {activity.stats.level}
-                      </div>
-                    </>
-                  )}
-                  {activity.type === "login" && (
-                    <>
-                      <div className={recentActivitiesStyles.activityStat}>
-                        <FiActivity className={recentActivitiesStyles.activityStatIcon} />
-                        {activity.stats.device}
-                      </div>
-                      <div className={recentActivitiesStyles.activityStat}>
-                        <FiActivity className={recentActivitiesStyles.activityStatIcon} />
-                        {activity.stats.location}
-                      </div>
-                    </>
-                  )}
-                  {activity.type === "progress" && (
-                    <>
-                      <div className={recentActivitiesStyles.activityStat}>
-                        <FiZap className={recentActivitiesStyles.activityStatIcon} />
-                        {activity.stats.streak}
-                      </div>
-                      <div className={recentActivitiesStyles.activityStat}>
-                        <FiStar className={recentActivitiesStyles.activityStatIcon} />
-                        {activity.stats.points}
-                      </div>
-                    </>
-                  )}
-                  {activity.type === "community" && (
-                    <>
-                      <div className={recentActivitiesStyles.activityStat}>
-                        <FiUsers className={recentActivitiesStyles.activityStatIcon} />
-                        {activity.stats.participants}
-                      </div>
-                      <div className={recentActivitiesStyles.activityStat}>
-                        <FiTrendingUp className={recentActivitiesStyles.activityStatIcon} />
-                        {activity.stats.rank}
-                      </div>
-                    </>
-                  )}
-                </div>
-                <div className={recentActivitiesStyles.activityTime}>
-                  {activity.time}
-                </div>
-              </div>
+                  <div className={recentActivitiesStyles.activityMeta}>
+                    <div className={recentActivitiesStyles.activityStats}>
+                      {activityType === "lesson" && (
+                        <>
+                          <div className={recentActivitiesStyles.activityStat}>
+                            <FiClock className={recentActivitiesStyles.activityStatIcon} />
+                            {stats.duration}
+                          </div>
+                          <div className={recentActivitiesStyles.activityStat}>
+                            <FiTarget className={recentActivitiesStyles.activityStatIcon} />
+                            {stats.progress}
+                          </div>
+                        </>
+                      )}
+                      {activityType === "exercise" && (
+                        <>
+                          <div className={recentActivitiesStyles.activityStat}>
+                            <FiClock className={recentActivitiesStyles.activityStatIcon} />
+                            {stats.duration}
+                          </div>
+                          <div className={recentActivitiesStyles.activityStat}>
+                            <FiCheck className={recentActivitiesStyles.activityStatIcon} />
+                            {stats.progress}
+                          </div>
+                        </>
+                      )}
+                      {activityType === "login" && (
+                        <>
+                          <div className={recentActivitiesStyles.activityStat}>
+                            <FiStar className={recentActivitiesStyles.activityStatIcon} />
+                            {stats.points}
+                          </div>
+                          <div className={recentActivitiesStyles.activityStat}>
+                            <FiGift className={recentActivitiesStyles.activityStatIcon} />
+                            {stats.bonus}
+                          </div>
+                        </>
+                      )}
+                      {activityType === "quiz" && (
+                        <>
+                          <div className={recentActivitiesStyles.activityStat}>
+                            <FiClock className={recentActivitiesStyles.activityStatIcon} />
+                            {stats.duration}
+                          </div>
+                          <div className={recentActivitiesStyles.activityStat}>
+                            <FiCheckCircle className={recentActivitiesStyles.activityStatIcon} />
+                            {stats.score}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <div className={recentActivitiesStyles.activityTime}>
+                      {activity.time || 'Yeni'}
+                    </div>
+                  </div>
 
-              <div className={recentActivitiesStyles.activityActions}>
-                <button className={`${recentActivitiesStyles.activityAction} ${recentActivitiesStyles.primary}`}>
-                  <FiEye />
-                  {t("recentActivities.actions.view")}
-                </button>
-                <button className={`${recentActivitiesStyles.activityAction} ${recentActivitiesStyles.secondary}`}>
-                  <FiShare2 />
-                  {t("recentActivities.actions.share")}
-                </button>
-              </div>
+                  <div className={recentActivitiesStyles.activityActions}>
+                    <button className={`${recentActivitiesStyles.activityAction} ${recentActivitiesStyles.primary}`}>
+                      <FiEye />
+                      Bax
+                    </button>
+                    <button className={`${recentActivitiesStyles.activityAction} ${recentActivitiesStyles.secondary}`}>
+                      <FiShare2 />
+                      Paylaş
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className={recentActivitiesStyles.emptyActivities}>
+              <FiActivity size={48} style={{ opacity: 0.3 }} />
+              <p>Hələ heç bir fəaliyyət yoxdur</p>
+              <p style={{ fontSize: '0.9rem', color: '#718096' }}>
+                Dərslərə başlayın və fəaliyyətlərinizi burada görəcəksiniz
+              </p>
             </div>
-          ))}
+          )}
         </div>
 
         {/* Activity Summary */}
@@ -437,12 +581,14 @@ export default function ProfileRecentActivities({
                 <FiBookOpen />
               </div>
               <h4 className={recentActivitiesStyles.summaryTitle}>
-                {t("recentActivities.summary.lessons.title")}
+                Öyrənilmiş Dərslər
               </h4>
             </div>
-            <div className={recentActivitiesStyles.summaryValue}>24</div>
+            <div className={recentActivitiesStyles.summaryValue}>
+              {userStats?.completedLessons || 0}
+            </div>
             <p className={recentActivitiesStyles.summaryDescription}>
-              {t("recentActivities.summary.lessons.description")}
+              Ümumi {userStats?.totalLessons || 0} dərsdən
             </p>
           </div>
 
@@ -452,12 +598,14 @@ export default function ProfileRecentActivities({
                 <FiCode />
               </div>
               <h4 className={recentActivitiesStyles.summaryTitle}>
-                {t("recentActivities.summary.exercises.title")}
+                Həll Edilmiş Məşqlər
               </h4>
             </div>
-            <div className={recentActivitiesStyles.summaryValue}>156</div>
+            <div className={recentActivitiesStyles.summaryValue}>
+              {userStats?.solvedExercises || 0}
+            </div>
             <p className={recentActivitiesStyles.summaryDescription}>
-              {t("recentActivities.summary.exercises.description")}
+              Ümumi {userStats?.totalExercises || 0} məşqdən
             </p>
           </div>
 
@@ -467,12 +615,14 @@ export default function ProfileRecentActivities({
                 <FiAward />
               </div>
               <h4 className={recentActivitiesStyles.summaryTitle}>
-                {t("recentActivities.summary.achievements.title")}
+                Qazanılmış Nailiyyətlər
               </h4>
             </div>
-            <div className={recentActivitiesStyles.summaryValue}>8</div>
+            <div className={recentActivitiesStyles.summaryValue}>
+              {userStats?.unlockedAchievements || 0}
+            </div>
             <p className={recentActivitiesStyles.summaryDescription}>
-              {t("recentActivities.summary.achievements.description")}
+              Ümumi {userStats?.totalAchievements || 0} nailiyyətdən
             </p>
           </div>
 
@@ -482,25 +632,40 @@ export default function ProfileRecentActivities({
                 <FiClock />
               </div>
               <h4 className={recentActivitiesStyles.summaryTitle}>
-                {t("recentActivities.summary.time.title")}
+                Öyrənmə Vaxtı
               </h4>
             </div>
-            <div className={recentActivitiesStyles.summaryValue}>127h</div>
+            <div className={recentActivitiesStyles.summaryValue}>
+              {userStats?.formattedStudyTime || `${userStats?.studyTimeHours || 0}s`}
+            </div>
             <p className={recentActivitiesStyles.summaryDescription}>
-              {t("recentActivities.summary.time.description")}
+              Bu həftə {userStats?.weeklyProgress?.studyTimeThisWeekFormatted || `${userStats?.weeklyProgress?.studyTimeThisWeek || 0}s`}
             </p>
           </div>
         </div>
 
-        {/* Activity Chart */}
+        {/* Learning Streak */}
         <div className={recentActivitiesStyles.activityChart}>
           <div className={recentActivitiesStyles.chartHeader}>
             <h3 className={recentActivitiesStyles.chartTitle}>
-              {t("recentActivities.chart.title")}
+              Öyrənmə Seriyası
             </h3>
           </div>
-          <div className={recentActivitiesStyles.chartPlaceholder}>
-            {t("recentActivities.chart.placeholder")}
+          <div className={recentActivitiesStyles.streakContainer}>
+            <div className={recentActivitiesStyles.streakInfo}>
+              <div className={recentActivitiesStyles.streakNumber}>
+                {userStats?.loginStreak || 0}
+              </div>
+              <div className={recentActivitiesStyles.streakLabel}>
+                Günlük Seriya
+              </div>
+            </div>
+            <div className={recentActivitiesStyles.streakMessage}>
+              {userStats?.loginStreak > 0 ? 
+                `Əla! ${userStats.loginStreak} gün davam edirsiniz` :
+                'Günlük öyrənmə seriyasına başlayın'
+              }
+            </div>
           </div>
         </div>
       </div>
