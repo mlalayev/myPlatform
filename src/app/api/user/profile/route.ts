@@ -143,7 +143,7 @@ export async function GET(request: NextRequest) {
       recentActivities = await prisma.userActivity.findMany({
         where: { userId: user.id },
         orderBy: { timestamp: 'desc' },
-        take: 10,
+        take: 100,
         select: {
           id: true,
           type: true,
@@ -168,7 +168,9 @@ export async function GET(request: NextRequest) {
 
       // Get today's activity
       const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+      const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
+      const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
 
       todayActivity = await prisma.dailyActivity.findUnique({
         where: {
@@ -201,7 +203,9 @@ export async function GET(request: NextRequest) {
 
       // Get weekly stats
       const weekNow = new Date();
-      const weekToday = new Date(weekNow.getFullYear(), weekNow.getMonth(), weekNow.getDate());
+      const weekAzerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+      const weekAzerbaijanTime = new Date(weekNow.getTime() + weekAzerbaijanOffset);
+      const weekToday = new Date(weekAzerbaijanTime.getFullYear(), weekAzerbaijanTime.getMonth(), weekAzerbaijanTime.getDate());
       
       const weekAgo = new Date(weekToday);
       weekAgo.setDate(weekToday.getDate() - 7);
@@ -663,9 +667,11 @@ async function getDailyActivities(userId: number, days: number) {
   try {
     const activities = [];
     
-    // Get today's date without timezone offset
+    // Get today's date in Azerbaijan timezone
     const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
+    const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
     
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date(today);
@@ -711,7 +717,9 @@ async function getDailyActivities(userId: number, days: number) {
   } catch (error: any) {
     console.log("Error getting daily activities:", error.message);
     const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
+    const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
     
     return Array.from({ length: days }, (_, i) => {
       const date = new Date(today);
@@ -733,13 +741,28 @@ async function getDailyActivities(userId: number, days: number) {
 // Helper function to get streak data for the last 28 days
 async function getStreakData(userId: number) {
   try {
-    // Get today's date without timezone offset
+    // Get current date in Azerbaijan timezone (UTC+4)
     const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    // Calculate Azerbaijan time properly (UTC+4)
+    const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
+    const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
     
+    console.log('Backend Streak Debug - Current UTC time:', now.toISOString());
+    console.log('Backend Streak Debug - Azerbaijan offset (ms):', azerbaijanOffset);
+    console.log('Backend Streak Debug - Azerbaijan time:', azerbaijanTime.toISOString());
+    console.log('Backend Streak Debug - Today (Azerbaijan):', today.toISOString());
+    console.log('Backend Streak Debug - Today day:', today.getDate());
+    console.log('Backend Streak Debug - Today month:', today.getMonth() + 1);
+    console.log('Backend Streak Debug - Today year:', today.getFullYear());
+    
+    // Get activities for the last 28 days (including today)
     const twentyEightDaysAgo = new Date(today);
-    twentyEightDaysAgo.setDate(today.getDate() - 28);
+    twentyEightDaysAgo.setDate(today.getDate() - 27);
     twentyEightDaysAgo.setHours(0, 0, 0, 0);
+
+    console.log('Backend Streak Debug - 28 days ago:', twentyEightDaysAgo.toISOString());
+    console.log('Backend Streak Debug - 28 days ago day:', twentyEightDaysAgo.getDate());
 
     const dailyActivities = await prisma.dailyActivity.findMany({
       where: {
@@ -749,34 +772,52 @@ async function getStreakData(userId: number) {
       orderBy: { date: 'asc' }
     });
 
-    const streakDays = Array.from({ length: 28 }, (_, i) => {
-      const date = new Date(today);
-      date.setDate(today.getDate() - (27 - i));
-      date.setHours(0, 0, 0, 0);
+    console.log('Backend Streak Debug - Found activities:', dailyActivities.length);
+
+    // Create array of last 28 days
+    const streakDays = [];
+    
+    // Start from 28 days ago and go to today
+    for (let i = 0; i < 28; i++) {
+      const currentDate = new Date(twentyEightDaysAgo);
+      currentDate.setDate(twentyEightDaysAgo.getDate() + i);
+      currentDate.setHours(0, 0, 0, 0);
       
+      const dayOfMonth = currentDate.getDate();
+      const isToday = i === 27; // Last position is today
+      
+      // Find activity for this specific date
       const dayActivity = dailyActivities.find((activity: any) => {
         const activityDate = new Date(activity.date);
         activityDate.setHours(0, 0, 0, 0);
-        return activityDate.getTime() === date.getTime();
+        return activityDate.getTime() === currentDate.getTime();
       });
       
       const isActive = dayActivity && (dayActivity.lessonsViewed > 0 || dayActivity.exercisesSolved > 0 || dayActivity.quizzesTaken > 0);
-      const isToday = i === 27;
       
-      // Get the day of the month (1-31)
-      const dayOfMonth = date.getDate();
+      // Debug for last 5 days
+      if (i >= 23) {
+        console.log(`Backend Streak Debug - Day ${i + 1}:`, {
+          date: currentDate.toISOString(),
+          dayOfMonth,
+          isToday,
+          isActive,
+          index: i
+        });
+      }
       
-      return { 
-        date: date.toISOString(), 
-        day: dayOfMonth, // Add the day number
+      streakDays.push({ 
+        date: currentDate.toISOString(), 
+        day: dayOfMonth,
         isActive, 
         isToday,
         lessonsViewed: dayActivity?.lessonsViewed || 0,
         exercisesSolved: dayActivity?.exercisesSolved || 0,
         quizzesTaken: dayActivity?.quizzesTaken || 0
-      };
-    });
+      });
+    }
 
+    console.log('Backend Streak Debug - Final streak data:', streakDays.slice(-5));
     return streakDays;
   } catch (error) {
     console.error("Error getting streak data:", error);

@@ -1,0 +1,381 @@
+{
+  "id": "generics",
+  "az": {
+    "title": "Generiklər (PHP 8.1+)",
+    "icon": "FiLayers",
+    "language": "php",
+    "description": "PHP-də tip təhlükəsizliyi və generiklər haqqında məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də Generiklər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generiklər proqramlaşdırma dillərində tip təhlükəsizliyini (type safety) təmin etmək və kodun təkrar istifadəsini asanlaşdırmaq üçün istifadə olunan bir mexanizmdir. Generiklər siniflərə və ya funksiyalara dinamik tiplər təyin etməyə imkan verir, beləliklə kod daha çevik və təhlükəsiz olur. Məsələn, bir siyahı sinfi müəyyən bir tipdə (məsələn, yalnız sətirlər və ya yalnız rəqəmlər) elementləri saxlaya bilər. PHP-də generiklər PHP 8.1 və sonrakı versiyalarda birbaşa dəstəklənmir, lakin PHPDoc annotasiyaları və digər mexanizmlərlə təqlid edilə bilər. Bu, xüsusilə statik analiz alətləri (məsələn, PHPStan, Psalm) ilə işləyərkən faydalıdır. Bu JSON faylda generiklərin PHP-də necə təqlid edildiyi, tip təhlükəsizliyi, sintaksis, istifadə ssenariləri, praktik nümunələr və səhvlərdən qaçınma yolları çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz. PHP 8.1 və ya daha yeni versiyadan istifadə etdiyinizə əmin olun."
+      },
+      {
+        "type": "heading",
+        "text": "Generiklərin PHP-də Təqlid Edilməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də generiklər daxili dil xüsusiyyəti kimi mövcud olmasa da, PHPDoc annotasiyaları ilə statik analiz alətləri vasitəsilə tip təhlükəsizliyi təmin edilə bilər. PHPDoc-da `@template` annotasiyası generik tipləri təyin etmək üçün istifadə olunur. Bu, kodun oxunaqlığını və təhlükəsizliyini artırır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Əsas generik sinif nümunəsi\n\n/**\n * @template T\n */\nclass Box {\n  /** @var T */\n  private $item;\n\n  /**\n   * @param T $item\n   */\n  public function __construct($item) {\n    $this->item = $item;\n  }\n\n  /**\n   * @return T\n   */\n  public function getItem() {\n    return $this->item;\n  }\n}\n\n$box = new Box('Kitab');\necho $box->getItem(); // Çıxış: Kitab\n\n$numberBox = new Box(42);\necho $numberBox->getItem(); // Çıxış: 42\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `@template T` generik bir tip (T) təyin edir.\n- `Box` sinfi istənilən tipdə elementi saxlaya bilər.\n- `@var T` və `@param T` annotasiyaları statik analiz alətlərinə tip təhlükəsizliyini yoxlamağa kömək edir.\n- `Box` sinfi sətir və ya rəqəm kimi fərqli tiplərlə işləyə bilər.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Təhlükəsizliyi (Type Safety)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip təhlükəsizliyi generiklərin əsas məqsədlərindən biridir. PHP-də generiklər birbaşa dəstəklənmədiyi üçün PHPDoc annotasiyaları ilə statik analiz alətləri (məsələn, PHPStan, Psalm) istifadə olunur. Bu alətlər kodun işləməzdən əvvəl tip səhvlərini aşkar edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Tip təhlükəsizliyi nümunəsi\n\n/**\n * @template T of string|int\n */\nclass SafeBox {\n  /** @var T */\n  private $item;\n\n  /**\n   * @param T $item\n   */\n  public function __construct($item) {\n    $this->item = $item;\n  }\n\n  /**\n   * @return T\n   */\n  public function getItem() {\n    return $this->item;\n  }\n}\n\n$stringBox = new SafeBox('Mətn');\necho $stringBox->getItem(); // Çıxış: Mətn\n\n$numberBox = new SafeBox(100);\necho $numberBox->getItem(); // Çıxış: 100\n\n// Statik analiz aləti ilə səhv yoxlaması\n// $invalidBox = new SafeBox(true); // Səhv: boolean tipi qəbul edilmir\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `@template T of string|int` yalnız sətir və ya tam ədəd tiplərini qəbul edir.\n- Statik analiz alətləri (məsələn, PHPStan) yanlış tipləri aşkar edər.\n- `SafeBox` sinfi yalnız müəyyən edilmiş tiplərlə işləyir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generik Funksiyalar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generiklər yalnız siniflərlə məhdudlaşmır, funksiyalarda da PHPDoc ilə təqlid edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Generik funksiya nümunəsi\n\n/**\n * @template T\n * @param T $value\n * @return T\n */\nfunction identity($value) {\n  return $value;\n}\n\necho identity('Test'); // Çıxış: Test\necho identity(123); // Çıxış: 123\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `@template T` funksiyanın istənilən tipi qəbul edə biləcəyini göstərir.\n- `identity` funksiyası daxil edilən dəyəri olduğu kimi qaytarır.\n- Statik analiz alətləri tip uyğunluğunu yoxlayır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generiklərin Praktik İstifadəsi: Siyahı Sinfi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generiklər siyahı və ya kolleksiya siniflərində çox istifadə olunur. Məsələn, yalnız müəyyən bir tipdə elementləri saxlayan siyahı sinfi yaradıla bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Generik siyahı sinfi\n\n/**\n * @template T\n */\nclass Collection {\n  /** @var array<int, T> */\n  private $items = [];\n\n  /**\n   * @param T $item\n   */\n  public function add($item) {\n    $this->items[] = $item;\n  }\n\n  /**\n   * @return array<int, T>\n   */\n  public function getItems() {\n    return $this->items;\n  }\n}\n\n$stringCollection = new Collection();\n$stringCollection->add('Bir');\n$stringCollection->add('İki');\n\nprint_r($stringCollection->getItems());\n// Çıxış: Array ( [0] => Bir [1] => İki )\n\n$numberCollection = new Collection();\n$numberCollection->add(1);\n$numberCollection->add(2);\n\nprint_r($numberCollection->getItems());\n// Çıxış: Array ( [0] => 1 [1] => 2 )\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Collection` sinfi generik bir siyahı sinfidir.\n- `@template T` ilə istənilən tipdə elementləri saxlaya bilər.\n- `add` və `getItems` metodları PHPDoc ilə tip təhlükəsizliyini dəstəkləyir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "PHP-də Generiklərin Məhdudiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də generiklər birbaşa dəstəklənmədiyi üçün bəzi məhdudiyyətlər var:\n- Generiklər yalnız PHPDoc annotasiyaları ilə təqlid edilir və işləmə zamanı (runtime) tip yoxlaması aparılmır.\n- Statik analiz alətləri (məsələn, PHPStan, Psalm) olmadan generiklərin faydası məhdudlaşır.\n- Mürəkkəb generik strukturlar (məsələn, nested generics) PHP-də tam dəstəklənmir.\nTövsiyələr:\n- PHPStan (https://phpstan.org/) və ya Psalm (https://psalm.dev/) kimi statik analiz alətlərindən istifadə edin.\n- PHPDoc annotasiyalarını düzgün yazın.\n- PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/) faydalanın.\nAşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\n\n/**\n * @template T of string\n */\nclass StringBox {\n  /** @var T */\n  private $item;\n\n  /**\n   * @param T $item\n   */\n  public function __construct($item) {\n    $this->item = $item;\n  }\n\n  /**\n   * @return T\n   */\n  public function getItem() {\n    return $this->item;\n  }\n}\n\n$stringBox = new StringBox('Test'); // Düzgün\necho $stringBox->getItem(); // Çıxış: Test\n\n// $invalidBox = new StringBox(123); // Statik analiz aləti ilə səhv: int tipi qəbul edilmir\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `@template T of string` yalnız sətir tiplərini qəbul edir.\n- Sətir tipi ilə işləyən kod düzgün işləyir.\n- Yanlış tip (məsələn, `int`) istifadə edildikdə statik analiz aləti xəta göstərər.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Kitabxana İdarəetmə Sistemi"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Kitabxana idarəetmə sistemi\n\n/**\n * @template T\n */\nclass LibraryCollection {\n  /** @var array<int, T> */\n  private $items = [];\n\n  /**\n   * @param T $item\n   */\n  public function add($item) {\n    $this->items[] = $item;\n  }\n\n  /**\n   * @return array<int, T>\n   */\n  public function getItems() {\n    return $this->items;\n  }\n}\n\nclass Book {\n  private $title;\n\n  public function __construct($title) {\n    $this->title = $title;\n  }\n\n  public function getTitle() {\n    return $this->title;\n  }\n}\n\n$bookCollection = new LibraryCollection();\n$bookCollection->add(new Book('PHP Əsasları'));\n$bookCollection->add(new Book('Dizayn Şablonları'));\n\nforeach ($bookCollection->getItems() as $book) {\n  echo $book->getTitle() . '\\n';\n}\n// Çıxış: PHP Əsasları\n// Dizayn Şablonları\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `LibraryCollection` generik sinfi kitab obyektlərini saxlayır.\n- `@template T` ilə sinf istənilən tipdə elementləri qəbul edə bilər.\n- `Book` sinfi kitab obyektlərini təmsil edir.\n- Statik analiz alətləri ilə tip təhlükəsizliyi yoxlanıla bilər.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün generiklər\n\n/**\n * @template T\n */\nclass Box {\n  /** @var T */\n  private $item;\n\n  /**\n   * @param T $item\n   */\n  public function __construct($item) {\n    $this->item = $item;\n  }\n\n  /**\n   * @return T\n   */\n  public function getItem() {\n    return $this->item;\n  }\n}\n\n$box = new Box('Sınaq mətni');\necho $box->getItem(); // Çıxış: Sınaq mətni\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Generics (PHP 8.1+)",
+    "icon": "FiLayers",
+    "language": "php",
+    "description": "Information about type safety and generics in PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Generics in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics are a programming language feature used to ensure type safety and facilitate code reuse. They allow classes or functions to work with dynamic types, making code more flexible and secure. For example, a list class can be restricted to store only strings or only numbers. In PHP, generics are not directly supported as a language feature in PHP 8.1 or later, but they can be emulated using PHPDoc annotations and static analysis tools like PHPStan or Psalm. This JSON file explains how generics are emulated in PHP, type safety, syntax, use cases, practical examples, and how to avoid common mistakes in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP. Ensure you are using PHP 8.1 or a newer version."
+      },
+      {
+        "type": "heading",
+        "text": "Emulating Generics in PHP"
+      },
+      {
+        "type": "paragraph",
+        "text": "Since PHP does not natively support generics, PHPDoc annotations with static analysis tools are used to emulate type safety. The `@template` annotation defines generic types, improving code readability and safety.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Basic generic class example\n\n/**\n * @template T\n */\nclass Box {\n  /** @var T */\n  private $item;\n\n  /**\n   * @param T $item\n   */\n  public function __construct($item) {\n    $this->item = $item;\n  }\n\n  /**\n   * @return T\n   */\n  public function getItem() {\n    return $this->item;\n  }\n}\n\n$box = new Box('Book');\necho $box->getItem(); // Output: Book\n\n$numberBox = new Box(42);\necho $numberBox->getItem(); // Output: 42\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `@template T` defines a generic type (T).\n- The `Box` class can store any type of item.\n- `@var T` and `@param T` annotations help static analysis tools verify type safety.\n- The `Box` class works with different types like strings or numbers.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Type Safety"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type safety is a key goal of generics. Since PHP does not support generics natively, PHPDoc annotations with static analysis tools (e.g., PHPStan, Psalm) are used to detect type errors before runtime.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Type safety example\n\n/**\n * @template T of string|int\n */\nclass SafeBox {\n  /** @var T */\n  private $item;\n\n  /**\n   * @param T $item\n   */\n  public function __construct($item) {\n    $this->item = $item;\n  }\n\n  /**\n   * @return T\n   */\n  public function getItem() {\n    return $this->item;\n  }\n}\n\n$stringBox = new SafeBox('Text');\necho $stringBox->getItem(); // Output: Text\n\n$numberBox = new SafeBox(100);\necho $numberBox->getItem(); // Output: 100\n\n// Static analysis tool error check\n// $invalidBox = new SafeBox(true); // Error: boolean type not allowed\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `@template T of string|int` restricts the type to strings or integers.\n- Static analysis tools (e.g., PHPStan) detect invalid types.\n- The `SafeBox` class only works with specified types.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics are not limited to classes; they can also be emulated in functions using PHPDoc.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Generic function example\n\n/**\n * @template T\n * @param T $value\n * @return T\n */\nfunction identity($value) {\n  return $value;\n}\n\necho identity('Test'); // Output: Test\necho identity(123); // Output: 123\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `@template T` indicates the function can accept any type.\n- The `identity` function returns the input value unchanged.\n- Static analysis tools verify type consistency.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Use: List Class"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics are commonly used in list or collection classes to restrict elements to a specific type.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Generic list class\n\n/**\n * @template T\n */\nclass Collection {\n  /** @var array<int, T> */\n  private $items = [];\n\n  /**\n   * @param T $item\n   */\n  public function add($item) {\n    $this->items[] = $item;\n  }\n\n  /**\n   * @return array<int, T>\n   */\n  public function getItems() {\n    return $this->items;\n  }\n}\n\n$stringCollection = new Collection();\n$stringCollection->add('One');\n$stringCollection->add('Two');\n\nprint_r($stringCollection->getItems());\n// Output: Array ( [0] => One [1] => Two )\n\n$numberCollection = new Collection();\n$numberCollection->add(1);\n$numberCollection->add(2);\n\nprint_r($numberCollection->getItems());\n// Output: Array ( [0] => 1 [1] => 2 )\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Collection` class is a generic list class.\n- `@template T` allows it to store any type of elements.\n- The `add` and `getItems` methods support type safety via PHPDoc.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Limitations of Generics in PHP"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP has limitations with generics since they are not natively supported:\n- Generics are emulated via PHPDoc annotations and lack runtime type checking.\n- Without static analysis tools (e.g., PHPStan, Psalm), the benefits of generics are limited.\n- Complex generic structures (e.g., nested generics) are not fully supported.\nRecommendations:\n- Use static analysis tools like PHPStan (https://phpstan.org/) or Psalm (https://psalm.dev/).\n- Write accurate PHPDoc annotations.\n- Refer to PHP’s official documentation (https://www.php.net/manual/en/).\nYou can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\n\n/**\n * @template T of string\n */\nclass StringBox {\n  /** @var T */\n  private $item;\n\n  /**\n   * @param T $item\n   */\n  public function __construct($item) {\n    $this->item = $item;\n  }\n\n  /**\n   * @return T\n   */\n  public function getItem() {\n    return $this->item;\n  }\n}\n\n$stringBox = new StringBox('Test'); // Correct\necho $stringBox->getItem(); // Output: Test\n\n// $invalidBox = new StringBox(123); // Static analysis tool error: int type not allowed\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `@template T of string` restricts the type to strings.\n- The code works correctly with string types.\n- Using an incorrect type (e.g., `int`) triggers an error with static analysis tools.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Library Management System"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Library management system\n\n/**\n * @template T\n */\nclass LibraryCollection {\n  /** @var array<int, T> */\n  private $items = [];\n\n  /**\n   * @param T $item\n   */\n  public function add($item) {\n    $this->items[] = $item;\n  }\n\n  /**\n   * @return array<int, T>\n   */\n  public function getItems() {\n    return $this->items;\n  }\n}\n\nclass Book {\n  private $title;\n\n  public function __construct($title) {\n    $this->title = $title;\n  }\n\n  public function getTitle() {\n    return $this->title;\n  }\n}\n\n$bookCollection = new LibraryCollection();\n$bookCollection->add(new Book('PHP Basics'));\n$bookCollection->add(new Book('Design Patterns'));\n\nforeach ($bookCollection->getItems() as $book) {\n  echo $book->getTitle() . '\\n';\n}\n// Output: PHP Basics\n// Design Patterns\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `LibraryCollection` generic class stores book objects.\n- `@template T` allows the class to accept any type of elements.\n- The `Book` class represents book objects.\n- Type safety can be verified with static analysis tools.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself generics\n\n/**\n * @template T\n */\nclass Box {\n  /** @var T */\n  private $item;\n\n  /**\n   * @param T $item\n   */\n  public function __construct($item) {\n    $this->item = $item;\n  }\n\n  /**\n   * @return T\n   */\n  public function getItem() {\n    return $this->item;\n  }\n}\n\n$box = new Box('Test string');\necho $box->getItem(); // Output: Test string\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Дженерики (PHP 8.1+)",
+    "icon": "FiLayers",
+    "language": "php",
+    "description": "Информация о типовой безопасности и дженериках в PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое дженерики в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерики — это функция языков программирования, используемая для обеспечения типовой безопасности и упрощения повторного использования кода. Они позволяют классам или функциям работать с динамическими типами, делая код более гибким и безопасным. Например, класс списка может быть ограничен хранением только строк или только чисел. В PHP дженерики не поддерживаются напрямую в PHP 8.1 и выше, но их можно эмулировать с помощью PHPDoc-аннотаций и инструментов статического анализа, таких как PHPStan или Psalm. Этот JSON-файл подробно объясняет, как эмулировать дженерики в PHP, типовую безопасность, синтаксис, случаи использования, практические примеры и способы избежания ошибок. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP. Убедитесь, что вы используете PHP 8.1 или новее."
+      },
+      {
+        "type": "heading",
+        "text": "Эмуляция дженериков в PHP"
+      },
+      {
+        "type": "paragraph",
+        "text": "Поскольку PHP не поддерживает дженерики нативно, PHPDoc-аннотации с инструментами статического анализа используются для эмуляции типовой безопасности. Аннотация `@template` определяет дженерик-типы, улучшая читаемость и безопасность кода.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример дженерик-класса\n\n/**\n * @template T\n */\nclass Box {\n  /** @var T */\n  private $item;\n\n  /**\n   * @param T $item\n   */\n  public function __construct($item) {\n    $this->item = $item;\n  }\n\n  /**\n   * @return T\n   */\n  public function getItem() {\n    return $this->item;\n  }\n}\n\n$box = new Box('Книга');\necho $box->getItem(); // Вывод: Книга\n\n$numberBox = new Box(42);\necho $numberBox->getItem(); // Вывод: 42\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `@template T` определяет дженерик-тип (T).\n- Класс `Box` может хранить элементы любого типа.\n- Аннотации `@var T` и `@param T` помогают инструментам статического анализа проверять типовую безопасность.\n- Класс `Box` работает с разными типами, такими как строки или числа.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Типовая безопасность"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типовая безопасность — одна из ключевых целей дженериков. Поскольку PHP не поддерживает дженерики нативно, PHPDoc-аннотации с инструментами статического анализа (например, PHPStan, Psalm) используются для обнаружения ошибок типов до выполнения кода.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример типовой безопасности\n\n/**\n * @template T of string|int\n */\nclass SafeBox {\n  /** @var T */\n  private $item;\n\n  /**\n   * @param T $item\n   */\n  public function __construct($item) {\n    $this->item = $item;\n  }\n\n  /**\n   * @return T\n   */\n  public function getItem() {\n    return $this->item;\n  }\n}\n\n$stringBox = new SafeBox('Текст');\necho $stringBox->getItem(); // Вывод: Текст\n\n$numberBox = new SafeBox(100);\necho $numberBox->getItem(); // Вывод: 100\n\n// Проверка ошибок инструментом статического анализа\n// $invalidBox = new SafeBox(true); // Ошибка: тип boolean не разрешен\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `@template T of string|int` ограничивает тип строками или целыми числами.\n- Инструменты статического анализа (например, PHPStan) обнаруживают недопустимые типы.\n- Класс `SafeBox` работает только с указанными типами.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Дженерик-функции"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерики не ограничиваются классами; их также можно эмулировать в функциях с помощью PHPDoc.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример дженерик-функции\n\n/**\n * @template T\n * @param T $value\n * @return T\n */\nfunction identity($value) {\n  return $value;\n}\n\necho identity('Тест'); // Вывод: Тест\necho identity(123); // Вывод: 123\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `@template T` указывает, что функция может принимать любой тип.\n- Функция `identity` возвращает входное значение без изменений.\n- Инструменты статического анализа проверяют согласованность типов.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практическое использование: Класс списка"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерики часто используются в классах списков или коллекций для ограничения элементов определенным типом.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Дженерик-класс списка\n\n/**\n * @template T\n */\nclass Collection {\n  /** @var array<int, T> */\n  private $items = [];\n\n  /**\n   * @param T $item\n   */\n  public function add($item) {\n    $this->items[] = $item;\n  }\n\n  /**\n   * @return array<int, T>\n   */\n  public function getItems() {\n    return $this->items;\n  }\n}\n\n$stringCollection = new Collection();\n$stringCollection->add('Один');\n$stringCollection->add('Два');\n\nprint_r($stringCollection->getItems());\n// Вывод: Array ( [0] => Один [1] => Два )\n\n$numberCollection = new Collection();\n$numberCollection->add(1);\n$numberCollection->add(2);\n\nprint_r($numberCollection->getItems());\n// Вывод: Array ( [0] => 1 [1] => 2 )\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Collection` — это дженерик-класс списка.\n- `@template T` позволяет хранить элементы любого типа.\n- Методы `add` и `getItems` поддерживают типовую безопасность через PHPDoc.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Ограничения дженериков в PHP"
+      },
+      {
+        "type": "paragraph",
+        "text": "В PHP есть ограничения для дженериков, поскольку они не поддерживаются нативно:\n- Дженерики эмулируются через PHPDoc-аннотации и не имеют проверки типов во время выполнения.\n- Без инструментов статического анализа (например, PHPStan, Psalm) преимущества дженериков ограничены.\n- Сложные дженерик-структуры (например, вложенные дженерики) не полностью поддерживаются.\nРекомендации:\n- Используйте инструменты статического анализа, такие как PHPStan (https://phpstan.org/) или Psalm (https://psalm.dev/).\n- Пишите точные PHPDoc-аннотации.\n- Обратитесь к официальной документации PHP (https://www.php.net/manual/en/).\nВы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\n\n/**\n * @template T of string\n */\nclass StringBox {\n  /** @var T */\n  private $item;\n\n  /**\n   * @param T $item\n   */\n  public function __construct($item) {\n    $this->item = $item;\n  }\n\n  /**\n   * @return T\n   */\n  public function getItem() {\n    return $this->item;\n  }\n}\n\n$stringBox = new StringBox('Тест'); // Корректно\necho $stringBox->getItem(); // Вывод: Тест\n\n// $invalidBox = new StringBox(123); // Ошибка инструмента статического анализа: тип int не разрешен\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `@template T of string` ограничивает тип строками.\n- Код с типом строки работает корректно.\n- Использование неверного типа (например, `int`) вызывает ошибку в инструментах статического анализа.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Система управления библиотекой"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Система управления библиотекой\n\n/**\n * @template T\n */\nclass LibraryCollection {\n  /** @var array<int, T> */\n  private $items = [];\n\n  /**\n   * @param T $item\n   */\n  public function add($item) {\n    $this->items[] = $item;\n  }\n\n  /**\n   * @return array<int, T>\n   */\n  public function getItems() {\n    return $this->items;\n  }\n}\n\nclass Book {\n  private $title;\n\n  public function __construct($title) {\n    $this->title = $title;\n  }\n\n  public function getTitle() {\n    return $this->title;\n  }\n}\n\n$bookCollection = new LibraryCollection();\n$bookCollection->add(new Book('Основы PHP'));\n$bookCollection->add(new Book('Шаблоны проектирования'));\n\nforeach ($bookCollection->getItems() as $book) {\n  echo $book->getTitle() . '\\n';\n}\n// Вывод: Основы PHP\n// Шаблоны проектирования\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Дженерик-класс `LibraryCollection` хранит объекты книг.\n- `@template T` позволяет классу принимать элементы любого типа.\n- Класс `Book` представляет объекты книг.\n- Типовая безопасность может быть проверена инструментами статического анализа.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Попробуйте сами дженерики\n\n/**\n * @template T\n */\nclass Box {\n  /** @var T */\n  private $item;\n\n  /**\n   * @param T $item\n   */\n  public function __construct($item) {\n    $this->item = $item;\n  }\n\n  /**\n   * @return T\n   */\n  public function getItem() {\n    return $this->item;\n  }\n}\n\n$box = new Box('Тестовая строка');\necho $box->getItem(); // Вывод: Тестовая строка\n?>"
+      }
+    ]
+  }
+}

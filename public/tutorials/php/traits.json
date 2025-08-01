@@ -1,0 +1,483 @@
+{
+  "id": "traits",
+  "az": {
+    "title": "Treytlər",
+    "icon": "FiLayers",
+    "language": "php",
+    "description": "PHP-də treytlərlə kodun təkrar istifadəsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də Treytlər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Treytlər (traits) PHP-də kodun təkrar istifadəsini təmin etmək üçün istifadə olunan mexanizmdir. Onlar siniflərə metodlar və xüsusiyyətlər əlavə etməyə imkan verir, lakin irsiyyətdən (inheritance) fərqli olaraq treytlər çoxsaylı siniflərə eyni anda daxil edilə bilər. Bu, irsiyyətin məhdudiyyətlərini (məsələn, bir sinfin yalnız bir sinfdən miras ala bilməsi) aradan qaldırır. Treytlər adətən ümumi funksionallığı paylaşmaq üçün istifadə olunur, məsələn, jurnal yazısı (logging) və ya xəta idarəetməsi kimi. Bu JSON faylda treytlərin sintaksisi, istifadə ssenariləri, toqquşma həlli, praktik nümunələr və səhvlərdən qaçınma yolları çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Treytlərin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Treytlər `trait` açar sözü ilə təyin edilir və siniflərdə `use` açar sözü ilə istifadə olunur. Treytlər metodlar, xüsusiyyətlər və hətta abstrakt metodlar ehtiva edə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Əsas treyt nümunəsi\ntrait Logger {\n  public function log($message) {\n    return 'Jurnal: ' . $message;\n  }\n}\n\nclass User {\n  use Logger;\n\n  public function createUser($name) {\n    return $this->log('İstifadəçi yaradıldı: ' . $name);\n  }\n}\n\n$user = new User();\necho $user->createUser('Ali'); // Çıxış: Jurnal: İstifadəçi yaradıldı: Ali\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Logger` treyti jurnal yazısı funksiyasını təmin edir.\n- `User` sinfi `Logger` treytini `use` ilə daxil edir.\n- `createUser` metodu treytin `log` metodunu istifadə edir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Birden Çox Treytin İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bir sinf eyni anda birdən çox treyti istifadə edə bilər. Bu, müxtəlif funksionallıqları birləşdirməyə imkan verir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Birden çox treyt nümunəsi\ntrait Logger {\n  public function log($message) {\n    return 'Jurnal: ' . $message;\n  }\n}\n\ntrait Notifier {\n  public function notify($message) {\n    return 'Bildiriş: ' . $message;\n  }\n}\n\nclass User {\n  use Logger, Notifier;\n\n  public function createUser($name) {\n    $log = $this->log('İstifadəçi yaradıldı: ' . $name);\n    $notify = $this->notify('Yeni istifadəçi: ' . $name);\n    return $log . ' | ' . $notify;\n  }\n}\n\n$user = new User();\necho $user->createUser('Vəli'); // Çıxış: Jurnal: İstifadəçi yaradıldı: Vəli | Bildiriş: Yeni istifadəçi: Vəli\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Logger` və `Notifier` treytləri fərqli funksionallıqlar təmin edir.\n- `User` sinfi hər iki treyti istifadə edir.\n- `createUser` metodu hər iki treytin metodlarını çağırır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Toqquşma Həlli (Conflict Resolution)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Əgər iki treyt eyni adlı metodu ehtiva edirsə, toqquşma yaranır. Bu vəziyyətdə `insteadof` və `as` açar sözləri ilə toqquşma həll edilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Toqquşma həlli nümunəsi\ntrait Logger {\n  public function log($message) {\n    return 'Jurnal: ' . $message;\n  }\n}\n\ntrait AdvancedLogger {\n  public function log($message) {\n    return 'Qabaqcıl Jurnal: ' . $message;\n  }\n}\n\nclass User {\n  use Logger, AdvancedLogger {\n    Logger::log insteadof AdvancedLogger;\n    AdvancedLogger::log as advancedLog;\n  }\n\n  public function createUser($name) {\n    return $this->log('İstifadəçi: ' . $name) . ' | ' . $this->advancedLog('İstifadəçi: ' . $name);\n  }\n}\n\n$user = new User();\necho $user->createUser('Ayşə'); // Çıxış: Jurnal: İstifadəçi: Ayşə | Qabaqcıl Jurnal: İstifadəçi: Ayşə\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Logger` və `AdvancedLogger` treytləri eyni adlı `log` metoduna malikdir.\n- `insteadof` ilə `Logger` treytinin `log` metodu seçilir.\n- `as` ilə `AdvancedLogger` treytinin `log` metodu `advancedLog` adıyla yenidən adlandırılır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Treytlərdə Xüsusiyyətlər (Properties)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Treytlər yalnız metodlarla məhdudlaşmır, həm də xüsusiyyətlər (properties) ehtiva edə bilər. Lakin xüsusiyyətlərin toqquşması ehtimalı olduğundan diqqətli istifadə tələb olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Treytlərdə xüsusiyyətlər\ntrait Config {\n  protected $config = 'Standart konfiqurasiya';\n\n  public function getConfig() {\n    return $this->config;\n  }\n}\n\nclass Application {\n  use Config;\n\n  public function showConfig() {\n    return 'Tətbiq konfiqurasiyası: ' . $this->getConfig();\n  }\n}\n\n$app = new Application();\necho $app->showConfig(); // Çıxış: Tətbiq konfiqurasiyası: Standart konfiqurasiya\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Config` treyti `config` xüsusiyyətini və `getConfig` metodunu təmin edir.\n- `Application` sinfi treyti istifadə edərək xüsusiyyətə və metoda giriş əldə edir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Abstrakt Metodlar və Treytlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Treytlər abstrakt metodlar ehtiva edə bilər, bu da sinflərin bu metodları tətbiq etməsini tələb edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Abstrakt metodlar ilə treyt\ntrait Validator {\n  abstract public function validate();\n\n  public function check() {\n    return 'Yoxlama: ' . $this->validate();\n  }\n}\n\nclass User {\n  use Validator;\n\n  public function validate() {\n    return 'İstifadəçi yoxlanıldı!';\n  }\n}\n\n$user = new User();\necho $user->check(); // Çıxış: Yoxlama: İstifadəçi yoxlanıldı!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Validator` treyti abstrakt `validate` metodunu tələb edir.\n- `User` sinfi `validate` metodunu tətbiq edir.\n- `check` metodu treytdən istifadə edir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik İstifadə: E-ticarət Sistemi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Treytlər real layihələrdə ümumi funksionallığı paylaşmaq üçün istifadə olunur, məsələn, məhsul və sifariş siniflərində jurnal yazısı.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// E-ticarət sistemi nümunəsi\ntrait Logger {\n  public function log($message) {\n    return 'Jurnal: ' . $message;\n  }\n}\n\nclass Product {\n  use Logger;\n\n  private $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n    echo $this->log('Məhsul yaradıldı: ' . $name);\n  }\n}\n\nclass Order {\n  use Logger;\n\n  private $id;\n\n  public function __construct($id) {\n    $this->id = $id;\n    echo $this->log('Sifariş yaradıldı: ' . $id);\n  }\n}\n\n$product = new Product('Smartfon');\n$order = new Order(1001);\n// Çıxış: Jurnal: Məhsul yaradıldı: Smartfon\n// Jurnal: Sifariş yaradıldı: 1001\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Logger` treyti jurnal yazısı funksionallığını təmin edir.\n- `Product` və `Order` sinifləri eyni treyti istifadə edir.\n- Hər iki sinf öz konstruktorlarında jurnal yazısı yaradır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Çox sayda treytin istifadəsi kodu mürəkkəbləşdirə bilər. Toqquşmalar düzgün həll edilməzsə, gözlənilməz nəticələr yarana bilər. Treytlərdə xüsusiyyətlərin yanlış istifadəsi sinif daxilində toqquşmalara səbəb ola bilər.\n- **Tövsiyələr**: Treytləri yalnız ümumi və təkrar istifadə oluna bilən funksionallıq üçün istifadə edin. Toqquşmaları həll etmək üçün `insteadof` və `as` açar sözlərindən düzgün istifadə edin. PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/) faydalanın. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\ntrait Logger {\n  public function log($message) {\n    return 'Jurnal: ' . $message;\n  }\n}\n\ntrait AdvancedLogger {\n  public function log($message) {\n    return 'Qabaqcıl Jurnal: ' . $message;\n  }\n}\n\nclass User {\n  use Logger, AdvancedLogger; // Səhv: Toqquşma həll edilməyib\n}\n\n// Fatal error: Trait method log has not been applied\n\n// Düzgün yol\nclass CorrectUser {\n  use Logger, AdvancedLogger {\n    Logger::log insteadof AdvancedLogger;\n    AdvancedLogger::log as advancedLog;\n  }\n\n  public function createUser($name) {\n    return $this->log('İstifadəçi: ' . $name);\n  }\n}\n\n$user = new CorrectUser();\necho $user->createUser('Fatimə'); // Çıxış: Jurnal: İstifadəçi: Fatimə\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk nümunədə toqquşma həll edilmədiyi üçün fatal xəta yaranır.\n- Düzgün yolda `insteadof` və `as` ilə toqquşma həll edilir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Kitabxana İdarəetmə Sistemi"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Kitabxana idarəetmə sistemi\ntrait Logger {\n  public function log($message) {\n    return 'Jurnal: ' . $message;\n  }\n}\n\ntrait Notifier {\n  public function notify($message) {\n    return 'Bildiriş: ' . $message;\n  }\n}\n\nclass Book {\n  use Logger, Notifier;\n\n  private $title;\n\n  public function __construct($title) {\n    $this->title = $title;\n    echo $this->log('Kitab əlavə edildi: ' . $title) . '\\n';\n    echo $this->notify('Yeni kitab: ' . $title);\n  }\n}\n\nclass Member {\n  use Logger;\n\n  private $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n    echo $this->log('Üzv əlavə edildi: ' . $name);\n  }\n}\n\n$book = new Book('PHP Əsasları');\n$member = new Member('Nərgiz');\n// Çıxış: Jurnal: Kitab əlavə edildi: PHP Əsasları\n// Bildiriş: Yeni kitab: PHP Əsasları\n// Jurnal: Üzv əlavə edildi: Nərgiz\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Logger` və `Notifier` treytləri jurnal yazısı və bildiriş funksionallığını təmin edir.\n- `Book` sinfi hər iki treyti, `Member` sinfi isə yalnız `Logger` treytini istifadə edir.\n- Konstruktorlar treyt metodlarından istifadə edir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün treytlər\ntrait Greeter {\n  public function greet($name) {\n    return 'Salam, ' . $name . '!';\n  }\n}\n\nclass User {\n  use Greeter;\n\n  public function introduce($name) {\n    return $this->greet($name);\n  }\n}\n\n$user = new User();\necho $user->introduce('Elşən'); // Çıxış: Salam, Elşən!\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Traits",
+    "icon": "FiLayers",
+    "language": "php",
+    "description": "Code reuse with traits in PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Traits in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Traits in PHP are a mechanism for code reuse, allowing methods and properties to be shared across multiple classes. Unlike inheritance, which limits a class to one parent, traits enable a class to use multiple traits simultaneously. This overcomes the single inheritance limitation in PHP. Traits are commonly used for shared functionality, such as logging or error handling. This JSON file explains the syntax of traits, their use cases, conflict resolution, practical examples, and how to avoid common mistakes in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Trait Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "Traits are defined using the `trait` keyword and included in classes with the `use` keyword. Traits can contain methods, properties, and even abstract methods.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Basic trait example\ntrait Logger {\n  public function log($message) {\n    return 'Log: ' . $message;\n  }\n}\n\nclass User {\n  use Logger;\n\n  public function createUser($name) {\n    return $this->log('User created: ' . $name);\n  }\n}\n\n$user = new User();\necho $user->createUser('Alice'); // Output: Log: User created: Alice\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Logger` trait provides a logging function.\n- The `User` class includes the `Logger` trait with `use`.\n- The `createUser` method uses the trait’s `log` method.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Using Multiple Traits"
+      },
+      {
+        "type": "paragraph",
+        "text": "A class can use multiple traits simultaneously, combining different functionalities.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Multiple traits example\ntrait Logger {\n  public function log($message) {\n    return 'Log: ' . $message;\n  }\n}\n\ntrait Notifier {\n  public function notify($message) {\n    return 'Notification: ' . $message;\n  }\n}\n\nclass User {\n  use Logger, Notifier;\n\n  public function createUser($name) {\n    $log = $this->log('User created: ' . $name);\n    $notify = $this->notify('New user: ' . $name);\n    return $log . ' | ' . $notify;\n  }\n}\n\n$user = new User();\necho $user->createUser('Bob'); // Output: Log: User created: Bob | Notification: New user: Bob\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Logger` and `Notifier` traits provide different functionalities.\n- The `User` class uses both traits.\n- The `createUser` method calls methods from both traits.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Conflict Resolution"
+      },
+      {
+        "type": "paragraph",
+        "text": "If two traits have methods with the same name, a conflict occurs. This is resolved using the `insteadof` and `as` keywords.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Conflict resolution example\ntrait Logger {\n  public function log($message) {\n    return 'Log: ' . $message;\n  }\n}\n\ntrait AdvancedLogger {\n  public function log($message) {\n    return 'Advanced Log: ' . $message;\n  }\n}\n\nclass User {\n  use Logger, AdvancedLogger {\n    Logger::log insteadof AdvancedLogger;\n    AdvancedLogger::log as advancedLog;\n  }\n\n  public function createUser($name) {\n    return $this->log('User: ' . $name) . ' | ' . $this->advancedLog('User: ' . $name);\n  }\n}\n\n$user = new User();\necho $user->createUser('Clara'); // Output: Log: User: Clara | Advanced Log: User: Clara\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Logger` and `AdvancedLogger` traits both have a `log` method.\n- `insteadof` selects the `Logger` trait’s `log` method.\n- `as` renames the `AdvancedLogger` trait’s `log` method to `advancedLog`.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Properties in Traits"
+      },
+      {
+        "type": "paragraph",
+        "text": "Traits can include properties in addition to methods, but care must be taken to avoid property conflicts.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Properties in traits\ntrait Config {\n  protected $config = 'Default configuration';\n\n  public function getConfig() {\n    return $this->config;\n  }\n}\n\nclass Application {\n  use Config;\n\n  public function showConfig() {\n    return 'Application configuration: ' . $this->getConfig();\n  }\n}\n\n$app = new Application();\necho $app->showConfig(); // Output: Application configuration: Default configuration\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Config` trait provides a `config` property and `getConfig` method.\n- The `Application` class uses the trait to access the property and method.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Abstract Methods in Traits"
+      },
+      {
+        "type": "paragraph",
+        "text": "Traits can include abstract methods, requiring classes to implement them.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Abstract methods in traits\ntrait Validator {\n  abstract public function validate();\n\n  public function check() {\n    return 'Check: ' . $this->validate();\n  }\n}\n\nclass User {\n  use Validator;\n\n  public function validate() {\n    return 'User validated!';\n  }\n}\n\n$user = new User();\necho $user->check(); // Output: Check: User validated!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Validator` trait requires an abstract `validate` method.\n- The `User` class implements the `validate` method.\n- The `check` method uses the trait’s functionality.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Use: E-commerce System"
+      },
+      {
+        "type": "paragraph",
+        "text": "Traits are used in real projects to share common functionality, such as logging in product and order classes.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// E-commerce system example\ntrait Logger {\n  public function log($message) {\n    return 'Log: ' . $message;\n  }\n}\n\nclass Product {\n  use Logger;\n\n  private $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n    echo $this->log('Product created: ' . $name);\n  }\n}\n\nclass Order {\n  use Logger;\n\n  private $id;\n\n  public function __construct($id) {\n    $this->id = $id;\n    echo $this->log('Order created: ' . $id);\n  }\n}\n\n$product = new Product('Smartphone');\n$order = new Order(1001);\n// Output: Log: Product created: Smartphone\n// Log: Order created: 1001\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Logger` trait provides logging functionality.\n- Both `Product` and `Order` classes use the same trait.\n- Constructors in both classes use the trait’s logging method.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Overusing traits can make code complex. Unresolved conflicts may lead to unexpected behavior. Improper use of properties in traits can cause conflicts within a class.\n- **Recommendations**: Use traits only for shared, reusable functionality. Resolve conflicts properly with `insteadof` and `as`. Refer to PHP’s official documentation (https://www.php.net/manual/en/). You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\ntrait Logger {\n  public function log($message) {\n    return 'Log: ' . $message;\n  }\n}\n\ntrait AdvancedLogger {\n  public function log($message) {\n    return 'Advanced Log: ' . $message;\n  }\n}\n\nclass User {\n  use Logger, AdvancedLogger; // Error: Conflict not resolved\n}\n\n// Fatal error: Trait method log has not been applied\n\n// Correct approach\nclass CorrectUser {\n  use Logger, AdvancedLogger {\n    Logger::log insteadof AdvancedLogger;\n    AdvancedLogger::log as advancedLog;\n  }\n\n  public function createUser($name) {\n    return $this->log('User: ' . $name);\n  }\n}\n\n$user = new CorrectUser();\necho $user->createUser('David'); // Output: Log: User: David\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first example fails due to an unresolved conflict between traits.\n- The correct approach uses `insteadof` and `as` to resolve the conflict.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Library Management System"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Library management system\ntrait Logger {\n  public function log($message) {\n    return 'Log: ' . $message;\n  }\n}\n\ntrait Notifier {\n  public function notify($message) {\n    return 'Notification: ' . $message;\n  }\n}\n\nclass Book {\n  use Logger, Notifier;\n\n  private $title;\n\n  public function __construct($title) {\n    $this->title = $title;\n    echo $this->log('Book added: ' . $title) . '\\n';\n    echo $this->notify('New book: ' . $title);\n  }\n}\n\nclass Member {\n  use Logger;\n\n  private $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n    echo $this->log('Member added: ' . $name);\n  }\n}\n\n$book = new Book('PHP Basics');\n$member = new Member('Emma');\n// Output: Log: Book added: PHP Basics\n// Notification: New book: PHP Basics\n// Log: Member added: Emma\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Logger` and `Notifier` traits provide logging and notification functionality.\n- The `Book` class uses both traits, while `Member` uses only `Logger`.\n- Constructors use the trait methods.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself traits\ntrait Greeter {\n  public function greet($name) {\n    return 'Hello, ' . $name . '!';\n  }\n}\n\nclass User {\n  use Greeter;\n\n  public function introduce($name) {\n    return $this->greet($name);\n  }\n}\n\n$user = new User();\necho $user->introduce('Frank'); // Output: Hello, Frank!\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Трейты",
+    "icon": "FiLayers",
+    "language": "php",
+    "description": "Повторное использование кода с помощью трейтов в PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое трейты в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Трейты (traits) в PHP — это механизм для повторного использования кода, позволяющий добавлять методы и свойства в несколько классов. В отличие от наследования, которое ограничивает класс одним родителем, трейты позволяют использовать несколько трейтов одновременно. Это устраняет ограничение одиночного наследования в PHP. Трейты обычно используются для общей функциональности, такой как логирование или обработка ошибок. Этот JSON-файл подробно объясняет синтаксис трейтов, их использование, разрешение конфликтов, практические примеры и способы избежания ошибок. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис трейтов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Трейты определяются с помощью ключевого слова `trait` и включаются в классы с помощью `use`. Трейты могут содержать методы, свойства и даже абстрактные методы.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример трейта\ntrait Logger {\n  public function log($message) {\n    return 'Лог: ' . $message;\n  }\n}\n\nclass User {\n  use Logger;\n\n  public function createUser($name) {\n    return $this->log('Пользователь создан: ' . $name);\n  }\n}\n\n$user = new User();\necho $user->createUser('Алекс'); // Вывод: Лог: Пользователь создан: Алекс\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Трейт `Logger` предоставляет функцию логирования.\n- Класс `User` включает трейт `Logger` с помощью `use`.\n- Метод `createUser` использует метод `log` трейта.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Использование нескольких трейтов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Класс может использовать несколько трейтов одновременно, комбинируя различные функциональности.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример нескольких трейтов\ntrait Logger {\n  public function log($message) {\n    return 'Лог: ' . $message;\n  }\n}\n\ntrait Notifier {\n  public function notify($message) {\n    return 'Уведомление: ' . $message;\n  }\n}\n\nclass User {\n  use Logger, Notifier;\n\n  public function createUser($name) {\n    $log = $this->log('Пользователь создан: ' . $name);\n    $notify = $this->notify('Новый пользователь: ' . $name);\n    return $log . ' | ' . $notify;\n  }\n}\n\n$user = new User();\necho $user->createUser('Борис'); // Вывод: Лог: Пользователь создан: Борис | Уведомление: Новый пользователь: Борис\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Трейты `Logger` и `Notifier` предоставляют разные функциональности.\n- Класс `User` использует оба трейта.\n- Метод `createUser` вызывает методы обоих трейтов.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Разрешение конфликтов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Если два трейта содержат методы с одинаковыми именами, возникает конфликт. Он разрешается с помощью ключевых слов `insteadof` и `as`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример разрешения конфликтов\ntrait Logger {\n  public function log($message) {\n    return 'Лог: ' . $message;\n  }\n}\n\ntrait AdvancedLogger {\n  public function log($message) {\n    return 'Расширенный лог: ' . $message;\n  }\n}\n\nclass User {\n  use Logger, AdvancedLogger {\n    Logger::log insteadof AdvancedLogger;\n    AdvancedLogger::log as advancedLog;\n  }\n\n  public function createUser($name) {\n    return $this->log('Пользователь: ' . $name) . ' | ' . $this->advancedLog('Пользователь: ' . $name);\n  }\n}\n\n$user = new User();\necho $user->createUser('Катя'); // Вывод: Лог: Пользователь: Катя | Расширенный лог: Пользователь: Катя\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Трейты `Logger` и `AdvancedLogger` оба имеют метод `log`.\n- `insteadof` выбирает метод `log` из трейта `Logger`.\n- `as` переименовывает метод `log` из `AdvancedLogger` в `advancedLog`.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Свойства в трейтах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Трейты могут включать свойства в дополнение к методам, но нужно быть осторожным, чтобы избежать конфликтов свойств.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Свойства в трейтах\ntrait Config {\n  protected $config = 'Конфигурация по умолчанию';\n\n  public function getConfig() {\n    return $this->config;\n  }\n}\n\nclass Application {\n  use Config;\n\n  public function showConfig() {\n    return 'Конфигурация приложения: ' . $this->getConfig();\n  }\n}\n\n$app = new Application();\necho $app->showConfig(); // Вывод: Конфигурация приложения: Конфигурация по умолчанию\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Трейт `Config` предоставляет свойство `config` и метод `getConfig`.\n- Класс `Application` использует трейт для доступа к свойству и методу.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Абстрактные методы в трейтах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Трейты могут содержать абстрактные методы, требующие их реализации в классах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Абстрактные методы в трейтах\ntrait Validator {\n  abstract public function validate();\n\n  public function check() {\n    return 'Проверка: ' . $this->validate();\n  }\n}\n\nclass User {\n  use Validator;\n\n  public function validate() {\n    return 'Пользователь проверен!';\n  }\n}\n\n$user = new User();\necho $user->check(); // Вывод: Проверка: Пользователь проверен!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Трейт `Validator` требует абстрактный метод `validate`.\n- Класс `User` реализует метод `validate`.\n- Метод `check` использует функциональность трейта.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практическое использование: Система электронной коммерции"
+      },
+      {
+        "type": "paragraph",
+        "text": "Трейты используются в реальных проектах для разделения общей функциональности, например, логирования в классах продуктов и заказов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример системы электронной коммерции\ntrait Logger {\n  public function log($message) {\n    return 'Лог: ' . $message;\n  }\n}\n\nclass Product {\n  use Logger;\n\n  private $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n    echo $this->log('Продукт создан: ' . $name);\n  }\n}\n\nclass Order {\n  use Logger;\n\n  private $id;\n\n  public function __construct($id) {\n    $this->id = $id;\n    echo $this->log('Заказ создан: ' . $id);\n  }\n}\n\n$product = new Product('Смартфон');\n$order = new Order(1001);\n// Вывод: Лог: Продукт создан: Смартфон\n// Лог: Заказ создан: 1001\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Трейт `Logger` предоставляет функциональность логирования.\n- Классы `Product` и `Order` используют один и тот же трейт.\n- Конструкторы обоих классов используют метод логирования трейта.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Чрезмерное использование трейтов может усложнить код. Неразрешенные конфликты могут привести к непредсказуемому поведению. Неправильное использование свойств в трейтах может вызвать конфликты в классе.\n- **Рекомендации**: Используйте трейты только для общей, повторно используемой функциональности. Разрешайте конфликты с помощью `insteadof` и `as`. Обратитесь к официальной документации PHP (https://www.php.net/manual/en/). Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\ntrait Logger {\n  public function log($message) {\n    return 'Лог: ' . $message;\n  }\n}\n\ntrait AdvancedLogger {\n  public function log($message) {\n    return 'Расширенный лог: ' . $message;\n  }\n}\n\nclass User {\n  use Logger, AdvancedLogger; // Ошибка: Конфликт не разрешен\n}\n\n// Fatal error: Trait method log has not been applied\n\n// Правильный подход\nclass CorrectUser {\n  use Logger, AdvancedLogger {\n    Logger::log insteadof AdvancedLogger;\n    AdvancedLogger::log as advancedLog;\n  }\n\n  public function createUser($name) {\n    return $this->log('Пользователь: ' . $name);\n  }\n}\n\n$user = new CorrectUser();\necho $user->createUser('Евгений'); // Вывод: Лог: Пользователь: Евгений\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый пример вызывает ошибку из-за неразрешенного конфликта между трейтами.\n- Правильный подход использует `insteadof` и `as` для разрешения конфликта.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Система управления библиотекой"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Система управления библиотекой\ntrait Logger {\n  public function log($message) {\n    return 'Лог: ' . $message;\n  }\n}\n\ntrait Notifier {\n  public function notify($message) {\n    return 'Уведомление: ' . $message;\n  }\n}\n\nclass Book {\n  use Logger, Notifier;\n\n  private $title;\n\n  public function __construct($title) {\n    $this->title = $title;\n    echo $this->log('Книга добавлена: ' . $title) . '\\n';\n    echo $this->notify('Новая книга: ' . $title);\n  }\n}\n\nclass Member {\n  use Logger;\n\n  private $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n    echo $this->log('Участник добавлен: ' . $name);\n  }\n}\n\n$book = new Book('Основы PHP');\n$member = new Member('Наталья');\n// Вывод: Лог: Книга добавлена: Основы PHP\n// Уведомление: Новая книга: Основы PHP\n// Лог: Участник добавлен: Наталья\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Трейты `Logger` и `Notifier` предоставляют функциональность логирования и уведомления.\n- Класс `Book` использует оба трейта, а `Member` — только `Logger`.\n- Конструкторы используют методы трейтов.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Попробуйте сами трейты\ntrait Greeter {\n  public function greet($name) {\n    return 'Привет, ' . $name . '!';\n  }\n}\n\nclass User {\n  use Greeter;\n\n  public function introduce($name) {\n    return $this->greet($name);\n  }\n}\n\n$user = new User();\necho $user->introduce('Глеб'); // Вывод: Привет, Глеб!\n?>"
+      }
+    ]
+  }
+}

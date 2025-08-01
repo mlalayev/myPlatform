@@ -1,0 +1,471 @@
+{
+  "id": "constructors",
+  "az": {
+    "title": "Konstruktorlar",
+    "icon": "FiTool",
+    "language": "php",
+    "description": "PHP-də sinifin yaradılması və konstruktorlar haqqında məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də Konstruktorlar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də konstruktorlar sinifdən obyekt yaradılarkən avtomatik olaraq çağırılan xüsusi metodlardır. Onların əsas məqsədi sinifin xüsusiyyətlərini (properties) ilkin dəyərlərlə təyin etmək və ya obyektin ilkin qurulmasını (initialization) təmin etməkdir. Konstruktorlar `__construct` adlı xüsusi funksiya ilə təyin olunur. Konstruktorlar parametrlər qəbul edə bilər və ya parametrsiz ola bilər. Obyekt yönümlü proqramlaşdırmada (OOP) konstruktorlar sinifin strukturunu daha etibarlı və nəzarətli şəkildə qurmağa imkan verir. Bu JSON faylda konstruktorların sintaksisi, istifadə ssenariləri, irsiyyətdə istifadəsi, praktik nümunələri və səhvlərdən qaçınma yolları çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Konstruktorların Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konstruktor `__construct` funksiyası ilə təyin olunur. O, sinifdən obyekt yaradılarkən avtomatik çağırılır. Sintaksis:\n```php\nclass SinifAdi {\n  public function __construct($param1, $param2) {\n    // İlkin qurulma əməliyyatları\n  }\n}\n$obyekt = new SinifAdi($arg1, $arg2);\n```\nKonstruktorlar `public`, `private` və ya `protected` ola bilər, lakin adətən `public` olur, çünki obyektlər sinif xaricindən yaradılır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Sadə konstruktor nümunəsi\nclass Car {\n  public $brand;\n  public $color;\n\n  public function __construct($brand, $color) {\n    $this->brand = $brand;\n    $this->color = $color;\n  }\n\n  public function getInfo() {\n    return 'Avtomobil: ' . $this->brand . ', Rəng: ' . $this->color;\n  }\n}\n\n$myCar = new Car('Toyota', 'Mavi');\necho $myCar->getInfo(); // Çıxış: Avtomobil: Toyota, Rəng: Mavi\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Car` sinfi `__construct` metodu ilə `$brand` və `$color` xüsusiyyətlərini ilkinləşdirir.\n- `$this` sinifin öz xüsusiyyətlərinə müraciət etmək üçün istifadə olunur.\n- `$myCar = new Car('Toyota', 'Mavi')` obyekt yaradarkən konstruktoru çağırır və dəyərləri təyin edir.\n- `getInfo` metodu avtomobil haqqında məlumat qaytarır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Parametrsiz Konstruktorlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konstruktorlar heç bir parametr qəbul etmədən də təyin oluna bilər. Bu, xüsusiyyətlərə standart dəyərlər təyin etmək üçün faydalıdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Parametrsiz konstruktor nümunəsi\nclass User {\n  public $username;\n  public $role;\n\n  public function __construct() {\n    $this->username = 'Qonaq';\n    $this->role = 'İstifadəçi';\n  }\n\n  public function getUserInfo() {\n    return 'İstifadəçi: ' . $this->username . ', Rol: ' . $this->role;\n  }\n}\n\n$user = new User();\necho $user->getUserInfo(); // Çıxış: İstifadəçi: Qonaq, Rol: İstifadəçi\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `__construct` heç bir parametr qəbul etmir və standart dəyərləri təyin edir.\n- `$user = new User()` obyekt yaradarkən konstruktor avtomatik çağırılır.\n- `getUserInfo` metodu istifadəçi məlumatlarını qaytarır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "İrsiyyətdə Konstruktorlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "İrsiyyətdə (inheritance) törəmə sinif (`child class`) əsas sinifin (`parent class`) konstruktorunu çağırır. Bu, `parent::__construct()` ilə edilir. Əgər törəmə sinifdə konstruktor təyin olunmayıbsa, əsas sinifin konstruktoru avtomatik çağırılır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// İrsiyyətdə konstruktor nümunəsi\nclass Animal {\n  public $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n    echo 'Animal sinfi konstruktoru çağırıldı\\n';\n  }\n}\n\nclass Dog extends Animal {\n  public $breed;\n\n  public function __construct($name, $breed) {\n    parent::__construct($name);\n    $this->breed = $breed;\n    echo 'Dog sinfi konstruktoru çağırıldı\\n';\n  }\n\n  public function getInfo() {\n    return 'Ad: ' . $this->name . ', Cins: ' . $this->breed;\n  }\n}\n\n$dog = new Dog('Boncuk', 'Labrador');\necho $dog->getInfo();\n// Çıxış:\n// Animal sinfi konstruktoru çağırıldı\n// Dog sinfi konstruktoru çağırıldı\n// Ad: Boncuk, Cins: Labrador\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Animal` sinfi `$name` xüsusiyyətini ilkinləşdirir.\n- `Dog` sinfi `Animal` sinfindən miras alır və `parent::__construct($name)` ilə əsas sinfin konstruktorunu çağırır.\n- `Dog` sinfi öz `$breed` xüsusiyyətini əlavə edir.\n- `$dog = new Dog('Boncuk', 'Labrador')` hər iki konstruktoru çağırır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Private Konstruktorlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Private konstruktorlar sinifin xaricindən obyekt yaradılmasını məhdudlaşdırır. Bu, adətən Singleton dizayn patterni kimi hallarda istifadə olunur, burada sinifdən yalnız bir obyekt yaradılmalıdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Private konstruktor nümunəsi\nclass Singleton {\n  private static $instance = null;\n  private $data;\n\n  private function __construct() {\n    $this->data = 'Singleton məlumatı';\n  }\n\n  public static function getInstance() {\n    if (self::$instance == null) {\n      self::$instance = new Singleton();\n    }\n    return self::$instance;\n  }\n\n  public function getData() {\n    return $this->data;\n  }\n}\n\n$singleton = Singleton::getInstance();\necho $singleton->getData(); // Çıxış: Singleton məlumatı\n// $test = new Singleton(); // Səhv: private konstruktor xaricdən çağırıla bilməz\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `__construct` private olduğu üçün sinif xaricindən obyekt yaratmaq mümkün deyil.\n- `getInstance` statik metodu tək bir obyektin yaradılmasını təmin edir (Singleton patterni).\n- `$singleton->getData()` məlumatı qaytarır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Konstruktorlarda İlkin Yoxlamalar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konstruktorlar daxil edilən parametrləri yoxlayaraq obyektin düzgün qurulmasını təmin edə bilər. Bu, məlumatın etibarlılığını artırmaq üçün faydalıdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Konstruktorlarda yoxlama nümunəsi\nclass Employee {\n  private $name;\n  private $salary;\n\n  public function __construct($name, $salary) {\n    if (empty($name)) {\n      echo 'Ad boş ola bilməz!';\n      return;\n    }\n    if ($salary < 0) {\n      echo 'Əmək haqqı mənfi ola bilməz!';\n      return;\n    }\n    $this->name = $name;\n    $this->salary = $salary;\n  }\n\n  public function getInfo() {\n    return 'Ad: ' . $this->name . ', Əmək haqqı: ' . $this->salary;\n  }\n}\n\n$employee1 = new Employee('Aysel', 2000);\necho $employee1->getInfo(); // Çıxış: Ad: Aysel, Əmək haqqı: 2000\n$employee2 = new Employee('', -500); // Çıxış: Ad boş ola bilməz!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `__construct` adın boş və əmək haqqının mənfi olub-olmadığını yoxlayır.\n- Yoxlama uğursuz olarsa, xəbərdarlıq mesajı çap olunur və obyekt tam qurulmur.\n- `getInfo` metodu düzgün qurulmuş obyektin məlumatlarını qaytarır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Konstruktorlarda parametrlərin yoxlanmaması etibarsız obyektlərin yaranmasına səbəb ola bilər. İrsiyyətdə `parent::__construct` çağırılmaması əsas sinfin ilkinləşməsini atlaya bilər. Private konstruktorlar düzgün istifadə edilməzsə, sinifə girişi tamamilə bağlaya bilər.\n- **Tövsiyələr**: Konstruktorlarda parametrləri yoxlayın. İrsiyyətdə əsas sinfin konstruktorunu çağırın (`parent::__construct`). Sadə və oxunaqlı konstruktorlar yazın. PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/) faydalanın. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\nclass Test {\n  public $value;\n\n  public function __construct($value) {\n    // Parametr yoxlanılmır\n    $this->value = $value;\n  }\n}\n\n$test = new Test(null);\necho $test->value; // Çıxış: null (etibarsız dəyər)\n\n// Düzgün yol\nclass TestCorrect {\n  public $value;\n\n  public function __construct($value) {\n    if ($value === null) {\n      echo 'Dəyər null ola bilməz!';\n      return;\n    }\n    $this->value = $value;\n  }\n}\n\n$testCorrect = new TestCorrect('Düzgün dəyər');\necho $testCorrect->value; // Çıxış: Düzgün dəyər\n$testCorrect = new TestCorrect(null); // Çıxış: Dəyər null ola bilməz!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk nümunədə parametr yoxlanılmadığı üçün `null` dəyəri qəbul olunur, bu etibarsız ola bilər.\n- Düzgün yolda `null` dəyər yoxlanılır və xəbərdarlıq verilir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Kitabxana Sistemi"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Kitabxana sistemi\nclass Book {\n  private $title;\n  private $author;\n  private $year;\n\n  public function __construct($title, $author, $year) {\n    if (empty($title) || empty($author)) {\n      echo 'Başlıq və müəllif boş ola bilməz!';\n      return;\n    }\n    if ($year < 0 || $year > date('Y')) {\n      echo 'İl etibarlı olmalıdır!';\n      return;\n    }\n    $this->title = $title;\n    $this->author = $author;\n    $this->year = $year;\n  }\n\n  public function getBookInfo() {\n    return 'Kitab: ' . $this->title . ', Müəllif: ' . $this->author . ', İl: ' . $this->year;\n  }\n}\n\n$book = new Book('1984', 'George Orwell', 1949);\necho $book->getBookInfo(); // Çıxış: Kitab: 1984, Müəllif: George Orwell, İl: 1949\n$invalidBook = new Book('', 'Müəllif', 2025); // Çıxış: Başlıq və müəllif boş ola bilməz!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Book` sinfi kitabın başlığını, müəllifini və nəşr ilini saxlayır.\n- `__construct` parametrləri yoxlayır (boş başlıq/müəllif, etibarsız il).\n- `getBookInfo` kitab haqqında məlumat qaytarır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: İrsiyyətdə Çoxsəviyyəli Konstruktor"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Çoxsəviyyəli irsiyyət nümunəsi\nclass Vehicle {\n  protected $type;\n\n  public function __construct($type) {\n    $this->type = $type;\n    echo 'Vehicle konstruktoru çağırıldı\\n';\n  }\n}\n\nclass Car extends Vehicle {\n  protected $brand;\n\n  public function __construct($type, $brand) {\n    parent::__construct($type);\n    $this->brand = $brand;\n    echo 'Car konstruktoru çağırıldı\\n';\n  }\n}\n\nclass ElectricCar extends Car {\n  private $battery;\n\n  public function __construct($type, $brand, $battery) {\n    parent::__construct($type, $brand);\n    $this->battery = $battery;\n    echo 'ElectricCar konstruktoru çağırıldı\\n';\n  }\n\n  public function getInfo() {\n    return 'Növ: ' . $this->type . ', Brend: ' . $this->brand . ', Batareya: ' . $this->battery;\n  }\n}\n\n$tesla = new ElectricCar('Elektrik', 'Tesla', '100 kWh');\necho $tesla->getInfo();\n// Çıxış:\n// Vehicle konstruktoru çağırıldı\n// Car konstruktoru çağırıldı\n// ElectricCar konstruktoru çağırıldı\n// Növ: Elektrik, Brend: Tesla, Batareya: 100 kWh\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Vehicle`, `Car` və `ElectricCar` sinifləri çoxsəviyyəli irsiyyət zənciri yaradır.\n- Hər sinif öz konstruktoruna malikdir və `parent::__construct` ilə əsas sinfin konstruktorunu çağırır.\n- `getInfo` metodu elektrik avtomobilinin məlumatlarını qaytarır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün konstruktor\nclass Student {\n  private $name;\n  private $grade;\n\n  public function __construct($name, $grade) {\n    if (empty($name)) {\n      echo 'Ad boş ola bilməz!';\n      return;\n    }\n    $this->name = $name;\n    $this->grade = $grade;\n  }\n\n  public function getStudentInfo() {\n    return 'Tələbə: ' . $this->name . ', Qiymət: ' . $this->grade;\n  }\n}\n\n$student = new Student('Aysel', 95);\necho $student->getStudentInfo(); // Çıxış: Tələbə: Aysel, Qiymət: 95\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Constructors",
+    "icon": "FiTool",
+    "language": "php",
+    "description": "Information about class creation and constructors in PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Constructors in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In PHP, constructors are special methods automatically called when an object is created from a class. Their primary purpose is to initialize the class’s properties or set up the object’s initial state. Constructors are defined using the `__construct` function. They can accept parameters or be parameterless. In object-oriented programming (OOP), constructors ensure reliable and controlled object initialization. This JSON file explains constructor syntax, use cases, usage in inheritance, practical examples, and how to avoid common mistakes in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Constructor Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "A constructor is defined with the `__construct` function and is automatically called when an object is created. Syntax:\n```php\nclass ClassName {\n  public function __construct($param1, $param2) {\n    // Initialization operations\n  }\n}\n$object = new ClassName($arg1, $arg2);\n```\nConstructors can be `public`, `private`, or `protected`, but are typically `public` since objects are created outside the class.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Simple constructor example\nclass Car {\n  public $brand;\n  public $color;\n\n  public function __construct($brand, $color) {\n    $this->brand = $brand;\n    $this->color = $color;\n  }\n\n  public function getInfo() {\n    return 'Car: ' . $this->brand . ', Color: ' . $this->color;\n  }\n}\n\n$myCar = new Car('Toyota', 'Blue');\necho $myCar->getInfo(); // Output: Car: Toyota, Color: Blue\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Car` class uses `__construct` to initialize `$brand` and `$color` properties.\n- `$this` refers to the class’s own properties.\n- `$myCar = new Car('Toyota', 'Blue')` calls the constructor to set the values.\n- `getInfo` returns car details.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Parameterless Constructors"
+      },
+      {
+        "type": "paragraph",
+        "text": "Constructors can be defined without parameters, useful for setting default values for properties.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Parameterless constructor example\nclass User {\n  public $username;\n  public $role;\n\n  public function __construct() {\n    $this->username = 'Guest';\n    $this->role = 'User';\n  }\n\n  public function getUserInfo() {\n    return 'User: ' . $this->username . ', Role: ' . $this->role;\n  }\n}\n\n$user = new User();\necho $user->getUserInfo(); // Output: User: Guest, Role: User\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `__construct` takes no parameters and sets default values.\n- `$user = new User()` automatically calls the constructor.\n- `getUserInfo` returns user details.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Constructors in Inheritance"
+      },
+      {
+        "type": "paragraph",
+        "text": "In inheritance, a child class can call the parent class’s constructor using `parent::__construct()`. If the child class doesn’t define a constructor, the parent’s constructor is called automatically.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Constructor in inheritance example\nclass Animal {\n  public $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n    echo 'Animal constructor called\\n';\n  }\n}\n\nclass Dog extends Animal {\n  public $breed;\n\n  public function __construct($name, $breed) {\n    parent::__construct($name);\n    $this->breed = $breed;\n    echo 'Dog constructor called\\n';\n  }\n\n  public function getInfo() {\n    return 'Name: ' . $this->name . ', Breed: ' . $this->breed;\n  }\n}\n\n$dog = new Dog('Buddy', 'Labrador');\necho $dog->getInfo();\n// Output:\n// Animal constructor called\n// Dog constructor called\n// Name: Buddy, Breed: Labrador\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Animal` class initializes `$name`.\n- The `Dog` class inherits from `Animal` and calls `parent::__construct($name)`.\n- `Dog` adds its own `$breed` property.\n- `$dog = new Dog('Buddy', 'Labrador')` triggers both constructors.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Private Constructors"
+      },
+      {
+        "type": "paragraph",
+        "text": "Private constructors restrict object creation from outside the class, often used in patterns like Singleton to ensure only one instance of a class exists.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Private constructor example\nclass Singleton {\n  private static $instance = null;\n  private $data;\n\n  private function __construct() {\n    $this->data = 'Singleton data';\n  }\n\n  public static function getInstance() {\n    if (self::$instance == null) {\n      self::$instance = new Singleton();\n    }\n    return self::$instance;\n  }\n\n  public function getData() {\n    return $this->data;\n  }\n}\n\n$singleton = Singleton::getInstance();\necho $singleton->getData(); // Output: Singleton data\n// $test = new Singleton(); // Error: Cannot call private constructor\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `__construct` is private, preventing direct object creation.\n- `getInstance` ensures a single instance (Singleton pattern).\n- `$singleton->getData()` returns the data.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Validation in Constructors"
+      },
+      {
+        "type": "paragraph",
+        "text": "Constructors can validate input parameters to ensure reliable object creation.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Validation in constructor example\nclass Employee {\n  private $name;\n  private $salary;\n\n  public function __construct($name, $salary) {\n    if (empty($name)) {\n      echo 'Name cannot be empty!';\n      return;\n    }\n    if ($salary < 0) {\n      echo 'Salary cannot be negative!';\n      return;\n    }\n    $this->name = $name;\n    $this->salary = $salary;\n  }\n\n  public function getInfo() {\n    return 'Name: ' . $this->name . ', Salary: ' . $this->salary;\n  }\n}\n\n$employee1 = new Employee('Aysel', 2000);\necho $employee1->getInfo(); // Output: Name: Aysel, Salary: 2000\n$employee2 = new Employee('', -500); // Output: Name cannot be empty!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `__construct` checks if the name is empty or salary is negative.\n- Invalid inputs trigger warning messages, preventing full object creation.\n- `getInfo` returns details for valid objects.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Not validating constructor parameters can lead to invalid objects. Failing to call `parent::__construct` in inheritance skips parent initialization. Misusing private constructors can block class access entirely.\n- **Recommendations**: Validate parameters in constructors. Call `parent::__construct` in inherited classes. Keep constructors simple and readable. Refer to PHP’s official documentation (https://www.php.net/manual/en/). You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\nclass Test {\n  public $value;\n\n  public function __construct($value) {\n    // No validation\n    $this->value = $value;\n  }\n}\n\n$test = new Test(null);\necho $test->value; // Output: null (invalid value)\n\n// Correct approach\nclass TestCorrect {\n  public $value;\n\n  public function __construct($value) {\n    if ($value === null) {\n      echo 'Value cannot be null!';\n      return;\n    }\n    $this->value = $value;\n  }\n}\n\n$testCorrect = new TestCorrect('Valid value');\necho $testCorrect->value; // Output: Valid value\n$testCorrect = new TestCorrect(null); // Output: Value cannot be null!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first example accepts `null` without validation, which may be invalid.\n- The correct approach checks for `null` and warns accordingly.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Library System"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Library system\nclass Book {\n  private $title;\n  private $author;\n  private $year;\n\n  public function __construct($title, $author, $year) {\n    if (empty($title) || empty($author)) {\n      echo 'Title and author cannot be empty!';\n      return;\n    }\n    if ($year < 0 || $year > date('Y')) {\n      echo 'Year must be valid!';\n      return;\n    }\n    $this->title = $title;\n    $this->author = $author;\n    $this->year = $year;\n  }\n\n  public function getBookInfo() {\n    return 'Book: ' . $this->title . ', Author: ' . $this->author . ', Year: ' . $this->year;\n  }\n}\n\n$book = new Book('1984', 'George Orwell', 1949);\necho $book->getBookInfo(); // Output: Book: 1984, Author: George Orwell, Year: 1949\n$invalidBook = new Book('', 'Author', 2025); // Output: Title and author cannot be empty!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Book` class stores a book’s title, author, and publication year.\n- `__construct` validates the title, author, and year.\n- `getBookInfo` returns book details.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Multi-Level Inheritance Constructor"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Multi-level inheritance example\nclass Vehicle {\n  protected $type;\n\n  public function __construct($type) {\n    $this->type = $type;\n    echo 'Vehicle constructor called\\n';\n  }\n}\n\nclass Car extends Vehicle {\n  protected $brand;\n\n  public function __construct($type, $brand) {\n    parent::__construct($type);\n    $this->brand = $brand;\n    echo 'Car constructor called\\n';\n  }\n}\n\nclass ElectricCar extends Car {\n  private $battery;\n\n  public function __construct($type, $brand, $battery) {\n    parent::__construct($type, $brand);\n    $this->battery = $battery;\n    echo 'ElectricCar constructor called\\n';\n  }\n\n  public function getInfo() {\n    return 'Type: ' . $this->type . ', Brand: ' . $this->brand . ', Battery: ' . $this->battery;\n  }\n}\n\n$tesla = new ElectricCar('Electric', 'Tesla', '100 kWh');\necho $tesla->getInfo();\n// Output:\n// Vehicle constructor called\n// Car constructor called\n// ElectricCar constructor called\n// Type: Electric, Brand: Tesla, Battery: 100 kWh\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Vehicle`, `Car`, and `ElectricCar` form a multi-level inheritance chain.\n- Each class has its own constructor, calling the parent’s constructor with `parent::__construct`.\n- `getInfo` returns details of the electric car.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself constructor\nclass Student {\n  private $name;\n  private $grade;\n\n  public function __construct($name, $grade) {\n    if (empty($name)) {\n      echo 'Name cannot be empty!';\n      return;\n    }\n    $this->name = $name;\n    $this->grade = $grade;\n  }\n\n  public function getStudentInfo() {\n    return 'Student: ' . $this->name . ', Grade: ' . $this->grade;\n  }\n}\n\n$student = new Student('Aysel', 95);\necho $student->getStudentInfo(); // Output: Student: Aysel, Grade: 95\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Конструкторы",
+    "icon": "FiTool",
+    "language": "php",
+    "description": "Информация о создании классов и конструкторах в PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое конструкторы в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В PHP конструкторы — это специальные методы, которые автоматически вызываются при создании объекта из класса. Их основная цель — инициализация свойств класса или настройка начального состояния объекта. Конструкторы определяются с помощью функции `__construct`. Они могут принимать параметры или быть без параметров. В объектно-ориентированном программировании (ООП) конструкторы обеспечивают надежную и контролируемую инициализацию объектов. Этот JSON-файл подробно объясняет синтаксис конструкторов, случаи использования, их применение в наследовании, практические примеры и способы избежания ошибок. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис конструкторов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конструктор определяется функцией `__construct` и автоматически вызывается при создании объекта. Синтаксис:\n```php\nclass ClassName {\n  public function __construct($param1, $param2) {\n    // Операции инициализации\n  }\n}\n$object = new ClassName($arg1, $arg2);\n```\nКонструкторы могут быть `public`, `private` или `protected`, но обычно они `public`, так как объекты создаются вне класса.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример простого конструктора\nclass Car {\n  public $brand;\n  public $color;\n\n  public function __construct($brand, $color) {\n    $this->brand = $brand;\n    $this->color = $color;\n  }\n\n  public function getInfo() {\n    return 'Машина: ' . $this->brand . ', Цвет: ' . $this->color;\n  }\n}\n\n$myCar = new Car('Toyota', 'Синий');\necho $myCar->getInfo(); // Вывод: Машина: Toyota, Цвет: Синий\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Car` использует `__construct` для инициализации свойств `$brand` и `$color`.\n- `$this` ссылается на свойства класса.\n- `$myCar = new Car('Toyota', 'Синий')` вызывает конструктор для установки значений.\n- `getInfo` возвращает информацию о машине.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Конструкторы без параметров"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конструкторы могут быть определены без параметров, что полезно для установки значений по умолчанию для свойств.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример конструктора без параметров\nclass User {\n  public $username;\n  public $role;\n\n  public function __construct() {\n    $this->username = 'Гость';\n    $this->role = 'Пользователь';\n  }\n\n  public function getUserInfo() {\n    return 'Пользователь: ' . $this->username . ', Роль: ' . $this->role;\n  }\n}\n\n$user = new User();\necho $user->getUserInfo(); // Вывод: Пользователь: Гость, Роль: Пользователь\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `__construct` не принимает параметры и устанавливает значения по умолчанию.\n- `$user = new User()` автоматически вызывает конструктор.\n- `getUserInfo` возвращает информацию о пользователе.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Конструкторы в наследовании"
+      },
+      {
+        "type": "paragraph",
+        "text": "В наследовании дочерний класс может вызывать конструктор родительского класса с помощью `parent::__construct()`. Если дочерний класс не определяет конструктор, конструктор родителя вызывается автоматически.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример конструктора в наследовании\nclass Animal {\n  public $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n    echo 'Конструктор Animal вызван\\n';\n  }\n}\n\nclass Dog extends Animal {\n  public $breed;\n\n  public function __construct($name, $breed) {\n    parent::__construct($name);\n    $this->breed = $breed;\n    echo 'Конструктор Dog вызван\\n';\n  }\n\n  public function getInfo() {\n    return 'Имя: ' . $this->name . ', Порода: ' . $this->breed;\n  }\n}\n\n$dog = new Dog('Бублик', 'Лабрадор');\necho $dog->getInfo();\n// Вывод:\n// Конструктор Animal вызван\n// Конструктор Dog вызван\n// Имя: Бублик, Порода: Лабрадор\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Animal` инициализирует `$name`.\n- Класс `Dog` наследует от `Animal` и вызывает `parent::__construct($name)`.\n- `Dog` добавляет свое свойство `$breed`.\n- `$dog = new Dog('Бублик', 'Лабрадор')` вызывает оба конструктора.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Приватные конструкторы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Приватные конструкторы ограничивают создание объектов вне класса. Это часто используется в шаблонах, таких как Singleton, чтобы гарантировать создание только одного экземпляра класса.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример приватного конструктора\nclass Singleton {\n  private static $instance = null;\n  private $data;\n\n  private function __construct() {\n    $this->data = 'Данные Singleton';\n  }\n\n  public static function getInstance() {\n    if (self::$instance == null) {\n      self::$instance = new Singleton();\n    }\n    return self::$instance;\n  }\n\n  public function getData() {\n    return $this->data;\n  }\n}\n\n$singleton = Singleton::getInstance();\necho $singleton->getData(); // Вывод: Данные Singleton\n// $test = new Singleton(); // Ошибка: Нельзя вызвать приватный конструктор\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `__construct` является приватным, что предотвращает создание объекта напрямую.\n- `getInstance` обеспечивает создание единственного экземпляра (шаблон Singleton).\n- `$singleton->getData()` возвращает данные.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Валидация в конструкторах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конструкторы могут проверять входные параметры для обеспечения надежного создания объектов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример валидации в конструкторе\nclass Employee {\n  private $name;\n  private $salary;\n\n  public function __construct($name, $salary) {\n    if (empty($name)) {\n      echo 'Имя не может быть пустым!';\n      return;\n    }\n    if ($salary < 0) {\n      echo 'Зарплата не может быть отрицательной!';\n      return;\n    }\n    $this->name = $name;\n    $this->salary = $salary;\n  }\n\n  public function getInfo() {\n    return 'Имя: ' . $this->name . ', Зарплата: ' . $this->salary;\n  }\n}\n\n$employee1 = new Employee('Айсель', 2000);\necho $employee1->getInfo(); // Вывод: Имя: Айсель, Зарплата: 2000\n$employee2 = new Employee('', -500); // Вывод: Имя не может быть пустым!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `__construct` проверяет, пустое ли имя и отрицательная ли зарплата.\n- Недопустимые входные данные вызывают предупреждения, предотвращая полное создание объекта.\n- `getInfo` возвращает информацию для корректных объектов.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Отсутствие проверки параметров в конструкторах может привести к созданию некорректных объектов. Пропуск вызова `parent::__construct` в наследовании может нарушить инициализацию родительского класса. Неправильное использование приватных конструкторов может полностью заблокировать доступ к классу.\n- **Рекомендации**: Проверяйте параметры в конструкторах. Вызывайте `parent::__construct` в дочерних классах. Пишите простые и читаемые конструкторы. Обратитесь к официальной документации PHP (https://www.php.net/manual/en/). Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\nclass Test {\n  public $value;\n\n  public function __construct($value) {\n    // Без проверки\n    $this->value = $value;\n  }\n}\n\n$test = new Test(null);\necho $test->value; // Вывод: null (недопустимое значение)\n\n// Правильный подход\nclass TestCorrect {\n  public $value;\n\n  public function __construct($value) {\n    if ($value === null) {\n      echo 'Значение не может быть null!';\n      return;\n    }\n    $this->value = $value;\n  }\n}\n\n$testCorrect = new TestCorrect('Корректное значение');\necho $testCorrect->value; // Вывод: Корректное значение\n$testCorrect = new TestCorrect(null); // Вывод: Значение не может быть null!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый пример принимает `null` без проверки, что может быть недопустимо.\n- Правильный подход проверяет `null` и выдает предупреждение.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Система библиотеки"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Система библиотеки\nclass Book {\n  private $title;\n  private $author;\n  private $year;\n\n  public function __construct($title, $author, $year) {\n    if (empty($title) || empty($author)) {\n      echo 'Название и автор не могут быть пустыми!';\n      return;\n    }\n    if ($year < 0 || $year > date('Y')) {\n      echo 'Год должен быть действительным!';\n      return;\n    }\n    $this->title = $title;\n    $this->author = $author;\n    $this->year = $year;\n  }\n\n  public function getBookInfo() {\n    return 'Книга: ' . $this->title . ', Автор: ' . $this->author . ', Год: ' . $this->year;\n  }\n}\n\n$book = new Book('1984', 'Джордж Оруэлл', 1949);\necho $book->getBookInfo(); // Вывод: Книга: 1984, Автор: Джордж Оруэлл, Год: 1949\n$invalidBook = new Book('', 'Автор', 2025); // Вывод: Название и автор не могут быть пустыми!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Book` хранит название книги, автора и год издания.\n- `__construct` проверяет название, автора и год.\n- `getBookInfo` возвращает информацию о книге.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Многоуровневое наследование"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример многоуровневого наследования\nclass Vehicle {\n  protected $type;\n\n  public function __construct($type) {\n    $this->type = $type;\n    echo 'Конструктор Vehicle вызван\\n';\n  }\n}\n\nclass Car extends Vehicle {\n  protected $brand;\n\n  public function __construct($type, $brand) {\n    parent::__construct($type);\n    $this->brand = $brand;\n    echo 'Конструктор Car вызван\\n';\n  }\n}\n\nclass ElectricCar extends Car {\n  private $battery;\n\n  public function __construct($type, $brand, $battery) {\n    parent::__construct($type, $brand);\n    $this->battery = $battery;\n    echo 'Конструктор ElectricCar вызван\\n';\n  }\n\n  public function getInfo() {\n    return 'Тип: ' . $this->type . ', Бренд: ' . $this->brand . ', Батарея: ' . $this->battery;\n  }\n}\n\n$tesla = new ElectricCar('Электрический', 'Tesla', '100 кВтч');\necho $tesla->getInfo();\n// Вывод:\n// Конструктор Vehicle вызван\n// Конструктор Car вызван\n// Конструктор ElectricCar вызван\n// Тип: Электрический, Бренд: Tesla, Батарея: 100 кВтч\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Классы `Vehicle`, `Car` и `ElectricCar` образуют цепочку многоуровневого наследования.\n- Каждый класс имеет свой конструктор, вызывающий конструктор родителя с помощью `parent::__construct`.\n- `getInfo` возвращает информацию об электромобиле.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Попробуйте сами конструктор\nclass Student {\n  private $name;\n  private $grade;\n\n  public function __construct($name, $grade) {\n    if (empty($name)) {\n      echo 'Имя не может быть пустым!';\n      return;\n    }\n    $this->name = $name;\n    $this->grade = $grade;\n  }\n\n  public function getStudentInfo() {\n    return 'Студент: ' . $this->name . ', Оценка: ' . $this->grade;\n  }\n}\n\n$student = new Student('Айсель', 95);\necho $student->getStudentInfo(); // Вывод: Студент: Айсель, Оценка: 95\n?>"
+      }
+    ]
+  }
+}

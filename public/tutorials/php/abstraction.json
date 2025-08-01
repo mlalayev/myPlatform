@@ -1,0 +1,381 @@
+{
+  "id": "abstraction",
+  "az": {
+    "title": "Abstraksiya",
+    "icon": "FiEye",
+    "language": "php",
+    "description": "PHP-də abstrakt siniflər və interfeyslər haqqında məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də Abstraksiya Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstraksiya obyekt yönümlü proqramlaşdırmanın (OOP) əsas prinsiplərindən biridir və sinfin daxili təfərrüatlarını gizlədərək yalnız vacib funksionallığı təqdim etməyə imkan verir. Abstraksiya sayəsində istifadəçi sinfin necə işlədiyini bilmədən onun metodlarından istifadə edə bilər. PHP-də abstraksiya abstrakt siniflər və interfeyslər vasitəsilə həyata keçirilir. Abstrakt siniflər həm metod təyinlərini (implementasiyaları), həm də abstrakt metodları (təyinsiz metodları) ehtiva edə bilər, interfeyslər isə yalnız metod elanlarını ehtiva edir. Bu JSON faylda abstraksiyanın sintaksisi, istifadə ssenariləri, abstrakt siniflər və interfeyslər, onların fərqləri, praktik nümunələr və səhvlərdən qaçınma yolları çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Abstrakt Siniflər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstrakt siniflər birbaşa obyekt kimi yaradıla bilməz və törəmə siniflər üçün şablon rolunu oynayır. Onlar abstrakt metodlar (təyinsiz) və ya adi metodlar (təyinli) ehtiva edə bilər. Abstrakt metodlar törəmə siniflərdə mütləq təyin olunmalıdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Abstrakt sinif nümunəsi\nabstract class Animal {\n  protected $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n  }\n\n  abstract public function makeSound();\n\n  public function getName() {\n    return $this->name;\n  }\n}\n\nclass Dog extends Animal {\n  public function makeSound() {\n    return 'Hav-hav!';\n  }\n}\n\nclass Cat extends Animal {\n  public function makeSound() {\n    return 'Miyav!';\n  }\n}\n\n$dog = new Dog('Rex');\n$cat = new Cat('Luna');\necho $dog->getName() . ': ' . $dog->makeSound(); // Çıxış: Rex: Hav-hav!\necho $cat->getName() . ': ' . $cat->makeSound(); // Çıxış: Luna: Miyav!\n// $animal = new Animal('Test'); // Səhv: Abstrakt sinifdən obyekt yaratmaq mümkün deyil\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Animal` abstrakt sinfdir və `makeSound` abstrakt metodunu təyin edir.\n- `Dog` və `Cat` sinifləri `makeSound` metodunu özünəməxsus şəkildə təyin edir.\n- `getName` adi metod bütün törəmə siniflər tərəfindən istifadə olunur.\n- Abstrakt sinfdən birbaşa obyekt yaratmaq cəhdi səhvə səbəb olur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "İnterfeyslər"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeyslər yalnız metod elanlarını ehtiva edir və siniflərə müəyyən davranışları tətbiq etmək üçün istifadə olunur. İnterfeysi tətbiq edən siniflər bütün metodlarını təyin etməlidir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// İnterfeys nümunəsi\ninterface Vehicle {\n  public function move();\n}\n\nclass Car implements Vehicle {\n  private $model;\n\n  public function __construct($model) {\n    $this->model = $model;\n  }\n\n  public function move() {\n    return $this->model . ' sürətlə hərəkət edir!';\n  }\n}\n\nclass Bicycle implements Vehicle {\n  private $model;\n\n  public function __construct($model) {\n    $this->model = $model;\n  }\n\n  public function move() {\n    return $this->model . ' pedallarla hərəkət edir!';\n  }\n}\n\n$car = new Car('Toyota');\n$bicycle = new Bicycle('BMX');\necho $car->move(); // Çıxış: Toyota sürətlə hərəkət edir!\necho $bicycle->move(); // Çıxış: BMX pedallarla hərəkət edir!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Vehicle` interfeysi `move` metodunu təyin edir.\n- `Car` və `Bicycle` sinifləri `move` metodunu özünəməxsus şəkildə təyin edir.\n- İnterfeyslər siniflərə standart davranış tətbiq edir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Abstrakt Siniflər və İnterfeyslər Arasındakı Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstrakt siniflər və interfeyslər oxşar məqsədlərə xidmət etsə də, fərqləri var:\n- Abstrakt siniflər həm təyinli, həm də təyinsiz (abstrakt) metodları ehtiva edə bilər, interfeyslər isə yalnız metod elanlarını ehtiva edir.\n- Abstrakt siniflər xüsusiyyətlər (properties) saxlaya bilər, interfeyslər saxlaya bilməz.\n- Bir sinf yalnız bir abstrakt sinfdən miras ala bilər, lakin birdən çox interfeysi tətbiq edə bilər.\n- Abstrakt siniflər irsiilik üçün, interfeyslər isə çoxşaxəli davranış tətbiqi üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Abstrakt sinif və interfeys birgə istifadəsi\ninterface Printable {\n  public function printInfo();\n}\n\nabstract class Device {\n  protected $brand;\n\n  public function __construct($brand) {\n    $this->brand = $brand;\n  }\n\n  abstract public function turnOn();\n}\n\nclass Smartphone extends Device implements Printable {\n  public function turnOn() {\n    return $this->brand . ' smartfon yandırıldı!';\n  }\n\n  public function printInfo() {\n    return 'Cihaz: ' . $this->brand . ' smartfon';\n  }\n}\n\n$phone = new Smartphone('Samsung');\necho $phone->turnOn(); // Çıxış: Samsung smartfon yandırıldı!\necho $phone->printInfo(); // Çıxış: Cihaz: Samsung smartfon\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Device` abstrakt sinfi `turnOn` metodunu təyin edir və `$brand` xüsusiyyətini saxlayır.\n- `Printable` interfeysi `printInfo` metodunu təyin edir.\n- `Smartphone` sinfi həm abstrakt sinfi miras alır, həm də interfeysi tətbiq edir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Abstraksiyanın Praktik İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstraksiya real dünya tətbiqlərində kodun sadələşdirilməsi və standartlaşdırılması üçün istifadə olunur. Məsələn, bir ödəniş sistemində fərqli ödəniş metodları eyni şəkildə işlədilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Ödəniş sistemi\nabstract class PaymentMethod {\n  protected $amount;\n\n  public function __construct($amount) {\n    $this->amount = $amount;\n  }\n\n  abstract public function processPayment();\n}\n\nclass CreditCard extends PaymentMethod {\n  private $cardNumber;\n\n  public function __construct($amount, $cardNumber) {\n    parent::__construct($amount);\n    $this->cardNumber = $cardNumber;\n  }\n\n  public function processPayment() {\n    return 'Kredit kartı (' . $this->cardNumber . ') ilə ' . $this->amount . ' AZN ödəniş edildi.';\n  }\n}\n\nclass PayPal extends PaymentMethod {\n  private $email;\n\n  public function __construct($amount, $email) {\n    parent::__construct($amount);\n    $this->email = $email;\n  }\n\n  public function processPayment() {\n    return 'PayPal (' . $this->email . ') ilə ' . $this->amount . ' AZN ödəniş edildi.';\n  }\n}\n\nfunction processTransaction(PaymentMethod $method) {\n  echo $method->processPayment();\n}\n\n$creditCard = new CreditCard(100, '1234-5678-9012-3456');\n$paypal = new PayPal(50, 'user@example.com');\nprocessTransaction($creditCard); // Çıxış: Kredit kartı (1234-5678-9012-3456) ilə 100 AZN ödəniş edildi.\nprocessTransaction($paypal); // Çıxış: PayPal (user@example.com) ilə 50 AZN ödəniş edildi.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `PaymentMethod` abstrakt sinfi `processPayment` metodunu təyin edir.\n- `CreditCard` və `PayPal` sinifləri bu metodu özünəməxsus şəkildə təyin edir.\n- `processTransaction` funksiyası abstraksiya sayəsində fərqli ödəniş metodları ilə işləyir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Abstrakt metodların və ya interfeys metodlarının təyin edilməməsi səhvə səbəb olur. Abstrakt siniflərdən obyekt yaratmağa cəhd etmək də səhvə yol açır. Çox mürəkkəb abstraksiya strukturları kodu çətinləşdirə bilər.\n- **Tövsiyələr**: Abstrakt metodları və interfeysləri düzgün təyin edin. Siniflərə yalnız zəruri metodları əlavə edin. Kodun sadəliyini qoruyun. PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/) faydalanın. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\nabstract class Device {\n  abstract public function turnOn();\n}\n\nclass Laptop extends Device {\n  // public function turnOn() { // Səhv: abstrakt metod təyin edilməyib\n  // }\n}\n\n// Düzgün yol\nclass SmartPhone extends Device {\n  public function turnOn() {\n    return 'Smartfon yandırıldı!';\n  }\n}\n\n$phone = new SmartPhone();\necho $phone->turnOn(); // Çıxış: Smartfon yandırıldı!\n// $device = new Device(); // Səhv: Abstrakt sinifdən obyekt yaratmaq mümkün deyil\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Laptop` sinfi abstrakt `turnOn` metodunu təyin etmədiyi üçün səhvə səbəb olur.\n- `SmartPhone` sinfi metodu düzgün təyin edir.\n- Abstrakt sinfdən obyekt yaratmaq cəhdi səhvə səbəb olur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Şəkil İşləmə Sistemi"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Şəkil işləmə sistemi\ninterface Drawable {\n  public function draw();\n}\n\nabstract class Shape {\n  protected $color;\n\n  public function __construct($color) {\n    $this->color = $color;\n  }\n\n  abstract public function calculateArea();\n}\n\nclass Circle extends Shape implements Drawable {\n  private $radius;\n\n  public function __construct($color, $radius) {\n    parent::__construct($color);\n    $this->radius = $radius;\n  }\n\n  public function calculateArea() {\n    return pi() * $this->radius * $this->radius;\n  }\n\n  public function draw() {\n    return 'Rəngi ' . $this->color . ' olan dairə çəkildi!';\n  }\n}\n\nclass Rectangle extends Shape implements Drawable {\n  private $width;\n  private $height;\n\n  public function __construct($color, $width, $height) {\n    parent::__construct($color);\n    $this->width = $width;\n    $this->height = $height;\n  }\n\n  public function calculateArea() {\n    return $this->width * $this->height;\n  }\n\n  public function draw() {\n    return 'Rəngi ' . $this->color . ' olan düzbucaqlı çəkildi!';\n  }\n}\n\nfunction renderShape(Drawable $shape) {\n  echo $shape->draw();\n}\n\n$circle = new Circle('Qırmızı', 5);\n$rectangle = new Rectangle('Mavi', 4, 6);\necho $circle->calculateArea(); // Çıxış: 78.539...\necho $rectangle->calculateArea(); // Çıxış: 24\nrenderShape($circle); // Çıxış: Rəngi Qırmızı olan dairə çəkildi!\nrenderShape($rectangle); // Çıxış: Rəngi Mavi olan düzbucaqlı çəkildi!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Shape` abstrakt sinfi `calculateArea` metodunu və `$color` xüsusiyyətini təyin edir.\n- `Drawable` interfeysi `draw` metodunu təyin edir.\n- `Circle` və `Rectangle` sinifləri həm abstrakt sinfi miras alır, həm də interfeysi tətbiq edir.\n- `renderShape` funksiyası abstraksiya sayəsində fərqli şəkillərlə işləyir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün abstraksiya\ninterface Soundable {\n  public function makeSound();\n}\n\nabstract class Creature {\n  protected $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n  }\n\n  abstract public function move();\n}\n\nclass Dog extends Creature implements Soundable {\n  public function move() {\n    return $this->name . ' qaçır!';\n  }\n\n  public function makeSound() {\n    return $this->name . ': Hav-hav!';\n  }\n}\n\n$dog = new Dog('Rex');\necho $dog->move(); // Çıxış: Rex qaçır!\necho $dog->makeSound(); // Çıxış: Rex: Hav-hav!\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Abstraction",
+    "icon": "FiEye",
+    "language": "php",
+    "description": "Information about abstract classes and interfaces in PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Abstraction in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstraction is a core principle of object-oriented programming (OOP) that hides a class’s internal details and exposes only the essential functionality. It allows users to interact with a class’s methods without needing to understand its inner workings. In PHP, abstraction is achieved through abstract classes and interfaces. Abstract classes can contain both implemented methods and abstract (unimplemented) methods, while interfaces only declare methods. This JSON file explains abstraction’s syntax, use cases, abstract classes, interfaces, their differences, practical examples, and how to avoid common mistakes in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Abstract Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstract classes cannot be instantiated directly and serve as templates for child classes. They can include both abstract methods (without implementation) and regular methods (with implementation). Abstract methods must be implemented in child classes.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Abstract class example\nabstract class Animal {\n  protected $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n  }\n\n  abstract public function makeSound();\n\n  public function getName() {\n    return $this->name;\n  }\n}\n\nclass Dog extends Animal {\n  public function makeSound() {\n    return 'Woof-woof!';\n  }\n}\n\nclass Cat extends Animal {\n  public function makeSound() {\n    return 'Meow!';\n  }\n}\n\n$dog = new Dog('Rex');\n$cat = new Cat('Luna');\necho $dog->getName() . ': ' . $dog->makeSound(); // Output: Rex: Woof-woof!\necho $cat->getName() . ': ' . $cat->makeSound(); // Output: Luna: Meow!\n// $animal = new Animal('Test'); // Error: Cannot instantiate abstract class\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Animal` is an abstract class defining the `makeSound` abstract method.\n- `Dog` and `Cat` classes implement `makeSound` differently.\n- `getName` is a regular method used by all child classes.\n- Attempting to instantiate an abstract class directly causes an error.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces define method declarations only and enforce specific behaviors in implementing classes. Classes that implement an interface must define all its methods.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Interface example\ninterface Vehicle {\n  public function move();\n}\n\nclass Car implements Vehicle {\n  private $model;\n\n  public function __construct($model) {\n    $this->model = $model;\n  }\n\n  public function move() {\n    return $this->model . ' moves fast!';\n  }\n}\n\nclass Bicycle implements Vehicle {\n  private $model;\n\n  public function __construct($model) {\n    $this->model = $model;\n  }\n\n  public function move() {\n    return $this->model . ' moves with pedals!';\n  }\n}\n\n$car = new Car('Toyota');\n$bicycle = new Bicycle('BMX');\necho $car->move(); // Output: Toyota moves fast!\necho $bicycle->move(); // Output: BMX moves with pedals!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Vehicle` interface defines the `move` method.\n- `Car` and `Bicycle` classes implement `move` differently.\n- Interfaces enforce standardized behavior across classes.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Differences Between Abstract Classes and Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "While abstract classes and interfaces serve similar purposes, they differ:\n- Abstract classes can include both implemented and abstract methods, while interfaces only declare methods.\n- Abstract classes can have properties, while interfaces cannot.\n- A class can extend only one abstract class but implement multiple interfaces.\n- Abstract classes are used for inheritance, while interfaces are used for enforcing multiple behaviors.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Abstract class and interface combined\ninterface Printable {\n  public function printInfo();\n}\n\nabstract class Device {\n  protected $brand;\n\n  public function __construct($brand) {\n    $this->brand = $brand;\n  }\n\n  abstract public function turnOn();\n}\n\nclass Smartphone extends Device implements Printable {\n  public function turnOn() {\n    return $this->brand . ' smartphone turned on!';\n  }\n\n  public function printInfo() {\n    return 'Device: ' . $this->brand . ' smartphone';\n  }\n}\n\n$phone = new Smartphone('Samsung');\necho $phone->turnOn(); // Output: Samsung smartphone turned on!\necho $phone->printInfo(); // Output: Device: Samsung smartphone\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Device` abstract class defines the `turnOn` method and stores the `$brand` property.\n- `Printable` interface defines the `printInfo` method.\n- `Smartphone` class extends `Device` and implements `Printable`.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Use of Abstraction"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstraction is used in real-world applications to simplify and standardize code. For example, in a payment system, different payment methods can be handled uniformly.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Payment system\nabstract class PaymentMethod {\n  protected $amount;\n\n  public function __construct($amount) {\n    $this->amount = $amount;\n  }\n\n  abstract public function processPayment();\n}\n\nclass CreditCard extends PaymentMethod {\n  private $cardNumber;\n\n  public function __construct($amount, $cardNumber) {\n    parent::__construct($amount);\n    $this->cardNumber = $cardNumber;\n  }\n\n  public function processPayment() {\n    return 'Payment of ' . $this->amount . ' USD made with Credit Card (' . $this->cardNumber . ').';\n  }\n}\n\nclass PayPal extends PaymentMethod {\n  private $email;\n\n  public function __construct($amount, $email) {\n    parent::__construct($amount);\n    $this->email = $email;\n  }\n\n  public function processPayment() {\n    return 'Payment of ' . $this->amount . ' USD made with PayPal (' . $this->email . ').';\n  }\n}\n\nfunction processTransaction(PaymentMethod $method) {\n  echo $method->processPayment();\n}\n\n$creditCard = new CreditCard(100, '1234-5678-9012-3456');\n$paypal = new PayPal(50, 'user@example.com');\nprocessTransaction($creditCard); // Output: Payment of 100 USD made with Credit Card (1234-5678-9012-3456).\nprocessTransaction($paypal); // Output: Payment of 50 USD made with PayPal (user@example.com).\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `PaymentMethod` abstract class defines the `processPayment` method.\n- `CreditCard` and `PayPal` classes implement it differently.\n- `processTransaction` function works with different payment methods via abstraction.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Failing to implement abstract or interface methods causes errors. Attempting to instantiate an abstract class also causes an error. Overly complex abstraction structures can make code harder to maintain.\n- **Recommendations**: Properly implement abstract methods and interfaces. Include only necessary methods in classes. Keep code simple. Refer to PHP’s official documentation (https://www.php.net/manual/en/). You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\nabstract class Device {\n  abstract public function turnOn();\n}\n\nclass Laptop extends Device {\n  // public function turnOn() { // Error: Abstract method not implemented\n  // }\n}\n\n// Correct approach\nclass SmartPhone extends Device {\n  public function turnOn() {\n    return 'Smartphone turned on!';\n  }\n}\n\n$phone = new SmartPhone();\necho $phone->turnOn(); // Output: Smartphone turned on!\n// $device = new Device(); // Error: Cannot instantiate abstract class\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Laptop` class fails to implement the abstract `turnOn` method, causing an error.\n- The `SmartPhone` class correctly implements it.\n- Attempting to instantiate an abstract class causes an error.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Shape Processing System"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Shape processing system\ninterface Drawable {\n  public function draw();\n}\n\nabstract class Shape {\n  protected $color;\n\n  public function __construct($color) {\n    $this->color = $color;\n  }\n\n  abstract public function calculateArea();\n}\n\nclass Circle extends Shape implements Drawable {\n  private $radius;\n\n  public function __construct($color, $radius) {\n    parent::__construct($color);\n    $this->radius = $radius;\n  }\n\n  public function calculateArea() {\n    return pi() * $this->radius * $this->radius;\n  }\n\n  public function draw() {\n    return 'A ' . $this->color . ' circle was drawn!';\n  }\n}\n\nclass Rectangle extends Shape implements Drawable {\n  private $width;\n  private $height;\n\n  public function __construct($color, $width, $height) {\n    parent::__construct($color);\n    $this->width = $width;\n    $this->height = $height;\n  }\n\n  public function calculateArea() {\n    return $this->width * $this->height;\n  }\n\n  public function draw() {\n    return 'A ' . $this->color . ' rectangle was drawn!';\n  }\n}\n\nfunction renderShape(Drawable $shape) {\n  echo $shape->draw();\n}\n\n$circle = new Circle('Red', 5);\n$rectangle = new Rectangle('Blue', 4, 6);\necho $circle->calculateArea(); // Output: 78.539...\necho $rectangle->calculateArea(); // Output: 24\nrenderShape($circle); // Output: A Red circle was drawn!\nrenderShape($rectangle); // Output: A Blue rectangle was drawn!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Shape` abstract class defines the `calculateArea` method and stores the `$color` property.\n- `Drawable` interface defines the `draw` method.\n- `Circle` and `Rectangle` classes extend `Shape` and implement `Drawable`.\n- `renderShape` function works with different shapes via abstraction.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself abstraction\ninterface Soundable {\n  public function makeSound();\n}\n\nabstract class Creature {\n  protected $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n  }\n\n  abstract public function move();\n}\n\nclass Dog extends Creature implements Soundable {\n  public function move() {\n    return $this->name . ' runs!';\n  }\n\n  public function makeSound() {\n    return $this->name . ': Woof-woof!';\n  }\n}\n\n$dog = new Dog('Rex');\necho $dog->move(); // Output: Rex runs!\necho $dog->makeSound(); // Output: Rex: Woof-woof!\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Абстракция",
+    "icon": "FiEye",
+    "language": "php",
+    "description": "Информация об абстрактных классах и интерфейсах в PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое абстракция в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Абстракция — это один из основных принципов объектно-ориентированного программирования (ООП), который скрывает внутренние детали класса и предоставляет только необходимую функциональность. Благодаря абстракции пользователь может использовать методы класса, не зная, как они реализованы. В PHP абстракция достигается с помощью абстрактных классов и интерфейсов. Абстрактные классы могут содержать как реализованные методы, так и абстрактные (не реализованные), тогда как интерфейсы содержат только объявления методов. Этот JSON-файл подробно объясняет синтаксис абстракции, случаи использования, абстрактные классы, интерфейсы, их различия, практические примеры и способы избежания ошибок. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Абстрактные классы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Абстрактные классы нельзя напрямую создавать как объекты и они служат шаблонами для дочерних классов. Они могут включать как абстрактные методы (без реализации), так и обычные методы (с реализацией). Абстрактные методы должны быть реализованы в дочерних классах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример абстрактного класса\nabstract class Animal {\n  protected $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n  }\n\n  abstract public function makeSound();\n\n  public function getName() {\n    return $this->name;\n  }\n}\n\nclass Dog extends Animal {\n  public function makeSound() {\n    return 'Гав-гав!';\n  }\n}\n\nclass Cat extends Animal {\n  public function makeSound() {\n    return 'Мяу!';\n  }\n}\n\n$dog = new Dog('Рекс');\n$cat = new Cat('Луна');\necho $dog->getName() . ': ' . $dog->makeSound(); // Вывод: Рекс: Гав-гав!\necho $cat->getName() . ': ' . $cat->makeSound(); // Вывод: Луна: Мяу!\n// $animal = new Animal('Тест'); // Ошибка: Нельзя создать объект абстрактного класса\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Animal` — абстрактный класс, определяющий абстрактный метод `makeSound`.\n- Классы `Dog` и `Cat` реализуют `makeSound` по-разному.\n- `getName` — обычный метод, используемый всеми дочерними классами.\n- Попытка создать объект абстрактного класса напрямую вызывает ошибку.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Интерфейсы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы содержат только объявления методов и используются для навязывания определенного поведения классам. Классы, реализующие интерфейс, должны определить все его методы.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример интерфейса\ninterface Vehicle {\n  public function move();\n}\n\nclass Car implements Vehicle {\n  private $model;\n\n  public function __construct($model) {\n    $this->model = $model;\n  }\n\n  public function move() {\n    return $this->model . ' движется быстро!';\n  }\n}\n\nclass Bicycle implements Vehicle {\n  private $model;\n\n  public function __construct($model) {\n    $this->model = $model;\n  }\n\n  public function move() {\n    return $this->model . ' движется с помощью педалей!';\n  }\n}\n\n$car = new Car('Toyota');\n$bicycle = new Bicycle('BMX');\necho $car->move(); // Вывод: Toyota движется быстро!\necho $bicycle->move(); // Вывод: BMX движется с помощью педалей!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Vehicle` определяет метод `move`.\n- Классы `Car` и `Bicycle` реализуют `move` по-разному.\n- Интерфейсы обеспечивают стандартизированное поведение классов.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Различия между абстрактными классами и интерфейсами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Хотя абстрактные классы и интерфейсы служат схожим целям, между ними есть различия:\n- Абстрактные классы могут содержать как реализованные, так и абстрактные методы, тогда как интерфейсы содержат только объявления методов.\n- Абстрактные классы могут иметь свойства, интерфейсы — нет.\n- Класс может наследовать только один абстрактный класс, но реализовывать несколько интерфейсов.\n- Абстрактные классы используются для наследования, а интерфейсы — для навязывания множественных поведений.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Комбинирование абстрактного класса и интерфейса\ninterface Printable {\n  public function printInfo();\n}\n\nabstract class Device {\n  protected $brand;\n\n  public function __construct($brand) {\n    $this->brand = $brand;\n  }\n\n  abstract public function turnOn();\n}\n\nclass Smartphone extends Device implements Printable {\n  public function turnOn() {\n    return $this->brand . ' смартфон включен!';\n  }\n\n  public function printInfo() {\n    return 'Устройство: ' . $this->brand . ' смартфон';\n  }\n}\n\n$phone = new Smartphone('Samsung');\necho $phone->turnOn(); // Вывод: Samsung смартфон включен!\necho $phone->printInfo(); // Вывод: Устройство: Samsung смартфон\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Абстрактный класс `Device` определяет метод `turnOn` и хранит свойство `$brand`.\n- Интерфейс `Printable` определяет метод `printInfo`.\n- Класс `Smartphone` наследует `Device` и реализует `Printable`.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практическое использование абстракции"
+      },
+      {
+        "type": "paragraph",
+        "text": "Абстракция используется в реальных приложениях для упрощения и стандартизации кода. Например, в платежной системе разные методы оплаты могут обрабатываться единообразно.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Платежная система\nabstract class PaymentMethod {\n  protected $amount;\n\n  public function __construct($amount) {\n    $this->amount = $amount;\n  }\n\n  abstract public function processPayment();\n}\n\nclass CreditCard extends PaymentMethod {\n  private $cardNumber;\n\n  public function __construct($amount, $cardNumber) {\n    parent::__construct($amount);\n    $this->cardNumber = $cardNumber;\n  }\n\n  public function processPayment() {\n    return 'Оплата на ' . $this->amount . ' USD выполнена с помощью кредитной карты (' . $this->cardNumber . ').';\n  }\n}\n\nclass PayPal extends PaymentMethod {\n  private $email;\n\n  public function __construct($amount, $email) {\n    parent::__construct($amount);\n    $this->email = $email;\n  }\n\n  public function processPayment() {\n    return 'Оплата на ' . $this->amount . ' USD выполнена с помощью PayPal (' . $this->email . ').';\n  }\n}\n\nfunction processTransaction(PaymentMethod $method) {\n  echo $method->processPayment();\n}\n\n$creditCard = new CreditCard(100, '1234-5678-9012-3456');\n$paypal = new PayPal(50, 'user@example.com');\nprocessTransaction($creditCard); // Вывод: Оплата на 100 USD выполнена с помощью кредитной карты (1234-5678-9012-3456).\nprocessTransaction($paypal); // Вывод: Оплата на 50 USD выполнена с помощью PayPal (user@example.com).\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Абстрактный класс `PaymentMethod` определяет метод `processPayment`.\n- Классы `CreditCard` и `PayPal` реализуют его по-разному.\n- Функция `processTransaction` работает с разными методами оплаты благодаря абстракции.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Нереализация абстрактных методов или методов интерфейса вызывает ошибки. Попытка создать объект абстрактного класса также вызывает ошибку. Слишком сложные структуры абстракции усложняют поддержку кода.\n- **Рекомендации**: Правильно реализуйте абстрактные методы и интерфейсы. Добавляйте в классы только необходимые методы. Сохраняйте простоту кода. Обратитесь к официальной документации PHP (https://www.php.net/manual/en/). Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\nabstract class Device {\n  abstract public function turnOn();\n}\n\nclass Laptop extends Device {\n  // public function turnOn() { // Ошибка: Абстрактный метод не реализован\n  // }\n}\n\n// Правильный подход\nclass SmartPhone extends Device {\n  public function turnOn() {\n    return 'Смартфон включен!';\n  }\n}\n\n$phone = new SmartPhone();\necho $phone->turnOn(); // Вывод: Смартфон включен!\n// $device = new Device(); // Ошибка: Нельзя создать объект абстрактного класса\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Laptop` не реализует абстрактный метод `turnOn`, что вызывает ошибку.\n- Класс `SmartPhone` правильно реализует его.\n- Попытка создать объект абстрактного класса вызывает ошибку.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Система обработки фигур"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Система обработки фигур\ninterface Drawable {\n  public function draw();\n}\n\nabstract class Shape {\n  protected $color;\n\n  public function __construct($color) {\n    $this->color = $color;\n  }\n\n  abstract public function calculateArea();\n}\n\nclass Circle extends Shape implements Drawable {\n  private $radius;\n\n  public function __construct($color, $radius) {\n    parent::__construct($color);\n    $this->radius = $radius;\n  }\n\n  public function calculateArea() {\n    return pi() * $this->radius * $this->radius;\n  }\n\n  public function draw() {\n    return 'Круг цвета ' . $this->color . ' нарисован!';\n  }\n}\n\nclass Rectangle extends Shape implements Drawable {\n  private $width;\n  private $height;\n\n  public function __construct($color, $width, $height) {\n    parent::__construct($color);\n    $this->width = $width;\n    $this->height = $height;\n  }\n\n  public function calculateArea() {\n    return $this->width * $this->height;\n  }\n\n  public function draw() {\n    return 'Прямоугольник цвета ' . $this->color . ' нарисован!';\n  }\n}\n\nfunction renderShape(Drawable $shape) {\n  echo $shape->draw();\n}\n\n$circle = new Circle('Красный', 5);\n$rectangle = new Rectangle('Синий', 4, 6);\necho $circle->calculateArea(); // Вывод: 78.539...\necho $rectangle->calculateArea(); // Вывод: 24\nrenderShape($circle); // Вывод: Круг цвета Красный нарисован!\nrenderShape($rectangle); // Вывод: Прямоугольник цвета Синий нарисован!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Абстрактный класс `Shape` определяет метод `calculateArea` и хранит свойство `$color`.\n- Интерфейс `Drawable` определяет метод `draw`.\n- Классы `Circle` и `Rectangle` наследуют `Shape` и реализуют `Drawable`.\n- Функция `renderShape` работает с разными фигурами благодаря абстракции.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Попробуйте сами абстракцию\ninterface Soundable {\n  public function makeSound();\n}\n\nabstract class Creature {\n  protected $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n  }\n\n  abstract public function move();\n}\n\nclass Dog extends Creature implements Soundable {\n  public function move() {\n    return $this->name . ' бежит!';\n  }\n\n  public function makeSound() {\n    return $this->name . ': Гав-гав!';\n  }\n}\n\n$dog = new Dog('Рекс');\necho $dog->move(); // Вывод: Рекс бежит!\necho $dog->makeSound(); // Вывод: Рекс: Гав-гав!\n?>"
+      }
+    ]
+  }
+}

@@ -226,7 +226,17 @@ export default function ProfileProgress({
 
   // Use streak data from userStats
   const streakDays = userStats?.streakData || [];
-
+  
+  // Debug logging for streak data
+  console.log('Frontend Streak Debug - streakDays:', streakDays);
+  if (streakDays.length > 0) {
+    console.log('Frontend Streak Debug - Today position:', streakDays.findIndex((day: any) => day.isToday));
+    console.log('Frontend Streak Debug - Today data:', streakDays.find((day: any) => day.isToday));
+    console.log('Frontend Streak Debug - Last 5 days:', streakDays.slice(-5));
+    console.log('Frontend Streak Debug - Last day number:', streakDays[streakDays.length - 1]?.day);
+    console.log('Frontend Streak Debug - Last day isToday:', streakDays[streakDays.length - 1]?.isToday);
+  }
+  
   return (
     <div className={progressStyles.progressContainer}>
       {/* Hero Section */}
@@ -284,21 +294,21 @@ export default function ProfileProgress({
         </h4>
         <div className={progressStyles.streakContent}>
           <div className={progressStyles.streakGrid}>
-            {/* Weekday labels */}
+            {/* Weekday labels - 7 days */}
             <div className={progressStyles.weekdayLabel}>B</div>
-            <div className={progressStyles.weekdayLabel}>B</div>
-            <div className={progressStyles.weekdayLabel}>Ç</div>
             <div className={progressStyles.weekdayLabel}>Ç</div>
             <div className={progressStyles.weekdayLabel}>C</div>
+            <div className={progressStyles.weekdayLabel}>Ç</div>
             <div className={progressStyles.weekdayLabel}>C</div>
             <div className={progressStyles.weekdayLabel}>Ş</div>
+            <div className={progressStyles.weekdayLabel}>B</div>
             {streakDays.map((day: any, index: number) => (
               <div 
                 key={index} 
                 className={`${progressStyles.streakDay} ${
                   day.isActive ? progressStyles.active : ''
                 } ${day.isToday ? progressStyles.today : ''}`}
-                title={`${day.date} - ${day.isActive ? 'Active' : 'Inactive'}`}
+                title={`${day.isActive ? 'Active' : 'Inactive'}`}
               >
                 {day.day}
               </div>

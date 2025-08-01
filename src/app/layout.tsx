@@ -48,7 +48,8 @@ function LoginPointPopup() {
     
     // Get current time in Azerbaijan (UTC+4)
     const now = new Date();
-    const azerbaijanTime = new Date(now.getTime() + (4 * 60 * 60 * 1000)); // UTC+4
+    const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
     const todayStr = `${azerbaijanTime.getFullYear()}-${azerbaijanTime.getMonth()}-${azerbaijanTime.getDate()}`;
     const currentHour = azerbaijanTime.getHours();
     
@@ -107,11 +108,12 @@ function LoginPointPopup() {
         
         // Convert both dates to Azerbaijan time for comparison
         const now = new Date();
-        const azerbaijanTime = new Date(now.getTime() + (4 * 60 * 60 * 1000)); // UTC+4
+        const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+        const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
         const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
         
         // Convert lastLogin to Azerbaijan time
-        const lastLoginAzerbaijan = lastLogin ? new Date(lastLogin.getTime() + (4 * 60 * 60 * 1000)) : null;
+        const lastLoginAzerbaijan = lastLogin ? new Date(lastLogin.getTime() + azerbaijanOffset) : null;
         const lastLoginDate = lastLoginAzerbaijan ? new Date(lastLoginAzerbaijan.getFullYear(), lastLoginAzerbaijan.getMonth(), lastLoginAzerbaijan.getDate()) : null;
         
         console.log('User login check:', {

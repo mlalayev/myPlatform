@@ -104,7 +104,10 @@ export async function PUT(request: NextRequest) {
       });
 
       // Update daily study time
-      const today = new Date();
+      const now = new Date();
+      const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+      const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
+      const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
       today.setHours(0, 0, 0, 0);
 
       await prisma.dailyActivity.upsert({

@@ -1,0 +1,432 @@
+{
+  "id": "polymorphism",
+  "az": {
+    "title": "Polimorfizm",
+    "icon": "FiShuffle",
+    "language": "php",
+    "description": "PHP-də polimorfizm və virtual metodlar haqqında məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də Polimorfizm Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Polimorfizm obyekt yönümlü proqramlaşdırmanın (OOP) əsas prinsiplərindən biridir və bir sinfin metodlarının fərqli siniflərdə fərqli davranışlar sərgiləməsinə imkan verir. Polimorfizm 'çoxşəkillilik' deməkdir və eyni metodun fərqli siniflərdə fərqli şəkildə işləməsini təmin edir. PHP-də polimorfizm əsasən metodların yenidən təyini (override) və ya abstrakt siniflər və interfeyslər vasitəsilə həyata keçirilir. PHP-də 'virtual metodlar' anlayışı Java və ya C++ kimi dillərdəki kimi açıq şəkildə təyin olunmur, lakin metodların yenidən təyini və ya interfeyslər vasitəsilə oxşar davranış əldə edilir. Bu JSON faylda polimorfizmin sintaksisi, istifadə ssenariləri, abstrakt siniflər, interfeyslər, `final` açar sözü, praktik nümunələr və səhvlərdən qaçınma yolları çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Polimorfizmin Əsas Mexanizmi: Metod Yenidən Təyini"
+      },
+      {
+        "type": "paragraph",
+        "text": "Polimorfizmin ən sadə forması metod yenidən təyinidir (override). Törəmə sinif əsas sinfin metodunu eyni adla yenidən təyin edərək öz davranışını əlavə edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Metod yenidən təyini ilə polimorfizm nümunəsi\nclass Animal {\n  public function makeSound() {\n    return 'Səs çıxarır!';\n  }\n}\n\nclass Dog extends Animal {\n  public function makeSound() {\n    return 'Hav-hav!';\n  }\n}\n\nclass Cat extends Animal {\n  public function makeSound() {\n    return 'Miyav!';\n  }\n}\n\n$dog = new Dog();\n$cat = new Cat();\necho $dog->makeSound(); // Çıxış: Hav-hav!\necho $cat->makeSound(); // Çıxış: Miyav!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Animal` sinfi ümumi `makeSound` metodunu təyin edir.\n- `Dog` və `Cat` sinifləri `makeSound` metodunu yenidən təyin edərək öz davranışlarını əlavə edir.\n- Eyni metodun fərqli siniflərdə fərqli nəticələr verməsi polimorfizmin əsasını təşkil edir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Abstrakt Siniflərlə Polimorfizm"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstrakt siniflər polimorfizmi təmin etmək üçün istifadə olunur. Abstrakt sinifdəki abstrakt metodlar törəmə siniflərdə mütləq təyin olunmalıdır. Bu, siniflərin müəyyən bir struktura riayət etməsini təmin edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Abstrakt siniflə polimorfizm nümunəsi\nabstract class Shape {\n  abstract public function calculateArea();\n}\n\nclass Circle extends Shape {\n  private $radius;\n\n  public function __construct($radius) {\n    $this->radius = $radius;\n  }\n\n  public function calculateArea() {\n    return pi() * $this->radius * $this->radius;\n  }\n}\n\nclass Rectangle extends Shape {\n  private $width;\n  private $height;\n\n  public function __construct($width, $height) {\n    $this->width = $width;\n    $this->height = $height;\n  }\n\n  public function calculateArea() {\n    return $this->width * $this->height;\n  }\n}\n\n$circle = new Circle(5);\n$rectangle = new Rectangle(4, 6);\necho 'Dairənin sahəsi: ' . $circle->calculateArea(); // Çıxış: Dairənin sahəsi: 78.539...\necho 'Düzbucaqlının sahəsi: ' . $rectangle->calculateArea(); // Çıxış: Düzbucaqlının sahəsi: 24\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Shape` abstrakt sinfdir və `calculateArea` abstrakt metodunu təyin edir.\n- `Circle` və `Rectangle` sinifləri `calculateArea` metodunu özünəməxsus şəkildə təyin edir.\n- Polimorfizm sayəsində eyni metod fərqli siniflərdə fərqli hesablamalar aparır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "İnterfeyslərlə Polimorfizm"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeyslər polimorfizmi təmin etmək üçün başqa bir mexanizmdir. İnterfeysdəki metodlar törəmə siniflərdə mütləq təyin olunmalıdır, bu da siniflərə standart bir davranış tətbiq edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// İnterfeyslə polimorfizm nümunəsi\ninterface Vehicle {\n  public function move();\n}\n\nclass Car implements Vehicle {\n  public function move() {\n    return 'Avtomobil sürətlə hərəkət edir!';\n  }\n}\n\nclass Bicycle implements Vehicle {\n  public function move() {\n    return 'Velosiped pedallarla hərəkət edir!';\n  }\n}\n\n$car = new Car();\n$bicycle = new Bicycle();\necho $car->move(); // Çıxış: Avtomobil sürətlə hərəkət edir!\necho $bicycle->move(); // Çıxış: Velosiped pedallarla hərəkət edir!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Vehicle` interfeysi `move` metodunu təyin edir.\n- `Car` və `Bicycle` sinifləri bu interfeysi tətbiq edərək `move` metodunu özünəməxsus şəkildə təyin edir.\n- Polimorfizm sayəsində eyni metod fərqli siniflərdə fərqli davranışlar sərgiləyir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "final Açar Sözü ilə Polimorfizmin Məhdudlaşdırılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "`final` açar sözü sinfin miras alınmasını və ya metodun yenidən təyinini qadağan edir. Bu, polimorfizmi məhdudlaşdırır və sinfin davranışını sabit saxlamaq üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// final açar sözü nümunəsi\nclass Base {\n  final public function criticalFunction() {\n    return 'Bu metod yenidən təyin oluna bilməz!';\n  }\n}\n\nclass Derived extends Base {\n  // public function criticalFunction() { // Səhv: final metod yenidən təyin oluna bilməz\n  //   return 'Yenidən təyin cəhdi!';\n  // }\n}\n\n$derived = new Derived();\necho $derived->criticalFunction(); // Çıxış: Bu metod yenidən təyin oluna bilməz!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Base` sinfindəki `criticalFunction` metodu `final` olaraq təyin olunub.\n- `Derived` sinfi bu metodu yenidən təyin etməyə cəhd etsə, səhv yaranar.\n- `final` açar sözü polimorfizmi məhdudlaşdıraraq metodu qoruyur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Polimorfizmin Praktik İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Polimorfizm kodun çevikliyini artırır və fərqli sinifləri eyni şəkildə işlətməyə imkan verir. Məsələn, bir funksiya fərqli sinif obyektlərini qəbul edib onların metodlarını çağırır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Polimorfizmin praktik istifadəsi\ninterface Printable {\n  public function printInfo();\n}\n\nclass Book implements Printable {\n  private $title;\n\n  public function __construct($title) {\n    $this->title = $title;\n  }\n\n  public function printInfo() {\n    return 'Kitab: ' . $this->title;\n  }\n}\n\nclass Magazine implements Printable {\n  private $title;\n\n  public function __construct($title) {\n    $this->title = $title;\n  }\n\n  public function printInfo() {\n    return 'Jurnal: ' . $this->title;\n  }\n}\n\nfunction printDocument(Printable $item) {\n  echo $item->printInfo();\n}\n\n$book = new Book('1984');\n$magazine = new Magazine('Tech World');\nprintDocument($book); // Çıxış: Kitab: 1984\nprintDocument($magazine); // Çıxış: Jurnal: Tech World\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Printable` interfeysi `printInfo` metodunu təyin edir.\n- `Book` və `Magazine` sinifləri bu interfeysi tətbiq edir.\n- `printDocument` funksiyası `Printable` interfeysini tətbiq edən istənilən obyekti qəbul edir.\n- Polimorfizm sayəsində funksiya fərqli siniflərlə işləyir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Abstrakt metodların və ya interfeys metodlarının təyin edilməməsi səhvə səbəb olur. `final` açar sözünün yanlış istifadəsi polimorfizmi lazımsız yerə məhdudlaşdıra bilər. Mürəkkəb polimorfizm strukturları kodu çətinləşdirə bilər.\n- **Tövsiyələr**: Abstrakt siniflər və interfeyslərdən düzgün istifadə edin. Metodları yenidən təyin edərkən eyni imzanın (parametrlər, qaytarma tipi) saxlanmasına diqqət edin. `final` açar sözünü yalnız zəruri hallarda istifadə edin. PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/) faydalanın. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\nabstract class Device {\n  abstract public function turnOn();\n}\n\nclass Laptop extends Device {\n  // public function turnOn() { // Səhv: abstrakt metod təyin edilməyib\n  // }\n}\n\n// Düzgün yol\nclass SmartPhone extends Device {\n  public function turnOn() {\n    return 'Smartfon yandırıldı!';\n  }\n}\n\n$phone = new SmartPhone();\necho $phone->turnOn(); // Çıxış: Smartfon yandırıldı!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Laptop` sinfi abstrakt `turnOn` metodunu təyin etmədiyi üçün səhvə səbəb olur.\n- `SmartPhone` sinfi isə metodu düzgün təyin edir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Ödəniş Sistemi"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Ödəniş sistemi\nabstract class PaymentMethod {\n  abstract public function processPayment($amount);\n}\n\nclass CreditCard extends PaymentMethod {\n  private $cardNumber;\n\n  public function __construct($cardNumber) {\n    $this->cardNumber = $cardNumber;\n  }\n\n  public function processPayment($amount) {\n    return 'Kredit kartı (' . $this->cardNumber . ') ilə ' . $amount . ' AZN ödəniş edildi.';\n  }\n}\n\nclass PayPal extends PaymentMethod {\n  private $email;\n\n  public function __construct($email) {\n    $this->email = $email;\n  }\n\n  public function processPayment($amount) {\n    return 'PayPal (' . $this->email . ') ilə ' . $amount . ' AZN ödəniş edildi.';\n  }\n}\n\nfunction processTransaction(PaymentMethod $method, $amount) {\n  echo $method->processPayment($amount);\n}\n\n$creditCard = new CreditCard('1234-5678-9012-3456');\n$paypal = new PayPal('user@example.com');\nprocessTransaction($creditCard, 100); // Çıxış: Kredit kartı (1234-5678-9012-3456) ilə 100 AZN ödəniş edildi.\nprocessTransaction($paypal, 50); // Çıxış: PayPal (user@example.com) ilə 50 AZN ödəniş edildi.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `PaymentMethod` abstrakt sinfi `processPayment` metodunu təyin edir.\n- `CreditCard` və `PayPal` sinifləri bu metodu özünəməxsus şəkildə təyin edir.\n- `processTransaction` funksiyası polimorfizm sayəsində fərqli ödəniş metodları ilə işləyir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün polimorfizm\ninterface Animal {\n  public function makeSound();\n}\n\nclass Dog implements Animal {\n  public function makeSound() {\n    return 'Hav-hav!';\n  }\n}\n\nclass Cat implements Animal {\n  public function makeSound() {\n    return 'Miyav!';\n  }\n}\n\nfunction animalSound(Animal $animal) {\n  echo $animal->makeSound();\n}\n\n$dog = new Dog();\n$cat = new Cat();\nanimalSound($dog); // Çıxış: Hav-hav!\nanimalSound($cat); // Çıxış: Miyav!\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Polymorphism",
+    "icon": "FiShuffle",
+    "language": "php",
+    "description": "Information about polymorphism and virtual methods in PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Polymorphism in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Polymorphism is a core principle of object-oriented programming (OOP) that allows methods of a class to exhibit different behaviors in different classes. The term 'polymorphism' means 'many forms,' enabling the same method to perform differently depending on the class. In PHP, polymorphism is primarily achieved through method overriding, abstract classes, or interfaces. Unlike languages like Java or C++, PHP does not explicitly define 'virtual methods,' but similar behavior is achieved through method overriding or interfaces. This JSON file explains polymorphism’s syntax, use cases, abstract classes, interfaces, the `final` keyword, practical examples, and how to avoid common mistakes in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Core Mechanism of Polymorphism: Method Overriding"
+      },
+      {
+        "type": "paragraph",
+        "text": "The simplest form of polymorphism is method overriding, where a child class redefines a parent class’s method to provide its own implementation.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Method overriding polymorphism example\nclass Animal {\n  public function makeSound() {\n    return 'Makes a sound!';\n  }\n}\n\nclass Dog extends Animal {\n  public function makeSound() {\n    return 'Woof-woof!';\n  }\n}\n\nclass Cat extends Animal {\n  public function makeSound() {\n    return 'Meow!';\n  }\n}\n\n$dog = new Dog();\n$cat = new Cat();\necho $dog->makeSound(); // Output: Woof-woof!\necho $cat->makeSound(); // Output: Meow!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Animal` class defines a generic `makeSound` method.\n- The `Dog` and `Cat` classes override `makeSound` with their own implementations.\n- The same method producing different results in different classes is the essence of polymorphism.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Polymorphism with Abstract Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Abstract classes are used to enforce polymorphism by requiring child classes to implement specific methods, ensuring a consistent structure.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Abstract class polymorphism example\nabstract class Shape {\n  abstract public function calculateArea();\n}\n\nclass Circle extends Shape {\n  private $radius;\n\n  public function __construct($radius) {\n    $this->radius = $radius;\n  }\n\n  public function calculateArea() {\n    return pi() * $this->radius * $this->radius;\n  }\n}\n\nclass Rectangle extends Shape {\n  private $width;\n  private $height;\n\n  public function __construct($width, $height) {\n    $this->width = $width;\n    $this->height = $height;\n  }\n\n  public function calculateArea() {\n    return $this->width * $this->height;\n  }\n}\n\n$circle = new Circle(5);\n$rectangle = new Rectangle(4, 6);\necho 'Circle area: ' . $circle->calculateArea(); // Output: Circle area: 78.539...\necho 'Rectangle area: ' . $rectangle->calculateArea(); // Output: Rectangle area: 24\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Shape` abstract class defines the `calculateArea` abstract method.\n- The `Circle` and `Rectangle` classes implement `calculateArea` differently.\n- Polymorphism allows the same method to perform different calculations.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Polymorphism with Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces provide another way to achieve polymorphism by enforcing that implementing classes define specific methods, ensuring standardized behavior.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Interface polymorphism example\ninterface Vehicle {\n  public function move();\n}\n\nclass Car implements Vehicle {\n  public function move() {\n    return 'The car moves fast!';\n  }\n}\n\nclass Bicycle implements Vehicle {\n  public function move() {\n    return 'The bicycle moves with pedals!';\n  }\n}\n\n$car = new Car();\n$bicycle = new Bicycle();\necho $car->move(); // Output: The car moves fast!\necho $bicycle->move(); // Output: The bicycle moves with pedals!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Vehicle` interface defines the `move` method.\n- The `Car` and `Bicycle` classes implement `move` differently.\n- Polymorphism allows the same method to exhibit different behaviors.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Restricting Polymorphism with the final Keyword"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `final` keyword prevents a class from being extended or a method from being overridden, limiting polymorphism to ensure fixed behavior.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// final keyword example\nclass Base {\n  final public function criticalFunction() {\n    return 'This method cannot be overridden!';\n  }\n}\n\nclass Derived extends Base {\n  // public function criticalFunction() { // Error: Cannot override final method\n  //   return 'Attempt to override!';\n  // }\n}\n\n$derived = new Derived();\necho $derived->criticalFunction(); // Output: This method cannot be overridden!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Base` class’s `criticalFunction` is marked `final`.\n- The `Derived` class cannot override it, or an error occurs.\n- The `final` keyword restricts polymorphism to protect the method.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Use of Polymorphism"
+      },
+      {
+        "type": "paragraph",
+        "text": "Polymorphism enhances code flexibility, allowing different class objects to be treated uniformly. For example, a function can accept different class objects and call their methods.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Practical polymorphism example\ninterface Printable {\n  public function printInfo();\n}\n\nclass Book implements Printable {\n  private $title;\n\n  public function __construct($title) {\n    $this->title = $title;\n  }\n\n  public function printInfo() {\n    return 'Book: ' . $this->title;\n  }\n}\n\nclass Magazine implements Printable {\n  private $title;\n\n  public function __construct($title) {\n    $this->title = $title;\n  }\n\n  public function printInfo() {\n    return 'Magazine: ' . $this->title;\n  }\n}\n\nfunction printDocument(Printable $item) {\n  echo $item->printInfo();\n}\n\n$book = new Book('1984');\n$magazine = new Magazine('Tech World');\nprintDocument($book); // Output: Book: 1984\nprintDocument($magazine); // Output: Magazine: Tech World\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Printable` interface defines the `printInfo` method.\n- The `Book` and `Magazine` classes implement it differently.\n- The `printDocument` function accepts any object implementing `Printable`.\n- Polymorphism allows the function to work with different classes.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Failing to implement abstract or interface methods causes errors. Misusing the `final` keyword can unnecessarily restrict polymorphism. Complex polymorphism structures can make code harder to maintain.\n- **Recommendations**: Use abstract classes and interfaces correctly. Ensure overridden methods maintain the same signature (parameters, return type). Use the `final` keyword only when necessary. Refer to PHP’s official documentation (https://www.php.net/manual/en/). You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\nabstract class Device {\n  abstract public function turnOn();\n}\n\nclass Laptop extends Device {\n  // public function turnOn() { // Error: Abstract method not implemented\n  // }\n}\n\n// Correct approach\nclass SmartPhone extends Device {\n  public function turnOn() {\n    return 'Smartphone turned on!';\n  }\n}\n\n$phone = new SmartPhone();\necho $phone->turnOn(); // Output: Smartphone turned on!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Laptop` class fails to implement the abstract `turnOn` method, causing an error.\n- The `SmartPhone` class correctly implements it.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Payment System"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Payment system\nabstract class PaymentMethod {\n  abstract public function processPayment($amount);\n}\n\nclass CreditCard extends PaymentMethod {\n  private $cardNumber;\n\n  public function __construct($cardNumber) {\n    $this->cardNumber = $cardNumber;\n  }\n\n  public function processPayment($amount) {\n    return 'Payment of ' . $amount . ' USD made with Credit Card (' . $this->cardNumber . ').';\n  }\n}\n\nclass PayPal extends PaymentMethod {\n  private $email;\n\n  public function __construct($email) {\n    $this->email = $email;\n  }\n\n  public function processPayment($amount) {\n    return 'Payment of ' . $amount . ' USD made with PayPal (' . $this->email . ').';\n  }\n}\n\nfunction processTransaction(PaymentMethod $method, $amount) {\n  echo $method->processPayment($amount);\n}\n\n$creditCard = new CreditCard('1234-5678-9012-3456');\n$paypal = new PayPal('user@example.com');\nprocessTransaction($creditCard, 100); // Output: Payment of 100 USD made with Credit Card (1234-5678-9012-3456).\nprocessTransaction($paypal, 50); // Output: Payment of 50 USD made with PayPal (user@example.com).\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `PaymentMethod` abstract class defines the `processPayment` method.\n- The `CreditCard` and `PayPal` classes implement it differently.\n- The `processTransaction` function works with different payment methods via polymorphism.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself polymorphism\ninterface Animal {\n  public function makeSound();\n}\n\nclass Dog implements Animal {\n  public function makeSound() {\n    return 'Woof-woof!';\n  }\n}\n\nclass Cat implements Animal {\n  public function makeSound() {\n    return 'Meow!';\n  }\n}\n\nfunction animalSound(Animal $animal) {\n  echo $animal->makeSound();\n}\n\n$dog = new Dog();\n$cat = new Cat();\nanimalSound($dog); // Output: Woof-woof!\nanimalSound($cat); // Output: Meow!\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Полиморфизм",
+    "icon": "FiShuffle",
+    "language": "php",
+    "description": "Информация о полиморфизме и виртуальных методах в PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое полиморфизм в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Полиморфизм — это один из основных принципов объектно-ориентированного программирования (ООП), который позволяет методам класса вести себя по-разному в разных классах. Термин 'полиморфизм' означает 'многоформенность', позволяя одному и тому же методу работать по-разному в зависимости от класса. В PHP полиморфизм достигается в основном через переопределение методов, абстрактные классы или интерфейсы. В отличие от языков вроде Java или C++, в PHP нет явного понятия 'виртуальных методов', но аналогичное поведение достигается через переопределение методов или интерфейсы. Этот JSON-файл подробно объясняет синтаксис полиморфизма, случаи использования, абстрактные классы, интерфейсы, ключевое слово `final`, практические примеры и способы избежания ошибок. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Основной механизм полиморфизма: Переопределение методов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Самая простая форма полиморфизма — это переопределение методов, когда дочерний класс переопределяет метод родительского класса, добавляя свою реализацию.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример полиморфизма с переопределением методов\nclass Animal {\n  public function makeSound() {\n    return 'Издает звук!';\n  }\n}\n\nclass Dog extends Animal {\n  public function makeSound() {\n    return 'Гав-гав!';\n  }\n}\n\nclass Cat extends Animal {\n  public function makeSound() {\n    return 'Мяу!';\n  }\n}\n\n$dog = new Dog();\n$cat = new Cat();\necho $dog->makeSound(); // Вывод: Гав-гав!\necho $cat->makeSound(); // Вывод: Мяу!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Animal` определяет общий метод `makeSound`.\n- Классы `Dog` и `Cat` переопределяют `makeSound` с собственной реализацией.\n- Один и тот же метод, дающий разные результаты в разных классах, — суть полиморфизма.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Полиморфизм с абстрактными классами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Абстрактные классы используются для обеспечения полиморфизма, требуя от дочерних классов реализации определенных методов, что гарантирует согласованную структуру.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример полиморфизма с абстрактным классом\nabstract class Shape {\n  abstract public function calculateArea();\n}\n\nclass Circle extends Shape {\n  private $radius;\n\n  public function __construct($radius) {\n    $this->radius = $radius;\n  }\n\n  public function calculateArea() {\n    return pi() * $this->radius * $this->radius;\n  }\n}\n\nclass Rectangle extends Shape {\n  private $width;\n  private $height;\n\n  public function __construct($width, $height) {\n    $this->width = $width;\n    $this->height = $height;\n  }\n\n  public function calculateArea() {\n    return $this->width * $this->height;\n  }\n}\n\n$circle = new Circle(5);\n$rectangle = new Rectangle(4, 6);\necho 'Площадь круга: ' . $circle->calculateArea(); // Вывод: Площадь круга: 78.539...\necho 'Площадь прямоугольника: ' . $rectangle->calculateArea(); // Вывод: Площадь прямоугольника: 24\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Абстрактный класс `Shape` определяет абстрактный метод `calculateArea`.\n- Классы `Circle` и `Rectangle` реализуют `calculateArea` по-разному.\n- Полиморфизм позволяет одному методу выполнять разные вычисления.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Полиморфизм с интерфейсами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы — еще один способ достижения полиморфизма, требующий от реализующих классов определения конкретных методов, что обеспечивает стандартизированное поведение.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример полиморфизма с интерфейсом\ninterface Vehicle {\n  public function move();\n}\n\nclass Car implements Vehicle {\n  public function move() {\n    return 'Машина движется быстро!';\n  }\n}\n\nclass Bicycle implements Vehicle {\n  public function move() {\n    return 'Велосипед движется с помощью педалей!';\n  }\n}\n\n$car = new Car();\n$bicycle = new Bicycle();\necho $car->move(); // Вывод: Машина движется быстро!\necho $bicycle->move(); // Вывод: Велосипед движется с помощью педалей!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Vehicle` определяет метод `move`.\n- Классы `Car` и `Bicycle` реализуют `move` по-разному.\n- Полиморфизм позволяет одному методу демонстрировать разное поведение.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Ограничение полиморфизма с помощью ключевого слова final"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ключевое слово `final` предотвращает наследование класса или переопределение метода, ограничивая полиморфизм для обеспечения фиксированного поведения.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример ключевого слова final\nclass Base {\n  final public function criticalFunction() {\n    return 'Этот метод нельзя переопределить!';\n  }\n}\n\nclass Derived extends Base {\n  // public function criticalFunction() { // Ошибка: Нельзя переопределить final метод\n  //   return 'Попытка переопределения!';\n  // }\n}\n\n$derived = new Derived();\necho $derived->criticalFunction(); // Вывод: Этот метод нельзя переопределить!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Метод `criticalFunction` в классе `Base` помечен как `final`.\n- Класс `Derived` не может его переопределить, иначе возникнет ошибка.\n- Ключевое слово `final` ограничивает полиморфизм для защиты метода.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практическое использование полиморфизма"
+      },
+      {
+        "type": "paragraph",
+        "text": "Полиморфизм повышает гибкость кода, позволяя обрабатывать объекты разных классов единообразно. Например, функция может принимать объекты разных классов и вызывать их методы.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример практического полиморфизма\ninterface Printable {\n  public function printInfo();\n}\n\nclass Book implements Printable {\n  private $title;\n\n  public function __construct($title) {\n    $this->title = $title;\n  }\n\n  public function printInfo() {\n    return 'Книга: ' . $this->title;\n  }\n}\n\nclass Magazine implements Printable {\n  private $title;\n\n  public function __construct($title) {\n    $this->title = $title;\n  }\n\n  public function printInfo() {\n    return 'Журнал: ' . $this->title;\n  }\n}\n\nfunction printDocument(Printable $item) {\n  echo $item->printInfo();\n}\n\n$book = new Book('1984');\n$magazine = new Magazine('Tech World');\nprintDocument($book); // Вывод: Книга: 1984\nprintDocument($magazine); // Вывод: Журнал: Tech World\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Printable` определяет метод `printInfo`.\n- Классы `Book` и `Magazine` реализуют его по-разному.\n- Функция `printDocument` принимает любой объект, реализующий `Printable`.\n- Полиморфизм позволяет функции работать с разными классами.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Нереализация абстрактных методов или методов интерфейса вызывает ошибки. Неправильное использование ключевого слова `final` может излишне ограничить полиморфизм. Сложные структуры полиморфизма усложняют поддержку кода.\n- **Рекомендации**: Корректно используйте абстрактные классы и интерфейсы. Убедитесь, что переопределенные методы сохраняют ту же сигнатуру (параметры, тип возврата). Используйте `final` только при необходимости. Обратитесь к официальной документации PHP (https://www.php.net/manual/en/). Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\nabstract class Device {\n  abstract public function turnOn();\n}\n\nclass Laptop extends Device {\n  // public function turnOn() { // Ошибка: Абстрактный метод не реализован\n  // }\n}\n\n// Правильный подход\nclass SmartPhone extends Device {\n  public function turnOn() {\n    return 'Смартфон включен!';\n  }\n}\n\n$phone = new SmartPhone();\necho $phone->turnOn(); // Вывод: Смартфон включен!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Laptop` не реализует абстрактный метод `turnOn`, что вызывает ошибку.\n- Класс `SmartPhone` правильно реализует его.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Платежная система"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Платежная система\nabstract class PaymentMethod {\n  abstract public function processPayment($amount);\n}\n\nclass CreditCard extends PaymentMethod {\n  private $cardNumber;\n\n  public function __construct($cardNumber) {\n    $this->cardNumber = $cardNumber;\n  }\n\n  public function processPayment($amount) {\n    return 'Оплата на ' . $amount . ' USD выполнена с помощью кредитной карты (' . $this->cardNumber . ').';\n  }\n}\n\nclass PayPal extends PaymentMethod {\n  private $email;\n\n  public function __construct($email) {\n    $this->email = $email;\n  }\n\n  public function processPayment($amount) {\n    return 'Оплата на ' . $amount . ' USD выполнена с помощью PayPal (' . $this->email . ').';\n  }\n}\n\nfunction processTransaction(PaymentMethod $method, $amount) {\n  echo $method->processPayment($amount);\n}\n\n$creditCard = new CreditCard('1234-5678-9012-3456');\n$paypal = new PayPal('user@example.com');\nprocessTransaction($creditCard, 100); // Вывод: Оплата на 100 USD выполнена с помощью кредитной карты (1234-5678-9012-3456).\nprocessTransaction($paypal, 50); // Вывод: Оплата на 50 USD выполнена с помощью PayPal (user@example.com).\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Абстрактный класс `PaymentMethod` определяет метод `processPayment`.\n- Классы `CreditCard` и `PayPal` реализуют его по-разному.\n- Функция `processTransaction` работает с разными методами оплаты благодаря полиморфизму.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Попробуйте сами полиморфизм\ninterface Animal {\n  public function makeSound();\n}\n\nclass Dog implements Animal {\n  public function makeSound() {\n    return 'Гав-гав!';\n  }\n}\n\nclass Cat implements Animal {\n  public function makeSound() {\n    return 'Мяу!';\n  }\n}\n\nfunction animalSound(Animal $animal) {\n  echo $animal->makeSound();\n}\n\n$dog = new Dog();\n$cat = new Cat();\nanimalSound($dog); // Вывод: Гав-гав!\nanimalSound($cat); // Вывод: Мяу!\n?>"
+      }
+    ]
+  }
+}

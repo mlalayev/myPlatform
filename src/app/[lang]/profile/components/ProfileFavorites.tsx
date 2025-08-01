@@ -159,26 +159,57 @@ export default function ProfileFavorites() {
                   <div className={styles.favoritesHero}>
                     <div className={styles.heroContent}>
                       <div className={styles.heroLeft}>
-                        <h1 className={styles.heroTitle}>Sevimlilərim</h1>
-                        <p className={styles.heroSubtitle}>Əlavə etdiyin dərs və məşqlər</p>
+                        <div className={styles.heroTitleContainer}>
+                          <div className={styles.heroIconContainer}>
+                            <span className={styles.heroIcon}>⭐</span>
+                          </div>
+                          <div className={styles.heroTextContainer}>
+                            <h1 className={styles.heroTitle}>Sevimlilərim</h1>
+                            <p className={styles.heroSubtitle}>Əlavə etdiyin dərs və məşqlər</p>
+                          </div>
+                        </div>
+                        <div className={styles.heroProgress}>
+                          <div className={styles.progressInfo}>
+                            <span className={styles.progressText}>
+                              {favorites.length} sevimli
+                            </span>
+                            <span className={styles.progressLabel}>
+                              Topladığınız
+                            </span>
+                          </div>
+                          <div className={styles.progressBarContainer}>
+                            <div className={styles.progressBarFill}></div>
+                          </div>
+                        </div>
                       </div>
                       <div className={styles.heroRight}>
                         <div className={styles.favoritesStats}>
                           <div className={styles.statItem}>
-                            <span className={styles.statNumber}>{favorites.length}</span>
-                            <span className={styles.statLabel}>Ümumi</span>
+                            <div className={styles.statIconContainer}>
+                              <span className={styles.statIcon}>📚</span>
+                            </div>
+                            <div className={styles.statContent}>
+                              <span className={styles.statNumber}>{favorites.filter(f => f.type === 'LESSON').length}</span>
+                              <span className={styles.statLabel}>Dərs</span>
+                            </div>
                           </div>
                           <div className={styles.statItem}>
-                            <span className={styles.statNumber}>
-                              {favorites.filter(f => f.type === 'LESSON').length}
-                            </span>
-                            <span className={styles.statLabel}>Dərs</span>
+                            <div className={styles.statIconContainer}>
+                              <span className={styles.statIcon}>💻</span>
+                            </div>
+                            <div className={styles.statContent}>
+                              <span className={styles.statNumber}>{favorites.filter(f => f.type === 'EXERCISE').length}</span>
+                              <span className={styles.statLabel}>Məşq</span>
+                            </div>
                           </div>
                           <div className={styles.statItem}>
-                            <span className={styles.statNumber}>
-                              {favorites.filter(f => f.type === 'EXERCISE').length}
-                            </span>
-                            <span className={styles.statLabel}>Məşq</span>
+                            <div className={styles.statIconContainer}>
+                              <span className={styles.statIcon}>🎯</span>
+                            </div>
+                            <div className={styles.statContent}>
+                              <span className={styles.statNumber}>{favorites.length}</span>
+                              <span className={styles.statLabel}>Ümumi</span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -219,33 +250,51 @@ export default function ProfileFavorites() {
       ) : (
         <div className={styles.favoritesGrid}>
           {filteredFavorites.map((favorite) => (
-            <div key={favorite.id} className={styles.favoriteCard}>
+            <div key={favorite.id} className={`${styles.favoriteCard} ${styles[favorite.type.toLowerCase()]}`}>
               <div className={styles.cardHeader}>
                 <div className={styles.typeInfo}>
-                  <span className={styles.typeIcon}>{getTypeIcon(favorite.type)}</span>
-                  <span className={styles.typeLabel}>{getTypeLabel(favorite.type)}</span>
+                  <div className={styles.typeIconContainer}>
+                    <span className={styles.typeIcon}>{getTypeIcon(favorite.type)}</span>
+                  </div>
+                  <div className={styles.typeContent}>
+                    <span className={styles.typeLabel}>{getTypeLabel(favorite.type)}</span>
+                    <span className={styles.typeBadge}>{favorite.type === 'LESSON' ? '📖' : '⚡'}</span>
+                  </div>
                 </div>
                 <button
                   className={styles.removeButton}
                   onClick={() => removeFavorite(favorite.type, favorite.itemId)}
                   title="Sevimlilərdən çıxar"
                 >
-                  ✕
+                  <span className={styles.removeIcon}>×</span>
                 </button>
               </div>
               
               <div className={styles.cardContent}>
-                <h3 className={styles.favoriteTitle}>{favorite.title}</h3>
+                <div className={styles.contentHeader}>
+                  <h3 className={styles.favoriteTitle}>{favorite.title}</h3>
+                  <div className={`${styles.favoriteStatus} ${styles.completed}`}>
+                    <span className={styles.statusDot}></span>
+                    <span className={styles.statusText}>Tamamlanıb</span>
+                  </div>
+                </div>
+                
                 {favorite.description && (
                   <p className={styles.favoriteDescription}>{favorite.description}</p>
                 )}
                 
                 <div className={styles.favoriteMeta}>
                   {favorite.language && (
-                    <span className={styles.metaTag}>{favorite.language}</span>
+                    <div className={styles.metaTag}>
+                      <span className={styles.metaIcon}>🌐</span>
+                      <span className={styles.metaText}>{favorite.language}</span>
+                    </div>
                   )}
                   {favorite.category && (
-                    <span className={styles.metaTag}>{favorite.category}</span>
+                    <div className={styles.metaTag}>
+                      <span className={styles.metaIcon}>📂</span>
+                      <span className={styles.metaText}>{favorite.category}</span>
+                    </div>
                   )}
                 </div>
               </div>
@@ -255,11 +304,15 @@ export default function ProfileFavorites() {
                   className={styles.viewButton}
                   onClick={() => navigateToItem(favorite)}
                 >
-                  Bax
+                  <span className={styles.viewIcon}>👁️</span>
+                  <span className={styles.viewText}>Bax</span>
                 </button>
-                <span className={styles.dateAdded}>
-                  {new Date(favorite.createdAt).toLocaleDateString('az-AZ')}
-                </span>
+                <div className={styles.dateInfo}>
+                  <span className={styles.dateIcon}>📅</span>
+                  <span className={styles.dateAdded}>
+                    {new Date(favorite.createdAt).toLocaleDateString('az-AZ')}
+                  </span>
+                </div>
               </div>
             </div>
           ))}

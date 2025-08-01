@@ -512,20 +512,29 @@ export default function ProfileAchievements({
           <div className={achievementStyles.achievementsSummary}>
             <div className={achievementStyles.achievementsCount}>
               <div className={achievementStyles.countHeader}>
-                <FiAward className={achievementStyles.trophyIcon} />
-                <span className={achievementStyles.countText}>
-                  {unlockedAchievements} / {totalAchievements}
-                </span>
+                <div className={achievementStyles.trophyContainer}>
+                  <FiAward className={achievementStyles.trophyIcon} />
+                  <div className={achievementStyles.trophyGlow}></div>
+                </div>
+                <div className={achievementStyles.countInfo}>
+                  <span className={achievementStyles.countText}>
+                    {unlockedAchievements} / {totalAchievements}
+                  </span>
+                  <span className={achievementStyles.countLabel}>
+                    Nailiyyətlər Açıldı
+                  </span>
+                </div>
               </div>
-              <span className={achievementStyles.countLabel}>
-                Achievements Unlocked
-              </span>
             </div>
             <div className={achievementStyles.achievementsProgress}>
-              <span className={achievementStyles.progressText}>
-                {Math.round((unlockedAchievements / totalAchievements) * 100)}
-                % Complete
-              </span>
+              <div className={achievementStyles.progressInfo}>
+                <span className={achievementStyles.progressText}>
+                  {Math.round((unlockedAchievements / totalAchievements) * 100)}%
+                </span>
+                <span className={achievementStyles.progressLabel}>
+                  Tamamlanıb
+                </span>
+              </div>
               <div className={achievementStyles.progressBarContainer}>
                 <div
                   className={achievementStyles.progressBarFill}
@@ -535,38 +544,8 @@ export default function ProfileAchievements({
                     }%`,
                   }}
                 ></div>
+                <div className={achievementStyles.progressBarGlow}></div>
               </div>
-            </div>
-            <div className={achievementStyles.syncSection}>
-              <button
-                className={achievementStyles.syncButton}
-                onClick={syncAchievements}
-                disabled={syncingAchievements}
-              >
-                {syncingAchievements ? (
-                  <FiClock className={achievementStyles.syncIcon} />
-                ) : (
-                  <FiAward className={achievementStyles.syncIcon} />
-                )}
-                {syncingAchievements ? "Syncing..." : "Sync Achievements"}
-              </button>
-              
-              {/* Test popup button */}
-              <button
-                className={achievementStyles.syncButton}
-                onClick={() => {
-                  const testAchievement = {
-                    name: "Test Achievement",
-                    description: "This is a test achievement to verify popup works globally",
-                    rarity: "gold" as const,
-                    coins: 100
-                  };
-                  showAchievementPopup(testAchievement);
-                }}
-                style={{ marginLeft: '10px', backgroundColor: '#ff6b35' }}
-              >
-                Test Popup
-              </button>
             </div>
           </div>
           <div className={achievementStyles.rarityStats}>
@@ -574,7 +553,7 @@ export default function ProfileAchievements({
               <span
                 className={`${achievementStyles.rarityDot} ${achievementStyles.bronze}`}
               ></span>
-              <span>
+              <span className={achievementStyles.rarityText}>
                 Bronze:{" "}
                 {achievementCategories.reduce(
                   (acc, cat) =>
@@ -590,7 +569,7 @@ export default function ProfileAchievements({
               <span
                 className={`${achievementStyles.rarityDot} ${achievementStyles.silver}`}
               ></span>
-              <span>
+              <span className={achievementStyles.rarityText}>
                 Silver:{" "}
                 {achievementCategories.reduce(
                   (acc, cat) =>
@@ -606,7 +585,7 @@ export default function ProfileAchievements({
               <span
                 className={`${achievementStyles.rarityDot} ${achievementStyles.gold}`}
               ></span>
-              <span>
+              <span className={achievementStyles.rarityText}>
                 Gold:{" "}
                 {achievementCategories.reduce(
                   (acc, cat) =>
@@ -622,7 +601,7 @@ export default function ProfileAchievements({
               <span
                 className={`${achievementStyles.rarityDot} ${achievementStyles.legendary}`}
               ></span>
-              <span>
+              <span className={achievementStyles.rarityText}>
                 Legendary:{" "}
                 {achievementCategories.reduce(
                   (acc, cat) =>
@@ -638,7 +617,7 @@ export default function ProfileAchievements({
               <span
                 className={`${achievementStyles.rarityDot} ${achievementStyles.platinum}`}
               ></span>
-              <span>
+              <span className={achievementStyles.rarityText}>
                 Platinum:{" "}
                 {achievementCategories.reduce(
                   (acc, cat) =>

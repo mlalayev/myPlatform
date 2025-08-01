@@ -55,11 +55,9 @@ import overviewStyles from "./ProfileOverview.module.css";
 import calendarStyles from "./ProfileCalendar.module.css";
 import exercisesStyles from "./ProfileExercises.module.css";
 import achievementsStyles from "./ProfileAchievements.module.css";
-import recentActivitiesStyles from "./ProfileRecentActivities.module.css";
 import ProfileOverview from "./components/ProfileOverview";
 import ProfileExercises from "./components/ProfileExercises";
 import ProfileAchievements from "./components/ProfileAchievements";
-import ProfileRecentActivities from "./components/ProfileRecentActivities";
 import ProfileProgress from "./components/ProfileProgress";
 import ProfileGoals from "./components/ProfileGoals";
 import ProfileFavorites from "./components/ProfileFavorites";
@@ -105,12 +103,6 @@ const profileTabs = [
     icon: <FiStar size={24} />,
       description: t("profile.tabs.favorites.description"),
   },
-  {
-    key: "recent-activities",
-      name: t("profile.tabs.recentActivities.name"),
-    icon: <FiClock size={24} />,
-      description: t("profile.tabs.recentActivities.description"),
-  },
 ];
 
   const [selectedTab, setSelectedTab] = useState(profileTabs[0].key);
@@ -118,8 +110,16 @@ const profileTabs = [
   const [userStats, setUserStats] = useState<any>(null);
   const [calendarData, setCalendarData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  // Get current date in Azerbaijan timezone
+  const getAzerbaijanDate = () => {
+    const now = new Date();
+    const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
+    return azerbaijanTime;
+  };
+  
+  const [currentMonth, setCurrentMonth] = useState(getAzerbaijanDate().getMonth() + 1);
+  const [currentYear, setCurrentYear] = useState(getAzerbaijanDate().getFullYear());
   const { data: session } = useSession();
 
   // Check URL parameters for tab selection
@@ -637,13 +637,6 @@ const profileTabs = [
       case "favorites":
         return (
           <ProfileFavorites />
-        );
-      case "recent-activities":
-        return (
-          <ProfileRecentActivities 
-            userStats={userStats}
-            loading={loading}
-          />
         );
       default:
         return null;

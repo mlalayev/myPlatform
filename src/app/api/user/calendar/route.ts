@@ -25,8 +25,16 @@ export async function GET(request: NextRequest) {
 
     // Get Azərbaycan vaxtı ilə bugünkü gün
     const now = new Date();
-    const azerbaijanTime = new Date(now.getTime() + (4 * 60 * 60 * 1000)); // UTC+4
+    // Calculate Azerbaijan time properly (UTC+4)
+    const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
     const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
+    
+    console.log('Calendar Debug - Current UTC time:', now.toISOString());
+    console.log('Calendar Debug - Azerbaijan time:', azerbaijanTime.toISOString());
+    console.log('Calendar Debug - Today (Azerbaijan):', today.toISOString());
+    console.log('Calendar Debug - Today day:', today.getDate());
+    console.log('Calendar Debug - Today month:', today.getMonth() + 1);
     
     // Son 7 günü hesabla (bugünkü gün də daxil olmaqla)
     const endDate = new Date(today);

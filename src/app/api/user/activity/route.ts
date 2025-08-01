@@ -32,7 +32,10 @@ export async function POST(request: NextRequest) {
     });
 
     // Update or create daily activity record
-    const today = new Date();
+    const now = new Date();
+    const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
+    const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
     today.setHours(0, 0, 0, 0);
 
     let dailyActivity = await prisma.dailyActivity.findUnique({
@@ -98,7 +101,10 @@ export async function POST(request: NextRequest) {
 // Function to update lesson progress tracking
 async function updateLessonProgress(userId: number, activityType: string, metadata: any) {
   try {
-    const today = new Date();
+    const now = new Date();
+    const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
+    const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
     today.setHours(0, 0, 0, 0);
 
     // Get user's current visited lessons
@@ -285,12 +291,18 @@ export async function GET(request: NextRequest) {
     const activities = await prisma.userActivity.findMany({
       where: { userId: user.id },
       orderBy: { timestamp: 'desc' },
-      take: 20
+      take: 100
     });
 
     // Get daily activities for the last 28 days for streak calculation
-    const twentyEightDaysAgo = new Date();
-    twentyEightDaysAgo.setDate(twentyEightDaysAgo.getDate() - 28);
+    const now = new Date();
+    const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
+    const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
+    today.setHours(0, 0, 0, 0);
+    
+    const twentyEightDaysAgo = new Date(today);
+    twentyEightDaysAgo.setDate(today.getDate() - 28);
     twentyEightDaysAgo.setHours(0, 0, 0, 0);
 
     const dailyActivities = await prisma.dailyActivity.findMany({
@@ -302,8 +314,6 @@ export async function GET(request: NextRequest) {
     });
 
     // Calculate streak data
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
     
     const streakDays = Array.from({ length: 28 }, (_, i) => {
       const date = new Date(today);
