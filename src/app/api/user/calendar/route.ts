@@ -25,14 +25,14 @@ export async function GET(request: NextRequest) {
 
     // Get Azərbaycan vaxtı ilə bugünkü gün
     const now = new Date();
-    // Calculate Azerbaijan time properly (UTC+4)
-    const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
-    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
+    
+    // Use proper timezone calculation
+    const azerbaijanTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Baku"}));
     const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
     
     console.log('Calendar Debug - Current UTC time:', now.toISOString());
     console.log('Calendar Debug - Azerbaijan time:', azerbaijanTime.toISOString());
-    console.log('Calendar Debug - Today (Azerbaijan):', today.toISOString());
+    console.log('Calendar Debug - Today (Final):', today.toISOString());
     console.log('Calendar Debug - Today day:', today.getDate());
     console.log('Calendar Debug - Today month:', today.getMonth() + 1);
     

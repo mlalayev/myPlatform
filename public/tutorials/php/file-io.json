@@ -1,0 +1,444 @@
+{
+  "id": "file-io",
+  "az": {
+    "title": "Fayl Giriş-Çıxış Əməliyyatları",
+    "icon": "FiFileText",
+    "language": "php",
+    "description": "Fayllardan oxuma və fayllara yazma.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də Fayl Giriş-Çıxış Əməliyyatları Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də fayl giriş-çıxış (File I/O) əməliyyatları fayllardan məlumat oxumaq və ya fayllara məlumat yazmaq üçün istifadə olunur. Bu, məsələn, mətn fayllarına məlumat saxlamaq, konfiqurasiya fayllarını oxumaq və ya jurnal (log) faylları yaratmaq kimi tapşırıqlar üçün vacibdir. PHP-də fayllarla işləmək üçün bir neçə funksiya mövcuddur, məsələn, `file_get_contents`, `file_put_contents`, `fopen`, `fread`, `fwrite` və s. Bu JSON faylda fayl oxuma və yazma metodları, fayl rejimləri, səhvlərdən qaçınma yolları və praktik nümunələr çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz. PHP 8.1 və ya daha yeni versiyadan istifadə etdiyinizə əmin olun."
+      },
+      {
+        "type": "heading",
+        "text": "Fayl Oxuma: Əsas Metodlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də fayllardan məlumat oxumaq üçün bir neçə üsul var:\n- `file_get_contents`: Bütün faylın məzmununu sətir kimi oxuyur.\n- `fopen` və `fread`: Faylı açır və hissə-hissə oxumağa imkan verir.\n- `file`: Faylı sətirlər massivi kimi oxuyur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Fayl oxuma nümunəsi\n\n// file_get_contents ilə oxuma\n$content = file_get_contents('example.txt');\necho $content; // Çıxış: Faylın bütün məzmunu\n\n// fopen və fread ilə oxuma\n$handle = fopen('example.txt', 'r');\nif ($handle) {\n  $content = fread($handle, filesize('example.txt'));\n  echo $content;\n  fclose($handle);\n}\n\n// file ilə sətirlərə bölünmüş oxuma\n$lines = file('example.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);\nforeach ($lines as $line) {\n  echo $line . '\\n';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `file_get_contents` faylın bütün məzmununu bir sətir kimi oxuyur.\n- `fopen` və `fread` faylı açır və məzmunu hissə-hissə oxuyur.\n- `file` faylı sətirlər massivi kimi oxuyur, `FILE_IGNORE_NEW_LINES` və `FILE_SKIP_EMPTY_LINES` boş sətirləri atır.\n- Qeyd: `example.txt` faylının mövcud olduğundan əmin olun, məsələn, XAMPP-ın `htdocs` qovluğunda.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Fayl Yazma: Əsas Metodlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də fayllara yazmaq üçün aşağıdakı metodlar istifadə olunur:\n- `file_put_contents`: Fayla məlumat yazır, fayl yoxdursa yaradır.\n- `fopen` və `fwrite`: Faylı açır və məlumat yazır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Fayl yazma nümunəsi\n\n// file_put_contents ilə yazma\nfile_put_contents('output.txt', 'Bu bir test mətnidir.');\n\n// fopen və fwrite ilə yazma\n$handle = fopen('output.txt', 'a');\nif ($handle) {\n  fwrite($handle, 'Əlavə mətn\\n');\n  fclose($handle);\n}\n\necho file_get_contents('output.txt'); // Çıxış: Bu bir test mətnidir.Əlavə mətn\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `file_put_contents` fayla mətn yazır, fayl yoxdursa yaradır.\n- `fopen` ilə `a` rejimində fayl açılır və `fwrite` ilə əlavə mətn yazılır.\n- `fclose` faylı bağlayır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Fayl Rejimləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayllarla işləyərkən `fopen` funksiyası müxtəlif rejimlərdən istifadə edir:\n- `r`: Oxuma üçün açır, fayl olmalıdır.\n- `w`: Yazma üçün açır, faylı sıfırlayır və ya yoxdursa yaradır.\n- `a`: Əlavə etmək üçün açır, faylın sonuna yazır.\n- `r+`: Oxuma və yazma üçün açır.\n- `w+`: Oxuma və yazma üçün açır, faylı sıfırlayır.\n- `a+`: Oxuma və əlavə etmək üçün açır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Fayl rejimləri nümunəsi\n$handle = fopen('test.txt', 'w+');\nif ($handle) {\n  fwrite($handle, 'Yeni mətn');\n  rewind($handle); // Kursoru faylın əvvəlinə qaytarır\n  $content = fread($handle, filesize('test.txt'));\n  echo $content; // Çıxış: Yeni mətn\n  fclose($handle);\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `w+` rejimi faylı oxuma və yazma üçün açır, mövcud məzmunu sıfırlayır.\n- `rewind` kursoru faylın əvvəlinə qaytarır ki, oxuma mümkün olsun.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvlərdən Qaçınma"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayllarla işləyərkən səhvlərdən qaçınmaq üçün:\n- Faylın mövcudluğunu yoxlayın (`file_exists`).\n- Fayl icazələrini yoxlayın (oxuma/yazma icazəsi olmalıdır).\n- Fayl tutacaqlarını (`$handle`) bağlamağı unutmayın (`fclose`).\n- Böyük fayllar üçün hissə-hissə oxuma istifadə edin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvlərdən qaçınma nümunəsi\nif (file_exists('data.txt')) {\n  $handle = fopen('data.txt', 'r');\n  if ($handle) {\n    $content = fread($handle, filesize('data.txt'));\n    echo $content;\n    fclose($handle);\n  } else {\n    echo 'Faylı açmaq mümkün olmadı.';\n  }\n} else {\n  echo 'Fayl mövcud deyil.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `file_exists` faylın mövcudluğunu yoxlayır.\n- `fopen` uğurlu olarsa, fayl oxunur və bağlanır.\n- Səhvlər üçün uyğun mesajlar göstərilir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Jurnal Faylı Yaratma"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayl giriş-çıxış əməliyyatları jurnal (log) faylları yaratmaq üçün çox istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Jurnal faylı nümunəsi\n\nfunction logMessage($message) {\n  $logEntry = date('Y-m-d H:i:s') . ' - ' . $message . '\\n';\n  file_put_contents('log.txt', $logEntry, FILE_APPEND);\n}\n\nlogMessage('Proqram başladı.');\nlogMessage('İstifadəçi daxil oldu.');\n\necho file_get_contents('log.txt');\n// Çıxış: \n// 2025-08-01 23:32:00 - Proqram başladı.\n// 2025-08-01 23:32:00 - İstifadəçi daxil oldu.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `logMessage` funksiyası jurnal qeydlərini vaxt damğası ilə fayla əlavə edir.\n- `FILE_APPEND` faylın sonuna yazmağı təmin edir.\n- `file_get_contents` jurnalın məzmununu göstərir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: İstifadəçi Məlumatlarının Saxlanması"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayllar istifadəçi məlumatlarını saxlamaq üçün də istifadə edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// İstifadəçi məlumatlarının saxlanması\n$userData = [\n  'name' => 'Ali',\n  'age' => 25,\n  'email' => 'ali@example.com'\n];\n\n// JSON formatında saxlama\nfile_put_contents('user.json', json_encode($userData, JSON_PRETTY_PRINT));\n\n// JSON faylını oxuma\n$readData = json_decode(file_get_contents('user.json'), true);\n\nprint_r($readData);\n// Çıxış: Array ( [name] => Ali [age] => 25 [email] => ali@example.com )\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `json_encode` istifadəçi məlumatlarını JSON formatına çevirir.\n- `file_put_contents` məlumatları fayla yazır.\n- `file_get_contents` və `json_decode` ilə məlumatlar oxunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\n$handle = fopen('nonexistent.txt', 'r');\nif ($handle) {\n  $content = fread($handle, filesize('nonexistent.txt'));\n  fclose($handle);\n} else {\n  echo 'Faylı açmaq mümkün olmadı.';\n}\n\n// Düzgün yol\nif (file_exists('data.txt')) {\n  $handle = fopen('data.txt', 'r');\n  if ($handle) {\n    $content = fread($handle, filesize('data.txt'));\n    echo $content;\n    fclose($handle);\n  } else {\n    echo 'Faylı açmaq mümkün olmadı.';\n  }\n} else {\n  echo 'Fayl mövcud deyil.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk nümunədə mövcud olmayan faylı açmağa çalışmaq xəta yaradır.\n- Düzgün yolda `file_exists` ilə faylın mövcudluğu yoxlanılır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Fayl icazələrini düzgün qurun (məsələn, `chmod 644`). Böyük fayllar üçün `fread` ilə hissə-hissə oxuma istifadə edin. Səhvləri idarə etmək üçün `try-catch` istifadə edin. PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/) faydalanın.\n- **Alternativlər**: Fayl əməliyyatları əvəzinə verilənlər bazası (MySQL, SQLite) istifadə edilə bilər. JSON və ya CSV kimi formatlar məlumat saxlamaq üçün alternativdir.\n- Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün fayl giriş-çıxış\nfile_put_contents('test.txt', 'Salam, dünya!');\n\necho file_get_contents('test.txt'); // Çıxış: Salam, dünya!\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "File I/O",
+    "icon": "FiFileText",
+    "language": "php",
+    "description": "Reading from and writing to files in PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is File I/O in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "File Input/Output (File I/O) in PHP refers to reading data from files and writing data to files. This is essential for tasks like saving data to text files, reading configuration files, or creating log files. PHP provides several functions for file operations, such as `file_get_contents`, `file_put_contents`, `fopen`, `fread`, `fwrite`, and more. This JSON file explains file reading and writing methods, file modes, error handling, and practical examples in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP. Ensure you are using PHP 8.1 or a newer version."
+      },
+      {
+        "type": "heading",
+        "text": "File Reading: Basic Methods"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP offers several methods to read data from files:\n- `file_get_contents`: Reads the entire file content as a string.\n- `fopen` and `fread`: Opens a file and reads it in chunks.\n- `file`: Reads a file into an array of lines.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// File reading example\n\n// Reading with file_get_contents\n$content = file_get_contents('example.txt');\necho $content; // Output: Entire file content\n\n// Reading with fopen and fread\n$handle = fopen('example.txt', 'r');\nif ($handle) {\n  $content = fread($handle, filesize('example.txt'));\n  echo $content;\n  fclose($handle);\n}\n\n// Reading with file as an array of lines\n$lines = file('example.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);\nforeach ($lines as $line) {\n  echo $line . '\\n';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `file_get_contents` reads the entire file as a string.\n- `fopen` and `fread` open and read the file in chunks.\n- `file` reads the file into an array, with `FILE_IGNORE_NEW_LINES` and `FILE_SKIP_EMPTY_LINES` removing empty lines.\n- Note: Ensure `example.txt` exists, e.g., in XAMPP’s `htdocs` folder.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "File Writing: Basic Methods"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP provides methods to write data to files:\n- `file_put_contents`: Writes data to a file, creating it if it doesn’t exist.\n- `fopen` and `fwrite`: Opens a file and writes data.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// File writing example\n\n// Writing with file_put_contents\nfile_put_contents('output.txt', 'This is a test text.');\n\n// Writing with fopen and fwrite\n$handle = fopen('output.txt', 'a');\nif ($handle) {\n  fwrite($handle, 'Additional text\\n');\n  fclose($handle);\n}\n\necho file_get_contents('output.txt'); // Output: This is a test text.Additional text\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `file_put_contents` writes text to a file, creating it if it doesn’t exist.\n- `fopen` with `a` mode appends text to the file using `fwrite`.\n- `fclose` closes the file.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "File Modes"
+      },
+      {
+        "type": "paragraph",
+        "text": "When working with files, `fopen` uses different modes:\n- `r`: Opens for reading, file must exist.\n- `w`: Opens for writing, clears the file or creates it if it doesn’t exist.\n- `a`: Opens for appending, writes to the end of the file.\n- `r+`: Opens for reading and writing.\n- `w+`: Opens for reading and writing, clears the file.\n- `a+`: Opens for reading and appending.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// File modes example\n$handle = fopen('test.txt', 'w+');\nif ($handle) {\n  fwrite($handle, 'New text');\n  rewind($handle); // Moves cursor to the beginning\n  $content = fread($handle, filesize('test.txt'));\n  echo $content; // Output: New text\n  fclose($handle);\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `w+` mode opens the file for reading and writing, clearing existing content.\n- `rewind` moves the cursor to the beginning for reading.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "To avoid errors when working with files:\n- Check if the file exists (`file_exists`).\n- Verify file permissions (read/write access).\n- Always close file handles (`fclose`).\n- Use chunked reading for large files.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error handling example\nif (file_exists('data.txt')) {\n  $handle = fopen('data.txt', 'r');\n  if ($handle) {\n    $content = fread($handle, filesize('data.txt'));\n    echo $content;\n    fclose($handle);\n  } else {\n    echo 'Could not open the file.';\n  }\n} else {\n  echo 'File does not exist.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `file_exists` checks if the file exists.\n- If `fopen` succeeds, the file is read and closed.\n- Appropriate error messages are displayed.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Creating a Log File"
+      },
+      {
+        "type": "paragraph",
+        "text": "File I/O is commonly used to create log files.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Log file example\n\nfunction logMessage($message) {\n  $logEntry = date('Y-m-d H:i:s') . ' - ' . $message . '\\n';\n  file_put_contents('log.txt', $logEntry, FILE_APPEND);\n}\n\nlogMessage('Program started.');\nlogMessage('User logged in.');\n\necho file_get_contents('log.txt');\n// Output: \n// 2025-08-01 23:32:00 - Program started.\n// 2025-08-01 23:32:00 - User logged in.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `logMessage` function appends log entries with timestamps.\n- `FILE_APPEND` ensures writing to the end of the file.\n- `file_get_contents` displays the log content.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Storing User Data"
+      },
+      {
+        "type": "paragraph",
+        "text": "Files can be used to store user data, such as in JSON format.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Storing user data\n$userData = [\n  'name' => 'Alice',\n  'age' => 25,\n  'email' => 'alice@example.com'\n];\n\n// Save as JSON\nfile_put_contents('user.json', json_encode($userData, JSON_PRETTY_PRINT));\n\n// Read JSON file\n$readData = json_decode(file_get_contents('user.json'), true);\n\nprint_r($readData);\n// Output: Array ( [name] => Alice [age] => 25 [email] => alice@example.com )\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `json_encode` converts user data to JSON format.\n- `file_put_contents` writes the data to a file.\n- `file_get_contents` and `json_decode` read the data back.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\n$handle = fopen('nonexistent.txt', 'r');\nif ($handle) {\n  $content = fread($handle, filesize('nonexistent.txt'));\n  fclose($handle);\n} else {\n  echo 'Could not open the file.';\n}\n\n// Correct approach\nif (file_exists('data.txt')) {\n  $handle = fopen('data.txt', 'r');\n  if ($handle) {\n    $content = fread($handle, filesize('data.txt'));\n    echo $content;\n    fclose($handle);\n  } else {\n    echo 'Could not open the file.';\n  }\n} else {\n  echo 'File does not exist.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first example fails because it tries to open a nonexistent file.\n- The correct approach checks for file existence with `file_exists`.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Ensure proper file permissions (e.g., `chmod 644`). Use chunked reading for large files. Handle errors with `try-catch`. Refer to PHP’s official documentation (https://www.php.net/manual/en/).\n- **Alternatives**: Instead of file operations, consider using databases (MySQL, SQLite). JSON or CSV formats are alternatives for data storage.\n- You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself file I/O\nfile_put_contents('test.txt', 'Hello, world!');\n\necho file_get_contents('test.txt'); // Output: Hello, world!\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Ввод-вывод файлов",
+    "icon": "FiFileText",
+    "language": "php",
+    "description": "Чтение из файлов и запись в файлы в PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое ввод-вывод файлов в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ввод-вывод файлов (File I/O) в PHP относится к чтению данных из файлов и записи данных в файлы. Это необходимо для таких задач, как сохранение данных в текстовые файлы, чтение конфигурационных файлов или создание логов. PHP предоставляет несколько функций для работы с файлами, таких как `file_get_contents`, `file_put_contents`, `fopen`, `fread`, `fwrite` и другие. Этот JSON-файл подробно объясняет методы чтения и записи файлов, режимы файлов, обработку ошибок и практические примеры. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP. Убедитесь, что вы используете PHP 8.1 или новее."
+      },
+      {
+        "type": "heading",
+        "text": "Чтение файлов: Основные методы"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP предлагает несколько методов для чтения данных из файлов:\n- `file_get_contents`: Читает все содержимое файла в строку.\n- `fopen` и `fread`: Открывает файл и читает его по частям.\n- `file`: Читает файл в массив строк.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример чтения файла\n\n// Чтение с file_get_contents\n$content = file_get_contents('example.txt');\necho $content; // Вывод: Все содержимое файла\n\n// Чтение с fopen и fread\n$handle = fopen('example.txt', 'r');\nif ($handle) {\n  $content = fread($handle, filesize('example.txt'));\n  echo $content;\n  fclose($handle);\n}\n\n// Чтение с file в массив строк\n$lines = file('example.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);\nforeach ($lines as $line) {\n  echo $line . '\\n';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `file_get_contents` читает весь файл в строку.\n- `fopen` и `fread` открывают и читают файл по частям.\n- `file` читает файл в массив, с `FILE_IGNORE_NEW_LINES` и `FILE_SKIP_EMPTY_LINES` для исключения пустых строк.\n- Примечание: Убедитесь, что файл `example.txt` существует, например, в папке `htdocs` XAMPP.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Запись файлов: Основные методы"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP предоставляет методы для записи данных в файлы:\n- `file_put_contents`: Записывает данные в файл, создавая его, если он не существует.\n- `fopen` и `fwrite`: Открывает файл и записывает данные.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример записи файла\n\n// Запись с file_put_contents\nfile_put_contents('output.txt', 'Это тестовый текст.');\n\n// Запись с fopen и fwrite\n$handle = fopen('output.txt', 'a');\nif ($handle) {\n  fwrite($handle, 'Дополнительный текст\\n');\n  fclose($handle);\n}\n\necho file_get_contents('output.txt'); // Вывод: Это тестовый текст.Дополнительный текст\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `file_put_contents` записывает текст в файл, создавая его, если он не существует.\n- `fopen` с режимом `a` добавляет текст в конец файла с помощью `fwrite`.\n- `fclose` закрывает файл.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Режимы файлов"
+      },
+      {
+        "type": "paragraph",
+        "text": "При работе с файлами `fopen` использует различные режимы:\n- `r`: Открывает для чтения, файл должен существовать.\n- `w`: Открывает для записи, очищает файл или создает его, если он не существует.\n- `a`: Открывает для добавления, записывает в конец файла.\n- `r+`: Открывает для чтения и записи.\n- `w+`: Открывает для чтения и записи, очищает файл.\n- `a+`: Открывает для чтения и добавления.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример режимов файла\n$handle = fopen('test.txt', 'w+');\nif ($handle) {\n  fwrite($handle, 'Новый текст');\n  rewind($handle); // Перемещает курсор в начало\n  $content = fread($handle, filesize('test.txt'));\n  echo $content; // Вывод: Новый текст\n  fclose($handle);\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Режим `w+` открывает файл для чтения и записи, очищая существующее содержимое.\n- `rewind` перемещает курсор в начало для чтения.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Обработка ошибок"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы избежать ошибок при работе с файлами:\n- Проверяйте существование файла (`file_exists`).\n- Проверяйте права доступа к файлу (чтение/запись).\n- Всегда закрывайте дескрипторы файлов (`fclose`).\n- Используйте чтение по частям для больших файлов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример обработки ошибок\nif (file_exists('data.txt')) {\n  $handle = fopen('data.txt', 'r');\n  if ($handle) {\n    $content = fread($handle, filesize('data.txt'));\n    echo $content;\n    fclose($handle);\n  } else {\n    echo 'Не удалось открыть файл.';\n  }\n} else {\n  echo 'Файл не существует.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `file_exists` проверяет существование файла.\n- Если `fopen` успешен, файл читается и закрывается.\n- Выводятся соответствующие сообщения об ошибках.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Создание лог-файла"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ввод-вывод файлов часто используется для создания логов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример лог-файла\n\nfunction logMessage($message) {\n  $logEntry = date('Y-m-d H:i:s') . ' - ' . $message . '\\n';\n  file_put_contents('log.txt', $logEntry, FILE_APPEND);\n}\n\nlogMessage('Программа запущена.');\nlogMessage('Пользователь вошел.');\n\necho file_get_contents('log.txt');\n// Вывод: \n// 2025-08-01 23:32:00 - Программа запущена.\n// 2025-08-01 23:32:00 - Пользователь вошел.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `logMessage` добавляет записи лога с временными метками.\n- `FILE_APPEND` обеспечивает запись в конец файла.\n- `file_get_contents` отображает содержимое лога.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Сохранение пользовательских данных"
+      },
+      {
+        "type": "paragraph",
+        "text": "Файлы можно использовать для хранения пользовательских данных, например, в формате JSON.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Сохранение пользовательских данных\n$userData = [\n  'name' => 'Алиса',\n  'age' => 25,\n  'email' => 'alice@example.com'\n];\n\n// Сохранение в формате JSON\nfile_put_contents('user.json', json_encode($userData, JSON_PRETTY_PRINT));\n\n// Чтение JSON-файла\n$readData = json_decode(file_get_contents('user.json'), true);\n\nprint_r($readData);\n// Вывод: Array ( [name] => Алиса [age] => 25 [email] => alice@example.com )\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `json_encode` преобразует пользовательские данные в формат JSON.\n- `file_put_contents` записывает данные в файл.\n- `file_get_contents` и `json_decode` читают данные обратно.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\n$handle = fopen('nonexistent.txt', 'r');\nif ($handle) {\n  $content = fread($handle, filesize('nonexistent.txt'));\n  fclose($handle);\n} else {\n  echo 'Не удалось открыть файл.';\n}\n\n// Правильный подход\nif (file_exists('data.txt')) {\n  $handle = fopen('data.txt', 'r');\n  if ($handle) {\n    $content = fread($handle, filesize('data.txt'));\n    echo $content;\n    fclose($handle);\n  } else {\n    echo 'Не удалось открыть файл.';\n  }\n} else {\n  echo 'Файл не существует.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый пример вызывает ошибку из-за попытки открыть несуществующий файл.\n- Правильный подход проверяет существование файла с помощью `file_exists`.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Убедитесь, что права доступа к файлам настроены правильно (например, `chmod 644`). Используйте чтение по частям для больших файлов. Обрабатывайте ошибки с помощью `try-catch`. Обратитесь к официальной документации PHP (https://www.php.net/manual/en/).\n- **Альтернативы**: Вместо операций с файлами можно использовать базы данных (MySQL, SQLite). Форматы JSON или CSV являются альтернативой для хранения данных.\n- Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Попробуйте сами ввод-вывод файлов\nfile_put_contents('test.txt', 'Привет, мир!');\n\necho file_get_contents('test.txt'); // Вывод: Привет, мир!\n?>"
+      }
+    ]
+  }
+}

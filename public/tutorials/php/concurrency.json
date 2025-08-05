@@ -1,0 +1,468 @@
+{
+  "id": "concurrency",
+  "az": {
+    "title": "Konkurrentlik və Asinxron PHP",
+    "icon": "FiCpu",
+    "language": "php",
+    "description": "Paralel və asinxron proqramlaşdırma texnikaları.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də Konkurrentlik və Asinxron Proqramlaşdırma Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konkurrentlik (concurrency) bir neçə tapşırığın eyni anda və ya paralel olaraq icra edilməsini təmin edir. Asinxron proqramlaşdırma isə tapşırıqların tamamlanmasını gözləmədən digər əməliyyatlara davam etməyə imkan verir. PHP ənənəvi olaraq sinxron bir dil olsa da, konkurrentlik və asinxron proqramlaşdırma üçün alətlər (məsələn, `pcntl`, `pthreads`, `ReactPHP`, `Swoole`, `amphp`) təklif edir. Bu JSON faylda konkurrentliyin və asinxron proqramlaşdırmanın tərifi, PHP-də istifadə üsulları, praktik nümunələr, təhlükəsizlik aspektləri və səhvlərdən qaçınma yolları çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz. PHP 8.1 və ya daha yeni versiyadan istifadə etdiyinizə əmin olun. Asinxron kitabxanalar üçün Composer ilə quraşdırma tələb oluna bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Konkurrentlik və Asinxronluğun Fərqləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konkurrentlik və asinxronluq oxşar görünsə də, fərqli anlayışlardır:\n- **Konkurrentlik**: Bir neçə tapşırığın eyni vaxtda icra edilməsi (məsələn, çoxsətirli proqramlaşdırma ilə).\n- **Asinxronluq**: Bir tapşırığın tamamlanmasını gözləmədən digər tapşırıqlara keçid (məsələn, HTTP sorğuları).\nPHP-də konkurrentlik adətən `pthreads` və ya `pcntl` ilə, asinxronluq isə `ReactPHP` və ya `Swoole` kimi kitabxanalarla təmin edilir.\nNümunə (sinxron vs asinxron):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Sinxron əməliyyat\necho 'Birinci tapşırıq başladı...';\nsleep(2); // 2 saniyə gözləyir\necho 'Birinci tapşırıq bitdi!';\n\n// Asinxronluq üçün ReactPHP nümunəsi aşağıda göstəriləcək\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `sleep(2)` sinxron olaraq proqramın 2 saniyə dayanmasına səbəb olur.\n- Asinxronluqda isə tapşırıqlar paralel icra oluna bilər.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "PHP-də Konkurrentlik Alətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də konkurrentlik üçün bir neçə alət var:\n- **`pcntl`**: Proseslərin idarə edilməsi üçün (UNIX sistemlərində).\n- **`pthreads`**: Çoxsətirli (multi-threading) proqramlaşdırma üçün.\n- **`ReactPHP` və `Swoole`**: Asinxron proqramlaşdırma üçün.\nQeyd: `pthreads` və `Swoole` quraşdırılması üçün əlavə PHP modulları tələb edir. `ReactPHP` isə Composer ilə quraşdırılır (`composer require react/event-loop`)."
+      },
+      {
+        "type": "heading",
+        "text": "Asinxron PHP ilə ReactPHP"
+      },
+      {
+        "type": "paragraph",
+        "text": "ReactPHP PHP-də asinxron proqramlaşdırma üçün populyar kitabxanadır. O, hadisə dövrü (event loop) ilə işləyir və tapşırıqların paralel icrasına imkan verir.\nQuraşdırma: `composer require react/event-loop`\nNümunə (ReactPHP ilə asinxron HTTP sorğusu):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// ReactPHP ilə asinxron HTTP sorğusu\nrequire 'vendor/autoload.php';\n\nuse React\\EventLoop\\Factory;\nuse React\\Http\\Browser;\n\n$loop = Factory::create();\n$browser = new Browser($loop);\n\n$browser->get('https://jsonplaceholder.typicode.com/posts/1')->then(\n  function ($response) {\n    $data = json_decode($response->getBody(), true);\n    echo 'API cavabı: ' . $data['title'] . \"\\n\";\n  },\n  function ($error) {\n    echo 'Xəta: ' . $error->getMessage() . \"\\n\";\n  }\n);\n\n$loop->run();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `React\\EventLoop\\Factory` hadisə dövrü yaradır.\n- `React\\Http\\Browser` HTTP sorğuları üçün istifadə olunur.\n- `then()` uğurlu cavabı, ikinci funksiya isə xətanı idarə edir.\n- `loop->run()` hadisə dövrünü başlatır.\n- Qeyd: Composer ilə `react/event-loop` və `react/http` quraşdırılmalıdır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Swoole ilə Asinxron Proqramlaşdırma"
+      },
+      {
+        "type": "paragraph",
+        "text": "Swoole PHP-də yüksək performanslı asinxron proqramlaşdırma üçün nəzərdə tutulmuş moduldur. HTTP serverlər, WebSocket və ya çoxsətirli tapşırıqlar üçün istifadə olunur.\nQuraşdırma: `pecl install swoole`\nNümunə (Swoole ilə sadə HTTP server):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Swoole ilə sadə HTTP server\nuse Swoole\\Http\\Server;\n\n$server = new Server('127.0.0.1', 9501);\n\n$server->on('request', function ($request, $response) {\n  $response->header('Content-Type', 'text/plain');\n  $response->end('Salam, Swoole!');\n});\n\n$server->start();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Swoole\\Http\\Server` sadə bir HTTP server yaradır.\n- `on('request')` sorğuları idarə edir.\n- `end()` cavabı göndərir.\n- Qeyd: Swoole modulu quraşdırılmalıdır. Serveri sınaqdan keçirmək üçün brauzerdə `http://127.0.0.1:9501` ünvanına daxil olun.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "pthreads ilə Çoxsətirli Proqramlaşdırma"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də `pthreads` çoxsətirli (multi-threading) proqramlaşdırma üçün istifadə olunur. Bu, CPU-intensiv tapşırıqları paralel icra etməyə imkan verir.\nQuraşdırma: `pecl install pthreads`\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// pthreads ilə çoxsətirli nümunə\nclass MyThread extends Thread {\n  public function run() {\n    echo 'Sətir ' . $this->getThreadId() . ' işləyir\\n';\n    sleep(1);\n    echo 'Sətir ' . $this->getThreadId() . ' bitdi\\n';\n  }\n}\n\n$threads = [];\nfor ($i = 0; $i < 3; $i++) {\n  $threads[$i] = new MyThread();\n  $threads[$i]->start();\n}\n\nforeach ($threads as $thread) {\n  $thread->join();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `MyThread` sinfi sətir təyin edir.\n- `start()` sətiri başlatır, `join()` sətirin tamamlanmasını gözləyir.\n- Üç sətir paralel işləyir.\n- Qeyd: `pthreads` modulu quraşdırılmalıdır və CLI rejimində işləyir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Konkurrentlik və asinxron proqramlaşdırmada təhlükəsizlik vacibdir:\n- Çoxsətirli proqramlarda məlumat yarışını (data race) önləmək üçün sinxronizasiya mexanizmlərindən (məsələn, `pthreads` ilə `Mutex`) istifadə edin.\n- Asinxron sorğularda istifadəçi girişini təmizləyin.\n- Resursların (məsələn, fayllar, yaddaş) həddindən artıq istifadəsini idarə edin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Təhlükəsiz asinxron sorğu\nrequire 'vendor/autoload.php';\n\nuse React\\EventLoop\\Factory;\nuse React\\Http\\Browser;\n\n$loop = Factory::create();\n$browser = new Browser($loop);\n\n$browser->get('https://jsonplaceholder.typicode.com/posts/1')->then(\n  function ($response) {\n    $data = json_decode($response->getBody(), true);\n    echo 'Təhlükəsiz API cavabı: ' . htmlspecialchars($data['title']) . \"\\n\";\n  },\n  function ($error) {\n    echo 'Xəta: ' . htmlspecialchars($error->getMessage()) . \"\\n\";\n  }\n);\n\n$loop->run();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `htmlspecialchars()` ilə cavab təmizlənir.\n- Xətalar idarə olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Asinxron Fayl Emalı"
+      },
+      {
+        "type": "paragraph",
+        "text": "ReactPHP ilə bir neçə faylı asinxron oxuyaq.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Asinxron fayl emalı\nrequire 'vendor/autoload.php';\n\nuse React\\EventLoop\\Factory;\nuse React\\Filesystem\\Filesystem;\n\n$loop = Factory::create();\n$filesystem = Filesystem::create($loop);\n\n$files = ['file1.txt', 'file2.txt'];\nforeach ($files as $file) {\n  $filesystem->file($file)->getContents()->then(\n    function ($contents) use ($file) {\n      echo \"$file məzmunu: $contents\\n\";\n    },\n    function ($error) use ($file) {\n      echo \"$file xətası: {$error->getMessage()}\\n\";\n    }\n  );\n}\n\n$loop->run();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `React\\Filesystem` ilə fayllar asinxron oxunur.\n- `getContents()` faylın məzmununu alır.\n- Qeyd: `composer require react/filesystem` ilə quraşdırılmalıdır.\n- `file1.txt` və `file2.txt` fayllarının mövcud olduğundan əmin olun.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\n// Sinxron fayl oxuma\n$content = file_get_contents('non_existent_file.txt'); // Warning: Failed to open stream\n\n// Düzgün asinxron yol\nrequire 'vendor/autoload.php';\nuse React\\EventLoop\\Factory;\nuse React\\Filesystem\\Filesystem;\n\n$loop = Factory::create();\n$filesystem = Filesystem::create($loop);\n\n$filesystem->file('non_existent_file.txt')->getContents()->then(\n  function ($contents) {\n    echo 'Məzmun: ' . $contents . \"\\n\";\n  },\n  function ($error) {\n    echo 'Xəta: ' . $error->getMessage() . \"\\n\";\n  }\n);\n\n$loop->run();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk nümunədə xəta idarə olunmur və PHP standart xəta mesajı göstərir.\n- Düzgün yolda `ReactPHP` ilə xəta idarə olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Asinxron proqramlaşdırma üçün `ReactPHP` və ya `Swoole` istifadə edin. Çoxsətirli tapşırıqlarda `pthreads` ilə sinxronizasiyaya diqqət yetirin. PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/book.pthreads.php) və kitabxana sənədlərindən faydalanın.\n- **Alternativlər**: Asinxron proqramlaşdırma üçün `amphp` və ya Node.js kimi digər dillər nəzərdən keçirilə bilər. Çərçivələr (Laravel ilə Swoole) asinxronluğu dəstəkləyir.\n- Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün asinxron nümunə\nrequire 'vendor/autoload.php';\n\nuse React\\EventLoop\\Factory;\n\n$loop = Factory::create();\n\n$loop->addTimer(1, function () {\n  echo '1 saniyədən sonra işlədi!\\n';\n});\n\n$loop->run();\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Concurrency and Async PHP",
+    "icon": "FiCpu",
+    "language": "php",
+    "description": "Parallel and asynchronous programming techniques in PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Concurrency and Async Programming in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Concurrency allows multiple tasks to run simultaneously or in parallel. Asynchronous programming enables continuing with other tasks without waiting for one to complete. Although PHP is traditionally synchronous, it offers tools for concurrency and async programming (e.g., `pcntl`, `pthreads`, `ReactPHP`, `Swoole`, `amphp`). This JSON file explains concurrency and async programming, their usage in PHP, practical examples, security aspects, and ways to avoid errors in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP. Ensure you are using PHP 8.1 or a newer version. Async libraries may require installation via Composer."
+      },
+      {
+        "type": "heading",
+        "text": "Concurrency vs. Asynchronous Programming"
+      },
+      {
+        "type": "paragraph",
+        "text": "Concurrency and async programming are related but distinct:\n- **Concurrency**: Multiple tasks running simultaneously (e.g., via multi-threading).\n- **Asynchronous Programming**: Continuing with other tasks without waiting (e.g., HTTP requests).\nIn PHP, concurrency is typically achieved with `pthreads` or `pcntl`, while async programming uses `ReactPHP` or `Swoole`.\nExample (sync vs. async):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Synchronous operation\necho 'First task started...';\nsleep(2); // Waits 2 seconds\necho 'First task completed!';\n\n// Async example with ReactPHP shown below\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `sleep(2)` causes a synchronous 2-second delay.\n- Async allows tasks to run in parallel.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Concurrency Tools in PHP"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP provides several tools for concurrency:\n- **`pcntl`**: For process management (UNIX systems).\n- **`pthreads`**: For multi-threading.\n- **`ReactPHP` and `Swoole`**: For async programming.\nNote: `pthreads` and `Swoole` require PHP extensions. `ReactPHP` is installed via Composer (`composer require react/event-loop`)."
+      },
+      {
+        "type": "heading",
+        "text": "Async PHP with ReactPHP"
+      },
+      {
+        "type": "paragraph",
+        "text": "ReactPHP is a popular library for async programming in PHP. It uses an event loop to handle tasks concurrently.\nInstallation: `composer require react/event-loop`\nExample (async HTTP request with ReactPHP):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Async HTTP request with ReactPHP\nrequire 'vendor/autoload.php';\n\nuse React\\EventLoop\\Factory;\nuse React\\Http\\Browser;\n\n$loop = Factory::create();\n$browser = new Browser($loop);\n\n$browser->get('https://jsonplaceholder.typicode.com/posts/1')->then(\n  function ($response) {\n    $data = json_decode($response->getBody(), true);\n    echo 'API response: ' . $data['title'] . \"\\n\";\n  },\n  function ($error) {\n    echo 'Error: ' . $error->getMessage() . \"\\n\";\n  }\n);\n\n$loop->run();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `React\\EventLoop\\Factory` creates an event loop.\n- `React\\Http\\Browser` handles HTTP requests.\n- `then()` processes the response, the second function handles errors.\n- `loop->run()` starts the event loop.\n- Note: Requires `react/event-loop` and `react/http` via Composer.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Async Programming with Swoole"
+      },
+      {
+        "type": "paragraph",
+        "text": "Swoole is a high-performance PHP extension for async programming, used for HTTP servers, WebSocket, or multi-threaded tasks.\nInstallation: `pecl install swoole`\nExample (simple HTTP server with Swoole):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Simple HTTP server with Swoole\nuse Swoole\\Http\\Server;\n\n$server = new Server('127.0.0.1', 9501);\n\n$server->on('request', function ($request, $response) {\n  $response->header('Content-Type', 'text/plain');\n  $response->end('Hello, Swoole!');\n});\n\n$server->start();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Swoole\\Http\\Server` creates a simple HTTP server.\n- `on('request')` handles requests.\n- `end()` sends the response.\n- Note: Requires the Swoole extension. Test by accessing `http://127.0.0.1:9501` in a browser.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Multi-threading with pthreads"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP’s `pthreads` enables multi-threading for CPU-intensive tasks.\nInstallation: `pecl install pthreads`\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Multi-threading with pthreads\nclass MyThread extends Thread {\n  public function run() {\n    echo 'Thread ' . $this->getThreadId() . ' running\\n';\n    sleep(1);\n    echo 'Thread ' . $this->getThreadId() . ' completed\\n';\n  }\n}\n\n$threads = [];\nfor ($i = 0; $i < 3; $i++) {\n  $threads[$i] = new MyThread();\n  $threads[$i]->start();\n}\n\nforeach ($threads as $thread) {\n  $thread->join();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `MyThread` class defines a thread.\n- `start()` begins the thread, `join()` waits for completion.\n- Three threads run in parallel.\n- Note: Requires the `pthreads` extension and runs in CLI mode.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Security is critical in concurrency and async programming:\n- Use synchronization mechanisms (e.g., `Mutex` in `pthreads`) to prevent data races in multi-threading.\n- Sanitize user input in async requests.\n- Manage resource usage (e.g., files, memory) to avoid overuse.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Secure async request\nrequire 'vendor/autoload.php';\n\nuse React\\EventLoop\\Factory;\nuse React\\Http\\Browser;\n\n$loop = Factory::create();\n$browser = new Browser($loop);\n\n$browser->get('https://jsonplaceholder.typicode.com/posts/1')->then(\n  function ($response) {\n    $data = json_decode($response->getBody(), true);\n    echo 'Secure API response: ' . htmlspecialchars($data['title']) . \"\\n\";\n  },\n  function ($error) {\n    echo 'Error: ' . htmlspecialchars($error->getMessage()) . \"\\n\";\n  }\n);\n\n$loop->run();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `htmlspecialchars()` sanitizes the response.\n- Errors are handled gracefully.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Async File Processing"
+      },
+      {
+        "type": "paragraph",
+        "text": "Let’s read multiple files asynchronously using ReactPHP.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Async file processing\nrequire 'vendor/autoload.php';\n\nuse React\\EventLoop\\Factory;\nuse React\\Filesystem\\Filesystem;\n\n$loop = Factory::create();\n$filesystem = Filesystem::create($loop);\n\n$files = ['file1.txt', 'file2.txt'];\nforeach ($files as $file) {\n  $filesystem->file($file)->getContents()->then(\n    function ($contents) use ($file) {\n      echo \"$file content: $contents\\n\";\n    },\n    function ($error) use ($file) {\n      echo \"$file error: {$error->getMessage()}\\n\";\n    }\n  );\n}\n\n$loop->run();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `React\\Filesystem` reads files asynchronously.\n- `getContents()` retrieves file content.\n- Note: Requires `composer require react/filesystem`. Ensure `file1.txt` and `file2.txt` exist.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\n// Synchronous file reading\n$content = file_get_contents('non_existent_file.txt'); // Warning: Failed to open stream\n\n// Correct async approach\nrequire 'vendor/autoload.php';\nuse React\\EventLoop\\Factory;\nuse React\\Filesystem\\Filesystem;\n\n$loop = Factory::create();\n$filesystem = Filesystem::create($loop);\n\n$filesystem->file('non_existent_file.txt')->getContents()->then(\n  function ($contents) {\n    echo 'Content: ' . $contents . \"\\n\";\n  },\n  function ($error) {\n    echo 'Error: ' . $error->getMessage() . \"\\n\";\n  }\n);\n\n$loop->run();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first example lacks error handling, causing a PHP warning.\n- The correct approach uses `ReactPHP` to handle errors.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use `ReactPHP` or `Swoole` for async programming. Pay attention to synchronization in multi-threading with `pthreads`. Refer to PHP’s official documentation (https://www.php.net/manual/en/book.pthreads.php) and library docs.\n- **Alternatives**: Consider `amphp` or other languages like Node.js for async programming. Frameworks (Laravel with Swoole) support async features.\n- You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself async example\nrequire 'vendor/autoload.php';\n\nuse React\\EventLoop\\Factory;\n\n$loop = Factory::create();\n\n$loop->addTimer(1, function () {\n  echo 'Ran after 1 second!\\n';\n});\n\n$loop->run();\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Конкурентность и асинхронное программирование в PHP",
+    "icon": "FiCpu",
+    "language": "php",
+    "description": "Техники параллельного и асинхронного программирования в PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое конкурентность и асинхронное программирование в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конкурентность (concurrency) позволяет выполнять несколько задач одновременно или параллельно. Асинхронное программирование позволяет продолжать выполнение других задач, не дожидаясь завершения одной. Хотя PHP традиционно синхронный язык, он предлагает инструменты для конкурентности и асинхронного программирования (например, `pcntl`, `pthreads`, `ReactPHP`, `Swoole`, `amphp`). Этот JSON-файл подробно объясняет конкурентность и асинхронное программирование, их использование в PHP, практические примеры, аспекты безопасности и способы избежания ошибок. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP. Убедитесь, что вы используете PHP 8.1 или новее. Асинхронные библиотеки могут потребовать установки через Composer."
+      },
+      {
+        "type": "heading",
+        "text": "Конкурентность против асинхронного программирования"
+      },
+      {
+        "type": "paragraph",
+        "text": "Конкурентность и асинхронность схожи, но различны:\n- **Конкурентность**: Выполнение нескольких задач одновременно (например, через многопоточность).\n- **Асинхронность**: Переход к другим задачам без ожидания завершения одной (например, HTTP-запросы).\nВ PHP конкурентность обычно достигается с помощью `pthreads` или `pcntl`, а асинхронность — с помощью `ReactPHP` или `Swoole`.\nПример (синхронное vs асинхронное):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Синхронная операция\necho 'Первая задача началась...';\nsleep(2); // Ждет 2 секунды\necho 'Первая задача завершена!';\n\n// Асинхронный пример с ReactPHP показан ниже\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `sleep(2)` вызывает синхронную задержку на 2 секунды.\n- Асинхронность позволяет выполнять задачи параллельно.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Инструменты конкурентности в PHP"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP предоставляет несколько инструментов для конкурентности:\n- **`pcntl`**: Для управления процессами (UNIX-системы).\n- **`pthreads`**: Для многопоточного программирования.\n- **`ReactPHP` и `Swoole`**: Для асинхронного программирования.\nПримечание: `pthreads` и `Swoole` требуют PHP-расширений. `ReactPHP` устанавливается через Composer (`composer require react/event-loop`)."
+      },
+      {
+        "type": "heading",
+        "text": "Асинхронное программирование с ReactPHP"
+      },
+      {
+        "type": "paragraph",
+        "text": "ReactPHP — популярная библиотека для асинхронного программирования в PHP. Она использует событийный цикл для параллельного выполнения задач.\nУстановка: `composer require react/event-loop`\nПример (асинхронный HTTP-запрос с ReactPHP):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Асинхронный HTTP-запрос с ReactPHP\nrequire 'vendor/autoload.php';\n\nuse React\\EventLoop\\Factory;\nuse React\\Http\\Browser;\n\n$loop = Factory::create();\n$browser = new Browser($loop);\n\n$browser->get('https://jsonplaceholder.typicode.com/posts/1')->then(\n  function ($response) {\n    $data = json_decode($response->getBody(), true);\n    echo 'Ответ API: ' . $data['title'] . \"\\n\";\n  },\n  function ($error) {\n    echo 'Ошибка: ' . $error->getMessage() . \"\\n\";\n  }\n);\n\n$loop->run();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `React\\EventLoop\\Factory` создает событийный цикл.\n- `React\\Http\\Browser` обрабатывает HTTP-запросы.\n- `then()` обрабатывает ответ, вторая функция — ошибки.\n- `loop->run()` запускает событийный цикл.\n- Примечание: Требуется установка `react/event-loop` и `react/http` через Composer.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Асинхронное программирование с Swoole"
+      },
+      {
+        "type": "paragraph",
+        "text": "Swoole — высокопроизводительное расширение PHP для асинхронного программирования, используемое для HTTP-серверов, WebSocket или многопоточных задач.\nУстановка: `pecl install swoole`\nПример (простой HTTP-сервер с Swoole):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Простой HTTP-сервер с Swoole\nuse Swoole\\Http\\Server;\n\n$server = new Server('127.0.0.1', 9501);\n\n$server->on('request', function ($request, $response) {\n  $response->header('Content-Type', 'text/plain');\n  $response->end('Привет, Swoole!');\n});\n\n$server->start();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Swoole\\Http\\Server` создает простой HTTP-сервер.\n- `on('request')` обрабатывает запросы.\n- `end()` отправляет ответ.\n- Примечание: Требуется расширение Swoole. Тестируйте, зайдя в браузере на `http://127.0.0.1:9501`.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Многопоточность с pthreads"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP’s `pthreads` позволяет использовать многопоточность для задач, интенсивно использующих CPU.\nУстановка: `pecl install pthreads`\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Многопоточность с pthreads\nclass MyThread extends Thread {\n  public function run() {\n    echo 'Поток ' . $this->getThreadId() . ' работает\\n';\n    sleep(1);\n    echo 'Поток ' . $this->getThreadId() . ' завершен\\n';\n  }\n}\n\n$threads = [];\nfor ($i = 0; $i < 3; $i++) {\n  $threads[$i] = new MyThread();\n  $threads[$i]->start();\n}\n\nforeach ($threads as $thread) {\n  $thread->join();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `MyThread` определяет поток.\n- `start()` запускает поток, `join()` ожидает завершения.\n- Три потока работают параллельно.\n- Примечание: Требуется расширение `pthreads` и режим CLI.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Безопасность важна в конкурентности и асинхронном программировании:\n- Используйте механизмы синхронизации (например, `Mutex` в `pthreads`) для предотвращения гонки данных в многопоточности.\n- Очищайте пользовательский ввод в асинхронных запросах.\n- Управляйте использованием ресурсов (например, файлы, память) во избежание перегрузки.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Безопасный асинхронный запрос\nrequire 'vendor/autoload.php';\n\nuse React\\EventLoop\\Factory;\nuse React\\Http\\Browser;\n\n$loop = Factory::create();\n$browser = new Browser($loop);\n\n$browser->get('https://jsonplaceholder.typicode.com/posts/1')->then(\n  function ($response) {\n    $data = json_decode($response->getBody(), true);\n    echo 'Безопасный ответ API: ' . htmlspecialchars($data['title']) . \"\\n\";\n  },\n  function ($error) {\n    echo 'Ошибка: ' . htmlspecialchars($error->getMessage()) . \"\\n\";\n  }\n);\n\n$loop->run();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `htmlspecialchars()` очищает ответ.\n- Ошибки обрабатываются безопасно.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Асинхронная обработка файлов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Прочитаем несколько файлов асинхронно с помощью ReactPHP.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Асинхронная обработка файлов\nrequire 'vendor/autoload.php';\n\nuse React\\EventLoop\\Factory;\nuse React\\Filesystem\\Filesystem;\n\n$loop = Factory::create();\n$filesystem = Filesystem::create($loop);\n\n$files = ['file1.txt', 'file2.txt'];\nforeach ($files as $file) {\n  $filesystem->file($file)->getContents()->then(\n    function ($contents) use ($file) {\n      echo \"Содержимое $file: $contents\\n\";\n    },\n    function ($error) use ($file) {\n      echo \"Ошибка $file: {$error->getMessage()}\\n\";\n    }\n  );\n}\n\n$loop->run();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `React\\Filesystem` асинхронно читает файлы.\n- `getContents()` получает содержимое файла.\n- Примечание: Требуется установка `react/filesystem` через Composer. Убедитесь, что файлы `file1.txt` и `file2.txt` существуют.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\n// Синхронное чтение файла\n$content = file_get_contents('non_existent_file.txt'); // Warning: Failed to open stream\n\n// Правильный асинхронный подход\nrequire 'vendor/autoload.php';\nuse React\\EventLoop\\Factory;\nuse React\\Filesystem\\Filesystem;\n\n$loop = Factory::create();\n$filesystem = Filesystem::create($loop);\n\n$filesystem->file('non_existent_file.txt')->getContents()->then(\n  function ($contents) {\n    echo 'Содержимое: ' . $contents . \"\\n\";\n  },\n  function ($error) {\n    echo 'Ошибка: ' . $error->getMessage() . \"\\n\";\n  }\n);\n\n$loop->run();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый пример не обрабатывает ошибку, вызывая предупреждение PHP.\n- Правильный подход использует `ReactPHP` для обработки ошибок.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте `ReactPHP` или `Swoole` для асинхронного программирования. Обращайте внимание на синхронизацию в многопоточности с `pthreads`. Обратитесь к официальной документации PHP (https://www.php.net/manual/en/book.pthreads.php) и документации библиотек.\n- **Альтернативы**: Рассмотрите `amphp` или другие языки, такие как Node.js, для асинхронного программирования. Фреймворки (Laravel с Swoole) поддерживают асинхронность.\n- Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Попробуйте сами асинхронный пример\nrequire 'vendor/autoload.php';\n\nuse React\\EventLoop\\Factory;\n\n$loop = Factory::create();\n\n$loop->addTimer(1, function () {\n  echo 'Запустилось через 1 секунду!\\n';\n});\n\n$loop->run();\n?>"
+      }
+    ]
+  }
+}

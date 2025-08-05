@@ -1,0 +1,72 @@
+import { NextRequest, NextResponse } from "next/server";
+import path from "path";
+import { promises as fs } from "fs";
+
+export async function GET(req, context) {
+  const { framework, id } = context.params;
+
+  try {
+    // Check if framework has a folder structure
+    const folderPath = path.join(
+      process.cwd(),
+      "src",
+      "app",
+      "api",
+      "tutorials",
+      "frameworks",
+      "[framework]",
+      "topics",
+      framework
+    );
+    const indexPath = path.join(folderPath, "index.json");
+
+    // Try to read from folder structure first
+    try {
+      const indexContents = await fs.readFile(indexPath, "utf-8");
+      const topicList = JSON.parse(indexContents);
+
+      // Find the specific topic
+      const topicInfo = topicList.find((topic) => topic.id === id);
+
+      if (!topicInfo) {
+        return NextResponse.json({ error: "Topic not found" }, { status: 404 });
+      }
+
+      // Load the specific topic from its file
+      const topicPath = path.join(folderPath, topicInfo.file);
+      const topicContents = await fs.readFile(topicPath, "utf-8");
+      const topic = JSON.parse(topicContents);
+
+      return NextResponse.json(topic);
+    } catch (e) {
+      // Fallback to old single file structure
+      const filePath = path.join(
+        process.cwd(),
+        "src",
+        "app",
+        "api",
+        "tutorials",
+        "frameworks",
+        "[framework]",
+        "topics",
+        `${framework}.json`
+      );
+      const fileContents = await fs.readFile(filePath, "utf-8");
+      const topics = JSON.parse(fileContents);
+
+      const topic = topics.find((t) => t.id === id);
+
+      if (!topic) {
+        return NextResponse.json({ error: "Topic not found" }, { status: 404 });
+      }
+
+      return NextResponse.json(topic);
+    }
+  } catch (e) {
+    console.error("Error loading topic:", e);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+} 

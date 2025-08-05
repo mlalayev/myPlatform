@@ -50,6 +50,13 @@ const languageShortMap: Record<string, string> = {
   scala: "SC",
   bash: "SH",
   matlab: "ML",
+  // Framework mappings
+  react: "RE",
+  vue: "VU",
+  angular: "AN",
+  svelte: "SV",
+  nextjs: "NX",
+  nodejs: "ND",
 };
 
 function languageAlias(lang: string) {
@@ -516,7 +523,7 @@ export default function TutorialTopicPage() {
                   title={topic.title}
                 >
                   <Icon className={styles.topicIconNew} />
-                  {!collapsed && <span>{topic.title}</span>}
+                  {!collapsed && <span>{topic.title} {} </span>}
                   {isVisited && (
                     <FiIcons.FiCheck
                       style={{

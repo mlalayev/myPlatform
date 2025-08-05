@@ -743,15 +743,21 @@ async function getStreakData(userId: number) {
   try {
     // Get current date in Azerbaijan timezone (UTC+4)
     const now = new Date();
-    // Calculate Azerbaijan time properly (UTC+4)
-    const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
-    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
+    
+    // Use proper timezone calculation - get current date in Azerbaijan
+    const azerbaijanTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Baku"}));
     const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
     
+    // Debug: Check if we're getting the right date
+    console.log('Backend Streak Debug - Raw Azerbaijan time string:', now.toLocaleString("en-US", {timeZone: "Asia/Baku"}));
+    console.log('Backend Streak Debug - Azerbaijan time object:', azerbaijanTime);
+    console.log('Backend Streak Debug - Azerbaijan time getDate():', azerbaijanTime.getDate());
+    console.log('Backend Streak Debug - Azerbaijan time getMonth():', azerbaijanTime.getMonth());
+    console.log('Backend Streak Debug - Azerbaijan time getFullYear():', azerbaijanTime.getFullYear());
+    
     console.log('Backend Streak Debug - Current UTC time:', now.toISOString());
-    console.log('Backend Streak Debug - Azerbaijan offset (ms):', azerbaijanOffset);
     console.log('Backend Streak Debug - Azerbaijan time:', azerbaijanTime.toISOString());
-    console.log('Backend Streak Debug - Today (Azerbaijan):', today.toISOString());
+    console.log('Backend Streak Debug - Today (Final):', today.toISOString());
     console.log('Backend Streak Debug - Today day:', today.getDate());
     console.log('Backend Streak Debug - Today month:', today.getMonth() + 1);
     console.log('Backend Streak Debug - Today year:', today.getFullYear());
