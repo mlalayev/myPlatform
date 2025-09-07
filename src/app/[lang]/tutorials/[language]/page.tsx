@@ -594,8 +594,8 @@ export default function TutorialLanguagePage() {
           titleKey="tutorials.frameworks.title"
           subtitleKey="tutorials.frameworks.subtitle"
         />
-        <div className={styles.categoryListWrapper}>
-          <div className={styles.tutorialsGrid}>
+        <div className={styles.languagesWrapper}>
+          <div className={styles.languagesList}>
             {frameworks.map((fw) => (
               <TutorialCard key={fw.name} item={fw} />
             ))}

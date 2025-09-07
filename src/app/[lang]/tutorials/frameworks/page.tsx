@@ -12,7 +12,7 @@ import {
   SiNextdotjs,
   SiNodedotjs,
 } from "react-icons/si";
-import styles from "../TutorialsLanguagePage.module.css";
+import styles from "../TutorialsFrameworkPage.module.css";
 import Header from "../../components/header/Header";
 import Footer from "../../components/footer/Footer";
 import HeroSection from "../../components/heroSection/HeroSection";
@@ -374,8 +374,8 @@ export default function TutorialsFrameworksPage() {
         titleKey="tutorials.frameworks.title"
         subtitleKey="tutorials.frameworks.subtitle"
       />
-      <div className={styles.languagesWrapper}>
-        <div className={styles.languagesList}>
+      <div className={styles.frameworksWrapper}>
+        <div className={styles.frameworksList}>
           {loadingFrameworks ? (
             <div className={styles.loadingContainer}>
               <CodeLoader />
