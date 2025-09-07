@@ -21,16 +21,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { type, description, metadata } = body;
 
-    // Always create the activity record for tracking
-    await prisma.userActivity.create({
-      data: {
-        userId: user.id,
-        type,
-        description,
-        metadata,
-      },
-    });
-
     // Update or create daily activity record
     const now = new Date();
     const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
@@ -84,6 +74,72 @@ export async function POST(request: NextRequest) {
         });
       }
     }
+
+    // Handle daily login bonus coin increment idempotently per day
+    if (type === 'DAILY_LOGIN_BONUS') {
+      // Check if bonus already granted today (in AZ time)
+      const startOfToday = new Date(today);
+      const endOfToday = new Date(today);
+      endOfToday.setDate(endOfToday.getDate() + 1);
+
+      const existingBonus = await prisma.userActivity.findFirst({
+        where: {
+          userId: user.id,
+          type: 'DAILY_LOGIN_BONUS',
+          timestamp: {
+            gte: startOfToday,
+            lt: endOfToday,
+          },
+        },
+      });
+
+      if (!existingBonus) {
+        const pointsToAdd = (metadata && typeof metadata.points === 'number') ? metadata.points : 1;
+
+        // Increment user's coins
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            dailyLoginPoints: {
+              increment: pointsToAdd,
+            },
+            lastLoginDate: new Date(),
+          },
+        });
+
+        // Increment DailyActivity.pointsEarned
+        await prisma.dailyActivity.update({
+          where: { id: dailyActivity.id },
+          data: {
+            pointsEarned: dailyActivity.pointsEarned + pointsToAdd,
+          },
+        });
+
+        // Create activity record after successful award
+        await prisma.userActivity.create({
+          data: {
+            userId: user.id,
+            type,
+            description,
+            metadata,
+          },
+        });
+
+        return NextResponse.json({ success: true, coinsAdded: pointsToAdd });
+      } else {
+        return NextResponse.json({ success: true, message: 'Bonus already granted today' });
+      }
+    }
+
+    // For all other activity types: log activity after dailyActivity bookkeeping
+    await prisma.userActivity.create({
+      data: {
+        userId: user.id,
+        type,
+        description,
+        metadata,
+      },
+    });
 
     // Update lesson progress tracking
     await updateLessonProgress(user.id, type, metadata);

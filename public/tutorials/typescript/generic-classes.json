@@ -1,0 +1,594 @@
+{
+  "id": "generic-classes",
+  "az": {
+    "title": "Generic Siniflər",
+    "icon": "FiCode",
+    "language": "typescript",
+    "description": "Tip parametrləri ilə siniflər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Generic Siniflər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də generic siniflər tip parametrləri ilə təyin edilmiş siniflərdir ki, bu da onların müxtəlif tiplərlə işləməsinə imkan verir, eyni zamanda tip təhlükəsizliyini qoruyur. Generic siniflər çevik tip strukturları yaratmaq üçün istifadə olunur, beləliklə eyni sinif müxtəlif tiplərlə (sətir, rəqəm, obyekt və s.) təkrar istifadə edilə bilər. Məsələn, bir sinifin xüsusiyyətləri və ya metodları fərqli tiplərdə işləməlidirsə, generic siniflər bunu asanlaşdırır. JavaScript-də siniflər var, lakin generiklər yoxdur, buna görə adətən `any` tipi istifadə olunur, bu da tip təhlükəsizliyini azaldır və runtime səhvlərinə səbəb ola bilər. TypeScript-də generic siniflər kompilyasiya zamanı tip yoxlamasını gücləndirir və səhvləri azaltmağa kömək edir. Bu JSON faylda generic siniflərin tərifi, istifadə məqsədləri, adi siniflərdən fərqləri, JavaScript ilə fərqləri, sintaksisi, interfeyslər və tip aliasları ilə istifadəsi, məhdudiyyətlər (constraints), tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Siniflərin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic siniflər TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Yenidən istifadə**: Eyni sinfin müxtəlif tiplərlə işləməsini təmin etmək.\n- **Tip təhlükəsizliyi**: Sinfin xüsusiyyətləri və metodlarının düzgün tiplərlə istifadəsini kompilyasiya zamanı yoxlamaq.\n- **Oxunaqlılıq**: Kodun məqsədini və strukturunu aydın ifadə etmək.\n- **Çeviklik**: Müxtəlif tiplərlə işləyə bilən ümumi sinif strukturları yaratmaq.\n- **Səhvlərin qarşısını almaq**: Yanlış tiplərin istifadəsini kompilyasiya zamanı aşkar etmək.\nJavaScript-də oxşar funksionallıq üçün `any` tipi istifadə olunur, lakin bu, tip təhlükəsizliyini təmin etmir və runtime səhvlərinə yol aça bilər. Generic siniflər bu problemi həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Siniflərin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic siniflər `<T>` kimi tip parametri ilə təyin edilir, burada `T` istənilən tip üçün yer tutucudur. Bu parametr sinfin xüsusiyyətlərinin və metodlarının tiplərini təyin edir.\nNümunə (sadə generic sinif):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Sadə generic sinif\nclass Box<T> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet stringBox = new Box<string>('Hello');\nlet numberBox = new Box<number>(42);\n\nconsole.log(stringBox.getContent()); // Hello\nconsole.log(numberBox.getContent()); // 42\n// let errorBox = new Box<number>('test'); // Xəta: 'test' number tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Box<T>` generic sinfi `T` tipində bir `content` xüsusiyyəti və `getContent` metodunu təyin edir.\n- Sinif istənilən tipdə (`string`, `number`) istifadə oluna bilər.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Siniflər ilə Adi Siniflərin Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic siniflər və adi siniflər (sabit tipli siniflər) arasında əsas fərqlər:\n- **Çeviklik**: Generic siniflər müxtəlif tiplərlə işləyə bilir, adi siniflər isə sabit tiplərlə məhdudlaşır.\n- **Yenidən istifadə**: Generic siniflər eyni strukturun fərqli tiplərlə istifadəsini təmin edir.\n- **Tip təhlükəsizliyi**: Generic siniflər `any` istifadə etmədən tip təhlükəsizliyini qoruyur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Adi sinif ilə generic sinfin müqayisəsi\nclass NumberBox {\n  content: number;\n  constructor(content: number) {\n    this.content = content;\n  }\n  getContent(): number {\n    return this.content;\n  }\n}\n\nclass GenericBox<T> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet numberBox = new NumberBox(10);\nlet genericBox = new GenericBox<string>('Hello');\n\nconsole.log(numberBox.getContent()); // 10\nconsole.log(genericBox.getContent()); // Hello\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `NumberBox` yalnız `number` tipi ilə işləyir.\n- `GenericBox` generik olduğu üçün istənilən tip ilə işləyə bilər.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Çoxsaylı Tip Parametrləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic siniflər birdən çox tip parametri ilə də işləyə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Çoxsaylı tip parametrləri\nclass Pair<K, V> {\n  key: K;\n  value: V;\n  constructor(key: K, value: V) {\n    this.key = key;\n    this.value = value;\n  }\n  getPair(): [K, V] {\n    return [this.key, this.value];\n  }\n}\n\nlet numberStringPair = new Pair<number, string>(1, 'one');\nlet stringBooleanPair = new Pair<string, boolean>('active', true);\n\nconsole.log(numberStringPair.getPair()); // [1, 'one']\nconsole.log(stringBooleanPair.getPair()); // ['active', true]\n// let errorPair = new Pair<number, string>('test', 'test'); // Xəta: 'test' number tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Pair<K, V>` iki fərqli tip parametrindən (`K` və `V`) istifadə edir.\n- Fərqli tip kombinasiyaları ilə işləyə bilər.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Siniflər ilə Interfeyslərin İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic siniflər generic interfeyslərlə birlikdə istifadə edilərək çevik tip strukturları yarada bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic sinif ilə generic interfeys\ninterface Container<T> {\n  content: T;\n  getContent(): T;\n}\n\nclass Box<T> implements Container<T> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet stringBox = new Box<string>('Hello');\nconsole.log(stringBox.getContent()); // Hello\n// let errorBox = new Box<number>('test'); // Xəta: 'test' number tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Container` generic interfeysi `T` tipində bir `content` xüsusiyyəti və `getContent` metodunu təyin edir.\n- `Box` sinfi `Container` interfeysini həyata keçirir və istənilən tip ilə işləyir.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Siniflər ilə Tip Aliaslarının İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic siniflər tip aliasları ilə də istifadə oluna bilər, lakin interfeyslərə nisbətən tip aliasları daha çevikdir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic sinif ilə tip aliası\ntype Item<T> = {\n  value: T;\n};\n\nclass ItemBox<T> {\n  item: Item<T>;\n  constructor(value: T) {\n    this.item = { value };\n  }\n  getValue(): T {\n    return this.item.value;\n  }\n}\n\nlet stringItemBox = new ItemBox<string>('Test');\nconsole.log(stringItemBox.getValue()); // Test\n// let errorItemBox = new ItemBox<number>('test'); // Xəta: 'test' number tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Item` generic tip aliası `T` tipində bir struktur təyin edir.\n- `ItemBox` sinfi bu tip aliasından istifadə edir.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Məhdudiyyətlər (Constraints)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic siniflərdə tiplərə məhdudiyyətlər (`extends` ilə) əlavə edilərək onların xüsusi tiplərlə məhdudlaşdırılması təmin edilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic məhdudiyyət nümunəsi\nclass LengthBox<T extends { length: number }> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getLength(): number {\n    return this.content.length;\n  }\n}\n\nlet stringBox = new LengthBox<string>('Hello');\nlet arrayBox = new LengthBox<number[]>([1, 2, 3]);\n\nconsole.log(stringBox.getLength()); // 5\nconsole.log(arrayBox.getLength()); // 3\n// let errorBox = new LengthBox<number>(42); // Xəta: 42 length xüsusiyyətinə malik deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `T extends { length: number }` məhdudiyyəti `T` tipinin `length` xüsusiyyətinə malik olmasını tələb edir.\n- Yalnız uyğun tiplər (sətir, massiv) istifadə oluna bilər.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic siniflər kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Generic tipləri dəqiq təyin edin.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- Məhdudiyyətlərdən (`extends`) istifadə edərək tipləri məhdudlaşdırın.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\nclass KeyedBox<T, K extends keyof T> {\n  data: T;\n  constructor(data: T) {\n    this.data = data;\n  }\n  getProperty(key: K): T[K] {\n    return this.data[key];\n  }\n}\n\nlet personBox = new KeyedBox<{ name: string; age: number }>({ name: 'Alice', age: 30 });\n\nconsole.log(personBox.getProperty('name')); // Alice\nconsole.log(personBox.getProperty('age')); // 30\n// console.log(personBox.getProperty('address')); // Xəta: 'address' mövcud deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `keyof T` məhdudiyyəti `key` parametrinin yalnız obyektin mövcud xüsusiyyətləri ilə işləməsini təmin edir.\n- Yanlış açar istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nclass UnsafeBox {\n  content: any;\n  constructor(content: any) {\n    this.content = content;\n  }\n  getContent(): any {\n    return this.content;\n  }\n}\n\nlet unsafeBox = new UnsafeBox('Hello');\nconsole.log(unsafeBox.getContent()); // Hello, lakin tip təhlükəsizliyi yoxdur\nunsafeBox = new UnsafeBox(42); // Keçərlidir, lakin təhlükəsiz deyil\n\n// Düzgün yol\nclass SafeBox<T> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet safeBox = new SafeBox<string>('Hello');\nconsole.log(safeBox.getContent()); // Hello\n// let errorBox = new SafeBox<string>(42); // Xəta: 42 string tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime səhvlərinə səbəb ola bilər.\n- Generic siniflər ilə tip təhlükəsizliyi təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic siniflər real layihələrdə geniş istifadə olunur:\n- **Məlumat strukturları**: Siyahılar, ağaclar və ya digər məlumat strukturları üçün.\n- **API cavabları**: API-dən gələn müxtəlif tipli məlumatları idarə etmək.\n- **Komponent kitabxanaları**: React və ya Angular kimi kitabxanalarda generic siniflər.\n- **Yenidən istifadə edilə bilən strukturlar**: Müxtəlif tiplərlə işləyən ümumi siniflər.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\nclass ApiResponse<T> {\n  data: T;\n  status: number;\n  constructor(data: T, status: number) {\n    this.data = data;\n    this.status = status;\n  }\n  getData(): T {\n    return this.data;\n  }\n}\n\nlet userResponse = new ApiResponse<{ name: string; age: number }>({ name: 'Alice', age: 30 }, 200);\nlet productResponse = new ApiResponse<{ id: number; name: string }>({ id: 1, name: 'Laptop' }, 200);\n\nconsole.log(userResponse.getData()); // { name: 'Alice', age: 30 }\nconsole.log(productResponse.getData()); // { id: 1, name: 'Laptop' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ApiResponse` generic sinfi müxtəlif tipli məlumatları idarə edir.\n- Tip təhlükəsizliyi kompilyasiya zamanı təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic siniflər qabaqcıl TypeScript xüsusiyyətləri ilə də istifadə oluna bilər:\n- **Şərti tiplər (Conditional Types)**: Tipləri şərtlərə əsasən təyin etmək.\n- **Mapped Types**: Obyekt tiplərini dinamik olaraq dəyişdirmək.\n- **Infer**: Generic tiplərdən avtomatik tip çıxarılması.\nBu mövzular haqqında ətraflı məlumat üçün TypeScript sənədlərinə (https://www.typescriptlang.org/docs) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Generic sinifləri yenidən istifadə edilə bilən və tip təhlükəsiz kod üçün istifadə edin. `any` əvəzinə dəqiq tipləri və məhdudiyyətləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Generic siniflər əvəzinə sabit tipli siniflər və ya `any` istifadə edilə bilər, lakin generiklər daha təhlükəsiz və çevikdir.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün generic sinif nümunəsi\nclass Box<T> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet stringBox = new Box<string>('Test');\nconsole.log(stringBox.getContent()); // Test\n// let errorBox = new Box<string>(42); // Xəta: 42 string tipinə uyğun deyil\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Generic Classes",
+    "icon": "FiCode",
+    "language": "typescript",
+    "description": "Classes with type parameters.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Generic Classes?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, generic classes are classes defined with type parameters, allowing them to work with multiple types while maintaining type safety. Generic classes enable the creation of flexible type structures, making the same class reusable with different types (string, number, object, etc.). For example, if a class’s properties or methods need to work with different types, generic classes make this possible. JavaScript supports classes but not generics, so developers typically use `any`, which compromises type safety and can lead to runtime errors. TypeScript generic classes enforce type checking at compile time and help reduce errors. This JSON file explains the definition, purposes, differences from regular classes, differences from JavaScript, syntax, usage with interfaces and type aliases, constraints, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Generic Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic classes in TypeScript serve the following purposes:\n- **Reusability**: Allow the same class to work with different types.\n- **Type safety**: Ensure the class’s properties and methods are used with correct types at compile time.\n- **Readability**: Clearly express the intent and structure of the code.\n- **Flexibility**: Create generic class structures for various types.\n- **Error prevention**: Detect incorrect type usage at compile time.\nIn JavaScript, similar functionality is achieved using `any`, which lacks type safety and can lead to runtime errors. Generic classes solve this issue."
+      },
+      {
+        "type": "heading",
+        "text": "Syntax of Generic Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic classes are defined using `<T>`, where `T` is a placeholder for any type. This parameter defines the types of the class’s properties and methods.\nExample (simple generic class):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Simple generic class\nclass Box<T> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet stringBox = new Box<string>('Hello');\nlet numberBox = new Box<number>(42);\n\nconsole.log(stringBox.getContent()); // Hello\nconsole.log(numberBox.getContent()); // 42\n// let errorBox = new Box<number>('test'); // Error: 'test' is not assignable to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Box<T>` generic class defines a `content` property of type `T` and a `getContent` method.\n- The class can be used with any type (`string`, `number`).\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Classes vs. Regular Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic classes differ from regular classes (fixed-type classes) in the following ways:\n- **Flexibility**: Generic classes can work with multiple types, while regular classes are limited to fixed types.\n- **Reusability**: Generic classes allow the same structure to be used with different types.\n- **Type safety**: Generic classes maintain type safety without resorting to `any`.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Regular class vs. generic class\nclass NumberBox {\n  content: number;\n  constructor(content: number) {\n    this.content = content;\n  }\n  getContent(): number {\n    return this.content;\n  }\n}\n\nclass GenericBox<T> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet numberBox = new NumberBox(10);\nlet genericBox = new GenericBox<string>('Hello');\n\nconsole.log(numberBox.getContent()); // 10\nconsole.log(genericBox.getContent()); // Hello\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `NumberBox` works only with `number`.\n- `GenericBox` is generic and works with any type.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Multiple Type Parameters"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic classes can work with multiple type parameters.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Multiple type parameters\nclass Pair<K, V> {\n  key: K;\n  value: V;\n  constructor(key: K, value: V) {\n    this.key = key;\n    this.value = value;\n  }\n  getPair(): [K, V] {\n    return [this.key, this.value];\n  }\n}\n\nlet numberStringPair = new Pair<number, string>(1, 'one');\nlet stringBooleanPair = new Pair<string, boolean>('active', true);\n\nconsole.log(numberStringPair.getPair()); // [1, 'one']\nconsole.log(stringBooleanPair.getPair()); // ['active', true]\n// let errorPair = new Pair<number, string>('test', 'test'); // Error: 'test' is not assignable to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Pair<K, V>` class uses two different type parameters (`K` and `V`).\n- It works with different type combinations.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Classes with Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic classes can be used with generic interfaces to create flexible type structures.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic class with generic interface\ninterface Container<T> {\n  content: T;\n  getContent(): T;\n}\n\nclass Box<T> implements Container<T> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet stringBox = new Box<string>('Hello');\nconsole.log(stringBox.getContent()); // Hello\n// let errorBox = new Box<number>('test'); // Error: 'test' is not assignable to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Container` generic interface defines a `content` property of type `T` and a `getContent` method.\n- The `Box` class implements the `Container` interface and works with any type.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Classes with Type Aliases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic classes can also be used with type aliases, though interfaces are often preferred for class-related structures.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic class with type alias\ntype Item<T> = {\n  value: T;\n};\n\nclass ItemBox<T> {\n  item: Item<T>;\n  constructor(value: T) {\n    this.item = { value };\n  }\n  getValue(): T {\n    return this.item.value;\n  }\n}\n\nlet stringItemBox = new ItemBox<string>('Test');\nconsole.log(stringItemBox.getValue()); // Test\n// let errorItemBox = new ItemBox<number>('test'); // Error: 'test' is not assignable to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Item` generic type alias defines a structure for type `T`.\n- The `ItemBox` class uses this type alias.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Constraints"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic classes can use constraints (`extends`) to restrict types to specific ones.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic constraint example\nclass LengthBox<T extends { length: number }> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getLength(): number {\n    return this.content.length;\n  }\n}\n\nlet stringBox = new LengthBox<string>('Hello');\nlet arrayBox = new LengthBox<number[]>([1, 2, 3]);\n\nconsole.log(stringBox.getLength()); // 5\nconsole.log(arrayBox.getLength()); // 3\n// let errorBox = new LengthBox<number>(42); // Error: 42 does not have a length property\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `T extends { length: number }` constraint ensures `T` has a `length` property.\n- Only types with `length` (e.g., string, array) can be used.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic classes enhance code safety, but caution is needed:\n- Define generic types precisely.\n- Avoid `any` as it reduces type safety.\n- Use constraints (`extends`) to restrict types.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\nclass KeyedBox<T, K extends keyof T> {\n  data: T;\n  constructor(data: T) {\n    this.data = data;\n  }\n  getProperty(key: K): T[K] {\n    return this.data[key];\n  }\n}\n\nlet personBox = new KeyedBox<{ name: string; age: number }>({ name: 'Alice', age: 30 });\n\nconsole.log(personBox.getProperty('name')); // Alice\nconsole.log(personBox.getProperty('age')); // 30\n// console.log(personBox.getProperty('address')); // Error: 'address' does not exist\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `keyof T` constraint ensures `key` is a valid property of the object.\n- Invalid keys trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nclass UnsafeBox {\n  content: any;\n  constructor(content: any) {\n    this.content = content;\n  }\n  getContent(): any {\n    return this.content;\n  }\n}\n\nlet unsafeBox = new UnsafeBox('Hello');\nconsole.log(unsafeBox.getContent()); // Hello, but no type safety\nunsafeBox = new UnsafeBox(42); // Valid, but unsafe\n\n// Correct approach\nclass SafeBox<T> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet safeBox = new SafeBox<string>('Hello');\nconsole.log(safeBox.getContent()); // Hello\n// let errorBox = new SafeBox<string>(42); // Error: 42 is not assignable to string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and may cause runtime errors.\n- Generic classes ensure type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic classes are widely used in real projects:\n- **Data structures**: Lists, trees, or other data structures.\n- **API responses**: Handling various types of data from APIs.\n- **Component libraries**: Generic classes in React or Angular.\n- **Reusable structures**: General-purpose classes working with various types.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\nclass ApiResponse<T> {\n  data: T;\n  status: number;\n  constructor(data: T, status: number) {\n    this.data = data;\n    this.status = status;\n  }\n  getData(): T {\n    return this.data;\n  }\n}\n\nlet userResponse = new ApiResponse<{ name: string; age: number }>({ name: 'Alice', age: 30 }, 200);\nlet productResponse = new ApiResponse<{ id: number; name: string }>({ id: 1, name: 'Laptop' }, 200);\n\nconsole.log(userResponse.getData()); // { name: 'Alice', age: 30 }\nconsole.log(productResponse.getData()); // { id: 1, name: 'Laptop' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `ApiResponse` generic class handles different types of data.\n- Type safety is enforced at compile time.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic classes can be used with advanced TypeScript features:\n- **Conditional Types**: Define types based on conditions.\n- **Mapped Types**: Dynamically transform object types.\n- **Infer**: Automatically infer types within generics.\nFor more details, refer to the TypeScript documentation (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use generic classes for reusable and type-safe code. Prefer precise types and constraints over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Instead of generic classes, fixed-type classes or `any` can be used, but generics are safer and more flexible.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself generic class example\nclass Box<T> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet stringBox = new Box<string>('Test');\nconsole.log(stringBox.getContent()); // Test\n// let errorBox = new Box<string>(42); // Error: 22 is not assignable to string\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Дженерик-классы",
+    "icon": "FiCode",
+    "language": "typescript",
+    "description": "Классы с параметрами типов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое дженерик-классы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript дженерик-классы — это классы, определенные с параметрами типов, что позволяет им работать с несколькими типами, сохраняя безопасность типов. Дженерик-классы позволяют создавать гибкие структуры типов, делая один и тот же класс повторно используемым с разными типами (строка, число, объект и т.д.). Например, если свойства или методы класса должны работать с разными типами, дженерик-классы упрощают эту задачу. В JavaScript классы есть, но дженериков нет, поэтому обычно используется тип `any`, что снижает безопасность типов и может привести к ошибкам во время выполнения. Дженерик-классы в TypeScript усиливают проверку типов во время компиляции и помогают уменьшить ошибки. Этот JSON-файл подробно объясняет определение, назначение, отличия от обычных классов, отличия от JavaScript, синтаксис, использование с интерфейсами и псевдонимами типов, ограничения (constraints), безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение дженерик-классов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-классы в TypeScript используются для следующих целей:\n- **Повторное использование**: Позволяют одному и тому же классу работать с разными типами.\n- **Безопасность типов**: Обеспечивают проверку типов свойств и методов класса во время компиляции.\n- **Читаемость**: Четко выражают назначение и структуру кода.\n- **Гибкость**: Создают общие структуры классов для различных типов.\n- **Предотвращение ошибок**: Обнаруживают неправильное использование типов на этапе компиляции.\nВ JavaScript для аналогичной функциональности обычно используется `any`, что не обеспечивает безопасность типов и может привести к ошибкам во время выполнения. Дженерик-классы решают эту проблему."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис дженерик-классов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-классы определяются с помощью `<T>`, где `T` — это заполнитель для любого типа. Этот параметр определяет типы свойств и методов класса.\nПример (простой дженерик-класс):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Простой дженерик-класс\nclass Box<T> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet stringBox = new Box<string>('Hello');\nlet numberBox = new Box<number>(42);\n\nconsole.log(stringBox.getContent()); // Hello\nconsole.log(numberBox.getContent()); // 42\n// let errorBox = new Box<number>('test'); // Ошибка: 'test' не соответствует типу number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Дженерик-класс `Box<T>` определяет свойство `content` типа `T` и метод `getContent`.\n- Класс может использоваться с любым типом (`string`, `number`).\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Дженерик-классы против обычных классов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-классы отличаются от обычных классов (классов с фиксированными типами) следующими особенностями:\n- **Гибкость**: Дженерик-классы могут работать с несколькими типами, тогда как обычные классы ограничены фиксированными типами.\n- **Повторное использование**: Дженерик-классы позволяют использовать одну и ту же структуру с разными типами.\n- **Безопасность типов**: Дженерик-классы обеспечивают безопасность типов без использования `any`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Обычный класс против дженерик-класса\nclass NumberBox {\n  content: number;\n  constructor(content: number) {\n    this.content = content;\n  }\n  getContent(): number {\n    return this.content;\n  }\n}\n\nclass GenericBox<T> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet numberBox = new NumberBox(10);\nlet genericBox = new GenericBox<string>('Hello');\n\nconsole.log(numberBox.getContent()); // 10\nconsole.log(genericBox.getContent()); // Hello\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `NumberBox` работает только с типом `number`.\n- `GenericBox` является дженериком и работает с любым типом.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Несколько параметров типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-классы могут работать с несколькими параметрами типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Несколько параметров типов\nclass Pair<K, V> {\n  key: K;\n  value: V;\n  constructor(key: K, value: V) {\n    this.key = key;\n    this.value = value;\n  }\n  getPair(): [K, V] {\n    return [this.key, this.value];\n  }\n}\n\nlet numberStringPair = new Pair<number, string>(1, 'one');\nlet stringBooleanPair = new Pair<string, boolean>('active', true);\n\nconsole.log(numberStringPair.getPair()); // [1, 'one']\nconsole.log(stringBooleanPair.getPair()); // ['active', true]\n// let errorPair = new Pair<number, string>('test', 'test'); // Ошибка: 'test' не соответствует типу number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Pair<K, V>` использует два разных параметра типов (`K` и `V`).\n- Он работает с разными комбинациями типов.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Дженерик-классы с интерфейсами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-классы могут использоваться с дженерик-интерфейсами для создания гибких структур типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Дженерик-класс с дженерик-интерфейсом\ninterface Container<T> {\n  content: T;\n  getContent(): T;\n}\n\nclass Box<T> implements Container<T> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet stringBox = new Box<string>('Hello');\nconsole.log(stringBox.getContent()); // Hello\n// let errorBox = new Box<number>('test'); // Ошибка: 'test' не соответствует типу number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Дженерик-интерфейс `Container` определяет свойство `content` типа `T` и метод `getContent`.\n- Класс `Box` реализует интерфейс `Container` и работает с любым типом.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Дженерик-классы с псевдонимами типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-классы также могут использоваться с псевдонимами типов, хотя интерфейсы часто предпочтительнее для структур, связанных с классами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Дженерик-класс с псевдонимом типа\ntype Item<T> = {\n  value: T;\n};\n\nclass ItemBox<T> {\n  item: Item<T>;\n  constructor(value: T) {\n    this.item = { value };\n  }\n  getValue(): T {\n    return this.item.value;\n  }\n}\n\nlet stringItemBox = new ItemBox<string>('Test');\nconsole.log(stringItemBox.getValue()); // Test\n// let errorItemBox = new ItemBox<number>('test'); // Ошибка: 'test' не соответствует типу number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдоним типа `Item` определяет структуру для типа `T`.\n- Класс `ItemBox` использует этот псевдоним типа.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Ограничения дженериков"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-классы могут использовать ограничения (`extends`) для ограничения типов определенными типами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример ограничения дженериков\nclass LengthBox<T extends { length: number }> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getLength(): number {\n    return this.content.length;\n  }\n}\n\nlet stringBox = new LengthBox<string>('Hello');\nlet arrayBox = new LengthBox<number[]>([1, 2, 3]);\n\nconsole.log(stringBox.getLength()); // 5\nconsole.log(arrayBox.getLength()); // 3\n// let errorBox = new LengthBox<number>(42); // Ошибка: у 42 нет свойства length\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ограничение `T extends { length: number }` гарантирует, что `T` имеет свойство `length`.\n- Могут использоваться только типы с `length` (например, строка, массив).\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-классы повышают безопасность кода, но требуется осторожность:\n- Точно определяйте дженерик-типы.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Используйте ограничения (`extends`) для ограничения типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\nclass KeyedBox<T, K extends keyof T> {\n  data: T;\n  constructor(data: T) {\n    this.data = data;\n  }\n  getProperty(key: K): T[K] {\n    return this.data[key];\n  }\n}\n\nlet personBox = new KeyedBox<{ name: string; age: number }>({ name: 'Alice', age: 30 });\n\nconsole.log(personBox.getProperty('name')); // Alice\nconsole.log(personBox.getProperty('age')); // 30\n// console.log(personBox.getProperty('address')); // Ошибка: 'address' не существует\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ограничение `keyof T` гарантирует, что `key` является допустимым свойством объекта.\n- Недопустимые ключи вызывают ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nclass UnsafeBox {\n  content: any;\n  constructor(content: any) {\n    this.content = content;\n  }\n  getContent(): any {\n    return this.content;\n  }\n}\n\nlet unsafeBox = new UnsafeBox('Hello');\nconsole.log(unsafeBox.getContent()); // Hello, но без безопасности типов\nunsafeBox = new UnsafeBox(42); // Валидно, но небезопасно\n\n// Правильный подход\nclass SafeBox<T> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet safeBox = new SafeBox<string>('Hello');\nconsole.log(safeBox.getContent()); // Hello\n// let errorBox = new SafeBox<string>(42); // Ошибка: 42 не соответствует типу string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Дженерик-классы обеспечивают безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-классы широко используются в реальных проектах:\n- **Структуры данных**: Списки, деревья или другие структуры данных.\n- **Ответы API**: Обработка данных разных типов из API.\n- **Библиотеки компонентов**: Дженерик-классы в React или Angular.\n- **Повторно используемые структуры**: Универсальные классы, работающие с разными типами.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\nclass ApiResponse<T> {\n  data: T;\n  status: number;\n  constructor(data: T, status: number) {\n    this.data = data;\n    this.status = status;\n  }\n  getData(): T {\n    return this.data;\n  }\n}\n\nlet userResponse = new ApiResponse<{ name: string; age: number }>({ name: 'Alice', age: 30 }, 200);\nlet productResponse = new ApiResponse<{ id: number; name: string }>({ id: 1, name: 'Laptop' }, 200);\n\nconsole.log(userResponse.getData()); // { name: 'Alice', age: 30 }\nconsole.log(productResponse.getData()); // { id: 1, name: 'Laptop' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Дженерик-класс `ApiResponse` обрабатывает данные разных типов.\n- Безопасность типов обеспечивается во время компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-классы могут использоваться с продвинутыми возможностями TypeScript:\n- **Условные типы (Conditional Types)**: Определение типов на основе условий.\n- **Сопоставленные типы (Mapped Types)**: Динамическое преобразование типов объектов.\n- **Infer**: Автоматический вывод типов внутри дженериков.\nДля получения дополнительной информации обратитесь к документации TypeScript (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте дженерик-классы для повторно используемого и безопасного кода. Предпочитайте точные типы и ограничения вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо дженерик-классов можно использовать классы с фиксированными типами или `any`, но дженерики более безопасны и гибки.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример дженерик-класса для самостоятельного тестирования\nclass Box<T> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet stringBox = new Box<string>('Test');\nconsole.log(stringBox.getContent()); // Test\n// let errorBox = new Box<string>(42); // Ошибка: 42 не соответствует типу string\n"
+      }
+    ]
+  }
+}

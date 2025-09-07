@@ -63,6 +63,12 @@ function LoginPointPopup() {
       pathname: typeof window !== 'undefined' ? window.location.pathname : 'unknown'
     });
     
+    // Debug: Clear localStorage for testing (remove this in production)
+    // if (typeof window !== 'undefined') {
+    //   console.log('DEBUG: Clearing localStorage for daily login popup testing');
+    //   localStorage.removeItem(lastPopupKey);
+    // }
+    
     // For new users, show popup and clear the isNewUser flag
     if (isNewUser && lastShown !== todayStr) {
       console.log('Showing popup for new user');
@@ -175,9 +181,15 @@ function LoginPointPopup() {
           });
           
           if (response.ok) {
-            console.log('Daily login bonus added successfully');
+            const result = await response.json();
+            console.log('Daily login bonus API response:', result);
+            if (result.success) {
+              console.log('Daily login bonus added successfully');
+            }
           } else {
-            console.warn('Failed to add daily login bonus');
+            console.warn('Failed to add daily login bonus, status:', response.status);
+            const errorText = await response.text();
+            console.warn('Error response:', errorText);
           }
         } catch (error) {
           console.error('Error adding daily login bonus:', error);

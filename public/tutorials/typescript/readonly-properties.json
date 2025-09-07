@@ -1,0 +1,621 @@
+{
+  "id": "readonly-properties",
+  "az": {
+    "title": "Readonly Xüsusiyyətlər",
+    "icon": "FiLock",
+    "language": "typescript",
+    "description": "Dəyişdirilə bilməyən xüsusiyyətlər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Readonly Xüsusiyyətlər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də readonly xüsusiyyətlər (`readonly` açar sözü ilə) obyektlərdə və ya siniflərdə dəyişdirilə bilməyən, yalnız oxuna bilən xüsusiyyətləri təyin etmək üçün istifadə olunur. Bu xüsusiyyətlər yalnız konstruktor və ya təyin olunduğu yerdə dəyər ala bilər və sonradan dəyişdirilə bilməz. Məsələn, bir `Person` interfeysində `id` xüsusiyyəti `readonly` olaraq təyin edilərsə, bu xüsusiyyətə yalnız başlanğıc dəyər verilə bilər, sonradan dəyişdirilə bilməz. JavaScript-də belə bir mexanizm yoxdur, ona görə də xüsusiyyətlər dinamik olaraq dəyişdirilə bilər, bu da səhvlərə yol aça bilər. TypeScript-də `readonly` açar sözü kompilyasiya zamanı dəyişdirilməyə cəhd edildikdə xəta yaradaraq tip təhlükəsizliyini təmin edir. Bu JSON faylda readonly xüsusiyyətlərin tərifi, istifadə məqsədləri, JavaScript ilə fərqləri, tip aliasları ilə fərqləri, sintaksisi, interfeyslərdə və siniflərdə istifadəsi, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Xüsusiyyətlərin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly xüsusiyyətlər TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Dəyişməzlik**: Xüsusiyyətlərin dəyişdirilməsinin qarşısını almaq.\n- **Tip təhlükəsizliyi**: Xüsusiyyətlərin yalnız oxuna bilən olduğunu təmin etmək.\n- **Oxunaqlılıq**: Kodun məqsədini və strukturunu aydın ifadə etmək.\n- **Verilənlərin bütövlüyü**: Məlumatların təsadüfən dəyişdirilməsinin qarşısını almaq.\n- **Real dünya ssenariləri**: Sabit identifikatorlar (məsələn, ID-lər) və ya konfiqurasiya dəyərləri üçün istifadə.\nJavaScript-də xüsusiyyətlər dinamik olduğundan, onların dəyişdirilməsinə nəzarət etmək çətindir və bu, runtime səhvlərinə səbəb ola bilər. TypeScript-də `readonly` bu problemi həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Xüsusiyyətlərin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly xüsusiyyətlər interfeyslərdə və ya siniflərdə `readonly` açar sözü ilə təyin edilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly xüsusiyyətlərin sintaksisi\ninterface Person {\n  readonly id: number;\n  name: string;\n}\n\nlet person: Person = { id: 1, name: 'Ali' };\nconsole.log(person); // { id: 1, name: 'Ali' }\nperson.name = 'Vəli'; // Keçərlidir\n// person.id = 2; // Xəta: id yalnız oxuna biləndir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Person` interfeysində `id` `readonly` olaraq təyin edilib, `name` isə adi xüsusiyyətdir.\n- `id` dəyişdirilə bilməz, lakin `name` dəyişdirilə bilər.\n- `id` dəyişdirilməyə cəhd edildikdə kompilyasiya xətası yaranır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Xüsusiyyətlər ilə Tip Aliaslarının Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly xüsusiyyətlər həm interfeyslərdə, həm də tip aliaslarında istifadə oluna bilər, lakin fərqlər var:\n- **İnterfeyslər**: Obyekt tipləri üçün istifadə olunur və siniflər tərəfindən `implements` ilə icra edilə bilər.\n- **Tip aliasları**: Daha çevikdir, primitiv tiplər, union tipləri və intersection tipləri də daxil olmaqla istifadə edilə bilər.\n- **Readonly ilə işləmə**: Tip aliaslarında `Readonly<T>` utility tipi ilə bütün xüsusiyyətləri readonly edə bilərsiniz.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly xüsusiyyətlər ilə tip aliasları\ntype Id = number | string;\n\ninterface User {\n  readonly id: Id;\n  name: string;\n}\n\ntype ReadonlyUser = Readonly<{ id: Id; name: string; email: string }>;\n\nlet user: User = { id: 1, name: 'Ali' };\nlet readonlyUser: ReadonlyUser = { id: 'abc', name: 'Vəli', email: 'veli@example.com' };\n\nconsole.log(user); // { id: 1, name: 'Ali' }\nconsole.log(readonlyUser); // { id: 'abc', name: 'Vəli', email: 'veli@example.com' }\nuser.name = 'Məmməd'; // Keçərlidir\n// user.id = 2; // Xəta: id yalnız oxuna biləndir\n// readonlyUser.name = 'Səməd'; // Xəta: name yalnız oxuna biləndir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `User` interfeysində `id` readonly-dir.\n- `ReadonlyUser` tip aliasında `Readonly<T>` utility tipi ilə bütün xüsusiyyətlər readonly edilib.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Xüsusiyyətlər Siniflərdə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly xüsusiyyətlər siniflər tərəfindən icra edilən interfeyslərdə və ya birbaşa siniflərdə istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly xüsusiyyətlər siniflərdə\ninterface Person {\n  readonly id: number;\n  name: string;\n}\n\nclass Employee implements Person {\n  readonly id: number;\n  name: string;\n\n  constructor(id: number, name: string) {\n    this.id = id;\n    this.name = name;\n  }\n}\n\nlet employee = new Employee(101, 'Ali');\nconsole.log(employee); // Employee { id: 101, name: 'Ali' }\nemployee.name = 'Vəli'; // Keçərlidir\n// employee.id = 102; // Xəta: id yalnız oxuna biləndir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Employee` sinfi `Person` interfeysini icra edir.\n- `id` readonly olduğu üçün yalnız konstruktor daxilində təyin oluna bilər.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly və Optional Xüsusiyyətlərin Birləşməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly xüsusiyyətlər optional xüsusiyyətlərlə (`?`) birgə istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly və optional xüsusiyyətlər\ninterface Person {\n  readonly id: number;\n  name: string;\n  age?: number;\n}\n\nlet person1: Person = { id: 1, name: 'Ali' };\nlet person2: Person = { id: 2, name: 'Vəli', age: 25 };\n\nconsole.log(person1); // { id: 1, name: 'Ali' }\nconsole.log(person2); // { id: 2, name: 'Vəli', age: 25 }\n// person1.id = 3; // Xəta: id yalnız oxuna biləndir\nperson1.name = 'Məmməd'; // Keçərlidir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `id` readonly, `age` isə optional xüsusiyyətdir.\n- `id` dəyişdirilə bilməz, `age` isə isteğe bağlıdır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiyalarda Readonly Xüsusiyyətlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly xüsusiyyətlər funksiya parametrlərində və ya qaytarma tiplərində istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Funksiyalarda readonly xüsusiyyətlər\ninterface User {\n  readonly id: number;\n  name: string;\n}\n\nfunction printUser(user: User): string {\n  return `ID: ${user.id}, Name: ${user.name}`;\n}\n\nlet user: User = { id: 1, name: 'Ali' };\nconsole.log(printUser(user)); // ID: 1, Name: Ali\n// user.id = 2; // Xəta: id yalnız oxuna biləndir\nuser.name = 'Vəli'; // Keçərlidir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `User` interfeysində `id` readonly-dir.\n- `printUser` funksiyası readonly xüsusiyyəti oxuyur, lakin dəyişdirə bilməz.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Utility Tipi"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də `Readonly<T>` utility tipi bütün xüsusiyyətləri readonly edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly utility tipi\ntype User = {\n  id: number;\n  name: string;\n};\n\nlet user: Readonly<User> = { id: 1, name: 'Ali' };\nconsole.log(user); // { id: 1, name: 'Ali' }\n// user.id = 2; // Xəta: id yalnız oxuna biləndir\n// user.name = 'Vəli'; // Xəta: name yalnız oxuna biləndir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Readonly<User>` bütün xüsusiyyətləri readonly edir.\n- Heç bir xüsusiyyət dəyişdirilə bilməz.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Readonly Xüsusiyyətlər ilə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly xüsusiyyətlər real layihələrdə müxtəlif ssenarilərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Praktik nümunə\ninterface Product {\n  readonly id: number;\n  name: string;\n  price: number;\n}\n\nfunction displayProduct(product: Product): string {\n  return `Product ${product.id}: ${product.name}, Price: ${product.price}`;\n}\n\nlet product: Product = { id: 1, name: 'Phone', price: 1000 };\nconsole.log(displayProduct(product)); // Product 1: Phone, Price: 1000\nproduct.name = 'Smartphone'; // Keçərlidir\n// product.id = 2; // Xəta: id yalnız oxuna biləndir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Product` interfeysində `id` readonly-dir.\n- `displayProduct` funksiyası readonly xüsusiyyəti oxuyur.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly xüsusiyyətlər kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Readonly xüsusiyyətlərin yalnız başlanğıc təyinatda dəyər aldığından əmin olun.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\ninterface User {\n  readonly id: number;\n  name: string;\n}\n\nfunction getUserInfo(user: User): string {\n  return `ID: ${user.id}, Name: ${user.name}`;\n}\n\nlet user: User = { id: 1, name: 'Ali' };\nconsole.log(getUserInfo(user)); // ID: 1, Name: Ali\n// user.id = 2; // Xəta: id yalnız oxuna biləndir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `id` readonly olduğu üçün dəyişdirilə bilməz.\n- Yanlış dəyişdirmə cəhdi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet unsafe: any = { id: 1, name: 'Ali' };\nconsole.log(unsafe.id, unsafe.name); // 1, Ali, lakin tip təhlükəsizliyi yoxdur\nunsafe.id = 2; // Keçərlidir, lakin təhlükəsiz deyil\n\n// Düzgün yol\ninterface User {\n  readonly id: number;\n  name: string;\n}\n\nlet user: User = { id: 1, name: 'Ali' };\nconsole.log(user.id, user.name); // 1, Ali\n// user.id = 2; // Xəta: id yalnız oxuna biləndir\nuser.name = 'Vəli'; // Keçərlidir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime səhvlərinə səbəb ola bilər.\n- `readonly` ilə tip təhlükəsizliyi təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly xüsusiyyətlər real layihələrdə geniş istifadə olunur:\n- **Sabit identifikatorlar**: Məsələn, istifadəçi ID-ləri və ya məhsul kodları.\n- **Konfiqurasiya obyektləri**: Dəyişdirilməməli olan parametrlər.\n- **API cavabları**: Sabit xüsusiyyətləri olan məlumat strukturları.\n- **Verilənlərin bütövlüyü**: Təsadüfən dəyişdirilmənin qarşısını almaq.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface UserProfile {\n  readonly id: number;\n  username: string;\n  readonly createdAt: string;\n}\n\nfunction displayProfile(profile: UserProfile): string {\n  return `User: ${profile.username}, ID: ${profile.id}, Created: ${profile.createdAt}`;\n}\n\nlet profile: UserProfile = { id: 1, username: 'ali123', createdAt: '2023-10-01' };\nconsole.log(displayProfile(profile)); // User: ali123, ID: 1, Created: 2023-10-01\nprofile.username = 'ali456'; // Keçərlidir\n// profile.id = 2; // Xəta: id yalnız oxuna biləndir\n// profile.createdAt = '2023-11-01'; // Xəta: createdAt yalnız oxuna biləndir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `UserProfile` interfeysində `id` və `createdAt` readonly-dir.\n- `displayProfile` funksiyası readonly xüsusiyyətləri oxuyur.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Readonly xüsusiyyətləri sabit dəyərlər və verilənlərin bütövlüyü üçün istifadə edin. `any` əvəzinə dəqiq tipləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: `Readonly<T>` utility tipi ilə bütün xüsusiyyətləri readonly edə bilərsiniz. JavaScript-də `Object.freeze` istifadə oluna bilər, lakin bu, yalnız runtime qorunması təmin edir.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün readonly xüsusiyyətlər nümunəsi\ninterface User {\n  readonly id: number;\n  name: string;\n}\n\nconst user: User = { id: 1, name: 'Məmməd' };\nconsole.log(user.id, user.name); // 1, Məmməd\nuser.name = 'Vəli'; // Keçərlidir\n// user.id = 2; // Xəta: id yalnız oxuna biləndir\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Readonly Properties",
+    "icon": "FiLock",
+    "language": "typescript",
+    "description": "Non-modifiable properties.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Readonly Properties?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, readonly properties (using the `readonly` keyword) are used to define properties in objects or classes that can only be read and not modified after their initial assignment. These properties can only be set in the constructor or at the point of declaration. For example, in a `Person` interface, if the `id` property is marked as `readonly`, it can only be assigned a value initially and cannot be changed afterward. JavaScript lacks this mechanism, allowing properties to be dynamically modified, which can lead to errors. TypeScript’s `readonly` keyword enforces immutability at compile time, ensuring type safety. This JSON file explains the definition, purposes, differences from JavaScript, differences from type aliases, syntax, use in interfaces and classes, type safety, and real-world usage scenarios of readonly properties in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Readonly Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly properties in TypeScript serve the following purposes:\n- **Immutability**: Prevent properties from being modified.\n- **Type safety**: Ensure properties are read-only.\n- **Readability**: Clearly express the intent and structure of the code.\n- **Data integrity**: Protect data from accidental modifications.\n- **Real-world scenarios**: Used for constant identifiers (e.g., IDs) or configuration values.\nIn JavaScript, properties are dynamic, and controlling their modification is difficult, potentially leading to runtime errors. TypeScript’s `readonly` addresses this issue."
+      },
+      {
+        "type": "heading",
+        "text": "Syntax of Readonly Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly properties are defined in interfaces or classes using the `readonly` keyword.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Syntax of readonly properties\ninterface Person {\n  readonly id: number;\n  name: string;\n}\n\nlet person: Person = { id: 1, name: 'Alice' };\nconsole.log(person); // { id: 1, name: 'Alice' }\nperson.name = 'Bob'; // Valid\n// person.id = 2; // Error: id is read-only\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- In the `Person` interface, `id` is marked as `readonly`, while `name` is a regular property.\n- `id` cannot be modified, but `name` can.\n- Attempting to modify `id` triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Properties vs. Type Aliases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly properties can be used in both interfaces and type aliases, but there are differences:\n- **Interfaces**: Used for object types and can be implemented by classes with `implements`.\n- **Type aliases**: More flexible, supporting primitives, union types, and intersections.\n- **Readonly usage**: Type aliases can use the `Readonly<T>` utility type to make all properties readonly.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly properties with type aliases\ntype Id = number | string;\n\ninterface User {\n  readonly id: Id;\n  name: string;\n}\n\ntype ReadonlyUser = Readonly<{ id: Id; name: string; email: string }>;\n\nlet user: User = { id: 1, name: 'Alice' };\nlet readonlyUser: ReadonlyUser = { id: 'abc', name: 'Bob', email: 'bob@example.com' };\n\nconsole.log(user); // { id: 1, name: 'Alice' }\nconsole.log(readonlyUser); // { id: 'abc', name: 'Bob', email: 'bob@example.com' }\nuser.name = 'Charlie'; // Valid\n// user.id = 2; // Error: id is read-only\n// readonlyUser.name = 'Dave'; // Error: name is read-only\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- In the `User` interface, `id` is readonly.\n- The `ReadonlyUser` type alias uses `Readonly<T>` to make all properties readonly.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Properties in Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly properties can be used in interfaces implemented by classes or directly in classes.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly properties in classes\ninterface Person {\n  readonly id: number;\n  name: string;\n}\n\nclass Employee implements Person {\n  readonly id: number;\n  name: string;\n\n  constructor(id: number, name: string) {\n    this.id = id;\n    this.name = name;\n  }\n}\n\nlet employee = new Employee(101, 'Alice');\nconsole.log(employee); // Employee { id: 101, name: 'Alice' }\nemployee.name = 'Bob'; // Valid\n// employee.id = 102; // Error: id is read-only\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Employee` class implements the `Person` interface.\n- `id` is readonly and can only be set in the constructor.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Combining Readonly and Optional Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly properties can be combined with optional properties (`?`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Combining readonly and optional properties\ninterface Person {\n  readonly id: number;\n  name: string;\n  age?: number;\n}\n\nlet person1: Person = { id: 1, name: 'Alice' };\nlet person2: Person = { id: 2, name: 'Bob', age: 25 };\n\nconsole.log(person1); // { id: 1, name: 'Alice' }\nconsole.log(person2); // { id: 2, name: 'Bob', age: 25 }\n// person1.id = 3; // Error: id is read-only\nperson1.name = 'Charlie'; // Valid\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `id` is readonly, and `age` is optional.\n- `id` cannot be modified, while `age` is optional.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Properties in Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly properties can be used in function parameters or return types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly properties in functions\ninterface User {\n  readonly id: number;\n  name: string;\n}\n\nfunction printUser(user: User): string {\n  return `ID: ${user.id}, Name: ${user.name}`;\n}\n\nlet user: User = { id: 1, name: 'Alice' };\nconsole.log(printUser(user)); // ID: 1, Name: Alice\n// user.id = 2; // Error: id is read-only\nuser.name = 'Bob'; // Valid\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- In the `User` interface, `id` is readonly.\n- The `printUser` function reads the readonly property but cannot modify it.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Utility Type"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript’s `Readonly<T>` utility type makes all properties of a type readonly.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly utility type\ntype User = {\n  id: number;\n  name: string;\n};\n\nlet user: Readonly<User> = { id: 1, name: 'Alice' };\nconsole.log(user); // { id: 1, name: 'Alice' }\n// user.id = 2; // Error: id is read-only\n// user.name = 'Bob'; // Error: name is read-only\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Readonly<User>` makes all properties readonly.\n- No properties can be modified.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Working with Readonly Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly properties are used in various scenarios in real projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Practical example\ninterface Product {\n  readonly id: number;\n  name: string;\n  price: number;\n}\n\nfunction displayProduct(product: Product): string {\n  return `Product ${product.id}: ${product.name}, Price: ${product.price}`;\n}\n\nlet product: Product = { id: 1, name: 'Phone', price: 1000 };\nconsole.log(displayProduct(product)); // Product 1: Phone, Price: 1000\nproduct.name = 'Smartphone'; // Valid\n// product.id = 2; // Error: id is read-only\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- In the `Product` interface, `id` is readonly.\n- The `displayProduct` function reads the readonly property.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly properties enhance code safety, but caution is needed:\n- Ensure readonly properties are only assigned values at initialization.\n- Avoid `any` as it reduces type safety.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\ninterface User {\n  readonly id: number;\n  name: string;\n}\n\nfunction getUserInfo(user: User): string {\n  return `ID: ${user.id}, Name: ${user.name}`;\n}\n\nlet user: User = { id: 1, name: 'Alice' };\nconsole.log(getUserInfo(user)); // ID: 1, Name: Alice\n// user.id = 2; // Error: id is read-only\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `id` is readonly and cannot be modified.\n- Attempting to modify it triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet unsafe: any = { id: 1, name: 'Alice' };\nconsole.log(unsafe.id, unsafe.name); // 1, Alice, but no type safety\nunsafe.id = 2; // Valid, but unsafe\n\n// Correct approach\ninterface User {\n  readonly id: number;\n  name: string;\n}\n\nlet user: User = { id: 1, name: 'Alice' };\nconsole.log(user.id, user.name); // 1, Alice\n// user.id = 2; // Error: id is read-only\nuser.name = 'Bob'; // Valid\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and may cause runtime errors.\n- `readonly` ensures type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly properties are widely used in real projects:\n- **Constant identifiers**: Such as user IDs or product codes.\n- **Configuration objects**: Parameters that should not be modified.\n- **API responses**: Data structures with immutable properties.\n- **Data integrity**: Preventing accidental modifications.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface UserProfile {\n  readonly id: number;\n  username: string;\n  readonly createdAt: string;\n}\n\nfunction displayProfile(profile: UserProfile): string {\n  return `User: ${profile.username}, ID: ${profile.id}, Created: ${profile.createdAt}`;\n}\n\nlet profile: UserProfile = { id: 1, username: 'alice123', createdAt: '2023-10-01' };\nconsole.log(displayProfile(profile)); // User: alice123, ID: 1, Created: 2023-10-01\nprofile.username = 'alice456'; // Valid\n// profile.id = 2; // Error: id is read-only\n// profile.createdAt = '2023-11-01'; // Error: createdAt is read-only\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- In the `UserProfile` interface, `id` and `createdAt` are readonly.\n- The `displayProfile` function reads readonly properties.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use readonly properties for constant values and data integrity. Prefer precise types over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: The `Readonly<T>` utility type can make all properties readonly. In JavaScript, `Object.freeze` can be used, but it only provides runtime protection.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself readonly properties example\ninterface User {\n  readonly id: number;\n  name: string;\n}\n\nconst user: User = { id: 1, name: 'John' };\nconsole.log(user.id, user.name); // 1, John\nuser.name = 'Bob'; // Valid\n// user.id = 2; // Error: id is read-only\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Свойства только для чтения",
+    "icon": "FiLock",
+    "language": "typescript",
+    "description": "Немодифицируемые свойства.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое свойства только для чтения?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript свойства только для чтения (с использованием ключевого слова `readonly`) используются для определения свойств в объектах или классах, которые нельзя изменить после их начального назначения. Эти свойства могут быть установлены только в конструкторе или при объявлении. Например, в интерфейсе `Person`, если свойство `id` помечено как `readonly`, его можно задать только изначально, и оно не может быть изменено впоследствии. В JavaScript такого механизма нет, и свойства могут быть динамически изменены, что может привести к ошибкам. Ключевое слово `readonly` в TypeScript обеспечивает неизменяемость на этапе компиляции, гарантируя безопасность типов. Этот JSON-файл подробно объясняет определение, назначение, отличия от JavaScript, отличия от псевдонимов типов, синтаксис, использование в интерфейсах и классах, безопасность типов и сценарии использования свойств только для чтения в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение свойств только для чтения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства только для чтения в TypeScript используются для следующих целей:\n- **Неизменяемость**: Предотвращение изменения свойств.\n- **Безопасность типов**: Обеспечение того, что свойства доступны только для чтения.\n- **Читаемость**: Четкое выражение назначения и структуры кода.\n- **Целостность данных**: Защита данных от случайных изменений.\n- **Реальные сценарии**: Использование для постоянных идентификаторов (например, ID) или конфигурационных значений.\nВ JavaScript свойства динамические, и контролировать их изменение сложно, что может привести к ошибкам во время выполнения. Ключевое слово `readonly` в TypeScript решает эту проблему."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис свойств только для чтения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства только для чтения определяются в интерфейсах или классах с помощью ключевого слова `readonly`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Синтаксис свойств только для чтения\ninterface Person {\n  readonly id: number;\n  name: string;\n}\n\nlet person: Person = { id: 1, name: 'Алиса' };\nconsole.log(person); // { id: 1, name: 'Алиса' }\nperson.name = 'Боб'; // Валидно\n// person.id = 2; // Ошибка: id только для чтения\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- В интерфейсе `Person` свойство `id` помечено как `readonly`, а `name` — обычное свойство.\n- `id` нельзя изменить, но `name` можно.\n- Попытка изменить `id` вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Свойства только для чтения против псевдонимов типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства только для чтения могут использоваться как в интерфейсах, так и в псевдонимах типов, но есть различия:\n- **Интерфейсы**: Используются для объектных типов и могут быть реализованы классами с помощью `implements`.\n- **Псевдонимы типов**: Более гибкие, поддерживают примитивы, объединения типов и пересечения.\n- **Использование readonly**: В псевдонимах типов можно использовать утилиту `Readonly<T>`, чтобы сделать все свойства только для чтения.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Свойства только для чтения с псевдонимами типов\ntype Id = number | string;\n\ninterface User {\n  readonly id: Id;\n  name: string;\n}\n\ntype ReadonlyUser = Readonly<{ id: Id; name: string; email: string }>;\n\nlet user: User = { id: 1, name: 'Алиса' };\nlet readonlyUser: ReadonlyUser = { id: 'abc', name: 'Боб', email: 'bob@example.com' };\n\nconsole.log(user); // { id: 1, name: 'Алиса' }\nconsole.log(readonlyUser); // { id: 'abc', name: 'Боб', email: 'bob@example.com' }\nuser.name = 'Чарли'; // Валидно\n// user.id = 2; // Ошибка: id только для чтения\n// readonlyUser.name = 'Дейв'; // Ошибка: name только для чтения\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- В интерфейсе `User` свойство `id` только для чтения.\n- Псевдоним типа `ReadonlyUser` использует `Readonly<T>`, чтобы сделать все свойства только для чтения.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Свойства только для чтения в классах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства только для чтения могут использоваться в интерфейсах, реализуемых классами, или непосредственно в классах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Свойства только для чтения в классах\ninterface Person {\n  readonly id: number;\n  name: string;\n}\n\nclass Employee implements Person {\n  readonly id: number;\n  name: string;\n\n  constructor(id: number, name: string) {\n    this.id = id;\n    this.name = name;\n  }\n}\n\nlet employee = new Employee(101, 'Алиса');\nconsole.log(employee); // Employee { id: 101, name: 'Алиса' }\nemployee.name = 'Боб'; // Валидно\n// employee.id = 102; // Ошибка: id только для чтения\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Employee` реализует интерфейс `Person`.\n- `id` только для чтения и может быть установлен только в конструкторе.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Комбинирование свойств только для чтения и необязательных свойств"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства только для чтения могут комбинироваться с необязательными свойствами (`?`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Комбинирование свойств только для чтения и необязательных свойств\ninterface Person {\n  readonly id: number;\n  name: string;\n  age?: number;\n}\n\nlet person1: Person = { id: 1, name: 'Алиса' };\nlet person2: Person = { id: 2, name: 'Боб', age: 25 };\n\nconsole.log(person1); // { id: 1, name: 'Алиса' }\nconsole.log(person2); // { id: 2, name: 'Боб', age: 25 }\n// person1.id = 3; // Ошибка: id только для чтения\nperson1.name = 'Чарли'; // Валидно\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `id` только для чтения, а `age` необязательное.\n- `id` нельзя изменить, а `age` является необязательным.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Свойства только для чтения в функциях"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства только для чтения могут использоваться в параметрах или возвращаемых типах функций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Свойства только для чтения в функциях\ninterface User {\n  readonly id: number;\n  name: string;\n}\n\nfunction printUser(user: User): string {\n  return `ID: ${user.id}, Name: ${user.name}`;\n}\n\nlet user: User = { id: 1, name: 'Алиса' };\nconsole.log(printUser(user)); // ID: 1, Name: Алиса\n// user.id = 2; // Ошибка: id только для чтения\nuser.name = 'Боб'; // Валидно\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- В интерфейсе `User` свойство `id` только для чтения.\n- Функция `printUser` читает свойство только для чтения, но не может его изменить.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Утилита Readonly"
+      },
+      {
+        "type": "paragraph",
+        "text": "Утилита TypeScript `Readonly<T>` делает все свойства типа только для чтения.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Утилита Readonly\ntype User = {\n  id: number;\n  name: string;\n};\n\nlet user: Readonly<User> = { id: 1, name: 'Алиса' };\nconsole.log(user); // { id: 1, name: 'Алиса' }\n// user.id = 2; // Ошибка: id только для чтения\n// user.name = 'Боб'; // Ошибка: name только для чтения\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Readonly<User>` делает все свойства только для чтения.\n- Никакие свойства не могут быть изменены.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Работа со свойствами только для чтения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства только для чтения используются в различных сценариях в реальных проектах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Практический пример\ninterface Product {\n  readonly id: number;\n  name: string;\n  price: number;\n}\n\nfunction displayProduct(product: Product): string {\n  return `Product ${product.id}: ${product.name}, Price: ${product.price}`;\n}\n\nlet product: Product = { id: 1, name: 'Телефон', price: 1000 };\nconsole.log(displayProduct(product)); // Product 1: Телефон, Price: 1000\nproduct.name = 'Смартфон'; // Валидно\n// product.id = 2; // Ошибка: id только для чтения\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- В интерфейсе `Product` свойство `id` только для чтения.\n- Функция `displayProduct` читает свойство только для чтения.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства только для чтения повышают безопасность кода, но требуется осторожность:\n- Убедитесь, что свойства только для чтения получают значения только при инициализации.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\ninterface User {\n  readonly id: number;\n  name: string;\n}\n\nfunction getUserInfo(user: User): string {\n  return `ID: ${user.id}, Name: ${user.name}`;\n}\n\nlet user: User = { id: 1, name: 'Алиса' };\nconsole.log(getUserInfo(user)); // ID: 1, Name: Алиса\n// user.id = 2; // Ошибка: id только для чтения\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `id` только для чтения и не может быть изменено.\n- Попытка изменения вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet unsafe: any = { id: 1, name: 'Алиса' };\nconsole.log(unsafe.id, unsafe.name); // 1, Алиса, но без безопасности типов\nunsafe.id = 2; // Валидно, но небезопасно\n\n// Правильный подход\ninterface User {\n  readonly id: number;\n  name: string;\n}\n\nlet user: User = { id: 1, name: 'Алиса' };\nconsole.log(user.id, user.name); // 1, Алиса\n// user.id = 2; // Ошибка: id только для чтения\nuser.name = 'Боб'; // Валидно\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- `readonly` обеспечивает безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства только для чтения широко используются в реальных проектах:\n- **Постоянные идентификаторы**: Например, ID пользователей или коды продуктов.\n- **Конфигурационные объекты**: Параметры, которые не должны изменяться.\n- **Ответы API**: Структуры данных с неизменяемыми свойствами.\n- **Целостность данных**: Предотвращение случайных изменений.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface UserProfile {\n  readonly id: number;\n  username: string;\n  readonly createdAt: string;\n}\n\nfunction displayProfile(profile: UserProfile): string {\n  return `User: ${profile.username}, ID: ${profile.id}, Created: ${profile.createdAt}`;\n}\n\nlet profile: UserProfile = { id: 1, username: 'alice123', createdAt: '2023-10-01' };\nconsole.log(displayProfile(profile)); // User: alice123, ID: 1, Created: 2023-10-01\nprofile.username = 'alice456'; // Валидно\n// profile.id = 2; // Ошибка: id только для чтения\n// profile.createdAt = '2023-11-01'; // Ошибка: createdAt только для чтения\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- В интерфейсе `UserProfile` свойства `id` и `createdAt` только для чтения.\n- Функция `displayProfile` читает свойства только для чтения.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте свойства только для чтения для постоянных значений и целостности данных. Предпочитайте точные типы вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Утилита `Readonly<T>` может сделать все свойства только для чтения. В JavaScript можно использовать `Object.freeze`, но это обеспечивает защиту только на этапе выполнения.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример свойств только для чтения для самостоятельного тестирования\ninterface User {\n  readonly id: number;\n  name: string;\n}\n\nconst user: User = { id: 1, name: 'Джон' };\nconsole.log(user.id, user.name); // 1, Джон\nuser.name = 'Боб'; // Валидно\n// user.id = 2; // Ошибка: id только для чтения\n"
+      }
+    ]
+  }
+}

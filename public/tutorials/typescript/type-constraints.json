@@ -1,0 +1,594 @@
+{
+  "id": "type-constraints",
+  "az": {
+    "title": "Tip Məhdudiyyətləri",
+    "icon": "FiLock",
+    "language": "typescript",
+    "description": "Generic tip parametrlərinə məhdudiyyətlər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Tip Məhdudiyyətləri Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də tip məhdudiyyətləri (constraints) generic tip parametrlərinin qəbul edə biləcəyi tipləri məhdudlaşdırmaq üçün istifadə olunur. `extends` açar sözü ilə təyin edilən bu məhdudiyyətlər, generic siniflər, funksiyalar və ya interfeyslərin yalnız müəyyən xüsusiyyətlərə malik tiplərlə işləməsini təmin edir. Məsələn, bir generic sinif yalnız `length` xüsusiyyətinə malik tiplərlə (sətir, massiv) işləməlidirsə, məhdudiyyət bunu təmin edir. JavaScript-də belə bir mexanizm yoxdur, buna görə adətən `any` tipi istifadə olunur ki, bu da tip təhlükəsizliyini azaldır və runtime səhvlərinə səbəb ola bilər. TypeScript-də tip məhdudiyyətləri kompilyasiya zamanı tip yoxlamasını gücləndirir və səhvləri azaltmağa kömək edir. Bu JSON faylda tip məhdudiyyətlərinin tərifi, istifadə məqsədləri, generic siniflər, funksiyalar və interfeyslərlə istifadəsi, JavaScript ilə fərqləri, sintaksisi, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Məhdudiyyətlərinin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip məhdudiyyətləri TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Tip təhlükəsizliyi**: Generic tip parametrlərinin yalnız müəyyən xüsusiyyətlərə malik tiplərlə işləməsini təmin etmək.\n- **Səhvlərin qarşısını almaq**: Yanlış tiplərin istifadəsini kompilyasiya zamanı aşkar etmək.\n- **Oxunaqlılıq**: Kodun məqsədini və məhdudiyyətlərini aydın ifadə etmək.\n- **Çeviklik**: Generic strukturları müəyyən şərtlərə uyğunlaşdırmaq.\nJavaScript-də oxşar funksionallıq üçün `any` tipi istifadə olunur, lakin bu, tip təhlükəsizliyini təmin etmir və runtime səhvlərinə yol aça bilər. Tip məhdudiyyətləri bu problemi həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Məhdudiyyətlərinin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip məhdudiyyətləri `<T extends SomeType>` sintaksisi ilə təyin edilir, burada `T` generic tip parametridir və `SomeType` onun uyğun olmalı olduğu tipdir. Bu, `T`-nin yalnız `SomeType`-ın xüsusiyyətlərinə malik tiplərlə işləməsini təmin edir.\nNümunə (sadə tip məhdudiyyəti):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Sadə tip məhdudiyyəti\nfunction getLength<T extends { length: number }>(item: T): number {\n  return item.length;\n}\n\nconsole.log(getLength('Hello')); // 5\nconsole.log(getLength([1, 2, 3])); // 3\n// console.log(getLength(42)); // Xəta: 42 length xüsusiyyətinə malik deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `T extends { length: number }` məhdudiyyəti `T`-nin `length` xüsusiyyətinə malik olmasını tələb edir.\n- Yalnız uyğun tiplər (sətir, massiv) istifadə oluna bilər.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Siniflərdə Tip Məhdudiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip məhdudiyyətləri generic siniflərdə sinfin xüsusiyyətləri və metodlarının müəyyən tiplərlə işləməsini təmin etmək üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic sinifdə tip məhdudiyyəti\nclass LengthBox<T extends { length: number }> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getLength(): number {\n    return this.content.length;\n  }\n}\n\nlet stringBox = new LengthBox<string>('Hello');\nlet arrayBox = new LengthBox<number[]>([1, 2, 3]);\n\nconsole.log(stringBox.getLength()); // 5\nconsole.log(arrayBox.getLength()); // 3\n// let errorBox = new LengthBox<number>(42); // Xəta: 42 length xüsusiyyətinə malik deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `T extends { length: number }` məhdudiyyəti `T`-nin `length` xüsusiyyətinə malik olmasını təmin edir.\n- Yalnız sətir və ya massiv kimi tiplər istifadə oluna bilər.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Funksiyalarda Tip Məhdudiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic funksiyalarda tip məhdudiyyətləri funksiyanın parametrlərinin və qaytarma dəyərlərinin müəyyən xüsusiyyətlərə malik tiplərlə işləməsini təmin edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic funksiyada tip məhdudiyyəti\nfunction getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}\n\nlet person = { name: 'Alice', age: 30 };\nconsole.log(getProperty(person, 'name')); // Alice\nconsole.log(getProperty(person, 'age')); // 30\n// console.log(getProperty(person, 'address')); // Xəta: 'address' mövcud deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `K extends keyof T` məhdudiyyəti `key` parametrinin yalnız `T` obyektinin mövcud xüsusiyyətləri ilə işləməsini təmin edir.\n- Yanlış açar istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Interfeyslərdə Tip Məhdudiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfeyslərdə tip məhdudiyyətləri interfeysin xüsusiyyətlərinin və metodlarının müəyyən tiplərlə işləməsini təmin edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic interfeysdə tip məhdudiyyəti\ninterface Printable<T extends { toString(): string }> {\n  item: T;\n  print(): string;\n}\n\nclass Printer<T extends { toString(): string }> implements Printable<T> {\n  item: T;\n  constructor(item: T) {\n    this.item = item;\n  }\n  print(): string {\n    return this.item.toString();\n  }\n}\n\nlet stringPrinter = new Printer<string>('Hello');\nlet numberPrinter = new Printer<number>(42);\n\nconsole.log(stringPrinter.print()); // Hello\nconsole.log(numberPrinter.print()); // 42\n// let errorPrinter = new Printer<{ name: string }>({ name: 'Test' }); // Xəta: toString() metodu yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `T extends { toString(): string }` məhdudiyyəti `T`-nin `toString` metoduna malik olmasını tələb edir.\n- Yalnız uyğun tiplər (sətir, rəqəm) istifadə oluna bilər.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Çoxsaylı Tip Məhdudiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bir generic tip parametri birdən çox məhdudiyyətlə təyin edilə bilər, məsələn, bir neçə interfeysin birləşməsi ilə.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Çoxsaylı tip məhdudiyyətləri\ninterface HasName {\n  name: string;\n}\ninterface HasAge {\n  age: number;\n}\n\nfunction printInfo<T extends HasName & HasAge>(item: T): string {\n  return `Name: ${item.name}, Age: ${item.age}`;\n}\n\nlet person = { name: 'Alice', age: 30 };\nconsole.log(printInfo(person)); // Name: Alice, Age: 30\n// console.log(printInfo({ name: 'Bob' })); // Xəta: age xüsusiyyəti yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `T extends HasName & HasAge` məhdudiyyəti `T`-nin həm `name`, həm də `age` xüsusiyyətlərinə malik olmasını tələb edir.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "JavaScript ilə Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "JavaScript-də tip məhdudiyyətləri yoxdur, çünki JavaScript dinamik tip sisteminə malikdir. Buna görə JavaScript-də oxşar funksionallıq üçün adətən `any` tipi istifadə olunur, lakin bu, tip təhlükəsizliyini təmin etmir. TypeScript-də tip məhdudiyyətləri ilə:\n- Tiplər kompilyasiya zamanı yoxlanılır.\n- Yanlış tiplər istifadə edildikdə xəta aşkar edilir.\n- Kodun oxunaqlılığı və təhlükəsizliyi artır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// JavaScript-də oxşar kod\nfunction getLengthJS(item) {\n  return item.length;\n}\n\nconsole.log(getLengthJS('Hello')); // 5\nconsole.log(getLengthJS([1, 2, 3])); // 3\nconsole.log(getLengthJS(42)); // undefined, lakin xəta yoxdur\n\n// TypeScript-də təhlükəsiz kod\nfunction getLengthTS<T extends { length: number }>(item: T): number {\n  return item.length;\n}\n\nconsole.log(getLengthTS('Hello')); // 5\nconsole.log(getLengthTS([1, 2, 3])); // 3\n// console.log(getLengthTS(42)); // Xəta: 42 length xüsusiyyətinə malik deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- JavaScript-də `getLengthJS` funksiyası `any` tipi ilə işləyir və runtime səhvlərinə yol aça bilər.\n- TypeScript-də `getLengthTS` tip məhdudiyyəti ilə təhlükəsizdir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip məhdudiyyətləri kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Məhdudiyyətləri dəqiq təyin edin.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- Lazım olduqda çoxsaylı məhdudiyyətlərdən istifadə edin.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\nclass KeyedBox<T, K extends keyof T> {\n  data: T;\n  constructor(data: T) {\n    this.data = data;\n  }\n  getProperty(key: K): T[K] {\n    return this.data[key];\n  }\n}\n\nlet personBox = new KeyedBox<{ name: string; age: number }>({ name: 'Alice', age: 30 });\n\nconsole.log(personBox.getProperty('name')); // Alice\nconsole.log(personBox.getProperty('age')); // 30\n// console.log(personBox.getProperty('address')); // Xəta: 'address' mövcud deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `K extends keyof T` məhdudiyyəti `key` parametrinin yalnız obyektin mövcud xüsusiyyətləri ilə işləməsini təmin edir.\n- Yanlış açar istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nfunction unsafeGetProperty(obj: any, key: any): any {\n  return obj[key];\n}\n\nlet person = { name: 'Alice', age: 30 };\nconsole.log(unsafeGetProperty(person, 'name')); // Alice\nconsole.log(unsafeGetProperty(person, 'address')); // undefined, lakin xəta yoxdur\n\n// Düzgün yol\nfunction safeGetProperty<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}\n\nconsole.log(safeGetProperty(person, 'name')); // Alice\n// console.log(safeGetProperty(person, 'address')); // Xəta: 'address' mövcud deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime səhvlərinə səbəb ola bilər.\n- Tip məhdudiyyətləri ilə `safeGetProperty` funksiyası təhlükəsizdir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip məhdudiyyətləri real layihələrdə geniş istifadə olunur:\n- **Məlumat strukturları**: Siyahılar, ağaclar və ya digər məlumat strukturları üçün tip təhlükəsizliyini təmin etmək.\n- **API cavabları**: API-dən gələn məlumatların müəyyən xüsusiyyətlərə malik olmasını təmin etmək.\n- **Komponent kitabxanaları**: React və ya Angular kimi kitabxanalarda tip məhdudiyyətləri.\n- **Obyekt xüsusiyyətlərinin idarə edilməsi**: Obyekt açarlarının təhlükəsiz şəkildə əldə edilməsi.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface ApiData {\n  id: number;\n  name: string;\n}\n\nclass ApiResponse<T extends ApiData> {\n  data: T;\n  status: number;\n  constructor(data: T, status: number) {\n    this.data = data;\n    this.status = status;\n  }\n  getName(): string {\n    return this.data.name;\n  }\n}\n\nlet userResponse = new ApiResponse({ id: 1, name: 'Alice' }, 200);\nconsole.log(userResponse.getName()); // Alice\n// let errorResponse = new ApiResponse({ id: 2 }, 200); // Xəta: name xüsusiyyəti yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `T extends ApiData` məhdudiyyəti `T`-nin `id` və `name` xüsusiyyətlərinə malik olmasını təmin edir.\n- Tip təhlükəsizliyi kompilyasiya zamanı təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip məhdudiyyətləri qabaqcıl TypeScript xüsusiyyətləri ilə də istifadə oluna bilər:\n- **Şərti tiplər (Conditional Types)**: Tipləri şərtlərə əsasən təyin etmək.\n- **Infer**: Generic tiplərdən avtomatik tip çıxarılması.\nBu mövzular haqqında ətraflı məlumat üçün TypeScript sənədlərinə (https://www.typescriptlang.org/docs) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Tip məhdudiyyətlərini tip təhlükəsizliyini artırmaq üçün istifadə edin. `any` əvəzinə dəqiq məhdudiyyətləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Tip məhdudiyyətləri əvəzinə `any` istifadə edilə bilər, lakin bu, təhlükəsiz deyil.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün tip məhdudiyyəti nümunəsi\nfunction getLength<T extends { length: number }>(item: T): number {\n  return item.length;\n}\n\nconsole.log(getLength('Hello')); // 5\nconsole.log(getLength([1, 2, 3])); // 3\n// console.log(getLength(42)); // Xəta: 42 length xüsusiyyətinə malik deyil\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Type Constraints",
+    "icon": "FiLock",
+    "language": "typescript",
+    "description": "Constraints on generic type parameters.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Type Constraints?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, type constraints are used to restrict the types that generic type parameters can accept. Defined using the `extends` keyword, constraints ensure that generic classes, functions, or interfaces only work with types that have specific properties. For example, if a generic class should only work with types that have a `length` property (e.g., string, array), a constraint enforces this. JavaScript lacks such a mechanism, so developers often use `any`, which compromises type safety and can lead to runtime errors. TypeScript’s type constraints enforce type checking at compile time, reducing errors. This JSON file explains the definition, purposes, usage with generic classes, functions, and interfaces, differences from JavaScript, syntax, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Type Constraints"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type constraints in TypeScript serve the following purposes:\n- **Type safety**: Ensure generic type parameters only work with types that have specific properties.\n- **Error prevention**: Detect incorrect type usage at compile time.\n- **Readability**: Clearly express the code’s intent and constraints.\n- **Flexibility**: Adapt generic structures to specific conditions.\nIn JavaScript, similar functionality is achieved using `any`, which lacks type safety and can lead to runtime errors. Type constraints solve this issue."
+      },
+      {
+        "type": "heading",
+        "text": "Syntax of Type Constraints"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type constraints are defined using `<T extends SomeType>`, where `T` is the generic type parameter and `SomeType` is the type it must conform to. This ensures `T` only accepts types with the properties of `SomeType`.\nExample (simple type constraint):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Simple type constraint\nfunction getLength<T extends { length: number }>(item: T): number {\n  return item.length;\n}\n\nconsole.log(getLength('Hello')); // 5\nconsole.log(getLength([1, 2, 3])); // 3\n// console.log(getLength(42)); // Error: 42 does not have a length property\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `T extends { length: number }` constraint requires `T` to have a `length` property.\n- Only compatible types (string, array) can be used.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Constraints in Generic Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type constraints in generic classes ensure that the class’s properties and methods work with specific types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type constraint in generic class\nclass LengthBox<T extends { length: number }> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getLength(): number {\n    return this.content.length;\n  }\n}\n\nlet stringBox = new LengthBox<string>('Hello');\nlet arrayBox = new LengthBox<number[]>([1, 2, 3]);\n\nconsole.log(stringBox.getLength()); // 5\nconsole.log(arrayBox.getLength()); // 3\n// let errorBox = new LengthBox<number>(42); // Error: 42 does not have a length property\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `T extends { length: number }` constraint ensures `T` has a `length` property.\n- Only strings or arrays can be used.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Constraints in Generic Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type constraints in generic functions ensure that the function’s parameters and return values work with specific types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type constraint in generic function\nfunction getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}\n\nlet person = { name: 'Alice', age: 30 };\nconsole.log(getProperty(person, 'name')); // Alice\nconsole.log(getProperty(person, 'age')); // 30\n// console.log(getProperty(person, 'address')); // Error: 'address' does not exist\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `K extends keyof T` constraint ensures `key` is a valid property of `T`.\n- Invalid keys trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Constraints in Generic Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type constraints in generic interfaces ensure that the interface’s properties and methods work with specific types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type constraint in generic interface\ninterface Printable<T extends { toString(): string }> {\n  item: T;\n  print(): string;\n}\n\nclass Printer<T extends { toString(): string }> implements Printable<T> {\n  item: T;\n  constructor(item: T) {\n    this.item = item;\n  }\n  print(): string {\n    return this.item.toString();\n  }\n}\n\nlet stringPrinter = new Printer<string>('Hello');\nlet numberPrinter = new Printer<number>(42);\n\nconsole.log(stringPrinter.print()); // Hello\nconsole.log(numberPrinter.print()); // 42\n// let errorPrinter = new Printer<{ name: string }>({ name: 'Test' }); // Error: toString() method is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `T extends { toString(): string }` constraint requires `T` to have a `toString` method.\n- Only compatible types (string, number) can be used.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Multiple Type Constraints"
+      },
+      {
+        "type": "paragraph",
+        "text": "A generic type parameter can be constrained by multiple types, such as a combination of interfaces.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Multiple type constraints\ninterface HasName {\n  name: string;\n}\ninterface HasAge {\n  age: number;\n}\n\nfunction printInfo<T extends HasName & HasAge>(item: T): string {\n  return `Name: ${item.name}, Age: ${item.age}`;\n}\n\nlet person = { name: 'Alice', age: 30 };\nconsole.log(printInfo(person)); // Name: Alice, Age: 30\n// console.log(printInfo({ name: 'Bob' })); // Error: Missing age property\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `T extends HasName & HasAge` constraint requires `T` to have both `name` and `age` properties.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Differences from JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "JavaScript lacks type constraints due to its dynamic type system. Typically, `any` is used for similar functionality, but it does not provide type safety. With TypeScript’s type constraints:\n- Types are checked at compile time.\n- Incorrect types are detected as errors.\n- Code readability and safety are improved.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// JavaScript equivalent\nfunction getLengthJS(item) {\n  return item.length;\n}\n\nconsole.log(getLengthJS('Hello')); // 5\nconsole.log(getLengthJS([1, 2, 3])); // 3\nconsole.log(getLengthJS(42)); // undefined, no error\n\n// TypeScript safe code\nfunction getLengthTS<T extends { length: number }>(item: T): number {\n  return item.length;\n}\n\nconsole.log(getLengthTS('Hello')); // 5\nconsole.log(getLengthTS([1, 2, 3])); // 3\n// console.log(getLengthTS(42)); // Error: 42 does not have a length property\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The JavaScript `getLengthJS` function uses `any` and may cause runtime errors.\n- The TypeScript `getLengthTS` function is safe with type constraints.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type constraints enhance code safety, but caution is needed:\n- Define constraints precisely.\n- Avoid `any` as it reduces type safety.\n- Use multiple constraints when necessary.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\nclass KeyedBox<T, K extends keyof T> {\n  data: T;\n  constructor(data: T) {\n    this.data = data;\n  }\n  getProperty(key: K): T[K] {\n    return this.data[key];\n  }\n}\n\nlet personBox = new KeyedBox<{ name: string; age: number }>({ name: 'Alice', age: 30 });\n\nconsole.log(personBox.getProperty('name')); // Alice\nconsole.log(personBox.getProperty('age')); // 30\n// console.log(personBox.getProperty('address')); // Error: 'address' does not exist\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `K extends keyof T` constraint ensures `key` is a valid property of `T`.\n- Invalid keys trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nfunction unsafeGetProperty(obj: any, key: any): any {\n  return obj[key];\n}\n\nlet person = { name: 'Alice', age: 30 };\nconsole.log(unsafeGetProperty(person, 'name')); // Alice\nconsole.log(unsafeGetProperty(person, 'address')); // undefined, no error\n\n// Correct approach\nfunction safeGetProperty<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}\n\nconsole.log(safeGetProperty(person, 'name')); // Alice\n// console.log(safeGetProperty(person, 'address')); // Error: 'address' does not exist\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `any` type is unsafe and may cause runtime errors.\n- The `safeGetProperty` function with type constraints is safe.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type constraints are widely used in real projects:\n- **Data structures**: Ensuring type safety for lists, trees, or other data structures.\n- **API responses**: Ensuring API data has specific properties.\n- **Component libraries**: Type constraints in React or Angular.\n- **Object property access**: Safely accessing object keys.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface ApiData {\n  id: number;\n  name: string;\n}\n\nclass ApiResponse<T extends ApiData> {\n  data: T;\n  status: number;\n  constructor(data: T, status: number) {\n    this.data = data;\n    this.status = status;\n  }\n  getName(): string {\n    return this.data.name;\n  }\n}\n\nlet userResponse = new ApiResponse({ id: 1, name: 'Alice' }, 200);\nconsole.log(userResponse.getName()); // Alice\n// let errorResponse = new ApiResponse({ id: 2 }, 200); // Error: Missing name property\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `T extends ApiData` constraint ensures `T` has `id` and `name` properties.\n- Type safety is enforced at compile time.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type constraints can be used with advanced TypeScript features:\n- **Conditional Types**: Define types based on conditions.\n- **Infer**: Automatically infer types within generics.\nFor more details, refer to the TypeScript documentation (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use type constraints to enhance type safety. Prefer precise constraints over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Instead of type constraints, `any` can be used, but it is unsafe.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself type constraint example\nfunction getLength<T extends { length: number }>(item: T): number {\n  return item.length;\n}\n\nconsole.log(getLength('Hello')); // 5\nconsole.log(getLength([1, 2, 3])); // 3\n// console.log(getLength(42)); // Error: 42 does not have a length property\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Ограничения типов",
+    "icon": "FiLock",
+    "language": "typescript",
+    "description": "Ограничения на параметры типов в дженериках.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое ограничения типов?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript ограничения типов (constraints) используются для ограничения типов, которые могут принимать параметры дженериков. Определяемые с помощью ключевого слова `extends`, ограничения гарантируют, что дженерик-классы, функции или интерфейсы работают только с типами, обладающими определенными свойствами. Например, если дженерик-класс должен работать только с типами, у которых есть свойство `length` (например, строка, массив), ограничение это обеспечивает. В JavaScript такого механизма нет, поэтому обычно используется тип `any`, что снижает безопасность типов и может привести к ошибкам во время выполнения. Ограничения типов в TypeScript усиливают проверку типов во время компиляции и помогают уменьшить ошибки. Этот JSON-файл подробно объясняет определение, назначение, использование с дженерик-классами, функциями и интерфейсами, отличия от JavaScript, синтаксис, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение ограничений типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ограничения типов в TypeScript используются для следующих целей:\n- **Безопасность типов**: Гарантируют, что параметры дженериков работают только с типами, обладающими определенными свойствами.\n- **Предотвращение ошибок**: Обнаруживают неправильное использование типов на этапе компиляции.\n- **Читаемость**: Четко выражают назначение и ограничения кода.\n- **Гибкость**: Адаптируют дженерик-структуры к определенным условиям.\nВ JavaScript для аналогичной функциональности обычно используется `any`, что не обеспечивает безопасность типов и может привести к ошибкам во время выполнения. Ограничения типов решают эту проблему."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис ограничений типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ограничения типов определяются с помощью `<T extends SomeType>`, где `T` — это параметр дженерик-типа, а `SomeType` — тип, которому он должен соответствовать. Это гарантирует, что `T` принимает только типы с свойствами `SomeType`.\nПример (простое ограничение типа):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Простое ограничение типа\nfunction getLength<T extends { length: number }>(item: T): number {\n  return item.length;\n}\n\nconsole.log(getLength('Hello')); // 5\nconsole.log(getLength([1, 2, 3])); // 3\n// console.log(getLength(42)); // Ошибка: у 42 нет свойства length\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ограничение `T extends { length: number }` требует, чтобы `T` имел свойство `length`.\n- Могут использоваться только совместимые типы (строка, массив).\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Ограничения типов в дженерик-классах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ограничения типов в дженерик-классах гарантируют, что свойства и методы класса работают с определенными типами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Ограничение типа в дженерик-классе\nclass LengthBox<T extends { length: number }> {\n  content: T;\n  constructor(content: T) {\n    this.content = content;\n  }\n  getLength(): number {\n    return this.content.length;\n  }\n}\n\nlet stringBox = new LengthBox<string>('Hello');\nlet arrayBox = new LengthBox<number[]>([1, 2, 3]);\n\nconsole.log(stringBox.getLength()); // 5\nconsole.log(arrayBox.getLength()); // 3\n// let errorBox = new LengthBox<number>(42); // Ошибка: у 42 нет свойства length\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ограничение `T extends { length: number }` гарантирует, что `T` имеет свойство `length`.\n- Могут использоваться только строки или массивы.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Ограничения типов в дженерик-функциях"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ограничения типов в дженерик-функциях гарантируют, что параметры и возвращаемые значения функции работают с определенными типами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Ограничение типа в дженерик-функции\nfunction getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}\n\nlet person = { name: 'Alice', age: 30 };\nconsole.log(getProperty(person, 'name')); // Alice\nconsole.log(getProperty(person, 'age')); // 30\n// console.log(getProperty(person, 'address')); // Ошибка: 'address' не существует\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ограничение `K extends keyof T` гарантирует, что `key` является допустимым свойством `T`.\n- Недопустимые ключи вызывают ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Ограничения типов в дженерик-интерфейсах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ограничения типов в дженерик-интерфейсах гарантируют, что свойства и методы интерфейса работают с определенными типами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Ограничение типа в дженерик-интерфейсе\ninterface Printable<T extends { toString(): string }> {\n  item: T;\n  print(): string;\n}\n\nclass Printer<T extends { toString(): string }> implements Printable<T> {\n  item: T;\n  constructor(item: T) {\n    this.item = item;\n  }\n  print(): string {\n    return this.item.toString();\n  }\n}\n\nlet stringPrinter = new Printer<string>('Hello');\nlet numberPrinter = new Printer<number>(42);\n\nconsole.log(stringPrinter.print()); // Hello\nconsole.log(numberPrinter.print()); // 42\n// let errorPrinter = new Printer<{ name: string }>({ name: 'Test' }); // Ошибка: метод toString() отсутствует\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ограничение `T extends { toString(): string }` требует, чтобы `T` имел метод `toString`.\n- Могут использоваться только совместимые типы (строка, число).\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Множественные ограничения типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Параметр дженерик-типа может быть ограничен несколькими типами, например, комбинацией интерфейсов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Множественные ограничения типов\ninterface HasName {\n  name: string;\n}\ninterface HasAge {\n  age: number;\n}\n\nfunction printInfo<T extends HasName & HasAge>(item: T): string {\n  return `Name: ${item.name}, Age: ${item.age}`;\n}\n\nlet person = { name: 'Alice', age: 30 };\nconsole.log(printInfo(person)); // Name: Alice, Age: 30\n// console.log(printInfo({ name: 'Bob' })); // Ошибка: отсутствует свойство age\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ограничение `T extends HasName & HasAge` требует, чтобы `T` имел свойства `name` и `age`.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Отличия от JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "В JavaScript нет ограничений типов из-за его динамической системы типов. Обычно используется `any`, но это не обеспечивает безопасность типов. С ограничениями типов в TypeScript:\n- Типы проверяются во время компиляции.\n- Неправильные типы обнаруживаются как ошибки.\n- Улучшается читаемость и безопасность кода.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Эквивалент в JavaScript\nfunction getLengthJS(item) {\n  return item.length;\n}\n\nconsole.log(getLengthJS('Hello')); // 5\nconsole.log(getLengthJS([1, 2, 3])); // 3\nconsole.log(getLengthJS(42)); // undefined, без ошибки\n\n// Безопасный код в TypeScript\nfunction getLengthTS<T extends { length: number }>(item: T): number {\n  return item.length;\n}\n\nconsole.log(getLengthTS('Hello')); // 5\nconsole.log(getLengthTS([1, 2, 3])); // 3\n// console.log(getLengthTS(42)); // Ошибка: у 42 нет свойства length\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `getLengthJS` в JavaScript использует `any` и может вызвать ошибки во время выполнения.\n- Функция `getLengthTS` в TypeScript безопасна благодаря ограничениям типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ограничения типов повышают безопасность кода, но требуется осторожность:\n- Точно определяйте ограничения.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Используйте множественные ограничения при необходимости.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\nclass KeyedBox<T, K extends keyof T> {\n  data: T;\n  constructor(data: T) {\n    this.data = data;\n  }\n  getProperty(key: K): T[K] {\n    return this.data[key];\n  }\n}\n\nlet personBox = new KeyedBox<{ name: string; age: number }>({ name: 'Alice', age: 30 });\n\nconsole.log(personBox.getProperty('name')); // Alice\nconsole.log(personBox.getProperty('age')); // 30\n// console.log(personBox.getProperty('address')); // Ошибка: 'address' не существует\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ограничение `K extends keyof T` гарантирует, что `key` является допустимым свойством `T`.\n- Недопустимые ключи вызывают ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nfunction unsafeGetProperty(obj: any, key: any): any {\n  return obj[key];\n}\n\nlet person = { name: 'Alice', age: 30 };\nconsole.log(unsafeGetProperty(person, 'name')); // Alice\nconsole.log(unsafeGetProperty(person, 'address')); // undefined, без ошибки\n\n// Правильный подход\nfunction safeGetProperty<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}\n\nconsole.log(safeGetProperty(person, 'name')); // Alice\n// console.log(safeGetProperty(person, 'address')); // Ошибка: 'address' не существует\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `any` небезопасен и может вызвать ошибки во время выполнения.\n- Функция `safeGetProperty` с ограничениями типов безопасна.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ограничения типов широко используются в реальных проектах:\n- **Структуры данных**: Обеспечение безопасности типов для списков, деревьев или других структур данных.\n- **Ответы API**: Гарантия того, что данные API имеют определенные свойства.\n- **Библиотеки компонентов**: Ограничения типов в React или Angular.\n- **Доступ к свойствам объектов**: Безопасный доступ к ключам объектов.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface ApiData {\n  id: number;\n  name: string;\n}\n\nclass ApiResponse<T extends ApiData> {\n  data: T;\n  status: number;\n  constructor(data: T, status: number) {\n    this.data = data;\n    this.status = status;\n  }\n  getName(): string {\n    return this.data.name;\n  }\n}\n\nlet userResponse = new ApiResponse({ id: 1, name: 'Alice' }, 200);\nconsole.log(userResponse.getName()); // Alice\n// let errorResponse = new ApiResponse({ id: 2 }, 200); // Ошибка: отсутствует свойство name\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ограничение `T extends ApiData` гарантирует, что `T` имеет свойства `id` и `name`.\n- Безопасность типов обеспечивается во время компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ограничения типов могут использоваться с продвинутыми возможностями TypeScript:\n- **Условные типы (Conditional Types)**: Определение типов на основе условий.\n- **Infer**: Автоматический вывод типов внутри дженериков.\nДля получения дополнительной информации обратитесь к документации TypeScript (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте ограничения типов для повышения безопасности типов. Предпочитайте точные ограничения вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо ограничений типов можно использовать `any`, но это небезопасно.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример ограничения типа для самостоятельного тестирования\nfunction getLength<T extends { length: number }>(item: T): number {\n  return item.length;\n}\n\nconsole.log(getLength('Hello')); // 5\nconsole.log(getLength([1, 2, 3])); // 3\n// console.log(getLength(42)); // Ошибка: у 42 нет свойства length\n"
+      }
+    ]
+  }
+}

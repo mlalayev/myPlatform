@@ -1,0 +1,543 @@
+{
+  "id": "mapped-types",
+  "az": {
+    "title": "Xəritələnmiş Tiplər",
+    "icon": "FiMap",
+    "language": "typescript",
+    "description": "Mövcud tiplərdən yeni tiplər yaratmaq.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Xəritələnmiş Tiplər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də xəritələnmiş tiplər (mapped types) mövcud tiplərdən yeni tiplər yaratmaq üçün istifadə olunur. `[K in keyof T]` sintaksisi ilə təyin edilən bu tiplər, bir obyekt tipinin açarlarını (properties) götürərək hər açar üçün yeni xüsusiyyətlər və ya tiplər təyin etməyə imkan verir. Məsələn, bir obyektin bütün xüsusiyyətlərini `readonly` və ya `optional` etmək üçün xəritələnmiş tiplərdən istifadə olunur. Bu, xüsusilə generic tiplər və şərti tiplərlə birləşdirildikdə güclü olur, çünki mövcud tipləri çevik şəkildə dəyişdirməyə imkan verir. JavaScript-də belə bir mexanizm yoxdur, buna görə adətən `any` tipi istifadə olunur ki, bu da tip təhlükəsizliyini azaldır və runtime səhvlərinə səbəb ola bilər. TypeScript-də xəritələnmiş tiplər kompilyasiya zamanı tip yoxlamasını gücləndirir və səhvləri azaltmağa kömək edir. Bu JSON faylda xəritələnmiş tiplərin tərifi, istifadə məqsədləri, generic tiplər və şərti tiplərlə əlaqəsi, JavaScript ilə fərqləri, sintaksisi, `keyof` və `in` ilə istifadəsi, tip təhlükəsizliyi, daxili utility tipləri (`Partial`, `Required`, `Readonly`, `Pick`, `Omit`) və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Xəritələnmiş Tiplərin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xəritələnmiş tiplər TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Tip transformasiyası**: Mövcud tiplərdən yeni tiplər yaratmaq.\n- **Tip təhlükəsizliyi**: Obyekt xüsusiyyətlərinin tipini dəqiq idarə etmək.\n- **Çeviklik**: Obyekt tiplərinin xüsusiyyətlərini dinamik şəkildə dəyişdirmək.\n- **Oxunaqlılıq**: Kodun məqsədini və tip strukturunu aydın ifadə etmək.\n- **Səhvlərin qarşısını almaq**: Yanlış tiplərin istifadəsini kompilyasiya zamanı aşkar etmək.\nJavaScript-də oxşar funksionallıq üçün `any` tipi istifadə olunur, lakin bu, tip təhlükəsizliyini təmin etmir və runtime səhvlərinə yol aça bilər. Xəritələnmiş tiplər bu problemi həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Xəritələnmiş Tiplərin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xəritələnmiş tiplər `[K in keyof T]` sintaksisi ilə təyin edilir, burada:\n- `K` obyektin açarlarını (properties) təmsil edir.\n- `keyof T` `T` tipinin bütün açarlarını əldə edir.\n- Yeni tip hər açar üçün xüsusiyyətləri və ya tipləri dəyişdirir.\nNümunə (sadə xəritələnmiş tip):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Sadə xəritələnmiş tip\ninterface User {\n  name: string;\n  age: number;\n}\n\ntype ReadonlyUser = { readonly [K in keyof User]: User[K] };\n\nlet user: ReadonlyUser = { name: 'Alice', age: 30 };\n// user.name = 'Bob'; // Xəta: name readonly-dir\n\nconsole.log(user); // { name: 'Alice', age: 30 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ReadonlyUser` xəritələnmiş tipi `User` tipinin bütün xüsusiyyətlərini `readonly` edir.\n- `keyof User` `name` və `age` açarlarını əldə edir.\n- Yanlış istifadə (məsələn, `readonly` xüsusiyyəti dəyişdirmək) kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Tiplərlə Xəritələnmiş Tiplər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xəritələnmiş tiplər generic tiplərlə birləşdirildikdə çox güclü olur, çünki istənilən tipə dinamik transformasiyalar tətbiq etməyə imkan verir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic tiplərlə xəritələnmiş tip\ntype MakeOptional<T> = { [K in keyof T]?: T[K] };\n\ninterface User {\n  name: string;\n  age: number;\n}\n\ntype OptionalUser = MakeOptional<User>;\n\nlet user: OptionalUser = { name: 'Alice' }; // age opsionaldır\n\nconsole.log(user); // { name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `MakeOptional<T>` xəritələnmiş tipi `T`-nin bütün xüsusiyyətlərini opsional edir.\n- `OptionalUser` yalnız `name` ilə obyekt yarada bilir, çünki `age` opsionaldır.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Şərti Tiplərlə Xəritələnmiş Tiplər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xəritələnmiş tiplər şərti tiplərlə birləşdirildikdə daha dəqiq və çevik tiplər yarada bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Şərti tiplərlə xəritələnmiş tip\ntype FilterByType<T, U> = { [K in keyof T]: T[K] extends U ? T[K] : never };\n\ninterface User {\n  name: string;\n  age: number;\n  active: boolean;\n}\n\ntype StringOnlyUser = FilterByType<User, string>;\n\nlet user: StringOnlyUser = { name: 'Alice', age: null as never, active: null as never };\n\nconsole.log(user); // { name: 'Alice', age: null, active: null }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `FilterByType<T, U>` xəritələnmiş tipi `T`-nin yalnız `U` tipinə uyğun xüsusiyyətlərini saxlayır, digərlərini `never` edir.\n- `StringOnlyUser` yalnız `string` tipli `name` xüsusiyyətini saxlayır.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Daxili Utility Tipləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də xəritələnmiş tiplərə əsaslanan bir neçə daxili utility tipi mövcuddur:\n- `Partial<T>`: Bütün xüsusiyyətləri opsional edir.\n- `Required<T>`: Bütün xüsusiyyətləri tələb olunan edir.\n- `Readonly<T>`: Bütün xüsusiyyətləri yalnız oxuna bilən edir.\n- `Pick<T, K>`: Müəyyən xüsusiyyətləri seçir.\n- `Omit<T, K>`: Müəyyən xüsusiyyətləri çıxarır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Daxili utility tipləri\ninterface User {\n  name: string;\n  age: number;\n  active?: boolean;\n}\n\ntype PartialUser = Partial<User>;\ntype RequiredUser = Required<User>;\ntype ReadonlyUser = Readonly<User>;\ntype PickUser = Pick<User, 'name' | 'age'>;\ntype OmitUser = Omit<User, 'active'>;\n\nlet partial: PartialUser = { name: 'Alice' }; // age və active opsionaldır\nlet required: RequiredUser = { name: 'Bob', age: 25, active: true }; // bütün xüsusiyyətlər tələb olunur\nlet readonly: ReadonlyUser = { name: 'Charlie', age: 30, active: false };\n// readonly.name = 'Dave'; // Xəta: readonly-dir\nlet picked: PickUser = { name: 'Eve', age: 28 }; // yalnız name və age\nlet omitted: OmitUser = { name: 'Frank', age: 35 }; // active çıxarılıb\n\nconsole.log(partial); // { name: 'Alice' }\nconsole.log(required); // { name: 'Bob', age: 25, active: true }\nconsole.log(readonly); // { name: 'Charlie', age: 30, active: false }\nconsole.log(picked); // { name: 'Eve', age: 28 }\nconsole.log(omitted); // { name: 'Frank', age: 35 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Partial`, `Required`, `Readonly`, `Pick`, və `Omit` utility tipləri `User` tipini müxtəlif yollarla dəyişdirir.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "JavaScript ilə Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "JavaScript-də xəritələnmiş tiplər yoxdur, çünki JavaScript dinamik tip sisteminə malikdir. Buna görə JavaScript-də oxşar funksionallıq üçün adətən `any` tipi istifadə olunur, lakin bu, tip təhlükəsizliyini təmin etmir. TypeScript-də xəritələnmiş tiplər ilə:\n- Tiplər kompilyasiya zamanı dəqiq idarə olunur.\n- Yanlış tiplər istifadə edildikdə xəta aşkar edilir.\n- Kodun oxunaqlılığı və təhlükəsizliyi artır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// JavaScript-də oxşar kod\nfunction updateUserJS(user) {\n  return { ...user, name: 'Updated' };\n}\n\nconsole.log(updateUserJS({ name: 'Alice', age: 30 })); // { name: 'Updated', age: 30 }\nconsole.log(updateUserJS({ name: 'Bob' })); // { name: 'Updated' }, lakin xəta yoxdur\n\n// TypeScript-də təhlükəsiz kod\ntype PartialUser<T> = { [K in keyof T]?: T[K] };\n\nfunction updateUserTS<T extends { name: string }>(user: PartialUser<T>): T {\n  return { ...user, name: 'Updated' } as T;\n}\n\nlet user = updateUserTS({ name: 'Alice', age: 30 });\nconsole.log(user); // { name: 'Updated', age: 30 }\n// let error = updateUserTS({ age: 25 }); // Xəta: name xüsusiyyəti yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- JavaScript-də `updateUserJS` funksiyası `any` tipi ilə işləyir və runtime səhvlərinə yol aça bilər.\n- TypeScript-də `updateUserTS` xəritələnmiş tiplərlə təhlükəsizdir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xəritələnmiş tiplər kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Xüsusiyyətləri dəqiq təyin edin.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- Lazım olduqda şərti tiplərlə birləşdirin.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\ntype ReadonlyProps<T> = { readonly [K in keyof T]: T[K] };\n\ninterface User {\n  name: string;\n  age: number;\n}\n\nlet user: ReadonlyProps<User> = { name: 'Alice', age: 30 };\n// user.name = 'Bob'; // Xəta: name readonly-dir\n\nconsole.log(user); // { name: 'Alice', age: 30 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ReadonlyProps<T>` xəritələnmiş tipi `T`-nin bütün xüsusiyyətlərini `readonly` edir.\n- Yanlış istifadə kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nfunction unsafeUpdateUser(user: any): any {\n  return { ...user, name: 'Updated' };\n}\n\nconsole.log(unsafeUpdateUser({ name: 'Alice', age: 30 })); // { name: 'Updated', age: 30 }\nconsole.log(unsafeUpdateUser({ age: 25 })); // { name: 'Updated', age: 25 }, lakin xəta yoxdur\n\n// Düzgün yol\ntype PartialUser<T> = { [K in keyof T]?: T[K] };\n\nfunction safeUpdateUser<T extends { name: string }>(user: PartialUser<T>): T {\n  return { ...user, name: 'Updated' } as T;\n}\n\nconsole.log(safeUpdateUser({ name: 'Alice', age: 30 })); // { name: 'Updated', age: 30 }\n// console.log(safeUpdateUser({ age: 25 })); // Xəta: name xüsusiyyəti yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime səhvlərinə səbəb ola bilər.\n- Xəritələnmiş tiplər ilə `safeUpdateUser` funksiyası təhlükəsizdir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xəritələnmiş tiplər real layihələrdə geniş istifadə olunur:\n- **API cavablarının idarə edilməsi**: API-dən gələn məlumatların xüsusiyyətlərini dəyişdirmək.\n- **Komponent kitabxanaları**: React və ya Angular kimi kitabxanalarda dinamik tiplər.\n- **Utility tipləri**: `Partial`, `Required`, `Pick` kimi tipləri istifadə etmək.\n- **Obyekt transformasiyaları**: Obyekt tiplərini dinamik şəkildə dəyişdirmək.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ntype ApiResponse<T> = { [K in keyof T]: T[K] extends string ? string : number };\n\ninterface UserResponse {\n  name: string;\n  age: number;\n}\n\nlet response: ApiResponse<UserResponse> = { name: 'Alice', age: 30 };\n\nconsole.log(response); // { name: 'Alice', age: 30 }\n// let error: ApiResponse<UserResponse> = { name: 123, age: 30 }; // Xəta: name string olmalıdır\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ApiResponse<T>` xəritələnmiş tipi `T`-nin xüsusiyyətlərini şərti tiplərlə dəyişdirir.\n- Tip təhlükəsizliyi kompilyasiya zamanı təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xəritələnmiş tiplər qabaqcıl TypeScript xüsusiyyətləri ilə də istifadə oluna bilər:\n- **Homomorphic Mapped Types**: Xəritələnmiş tiplərin struktur saxlayan transformasiyaları.\n- **Şərti Tiplərlə Kombinasiya**: Şərti tiplərlə daha mürəkkəb transformasiyalar.\nBu mövzular haqqında ətraflı məlumat üçün TypeScript sənədlərinə (https://www.typescriptlang.org/docs) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Xəritələnmiş tipləri dinamik və təhlükəsiz tip transformasiyaları üçün istifadə edin. `any` əvəzinə dəqiq tipləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Xəritələnmiş tiplər əvəzinə `any` istifadə edilə bilər, lakin bu, təhlükəsiz deyil.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün xəritələnmiş tip nümunəsi\ninterface User {\n  name: string;\n  age: number;\n}\n\ntype ReadonlyUser = { readonly [K in keyof User]: User[K] };\n\nlet user: ReadonlyUser = { name: 'Alice', age: 30 };\n// user.name = 'Bob'; // Xəta: name readonly-dir\n\nconsole.log(user); // { name: 'Alice', age: 30 }\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Mapped Types",
+    "icon": "FiMap",
+    "language": "typescript",
+    "description": "Creating new types from existing types.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Mapped Types?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, mapped types are used to create new types from existing ones by iterating over the properties of an object type. Defined with the `[K in keyof T]` syntax, mapped types allow you to transform each property of a type into a new form. For example, you can make all properties of an object `readonly` or `optional`. They are particularly powerful when combined with generics and conditional types, enabling flexible type transformations. JavaScript lacks such a mechanism, so developers often use `any`, which compromises type safety and can lead to runtime errors. TypeScript’s mapped types enforce type checking at compile time, reducing errors. This JSON file explains the definition, purposes, relation to generics and conditional types, differences from JavaScript, syntax, usage with `keyof` and `in`, type safety, built-in utility types (`Partial`, `Required`, `Readonly`, `Pick`, `Omit`), and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Mapped Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Mapped types in TypeScript serve the following purposes:\n- **Type transformation**: Create new types from existing ones.\n- **Type safety**: Precisely control the types of object properties.\n- **Flexibility**: Dynamically modify object type properties.\n- **Readability**: Clearly express the intent and structure of the code.\n- **Error prevention**: Detect incorrect type usage at compile time.\nIn JavaScript, similar functionality is achieved using `any`, which lacks type safety and can lead to runtime errors. Mapped types solve this issue."
+      },
+      {
+        "type": "heading",
+        "text": "Syntax of Mapped Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Mapped types are defined using `[K in keyof T]`, where:\n- `K` represents the keys of the object.\n- `keyof T` retrieves all keys of type `T`.\n- The new type transforms the properties or their types for each key.\nExample (simple mapped type):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Simple mapped type\ninterface User {\n  name: string;\n  age: number;\n}\n\ntype ReadonlyUser = { readonly [K in keyof User]: User[K] };\n\nlet user: ReadonlyUser = { name: 'Alice', age: 30 };\n// user.name = 'Bob'; // Error: name is readonly\n\nconsole.log(user); // { name: 'Alice', age: 30 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ReadonlyUser` makes all properties of `User` `readonly` using a mapped type.\n- `keyof User` retrieves the keys `name` and `age`.\n- Incorrect usage (e.g., modifying a `readonly` property) triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Mapped Types with Generics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Mapped types are powerful when combined with generics, as they allow dynamic transformations for any type.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Mapped type with generics\ntype MakeOptional<T> = { [K in keyof T]?: T[K] };\n\ninterface User {\n  name: string;\n  age: number;\n}\n\ntype OptionalUser = MakeOptional<User>;\n\nlet user: OptionalUser = { name: 'Alice' }; // age is optional\n\nconsole.log(user); // { name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `MakeOptional<T>` makes all properties of `T` optional.\n- `OptionalUser` allows creating an object with only `name`, as `age` is optional.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Mapped Types with Conditional Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Mapped types can be combined with conditional types to create more precise and flexible types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Mapped type with conditional types\ntype FilterByType<T, U> = { [K in keyof T]: T[K] extends U ? T[K] : never };\n\ninterface User {\n  name: string;\n  age: number;\n  active: boolean;\n}\n\ntype StringOnlyUser = FilterByType<User, string>;\n\nlet user: StringOnlyUser = { name: 'Alice', age: null as never, active: null as never };\n\nconsole.log(user); // { name: 'Alice', age: null, active: null }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `FilterByType<T, U>` keeps only properties of `T` that match type `U`, setting others to `never`.\n- `StringOnlyUser` retains only the `string`-typed `name` property.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Built-in Utility Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript provides several built-in utility types based on mapped types:\n- `Partial<T>`: Makes all properties optional.\n- `Required<T>`: Makes all properties required.\n- `Readonly<T>`: Makes all properties readonly.\n- `Pick<T, K>`: Selects specific properties.\n- `Omit<T, K>`: Excludes specific properties.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Built-in utility types\ninterface User {\n  name: string;\n  age: number;\n  active?: boolean;\n}\n\ntype PartialUser = Partial<User>;\ntype RequiredUser = Required<User>;\ntype ReadonlyUser = Readonly<User>;\ntype PickUser = Pick<User, 'name' | 'age'>;\ntype OmitUser = Omit<User, 'active'>;\n\nlet partial: PartialUser = { name: 'Alice' }; // age and active are optional\nlet required: RequiredUser = { name: 'Bob', age: 25, active: true }; // all properties are required\nlet readonly: ReadonlyUser = { name: 'Charlie', age: 30, active: false };\n// readonly.name = 'Dave'; // Error: name is readonly\nlet picked: PickUser = { name: 'Eve', age: 28 }; // only name and age\nlet omitted: OmitUser = { name: 'Frank', age: 35 }; // active is excluded\n\nconsole.log(partial); // { name: 'Alice' }\nconsole.log(required); // { name: 'Bob', age: 25, active: true }\nconsole.log(readonly); // { name: 'Charlie', age: 30, active: false }\nconsole.log(picked); // { name: 'Eve', age: 28 }\nconsole.log(omitted); // { name: 'Frank', age: 35 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Partial`, `Required`, `Readonly`, `Pick`, and `Omit` transform the `User` type in various ways.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Differences from JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "JavaScript lacks mapped types due to its dynamic type system. Typically, `any` is used for similar functionality, but it does not provide type safety. With TypeScript’s mapped types:\n- Types are precisely controlled at compile time.\n- Incorrect types are detected as errors.\n- Code readability and safety are improved.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// JavaScript equivalent\nfunction updateUserJS(user) {\n  return { ...user, name: 'Updated' };\n}\n\nconsole.log(updateUserJS({ name: 'Alice', age: 30 })); // { name: 'Updated', age: 30 }\nconsole.log(updateUserJS({ age: 25 })); // { name: 'Updated', age: 25 }, no error\n\n// TypeScript safe code\ntype PartialUser<T> = { [K in keyof T]?: T[K] };\n\nfunction updateUserTS<T extends { name: string }>(user: PartialUser<T>): T {\n  return { ...user, name: 'Updated' } as T;\n}\n\nlet user = updateUserTS({ name: 'Alice', age: 30 });\nconsole.log(user); // { name: 'Updated', age: 30 }\n// let error = updateUserTS({ age: 25 }); // Error: Property 'name' is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The JavaScript `updateUserJS` function uses `any` and may cause runtime errors.\n- The TypeScript `updateUserTS` function is safe with mapped types.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Mapped types enhance code safety, but caution is needed:\n- Define properties precisely.\n- Avoid `any` as it reduces type safety.\n- Combine with conditional types when necessary.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\ntype ReadonlyProps<T> = { readonly [K in keyof T]: T[K] };\n\ninterface User {\n  name: string;\n  age: number;\n}\n\nlet user: ReadonlyProps<User> = { name: 'Alice', age: 30 };\n// user.name = 'Bob'; // Error: name is readonly\n\nconsole.log(user); // { name: 'Alice', age: 30 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ReadonlyProps<T>` makes all properties of `T` `readonly`.\n- Incorrect usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nfunction unsafeUpdateUser(user: any): any {\n  return { ...user, name: 'Updated' };\n}\n\nconsole.log(unsafeUpdateUser({ name: 'Alice', age: 30 })); // { name: 'Updated', age: 30 }\nconsole.log(unsafeUpdateUser({ age: 25 })); // { name: 'Updated', age: 25 }, no error\n\n// Correct approach\ntype PartialUser<T> = { [K in keyof T]?: T[K] };\n\nfunction safeUpdateUser<T extends { name: string }>(user: PartialUser<T>): T {\n  return { ...user, name: 'Updated' } as T;\n}\n\nconsole.log(safeUpdateUser({ name: 'Alice', age: 30 })); // { name: 'Updated', age: 30 }\n// console.log(safeUpdateUser({ age: 25 })); // Error: Property 'name' is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `any` type is unsafe and may cause runtime errors.\n- The `safeUpdateUser` function with mapped types is safe.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Mapped types are widely used in real projects:\n- **API response handling**: Transforming properties of API response data.\n- **Component libraries**: Dynamic types in React or Angular.\n- **Utility types**: Using `Partial`, `Required`, `Pick`, etc.\n- **Object transformations**: Dynamically modifying object types.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ntype ApiResponse<T> = { [K in keyof T]: T[K] extends string ? string : number };\n\ninterface UserResponse {\n  name: string;\n  age: number;\n}\n\nlet response: ApiResponse<UserResponse> = { name: 'Alice', age: 30 };\n\nconsole.log(response); // { name: 'Alice', age: 30 }\n// let error: ApiResponse<UserResponse> = { name: 123, age: 30 }; // Error: name must be a string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ApiResponse<T>` transforms properties of `T` using conditional types.\n- Type safety is enforced at compile time.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Mapped types can be used with advanced TypeScript features:\n- **Homomorphic Mapped Types**: Transformations that preserve the structure of the original type.\n- **Combination with Conditional Types**: More complex transformations with conditional logic.\nFor more details, refer to the TypeScript documentation (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use mapped types for dynamic and safe type transformations. Prefer precise types over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Instead of mapped types, `any` can be used, but it is unsafe.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself mapped type example\ninterface User {\n  name: string;\n  age: number;\n}\n\ntype ReadonlyUser = { readonly [K in keyof User]: User[K] };\n\nlet user: ReadonlyUser = { name: 'Alice', age: 30 };\n// user.name = 'Bob'; // Error: name is readonly\n\nconsole.log(user); // { name: 'Alice', age: 30 }\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Сопоставленные типы",
+    "icon": "FiMap",
+    "language": "typescript",
+    "description": "Создание новых типов из существующих.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое сопоставленные типы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript сопоставленные типы (mapped types) используются для создания новых типов на основе существующих путем итерации по свойствам объектного типа. Определяемые с помощью синтаксиса `[K in keyof T]`, сопоставленные типы позволяют преобразовывать каждое свойство типа в новую форму. Например, можно сделать все свойства объекта `readonly` или `optional`. Они особенно мощны при использовании с дженериками и условными типами, позволяя гибко преобразовывать типы. В JavaScript такого механизма нет, поэтому обычно используется тип `any`, что снижает безопасность типов и может привести к ошибкам во время выполнения. Сопоставленные типы в TypeScript усиливают проверку типов во время компиляции и помогают уменьшить ошибки. Этот JSON-файл подробно объясняет определение, назначение, связь с дженериками и условными типами, отличия от JavaScript, синтаксис, использование с `keyof` и `in`, безопасность типов, встроенные утилитные типы (`Partial`, `Required`, `Readonly`, `Pick`, `Omit`) и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение сопоставленных типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сопоставленные типы в TypeScript используются для следующих целей:\n- **Трансформация типов**: Создание новых типов из существующих.\n- **Безопасность типов**: Точный контроль типов свойств объектов.\n- **Гибкость**: Динамическое изменение свойств типов объектов.\n- **Читаемость**: Четкое выражение назначения и структуры кода.\n- **Предотвращение ошибок**: Обнаружение неправильного использования типов на этапе компиляции.\nВ JavaScript для аналогичной функциональности обычно используется `any`, что не обеспечивает безопасность типов и может привести к ошибкам во время выполнения. Сопоставленные типы решают эту проблему."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис сопоставленных типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сопоставленные типы определяются с помощью `[K in keyof T]`, где:\n- `K` представляет ключи объекта.\n- `keyof T` извлекает все ключи типа `T`.\n- Новый тип преобразует свойства или их типы для каждого ключа.\nПример (простой сопоставленный тип):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Простой сопоставленный тип\ninterface User {\n  name: string;\n  age: number;\n}\n\ntype ReadonlyUser = { readonly [K in keyof User]: User[K] };\n\nlet user: ReadonlyUser = { name: 'Alice', age: 30 };\n// user.name = 'Bob'; // Ошибка: name доступно только для чтения\n\nconsole.log(user); // { name: 'Alice', age: 30 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ReadonlyUser` делает все свойства типа `User` доступными только для чтения с помощью сопоставленного типа.\n- `keyof User` извлекает ключи `name` и `age`.\n- Неправильное использование (например, изменение свойства `readonly`) вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сопоставленные типы с дженериками"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сопоставленные типы мощны в сочетании с дженериками, так как позволяют динамически преобразовывать любой тип.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Сопоставленный тип с дженериками\ntype MakeOptional<T> = { [K in keyof T]?: T[K] };\n\ninterface User {\n  name: string;\n  age: number;\n}\n\ntype OptionalUser = MakeOptional<User>;\n\nlet user: OptionalUser = { name: 'Alice' }; // age необязателен\n\nconsole.log(user); // { name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `MakeOptional<T>` делает все свойства `T` необязательными.\n- `OptionalUser` позволяет создавать объект только с `name`, так как `age` необязателен.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сопоставленные типы с условными типами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сопоставленные типы могут сочетаться с условными типами для создания более точных и гибких типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Сопоставленный тип с условными типами\ntype FilterByType<T, U> = { [K in keyof T]: T[K] extends U ? T[K] : never };\n\ninterface User {\n  name: string;\n  age: number;\n  active: boolean;\n}\n\ntype StringOnlyUser = FilterByType<User, string>;\n\nlet user: StringOnlyUser = { name: 'Alice', age: null as never, active: null as never };\n\nconsole.log(user); // { name: 'Alice', age: null, active: null }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `FilterByType<T, U>` сохраняет только свойства `T`, соответствующие типу `U`, а остальные устанавливает в `never`.\n- `StringOnlyUser` сохраняет только свойство `name` типа `string`.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Встроенные утилитные типы"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript предоставляет несколько встроенных утилитных типов, основанных на сопоставленных типах:\n- `Partial<T>`: Делает все свойства необязательными.\n- `Required<T>`: Делает все свойства обязательными.\n- `Readonly<T>`: Делает все свойства доступными только для чтения.\n- `Pick<T, K>`: Выбирает определенные свойства.\n- `Omit<T, K>`: Исключает определенные свойства.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Встроенные утилитные типы\ninterface User {\n  name: string;\n  age: number;\n  active?: boolean;\n}\n\ntype PartialUser = Partial<User>;\ntype RequiredUser = Required<User>;\ntype ReadonlyUser = Readonly<User>;\ntype PickUser = Pick<User, 'name' | 'age'>;\ntype OmitUser = Omit<User, 'active'>;\n\nlet partial: PartialUser = { name: 'Alice' }; // age и active необязательны\nlet required: RequiredUser = { name: 'Bob', age: 25, active: true }; // все свойства обязательны\nlet readonly: ReadonlyUser = { name: 'Charlie', age: 30, active: false };\n// readonly.name = 'Dave'; // Ошибка: name доступно только для чтения\nlet picked: PickUser = { name: 'Eve', age: 28 }; // только name и age\nlet omitted: OmitUser = { name: 'Frank', age: 35 }; // active исключен\n\nconsole.log(partial); // { name: 'Alice' }\nconsole.log(required); // { name: 'Bob', age: 25, active: true }\nconsole.log(readonly); // { name: 'Charlie', age: 30, active: false }\nconsole.log(picked); // { name: 'Eve', age: 28 }\nconsole.log(omitted); // { name: 'Frank', age: 35 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Partial`, `Required`, `Readonly`, `Pick` и `Omit` преобразуют тип `User` различными способами.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Отличия от JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "В JavaScript нет сопоставленных типов из-за его динамической системы типов. Обычно используется `any`, но это не обеспечивает безопасность типов. С сопоставленными типами в TypeScript:\n- Типы точно контролируются во время компиляции.\n- Неправильные типы обнаруживаются как ошибки.\n- Улучшается читаемость и безопасность кода.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Эквивалент в JavaScript\nfunction updateUserJS(user) {\n  return { ...user, name: 'Updated' };\n}\n\nconsole.log(updateUserJS({ name: 'Alice', age: 30 })); // { name: 'Updated', age: 30 }\nconsole.log(updateUserJS({ age: 25 })); // { name: 'Updated', age: 25 }, без ошибки\n\n// Безопасный код в TypeScript\ntype PartialUser<T> = { [K in keyof T]?: T[K] };\n\nfunction updateUserTS<T extends { name: string }>(user: PartialUser<T>): T {\n  return { ...user, name: 'Updated' } as T;\n}\n\nlet user = updateUserTS({ name: 'Alice', age: 30 });\nconsole.log(user); // { name: 'Updated', age: 30 }\n// let error = updateUserTS({ age: 25 }); // Ошибка: свойство 'name' отсутствует\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `updateUserJS` в JavaScript использует `any` и может вызвать ошибки во время выполнения.\n- Функция `updateUserTS` в TypeScript безопасна благодаря сопоставленным типам.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сопоставленные типы повышают безопасность кода, но требуется осторожность:\n- Точно определяйте свойства.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Комбинируйте с условными типами при необходимости.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\ntype ReadonlyProps<T> = { readonly [K in keyof T]: T[K] };\n\ninterface User {\n  name: string;\n  age: number;\n}\n\nlet user: ReadonlyProps<User> = { name: 'Alice', age: 30 };\n// user.name = 'Bob'; // Ошибка: name доступно только для чтения\n\nconsole.log(user); // { name: 'Alice', age: 30 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ReadonlyProps<T>` делает все свойства `T` доступными только для чтения.\n- Неправильное использование вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nfunction unsafeUpdateUser(user: any): any {\n  return { ...user, name: 'Updated' };\n}\n\nconsole.log(unsafeUpdateUser({ name: 'Alice', age: 30 })); // { name: 'Updated', age: 30 }\nconsole.log(unsafeUpdateUser({ age: 25 })); // { name: 'Updated', age: 25 }, без ошибки\n\n// Правильный подход\ntype PartialUser<T> = { [K in keyof T]?: T[K] };\n\nfunction safeUpdateUser<T extends { name: string }>(user: PartialUser<T>): T {\n  return { ...user, name: 'Updated' } as T;\n}\n\nconsole.log(safeUpdateUser({ name: 'Alice', age: 30 })); // { name: 'Updated', age: 30 }\n// console.log(safeUpdateUser({ age: 25 })); // Ошибка: свойство 'name' отсутствует\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `any` небезопасен и может вызвать ошибки во время выполнения.\n- Функция `safeUpdateUser` с сопоставленными типами безопасна.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сопоставленные типы широко используются в реальных проектах:\n- **Обработка ответов API**: Преобразование свойств данных ответа API.\n- **Библиотеки компонентов**: Динамические типы в React или Angular.\n- **Утилитные типы**: Использование `Partial`, `Required`, `Pick` и т.д.\n- **Трансформация объектов**: Динамическое изменение типов объектов.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ntype ApiResponse<T> = { [K in keyof T]: T[K] extends string ? string : number };\n\ninterface UserResponse {\n  name: string;\n  age: number;\n}\n\nlet response: ApiResponse<UserResponse> = { name: 'Alice', age: 30 };\n\nconsole.log(response); // { name: 'Alice', age: 30 }\n// let error: ApiResponse<UserResponse> = { name: 123, age: 30 }; // Ошибка: name должен быть строкой\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ApiResponse<T>` преобразует свойства `T` с использованием условных типов.\n- Безопасность типов обеспечивается во время компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сопоставленные типы могут использоваться с продвинутыми возможностями TypeScript:\n- **Гомоморфные сопоставленные типы**: Преобразования, сохраняющие структуру исходного типа.\n- **Комбинация с условными типами**: Более сложные преобразования с условной логикой.\nДля получения дополнительной информации обратитесь к документации TypeScript (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте сопоставленные типы для динамических и безопасных преобразований типов. Предпочитайте точные типы вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо сопоставленных типов можно использовать `any`, но это небезопасно.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример сопоставленного типа для самостоятельного тестирования\ninterface User {\n  name: string;\n  age: number;\n}\n\ntype ReadonlyUser = { readonly [K in keyof User]: User[K] };\n\nlet user: ReadonlyUser = { name: 'Alice', age: 30 };\n// user.name = 'Bob'; // Ошибка: name доступно только для чтения\n\nconsole.log(user); // { name: 'Alice', age: 30 }\n"
+      }
+    ]
+  }
+}

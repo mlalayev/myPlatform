@@ -205,7 +205,7 @@ export default function TutorialFrameworkTopicPage() {
 
   // Mark as visited on mount
   useEffect(() => {
-    if (!safeTopicId || !safeFramework || !session?.user) {
+    if (!safeTopicId || !safeFramework) {
       return;
     }
 
@@ -218,43 +218,53 @@ export default function TutorialFrameworkTopicPage() {
         : [];
       
       if (!visited.includes(safeTopicId)) {
-        console.log('Marking framework lesson as visited:', safeTopicId, 'framework:', safeFramework);
+        const newVisited = [...visited, safeTopicId];
+        setVisitedLessons(newVisited);
         
-        visited.push(safeTopicId);
-        if (safeFramework) visitedLessonsByFramework[safeFramework] = visited;
+        // Update localStorage
+        if (safeFramework) visitedLessonsByFramework[safeFramework] = newVisited;
         localStorage.setItem(
           "visitedLessons",
           JSON.stringify(visitedLessonsByFramework)
         );
-        setVisitedLessons(visited);
         
-        try {
-          const response = await fetch("/api/user/lessons", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              language: safeFramework,
-              lessonId: safeTopicId,
-            }),
-          });
-          
-          const result = await response.json();
-
-          if (result.added) {
-            console.log('Logging framework lesson view activity for:', safeTopicId, 'framework:', safeFramework);
-            logActivity(
-              'LESSON_VIEW',
-              `Viewed framework lesson: ${safeTopicId}`,
-              {
+        // Dispatch custom event to notify other components
+        window.dispatchEvent(new CustomEvent('visitedLessonsUpdated', {
+          detail: { framework: safeFramework, lessonId: safeTopicId }
+        }));
+        
+        console.log('Marking framework lesson as visited:', safeTopicId, 'framework:', safeFramework);
+        
+        // Sync to server only if user is logged in
+        if (session?.user) {
+          try {
+            const response = await fetch("/api/user/lessons", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
                 language: safeFramework,
                 lessonId: safeTopicId,
-              }
-            );
-          } else {
-            console.log('Framework lesson already visited on server:', safeTopicId);
+              }),
+            });
+            
+            const result = await response.json();
+
+            if (result.added) {
+              console.log('Logging framework lesson view activity for:', safeTopicId, 'framework:', safeFramework);
+              logActivity(
+                'LESSON_VIEW',
+                `Viewed framework lesson: ${safeTopicId}`,
+                {
+                  language: safeFramework,
+                  lessonId: safeTopicId,
+                }
+              );
+            } else {
+              console.log('Framework lesson already visited on server:', safeTopicId);
+            }
+          } catch (e) {
+            console.error('Failed to sync framework lesson to server:', e);
           }
-        } catch (e) {
-          console.error('Failed to sync framework lesson to server:', e);
         }
       } else {
         console.log('Framework lesson already visited locally:', safeTopicId);
@@ -263,7 +273,7 @@ export default function TutorialFrameworkTopicPage() {
     };
     
     markVisited();
-  }, [safeTopicId, safeFramework, session?.user?.email]);
+  }, [safeTopicId, safeFramework, session?.user]);
 
   useEffect(() => {
     if (!framework || !topicId || !lang) return;

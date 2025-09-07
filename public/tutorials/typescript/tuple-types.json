@@ -1,0 +1,621 @@
+{
+  "id": "tuple-types",
+  "az": {
+    "title": "Tuple Tipləri",
+    "icon": "FiList",
+    "language": "typescript",
+    "description": "Müəyyən uzunluqda və tipdə arraylər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Tuple Tipləri Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də tuple tipləri sabit uzunluqlu və hər elementi üçün müəyyən tipləri olan massivlərdir. Adi massivlərdən (`number[]`, `string[]`) fərqli olaraq, tuple-lar dəqiq sayda elementə malikdir və hər elementin tipi əvvəlcədən təyin edilir. Bu, TypeScript-in statik tip sistemindən faydalanaraq kodun təhlükəsizliyini və oxunaqlılığını artırır. Tuple-lar JavaScript-də birbaşa ekvivalenti olmayan bir TypeScript xüsusiyyətidir, çünki JavaScript massivləri dinamikdir və istənilən sayda və tipdə element saxlaya bilər. Bu JSON faylda tuple tiplərinin tərifi, istifadə məqsədləri, JavaScript ilə fərqləri, sintaksisi, readonly tuple-lar, opsional elementlər, rest elementləri, tip təhlükəsizliyi, səhvlərdən qaçınma yolları və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir TypeScript faylında yoxlaya bilərsiniz. Bunun üçün Node.js mühitində `tsc` kompilyatorundan və ya TypeScript Playground (https://www.typescriptlang.org/play) kimi onlayn redaktordan istifadə edə bilərsiniz. TypeScript 5.0 və ya daha yeni versiyadan istifadə etməyiniz tövsiyə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Tuple Tiplərinin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple tipləri TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Dəqiq struktur**: Sabit sayda element və onların tiplərini təyin edir.\n- **Tip təhlükəsizliyi**: Yanlış tipdə və ya sayda element təyinatı kompilyasiya xətası yaradır.\n- **Oxunaqlılıq**: Kodun nə etdiyi və hansı məlumatları saxladığı aydın olur.\n- **Alət dəstəyi**: Kod redaktorları tuple tiplərinə əsasən avtomatik tamamlamalar təklif edir.\nJavaScript-də massivlər dinamikdir və bu cür dəqiq nəzarət təmin etmir, bu da runtime səhvlərinə səbəb ola bilər. Tuple-lar bu problemi statik tiplərlə həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Tuple Tiplərinin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple tipləri kvadrat mötərizələr (`[]`) daxilində hər elementin tipini ardıcıl olaraq təyin edərək yazılır. Məsələn, `[string, number]` iki elementli tuple təyin edir: birinci element `string`, ikinci element `number` tipindədir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Tuple sintaksisi\nlet person: [string, number] = ['Ali', 25];\n\nconsole.log(person); // ['Ali', 25]\nconsole.log(person[0]); // Ali\nconsole.log(person[1]); // 25\n// person = ['Vəli', 30, true]; // Xəta: tuple yalnız iki element qəbul edir\n// person[0] = 42; // Xəta: number string-ə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `[string, number]` iki elementli tuple təyin edir.\n- Yanlış sayda və ya tipdə element kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Adi Massivlərdən Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple-lar adi massivlərdən fərqlənir:\n- **Sabit uzunluq**: Tuple-ların element sayı əvvəlcədən müəyyən edilir, adi massivlər (`number[]`) isə istənilən sayda element saxlaya bilər.\n- **Fərqli tiplər**: Tuple-larda hər elementin tipi fərqli ola bilər, adi massivlərdə isə bütün elementlər eyni tipdə olmalıdır.\n- **Dəqiq struktur**: Tuple-lar strukturu dəqiq təyin edir, adi massivlər isə daha çevikdir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Tuple vs adi massiv\nlet tuple: [string, number] = ['Test', 42];\nlet array: string[] = ['Test', 'Hello'];\n\nconsole.log(tuple); // ['Test', 42]\nconsole.log(array); // ['Test', 'Hello']\n// tuple.push('Extra'); // Xəta: tuple-lar sabit uzunluqludur\narray.push('World'); // OK: adi massivlər çevikdir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Tuple sabit uzunluqlu və tipli olduğu üçün dəyişdirilə bilməz.\n- Adi massivə istənilən sayda element əlavə etmək olar.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Tuple-lar"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Readonly` tuple-lar dəyişdirilə bilməz (immutable) tuple-lardır. Elementlərə yalnız oxumaq üçün icazə verilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly tuple\nlet readOnlyTuple: readonly [string, number] = ['Ali', 25];\n\nconsole.log(readOnlyTuple); // ['Ali', 25]\n// readOnlyTuple[0] = 'Vəli'; // Xəta: readonly tuple dəyişdirilə bilməz\n// readOnlyTuple.push('Extra'); // Xəta: readonly tuple-a əlavə etmək olmur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `readonly` açar sözü tuple-in dəyişdirilməsini qadağan edir.\n- Dəyişdirmə cəhdi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Opsional Elementlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple-larda opsional elementlər `?` işarəsi ilə təyin edilir. Bu elementlər mövcud olmaya bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Opsional elementlər\nlet optionalTuple: [string, number, boolean?] = ['Ali', 25];\n\nconsole.log(optionalTuple); // ['Ali', 25]\noptionalTuple = ['Vəli', 30, true]; // OK\nconsole.log(optionalTuple); // ['Vəli', 30, true]\n// optionalTuple = ['Ayşə', 35, 'test']; // Xəta: string boolean-a təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `boolean?` opsional element olduğunu göstərir.\n- Yanlış tipdə element təyinatı kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Rest Elementləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple-larda rest elementlər (`...`) müəyyən tipli istənilən sayda element qəbul edə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Rest elementləri\nlet restTuple: [string, ...number[]] = ['Test', 1, 2, 3];\n\nconsole.log(restTuple); // ['Test', 1, 2, 3]\nrestTuple = ['Demo', 4]; // OK\n// restTuple = ['Demo', 'Extra']; // Xəta: string number-a təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `...number[]` istənilən sayda `number` elementini qəbul edir.\n- Yanlış tipdə element kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tuple vs Obyekt"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple-lar və obyektlər oxşar məlumat strukturları təmin edə bilər, lakin fərqli istifadə halları var:\n- **Tuple**: Sıralı, sabit uzunluqlu məlumatlar üçün (məsələn, koordinatlar).\n- **Obyekt**: Adlandırılmış xüsusiyyətlər üçün (məsələn, istifadəçi məlumatları).\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Tuple vs obyekt\nlet tuple: [string, number] = ['Ali', 25];\nlet object: { name: string; age: number } = { name: 'Ali', age: 25 };\n\nconsole.log(tuple[0]); // Ali\nconsole.log(object.name); // Ali\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Tuple indekslərlə (0, 1) işləyir.\n- Obyekt adlandırılmış xüsusiyyətlərlə (name, age) işləyir.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Tuple Tipləri ilə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple tipləri real layihələrdə müxtəlif ssenarilərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Praktik nümunə\nfunction getCoordinates(): [number, number] {\n  return [40.7128, -74.0060]; // New York koordinatları\n}\n\nlet coords: [number, number] = getCoordinates();\nconsole.log(`En: ${coords[0]}, Uzunluq: ${coords[1]}`);\n// Çıxış: En: 40.7128, Uzunluq: -74.0060\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `[number, number]` coğrafi koordinatları təyin edir.\n- Tuple sabit struktur təmin edir.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple tipləri kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Yanlış tip və ya uzunluq təyinatlarından çəkinin.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\nlet tuple: [string, number] = ['Test', 42];\n\nif (typeof tuple[0] === 'string') {\n  console.log(tuple[0].toUpperCase()); // TEST\n}\n// tuple = [42, 'Error']; // Xəta: tip və ya sıra uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Tuple elementləri yoxlanılır və təhlükəsiz şəkildə istifadə edilir.\n- Yanlış tip və ya sıra kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet unsafe: any = ['Hello', 42];\nunsafe.push(true); // Təhlükəsiz deyil, runtime səhvi ola bilər\nconsole.log(unsafe); // ['Hello', 42, true]\n\n// Düzgün yol\nlet safe: [string, number] = ['Hello', 42];\nconsole.log(safe); // ['Hello', 42]\n// safe.push('Extra'); // Xəta: tuple-a əlavə etmək olmur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime xətalarına səbəb ola bilər.\n- `[string, number]` tuple tipi təhlükəsizliyi təmin edir.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple tipləri real layihələrdə geniş istifadə olunur:\n- **Koordinatlar**: Coğrafi en və uzunluq dəyərləri.\n- **Rəng kodları**: RGB və ya RGBA dəyərləri.\n- **Funksiya qaytarmaları**: Birdən çox dəyər qaytaran funksiyalar.\n- **Konfiqurasiya dəyərləri**: Sabit strukturlu məlumatlar.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\nfunction getRGB(): [number, number, number] {\n  return [255, 128, 0]; // Narıncı rəng\n}\n\nlet color: [number, number, number] = getRGB();\nconsole.log(`R: ${color[0]}, G: ${color[1]}, B: ${color[2]}`);\n// Çıxış: R: 255, G: 128, B: 0\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `[number, number, number]` RGB rəng dəyərlərini təyin edir.\n- Tuple sabit struktur təmin edir.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Dəqiq tiplərdən istifadə edin. `any` əvəzinə konkret tiplər seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Tuple əvəzinə obyektlər və ya adi massivlər istifadə edilə bilər, lakin tuple-lar sabit strukturlu məlumatlar üçün daha uyğundur.\n- Aşağıda kodları sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün tuple tipləri nümunəsi\nfunction getUserInfo(): [string, number, boolean?] {\n  return ['Məmməd', 22, true];\n}\n\nlet userInfo: [string, number, boolean?] = getUserInfo();\nconsole.log(`Ad: ${userInfo[0]}, Yaş: ${userInfo[1]}, Aktiv: ${userInfo[2] ?? 'Məlumat yoxdur'}`);\n// Çıxış: Ad: Məmməd, Yaş: 22, Aktiv: true\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Tuple Types",
+    "icon": "FiList",
+    "language": "typescript",
+    "description": "Arrays with fixed length and specific types.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Tuple Types?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple types in TypeScript are arrays with a fixed length and specific types for each element. Unlike regular arrays (`number[]`, `string[]`), tuples have a predefined number of elements, and each element’s type is explicitly defined. This leverages TypeScript’s static type system to enhance code safety and readability. Tuples are a TypeScript-specific feature with no direct equivalent in JavaScript, as JavaScript arrays are dynamic and can hold any number and type of elements. This JSON file explains tuple types’ definition, purposes, differences from JavaScript, syntax, readonly tuples, optional elements, rest elements, type safety, error prevention, and real-world usage scenarios in detail. You can test the code below in a simple TypeScript file using a Node.js environment with the `tsc` compiler or an online editor like TypeScript Playground (https://www.typescriptlang.org/play). Using TypeScript 5.0 or a newer version is recommended."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Tuple Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple types in TypeScript serve the following purposes:\n- **Precise structure**: Define a fixed number of elements and their types.\n- **Type safety**: Incorrect types or number of elements trigger compilation errors.\n- **Readability**: Clearly indicate the structure and purpose of the data.\n- **Tooling support**: Code editors provide autocompletion based on tuple types.\nIn JavaScript, arrays are dynamic and lack this precision, potentially leading to runtime errors. Tuples solve this with static types."
+      },
+      {
+        "type": "heading",
+        "text": "Tuple Type Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple types are defined using square brackets (`[]`) with the type of each element specified in order. For example, `[string, number]` defines a tuple with two elements: the first a `string`, the second a `number`.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Tuple syntax\nlet person: [string, number] = ['Alice', 25];\n\nconsole.log(person); // ['Alice', 25]\nconsole.log(person[0]); // Alice\nconsole.log(person[1]); // 25\n// person = ['Bob', 30, true]; // Error: tuple expects only two elements\n// person[0] = 42; // Error: number cannot be assigned to string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `[string, number]` defines a two-element tuple.\n- Incorrect number or type of elements triggers a compilation error.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Differences from Regular Arrays"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuples differ from regular arrays in the following ways:\n- **Fixed length**: Tuples have a predefined number of elements, while regular arrays (`number[]`) can have any number.\n- **Different types**: Tuples allow different types for each element, while regular arrays require all elements to be of the same type.\n- **Precise structure**: Tuples enforce a specific structure, while regular arrays are more flexible.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Tuple vs regular array\nlet tuple: [string, number] = ['Test', 42];\nlet array: string[] = ['Test', 'Hello'];\n\nconsole.log(tuple); // ['Test', 42]\nconsole.log(array); // ['Test', 'Hello']\n// tuple.push('Extra'); // Error: tuples have fixed length\narray.push('World'); // OK: regular arrays are flexible\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Tuples are fixed in length and type, preventing modifications.\n- Regular arrays allow adding any number of elements.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Tuples"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly tuples are immutable tuples, allowing only reading of elements.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly tuple\nlet readOnlyTuple: readonly [string, number] = ['Alice', 25];\n\nconsole.log(readOnlyTuple); // ['Alice', 25]\n// readOnlyTuple[0] = 'Bob'; // Error: cannot modify readonly tuple\n// readOnlyTuple.push('Extra'); // Error: cannot push to readonly tuple\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `readonly` keyword prevents tuple modifications.\n- Modification attempts trigger a compilation error.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Optional Elements"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuples can have optional elements, marked with a `?`, which may or may not be present.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Optional elements\nlet optionalTuple: [string, number, boolean?] = ['Alice', 25];\n\nconsole.log(optionalTuple); // ['Alice', 25]\noptionalTuple = ['Bob', 30, true]; // OK\nconsole.log(optionalTuple); // ['Bob', 30, true]\n// optionalTuple = ['Eve', 35, 'test']; // Error: string cannot be assigned to boolean\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `boolean?` indicates an optional element.\n- Incorrect type assignments trigger a compilation error.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Rest Elements"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuples can include rest elements (`...`) to accept any number of elements of a specific type.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Rest elements\nlet restTuple: [string, ...number[]] = ['Test', 1, 2, 3];\n\nconsole.log(restTuple); // ['Test', 1, 2, 3]\nrestTuple = ['Demo', 4]; // OK\n// restTuple = ['Demo', 'Extra']; // Error: string cannot be assigned to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `...number[]` accepts any number of `number` elements.\n- Incorrect type assignments trigger a compilation error.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Tuple vs Object"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuples and objects can serve similar purposes but have different use cases:\n- **Tuple**: For ordered, fixed-length data (e.g., coordinates).\n- **Object**: For named properties (e.g., user data).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Tuple vs object\nlet tuple: [string, number] = ['Alice', 25];\nlet object: { name: string; age: number } = { name: 'Alice', age: 25 };\n\nconsole.log(tuple[0]); // Alice\nconsole.log(object.name); // Alice\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Tuples use indices (0, 1) for access.\n- Objects use named properties (name, age).\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Working with Tuple Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple types are used in various scenarios in real projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Practical example\nfunction getCoordinates(): [number, number] {\n  return [40.7128, -74.0060]; // New York coordinates\n}\n\nlet coords: [number, number] = getCoordinates();\nconsole.log(`Latitude: ${coords[0]}, Longitude: ${coords[1]}`);\n// Output: Latitude: 40.7128, Longitude: -74.0060\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `[number, number]` defines geographic coordinates.\n- Tuples ensure a fixed structure.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple types enhance code safety, but caution is needed:\n- Avoid incorrect type or length assignments.\n- Avoid `any` as it reduces type safety.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\nlet tuple: [string, number] = ['Test', 42];\n\nif (typeof tuple[0] === 'string') {\n  console.log(tuple[0].toUpperCase()); // TEST\n}\n// tuple = [42, 'Error']; // Error: type or order mismatch\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Tuple elements are checked for safe usage.\n- Incorrect type or order triggers a compilation error.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet unsafe: any = ['Hello', 42];\nunsafe.push(true); // Unsafe, may cause runtime errors\nconsole.log(unsafe); // ['Hello', 42, true]\n\n// Correct approach\nlet safe: [string, number] = ['Hello', 42];\nconsole.log(safe); // ['Hello', 42]\n// safe.push('Extra'); // Error: cannot push to tuple\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and can cause runtime errors.\n- `[string, number]` tuple ensures type safety.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple types are widely used in real projects:\n- **Coordinates**: Geographic latitude and longitude.\n- **Color codes**: RGB or RGBA values.\n- **Function returns**: Functions returning multiple values.\n- **Configuration values**: Fixed-structure data.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\nfunction getRGB(): [number, number, number] {\n  return [255, 128, 0]; // Orange color\n}\n\nlet color: [number, number, number] = getRGB();\nconsole.log(`R: ${color[0]}, G: ${color[1]}, B: ${color[2]}`);\n// Output: R: 255, G: 128, B: 0\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `[number, number, number]` defines RGB color values.\n- Tuples ensure a fixed structure.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use precise types. Avoid `any` and prefer specific types. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Objects or regular arrays can be used instead of tuples, but tuples are better for fixed-structure data.\n- You can test the code below in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself tuple types example\nfunction getUserInfo(): [string, number, boolean?] {\n  return ['John', 22, true];\n}\n\nlet userInfo: [string, number, boolean?] = getUserInfo();\nconsole.log(`Name: ${userInfo[0]}, Age: ${userInfo[1]}, Active: ${userInfo[2] ?? 'No info'}`);\n// Output: Name: John, Age: 22, Active: true\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Типы кортежей",
+    "icon": "FiList",
+    "language": "typescript",
+    "description": "Массивы с фиксированной длиной и определёнными типами.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое типы кортежей?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы кортежей в TypeScript — это массивы с фиксированной длиной и определёнными типами для каждого элемента. В отличие от обычных массивов (`number[]`, `string[]`), кортежи имеют заранее заданное количество элементов, и тип каждого элемента явно определён. Это использует преимущества статической системы типов TypeScript для повышения безопасности и читаемости кода. Кортежи — это специфичная для TypeScript функция, у которой нет прямого эквивалента в JavaScript, так как массивы в JavaScript динамичны и могут содержать любое количество элементов любого типа. Этот JSON-файл подробно объясняет определение типов кортежей, их назначение, отличия от JavaScript, синтаксис, кортежи только для чтения, необязательные элементы, rest-элементы, безопасность типов, предотвращение ошибок и сценарии использования в реальных проектах. Вы можете протестировать код ниже в простом файле TypeScript, используя среду Node.js с компилятором `tsc` или онлайн-редактор, такой как TypeScript Playground (https://www.typescriptlang.org/play). Рекомендуется использовать TypeScript 5.0 или новее."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение типов кортежей"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы кортежей в TypeScript используются для следующих целей:\n- **Точная структура**: Определяют фиксированное количество элементов и их типы.\n- **Безопасность типов**: Неправильные типы или количество элементов вызывают ошибки компиляции.\n- **Читаемость**: Указывают структуру и назначение данных.\n- **Поддержка инструментов**: Редакторы кода предоставляют автодополнение на основе типов кортежей.\nВ JavaScript массивы динамичны и не обеспечивают такой точности, что может привести к ошибкам во время выполнения. Кортежи решают эту проблему с помощью статических типов."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис типов кортежей"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы кортежей определяются с помощью квадратных скобок (`[]`), в которых указываются типы каждого элемента по порядку. Например, `[string, number]` определяет кортеж с двумя элементами: первый — `string`, второй — `number`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Синтаксис кортежей\nlet person: [string, number] = ['Алиса', 25];\n\nconsole.log(person); // ['Алиса', 25]\nconsole.log(person[0]); // Алиса\nconsole.log(person[1]); // 25\n// person = ['Боб', 30, true]; // Ошибка: кортеж ожидает только два элемента\n// person[0] = 42; // Ошибка: number не может быть присвоен string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `[string, number]` определяет кортеж с двумя элементами.\n- Неправильное количество или тип элементов вызывает ошибку компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Отличия от обычных массивов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Кортежи отличаются от обычных массивов следующими особенностями:\n- **Фиксированная длина**: Кортежи имеют заранее заданное количество элементов, тогда как обычные массивы (`number[]`) могут содержать любое количество.\n- **Разные типы**: Кортежи допускают разные типы для каждого элемента, тогда как в обычных массивах все элементы должны быть одного типа.\n- **Точная структура**: Кортежи задают конкретную структуру, тогда как обычные массивы более гибкие.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Кортеж vs обычный массив\nlet tuple: [string, number] = ['Тест', 42];\nlet array: string[] = ['Тест', 'Привет'];\n\nconsole.log(tuple); // ['Тест', 42]\nconsole.log(array); // ['Тест', 'Привет']\n// tuple.push('Экстра'); // Ошибка: кортежи имеют фиксированную длину\narray.push('Мир'); // OK: обычные массивы гибкие\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Кортежи фиксированы по длине и типу, что предотвращает изменения.\n- Обычные массивы позволяют добавлять любое количество элементов.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Кортежи только для чтения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Кортежи только для чтения — это неизменяемые (immutable) кортежи, которые позволяют только чтение элементов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Кортеж только для чтения\nlet readOnlyTuple: readonly [string, number] = ['Алиса', 25];\n\nconsole.log(readOnlyTuple); // ['Алиса', 25]\n// readOnlyTuple[0] = 'Боб'; // Ошибка: нельзя изменить кортеж только для чтения\n// readOnlyTuple.push('Экстра'); // Ошибка: нельзя добавить в кортеж только для чтения\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ключевое слово `readonly` запрещает изменение кортежа.\n- Попытки изменения вызывают ошибку компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Необязательные элементы"
+      },
+      {
+        "type": "paragraph",
+        "text": "В кортежах могут быть необязательные элементы, обозначенные знаком `?`, которые могут отсутствовать.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Необязательные элементы\nlet optionalTuple: [string, number, boolean?] = ['Алиса', 25];\n\nconsole.log(optionalTuple); // ['Алиса', 25]\noptionalTuple = ['Боб', 30, true]; // OK\nconsole.log(optionalTuple); // ['Боб', 30, true]\n// optionalTuple = ['Ева', 35, 'тест']; // Ошибка: string не может быть присвоен boolean\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `boolean?` указывает на необязательный элемент.\n- Неправильное присвоение типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Rest-элементы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Кортежи могут включать rest-элементы (`...`), которые принимают произвольное количество элементов определённого типа.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Rest-элементы\nlet restTuple: [string, ...number[]] = ['Тест', 1, 2, 3];\n\nconsole.log(restTuple); // ['Тест', 1, 2, 3]\nrestTuple = ['Демо', 4]; // OK\n// restTuple = ['Демо', 'Экстра']; // Ошибка: string не может быть присвоен number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `...number[]` принимает произвольное количество элементов типа `number`.\n- Неправильное присвоение типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Кортеж vs Объект"
+      },
+      {
+        "type": "paragraph",
+        "text": "Кортежи и объекты могут выполнять схожие функции, но имеют разные случаи использования:\n- **Кортеж**: Для упорядоченных данных с фиксированной длиной (например, координаты).\n- **Объект**: Для именованных свойств (например, данные пользователя).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Кортеж vs объект\nlet tuple: [string, number] = ['Алиса', 25];\nlet object: { name: string; age: number } = { name: 'Алиса', age: 25 };\n\nconsole.log(tuple[0]); // Алиса\nconsole.log(object.name); // Алиса\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Кортежи используют индексы (0, 1) для доступа.\n- Объекты используют именованные свойства (name, age).\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Работа с типами кортежей"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы кортежей используются в различных сценариях в реальных проектах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Практический пример\nfunction getCoordinates(): [number, number] {\n  return [40.7128, -74.0060]; // Координаты Нью-Йорка\n}\n\nlet coords: [number, number] = getCoordinates();\nconsole.log(`Широта: ${coords[0]}, Долгота: ${coords[1]}`);\n// Вывод: Широта: 40.7128, Долгота: -74.0060\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `[number, number]` определяет географические координаты.\n- Кортежи обеспечивают фиксированную структуру.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы кортежей повышают безопасность кода, но требуется осторожность:\n- Избегайте неправильных присвоений типов или длины.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\nlet tuple: [string, number] = ['Тест', 42];\n\nif (typeof tuple[0] === 'string') {\n  console.log(tuple[0].toUpperCase()); // ТЕСТ\n}\n// tuple = [42, 'Ошибка']; // Ошибка: несоответствие типа или порядка\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Элементы кортежа проверяются для безопасного использования.\n- Неправильный тип или порядок вызывает ошибку компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet unsafe: any = ['Привет', 42];\nunsafe.push(true); // Небезопасно, может вызвать ошибки во время выполнения\nconsole.log(unsafe); // ['Привет', 42, true]\n\n// Правильный подход\nlet safe: [string, number] = ['Привет', 42];\nconsole.log(safe); // ['Привет', 42]\n// safe.push('Экстра'); // Ошибка: нельзя добавить в кортеж\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- `[string, number]` кортеж обеспечивает безопасность типов.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы кортежей широко используются в реальных проектах:\n- **Координаты**: Географические широта и долгота.\n- **Коды цветов**: Значения RGB или RGBA.\n- **Возвращаемые значения функций**: Функции, возвращающие несколько значений.\n- **Конфигурационные значения**: Данные с фиксированной структурой.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\nfunction getRGB(): [number, number, number] {\n  return [255, 128, 0]; // Оранжевый цвет\n}\n\nlet color: [number, number, number] = getRGB();\nconsole.log(`R: ${color[0]}, G: ${color[1]}, B: ${color[2]}`);\n// Вывод: R: 255, G: 128, B: 0\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `[number, number, number]` определяет значения цвета RGB.\n- Кортежи обеспечивают фиксированную структуру.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте точные типы. Избегайте `any` и предпочитайте конкретные типы. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо кортежей можно использовать объекты или обычные массивы, но кортежи лучше подходят для данных с фиксированной структурой.\n- Вы можете протестировать код ниже в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример типов кортежей для самостоятельного тестирования\nfunction getUserInfo(): [string, number, boolean?] {\n  return ['Джон', 22, true];\n}\n\nlet userInfo: [string, number, boolean?] = getUserInfo();\nconsole.log(`Имя: ${userInfo[0]}, Возраст: ${userInfo[1]}, Активен: ${userInfo[2] ?? 'Нет информации'}`);\n// Вывод: Имя: Джон, Возраст: 22, Активен: true\n"
+      }
+    ]
+  }
+}

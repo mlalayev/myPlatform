@@ -106,8 +106,7 @@ export default function TutorialsFrameworksPage() {
   };
 
   // Fetch all framework progress
-  useEffect(() => {
-    const fetchAllProgress = async () => {
+  const fetchAllProgress = React.useCallback(async () => {
       const progressData: FrameworkProgress = {};
       let visitedLessonsByFramework: VisitedLessonsByFramework = {};
       
@@ -175,9 +174,44 @@ export default function TutorialsFrameworksPage() {
         progressData[apiFrameworkName] = { percent, visited: visitedCount, total };
       }
       setFrameworkProgress(progressData);
-    };
+    }, [langKey]);
+
+  useEffect(() => {
+    // Initial fetch
     fetchAllProgress();
-  }, [langKey]);
+
+    // Listen for localStorage changes (when lesson is visited from other tabs)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'visitedLessons') {
+        console.log('Visited lessons updated from other tab, refreshing framework progress...');
+        fetchAllProgress();
+      }
+    };
+
+    // Listen for custom event (when lesson is visited in same tab)
+    const handleVisitedLessonsUpdate = (e: CustomEvent) => {
+      console.log('Visited lessons updated in same tab, refreshing framework progress...', e.detail);
+      fetchAllProgress();
+    };
+
+    // Listen for window focus (when returning from lesson page)
+    const handleWindowFocus = () => {
+      console.log('Window focused, refreshing framework progress...');
+      fetchAllProgress();
+    };
+
+    // Add event listeners
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('focus', handleWindowFocus);
+    window.addEventListener('visitedLessonsUpdated', handleVisitedLessonsUpdate as EventListener);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', handleWindowFocus);
+      window.removeEventListener('visitedLessonsUpdated', handleVisitedLessonsUpdate as EventListener);
+    };
+  }, [fetchAllProgress]);
 
   // Fetch framework topics
   React.useEffect(() => {

@@ -1,0 +1,672 @@
+{
+  "id": "type-annotations",
+  "az": {
+    "title": "Tip Annotasiyaları",
+    "icon": "FiType",
+    "language": "typescript",
+    "description": "Dəyişənlərə tip təyin etmək.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Tip Annotasiyaları Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip annotasiyaları TypeScript-də dəyişənlərə, funksiyalara və obyektlərə onların hansı tipdə olacağını əvvəlcədən təyin etmək üçün istifadə olunan bir mexanizmdir. TypeScript JavaScript-in üzərində qurulmuş bir dil olduğundan, JavaScript-in dinamik tiplər sistemini statik tiplərlə əvəz edir. Bu, kodun yazılma mərhələsində səhvləri aşkarlamağa imkan verir və böyük layihələrdə kodun idarə olunmasını asanlaşdırır. Tip annotasiyaları ilə dəyişənin mətn (`string`), rəqəm (`number`), məntiqi dəyər (`boolean`) və ya başqa bir tip olacağı açıq şəkildə göstərilir. Bu JSON faylda tip annotasiyalarının tərifi, niyə istifadə edildiyi, JavaScript ilə fərqləri, əsas tiplər, birləşmə və kəsişmə tipləri, tip inferensi, tip aliasları, funksiya tipləri, literal tiplər, nullable tiplər, praktik nümunələr və təhlükəsizlik aspektləri çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir TypeScript faylında yoxlaya bilərsiniz. Bunun üçün Node.js mühitində `tsc` kompilyatorundan və ya TypeScript Playground (https://www.typescriptlang.org/play) kimi onlayn redaktordan istifadə edə bilərsiniz. TypeScript 5.0 və ya daha yeni versiyadan istifadə etməyiniz tövsiyə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Niyə Tip Annotasiyaları İstifadə Edilir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip annotasiyaları kodun təhlükəsizliyini və oxunaqlılığını artırmaq üçün istifadə olunur:\n- **Səhvlərin erkən aşkarlanması**: Səhv tiplər kompilyasiya zamanı xəta verir, beləliklə icra zamanı (runtime) problemlər azalır.\n- **Daha yaxşı alət dəstəyi**: Kod redaktorları (məsələn, VS Code) tiplərə əsasən avtomatik tamamlamalar və səhv xəbərdarlıqları təklif edir.\n- **Oxunaqlı və strukturlu kod**: Tiplər kodu daha başa düşülən edir, xüsusilə böyük layihələrdə.\n- **Komanda işini asanlaşdırır**: Digər proqramçılar kodun məqsədini və strukturunu asanlıqla başa düşür.\nJavaScript-də dinamik tiplər səbəbindən səhvlər yalnız icra zamanı aşkarlanır. TypeScript bu problemi statik tiplərlə həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "TypeScript-də Əsas Tiplər"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də əsas tiplər aşağıdakılardır:\n- `string`: Mətn dəyərləri (məsələn, \"hello\").\n- `number`: Rəqəm dəyərləri (məsələn, 42, 3.14).\n- `boolean`: Doğru/yanlış dəyərləri (`true`, `false`).\n- `array`: Eyni tipdə elementlərdən ibarət massiv (`number[]` və ya `Array<number>`).\n- `object`: Obyekt strukturları.\n- `any`: İstənilən tip (tövsiyə edilmir, çünki tip təhlükəsizliyini azaldır).\n- `unknown`: Naməlum tip (daha təhlükəsiz alternativ).\n- `void`: Funksiyanın dəyər qaytarmadığını göstərir.\n- `never`: Heç vaxt baş verməyən və ya qaytarılmayan dəyərlər.\nNümunə (əsas tiplər):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Əsas tiplər\nlet name: string = 'Ali';\nlet age: number = 25;\nlet isStudent: boolean = true;\nlet numbers: number[] = [1, 2, 3];\nlet person: object = { name: 'Vəli', age: 30 };\nlet anything: any = 'Hər şey ola bilər';\nlet unknownValue: unknown = 42;\n\nfunction logMessage(): void {\n  console.log('Mesaj yazıldı');\n}\n\nfunction throwError(): never {\n  throw new Error('Xəta!');\n}\n\nconsole.log(name, age, isStudent, numbers, person);\nlogMessage();\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Hər dəyişənə müvafiq tip təyin edilir.\n- `any` və `unknown` tipləri müxtəlif məqsədlər üçün istifadə olunur.\n- `void` və `never` funksiyaların davranışını təsvir edir.\n- Kompilyasiya: `tsc example.ts`.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip İnferensi"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript avtomatik olaraq dəyişənlərin tiplərini təyin edə bilər (tip inferensi). Tip annotasiyası yazılmasa belə, TypeScript dəyərə əsasən tipi anlayır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Tip inferensi\nlet name = 'Ayşə'; // TypeScript avtomatik olaraq string tipi təyin edir\nlet age = 30; // number tipi\n// name = 42; // Xəta: number string-ə təyin edilə bilməz\n\nconsole.log(name, age);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `name` və `age` dəyişənlərinə tip açıq şəkildə təyin edilməyib, lakin TypeScript onların tiplərini avtomatik təyin edir.\n- Yanlış tip təyinatı kompilyasiya zamanı xəta verir.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiya Tipləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Funksiyaların parametrləri və qaytardığı dəyərlər üçün tip annotasiyaları təyin edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Funksiya tipləri\nfunction add(a: number, b: number): number {\n  return a + b;\n}\n\nconsole.log(add(5, 3)); // 8\n// console.log(add('5', 3)); // Xəta: string number gözlənilir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `a` və `b` parametrləri `number` tipindədir.\n- Funksiya `number` tipi qaytarır.\n- Yanlış parametr tipi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Aliasları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip aliasları mürəkkəb tipləri təkrar istifadə etmək üçün sadələşdirir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Tip aliası\ntype Point = {\n  x: number;\n  y: number;\n};\n\nlet point: Point = { x: 10, y: 20 };\nconsole.log(point); // { x: 10, y: 20 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Point` tipi obyektin strukturunu təyin edir.\n- Tip aliası təkrar istifadəni asanlaşdırır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Birləşmə Tipləri (Union Types)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Birləşmə tipləri bir dəyişənin birdən çox tipdə ola biləcəyini göstərir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Birləşmə tipləri\nlet id: string | number;\nid = 'ABC123';\nconsole.log(id); // ABC123\nid = 123;\nconsole.log(id); // 123\n// id = true; // Xəta: boolean birləşmə tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `id` dəyişəni `string` və ya `number` ola bilər.\n- Yanlış tip kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Kəsişmə Tipləri (Intersection Types)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kəsişmə tipləri bir neçə tipin xassələrini birləşdirir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Kəsişmə tipləri\ntype Person = { name: string };\ntype Employee = { id: number };\n\ntype Staff = Person & Employee;\n\nlet staff: Staff = { name: 'Fatma', id: 101 };\nconsole.log(staff); // { name: 'Fatma', id: 101 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Staff` tipi `Person` və `Employee` tiplərinin xassələrini birləşdirir.\n- Obyekt hər iki tipin xassələrinə malik olmalıdır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Literal Tiplər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Literal tiplər dəyişənin dəqiq dəyərlərini təyin edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Literal tiplər\ntype Direction = 'up' | 'down' | 'left' | 'right';\nlet move: Direction = 'up';\nconsole.log(move); // up\n// move = 'diagonal'; // Xəta: 'diagonal' Direction tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Direction` tipi yalnız müəyyən dəyərləri qəbul edir.\n- Yanlış dəyər kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Nullable Tiplər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Nullable tiplər dəyişənin `null` və ya `undefined` ola biləcəyini göstərir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Nullable tiplər\nlet value: string | null = 'Hello';\nvalue = null;\nconsole.log(value); // null\n// value = 42; // Xəta: number nullable tipə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `value` dəyişəni `string` və ya `null` ola bilər.\n- Yanlış tip kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Obyektlərdə Tip Annotasiyası"
+      },
+      {
+        "type": "paragraph",
+        "text": "Obyektlərə tip annotasiyası tətbiq etmək strukturlu kod yazmağa kömək edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Obyektlərdə tip annotasiyası\ninterface User {\n  name: string;\n  age: number;\n  email?: string; // Opsional xassə\n}\n\nlet user: User = {\n  name: 'Məmməd',\n  age: 22,\n};\n\nconsole.log(user); // { name: 'Məmməd', age: 22 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `User` interfeysi obyektin strukturunu təyin edir.\n- `email` opsional xassədir.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip annotasiyaları kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- `any` tipindən çəkinin, çünki tiplərin üstünlüklərini ləğv edir.\n- `unknown` tipi `any` ilə müqayisədə daha təhlükəsizdir.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\nlet data: unknown = 'Hello';\n// console.log(data.toUpperCase()); // Xəta: unknown tipinə metod tətbiq edilə bilməz\nif (typeof data === 'string') {\n  console.log(data.toUpperCase()); // HELLO\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `unknown` tipi ilə metod tətbiq etməzdən əvvəl tip yoxlanılır.\n- `any` istifadəsi runtime xətalarına səbəb ola bilər.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet value: any = 'Hello';\nconsole.log(value.toUpperCase()); // HELLO\nvalue = 42;\n// console.log(value.toUpperCase()); // Runtime xətası\n\n// Düzgün yol\nlet text: string = 'Hello';\nconsole.log(text.toUpperCase()); // HELLO\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi runtime xətasına səbəb ola bilər.\n- `string` tipi təhlükəsizliyi təmin edir.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Həmişə dəqiq tiplərdən istifadə edin. `any` əvəzinə `unknown` və ya konkret tiplərdən istifadə edin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin. Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Kiçik layihələrdə təmiz JavaScript istifadə edilə bilər, lakin TypeScript tövsiyə olunur.\n- Aşağıda kodları sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün tip annotasiyası nümunəsi\ninterface Product {\n  id: number;\n  name: string;\n  price: number | null;\n}\n\nfunction displayProduct(product: Product): string {\n  return `Məhsul: ${product.name}, Qiymət: ${product.price ?? 'Mövcud deyil'}`;\n}\n\nlet product: Product = { id: 1, name: 'Laptop', price: 1000 };\nconsole.log(displayProduct(product)); // Məhsul: Laptop, Qiymət: 1000\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Type Annotations",
+    "icon": "FiType",
+    "language": "typescript",
+    "description": "Assigning types to variables.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Type Annotations?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type annotations in TypeScript are a mechanism for explicitly specifying the types of variables, functions, and objects. TypeScript, built on top of JavaScript, replaces JavaScript’s dynamic typing with a static type system. This allows errors to be caught during the compilation phase, making code management easier in large projects. Type annotations indicate whether a variable is a string, number, boolean, or another type. This JSON file explains the definition of type annotations, their purpose, differences from JavaScript, core types, union and intersection types, type inference, type aliases, function types, literal types, nullable types, practical examples, and security aspects in detail. You can test the code below in a simple TypeScript file using a Node.js environment with the `tsc` compiler or an online editor like TypeScript Playground (https://www.typescriptlang.org/play). Using TypeScript 5.0 or a newer version is recommended."
+      },
+      {
+        "type": "heading",
+        "text": "Why Use Type Annotations?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type annotations are used to enhance code safety and readability:\n- **Early error detection**: Incorrect types trigger compilation errors, reducing runtime issues.\n- **Improved tooling**: Code editors (e.g., VS Code) provide autocompletion and error warnings based on types.\n- **Readable and structured code**: Types make code more understandable, especially in large projects.\n- **Team collaboration**: Other developers can easily understand the code’s intent and structure.\nIn JavaScript, errors due to dynamic typing are only caught at runtime. TypeScript addresses this with static types."
+      },
+      {
+        "type": "heading",
+        "text": "Core Types in TypeScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript’s core types include:\n- `string`: Text values (e.g., \"hello\").\n- `number`: Numeric values (e.g., 42, 3.14).\n- `boolean`: True/false values (`true`, `false`).\n- `array`: Arrays of the same type (`number[]` or `Array<number>`).\n- `object`: Object structures.\n- `any`: Any type (not recommended, as it reduces type safety).\n- `unknown`: Unknown type (safer alternative).\n- `void`: Indicates a function returns nothing.\n- `never`: Represents values that never occur or are never returned.\nExample (core types):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Core types\nlet name: string = 'Alice';\nlet age: number = 25;\nlet isStudent: boolean = true;\nlet numbers: number[] = [1, 2, 3];\nlet person: object = { name: 'Bob', age: 30 };\nlet anything: any = 'Anything goes';\nlet unknownValue: unknown = 42;\n\nfunction logMessage(): void {\n  console.log('Message logged');\n}\n\nfunction throwError(): never {\n  throw new Error('Error!');\n}\n\nconsole.log(name, age, isStudent, numbers, person);\nlogMessage();\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Each variable is assigned a specific type.\n- `any` and `unknown` serve different purposes.\n- `void` and `never` describe function behavior.\n- Compile: `tsc example.ts`.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Type Inference"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript can automatically infer variable types (type inference) without explicit annotations, based on their values.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type inference\nlet name = 'Eve'; // TypeScript infers string type\nlet age = 30; // number type\n// name = 42; // Error: number cannot be assigned to string\n\nconsole.log(name, age);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `name` and `age` have types inferred automatically.\n- Incorrect type assignments cause compilation errors.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Function Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type annotations can be applied to function parameters and return values.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Function types\nfunction add(a: number, b: number): number {\n  return a + b;\n}\n\nconsole.log(add(5, 3)); // 8\n// console.log(add('5', 3)); // Error: string not expected\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Parameters `a` and `b` are `number` types.\n- The function returns a `number`.\n- Incorrect parameter types cause compilation errors.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Type Aliases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type aliases simplify complex types for reuse.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type alias\ntype Point = {\n  x: number;\n  y: number;\n};\n\nlet point: Point = { x: 10, y: 20 };\nconsole.log(point); // { x: 10, y: 20 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Point` type defines an object’s structure.\n- Type aliases make reuse easier.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Union Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union types allow a variable to have multiple types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Union types\nlet id: string | number;\nid = 'ABC123';\nconsole.log(id); // ABC123\nid = 123;\nconsole.log(id); // 123\n// id = true; // Error: boolean is not part of union type\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `id` can be a `string` or `number`.\n- Incorrect types cause compilation errors.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Intersection Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection types combine multiple types’ properties.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Intersection types\ntype Person = { name: string };\ntype Employee = { id: number };\n\ntype Staff = Person & Employee;\n\nlet staff: Staff = { name: 'Grace', id: 101 };\nconsole.log(staff); // { name: 'Grace', id: 101 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Staff` combines properties of `Person` and `Employee`.\n- Objects must have properties from both types.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Literal Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Literal types specify exact values for a variable.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Literal types\ntype Direction = 'up' | 'down' | 'left' | 'right';\nlet move: Direction = 'up';\nconsole.log(move); // up\n// move = 'diagonal'; // Error: 'diagonal' is not a valid Direction\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Direction` restricts values to specific literals.\n- Invalid values cause compilation errors.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Nullable Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Nullable types allow a variable to be `null` or `undefined`.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Nullable types\nlet value: string | null = 'Hello';\nvalue = null;\nconsole.log(value); // null\n// value = 42; // Error: number is not part of nullable type\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `value` can be a `string` or `null`.\n- Incorrect types cause compilation errors.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Type Annotations with Objects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Applying type annotations to objects helps create structured code.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type annotations with objects\ninterface User {\n  name: string;\n  age: number;\n  email?: string; // Optional property\n}\n\nlet user: User = {\n  name: 'John',\n  age: 22,\n};\n\nconsole.log(user); // { name: 'John', age: 22 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `User` interface defines the object’s structure.\n- `email` is an optional property.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type annotations improve code safety, but caution is needed:\n- Avoid the `any` type, as it bypasses type benefits.\n- Use `unknown` for safer handling of unknown values.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\nlet data: unknown = 'Hello';\n// console.log(data.toUpperCase()); // Error: cannot call method on unknown\nif (typeof data === 'string') {\n  console.log(data.toUpperCase()); // HELLO\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `unknown` requires type checking before method calls.\n- `any` can lead to runtime errors.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet value: any = 'Hello';\nconsole.log(value.toUpperCase()); // HELLO\nvalue = 42;\n// console.log(value.toUpperCase()); // Runtime error\n\n// Correct approach\nlet text: string = 'Hello';\nconsole.log(text.toUpperCase()); // HELLO\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` type can cause runtime errors.\n- `string` type ensures safety.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Always use precise types. Prefer `unknown` over `any`. Enable strict checks in `tsconfig.json`. Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: For small projects, plain JavaScript can be used, but TypeScript is recommended.\n- You can test the code below in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself type annotations example\ninterface Product {\n  id: number;\n  name: string;\n  price: number | null;\n}\n\nfunction displayProduct(product: Product): string {\n  return `Product: ${product.name}, Price: ${product.price ?? 'Not available'}`;\n}\n\nlet product: Product = { id: 1, name: 'Laptop', price: 1000 };\nconsole.log(displayProduct(product)); // Product: Laptop, Price: 1000\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Аннотации типов",
+    "icon": "FiType",
+    "language": "typescript",
+    "description": "Назначение типов переменным.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое аннотации типов?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Аннотации типов в TypeScript — это механизм для явного указания типов переменных, функций и объектов. TypeScript, построенный на основе JavaScript, заменяет динамическую типизацию JavaScript статической системой типов. Это позволяет выявлять ошибки на этапе компиляции, упрощая управление кодом в крупных проектах. Аннотации типов указывают, является ли переменная строкой (`string`), числом (`number`), логическим значением (`boolean`) или другим типом. Этот JSON-файл подробно объясняет определение аннотаций типов, их назначение, отличия от JavaScript, основные типы, объединения и пересечения типов, вывод типов, псевдонимы типов, типы функций, литеральные типы, nullable-типы, практические примеры и аспекты безопасности. Вы можете протестировать код ниже в простом файле TypeScript, используя среду Node.js с компилятором `tsc` или онлайн-редактор, такой как TypeScript Playground (https://www.typescriptlang.org/play). Рекомендуется использовать TypeScript 5.0 или новее."
+      },
+      {
+        "type": "heading",
+        "text": "Зачем нужны аннотации типов?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Аннотации типов используются для повышения безопасности и читаемости кода:\n- **Раннее обнаружение ошибок**: Неправильные типы вызывают ошибки компиляции, снижая проблемы во время выполнения.\n- **Улучшенная поддержка инструментов**: Редакторы кода (например, VS Code) предлагают автодополнение и предупреждения об ошибках на основе типов.\n- **Читаемый и структурированный код**: Типы делают код более понятным, особенно в крупных проектах.\n- **Упрощение командной работы**: Другие разработчики могут легко понять назначение и структуру кода.\nВ JavaScript ошибки из-за динамической типизации выявляются только во время выполнения. TypeScript решает эту проблему с помощью статических типов."
+      },
+      {
+        "type": "heading",
+        "text": "Основные типы в TypeScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Основные типы в TypeScript включают:\n- `string`: Текстовые значения (например, \"hello\").\n- `number`: Числовые значения (например, 42, 3.14).\n- `boolean`: Логические значения (`true`, `false`).\n- `array`: Массивы одного типа (`number[]` или `Array<number>`).\n- `object`: Структуры объектов.\n- `any`: Любой тип (не рекомендуется, так как снижает безопасность типов).\n- `unknown`: Неизвестный тип (более безопасная альтернатива).\n- `void`: Указывает, что функция ничего не возвращает.\n- `never`: Значения, которые никогда не возникают или не возвращаются.\nПример (основные типы):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Основные типы\nlet name: string = 'Алиса';\nlet age: number = 25;\nlet isStudent: boolean = true;\nlet numbers: number[] = [1, 2, 3];\nlet person: object = { name: 'Боб', age: 30 };\nlet anything: any = 'Может быть чем угодно';\nlet unknownValue: unknown = 42;\n\nfunction logMessage(): void {\n  console.log('Сообщение записано');\n}\n\nfunction throwError(): never {\n  throw new Error('Ошибка!');\n}\n\nconsole.log(name, age, isStudent, numbers, person);\nlogMessage();\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Каждая переменная имеет определенный тип.\n- Типы `any` и `unknown` используются для разных целей.\n- `void` и `never` описывают поведение функций.\n- Компиляция: `tsc example.ts`.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Вывод типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript может автоматически определять типы переменных (вывод типов) на основе их значений без явных аннотаций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Вывод типов\nlet name = 'Ева'; // TypeScript автоматически определяет тип string\nlet age = 30; // тип number\n// name = 42; // Ошибка: number не может быть присвоен string\n\nconsole.log(name, age);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Типы переменных `name` и `age` определяются автоматически.\n- Неправильные типы вызывают ошибки компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Типы функций"
+      },
+      {
+        "type": "paragraph",
+        "text": "Аннотации типов могут применяться к параметрам и возвращаемым значениям функций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Типы функций\nfunction add(a: number, b: number): number {\n  return a + b;\n}\n\nconsole.log(add(5, 3)); // 8\n// console.log(add('5', 3)); // Ошибка: ожидается number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Параметры `a` и `b` имеют тип `number`.\n- Функция возвращает `number`.\n- Неправильные типы параметров вызывают ошибки компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Псевдонимы типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Псевдонимы типов упрощают повторное использование сложных типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Псевдоним типа\ntype Point = {\n  x: number;\n  y: number;\n};\n\nlet point: Point = { x: 10, y: 20 };\nconsole.log(point); // { x: 10, y: 20 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `Point` определяет структуру объекта.\n- Псевдонимы типов упрощают повторное использование.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Объединения типов (Union Types)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Объединения типов позволяют переменной иметь несколько типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Объединения типов\nlet id: string | number;\nid = 'ABC123';\nconsole.log(id); // ABC123\nid = 123;\nconsole.log(id); // 123\n// id = true; // Ошибка: boolean не входит в объединение типов\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Переменная `id` может быть `string` или `number`.\n- Неправильные типы вызывают ошибки компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Пересечения типов (Intersection Types)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Пересечения типов объединяют свойства нескольких типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пересечения типов\ntype Person = { name: string };\ntype Employee = { id: number };\n\ntype Staff = Person & Employee;\n\nlet staff: Staff = { name: 'Грейс', id: 101 };\nconsole.log(staff); // { name: 'Грейс', id: 101 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `Staff` объединяет свойства типов `Person` и `Employee`.\n- Объект должен содержать свойства обоих типов.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Литеральные типы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Литеральные типы задают точные значения для переменной.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Литеральные типы\ntype Direction = 'up' | 'down' | 'left' | 'right';\nlet move: Direction = 'up';\nconsole.log(move); // up\n// move = 'diagonal'; // Ошибка: 'diagonal' не является допустимым значением Direction\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `Direction` ограничивает значения конкретными литералами.\n- Недопустимые значения вызывают ошибки компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Nullable-типы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Nullable-типы позволяют переменной быть `null` или `undefined`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Nullable-типы\nlet value: string | null = 'Привет';\nvalue = null;\nconsole.log(value); // null\n// value = 42; // Ошибка: number не входит в nullable-тип\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Переменная `value` может быть `string` или `null`.\n- Неправильные типы вызывают ошибки компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Аннотации типов для объектов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Применение аннотаций типов к объектам помогает создавать структурированный код.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Аннотации типов для объектов\ninterface User {\n  name: string;\n  age: number;\n  email?: string; // Опциональное свойство\n}\n\nlet user: User = {\n  name: 'Джон',\n  age: 22,\n};\n\nconsole.log(user); // { name: 'Джон', age: 22 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `User` определяет структуру объекта.\n- Свойство `email` опционально.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Аннотации типов повышают безопасность кода, но требуют осторожности:\n- Избегайте типа `any`, так как он отменяет преимущества типизации.\n- Используйте `unknown` для более безопасной обработки неизвестных значений.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\nlet data: unknown = 'Привет';\n// console.log(data.toUpperCase()); // Ошибка: метод нельзя вызвать на unknown\nif (typeof data === 'string') {\n  console.log(data.toUpperCase()); // ПРИВЕТ\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `unknown` требует проверки типа перед вызовом методов.\n- Тип `any` может привести к ошибкам во время выполнения.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet value: any = 'Привет';\nconsole.log(value.toUpperCase()); // ПРИВЕТ\nvalue = 42;\n// console.log(value.toUpperCase()); // Ошибка во время выполнения\n\n// Правильный подход\nlet text: string = 'Привет';\nconsole.log(text.toUpperCase()); // ПРИВЕТ\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `any` может привести к ошибкам во время выполнения.\n- Тип `string` обеспечивает безопасность.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Всегда используйте точные типы. Предпочитайте `unknown` вместо `any`. Включите строгие проверки в `tsconfig.json`. Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Для небольших проектов можно использовать чистый JavaScript, но TypeScript рекомендуется.\n- Вы можете протестировать код ниже в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример аннотаций типов для самостоятельного тестирования\ninterface Product {\n  id: number;\n  name: string;\n  price: number | null;\n}\n\nfunction displayProduct(product: Product): string {\n  return `Продукт: ${product.name}, Цена: ${product.price ?? 'Недоступно'}`;\n}\n\nlet product: Product = { id: 1, name: 'Ноутбук', price: 1000 };\nconsole.log(displayProduct(product)); // Продукт: Ноутбук, Цена: 1000\n"
+      }
+    ]
+  }
+}

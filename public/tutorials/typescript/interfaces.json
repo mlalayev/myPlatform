@@ -1,0 +1,621 @@
+{
+  "id": "interfaces",
+  "az": {
+    "title": "Interfeyslər",
+    "icon": "FiBox",
+    "language": "typescript",
+    "description": "Obyekt strukturlarını təyin etmək üçün interfeyslər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Interfeyslər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də interfeyslər (`interface` açar sözü ilə) obyektlərin strukturunu təyin etmək üçün istifadə olunur. Interfeyslər obyektin hansı xüsusiyyətlərə (properties) və metodlara malik olduğunu, həmin xüsusiyyətlərin tiplərini və ya metodların qaytarma dəyərlərini müəyyənləşdirir. Bu, kodun təhlükəsizliyini və oxunaqlılığını artırır. Məsələn, bir istifadəçi obyekti yalnız `name` və `age` xüsusiyyətlərinə malik olmalıdır deyə təyin edə bilərsiniz. JavaScript-də tiplər dinamikdir və obyekt strukturları təyin edilmir, bu da runtime səhvlərinə səbəb ola bilər. TypeScript-də interfeyslər kompilyasiya zamanı səhvləri aşkarlayaraq kodun düzgünlüyünü təmin edir. Interfeyslər miras alma (`extends`) və birləşmə (`&`) kimi xüsusiyyətləri də dəstəkləyir. Bu JSON faylda interfeyslərin tərifi, istifadə məqsədləri, JavaScript ilə fərqləri, tip aliaslarından fərqləri, sintaksisi, miras alma, funksiyalarda və obyektlərdə istifadəsi, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Interfeyslərin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeyslər TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Struktur təyini**: Obyektlərin dəqiq strukturunu təyin etmək.\n- **Tip təhlükəsizliyi**: Obyektlərin düzgün xüsusiyyətlərə malik olduğunu yoxlamaq.\n- **Oxunaqlılıq**: Kodun məqsədini aydın şəkildə ifadə etmək.\n- **Miras alma**: Digər interfeyslərdən xüsusiyyətləri miras almaq.\n- **Alət dəstəyi**: Kod redaktorları interfeyslərə əsasən avtomatik tamamlamalar təklif edir.\nJavaScript-də obyekt strukturları dinamik olduğundan, səhvlər yalnız icra zamanı aşkarlanır. Interfeyslər bu problemi kompilyasiya zamanı həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Interfeyslərin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeyslər `interface` açar sözü ilə təyin edilir. Onlar obyektin xüsusiyyətlərini və onların tiplərini müəyyənləşdirir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Interfeyslərin sintaksisi\ninterface Point {\n  x: number;\n  y: number;\n}\n\nlet point: Point = {\n  x: 10,\n  y: 20\n};\n\nconsole.log(point); // { x: 10, y: 20 }\n// let invalid: Point = { x: 5 }; // Xəta: y xüsusiyyəti yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Point` interfeysi obyektin `x` və `y` xüsusiyyətlərini təyin edir.\n- `point` obyektinin hər iki xüsusiyyəti olmalıdır.\n- Yanlış struktur kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Interfeyslər ilə Tip Aliaslarının Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeyslər və tip aliasları oxşar görünsə də, fərqləri var:\n- **Interfeyslər**: Əsasən obyekt tipləri üçün istifadə olunur və miras alma (`extends`) dəstəkləyir.\n- **Tip aliasları**: Primitiv tiplər, union tipləri və intersection tipləri kimi geniş strukturları təyin edə bilər.\n- **Birləşmə**: Interfeyslər tip aliasları ilə birgə istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Interfeyslər vs Tip aliasları\ntype Id = number | string;\n\ninterface User {\n  name: string;\n}\n\ninterface NamedUser extends User {\n  id: Id;\n}\n\nlet user: NamedUser = {\n  id: 1,\n  name: 'Ali'\n};\n\nconsole.log(user); // { id: 1, name: 'Ali' }\n// let invalid: NamedUser = { name: 'Vəli' }; // Xəta: id xüsusiyyəti yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Id` tip aliası `number` və ya `string` ola bilər.\n- `NamedUser` interfeysi `User` interfeysini miras alır və `id` xüsusiyyətini əlavə edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Opsiyonel Xüsusiyyətlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeyslərdə xüsusiyyətlər opsiyonel (isteğe bağlı) ola bilər, `?` işarəsi ilə təyin edilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Opsiyonel xüsusiyyətlər\ninterface Person {\n  name: string;\n  age?: number;\n}\n\nlet person1: Person = { name: 'Ali' };\nlet person2: Person = { name: 'Vəli', age: 25 };\n\nconsole.log(person1); // { name: 'Ali' }\nconsole.log(person2); // { name: 'Vəli', age: 25 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `age` xüsusiyyəti opsiyonel olduğundan təyin edilməyə bilər.\n- `name` isə məcburidir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Read-Only Xüsusiyyətlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeyslərdə xüsusiyyətlər `readonly` açar sözü ilə yalnız oxuna bilən edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Read-only xüsusiyyətlər\ninterface Product {\n  readonly id: number;\n  name: string;\n}\n\nlet product: Product = { id: 1, name: 'Laptop' };\nconsole.log(product); // { id: 1, name: 'Laptop' }\nproduct.name = 'Phone';\nconsole.log(product); // { id: 1, name: 'Phone' }\n// product.id = 2; // Xəta: id yalnız oxuna biləndir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `id` xüsusiyyəti yalnız oxuna biləndir və dəyişdirilə bilməz.\n- `name` isə dəyişdirilə bilər.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Miras Alma (extends)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeyslər digər interfeyslərdən xüsusiyyətləri miras ala bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Miras alma\ninterface Animal {\n  name: string;\n}\n\ninterface Dog extends Animal {\n  breed: string;\n}\n\nlet dog: Dog = {\n  name: 'Rex',\n  breed: 'Labrador'\n};\n\nconsole.log(dog); // { name: 'Rex', breed: 'Labrador' }\n// let invalid: Dog = { breed: 'Husky' }; // Xəta: name xüsusiyyəti yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Dog` interfeysi `Animal` interfeysindən `name` xüsusiyyətini miras alır.\n- `Dog` həmçinin `breed` xüsusiyyətini əlavə edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiyalarda Interfeyslər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeyslər funksiya parametrlərində və qaytarma dəyərlərində istifadə edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Funksiyalarda interfeyslər\ninterface User {\n  id: number;\n  name: string;\n}\n\nfunction printUser(user: User): string {\n  return `ID: ${user.id}, Name: ${user.name}`;\n}\n\nlet user: User = { id: 1, name: 'Ali' };\nconsole.log(printUser(user)); // ID: 1, Name: Ali\n// let invalid: User = { id: 2 }; // Xəta: name yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `User` interfeysi obyekt strukturunu təyin edir.\n- `printUser` funksiyası `User` interfeysindən istifadə edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Interfeyslərlə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeyslər real layihələrdə müxtəlif ssenarilərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Praktik nümunə\ninterface Order {\n  id: number;\n  status: 'pending' | 'shipped' | 'delivered';\n}\n\nfunction getOrderInfo(order: Order): string {\n  return `Order ${order.id} is ${order.status}`;\n}\n\nlet order: Order = { id: 1, status: 'pending' };\nconsole.log(getOrderInfo(order)); // Order 1 is pending\norder.status = 'delivered';\nconsole.log(getOrderInfo(order)); // Order 1 is delivered\n// order.status = 'cancelled'; // Xəta: 'cancelled' status tipinə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Order` interfeysi obyekt strukturunu və literal tipləri təyin edir.\n- `getOrderInfo` funksiyası `Order` interfeysindən istifadə edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeyslər kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Bütün tələb olunan xüsusiyyətlərin düzgün təyin olunduğuna əmin olun.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\ninterface Admin {\n  name: string;\n  role: 'admin';\n}\n\nfunction getAdminInfo(admin: Admin): string {\n  return `${admin.name} is ${admin.role}`;\n}\n\nlet admin: Admin = { name: 'Ali', role: 'admin' };\nconsole.log(getAdminInfo(admin)); // Ali is admin\n// let invalid: Admin = { name: 'Vəli' }; // Xəta: role yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Admin` interfeysi obyekt strukturunu təyin edir.\n- Yanlış struktur kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet unsafe: any = { name: 'Ali', role: 'admin' };\nconsole.log(unsafe.name, unsafe.role); // Ali, admin, lakin tip təhlükəsizliyi yoxdur\nunsafe = { name: 'Vəli' };\nconsole.log(unsafe.name, unsafe.role); // Vəli, undefined, runtime xətası ola bilər\n\n// Düzgün yol\ninterface User {\n  name: string;\n  role: string;\n}\nlet user: User = { name: 'Ali', role: 'admin' };\nconsole.log(user.name, user.role); // Ali, admin\n// let invalid: User = { name: 'Vəli' }; // Xəta: role yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime xətalarına səbəb ola bilər.\n- Interfeys ilə tip təhlükəsizliyi təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeyslər real layihələrdə geniş istifadə olunur:\n- **API cavabları**: Mürəkkəb məlumat strukturlarını təyin etmək.\n- **Kompleks obyektlər**: Çoxsaylı xüsusiyyətləri olan obyektləri təyin etmək.\n- **Komponent strukturları**: UI komponentlərinin props strukturlarını təyin etmək.\n- **Miras alma**: Mövcud strukturlardan yeni strukturlar yaratmaq.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\ninterface DiscountedProduct extends Product {\n  discount: number;\n}\n\nfunction calculateFinalPrice(product: DiscountedProduct): number {\n  return product.price * product.discount;\n}\n\nlet product: DiscountedProduct = {\n  id: 1,\n  name: 'Phone',\n  price: 1000,\n  discount: 0.9\n};\n\nconsole.log(calculateFinalPrice(product)); // 900\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Product` və `DiscountedProduct` interfeysləri mürəkkəb strukturları təyin edir.\n- `calculateFinalPrice` funksiyası `DiscountedProduct` interfeysindən istifadə edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Obyekt tipləri üçün interfeyslərdən istifadə edin. `any` əvəzinə dəqiq tipləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Interfeyslər əvəzinə tip aliasları istifadə edilə bilər, lakin interfeyslər miras alma və obyekt strukturları üçün daha uyğundur.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün interfeyslər nümunəsi\ninterface User {\n  name: string;\n  role: 'admin' | 'user';\n}\n\nconst user: User = { name: 'Məmməd', role: 'admin' };\nconsole.log(user.name, user.role); // Məmməd, admin\n// const invalid: User = { name: 'Vəli' }; // Xəta: role yoxdur\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Interfaces",
+    "icon": "FiBox",
+    "language": "typescript",
+    "description": "Interfaces for defining object structures.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Interfaces?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces in TypeScript (defined with the `interface` keyword) are used to define the structure of objects. They specify which properties and methods an object must have, along with their types or return values. This enhances code safety and readability. For example, you can define that a user object must have `name` and `age` properties. In JavaScript, types are dynamic, and object structures are not enforced, which can lead to runtime errors. TypeScript’s interfaces catch errors at compile time, ensuring correctness. Interfaces also support inheritance (`extends`) and intersection (`&`) features. This JSON file explains interfaces’ definition, purposes, differences from JavaScript, differences from type aliases, syntax, inheritance, use in functions and objects, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces in TypeScript serve the following purposes:\n- **Structure definition**: Define the precise structure of objects.\n- **Type safety**: Ensure objects have the correct properties.\n- **Readability**: Clearly express the code’s intent.\n- **Inheritance**: Inherit properties from other interfaces.\n- **Tooling support**: Code editors provide autocompletion based on interfaces.\nIn JavaScript, object structures are dynamic, and errors are only caught at runtime. Interfaces address this by enforcing structure at compile time."
+      },
+      {
+        "type": "heading",
+        "text": "Interface Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces are defined using the `interface` keyword. They specify an object’s properties and their types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Interface syntax\ninterface Point {\n  x: number;\n  y: number;\n}\n\nlet point: Point = {\n  x: 10,\n  y: 20\n};\n\nconsole.log(point); // { x: 10, y: 20 }\n// let invalid: Point = { x: 5 }; // Error: property 'y' is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Point` interface defines an object with `x` and `y` properties.\n- `point` object must have both properties.\n- Incorrect structure triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Interfaces vs. Type Aliases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces and type aliases may seem similar but have differences:\n- **Interfaces**: Primarily used for object types and support inheritance (`extends`).\n- **Type aliases**: Can define primitive types, union types, and intersection types.\n- **Interoperability**: Interfaces can be used with type aliases.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Interfaces vs. Type aliases\ntype Id = number | string;\n\ninterface User {\n  name: string;\n}\n\ninterface NamedUser extends User {\n  id: Id;\n}\n\nlet user: NamedUser = {\n  id: 1,\n  name: 'Alice'\n};\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n// let invalid: NamedUser = { name: 'Bob' }; // Error: property 'id' is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Id` type alias can be a `number` or `string`.\n- `NamedUser` interface extends `User` and adds the `id` property.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Optional Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces can have optional properties, denoted with `?`.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Optional properties\ninterface Person {\n  name: string;\n  age?: number;\n}\n\nlet person1: Person = { name: 'Alice' };\nlet person2: Person = { name: 'Bob', age: 25 };\n\nconsole.log(person1); // { name: 'Alice' }\nconsole.log(person2); // { name: 'Bob', age: 25 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `age` property is optional and can be omitted.\n- `name` is required.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Read-Only Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces can have read-only properties, denoted with `readonly`.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Read-only properties\ninterface Product {\n  readonly id: number;\n  name: string;\n}\n\nlet product: Product = { id: 1, name: 'Laptop' };\nconsole.log(product); // { id: 1, name: 'Laptop' }\nproduct.name = 'Phone';\nconsole.log(product); // { id: 1, name: 'Phone' }\n// product.id = 2; // Error: id is read-only\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `id` property is read-only and cannot be modified.\n- `name` can be modified.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Inheritance (extends)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces can inherit properties from other interfaces.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Inheritance\ninterface Animal {\n  name: string;\n}\n\ninterface Dog extends Animal {\n  breed: string;\n}\n\nlet dog: Dog = {\n  name: 'Rex',\n  breed: 'Labrador'\n};\n\nconsole.log(dog); // { name: 'Rex', breed: 'Labrador' }\n// let invalid: Dog = { breed: 'Husky' }; // Error: property 'name' is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Dog` interface inherits the `name` property from `Animal`.\n- `Dog` also adds the `breed` property.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Interfaces in Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces can be used in function parameters and return values.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Interfaces in functions\ninterface User {\n  id: number;\n  name: string;\n}\n\nfunction printUser(user: User): string {\n  return `ID: ${user.id}, Name: ${user.name}`;\n}\n\nlet user: User = { id: 1, name: 'Alice' };\nconsole.log(printUser(user)); // ID: 1, Name: Alice\n// let invalid: User = { id: 2 }; // Error: name is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `User` interface defines an object structure.\n- `printUser` function uses the `User` interface.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Working with Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces are used in various scenarios in real projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Practical example\ninterface Order {\n  id: number;\n  status: 'pending' | 'shipped' | 'delivered';\n}\n\nfunction getOrderInfo(order: Order): string {\n  return `Order ${order.id} is ${order.status}`;\n}\n\nlet order: Order = { id: 1, status: 'pending' };\nconsole.log(getOrderInfo(order)); // Order 1 is pending\norder.status = 'delivered';\nconsole.log(getOrderInfo(order)); // Order 1 is delivered\n// order.status = 'cancelled'; // Error: 'cancelled' cannot be assigned to status\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Order` interface defines an object structure and literal types.\n- `getOrderInfo` function uses the `Order` interface.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces enhance code safety, but caution is needed:\n- Ensure all required properties are correctly defined.\n- Avoid `any` as it reduces type safety.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\ninterface Admin {\n  name: string;\n  role: 'admin';\n}\n\nfunction getAdminInfo(admin: Admin): string {\n  return `${admin.name} is ${admin.role}`;\n}\n\nlet admin: Admin = { name: 'Alice', role: 'admin' };\nconsole.log(getAdminInfo(admin)); // Alice is admin\n// let invalid: Admin = { name: 'Bob' }; // Error: role is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Admin` interface defines an object structure.\n- Incorrect structure triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet unsafe: any = { name: 'Alice', role: 'admin' };\nconsole.log(unsafe.name, unsafe.role); // Alice, admin, but no type safety\nunsafe = { name: 'Bob' };\nconsole.log(unsafe.name, unsafe.role); // Bob, undefined, may cause runtime errors\n\n// Correct approach\ninterface User {\n  name: string;\n  role: string;\n}\nlet user: User = { name: 'Alice', role: 'admin' };\nconsole.log(user.name, user.role); // Alice, admin\n// let invalid: User = { name: 'Bob' }; // Error: role is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and may cause runtime errors.\n- Interface ensures type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces are widely used in real projects:\n- **API responses**: Defining complex data structures.\n- **Complex objects**: Defining objects with multiple properties.\n- **Component structures**: Defining props structures for UI components.\n- **Inheritance**: Creating new structures from existing ones.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\ninterface DiscountedProduct extends Product {\n  discount: number;\n}\n\nfunction calculateFinalPrice(product: DiscountedProduct): number {\n  return product.price * product.discount;\n}\n\nlet product: DiscountedProduct = {\n  id: 1,\n  name: 'Phone',\n  price: 1000,\n  discount: 0.9\n};\n\nconsole.log(calculateFinalPrice(product)); // 900\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Product` and `DiscountedProduct` interfaces define complex structures.\n- `calculateFinalPrice` function uses the `DiscountedProduct` interface.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use interfaces for object types. Prefer precise types over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Type aliases can be used instead of interfaces, but interfaces are better suited for inheritance and object structures.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself interfaces example\ninterface User {\n  name: string;\n  role: 'admin' | 'user';\n}\n\nconst user: User = { name: 'John', role: 'admin' };\nconsole.log(user.name, user.role); // John, admin\n// const invalid: User = { name: 'Bob' }; // Error: role is missing\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Интерфейсы",
+    "icon": "FiBox",
+    "language": "typescript",
+    "description": "Интерфейсы для определения структур объектов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое интерфейсы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы в TypeScript (определяемые с помощью ключевого слова `interface`) используются для определения структуры объектов. Они указывают, какие свойства и методы должен иметь объект, а также их типы или возвращаемые значения. Это повышает безопасность и читаемость кода. Например, вы можете определить, что объект пользователя должен иметь свойства `name` и `age`. В JavaScript типы динамические, и структуры объектов не проверяются, что может привести к ошибкам во время выполнения. Интерфейсы TypeScript обнаруживают ошибки на этапе компиляции, обеспечивая корректность кода. Интерфейсы также поддерживают наследование (`extends`) и пересечение (`&`). Этот JSON-файл подробно объясняет определение интерфейсов, их назначение, отличия от JavaScript, отличия от псевдонимов типов, синтаксис, наследование, использование в функциях и объектах, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы в TypeScript используются для следующих целей:\n- **Определение структуры**: Указание точной структуры объектов.\n- **Безопасность типов**: Проверка наличия правильных свойств у объектов.\n- **Читаемость**: Четкое выражение назначения кода.\n- **Наследование**: Наследование свойств от других интерфейсов.\n- **Поддержка инструментов**: Редакторы кода предоставляют автодополнение на основе интерфейсов.\nВ JavaScript структуры объектов динамические, и ошибки обнаруживаются только во время выполнения. Интерфейсы решают эту проблему на этапе компиляции."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы определяются с помощью ключевого слова `interface`. Они указывают свойства объекта и их типы.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Синтаксис интерфейсов\ninterface Point {\n  x: number;\n  y: number;\n}\n\nlet point: Point = {\n  x: 10,\n  y: 20\n};\n\nconsole.log(point); // { x: 10, y: 20 }\n// let invalid: Point = { x: 5 }; // Ошибка: отсутствует свойство 'y'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Point` определяет объект с свойствами `x` и `y`.\n- Объект `point` должен иметь оба свойства.\n- Неправильная структура вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Интерфейсы против псевдонимов типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы и псевдонимы типов могут казаться похожими, но между ними есть различия:\n- **Интерфейсы**: В основном используются для объектных типов и поддерживают наследование (`extends`).\n- **Псевдонимы типов**: Могут определять примитивные типы, типы объединения и пересечения.\n- **Взаимодействие**: Интерфейсы могут использоваться с псевдонимами типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Интерфейсы против псевдонимов типов\ntype Id = number | string;\n\ninterface User {\n  name: string;\n}\n\ninterface NamedUser extends User {\n  id: Id;\n}\n\nlet user: NamedUser = {\n  id: 1,\n  name: 'Алиса'\n};\n\nconsole.log(user); // { id: 1, name: 'Алиса' }\n// let invalid: NamedUser = { name: 'Боб' }; // Ошибка: отсутствует свойство 'id'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдоним типа `Id` может быть `number` или `string`.\n- Интерфейс `NamedUser` наследует интерфейс `User` и добавляет свойство `id`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Необязательные свойства"
+      },
+      {
+        "type": "paragraph",
+        "text": "В интерфейсах свойства могут быть необязательными, обозначаются с помощью `?`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Необязательные свойства\ninterface Person {\n  name: string;\n  age?: number;\n}\n\nlet person1: Person = { name: 'Алиса' };\nlet person2: Person = { name: 'Боб', age: 25 };\n\nconsole.log(person1); // { name: 'Алиса' }\nconsole.log(person2); // { name: 'Боб', age: 25 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Свойство `age` является необязательным и может быть опущено.\n- Свойство `name` обязательно.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Свойства только для чтения"
+      },
+      {
+        "type": "paragraph",
+        "text": "В интерфейсах свойства могут быть только для чтения, обозначаются с помощью `readonly`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Свойства только для чтения\ninterface Product {\n  readonly id: number;\n  name: string;\n}\n\nlet product: Product = { id: 1, name: 'Ноутбук' };\nconsole.log(product); // { id: 1, name: 'Ноутбук' }\nproduct.name = 'Телефон';\nconsole.log(product); // { id: 1, name: 'Телефон' }\n// product.id = 2; // Ошибка: id только для чтения\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Свойство `id` только для чтения и не может быть изменено.\n- Свойство `name` можно изменить.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Наследование (extends)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы могут наследовать свойства от других интерфейсов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Наследование\ninterface Animal {\n  name: string;\n}\n\ninterface Dog extends Animal {\n  breed: string;\n}\n\nlet dog: Dog = {\n  name: 'Рекс',\n  breed: 'Лабрадор'\n};\n\nconsole.log(dog); // { name: 'Рекс', breed: 'Лабрадор' }\n// let invalid: Dog = { breed: 'Хаски' }; // Ошибка: отсутствует свойство 'name'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Dog` наследует свойство `name` от интерфейса `Animal`.\n- `Dog` также добавляет свойство `breed`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Интерфейсы в функциях"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы могут использоваться в параметрах и возвращаемых значениях функций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Интерфейсы в функциях\ninterface User {\n  id: number;\n  name: string;\n}\n\nfunction printUser(user: User): string {\n  return `ID: ${user.id}, Имя: ${user.name}`;\n}\n\nlet user: User = { id: 1, name: 'Алиса' };\nconsole.log(printUser(user)); // ID: 1, Имя: Алиса\n// let invalid: User = { id: 2 }; // Ошибка: отсутствует name\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `User` определяет структуру объекта.\n- Функция `printUser` использует интерфейс `User`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Работа с интерфейсами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы используются в различных сценариях в реальных проектах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Практический пример\ninterface Order {\n  id: number;\n  status: 'pending' | 'shipped' | 'delivered';\n}\n\nfunction getOrderInfo(order: Order): string {\n  return `Заказ ${order.id} имеет статус ${order.status}`;\n}\n\nlet order: Order = { id: 1, status: 'pending' };\nconsole.log(getOrderInfo(order)); // Заказ 1 имеет статус pending\norder.status = 'delivered';\nconsole.log(getOrderInfo(order)); // Заказ 1 имеет статус delivered\n// order.status = 'cancelled'; // Ошибка: 'cancelled' не может быть присвоен status\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Order` определяет структуру объекта и литеральные типы.\n- Функция `getOrderInfo` использует интерфейс `Order`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы повышают безопасность кода, но требуется осторожность:\n- Убедитесь, что все требуемые свойства корректно определены.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\ninterface Admin {\n  name: string;\n  role: 'admin';\n}\n\nfunction getAdminInfo(admin: Admin): string {\n  return `${admin.name} является ${admin.role}`;\n}\n\nlet admin: Admin = { name: 'Алиса', role: 'admin' };\nconsole.log(getAdminInfo(admin)); // Алиса является admin\n// let invalid: Admin = { name: 'Боб' }; // Ошибка: отсутствует role\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Admin` определяет структуру объекта.\n- Неправильная структура вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet unsafe: any = { name: 'Алиса', role: 'admin' };\nconsole.log(unsafe.name, unsafe.role); // Алиса, admin, но без безопасности типов\nunsafe = { name: 'Боб' };\nconsole.log(unsafe.name, unsafe.role); // Боб, undefined, может вызвать ошибки во время выполнения\n\n// Правильный подход\ninterface User {\n  name: string;\n  role: string;\n}\nlet user: User = { name: 'Алиса', role: 'admin' };\nconsole.log(user.name, user.role); // Алиса, admin\n// let invalid: User = { name: 'Боб' }; // Ошибка: отсутствует role\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Интерфейс обеспечивает безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы широко используются в реальных проектах:\n- **Ответы API**: Определение сложных структур данных.\n- **Сложные объекты**: Определение объектов с множеством свойств.\n- **Структуры компонентов**: Определение структур props для UI-компонентов.\n- **Наследование**: Создание новых структур на основе существующих.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\ninterface DiscountedProduct extends Product {\n  discount: number;\n}\n\nfunction calculateFinalPrice(product: DiscountedProduct): number {\n  return product.price * product.discount;\n}\n\nlet product: DiscountedProduct = {\n  id: 1,\n  name: 'Телефон',\n  price: 1000,\n  discount: 0.9\n};\n\nconsole.log(calculateFinalPrice(product)); // 900\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейсы `Product` и `DiscountedProduct` определяют сложные структуры.\n- Функция `calculateFinalPrice` использует интерфейс `DiscountedProduct`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте интерфейсы для объектных типов. Предпочитайте точные типы вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо интерфейсов можно использовать псевдонимы типов, но интерфейсы лучше подходят для наследования и структур объектов.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример интерфейсов для самостоятельного тестирования\ninterface User {\n  name: string;\n  role: 'admin' | 'user';\n}\n\nconst user: User = { name: 'Джон', role: 'admin' };\nconsole.log(user.name, user.role); // Джон, admin\n// const invalid: User = { name: 'Боб' }; // Ошибка: отсутствует role\n"
+      }
+    ]
+  }
+}

@@ -1,0 +1,570 @@
+{
+  "id": "const-enums",
+  "az": {
+    "title": "Const Enumlar",
+    "icon": "FiLock",
+    "language": "typescript",
+    "description": "Kompilyasiya zamanı silinən enumlar.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Const Enumlar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də const enumlar (konstant enumlar) sabit dəyərlər toplusunu təyin etmək üçün istifadə olunan xüsusi bir enum növüdür. Adi enumlardan fərqli olaraq, const enumlar kompilyasiya zamanı tamamilə silinir və JavaScript kodunda yer tutmur, bu da performansı artırır. Const enumlar həm rəqəmli, həm də sətir dəyərləri ilə işləyə bilər, lakin onların dəyərləri statik olmalı və kompilyasiya zamanı hesablanabilir olmalıdır. Məsələn, istifadəçi rolları, status kodları və ya sabit konfiqurasiya dəyərləri kimi ssenarilərdə istifadə olunur. JavaScript-də enumlar yoxdur, buna görə sabit dəyərlər adətən obyektlər və ya sabitlərlə təyin edilir, bu da tip təhlükəsizliyini təmin etmir. TypeScript-də const enumlar kompilyasiya zamanı tip təhlükəsizliyini təmin edir və səhvləri azaltmağa kömək edir. Bu JSON faylda const enumların tərifi, istifadə məqsədləri, adi enumlarla fərqləri, JavaScript ilə fərqləri, tip aliasları ilə fərqləri, sintaksisi, rəqəmli və sətir const enumlar, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Const Enumların Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enumlar TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Performans optimizasiyası**: Kompilyasiya zamanı enum strukturunun silinməsi ilə JavaScript kodunun ölçüsünü azaltmaq.\n- **Sabit dəyərlər**: Məhdud sayda sabit rəqəmli və ya sətir dəyərlərini təyin etmək.\n- **Tip təhlükəsizliyi**: Dəyərlərin yalnız müəyyən edilmiş dəyərlərdən ibarət olmasını təmin etmək.\n- **Oxunaqlılıq**: Kodun məqsədini və strukturunu aydın ifadə etmək.\n- **Real dünya ssenariləri**: Status kodları, prioritet səviyyələri, istifadəçi rolları və ya konfiqurasiya dəyərləri kimi hallarda istifadə.\n- **Səhvlərin qarşısını almaq**: Yanlış dəyərlərin istifadəsini kompilyasiya zamanı aşkar etmək.\nJavaScript-də sabit dəyərlər üçün adətən obyektlər və ya simvolik sabitlər istifadə olunur, lakin bu, tip təhlükəsizliyini təmin etmir. TypeScript-də const enumlar bu problemi həll edir və əlavə olaraq yaranan kodun ölçüsünü azaldır."
+      },
+      {
+        "type": "heading",
+        "text": "Const Enumların Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enumlar `const enum` açar sözləri ilə təyin edilir. Adi enumlar kimi həm rəqəmli, həm də sətir dəyərləri ilə işləyə bilər, lakin kompilyasiya zamanı dəyərlər birbaşa kodda əvəzlənir (inline).\nNümunə (rəqəmli const enum):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Rəqəmli const enum nümunəsi\nconst enum Direction {\n  Up = 1,\n  Down = 2,\n  Left = 3,\n  Right = 4\n}\n\nlet move: Direction = Direction.Up;\nconsole.log(move); // 1\n// move = 5; // Xəta: 5 Direction tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Direction` const enumu rəqəmli dəyərlərə malikdir.\n- Kompilyasiya zamanı `Direction.Up` birbaşa `1` ilə əvəzlənir.\n- Yanlış dəyər təyin etmək kompilyasiya xətası yaradır.\n- Const enumlar tərs axtarış (reverse mapping) dəstəkləmir, çünki kompilyasiya zamanı silinir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sətir Const Enumlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enumlar sətir dəyərləri ilə də işləyə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Sətir const enum nümunəsi\nconst enum Role {\n  Admin = 'ADMIN',\n  User = 'USER',\n  Guest = 'GUEST'\n}\n\nlet userRole: Role = Role.Admin;\nconsole.log(userRole); // ADMIN\n// userRole = 'SUPERUSER'; // Xəta: SUPERUSER Role tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Role` const enumu sətir dəyərləri ilə təyin edilib.\n- Kompilyasiya zamanı `Role.Admin` birbaşa `'ADMIN'` ilə əvəzlənir.\n- Yanlış dəyər təyin etmək kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Const Enumlar ilə Adi Enumların Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enumlar və adi enumlar oxşar görünə bilər, lakin əsas fərqlər var:\n- **Kompilyasiya davranışı**: Const enumlar kompilyasiya zamanı silinir və JavaScript kodunda yer tutmur, adi enumlar isə JavaScript obyektlərinə çevrilir.\n- **Tərs axtarış**: Adi rəqəmli enumlar tərs axtarış dəstəkləyir, const enumlar dəstəkləmir.\n- **Performans**: Const enumlar daha az kod yaradır, bu da performansı artırır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Adi enum ilə const enumun müqayisəsi\nenum Status {\n  Active = 1,\n  Inactive = 2\n}\n\nconst enum ConstStatus {\n  Active = 1,\n  Inactive = 2\n}\n\nlet regularStatus: Status = Status.Active;\nlet constStatus: ConstStatus = ConstStatus.Active;\n\nconsole.log(regularStatus); // 1\nconsole.log(Status[1]); // Active\nconsole.log(constStatus); // 1\n// console.log(ConstStatus[1]); // Xəta: Const enum tərs axtarış dəstəkləmir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Status` adi enumu JavaScript obyektinə çevrilir və tərs axtarış dəstəkləyir.\n- `ConstStatus` const enumu kompilyasiya zamanı silinir və tərs axtarış dəstəkləmir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Const Enumlar ilə Tip Aliaslarının Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enumlar və tip aliasları sabit dəyərləri təyin etmək üçün istifadə oluna bilər, lakin fərqlər var:\n- **Const enumlar**: Kompilyasiya zamanı silinir, JavaScript kodunda yer tutmur, lakin strukturlaşdırılmış sintaksis təqdim edir.\n- **Tip aliasları**: Union tipləri ilə sabit dəyərləri təyin edir, JavaScript koduna çevrilmir və tərs axtarış dəstəkləmir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Const enumlar ilə tip aliaslarının müqayisəsi\nconst enum Priority {\n  Low = 1,\n  Medium = 2,\n  High = 3\n}\n\ntype PriorityAlias = 1 | 2 | 3;\n\nlet enumPriority: Priority = Priority.Low;\nlet aliasPriority: PriorityAlias = 1;\n\nconsole.log(enumPriority); // 1\nconsole.log(aliasPriority); // 1\n// enumPriority = 4; // Xəta: 4 Priority tipinə uyğun deyil\n// aliasPriority = 4; // Xəta: 4 PriorityAlias tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Priority` const enumu kompilyasiya zamanı silinir və dəyərlər birbaşa kodda əvəzlənir.\n- `PriorityAlias` tip aliası union tipi ilə eyni dəyərləri təyin edir.\n- Hər ikisi tip təhlükəsizliyini təmin edir, lakin const enumlar daha optimallaşdırılmışdır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiyalarda Const Enumlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enumlar funksiya parametrlərində və ya qaytarma tiplərində istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Funksiyalarda const enumlar\nconst enum StatusCode {\n  Success = 200,\n  NotFound = 404,\n  Error = 500\n}\n\nfunction getStatusMessage(code: StatusCode): string {\n  return `Status code: ${code}`;\n}\n\nlet response: StatusCode = StatusCode.Success;\nconsole.log(getStatusMessage(response)); // Status code: 200\nresponse = StatusCode.Error;\nconsole.log(getStatusMessage(response)); // Status code: 500\n// response = 403; // Xəta: 403 StatusCode tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `StatusCode` const enumu HTTP status kodlarını təyin edir.\n- Kompilyasiya zamanı dəyərlər birbaşa kodda əvəzlənir.\n- `getStatusMessage` funksiyası yalnız enum dəyərlərini qəbul edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Const Enumlar ilə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enumlar real layihələrdə müxtəlif ssenarilərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Praktik nümunə\nconst enum OrderPriority {\n  Low = 'LOW',\n  Medium = 'MEDIUM',\n  High = 'HIGH'\n}\n\nfunction displayPriority(priority: OrderPriority): string {\n  return `Order priority: ${priority}`;\n}\n\nlet order: OrderPriority = OrderPriority.Low;\nconsole.log(displayPriority(order)); // Order priority: LOW\norder = OrderPriority.High;\nconsole.log(displayPriority(order)); // Order priority: HIGH\n// order = 'URGENT'; // Xəta: URGENT OrderPriority tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `OrderPriority` const enumu sətir dəyərləri ilə sifariş prioritetlərini təyin edir.\n- `displayPriority` funksiyası yalnız enum dəyərlərini qəbul edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enumlar kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Enum dəyərlərini dəqiq təyin edin.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\n- Const enumlar tərs axtarış dəstəkləmədiyi üçün bu xüsusiyyətə ehtiyac varsa, adi enumları nəzərdən keçirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\nconst enum Level {\n  Beginner = 1,\n  Intermediate = 2,\n  Advanced = 3\n}\n\nfunction getLevelDescription(level: Level): string {\n  return `Level: ${level}`;\n}\n\nlet userLevel: Level = Level.Beginner;\nconsole.log(getLevelDescription(userLevel)); // Level: 1\n// userLevel = 4; // Xəta: 4 Level tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Level` const enumu yalnız müəyyən edilmiş dəyərləri qəbul edir.\n- Yanlış dəyər təyin etmək kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet unsafe: any = 1;\nconsole.log(unsafe); // 1, lakin tip təhlükəsizliyi yoxdur\nunsafe = 5; // Keçərlidir, lakin təhlükəsiz deyil\n\n// Düzgün yol\nconst enum Status {\n  Online = 1,\n  Offline = 2\n}\n\nlet safeStatus: Status = Status.Online;\nconsole.log(safeStatus); // 1\n// safeStatus = 3; // Xəta: 3 Status tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime səhvlərinə səbəb ola bilər.\n- Const enumlar ilə tip təhlükəsizliyi təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enumlar real layihələrdə geniş istifadə olunur:\n- **Status kodları**: HTTP status kodları (200, 404, 500).\n- **Rollər**: İstifadəçi rolları (Admin, User, Guest).\n- **Prioritet səviyyələri**: Tapşırıq və ya sifariş prioritetləri.\n- **Konfiqurasiya dəyərləri**: Sabit rəqəmli və ya sətir parametrləri.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\nconst enum HttpStatus {\n  OK = 200,\n  BadRequest = 400,\n  NotFound = 404,\n  InternalError = 500\n}\n\nfunction processResponse(status: HttpStatus): string {\n  return `Response status: ${status}`;\n}\n\nlet response: HttpStatus = HttpStatus.OK;\nconsole.log(processResponse(response)); // Response status: 200\nresponse = HttpStatus.NotFound;\nconsole.log(processResponse(response)); // Response status: 404\n// response = 403; // Xəta: 403 HttpStatus tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `HttpStatus` const enumu HTTP status kodlarını təyin edir.\n- `processResponse` funksiyası yalnız enum dəyərlərini qəbul edir.\n- Kompilyasiya zamanı dəyərlər birbaşa kodda əvəzlənir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Const enumları performansı artırmaq və sabit dəyərlər toplusu üçün istifadə edin. `any` əvəzinə dəqiq tipləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Tərs axtarışa ehtiyac varsa, adi enumları nəzərdən keçirin. Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Const enumlar əvəzinə union tipləri ilə tip aliasları və ya adi enumlar istifadə edilə bilər, lakin const enumlar daha optimallaşdırılmışdır.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün const enum nümunəsi\nconst enum Direction {\n  North = 1,\n  South = 2,\n  East = 3,\n  West = 4\n}\n\nconst move: Direction = Direction.North;\nconsole.log(move); // 1\n// move = 5; // Xəta: 5 Direction tipinə uyğun deyil\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Const Enums",
+    "icon": "FiLock",
+    "language": "typescript",
+    "description": "Enums that are removed during compilation.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Const Enums?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, const enums (constant enums) are a special type of enum used to define a set of constant values. Unlike regular enums, const enums are completely removed during compilation and do not appear in the generated JavaScript code, which improves performance. Const enums can work with both numeric and string values, but their values must be static and computable at compile time. For example, they are used for user roles, status codes, or constant configuration values. JavaScript does not have enums, so constant values are typically defined using objects or constants, which lack type safety. TypeScript const enums ensure compile-time type safety and help reduce errors. This JSON file explains the definition, purposes, differences from regular enums, differences from JavaScript, differences from type aliases, syntax, numeric and string const enums, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Const Enums"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enums in TypeScript serve the following purposes:\n- **Performance optimization**: Reduce the size of generated JavaScript code by removing enum structures during compilation.\n- **Constant values**: Define a limited set of constant numeric or string values.\n- **Type safety**: Ensure values are restricted to the defined values.\n- **Readability**: Clearly express the intent and structure of the code.\n- **Real-world scenarios**: Used for status codes, priority levels, user roles, or configuration values.\n- **Error prevention**: Detect invalid values at compile time.\nIn JavaScript, constant values are often defined using objects or constants, which lack type safety and can lead to runtime errors. TypeScript const enums address this issue and reduce generated code size."
+      },
+      {
+        "type": "heading",
+        "text": "Syntax of Const Enums"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enums are defined using the `const enum` keywords. Like regular enums, they can work with numeric or string values, but their values are inlined during compilation.\nExample (numeric const enum):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Numeric const enum example\nconst enum Direction {\n  Up = 1,\n  Down = 2,\n  Left = 3,\n  Right = 4\n}\n\nlet move: Direction = Direction.Up;\nconsole.log(move); // 1\n// move = 5; // Error: 5 is not assignable to Direction\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Direction` const enum defines numeric values.\n- During compilation, `Direction.Up` is replaced with `1`.\n- Assigning an invalid value triggers a compilation error.\n- Const enums do not support reverse mapping since they are removed during compilation.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "String Const Enums"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enums can also work with string values.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// String const enum example\nconst enum Role {\n  Admin = 'ADMIN',\n  User = 'USER',\n  Guest = 'GUEST'\n}\n\nlet userRole: Role = Role.Admin;\nconsole.log(userRole); // ADMIN\n// userRole = 'SUPERUSER'; // Error: SUPERUSER is not assignable to Role\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Role` const enum defines string values.\n- During compilation, `Role.Admin` is replaced with `'ADMIN'`.\n- Assigning an invalid value triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Const Enums vs. Regular Enums"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enums and regular enums may seem similar, but they have key differences:\n- **Compilation behavior**: Const enums are removed during compilation and do not appear in JavaScript code, while regular enums compile to JavaScript objects.\n- **Reverse mapping**: Regular numeric enums support reverse mapping, but const enums do not.\n- **Performance**: Const enums generate less code, improving performance.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Regular enum vs. const enum\nenum Status {\n  Active = 1,\n  Inactive = 2\n}\n\nconst enum ConstStatus {\n  Active = 1,\n  Inactive = 2\n}\n\nlet regularStatus: Status = Status.Active;\nlet constStatus: ConstStatus = ConstStatus.Active;\n\nconsole.log(regularStatus); // 1\nconsole.log(Status[1]); // Active\nconsole.log(constStatus); // 1\n// console.log(ConstStatus[1]); // Error: Const enums do not support reverse mapping\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Status` regular enum compiles to a JavaScript object and supports reverse mapping.\n- The `ConstStatus` const enum is removed during compilation and does not support reverse mapping.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Const Enums vs. Type Aliases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enums and type aliases can both define constant values, but they differ:\n- **Const enums**: Are removed during compilation, do not appear in JavaScript code, and provide a structured syntax.\n- **Type aliases**: Use union types to define constant values, do not compile to JavaScript code, and do not support reverse mapping.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Const enums vs. type aliases\nconst enum Priority {\n  Low = 1,\n  Medium = 2,\n  High = 3\n}\n\ntype PriorityAlias = 1 | 2 | 3;\n\nlet enumPriority: Priority = Priority.Low;\nlet aliasPriority: PriorityAlias = 1;\n\nconsole.log(enumPriority); // 1\nconsole.log(aliasPriority); // 1\n// enumPriority = 4; // Error: 4 is not assignable to Priority\n// aliasPriority = 4; // Error: 4 is not assignable to PriorityAlias\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Priority` const enum is removed during compilation, and values are inlined.\n- The `PriorityAlias` type alias defines the same values using a union type.\n- Both provide type safety, but const enums are more optimized.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Const Enums in Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enums can be used in function parameters or return types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Const enums in functions\nconst enum StatusCode {\n  Success = 200,\n  NotFound = 404,\n  Error = 500\n}\n\nfunction getStatusMessage(code: StatusCode): string {\n  return `Status code: ${code}`;\n}\n\nlet response: StatusCode = StatusCode.Success;\nconsole.log(getStatusMessage(response)); // Status code: 200\nresponse = StatusCode.Error;\nconsole.log(getStatusMessage(response)); // Status code: 500\n// response = 403; // Error: 403 is not assignable to StatusCode\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `StatusCode` const enum defines HTTP status codes.\n- Values are inlined during compilation.\n- The `getStatusMessage` function only accepts enum values.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Working with Const Enums"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enums are used in various scenarios in real projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Practical example\nconst enum OrderPriority {\n  Low = 'LOW',\n  Medium = 'MEDIUM',\n  High = 'HIGH'\n}\n\nfunction displayPriority(priority: OrderPriority): string {\n  return `Order priority: ${priority}`;\n}\n\nlet order: OrderPriority = OrderPriority.Low;\nconsole.log(displayPriority(order)); // Order priority: LOW\norder = OrderPriority.High;\nconsole.log(displayPriority(order)); // Order priority: HIGH\n// order = 'URGENT'; // Error: URGENT is not assignable to OrderPriority\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `OrderPriority` const enum defines order priorities with string values.\n- The `displayPriority` function only accepts enum values.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enums enhance code safety, but caution is needed:\n- Define enum values precisely.\n- Avoid `any` as it reduces type safety.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\n- Since const enums do not support reverse mapping, consider regular enums if this feature is needed.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\nconst enum Level {\n  Beginner = 1,\n  Intermediate = 2,\n  Advanced = 3\n}\n\nfunction getLevelDescription(level: Level): string {\n  return `Level: ${level}`;\n}\n\nlet userLevel: Level = Level.Beginner;\nconsole.log(getLevelDescription(userLevel)); // Level: 1\n// userLevel = 4; // Error: 4 is not assignable to Level\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Level` const enum only accepts defined values.\n- Assigning an invalid value triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet unsafe: any = 1;\nconsole.log(unsafe); // 1, but no type safety\nunsafe = 5; // Valid, but unsafe\n\n// Correct approach\nconst enum Status {\n  Online = 1,\n  Offline = 2\n}\n\nlet safeStatus: Status = Status.Online;\nconsole.log(safeStatus); // 1\n// safeStatus = 3; // Error: 3 is not assignable to Status\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and may cause runtime errors.\n- Const enums ensure type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enums are widely used in real projects:\n- **Status codes**: HTTP status codes (200, 404, 500).\n- **Roles**: User roles (Admin, User, Guest).\n- **Priority levels**: Task or order priorities.\n- **Configuration values**: Constant numeric or string parameters.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\nconst enum HttpStatus {\n  OK = 200,\n  BadRequest = 400,\n  NotFound = 404,\n  InternalError = 500\n}\n\nfunction processResponse(status: HttpStatus): string {\n  return `Response status: ${status}`;\n}\n\nlet response: HttpStatus = HttpStatus.OK;\nconsole.log(processResponse(response)); // Response status: 200\nresponse = HttpStatus.NotFound;\nconsole.log(processResponse(response)); // Response status: 404\n// response = 403; // Error: 403 is not assignable to HttpStatus\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `HttpStatus` const enum defines HTTP status codes.\n- The `processResponse` function only accepts enum values.\n- Values are inlined during compilation.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use const enums for performance optimization and constant value sets. Prefer precise types over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Consider regular enums if reverse mapping is needed. Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Instead of const enums, union types with type aliases or regular enums can be used, but const enums are more optimized.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself const enum example\nconst enum Direction {\n  North = 1,\n  South = 2,\n  East = 3,\n  West = 4\n}\n\nconst move: Direction = Direction.North;\nconsole.log(move); // 1\n// move = 5; // Error: 5 is not assignable to Direction\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Константные перечисления",
+    "icon": "FiLock",
+    "language": "typescript",
+    "description": "Перечисления, удаляемые во время компиляции.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое константные перечисления?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript константные перечисления (const enums) — это специальный тип перечислений, используемый для определения набора постоянных значений. В отличие от обычных перечислений, константные перечисления полностью удаляются во время компиляции и не появляются в сгенерированном JavaScript-коде, что повышает производительность. Константные перечисления могут работать как с числовыми, так и со строковыми значениями, но их значения должны быть статическими и вычислимыми на этапе компиляции. Например, они используются для ролей пользователей, кодов состояния или постоянных значений конфигурации. В JavaScript перечисления отсутствуют, поэтому постоянные значения обычно задаются с помощью объектов или констант, что не обеспечивает безопасность типов. Константные перечисления в TypeScript обеспечивают безопасность типов на этапе компиляции и помогают уменьшить ошибки. Этот JSON-файл подробно объясняет определение, назначение, отличия от обычных перечислений, отличия от JavaScript, отличия от псевдонимов типов, синтаксис, числовые и строковые константные перечисления, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение константных перечислений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Константные перечисления в TypeScript используются для следующих целей:\n- **Оптимизация производительности**: Уменьшение размера сгенерированного JavaScript-кода за счет удаления структуры перечисления во время компиляции.\n- **Постоянные значения**: Определение ограниченного набора постоянных числовых или строковых значений.\n- **Безопасность типов**: Обеспечение того, что значения ограничены заданными значениями.\n- **Читаемость**: Четкое выражение назначения и структуры кода.\n- **Реальные сценарии**: Использование для кодов состояния, уровней приоритета, ролей пользователей или значений конфигурации.\n- **Предотвращение ошибок**: Обнаружение недопустимых значений на этапе компиляции.\nВ JavaScript для постоянных значений обычно используются объекты или константы, которые не обеспечивают безопасность типов и могут привести к ошибкам во время выполнения. Константные перечисления в TypeScript решают эту проблему и уменьшают размер сгенерированного кода."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис константных перечислений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Константные перечисления определяются с помощью ключевых слов `const enum`. Как и обычные перечисления, они могут работать с числовыми или строковыми значениями, но их значения встраиваются в код во время компиляции.\nПример (числовое константное перечисление):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример числового константного перечисления\nconst enum Direction {\n  Up = 1,\n  Down = 2,\n  Left = 3,\n  Right = 4\n}\n\nlet move: Direction = Direction.Up;\nconsole.log(move); // 1\n// move = 5; // Ошибка: 5 не соответствует типу Direction\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Константное перечисление `Direction` определяет числовые значения.\n- Во время компиляции `Direction.Up` заменяется на `1`.\n- Присвоение недопустимого значения вызывает ошибку компиляции.\n- Константные перечисления не поддерживают обратное сопоставление, так как удаляются во время компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Строковые константные перечисления"
+      },
+      {
+        "type": "paragraph",
+        "text": "Константные перечисления могут также работать со строковыми значениями.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример строкового константного перечисления\nconst enum Role {\n  Admin = 'ADMIN',\n  User = 'USER',\n  Guest = 'GUEST'\n}\n\nlet userRole: Role = Role.Admin;\nconsole.log(userRole); // ADMIN\n// userRole = 'SUPERUSER'; // Ошибка: SUPERUSER не соответствует типу Role\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Константное перечисление `Role` определяет строковые значения.\n- Во время компиляции `Role.Admin` заменяется на `'ADMIN'`.\n- Присвоение недопустимого значения вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Константные перечисления против обычных перечислений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Константные и обычные перечисления могут казаться похожими, но между ними есть ключевые различия:\n- **Поведение при компиляции**: Константные перечисления удаляются во время компиляции и не появляются в JavaScript-коде, тогда как обычные перечисления компилируются в объекты JavaScript.\n- **Обратное сопоставление**: Обычные числовые перечисления поддерживают обратное сопоставление, константные — нет.\n- **Производительность**: Константные перечисления генерируют меньше кода, что повышает производительность.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Обычное перечисление против константного\nenum Status {\n  Active = 1,\n  Inactive = 2\n}\n\nconst enum ConstStatus {\n  Active = 1,\n  Inactive = 2\n}\n\nlet regularStatus: Status = Status.Active;\nlet constStatus: ConstStatus = ConstStatus.Active;\n\nconsole.log(regularStatus); // 1\nconsole.log(Status[1]); // Active\nconsole.log(constStatus); // 1\n// console.log(ConstStatus[1]); // Ошибка: Константные перечисления не поддерживают обратное сопоставление\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Обычное перечисление `Status` компилируется в объект JavaScript и поддерживает обратное сопоставление.\n- Константное перечисление `ConstStatus` удаляется во время компиляции и не поддерживает обратное сопоставление.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Константные перечисления против псевдонимов типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Константные перечисления и псевдонимы типов могут использоваться для определения постоянных значений, но между ними есть различия:\n- **Константные перечисления**: Удаляются во время компиляции, не появляются в JavaScript-коде и предоставляют структурированный синтаксис.\n- **Псевдонимы типов**: Используют объединения типов для задания постоянных значений, не компилируются в JavaScript-код и не поддерживают обратное сопоставление.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Константные перечисления против псевдонимов типов\nconst enum Priority {\n  Low = 1,\n  Medium = 2,\n  High = 3\n}\n\ntype PriorityAlias = 1 | 2 | 3;\n\nlet enumPriority: Priority = Priority.Low;\nlet aliasPriority: PriorityAlias = 1;\n\nconsole.log(enumPriority); // 1\nconsole.log(aliasPriority); // 1\n// enumPriority = 4; // Ошибка: 4 не соответствует типу Priority\n// aliasPriority = 4; // Ошибка: 4 не соответствует типу PriorityAlias\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Константное перечисление `Priority` удаляется во время компиляции, а значения встраиваются в код.\n- Псевдоним типа `PriorityAlias` определяет те же значения с помощью объединения типов.\n- Оба подхода обеспечивают безопасность типов, но константные перечисления более оптимизированы.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Константные перечисления в функциях"
+      },
+      {
+        "type": "paragraph",
+        "text": "Константные перечисления могут использоваться в параметрах или возвращаемых типах функций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Константные перечисления в функциях\nconst enum StatusCode {\n  Success = 200,\n  NotFound = 404,\n  Error = 500\n}\n\nfunction getStatusMessage(code: StatusCode): string {\n  return `Status code: ${code}`;\n}\n\nlet response: StatusCode = StatusCode.Success;\nconsole.log(getStatusMessage(response)); // Status code: 200\nresponse = StatusCode.Error;\nconsole.log(getStatusMessage(response)); // Status code: 500\n// response = 403; // Ошибка: 403 не соответствует типу StatusCode\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Константное перечисление `StatusCode` определяет коды состояния HTTP.\n- Значения встраиваются в код во время компиляции.\n- Функция `getStatusMessage` принимает только значения перечисления.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Работа с константными перечислениями"
+      },
+      {
+        "type": "paragraph",
+        "text": "Константные перечисления используются в различных сценариях в реальных проектах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Практический пример\nconst enum OrderPriority {\n  Low = 'LOW',\n  Medium = 'MEDIUM',\n  High = 'HIGH'\n}\n\nfunction displayPriority(priority: OrderPriority): string {\n  return `Order priority: ${priority}`;\n}\n\nlet order: OrderPriority = OrderPriority.Low;\nconsole.log(displayPriority(order)); // Order priority: LOW\norder = OrderPriority.High;\nconsole.log(displayPriority(order)); // Order priority: HIGH\n// order = 'URGENT'; // Ошибка: URGENT не соответствует типу OrderPriority\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Константное перечисление `OrderPriority` определяет приоритеты заказа со строковыми значениями.\n- Функция `displayPriority` принимает только значения перечисления.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Константные перечисления повышают безопасность кода, но требуется осторожность:\n- Точно определяйте значения перечислений.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\n- Поскольку константные перечисления не поддерживают обратное сопоставление, рассмотрите использование обычных перечислений, если эта функция нужна.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\nconst enum Level {\n  Beginner = 1,\n  Intermediate = 2,\n  Advanced = 3\n}\n\nfunction getLevelDescription(level: Level): string {\n  return `Level: ${level}`;\n}\n\nlet userLevel: Level = Level.Beginner;\nconsole.log(getLevelDescription(userLevel)); // Level: 1\n// userLevel = 4; // Ошибка: 4 не соответствует типу Level\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Константное перечисление `Level` принимает только определенные значения.\n- Присвоение недопустимого значения вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet unsafe: any = 1;\nconsole.log(unsafe); // 1, но без безопасности типов\nunsafe = 5; // Валидно, но небезопасно\n\n// Правильный подход\nconst enum Status {\n  Online = 1,\n  Offline = 2\n}\n\nlet safeStatus: Status = Status.Online;\nconsole.log(safeStatus); // 1\n// safeStatus = 3; // Ошибка: 3 не соответствует типу Status\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Константные перечисления обеспечивают безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Константные перечисления широко используются в реальных проектах:\n- **Коды состояния**: Коды состояния HTTP (200, 404, 500).\n- **Роли**: Роли пользователей (Admin, User, Guest).\n- **Уровни приоритета**: Приоритеты задач или заказов.\n- **Значения конфигурации**: Постоянные числовые или строковые параметры.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\nconst enum HttpStatus {\n  OK = 200,\n  BadRequest = 400,\n  NotFound = 404,\n  InternalError = 500\n}\n\nfunction processResponse(status: HttpStatus): string {\n  return `Response status: ${status}`;\n}\n\nlet response: HttpStatus = HttpStatus.OK;\nconsole.log(processResponse(response)); // Response status: 200\nresponse = HttpStatus.NotFound;\nconsole.log(processResponse(response)); // Response status: 404\n// response = 403; // Ошибка: 403 не соответствует типу HttpStatus\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Константное перечисление `HttpStatus` определяет коды состояния HTTP.\n- Функция `processResponse` принимает только значения перечисления.\n- Значения встраиваются в код во время компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте константные перечисления для оптимизации производительности и наборов постоянных значений. Предпочитайте точные типы вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Рассмотрите обычные перечисления, если требуется обратное сопоставление. Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо константных перечислений можно использовать объединения типов с псевдонимами типов или обычные перечисления, но константные перечисления более оптимизированы.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример константного перечисления для самостоятельного тестирования\nconst enum Direction {\n  North = 1,\n  South = 2,\n  East = 3,\n  West = 4\n}\n\nconst move: Direction = Direction.North;\nconsole.log(move); // 1\n// move = 5; // Ошибка: 5 не соответствует типу Direction\n"
+      }
+    ]
+  }
+}

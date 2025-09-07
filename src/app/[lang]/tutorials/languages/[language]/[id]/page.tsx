@@ -274,7 +274,7 @@ export default function TutorialTopicPage() {
   // Mark as visited on mount (only if not already visited)
   useEffect(() => {
     // Skip if any required data is missing
-    if (!safeTopicId || !safeLanguage || !session?.user) {
+    if (!safeTopicId || !safeLanguage) {
       return;
     }
 
@@ -286,61 +286,64 @@ export default function TutorialTopicPage() {
         ? visitedLessonsByLang[safeLanguage] || []
         : [];
       
-      // Only mark as visited if it's not already in the list
+      // Always update the state first to show the tick immediately
       if (!visited.includes(safeTopicId)) {
-        console.log('Marking lesson as visited:', safeTopicId, 'language:', safeLanguage);
+        const newVisited = [...visited, safeTopicId];
+        setVisitedLessons(newVisited);
         
-        visited.push(safeTopicId);
-        if (safeLanguage) visitedLessonsByLang[safeLanguage] = visited;
+        // Update localStorage
+        if (safeLanguage) visitedLessonsByLang[safeLanguage] = newVisited;
         localStorage.setItem(
           "visitedLessons",
           JSON.stringify(visitedLessonsByLang)
         );
-        setVisitedLessons(visited);
         
-        // Sync to server ONLY for new lessons (not duplicates)
-        try {
-          const response = await fetch("/api/user/lessons", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              language: safeLanguage,
-              lessonId: safeTopicId,
-            }),
-          });
-          
-          const result = await response.json();
-
-          // Only log activity if the lesson was actually added (not already visited)
-          if (result.added) {
-            console.log('Logging lesson view activity for:', safeTopicId, 'language:', safeLanguage);
-            console.log('Metadata being sent:', {
-              language: safeLanguage,
-              lessonId: safeTopicId,
+        // Dispatch custom event to notify other components
+        window.dispatchEvent(new CustomEvent('visitedLessonsUpdated', {
+          detail: { language: safeLanguage, lessonId: safeTopicId }
+        }));
+        
+        console.log('Marking lesson as visited:', safeTopicId, 'language:', safeLanguage);
+        
+        // Sync to server only if user is logged in
+        if (session?.user) {
+          try {
+            const response = await fetch("/api/user/lessons", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                language: safeLanguage,
+                lessonId: safeTopicId,
+              }),
             });
-      logActivity(
-        'LESSON_VIEW',
-              `Viewed lesson: ${safeTopicId}`,
-        {
-          language: safeLanguage,
-          lessonId: safeTopicId,
-              }
-            );
-          } else {
-            console.log('Lesson already visited on server:', safeTopicId);
+            
+            const result = await response.json();
+
+            if (result.added) {
+              console.log('Logging lesson view activity for:', safeTopicId, 'language:', safeLanguage);
+              logActivity(
+                'LESSON_VIEW',
+                `Viewed lesson: ${safeTopicId}`,
+                {
+                  language: safeLanguage,
+                  lessonId: safeTopicId,
+                }
+              );
+            } else {
+              console.log('Lesson already visited on server:', safeTopicId);
+            }
+          } catch (e) {
+            console.error('Failed to sync lesson to server:', e);
           }
-        } catch (e) {
-          console.error('Failed to sync lesson to server:', e);
-    }
+        }
       } else {
         console.log('Lesson already visited locally:', safeTopicId);
-        // Already visited, just set the state
         setVisitedLessons(visited);
       }
     };
     
     markVisited();
-  }, [safeTopicId, safeLanguage, session?.user?.email]); // Only depend on essential values
+  }, [safeTopicId, safeLanguage, session?.user]);
 
   // Algoritm mövzusu üçün localStorage-dan oxu
   useEffect(() => {

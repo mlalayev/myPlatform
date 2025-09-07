@@ -292,29 +292,27 @@ export default function TutorialLanguagePage() {
     }
   }, [language, langKey, router]);
 
-  useEffect(() => {
-    // Fetch progress for available languages only
-    const fetchAllProgress = async () => {
-      const progressData: LanguageProgress = {};
-      let visitedLessonsByLang: VisitedLessonsByLang = {};
-      try {
-        const res = await fetch("/api/user/lessons");
-        if (res.ok) {
-          const data = await res.json();
-          visitedLessonsByLang =
-            typeof data === "object" && !Array.isArray(data) && data !== null
-              ? data
-              : {};
-        } else {
-          visitedLessonsByLang = JSON.parse(
-            localStorage.getItem("visitedLessons") || "{}"
-          );
-        }
-      } catch (e) {
+  const fetchAllProgress = React.useCallback(async () => {
+    const progressData: LanguageProgress = {};
+    let visitedLessonsByLang: VisitedLessonsByLang = {};
+    try {
+      const res = await fetch("/api/user/lessons");
+      if (res.ok) {
+        const data = await res.json();
+        visitedLessonsByLang =
+          typeof data === "object" && !Array.isArray(data) && data !== null
+            ? data
+            : {};
+      } else {
         visitedLessonsByLang = JSON.parse(
           localStorage.getItem("visitedLessons") || "{}"
         );
       }
+    } catch (e) {
+      visitedLessonsByLang = JSON.parse(
+        localStorage.getItem("visitedLessons") || "{}"
+      );
+    }
       for (const lang of languages) {
         const apiLangName = getApiLanguageName(lang.name);
         console.log(`Language: ${lang.name}, API Name: ${apiLangName}`);
@@ -357,9 +355,44 @@ export default function TutorialLanguagePage() {
         progressData[apiLangName] = { percent, visited: visitedCount, total };
       }
       setLanguageProgress(progressData);
-    };
+    }, [langKey]);
+
+  useEffect(() => {
+    // Initial fetch
     fetchAllProgress();
-  }, [langKey]);
+
+    // Listen for localStorage changes (when lesson is visited from other tabs)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'visitedLessons') {
+        console.log('Visited lessons updated from other tab, refreshing progress...');
+        fetchAllProgress();
+      }
+    };
+
+    // Listen for custom event (when lesson is visited in same tab)
+    const handleVisitedLessonsUpdate = (e: CustomEvent) => {
+      console.log('Visited lessons updated in same tab, refreshing progress...', e.detail);
+      fetchAllProgress();
+    };
+
+    // Listen for window focus (when returning from lesson page)
+    const handleWindowFocus = () => {
+      console.log('Window focused, refreshing progress...');
+      fetchAllProgress();
+    };
+
+    // Add event listeners
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('focus', handleWindowFocus);
+    window.addEventListener('visitedLessonsUpdated', handleVisitedLessonsUpdate as EventListener);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', handleWindowFocus);
+      window.removeEventListener('visitedLessonsUpdated', handleVisitedLessonsUpdate as EventListener);
+    };
+  }, [fetchAllProgress]);
 
   React.useEffect(() => {
     if (language !== "languages") return;

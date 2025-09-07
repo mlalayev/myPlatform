@@ -1,0 +1,621 @@
+{
+  "id": "class-implementing-interface",
+  "az": {
+    "title": "Class İnterfeys İcra Etmə",
+    "icon": "FiCode",
+    "language": "typescript",
+    "description": "Siniflərin interfeysləri icra etməsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Siniflərin İnterfeysləri İcra Etməsi Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də siniflərin interfeysləri icra etməsi (`implements` açar sözü ilə) sinifin müəyyən bir interfeysdə təyin edilmiş xüsusiyyətlərə və metodlara uyğun gəlməsini təmin edir. İnterfeys sinif üçün bir müqavilə rolunu oynayır və sinifin hansı xüsusiyyətlərə və ya metodlara malik olmalı olduğunu müəyyənləşdirir. Məsələn, bir `Vehicle` interfeysi `drive` metodunu tələb edirsə, `Car` sinfi bu interfeysi icra edərək həmin metodu təmin etməlidir. JavaScript-də belə bir struktur yoxdur və siniflər dinamik olaraq istənilən xüsusiyyətləri qəbul edə bilər, bu da runtime səhvlərinə səbəb ola bilər. TypeScript-də `implements` açar sözü kompilyasiya zamanı səhvləri aşkarlayaraq kodun təhlükəsizliyini artırır. Bu JSON faylda siniflərin interfeysləri icra etməsinin tərifi, istifadə məqsədləri, JavaScript ilə fərqləri, tip aliasları ilə fərqləri, sintaksisi, çoxlu interfeys icrası, funksiyalarda və obyektlərdə istifadəsi, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Siniflərin İnterfeysləri İcra Etməsinin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Siniflərin interfeysləri icra etməsi TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Struktur təyini**: Sinfin müəyyən bir struktura (xüsusiyyətlər və metodlar) uyğun gəlməsini təmin etmək.\n- **Tip təhlükəsizliyi**: Sinfin tələb olunan xüsusiyyətlərə və metodlara malik olduğunu yoxlamaq.\n- **Oxunaqlılıq**: Kodun məqsədini və strukturunu daha aydın ifadə etmək.\n- **Modulyarlıq**: Böyük layihələrdə sinifləri mütəşəkkil şəkildə təşkil etmək.\n- **Yenidən istifadə**: İnterfeysləri müxtəlif siniflər tərəfindən təkrar istifadə etmək.\nJavaScript-də siniflər dinamik olduğundan, onların strukturu təyin edilmir və səhvlər yalnız icra zamanı aşkarlanır. TypeScript-də `implements` bu problemi həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "İnterfeysləri İcra Etmənin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Siniflər `implements` açar sözü ilə interfeysləri icra edir. Sinif interfeysdə təyin edilmiş bütün xüsusiyyətləri və metodları təmin etməlidir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// İnterfeysləri icra etmə sintaksisi\ninterface Vehicle {\n  brand: string;\n  drive(): string;\n}\n\nclass Car implements Vehicle {\n  brand: string;\n\n  constructor(brand: string) {\n    this.brand = brand;\n  }\n\n  drive(): string {\n    return `${this.brand} is driving`;\n  }\n}\n\nlet car = new Car('Toyota');\nconsole.log(car.drive()); // Toyota is driving\n// class InvalidCar implements Vehicle { } // Xəta: brand və drive təmin edilməyib\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Vehicle` interfeysi `brand` xüsusiyyətini və `drive` metodunu tələb edir.\n- `Car` sinfi `Vehicle` interfeysini icra edərək hər ikisini təmin edir.\n- Əgər sinif tələb olunan xüsusiyyətləri təmin etməsə, kompilyasiya xətası yaranır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "İnterfeyslər ilə Tip Aliaslarının Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeyslər və tip aliasları oxşar görünsə də, siniflər yalnız interfeysləri icra edə bilər:\n- **İnterfeyslər**: Siniflər tərəfindən `implements` ilə icra edilə bilər və əsasən obyekt tipləri üçün istifadə olunur.\n- **Tip aliasları**: `implements` ilə birbaşa istifadə edilə bilməz, lakin intersection (`&`) ilə tipləri birləşdirə bilər.\n- **Birləşmə**: İnterfeyslər tip aliasları ilə birgə istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// İnterfeyslər vs Tip aliasları\ntype Id = number | string;\n\ninterface User {\n  id: Id;\n  name: string;\n}\n\nclass UserProfile implements User {\n  id: Id;\n  name: string;\n\n  constructor(id: Id, name: string) {\n    this.id = id;\n    this.name = name;\n  }\n}\n\nlet user = new UserProfile(1, 'Ali');\nconsole.log(user); // UserProfile { id: 1, name: 'Ali' }\n// class InvalidUser implements User { name: 'Vəli'; } // Xəta: id təmin edilməyib\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Id` tip aliası `number` və ya `string` ola bilər.\n- `UserProfile` sinfi `User` interfeysini icra edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Çoxlu İnterfeys İcrası"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də bir sinif birdən çox interfeysi icra edə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Çoxlu interfeys icrası\ninterface Printable {\n  print(): string;\n}\n\ninterface Loggable {\n  log(): string;\n}\n\nclass Document implements Printable, Loggable {\n  title: string;\n\n  constructor(title: string) {\n    this.title = title;\n  }\n\n  print(): string {\n    return `Printing ${this.title}`;\n  }\n\n  log(): string {\n    return `Logging ${this.title}`;\n  }\n}\n\nlet doc = new Document('Report');\nconsole.log(doc.print()); // Printing Report\nconsole.log(doc.log()); // Logging Report\n// class InvalidDoc implements Printable, Loggable { } // Xəta: print və log təmin edilməyib\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Document` sinfi `Printable` və `Loggable` interfeyslərini icra edir.\n- Sinif hər iki interfeysin tələb etdiyi metodları təmin etməlidir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Opsiyonel və Read-Only Xüsusiyyətlərlə İcra"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeyslərdə opsiyonel (`?`) və read-only (`readonly`) xüsusiyyətlər siniflər tərəfindən icra edilərkən də istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Opsiyonel və read-only xüsusiyyətlərlə icra\ninterface Person {\n  name: string;\n  age?: number;\n  readonly id: number;\n}\n\nclass Employee implements Person {\n  readonly id: number;\n  name: string;\n  age?: number;\n\n  constructor(id: number, name: string, age?: number) {\n    this.id = id;\n    this.name = name;\n    this.age = age;\n  }\n}\n\nlet employee = new Employee(101, 'Ali');\nconsole.log(employee); // Employee { id: 101, name: 'Ali' }\nemployee.name = 'Vəli';\n// employee.id = 102; // Xəta: id yalnız oxuna biləndir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Employee` sinfi `Person` interfeysini icra edir.\n- `age` opsiyonel, `id` isə yalnız oxuna biləndir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sinif Miras Alma ilə İnterfeys İcrası"
+      },
+      {
+        "type": "paragraph",
+        "text": "Siniflər həm başqa siniflərdən miras ala bilər (`extends`), həm də interfeysləri icra edə bilər (`implements`).\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Sinif miras alma ilə interfeys icrası\ninterface Vehicle {\n  drive(): string;\n}\n\nclass BaseVehicle {\n  brand: string;\n\n  constructor(brand: string) {\n    this.brand = brand;\n  }\n}\n\nclass Car extends BaseVehicle implements Vehicle {\n  constructor(brand: string) {\n    super(brand);\n  }\n\n  drive(): string {\n    return `${this.brand} is driving`;\n  }\n}\n\nlet car = new Car('Honda');\nconsole.log(car.drive()); // Honda is driving\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Car` sinfi `BaseVehicle`-dan miras alır və `Vehicle` interfeysini icra edir.\n- `drive` metodu `Vehicle` interfeysinin tələbinə uyğun təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiyalarda İnterfeys İcrası"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeysləri icra edən siniflər funksiya parametrlərində istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Funksiyalarda interfeys icrası\ninterface Printable {\n  print(): string;\n}\n\nclass Document implements Printable {\n  title: string;\n\n  constructor(title: string) {\n    this.title = title;\n  }\n\n  print(): string {\n    return `Printing ${this.title}`;\n  }\n}\n\nfunction processPrintable(item: Printable): string {\n  return item.print();\n}\n\nlet doc = new Document('Report');\nconsole.log(processPrintable(doc)); // Printing Report\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Document` sinfi `Printable` interfeysini icra edir.\n- `processPrintable` funksiyası `Printable` interfeysini gözləyir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: İnterfeys İcrası ilə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeysləri icra etmə real layihələrdə müxtəlif ssenarilərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Praktik nümunə\ninterface Product {\n  id: number;\n  name: string;\n  getPrice(): number;\n}\n\nclass Electronics implements Product {\n  id: number;\n  name: string;\n  price: number;\n\n  constructor(id: number, name: string, price: number) {\n    this.id = id;\n    this.name = name;\n    this.price = price;\n  }\n\n  getPrice(): number {\n    return this.price;\n  }\n}\n\nlet product = new Electronics(1, 'Phone', 1000);\nconsole.log(product.getPrice()); // 1000\n// class InvalidProduct implements Product { id: 2; name: 'Laptop'; } // Xəta: getPrice təmin edilməyib\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Electronics` sinfi `Product` interfeysini icra edir.\n- `getPrice` metodu `Product` interfeysinin tələbinə uyğun təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnterfeysləri icra etmə kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Bütün tələb olunan xüsusiyyətlər və metodların düzgün təmin olunduğuna əmin olun.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\ninterface User {\n  name: string;\n  getRole(): string;\n}\n\nclass Admin implements User {\n  name: string;\n\n  constructor(name: string) {\n    this.name = name;\n  }\n\n  getRole(): string {\n    return 'admin';\n  }\n}\n\nfunction getUserInfo(user: User): string {\n  return `${user.name} has role ${user.getRole()}`;\n}\n\nlet admin = new Admin('Ali');\nconsole.log(getUserInfo(admin)); // Ali has role admin\n// class InvalidAdmin implements User { name: 'Vəli'; } // Xəta: getRole təmin edilməyib\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Admin` sinfi `User` interfeysini icra edir.\n- Yanlış struktur kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet unsafe: any = { name: 'Ali', role: 'admin' };\nconsole.log(unsafe.name, unsafe.role); // Ali, admin, lakin tip təhlükəsizliyi yoxdur\nunsafe = { name: 'Vəli' };\nconsole.log(unsafe.name, unsafe.role); // Vəli, undefined, runtime xətası ola bilər\n\n// Düzgün yol\ninterface User {\n  name: string;\n  role: string;\n}\n\nclass UserProfile implements User {\n  name: string;\n  role: string;\n\n  constructor(name: string, role: string) {\n    this.name = name;\n    this.role = role;\n  }\n}\n\nlet user = new UserProfile('Ali', 'admin');\nconsole.log(user.name, user.role); // Ali, admin\n// class InvalidUser implements User { name: 'Vəli'; } // Xəta: role yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime xətalarına səbəb ola bilər.\n- İnterfeys icrası ilə tip təhlükəsizliyi təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Siniflərin interfeysləri icra etməsi real layihələrdə geniş istifadə olunur:\n- **API cavabları**: API-dən gələn məlumatların strukturunu təmin etmək.\n- **Kompleks siniflər**: Mürəkkəb obyektləri strukturlaşdırmaq.\n- **Komponent props**: UI komponentlərinin props strukturlarını təyin etmək.\n- **Modulyarlıq**: Böyük layihələrdə sinifləri mütəşəkkil saxlamaq.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface Product {\n  id: number;\n  name: string;\n  getPrice(): number;\n}\n\ninterface Discountable {\n  applyDiscount(discount: number): number;\n}\n\nclass Smartphone implements Product, Discountable {\n  id: number;\n  name: string;\n  price: number;\n\n  constructor(id: number, name: string, price: number) {\n    this.id = id;\n    this.name = name;\n    this.price = price;\n  }\n\n  getPrice(): number {\n    return this.price;\n  }\n\n  applyDiscount(discount: number): number {\n    return this.price * (1 - discount);\n  }\n}\n\nlet phone = new Smartphone(1, 'Smartphone', 1000);\nconsole.log(phone.getPrice()); // 1000\nconsole.log(phone.applyDiscount(0.1)); // 900\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Smartphone` sinfi `Product` və `Discountable` interfeyslərini icra edir.\n- `getPrice` və `applyDiscount` metodları tələb olunan struktura uyğun təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Siniflər üçün interfeysləri icra etməni obyekt tipləri və strukturları üçün istifadə edin. `any` əvəzinə dəqiq tipləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: İnterfeyslər əvəzinə tip aliasları ilə intersection (`&`) istifadə edilə bilər, lakin siniflər yalnız interfeysləri `implements` ilə icra edə bilər.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün interfeys icrası nümunəsi\ninterface User {\n  name: string;\n  getRole(): string;\n}\n\nclass Admin implements User {\n  name: string;\n\n  constructor(name: string) {\n    this.name = name;\n  }\n\n  getRole(): string {\n    return 'admin';\n  }\n}\n\nconst admin = new Admin('Məmməd');\nconsole.log(admin.name, admin.getRole()); // Məmməd, admin\n// class InvalidAdmin implements User { name: 'Vəli'; } // Xəta: getRole təmin edilməyib\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Class Implementing Interface",
+    "icon": "FiCode",
+    "language": "typescript",
+    "description": "Classes implementing interfaces.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Is Class Implementing Interface?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, a class implementing an interface (using the `implements` keyword) ensures that the class adheres to the structure defined by the interface. An interface acts as a contract, specifying which properties and methods a class must provide. For example, if a `Vehicle` interface requires a `drive` method, a `Car` class implementing this interface must include that method. In JavaScript, there’s no such enforcement, and classes can dynamically accept any properties, which may lead to runtime errors. TypeScript’s `implements` catches errors at compile time, enhancing code safety. This JSON file explains class interface implementation’s definition, purposes, differences from JavaScript, differences from type aliases, syntax, multiple interface implementation, use in functions and objects, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Class Implementing Interface"
+      },
+      {
+        "type": "paragraph",
+        "text": "Classes implementing interfaces in TypeScript serve the following purposes:\n- **Structure enforcement**: Ensure a class conforms to a specific structure (properties and methods).\n- **Type safety**: Verify that a class provides the required properties and methods.\n- **Readability**: Clearly express the code’s intent and structure.\n- **Modularity**: Organize classes in large projects efficiently.\n- **Reusability**: Allow interfaces to be reused across multiple classes.\nIn JavaScript, classes are dynamic, and their structure isn’t enforced, leading to errors only caught at runtime. TypeScript’s `implements` solves this issue."
+      },
+      {
+        "type": "heading",
+        "text": "Syntax of Implementing Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Classes implement interfaces using the `implements` keyword. The class must provide all properties and methods defined in the interface.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Interface implementation syntax\ninterface Vehicle {\n  brand: string;\n  drive(): string;\n}\n\nclass Car implements Vehicle {\n  brand: string;\n\n  constructor(brand: string) {\n    this.brand = brand;\n  }\n\n  drive(): string {\n    return `${this.brand} is driving`;\n  }\n}\n\nlet car = new Car('Toyota');\nconsole.log(car.drive()); // Toyota is driving\n// class InvalidCar implements Vehicle { } // Error: brand and drive not implemented\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Vehicle` interface requires a `brand` property and a `drive` method.\n- `Car` class implements `Vehicle` by providing both.\n- If the class fails to provide required properties, a compilation error occurs.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Interfaces vs. Type Aliases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces and type aliases may seem similar, but classes can only implement interfaces:\n- **Interfaces**: Can be implemented by classes using `implements`, primarily for object types.\n- **Type aliases**: Cannot be directly implemented with `implements` but can combine types using intersection (`&`).\n- **Interoperability**: Interfaces can be used with type aliases.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Interfaces vs. Type aliases\ntype Id = number | string;\n\ninterface User {\n  id: Id;\n  name: string;\n}\n\nclass UserProfile implements User {\n  id: Id;\n  name: string;\n\n  constructor(id: Id, name: string) {\n    this.id = id;\n    this.name = name;\n  }\n}\n\nlet user = new UserProfile(1, 'Alice');\nconsole.log(user); // UserProfile { id: 1, name: 'Alice' }\n// class InvalidUser implements User { name: 'Bob'; } // Error: id not implemented\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Id` type alias can be a `number` or `string`.\n- `UserProfile` class implements the `User` interface.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Multiple Interface Implementation"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, a class can implement multiple interfaces.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Multiple interface implementation\ninterface Printable {\n  print(): string;\n}\n\ninterface Loggable {\n  log(): string;\n}\n\nclass Document implements Printable, Loggable {\n  title: string;\n\n  constructor(title: string) {\n    this.title = title;\n  }\n\n  print(): string {\n    return `Printing ${this.title}`;\n  }\n\n  log(): string {\n    return `Logging ${this.title}`;\n  }\n}\n\nlet doc = new Document('Report');\nconsole.log(doc.print()); // Printing Report\nconsole.log(doc.log()); // Logging Report\n// class InvalidDoc implements Printable, Loggable { } // Error: print and log not implemented\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Document` class implements both `Printable` and `Loggable` interfaces.\n- The class must provide methods required by both interfaces.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Implementation with Optional and Read-Only Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfaces with optional (`?`) and read-only (`readonly`) properties can also be implemented by classes.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Implementation with optional and read-only properties\ninterface Person {\n  name: string;\n  age?: number;\n  readonly id: number;\n}\n\nclass Employee implements Person {\n  readonly id: number;\n  name: string;\n  age?: number;\n\n  constructor(id: number, name: string, age?: number) {\n    this.id = id;\n    this.name = name;\n    this.age = age;\n  }\n}\n\nlet employee = new Employee(101, 'Alice');\nconsole.log(employee); // Employee { id: 101, name: 'Alice' }\nemployee.name = 'Bob';\n// employee.id = 102; // Error: id is read-only\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Employee` class implements the `Person` interface.\n- `age` is optional, and `id` is read-only.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Class Inheritance with Interface Implementation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Classes can both inherit from other classes (`extends`) and implement interfaces (`implements`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Class inheritance with interface implementation\ninterface Vehicle {\n  drive(): string;\n}\n\nclass BaseVehicle {\n  brand: string;\n\n  constructor(brand: string) {\n    this.brand = brand;\n  }\n}\n\nclass Car extends BaseVehicle implements Vehicle {\n  constructor(brand: string) {\n    super(brand);\n  }\n\n  drive(): string {\n    return `${this.brand} is driving`;\n  }\n}\n\nlet car = new Car('Honda');\nconsole.log(car.drive()); // Honda is driving\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Car` class inherits from `BaseVehicle` and implements the `Vehicle` interface.\n- The `drive` method is provided as required by the `Vehicle` interface.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Interface Implementation in Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Classes implementing interfaces can be used in function parameters.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Interface implementation in functions\ninterface Printable {\n  print(): string;\n}\n\nclass Document implements Printable {\n  title: string;\n\n  constructor(title: string) {\n    this.title = title;\n  }\n\n  print(): string {\n    return `Printing ${this.title}`;\n  }\n}\n\nfunction processPrintable(item: Printable): string {\n  return item.print();\n}\n\nlet doc = new Document('Report');\nconsole.log(processPrintable(doc)); // Printing Report\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Document` class implements the `Printable` interface.\n- `processPrintable` function expects a `Printable` interface.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Working with Interface Implementation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interface implementation is used in various scenarios in real projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Practical example\ninterface Product {\n  id: number;\n  name: string;\n  getPrice(): number;\n}\n\nclass Electronics implements Product {\n  id: number;\n  name: string;\n  price: number;\n\n  constructor(id: number, name: string, price: number) {\n    this.id = id;\n    this.name = name;\n    this.price = price;\n  }\n\n  getPrice(): number {\n    return this.price;\n  }\n}\n\nlet product = new Electronics(1, 'Phone', 1000);\nconsole.log(product.getPrice()); // 1000\n// class InvalidProduct implements Product { id: 2; name: 'Laptop'; } // Error: getPrice not implemented\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Electronics` class implements the `Product` interface.\n- The `getPrice` method is provided as required by the `Product` interface.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interface implementation enhances code safety, but caution is needed:\n- Ensure all required properties and methods are correctly implemented.\n- Avoid `any` as it reduces type safety.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\ninterface User {\n  name: string;\n  getRole(): string;\n}\n\nclass Admin implements User {\n  name: string;\n\n  constructor(name: string) {\n    this.name = name;\n  }\n\n  getRole(): string {\n    return 'admin';\n  }\n}\n\nfunction getUserInfo(user: User): string {\n  return `${user.name} has role ${user.getRole()}`;\n}\n\nlet admin = new Admin('Alice');\nconsole.log(getUserInfo(admin)); // Alice has role admin\n// class InvalidAdmin implements User { name: 'Bob'; } // Error: getRole not implemented\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Admin` class implements the `User` interface.\n- Incorrect implementation triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet unsafe: any = { name: 'Alice', role: 'admin' };\nconsole.log(unsafe.name, unsafe.role); // Alice, admin, but no type safety\nunsafe = { name: 'Bob' };\nconsole.log(unsafe.name, unsafe.role); // Bob, undefined, may cause runtime errors\n\n// Correct approach\ninterface User {\n  name: string;\n  role: string;\n}\n\nclass UserProfile implements User {\n  name: string;\n  role: string;\n\n  constructor(name: string, role: string) {\n    this.name = name;\n    this.role = role;\n  }\n}\n\nlet user = new UserProfile('Alice', 'admin');\nconsole.log(user.name, user.role); // Alice, admin\n// class InvalidUser implements User { name: 'Bob'; } // Error: role is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and may cause runtime errors.\n- Interface implementation ensures type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Class interface implementation is widely used in real projects:\n- **API responses**: Ensuring the structure of data from APIs.\n- **Complex classes**: Structuring complex objects.\n- **Component props**: Defining props structures for UI components.\n- **Modularity**: Keeping classes organized in large projects.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface Product {\n  id: number;\n  name: string;\n  getPrice(): number;\n}\n\ninterface Discountable {\n  applyDiscount(discount: number): number;\n}\n\nclass Smartphone implements Product, Discountable {\n  id: number;\n  name: string;\n  price: number;\n\n  constructor(id: number, name: string, price: number) {\n    this.id = id;\n    this.name = name;\n    this.price = price;\n  }\n\n  getPrice(): number {\n    return this.price;\n  }\n\n  applyDiscount(discount: number): number {\n    return this.price * (1 - discount);\n  }\n}\n\nlet phone = new Smartphone(1, 'Smartphone', 1000);\nconsole.log(phone.getPrice()); // 1000\nconsole.log(phone.applyDiscount(0.1)); // 900\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Smartphone` class implements `Product` and `Discountable` interfaces.\n- `getPrice` and `applyDiscount` methods are provided as required.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use interface implementation for class types and structures. Prefer precise types over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Type aliases with intersection (`&`) can be used for type composition, but classes can only implement interfaces with `implements`.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself interface implementation example\ninterface User {\n  name: string;\n  getRole(): string;\n}\n\nclass Admin implements User {\n  name: string;\n\n  constructor(name: string) {\n    this.name = name;\n  }\n\n  getRole(): string {\n    return 'admin';\n  }\n}\n\nconst admin = new Admin('John');\nconsole.log(admin.name, admin.getRole()); // John, admin\n// class InvalidAdmin implements User { name: 'Bob'; } // Error: getRole not implemented\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Реализация интерфейсов классами",
+    "icon": "FiCode",
+    "language": "typescript",
+    "description": "Реализация интерфейсов классами.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое реализация интерфейсов классами?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript реализация интерфейсов классами (с использованием ключевого слова `implements`) гарантирует, что класс соответствует структуре, определенной интерфейсом. Интерфейс действует как контракт, указывающий, какие свойства и методы должен предоставить класс. Например, если интерфейс `Vehicle` требует метод `drive`, класс `Car`, реализующий этот интерфейс, должен включать этот метод. В JavaScript такого механизма нет, и классы могут динамически принимать любые свойства, что может привести к ошибкам во время выполнения. Ключевое слово `implements` в TypeScript обнаруживает ошибки на этапе компиляции, повышая безопасность кода. Этот JSON-файл подробно объясняет определение реализации интерфейсов классами, их назначение, отличия от JavaScript, отличия от псевдонимов типов, синтаксис, реализацию нескольких интерфейсов, использование в функциях и объектах, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение реализации интерфейсов классами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Реализация интерфейсов классами в TypeScript используется для следующих целей:\n- **Обеспечение структуры**: Гарантия соответствия класса определенной структуре (свойства и методы).\n- **Безопасность типов**: Проверка наличия у класса необходимых свойств и методов.\n- **Читаемость**: Четкое выражение назначения и структуры кода.\n- **Модульность**: Организация классов в крупных проектах.\n- **Повторное использование**: Возможность повторного использования интерфейсов в разных классах.\nВ JavaScript классы динамические, их структура не проверяется, и ошибки обнаруживаются только во время выполнения. Ключевое слово `implements` решает эту проблему."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис реализации интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Классы реализуют интерфейсы с помощью ключевого слова `implements`. Класс должен предоставить все свойства и методы, определенные в интерфейсе.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Синтаксис реализации интерфейсов\ninterface Vehicle {\n  brand: string;\n  drive(): string;\n}\n\nclass Car implements Vehicle {\n  brand: string;\n\n  constructor(brand: string) {\n    this.brand = brand;\n  }\n\n  drive(): string {\n    return `${this.brand} is driving`;\n  }\n}\n\nlet car = new Car('Toyota');\nconsole.log(car.drive()); // Toyota is driving\n// class InvalidCar implements Vehicle { } // Ошибка: brand и drive не реализованы\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Vehicle` требует свойство `brand` и метод `drive`.\n- Класс `Car` реализует `Vehicle`, предоставляя оба.\n- Если класс не предоставляет требуемые свойства, возникает ошибка компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Интерфейсы против псевдонимов типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы и псевдонимы типов могут казаться похожими, но классы могут реализовывать только интерфейсы:\n- **Интерфейсы**: Могут быть реализованы классами с помощью `implements`, в основном для объектных типов.\n- **Псевдонимы типов**: Не могут быть непосредственно реализованы с помощью `implements`, но могут объединять типы с помощью пересечения (`&`).\n- **Взаимодействие**: Интерфейсы могут использоваться с псевдонимами типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Интерфейсы против псевдонимов типов\ntype Id = number | string;\n\ninterface User {\n  id: Id;\n  name: string;\n}\n\nclass UserProfile implements User {\n  id: Id;\n  name: string;\n\n  constructor(id: Id, name: string) {\n    this.id = id;\n    this.name = name;\n  }\n}\n\nlet user = new UserProfile(1, 'Алиса');\nconsole.log(user); // UserProfile { id: 1, name: 'Алиса' }\n// class InvalidUser implements User { name: 'Боб'; } // Ошибка: id не реализован\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдоним типа `Id` может быть `number` или `string`.\n- Класс `UserProfile` реализует интерфейс `User`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Реализация нескольких интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript класс может реализовывать несколько интерфейсов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реализация нескольких интерфейсов\ninterface Printable {\n  print(): string;\n}\n\ninterface Loggable {\n  log(): string;\n}\n\nclass Document implements Printable, Loggable {\n  title: string;\n\n  constructor(title: string) {\n    this.title = title;\n  }\n\n  print(): string {\n    return `Printing ${this.title}`;\n  }\n\n  log(): string {\n    return `Logging ${this.title}`;\n  }\n}\n\nlet doc = new Document('Report');\nconsole.log(doc.print()); // Printing Report\nconsole.log(doc.log()); // Logging Report\n// class InvalidDoc implements Printable, Loggable { } // Ошибка: print и log не реализованы\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Document` реализует интерфейсы `Printable` и `Loggable`.\n- Класс должен предоставить методы, требуемые обоими интерфейсами.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Реализация с необязательными и свойствами только для чтения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Интерфейсы с необязательными (`?`) и свойствами только для чтения (`readonly`) также могут быть реализованы классами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реализация с необязательными и свойствами только для чтения\ninterface Person {\n  name: string;\n  age?: number;\n  readonly id: number;\n}\n\nclass Employee implements Person {\n  readonly id: number;\n  name: string;\n  age?: number;\n\n  constructor(id: number, name: string, age?: number) {\n    this.id = id;\n    this.name = name;\n    this.age = age;\n  }\n}\n\nlet employee = new Employee(101, 'Алиса');\nconsole.log(employee); // Employee { id: 101, name: 'Алиса' }\nemployee.name = 'Боб';\n// employee.id = 102; // Ошибка: id только для чтения\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Employee` реализует интерфейс `Person`.\n- `age` необязательное, а `id` только для чтения.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Наследование классов с реализацией интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Классы могут как наследовать от других классов (`extends`), так и реализовывать интерфейсы (`implements`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Наследование классов с реализацией интерфейсов\ninterface Vehicle {\n  drive(): string;\n}\n\nclass BaseVehicle {\n  brand: string;\n\n  constructor(brand: string) {\n    this.brand = brand;\n  }\n}\n\nclass Car extends BaseVehicle implements Vehicle {\n  constructor(brand: string) {\n    super(brand);\n  }\n\n  drive(): string {\n    return `${this.brand} is driving`;\n  }\n}\n\nlet car = new Car('Honda');\nconsole.log(car.drive()); // Honda is driving\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Car` наследует от `BaseVehicle` и реализует интерфейс `Vehicle`.\n- Метод `drive` предоставляется в соответствии с требованиями интерфейса `Vehicle`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Реализация интерфейсов в функциях"
+      },
+      {
+        "type": "paragraph",
+        "text": "Классы, реализующие интерфейсы, могут использоваться в параметрах функций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реализация интерфейсов в функциях\ninterface Printable {\n  print(): string;\n}\n\nclass Document implements Printable {\n  title: string;\n\n  constructor(title: string) {\n    this.title = title;\n  }\n\n  print(): string {\n    return `Printing ${this.title}`;\n  }\n}\n\nfunction processPrintable(item: Printable): string {\n  return item.print();\n}\n\nlet doc = new Document('Report');\nconsole.log(processPrintable(doc)); // Printing Report\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Document` реализует интерфейс `Printable`.\n- Функция `processPrintable` ожидает интерфейс `Printable`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Работа с реализацией интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Реализация интерфейсов используется в различных сценариях в реальных проектах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Практический пример\ninterface Product {\n  id: number;\n  name: string;\n  getPrice(): number;\n}\n\nclass Electronics implements Product {\n  id: number;\n  name: string;\n  price: number;\n\n  constructor(id: number, name: string, price: number) {\n    this.id = id;\n    this.name = name;\n    this.price = price;\n  }\n\n  getPrice(): number {\n    return this.price;\n  }\n}\n\nlet product = new Electronics(1, 'Phone', 1000);\nconsole.log(product.getPrice()); // 1000\n// class InvalidProduct implements Product { id: 2; name: 'Laptop'; } // Ошибка: getPrice не реализован\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Electronics` реализует интерфейс `Product`.\n- Метод `getPrice` предоставляется в соответствии с требованиями интерфейса `Product`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Реализация интерфейсов повышает безопасность кода, но требуется осторожность:\n- Убедитесь, что все требуемые свойства и методы корректно реализованы.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\ninterface User {\n  name: string;\n  getRole(): string;\n}\n\nclass Admin implements User {\n  name: string;\n\n  constructor(name: string) {\n    this.name = name;\n  }\n\n  getRole(): string {\n    return 'admin';\n  }\n}\n\nfunction getUserInfo(user: User): string {\n  return `${user.name} has role ${user.getRole()}`;\n}\n\nlet admin = new Admin('Алиса');\nconsole.log(getUserInfo(admin)); // Алиса has role admin\n// class InvalidAdmin implements User { name: 'Боб'; } // Ошибка: getRole не реализован\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Admin` реализует интерфейс `User`.\n- Неправильная реализация вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet unsafe: any = { name: 'Алиса', role: 'admin' };\nconsole.log(unsafe.name, unsafe.role); // Алиса, admin, но без безопасности типов\nunsafe = { name: 'Боб' };\nconsole.log(unsafe.name, unsafe.role); // Боб, undefined, может вызвать ошибки во время выполнения\n\n// Правильный подход\ninterface User {\n  name: string;\n  role: string;\n}\n\nclass UserProfile implements User {\n  name: string;\n  role: string;\n\n  constructor(name: string, role: string) {\n    this.name = name;\n    this.role = role;\n  }\n}\n\nlet user = new UserProfile('Алиса', 'admin');\nconsole.log(user.name, user.role); // Алиса, admin\n// class InvalidUser implements User { name: 'Боб'; } // Ошибка: role отсутствует\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Реализация интерфейса обеспечивает безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Реализация интерфейсов классами широко используется в реальных проектах:\n- **Ответы API**: Обеспечение структуры данных, получаемых от API.\n- **Сложные классы**: Структурирование сложных объектов.\n- **Props компонентов**: Определение структур props для UI-компонентов.\n- **Модульность**: Организация классов в крупных проектах.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface Product {\n  id: number;\n  name: string;\n  getPrice(): number;\n}\n\ninterface Discountable {\n  applyDiscount(discount: number): number;\n}\n\nclass Smartphone implements Product, Discountable {\n  id: number;\n  name: string;\n  price: number;\n\n  constructor(id: number, name: string, price: number) {\n    this.id = id;\n    this.name = name;\n    this.price = price;\n  }\n\n  getPrice(): number {\n    return this.price;\n  }\n\n  applyDiscount(discount: number): number {\n    return this.price * (1 - discount);\n  }\n}\n\nlet phone = new Smartphone(1, 'Smartphone', 1000);\nconsole.log(phone.getPrice()); // 1000\nconsole.log(phone.applyDiscount(0.1)); // 900\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Smartphone` реализует интерфейсы `Product` и `Discountable`.\n- Методы `getPrice` и `applyDiscount` предоставляются в соответствии с требованиями.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте реализацию интерфейсов для типов и структур классов. Предпочитайте точные типы вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Псевдонимы типов с пересечением (`&`) могут использоваться для композиции типов, но классы могут реализовывать только интерфейсы с помощью `implements`.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример реализации интерфейсов для самостоятельного тестирования\ninterface User {\n  name: string;\n  getRole(): string;\n}\n\nclass Admin implements User {\n  name: string;\n\n  constructor(name: string) {\n    this.name = name;\n  }\n\n  getRole(): string {\n    return 'admin';\n  }\n}\n\nconst admin = new Admin('Джон');\nconsole.log(admin.name, admin.getRole()); // Джон, admin\n// class InvalidAdmin implements User { name: 'Боб'; } // Ошибка: getRole не реализован\n"
+      }
+    ]
+  }
+}

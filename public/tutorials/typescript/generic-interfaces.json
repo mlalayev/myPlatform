@@ -1,0 +1,645 @@
+{
+  "id": "generic-interfaces",
+  "az": {
+    "title": "Generic Interfeyslər",
+    "icon": "FiBox",
+    "language": "typescript",
+    "description": "Tip parametrləri ilə interfeyslər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Generic Interfeyslər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də generic interfeyslər tip parametrləri ilə təyin edilmiş interfeyslərdir ki, bu da onların müxtəlif tiplərlə işləməsinə imkan verir, eyni zamanda tip təhlükəsizliyini qoruyur. Generic interfeyslər çevik tip strukturları yaratmaq üçün istifadə olunur, beləliklə eyni interfeys müxtəlif tiplərlə (sətir, rəqəm, obyekt və s.) təkrar istifadə edilə bilər. Məsələn, bir obyektin strukturunu təyin etmək istəyirsinizsə, amma onun dəyərlərinin tipi fərqli ola bilər, generic interfeyslər bunu asanlaşdırır. JavaScript-də interfeyslər və ya generiklər yoxdur, buna görə adətən `any` tipi istifadə olunur, bu da tip təhlükəsizliyini azaldır və runtime səhvlərinə səbəb ola bilər. TypeScript-də generic interfeyslər kompilyasiya zamanı tip yoxlamasını gücləndirir və səhvləri azaltmağa kömək edir. Bu JSON faylda generic interfeyslərin tərifi, istifadə məqsədləri, adi interfeyslərdən fərqləri, JavaScript ilə fərqləri, sintaksisi, tip aliasları ilə müqayisəsi, funksiyalarda, siniflərdə və digər strukturlarda istifadəsi, məhdudiyyətlər (constraints), tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Interfeyslərin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfeyslər TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Yenidən istifadə**: Eyni interfeysin müxtəlif tiplərlə işləməsini təmin etmək.\n- **Tip təhlükəsizliyi**: Obyektlərin və ya strukturların düzgün tiplərlə istifadəsini kompilyasiya zamanı yoxlamaq.\n- **Oxunaqlılıq**: Kodun məqsədini və strukturunu aydın ifadə etmək.\n- **Çeviklik**: Müxtəlif tiplərlə işləyə bilən ümumi tip strukturları yaratmaq.\n- **Səhvlərin qarşısını almaq**: Yanlış tiplərin istifadəsini kompilyasiya zamanı aşkar etmək.\nJavaScript-də oxşar funksionallıq üçün `any` tipi istifadə olunur, lakin bu, tip təhlükəsizliyini təmin etmir və runtime səhvlərinə yol aça bilər. Generic interfeyslər bu problemi həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Interfeyslərin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfeyslər `<T>` kimi tip parametri ilə təyin edilir, burada `T` istənilən tip üçün yer tutucudur. Bu parametr interfeysin xüsusiyyətlərinin və ya metodlarının tiplərini təyin edir.\nNümunə (sadə generic interfeys):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Sadə generic interfeys\ninterface Container<T> {\n  value: T;\n  display(): string;\n}\n\nlet stringContainer: Container<string> = {\n  value: 'Hello',\n  display() {\n    return `Value: ${this.value}`;\n  }\n};\n\nlet numberContainer: Container<number> = {\n  value: 42,\n  display() {\n    return `Value: ${this.value}`;\n  }\n};\n\nconsole.log(stringContainer.display()); // Value: Hello\nconsole.log(numberContainer.display()); // Value: 42\n// let errorContainer: Container<number> = { value: 'test', display: () => 'test' }; // Xəta: 'test' number tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Container<T>` generic interfeysi `T` tipində bir `value` xüsusiyyəti və `display` metodunu təyin edir.\n- Interfeys istənilən tipdə (`string`, `number`) istifadə oluna bilər.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Interfeyslər ilə Adi Interfeyslərin Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfeyslər və adi interfeyslər (sabit tipli interfeyslər) arasında əsas fərqlər:\n- **Çeviklik**: Generic interfeyslər müxtəlif tiplərlə işləyə bilir, adi interfeyslər isə sabit tiplərlə məhdudlaşır.\n- **Yenidən istifadə**: Generic interfeyslər eyni strukturun fərqli tiplərlə istifadəsini təmin edir.\n- **Tip təhlükəsizliyi**: Generic interfeyslər `any` istifadə etmədən tip təhlükəsizliyini qoruyur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Adi interfeys ilə generic interfeysin müqayisəsi\ninterface NumberContainer {\n  value: number;\n  display(): string;\n}\n\ninterface GenericContainer<T> {\n  value: T;\n  display(): string;\n}\n\nlet numberContainer: NumberContainer = {\n  value: 10,\n  display() {\n    return `Value: ${this.value}`;\n  }\n};\n\nlet genericContainer: GenericContainer<string> = {\n  value: 'Hello',\n  display() {\n    return `Value: ${this.value}`;\n  }\n};\n\nconsole.log(numberContainer.display()); // Value: 10\nconsole.log(genericContainer.display()); // Value: Hello\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `NumberContainer` yalnız `number` tipi ilə işləyir.\n- `GenericContainer` generik olduğu üçün istənilən tip ilə işləyə bilər.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Çoxsaylı Tip Parametrləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfeyslər birdən çox tip parametri ilə də işləyə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Çoxsaylı tip parametrləri\ninterface Pair<K, V> {\n  key: K;\n  value: V;\n}\n\nlet numberStringPair: Pair<number, string> = { key: 1, value: 'one' };\nlet stringBooleanPair: Pair<string, boolean> = { key: 'active', value: true };\n\nconsole.log(numberStringPair); // { key: 1, value: 'one' }\nconsole.log(stringBooleanPair); // { key: 'active', value: true }\n// let errorPair: Pair<number, string> = { key: 'test', value: 'test' }; // Xəta: 'test' number tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Pair<K, V>` iki fərqli tip parametrindən (`K` və `V`) istifadə edir.\n- Fərqli tip kombinasiyaları ilə işləyə bilər.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Interfeyslər ilə Tip Aliaslarının Müqayisəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfeyslər və tip aliasları oxşar məqsədlər üçün istifadə oluna bilər, lakin bəzi fərqlər var:\n- **Interfeyslər**: Obyekt strukturlarını təyin etmək üçün daha uyğundur və miras alma (`extends`) dəstəkləyir.\n- **Tip aliasları**: Daha çevikdir, obyektlərdən başqa tiplər (birliklər, primitivlər) üçün də istifadə oluna bilər.\n- **Oxunaqlılıq**: Interfeyslər adətən siniflərlə işləyərkən daha oxunaqlıdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic interfeys ilə tip aliasının müqayisəsi\ninterface GenericInterface<T> {\n  value: T;\n}\n\ntype GenericType<T> = {\n  value: T;\n};\n\nlet interfaceExample: GenericInterface<string> = { value: 'Hello' };\nlet typeExample: GenericType<number> = { value: 42 };\n\nconsole.log(interfaceExample); // { value: 'Hello' }\nconsole.log(typeExample); // { value: 42 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Hər iki struktur (`GenericInterface` və `GenericType`) oxşar funksionallıq təmin edir.\n- Interfeyslər siniflərlə və miras alma ilə daha yaxşı işləyir, tip aliasları isə daha çevikdir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Interfeyslərin Siniflərdə İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfeyslər siniflərdə istifadə olunaraq çevik tip strukturları tətbiq edilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic interfeys ilə sinif\ninterface Container<T> {\n  value: T;\n  display(): string;\n}\n\nclass StringContainer implements Container<string> {\n  value: string;\n  constructor(value: string) {\n    this.value = value;\n  }\n  display(): string {\n    return `Value: ${this.value}`;\n  }\n}\n\nlet container = new StringContainer('Test');\nconsole.log(container.display()); // Value: Test\n// let errorContainer = new StringContainer(42); // Xəta: 42 string tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Container` generic interfeysi istənilən tipdə `value` saxlaya bilər.\n- `StringContainer` sinfi `Container<string>` interfeysini həyata keçirir.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Interfeyslərin Funksiyalarda İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfeyslər funksiyalarda istifadə oluna bilər, xüsusilə funksiyaların parametrləri və ya qaytarma tipləri kimi.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic interfeys ilə funksiya\ninterface Response<T> {\n  data: T;\n  status: number;\n}\n\nfunction processResponse<T>(response: Response<T>): T {\n  return response.data;\n}\n\nlet userResponse: Response<{ name: string }> = {\n  data: { name: 'Alice' },\n  status: 200\n};\n\nconsole.log(processResponse(userResponse)); // { name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Response` generic interfeysi müxtəlif tipli məlumatları saxlayır.\n- `processResponse` funksiyası interfeysdən istifadə edərək tip təhlükəsizliyini təmin edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Məhdudiyyətlər (Constraints)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfeyslərdə tiplərə məhdudiyyətlər (`extends` ilə) əlavə edilərək onların xüsusi tiplərlə məhdudlaşdırılması təmin edilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic məhdudiyyət nümunəsi\ninterface Lengthy<T extends { length: number }> {\n  value: T;\n  getLength(): number;\n}\n\nclass LengthContainer implements Lengthy<string> {\n  value: string;\n  constructor(value: string) {\n    this.value = value;\n  }\n  getLength(): number {\n    return this.value.length;\n  }\n}\n\nlet container = new LengthContainer('Hello');\nconsole.log(container.getLength()); // 5\n// let errorContainer = new LengthContainer(42); // Xəta: 42 length xüsusiyyətinə malik deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `T extends { length: number }` məhdudiyyəti `T` tipinin `length` xüsusiyyətinə malik olmasını tələb edir.\n- Yalnız uyğun tiplər (sətir, massiv) istifadə oluna bilər.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfeyslər kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Generic tipləri dəqiq təyin edin.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- Məhdudiyyətlərdən (`extends`) istifadə edərək tipləri məhdudlaşdırın.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\ninterface Keyed<T, K extends keyof T> {\n  getProperty(key: K): T[K];\n}\n\nclass PropertyContainer implements Keyed<{ name: string; age: number }, 'name' | 'age'> {\n  data = { name: 'Alice', age: 30 };\n  getProperty(key: 'name' | 'age') {\n    return this.data[key];\n  }\n}\n\nlet container = new PropertyContainer();\nconsole.log(container.getProperty('name')); // Alice\nconsole.log(container.getProperty('age')); // 30\n// console.log(container.getProperty('address')); // Xəta: 'address' mövcud deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `keyof T` məhdudiyyəti `key` parametrinin yalnız obyektin mövcud xüsusiyyətləri ilə işləməsini təmin edir.\n- Yanlış açar istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\ninterface UnsafeContainer {\n  value: any;\n}\n\nlet unsafeContainer: UnsafeContainer = { value: 'Hello' };\nconsole.log(unsafeContainer.value); // Hello, lakin tip təhlükəsizliyi yoxdur\nunsafeContainer.value = 42; // Keçərlidir, lakin təhlükəsiz deyil\n\n// Düzgün yol\ninterface SafeContainer<T> {\n  value: T;\n}\n\nlet safeContainer: SafeContainer<string> = { value: 'Hello' };\nconsole.log(safeContainer.value); // Hello\n// safeContainer.value = 42; // Xəta: 42 string tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime səhvlərinə səbəb ola bilər.\n- Generic interfeyslər ilə tip təhlükəsizliyi təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfeyslər real layihələrdə geniş istifadə olunur:\n- **Məlumat strukturları**: Müxtəlif tipli məlumatları saxlayan strukturlar (siyahılar, ağaclar).\n- **API cavabları**: API-dən gələn müxtəlif tipli məlumatları idarə etmək.\n- **Komponent kitabxanaları**: React və ya Angular kimi kitabxanalarda generic komponentlər.\n- **Yenidən istifadə edilə bilən strukturlar**: Müxtəlif tiplərlə işləyən ümumi strukturlar.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface ApiResponse<T> {\n  data: T;\n  status: number;\n}\n\nlet userResponse: ApiResponse<{ name: string; age: number }> = {\n  data: { name: 'Alice', age: 30 },\n  status: 200\n};\n\nlet productResponse: ApiResponse<{ id: number; name: string }> = {\n  data: { id: 1, name: 'Laptop' },\n  status: 200\n};\n\nconsole.log(userResponse.data); // { name: 'Alice', age: 30 }\nconsole.log(productResponse.data); // { id: 1, name: 'Laptop' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ApiResponse` generic interfeysi müxtəlif tipli məlumatları idarə edir.\n- Tip təhlükəsizliyi kompilyasiya zamanı təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfeyslər qabaqcıl TypeScript xüsusiyyətləri ilə də istifadə oluna bilər:\n- **Şərti tiplər (Conditional Types)**: Tipləri şərtlərə əsasən təyin etmək.\n- **Mapped Types**: Obyekt tiplərini dinamik olaraq dəyişdirmək.\n- **Infer**: Generic tiplərdən avtomatik tip çıxarılması.\nBu mövzular haqqında ətraflı məlumat üçün TypeScript sənədlərinə (https://www.typescriptlang.org/docs) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Generic interfeysləri yenidən istifadə edilə bilən və tip təhlükəsiz kod üçün istifadə edin. `any` əvəzinə dəqiq tipləri və məhdudiyyətləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Generic interfeyslər əvəzinə sabit tipli interfeyslər və ya `any` istifadə edilə bilər, lakin generiklər daha təhlükəsiz və çevikdir.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün generic interfeys nümunəsi\ninterface Box<T> {\n  content: T;\n  getContent(): T;\n}\n\nlet stringBox: Box<string> = {\n  content: 'Test',\n  getContent() {\n    return this.content;\n  }\n};\n\nconsole.log(stringBox.getContent()); // Test\n// let errorBox: Box<string> = { content: 42, getContent: () => 42 }; // Xəta: 42 string tipinə uyğun deyil\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Generic Interfaces",
+    "icon": "FiBox",
+    "language": "typescript",
+    "description": "Interfaces with type parameters.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Generic Interfaces?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, generic interfaces are interfaces defined with type parameters, allowing them to work with multiple types while maintaining type safety. Generic interfaces enable the creation of flexible type structures, making the same interface reusable with different types (string, number, object, etc.). For example, if you want to define an object’s structure but allow its values to have different types, generic interfaces make this possible. JavaScript does not have interfaces or generics, so developers typically use `any`, which compromises type safety and can lead to runtime errors. TypeScript generic interfaces enforce type checking at compile time and help reduce errors. This JSON file explains the definition, purposes, differences from regular interfaces, differences from JavaScript, syntax, comparison with type aliases, usage in functions, classes, and other structures, constraints, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Generic Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfaces in TypeScript serve the following purposes:\n- **Reusability**: Allow the same interface to work with different types.\n- **Type safety**: Ensure objects or structures are used with correct types at compile time.\n- **Readability**: Clearly express the intent and structure of the code.\n- **Flexibility**: Create generic type structures for various types.\n- **Error prevention**: Detect incorrect type usage at compile time.\nIn JavaScript, similar functionality is achieved using `any`, which lacks type safety and can lead to runtime errors. Generic interfaces solve this issue."
+      },
+      {
+        "type": "heading",
+        "text": "Syntax of Generic Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfaces are defined using `<T>`, where `T` is a placeholder for any type. This parameter defines the types of the interface’s properties or methods.\nExample (simple generic interface):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Simple generic interface\ninterface Container<T> {\n  value: T;\n  display(): string;\n}\n\nlet stringContainer: Container<string> = {\n  value: 'Hello',\n  display() {\n    return `Value: ${this.value}`;\n  }\n};\n\nlet numberContainer: Container<number> = {\n  value: 42,\n  display() {\n    return `Value: ${this.value}`;\n  }\n};\n\nconsole.log(stringContainer.display()); // Value: Hello\nconsole.log(numberContainer.display()); // Value: 42\n// let errorContainer: Container<number> = { value: 'test', display: () => 'test' }; // Error: 'test' is not assignable to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Container<T>` generic interface defines a `value` property of type `T` and a `display` method.\n- The interface can be used with any type (`string`, `number`).\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Interfaces vs. Regular Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfaces differ from regular interfaces (fixed-type interfaces) in the following ways:\n- **Flexibility**: Generic interfaces can work with multiple types, while regular interfaces are limited to fixed types.\n- **Reusability**: Generic interfaces allow the same structure to be used with different types.\n- **Type safety**: Generic interfaces maintain type safety without resorting to `any`.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Regular interface vs. generic interface\ninterface NumberContainer {\n  value: number;\n  display(): string;\n}\n\ninterface GenericContainer<T> {\n  value: T;\n  display(): string;\n}\n\nlet numberContainer: NumberContainer = {\n  value: 10,\n  display() {\n    return `Value: ${this.value}`;\n  }\n};\n\nlet genericContainer: GenericContainer<string> = {\n  value: 'Hello',\n  display() {\n    return `Value: ${this.value}`;\n  }\n};\n\nconsole.log(numberContainer.display()); // Value: 10\nconsole.log(genericContainer.display()); // Value: Hello\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `NumberContainer` works only with `number`.\n- `GenericContainer` is generic and works with any type.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Multiple Type Parameters"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfaces can work with multiple type parameters.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Multiple type parameters\ninterface Pair<K, V> {\n  key: K;\n  value: V;\n}\n\nlet numberStringPair: Pair<number, string> = { key: 1, value: 'one' };\nlet stringBooleanPair: Pair<string, boolean> = { key: 'active', value: true };\n\nconsole.log(numberStringPair); // { key: 1, value: 'one' }\nconsole.log(stringBooleanPair); // { key: 'active', value: true }\n// let errorPair: Pair<number, string> = { key: 'test', value: 'test' }; // Error: 'test' is not assignable to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Pair<K, V>` interface uses two different type parameters (`K` and `V`).\n- It works with different type combinations.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Interfaces vs. Type Aliases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfaces and type aliases can serve similar purposes, but there are differences:\n- **Interfaces**: Better suited for defining object structures and support inheritance (`extends`).\n- **Type aliases**: More flexible, can be used for objects, unions, and primitives.\n- **Readability**: Interfaces are often more readable when working with classes.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic interface vs. type alias\ninterface GenericInterface<T> {\n  value: T;\n}\n\ntype GenericType<T> = {\n  value: T;\n};\n\nlet interfaceExample: GenericInterface<string> = { value: 'Hello' };\nlet typeExample: GenericType<number> = { value: 42 };\n\nconsole.log(interfaceExample); // { value: 'Hello' }\nconsole.log(typeExample); // { value: 42 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Both `GenericInterface` and `GenericType` provide similar functionality.\n- Interfaces work better with classes and inheritance, while type aliases are more flexible.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Interfaces in Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfaces can be used in classes to enforce flexible type structures.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic interface with class\ninterface Container<T> {\n  value: T;\n  display(): string;\n}\n\nclass StringContainer implements Container<string> {\n  value: string;\n  constructor(value: string) {\n    this.value = value;\n  }\n  display(): string {\n    return `Value: ${this.value}`;\n  }\n}\n\nlet container = new StringContainer('Test');\nconsole.log(container.display()); // Value: Test\n// let errorContainer = new StringContainer(42); // Error: 42 is not assignable to string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Container` generic interface can hold a `value` of any type.\n- The `StringContainer` class implements the `Container<string>` interface.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Interfaces in Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfaces can be used in functions, especially as parameter or return types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic interface with function\ninterface Response<T> {\n  data: T;\n  status: number;\n}\n\nfunction processResponse<T>(response: Response<T>): T {\n  return response.data;\n}\n\nlet userResponse: Response<{ name: string }> = {\n  data: { name: 'Alice' },\n  status: 200\n};\n\nconsole.log(processResponse(userResponse)); // { name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Response` generic interface handles different types of data.\n- The `processResponse` function uses the interface to ensure type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Constraints"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfaces can use constraints (`extends`) to restrict types to specific ones.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic constraint example\ninterface Lengthy<T extends { length: number }> {\n  value: T;\n  getLength(): number;\n}\n\nclass LengthContainer implements Lengthy<string> {\n  value: string;\n  constructor(value: string) {\n    this.value = value;\n  }\n  getLength(): number {\n    return this.value.length;\n  }\n}\n\nlet container = new LengthContainer('Hello');\nconsole.log(container.getLength()); // 5\n// let errorContainer = new LengthContainer(42); // Error: 42 does not have a length property\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `T extends { length: number }` constraint ensures `T` has a `length` property.\n- Only types with `length` (e.g., string, array) can be used.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfaces enhance code safety, but caution is needed:\n- Define generic types precisely.\n- Avoid `any` as it reduces type safety.\n- Use constraints (`extends`) to restrict types.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\ninterface Keyed<T, K extends keyof T> {\n  getProperty(key: K): T[K];\n}\n\nclass PropertyContainer implements Keyed<{ name: string; age: number }, 'name' | 'age'> {\n  data = { name: 'Alice', age: 30 };\n  getProperty(key: 'name' | 'age') {\n    return this.data[key];\n  }\n}\n\nlet container = new PropertyContainer();\nconsole.log(container.getProperty('name')); // Alice\nconsole.log(container.getProperty('age')); // 30\n// console.log(container.getProperty('address')); // Error: 'address' does not exist\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `keyof T` constraint ensures `key` is a valid property of the object.\n- Invalid keys trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\ninterface UnsafeContainer {\n  value: any;\n}\n\nlet unsafeContainer: UnsafeContainer = { value: 'Hello' };\nconsole.log(unsafeContainer.value); // Hello, but no type safety\nunsafeContainer.value = 42; // Valid, but unsafe\n\n// Correct approach\ninterface SafeContainer<T> {\n  value: T;\n}\n\nlet safeContainer: SafeContainer<string> = { value: 'Hello' };\nconsole.log(safeContainer.value); // Hello\n// safeContainer.value = 42; // Error: 42 is not assignable to string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and may cause runtime errors.\n- Generic interfaces ensure type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfaces are widely used in real projects:\n- **Data structures**: Structures like lists or trees that hold different types.\n- **API responses**: Handling various types of data from APIs.\n- **Component libraries**: Generic components in React or Angular.\n- **Reusable structures**: General-purpose structures working with various types.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface ApiResponse<T> {\n  data: T;\n  status: number;\n}\n\nlet userResponse: ApiResponse<{ name: string; age: number }> = {\n  data: { name: 'Alice', age: 30 },\n  status: 200\n};\n\nlet productResponse: ApiResponse<{ id: number; name: string }> = {\n  data: { id: 1, name: 'Laptop' },\n  status: 200\n};\n\nconsole.log(userResponse.data); // { name: 'Alice', age: 30 }\nconsole.log(productResponse.data); // { id: 1, name: 'Laptop' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `ApiResponse` generic interface handles different types of data.\n- Type safety is enforced at compile time.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic interfaces can be used with advanced TypeScript features:\n- **Conditional Types**: Define types based on conditions.\n- **Mapped Types**: Dynamically transform object types.\n- **Infer**: Automatically infer types within generics.\nFor more details, refer to the TypeScript documentation (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use generic interfaces for reusable and type-safe code. Prefer precise types and constraints over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Instead of generic interfaces, fixed-type interfaces or `any` can be used, but generics are safer and more flexible.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself generic interface example\ninterface Box<T> {\n  content: T;\n  getContent(): T;\n}\n\nlet stringBox: Box<string> = {\n  content: 'Test',\n  getContent() {\n    return this.content;\n  }\n};\n\nconsole.log(stringBox.getContent()); // Test\n// let errorBox: Box<string> = { content: 42, getContent: () => 42 }; // Error: 42 is not assignable to string\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Дженерик-интерфейсы",
+    "icon": "FiBox",
+    "language": "typescript",
+    "description": "Интерфейсы с параметрами типов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое дженерик-интерфейсы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript дженерик-интерфейсы — это интерфейсы, определенные с параметрами типов, что позволяет им работать с несколькими типами, сохраняя безопасность типов. Дженерик-интерфейсы позволяют создавать гибкие структуры типов, делая один и тот же интерфейс повторно используемым с разными типами (строка, число, объект и т.д.). Например, если вы хотите определить структуру объекта, но его значения могут быть разных типов, дженерик-интерфейсы упрощают эту задачу. В JavaScript интерфейсов и дженериков нет, поэтому обычно используется тип `any`, что снижает безопасность типов и может привести к ошибкам во время выполнения. Дженерик-интерфейсы в TypeScript усиливают проверку типов во время компиляции и помогают уменьшить ошибки. Этот JSON-файл подробно объясняет определение, назначение, отличия от обычных интерфейсов, отличия от JavaScript, синтаксис, сравнение с псевдонимами типов, использование в функциях, классах и других структурах, ограничения (constraints), безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение дженерик-интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-интерфейсы в TypeScript используются для следующих целей:\n- **Повторное использование**: Позволяют одному и тому же интерфейсу работать с разными типами.\n- **Безопасность типов**: Обеспечивают проверку типов объектов или структур во время компиляции.\n- **Читаемость**: Четко выражают назначение и структуру кода.\n- **Гибкость**: Создают общие структуры типов для различных типов.\n- **Предотвращение ошибок**: Обнаруживают неправильное использование типов на этапе компиляции.\nВ JavaScript для аналогичной функциональности обычно используется `any`, что не обеспечивает безопасность типов и может привести к ошибкам во время выполнения. Дженерик-интерфейсы решают эту проблему."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис дженерик-интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-интерфейсы определяются с помощью `<T>`, где `T` — это заполнитель для любого типа. Этот параметр определяет типы свойств или методов интерфейса.\nПример (простой дженерик-интерфейс):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Простой дженерик-интерфейс\ninterface Container<T> {\n  value: T;\n  display(): string;\n}\n\nlet stringContainer: Container<string> = {\n  value: 'Hello',\n  display() {\n    return `Value: ${this.value}`;\n  }\n};\n\nlet numberContainer: Container<number> = {\n  value: 42,\n  display() {\n    return `Value: ${this.value}`;\n  }\n};\n\nconsole.log(stringContainer.display()); // Value: Hello\nconsole.log(numberContainer.display()); // Value: 42\n// let errorContainer: Container<number> = { value: 'test', display: () => 'test' }; // Ошибка: 'test' не соответствует типу number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Дженерик-интерфейс `Container<T>` определяет свойство `value` типа `T` и метод `display`.\n- Интерфейс может использоваться с любым типом (`string`, `number`).\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Дженерик-интерфейсы против обычных интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-интерфейсы отличаются от обычных интерфейсов (интерфейсов с фиксированными типами) следующими особенностями:\n- **Гибкость**: Дженерик-интерфейсы могут работать с несколькими типами, тогда как обычные интерфейсы ограничены фиксированными типами.\n- **Повторное использование**: Дженерик-интерфейсы позволяют использовать одну и ту же структуру с разными типами.\n- **Безопасность типов**: Дженерик-интерфейсы обеспечивают безопасность типов без использования `any`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Обычный интерфейс против дженерик-интерфейса\ninterface NumberContainer {\n  value: number;\n  display(): string;\n}\n\ninterface GenericContainer<T> {\n  value: T;\n  display(): string;\n}\n\nlet numberContainer: NumberContainer = {\n  value: 10,\n  display() {\n    return `Value: ${this.value}`;\n  }\n};\n\nlet genericContainer: GenericContainer<string> = {\n  value: 'Hello',\n  display() {\n    return `Value: ${this.value}`;\n  }\n};\n\nconsole.log(numberContainer.display()); // Value: 10\nconsole.log(genericContainer.display()); // Value: Hello\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `NumberContainer` работает только с типом `number`.\n- `GenericContainer` является дженериком и работает с любым типом.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Несколько параметров типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-интерфейсы могут работать с несколькими параметрами типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Несколько параметров типов\ninterface Pair<K, V> {\n  key: K;\n  value: V;\n}\n\nlet numberStringPair: Pair<number, string> = { key: 1, value: 'one' };\nlet stringBooleanPair: Pair<string, boolean> = { key: 'active', value: true };\n\nconsole.log(numberStringPair); // { key: 1, value: 'one' }\nconsole.log(stringBooleanPair); // { key: 'active', value: true }\n// let errorPair: Pair<number, string> = { key: 'test', value: 'test' }; // Ошибка: 'test' не соответствует типу number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Pair<K, V>` использует два разных параметра типов (`K` и `V`).\n- Он работает с разными комбинациями типов.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Дженерик-интерфейсы против псевдонимов типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-интерфейсы и псевдонимы типов могут использоваться для схожих целей, но есть различия:\n- **Интерфейсы**: Лучше подходят для определения структур объектов и поддерживают наследование (`extends`).\n- **Псевдонимы типов**: Более гибкие, могут использоваться для объектов, объединений и примитивов.\n- **Читаемость**: Интерфейсы часто более читаемы при работе с классами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Дженерик-интерфейс против псевдонима типа\ninterface GenericInterface<T> {\n  value: T;\n}\n\ntype GenericType<T> = {\n  value: T;\n};\n\nlet interfaceExample: GenericInterface<string> = { value: 'Hello' };\nlet typeExample: GenericType<number> = { value: 42 };\n\nconsole.log(interfaceExample); // { value: 'Hello' }\nconsole.log(typeExample); // { value: 42 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- И `GenericInterface`, и `GenericType` обеспечивают схожую функциональность.\n- Интерфейсы лучше работают с классами и наследованием, тогда как псевдонимы типов более гибкие.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Дженерик-интерфейсы в классах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-интерфейсы могут использоваться в классах для реализации гибких структур типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Дженерик-интерфейс с классом\ninterface Container<T> {\n  value: T;\n  display(): string;\n}\n\nclass StringContainer implements Container<string> {\n  value: string;\n  constructor(value: string) {\n    this.value = value;\n  }\n  display(): string {\n    return `Value: ${this.value}`;\n  }\n}\n\nlet container = new StringContainer('Test');\nconsole.log(container.display()); // Value: Test\n// let errorContainer = new StringContainer(42); // Ошибка: 42 не соответствует типу string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Дженерик-интерфейс `Container` может содержать `value` любого типа.\n- Класс `StringContainer` реализует интерфейс `Container<string>`.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Дженерик-интерфейсы в функциях"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-интерфейсы могут использоваться в функциях, особенно в качестве типов параметров или возвращаемых значений.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Дженерик-интерфейс с функцией\ninterface Response<T> {\n  data: T;\n  status: number;\n}\n\nfunction processResponse<T>(response: Response<T>): T {\n  return response.data;\n}\n\nlet userResponse: Response<{ name: string }> = {\n  data: { name: 'Alice' },\n  status: 200\n};\n\nconsole.log(processResponse(userResponse)); // { name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Дженерик-интерфейс `Response` обрабатывает данные разных типов.\n- Функция `processResponse` использует интерфейс для обеспечения безопасности типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Ограничения дженериков"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-интерфейсы могут использовать ограничения (`extends`) для ограничения типов определенными типами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример ограничения дженериков\ninterface Lengthy<T extends { length: number }> {\n  value: T;\n  getLength(): number;\n}\n\nclass LengthContainer implements Lengthy<string> {\n  value: string;\n  constructor(value: string) {\n    this.value = value;\n  }\n  getLength(): number {\n    return this.value.length;\n  }\n}\n\nlet container = new LengthContainer('Hello');\nconsole.log(container.getLength()); // 5\n// let errorContainer = new LengthContainer(42); // Ошибка: у 42 нет свойства length\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ограничение `T extends { length: number }` гарантирует, что `T` имеет свойство `length`.\n- Могут использоваться только типы с `length` (например, строка, массив).\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-интерфейсы повышают безопасность кода, но требуется осторожность:\n- Точно определяйте дженерик-типы.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Используйте ограничения (`extends`) для ограничения типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\ninterface Keyed<T, K extends keyof T> {\n  getProperty(key: K): T[K];\n}\n\nclass PropertyContainer implements Keyed<{ name: string; age: number }, 'name' | 'age'> {\n  data = { name: 'Alice', age: 30 };\n  getProperty(key: 'name' | 'age') {\n    return this.data[key];\n  }\n}\n\nlet container = new PropertyContainer();\nconsole.log(container.getProperty('name')); // Alice\nconsole.log(container.getProperty('age')); // 30\n// console.log(container.getProperty('address')); // Ошибка: 'address' не существует\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ограничение `keyof T` гарантирует, что `key` является допустимым свойством объекта.\n- Недопустимые ключи вызывают ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\ninterface UnsafeContainer {\n  value: any;\n}\n\nlet unsafeContainer: UnsafeContainer = { value: 'Hello' };\nconsole.log(unsafeContainer.value); // Hello, но без безопасности типов\nunsafeContainer.value = 42; // Валидно, но небезопасно\n\n// Правильный подход\ninterface SafeContainer<T> {\n  value: T;\n}\n\nlet safeContainer: SafeContainer<string> = { value: 'Hello' };\nconsole.log(safeContainer.value); // Hello\n// safeContainer.value = 42; // Ошибка: 42 не соответствует типу string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Дженерик-интерфейсы обеспечивают безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-интерфейсы широко используются в реальных проектах:\n- **Структуры данных**: Структуры, такие как списки или деревья, содержащие разные типы.\n- **Ответы API**: Обработка данных разных типов из API.\n- **Библиотеки компонентов**: Дженерик-компоненты в React или Angular.\n- **Повторно используемые структуры**: Универсальные структуры, работающие с разными типами.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface ApiResponse<T> {\n  data: T;\n  status: number;\n}\n\nlet userResponse: ApiResponse<{ name: string; age: number }> = {\n  data: { name: 'Alice', age: 30 },\n  status: 200\n};\n\nlet productResponse: ApiResponse<{ id: number; name: string }> = {\n  data: { id: 1, name: 'Laptop' },\n  status: 200\n};\n\nconsole.log(userResponse.data); // { name: 'Alice', age: 30 }\nconsole.log(productResponse.data); // { id: 1, name: 'Laptop' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Дженерик-интерфейс `ApiResponse` обрабатывает данные разных типов.\n- Безопасность типов обеспечивается во время компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-интерфейсы могут использоваться с продвинутыми возможностями TypeScript:\n- **Условные типы (Conditional Types)**: Определение типов на основе условий.\n- **Сопоставленные типы (Mapped Types)**: Динамическое преобразование типов объектов.\n- **Infer**: Автоматический вывод типов внутри дженериков.\nДля получения дополнительной информации обратитесь к документации TypeScript (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте дженерик-интерфейсы для повторно используемого и безопасного кода. Предпочитайте точные типы и ограничения вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо дженерик-интерфейсов можно использовать интерфейсы с фиксированными типами или `any`, но дженерики более безопасны и гибки.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример дженерик-интерфейса для самостоятельного тестирования\ninterface Box<T> {\n  content: T;\n  getContent(): T;\n}\n\nlet stringBox: Box<string> = {\n  content: 'Test',\n  getContent() {\n    return this.content;\n  }\n};\n\nconsole.log(stringBox.getContent()); // Test\n// let errorBox: Box<string> = { content: 42, getContent: () => 42 }; // Ошибка: 42 не соответствует типу string\n"
+      }
+    ]
+  }
+}

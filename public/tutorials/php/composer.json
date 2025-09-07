@@ -1,0 +1,597 @@
+{
+  "id": "composer",
+  "az": {
+    "title": "Composer və Paket İdarəetməsi",
+    "icon": "FiBox",
+    "language": "php",
+    "description": "Composer ilə paketlərin idarə olunması.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də Composer və Paket İdarəetməsi Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Composer PHP-də asılılıqları (dependencies) idarə etmək üçün istifadə olunan alətdir. Asılılıqlar proqramın işləməsi üçün lazım olan xarici kod kitabxanalarıdır (məsələn, loglama və ya HTTP sorğuları üçün paketlər). Composer ilə bu paketləri asanlıqla quraşdırmaq, yeniləmək və ya silmək mümkündür. O, həmçinin avtomatik yükləmə (autoloading) mexanizmi ilə kodun idarəsini asanlaşdırır. Bu JSON faylda Composer-in tərifi, quraşdırılması, `composer.json` və `composer.lock` fayllarının istifadəsi, paketlərin idarə olunması, populyar paketlərə nümunələr, təhlükəsizlik aspektləri və praktik nümunələr çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz. PHP 8.1 və ya daha yeni versiyadan və Composer-in son versiyasından istifadə etdiyinizə əmin olun."
+      },
+      {
+        "type": "heading",
+        "text": "Composer-in Quraşdırılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "Composer-i quraşdırmaq üçün aşağıdakı addımları izləyin:\n- Rəsmi saytdan (https://getcomposer.org) Composer-i yükləyin.\n- Linux/MacOS-da: `curl -sS https://getcomposer.org/installer | php`\n- Windows-da: İndirilən `Composer-Setup.exe` faylını işə salın.\n- Quraşdırıldıqdan sonra terminalda `composer --version` yazaraq versiyanı yoxlayın.\nNümunə (versiya yoxlaması):"
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "composer --version"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu əmr Composer-in quraşdırıldığını və hansı versiyanın istifadə olunduğunu göstərir. Quraşdırma tamamlandıqdan sonra layihələrdə paket idarəetməsinə başlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Composer.json və Composer.lock Faylları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Composer iki əsas fayldan istifadə edir:\n- **composer.json**: Layihənin asılılıqlarını və konfiqurasiyasını təyin edir.\n- **composer.lock**: Quraşdırılmış paketlərin dəqiq versiyalarını saxlayır.\nNümunə (sadə `composer.json` faylı):"
+      },
+      {
+        "type": "code",
+        "language": "json",
+        "code": "{\n  \"name\": \"my/project\",\n  \"description\": \"Sadə PHP layihəsi\",\n  \"require\": {\n    \"monolog/monolog\": \"^2.0\"\n  },\n  \"autoload\": {\n    \"psr-4\": {\n      \"App\\\\\": \"src/\"\n    }\n  }\n}"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu faylda:\n- `name` və `description` layihəni təsvir edir.\n- `require` bölməsi asılılıqları (məsələn, `monolog`) göstərir.\n- `autoload` bölməsi kodun avtomatik yüklənməsini təyin edir.\n- `composer install` əmri ilə paketlər quraşdırılır və `composer.lock` faylı yaradılır."
+      },
+      {
+        "type": "heading",
+        "text": "Paketlərin Quraşdırılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "Paket quraşdırmaq üçün `composer require` əmrindən istifadə olunur.\nNümunə (Monolog paketinin quraşdırılması):"
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "composer require monolog/monolog"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu əmr:\n- `monolog/monolog` paketini quraşdırır.\n- `composer.json` faylına asılılığı əlavə edir.\n- `composer.lock` faylını yeniləyir.\n- Paketlər `vendor` qovluğuna yüklənir."
+      },
+      {
+        "type": "heading",
+        "text": "Monolog ilə Loglama Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Monolog populyar loglama paketidir. Aşağıda sadə bir loglama nümunəsi verilmişdir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Monolog ilə loglama\nrequire 'vendor/autoload.php';\n\nuse Monolog\\Logger;\nuse Monolog\\Handler\\StreamHandler;\n\n$log = new Logger('my_app');\n$log->pushHandler(new StreamHandler('logs/app.log', Logger::WARNING));\n\n$log->warning('Bu bir xəbərdarlıq mesajıdır!');\necho 'Log yazıldı! Qeyd logs/app.log faylında saxlanılır.' . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `vendor/autoload.php` Composer-in avtomatik yükləyicisini daxil edir.\n- `Monolog\\Logger` ilə loglama obyekti yaradılır.\n- `StreamHandler` mesajları `logs/app.log` faylına yazır.\n- Qeyd: `logs` qovluğunun yazma icazəsi olmalıdır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Paketlərin Yenilənməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Paketləri yeniləmək üçün `composer update` əmrindən istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "composer update"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu əmr:\n- `composer.json`-da göstərilən paketlərin ən son uyğun versiyalarını quraşdırır.\n- `composer.lock` faylını yeniləyir.\n- Xəbərdarlıq: Yeniləmə zamanı diqqətli olun, çünki yeni versiyalar kodda uyğunsuzluq yarada bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Paketlərin Silinməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Paketi silmək üçün `composer remove` əmrindən istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "composer remove monolog/monolog"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu əmr:\n- `monolog/monolog` paketini silir.\n- `composer.json` və `composer.lock` fayllarını yeniləyir.\n- `vendor` qovluğundan paketi silir."
+      },
+      {
+        "type": "heading",
+        "text": "Avtomatik Yükləmə (Autoloading)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Composer avtomatik yükləmə ilə sinifləri avtomatik daxil edir. `composer.json`-da `autoload` bölməsi ilə təyin edilir.\nNümunə (öz sinifləri üçün autoloading):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Autoloading nümunəsi\nrequire 'vendor/autoload.php';\n\n// src/App/MyClass.php faylında yerləşən sinif\nnamespace App;\n\nclass MyClass {\n  public function sayHello() {\n    return 'Hello from MyClass!';\n  }\n}\n\n// Sinifin istifadəsi\n$instance = new App\\MyClass();\necho $instance->sayHello() . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `composer.json`-da `psr-4` ilə `App\\` ad məkanı `src/` qovluğuna bağlanır.\n- `composer dump-autoload` əmri ilə autoload faylı yenilənir.\n- Sinif avtomatik yüklənir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Guzzle ilə HTTP Sorğusu Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Guzzle HTTP sorğuları göndərmək üçün populyar paketdir.\nQuraşdırma: `composer require guzzlehttp/guzzle`\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Guzzle ilə HTTP sorğusu\nrequire 'vendor/autoload.php';\n\nuse GuzzleHttp\\Client;\n\n$client = new Client();\n$response = $client->request('GET', 'https://jsonplaceholder.typicode.com/posts/1');\n$data = json_decode($response->getBody(), true);\n\necho 'Başlıq: ' . $data['title'] . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `GuzzleHttp\\Client` ilə GET sorğusu göndərilir.\n- Cavab JSON formatında alınıb çap olunur.\n- Qeyd: İnternet bağlantısı tələb olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Composer ilə işləyərkən təhlükəsizlik vacibdir:\n- Yalnız etibarlı mənbələrdən (Packagist) paketlər quraşdırın.\n- `composer.lock` faylını versiya nəzarət sistemində (Git) saxlayın.\n- Paketlərin təhlükəsizlik yeniləmələrini yoxlayın: `composer audit`.\nNümunə (təhlükəsizlik yoxlaması):"
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "composer audit"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu əmr paketlərdəki təhlükəsizlik problemlərini yoxlayır. Təhlükəsizlik yeniləmələri üçün `composer update` istifadə edin."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\n// Autoload olmadan sinif istifadəsi\nclass MissingClass {\n  public function test() {\n    return 'Test!';\n  }\n}\n\n$instance = new MissingClass();\necho $instance->test() . \"\\n\";\n\n// Düzgün yol: Composer ilə autoloading\nrequire 'vendor/autoload.php';\n\n$instance = new App\\MyClass();\necho $instance->sayHello() . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk nümunədə autoload olmadan sinif istifadəsi xətaya səbəb olur.\n- Düzgün yolda Composer-in autoloading mexanizmi istifadə edilir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Composer-i hər layihədə istifadə edin. `composer.lock` faylını versiya nəzarətində saxlayın. Packagist-dəki rəsmi sənədlərdən (https://packagist.org) faydalanın.\n- **Alternativlər**: Kiçik layihələrdə Composer əvəzinə manual kitabxana idarəetməsi istifadə oluna bilər, lakin bu tövsiyə edilmir.\n- Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün Composer nümunəsi\nrequire 'vendor/autoload.php';\n\nuse Monolog\\Logger;\nuse Monolog\\Handler\\StreamHandler;\n\n$log = new Logger('test_app');\n$log->pushHandler(new StreamHandler('logs/test.log', Logger::INFO));\n\n$log->info('Bu test mesajıdır!');\necho 'Log yazıldı! Qeyd logs/test.log faylında saxlanılır.' . \"\\n\";\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Composer and Package Management",
+    "icon": "FiBox",
+    "language": "php",
+    "description": "Managing packages with Composer.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Composer and Package Management in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Composer is a tool for managing dependencies in PHP. Dependencies are external code libraries required for a program to function (e.g., for logging or HTTP requests). Composer makes it easy to install, update, or remove these packages. It also provides an autoloading mechanism to simplify code management. This JSON file explains Composer’s definition, installation, usage of `composer.json` and `composer.lock` files, package management, examples of popular packages, security aspects, and practical examples in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP. Ensure you are using PHP 8.1 or a newer version and the latest Composer version."
+      },
+      {
+        "type": "heading",
+        "text": "Installing Composer"
+      },
+      {
+        "type": "paragraph",
+        "text": "To install Composer, follow these steps:\n- Download Composer from the official site (https://getcomposer.org).\n- On Linux/MacOS: `curl -sS https://getcomposer.org/installer | php`\n- On Windows: Run the downloaded `Composer-Setup.exe` file.\n- After installation, check the version by running `composer --version` in the terminal.\nExample (version check):"
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "composer --version"
+      },
+      {
+        "type": "paragraph",
+        "text": "This command confirms Composer is installed and displays its version. Once installed, you can start managing packages in your projects."
+      },
+      {
+        "type": "heading",
+        "text": "Composer.json and Composer.lock Files"
+      },
+      {
+        "type": "paragraph",
+        "text": "Composer uses two main files:\n- **composer.json**: Defines project dependencies and configurations.\n- **composer.lock**: Stores exact versions of installed packages.\nExample (simple `composer.json` file):"
+      },
+      {
+        "type": "code",
+        "language": "json",
+        "code": "{\n  \"name\": \"my/project\",\n  \"description\": \"Simple PHP project\",\n  \"require\": {\n    \"monolog/monolog\": \"^2.0\"\n  },\n  \"autoload\": {\n    \"psr-4\": {\n      \"App\\\\\": \"src/\"\n    }\n  }\n}"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this file:\n- `name` and `description` describe the project.\n- `require` lists dependencies (e.g., `monolog`).\n- `autoload` defines autoloading for code.\n- Running `composer install` installs packages and creates `composer.lock`."
+      },
+      {
+        "type": "heading",
+        "text": "Installing Packages"
+      },
+      {
+        "type": "paragraph",
+        "text": "Use the `composer require` command to install a package.\nExample (installing Monolog):"
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "composer require monolog/monolog"
+      },
+      {
+        "type": "paragraph",
+        "text": "This command:\n- Installs the `monolog/monolog` package.\n- Adds the dependency to `composer.json`.\n- Updates `composer.lock`.\n- Downloads packages to the `vendor` directory."
+      },
+      {
+        "type": "heading",
+        "text": "Logging with Monolog Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "Monolog is a popular logging package. Below is a simple logging example.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Logging with Monolog\nrequire 'vendor/autoload.php';\n\nuse Monolog\\Logger;\nuse Monolog\\Handler\\StreamHandler;\n\n$log = new Logger('my_app');\n$log->pushHandler(new StreamHandler('logs/app.log', Logger::WARNING));\n\n$log->warning('This is a warning message!');\necho 'Log written! Check logs/app.log file.' . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `vendor/autoload.php` includes Composer’s autoloader.\n- `Monolog\\Logger` creates a logging object.\n- `StreamHandler` writes messages to `logs/app.log`.\n- Note: The `logs` directory must have write permissions.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Updating Packages"
+      },
+      {
+        "type": "paragraph",
+        "text": "Use the `composer update` command to update packages.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "composer update"
+      },
+      {
+        "type": "paragraph",
+        "text": "This command:\n- Installs the latest compatible versions of packages listed in `composer.json`.\n- Updates `composer.lock`.\n- Caution: Be careful when updating, as new versions may cause compatibility issues."
+      },
+      {
+        "type": "heading",
+        "text": "Removing Packages"
+      },
+      {
+        "type": "paragraph",
+        "text": "Use the `composer remove` command to remove a package.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "composer remove monolog/monolog"
+      },
+      {
+        "type": "paragraph",
+        "text": "This command:\n- Removes the `monolog/monolog` package.\n- Updates `composer.json` and `composer.lock`.\n- Deletes the package from the `vendor` directory."
+      },
+      {
+        "type": "heading",
+        "text": "Autoloading"
+      },
+      {
+        "type": "paragraph",
+        "text": "Composer’s autoloading automatically includes classes, defined in the `autoload` section of `composer.json`.\nExample (autoloading custom classes):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Autoloading example\nrequire 'vendor/autoload.php';\n\n// src/App/MyClass.php file\nnamespace App;\n\nclass MyClass {\n  public function sayHello() {\n    return 'Hello from MyClass!';\n  }\n}\n\n// Using the class\n$instance = new App\\MyClass();\necho $instance->sayHello() . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `psr-4` in `composer.json` maps the `App\\` namespace to the `src/` directory.\n- `composer dump-autoload` updates the autoload file.\n- The class is automatically loaded.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "HTTP Request with Guzzle Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "Guzzle is a popular package for sending HTTP requests.\nInstallation: `composer require guzzlehttp/guzzle`\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// HTTP request with Guzzle\nrequire 'vendor/autoload.php';\n\nuse GuzzleHttp\\Client;\n\n$client = new Client();\n$response = $client->request('GET', 'https://jsonplaceholder.typicode.com/posts/1');\n$data = json_decode($response->getBody(), true);\n\necho 'Title: ' . $data['title'] . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `GuzzleHttp\\Client` sends a GET request.\n- The response is parsed as JSON and printed.\n- Note: Requires an internet connection.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Security is critical when using Composer:\n- Install packages only from trusted sources (Packagist).\n- Store `composer.lock` in version control (e.g., Git).\n- Check for security updates: `composer audit`.\nExample (security check):"
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "composer audit"
+      },
+      {
+        "type": "paragraph",
+        "text": "This command checks for security issues in packages. Use `composer update` for security patches."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\n// Using class without autoload\nclass MissingClass {\n  public function test() {\n    return 'Test!';\n  }\n}\n\n$instance = new MissingClass();\necho $instance->test() . \"\\n\";\n\n// Correct approach: Autoloading with Composer\nrequire 'vendor/autoload.php';\n\n$instance = new App\\MyClass();\necho $instance->sayHello() . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first example causes an error by using a class without autoloading.\n- The correct approach uses Composer’s autoloading.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use Composer in every project. Store `composer.lock` in version control. Refer to Packagist’s official documentation (https://packagist.org).\n- **Alternatives**: For small projects, manual library management can be used, but it’s not recommended.\n- You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself Composer example\nrequire 'vendor/autoload.php';\n\nuse Monolog\\Logger;\nuse Monolog\\Handler\\StreamHandler;\n\n$log = new Logger('test_app');\n$log->pushHandler(new StreamHandler('logs/test.log', Logger::INFO));\n\n$log->info('This is a test message!');\necho 'Log written! Check logs/test.log file.' . \"\\n\";\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Composer и управление пакетами",
+    "icon": "FiBox",
+    "language": "php",
+    "description": "Управление пакетами с помощью Composer.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое Composer и управление пакетами в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Composer — это инструмент для управления зависимостями в PHP. Зависимости — это внешние библиотеки кода, необходимые для работы программы (например, для логирования или HTTP-запросов). Composer позволяет легко устанавливать, обновлять или удалять эти пакеты. Он также предоставляет механизм автозагрузки для упрощения управления кодом. Этот JSON-файл подробно объясняет определение Composer, его установку, использование файлов `composer.json` и `composer.lock`, управление пакетами, примеры популярных пакетов, аспекты безопасности и практические примеры. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP. Убедитесь, что вы используете PHP 8.1 или новее и последнюю версию Composer."
+      },
+      {
+        "type": "heading",
+        "text": "Установка Composer"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы установить Composer, выполните следующие шаги:\n- Скачайте Composer с официального сайта (https://getcomposer.org).\n- На Linux/MacOS: `curl -sS https://getcomposer.org/installer | php`\n- На Windows: Запустите загруженный файл `Composer-Setup.exe`.\n- После установки проверьте версию, выполнив `composer --version` в терминале.\nПример (проверка версии):"
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "composer --version"
+      },
+      {
+        "type": "paragraph",
+        "text": "Эта команда подтверждает, что Composer установлен, и показывает его версию. После установки вы можете начать управлять пакетами в своих проектах."
+      },
+      {
+        "type": "heading",
+        "text": "Файлы Composer.json и Composer.lock"
+      },
+      {
+        "type": "paragraph",
+        "text": "Composer использует два основных файла:\n- **composer.json**: Определяет зависимости и конфигурации проекта.\n- **composer.lock**: Хранит точные версии установленных пакетов.\nПример (простой файл `composer.json`):"
+      },
+      {
+        "type": "code",
+        "language": "json",
+        "code": "{\n  \"name\": \"my/project\",\n  \"description\": \"Простой PHP-проект\",\n  \"require\": {\n    \"monolog/monolog\": \"^2.0\"\n  },\n  \"autoload\": {\n    \"psr-4\": {\n      \"App\\\\\": \"src/\"\n    }\n  }\n}"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом файле:\n- `name` и `description` описывают проект.\n- `require` перечисляет зависимости (например, `monolog`).\n- `autoload` определяет автозагрузку кода.\n- Команда `composer install` устанавливает пакеты и создает `composer.lock`."
+      },
+      {
+        "type": "heading",
+        "text": "Установка пакетов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для установки пакета используйте команду `composer require`.\nПример (установка Monolog):"
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "composer require monolog/monolog"
+      },
+      {
+        "type": "paragraph",
+        "text": "Эта команда:\n- Устанавливает пакет `monolog/monolog`.\n- Добавляет зависимость в `composer.json`.\n- Обновляет `composer.lock`.\n- Загружает пакеты в папку `vendor`."
+      },
+      {
+        "type": "heading",
+        "text": "Пример логирования с Monolog"
+      },
+      {
+        "type": "paragraph",
+        "text": "Monolog — популярный пакет для логирования. Ниже приведен простой пример логирования.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Логирование с Monolog\nrequire 'vendor/autoload.php';\n\nuse Monolog\\Logger;\nuse Monolog\\Handler\\StreamHandler;\n\n$log = new Logger('my_app');\n$log->pushHandler(new StreamHandler('logs/app.log', Logger::WARNING));\n\n$log->warning('Это предупреждающее сообщение!');\necho 'Лог записан! Проверьте файл logs/app.log.' . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `vendor/autoload.php` подключает автозагрузчик Composer.\n- `Monolog\\Logger` создает объект логирования.\n- `StreamHandler` записывает сообщения в `logs/app.log`.\n- Примечание: Папка `logs` должна иметь права на запись.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Обновление пакетов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для обновления пакетов используйте команду `composer update`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "composer update"
+      },
+      {
+        "type": "paragraph",
+        "text": "Эта команда:\n- Устанавливает последние совместимые версии пакетов, указанных в `composer.json`.\n- Обновляет `composer.lock`.\n- Предупреждение: Будьте осторожны при обновлении, так как новые версии могут вызвать проблемы совместимости."
+      },
+      {
+        "type": "heading",
+        "text": "Удаление пакетов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для удаления пакета используйте команду `composer remove`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "composer remove monolog/monolog"
+      },
+      {
+        "type": "paragraph",
+        "text": "Эта команда:\n- Удаляет пакет `monolog/monolog`.\n- Обновляет `composer.json` и `composer.lock`.\n- Удаляет пакет из папки `vendor`."
+      },
+      {
+        "type": "heading",
+        "text": "Автозагрузка"
+      },
+      {
+        "type": "paragraph",
+        "text": "Автозагрузка Composer автоматически подключает классы, определенные в секции `autoload` файла `composer.json`.\nПример (автозагрузка пользовательских классов):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример автозагрузки\nrequire 'vendor/autoload.php';\n\n// src/App/MyClass.php\nnamespace App;\n\nclass MyClass {\n  public function sayHello() {\n    return 'Привет от MyClass!';\n  }\n}\n\n// Использование класса\n$instance = new App\\MyClass();\necho $instance->sayHello() . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `psr-4` в `composer.json` сопоставляет пространство имен `App\\` с папкой `src/`.\n- Команда `composer dump-autoload` обновляет файл автозагрузки.\n- Класс загружается автоматически.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример HTTP-запроса с Guzzle"
+      },
+      {
+        "type": "paragraph",
+        "text": "Guzzle — популярный пакет для отправки HTTP-запросов.\nУстановка: `composer require guzzlehttp/guzzle`\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// HTTP-запрос с Guzzle\nrequire 'vendor/autoload.php';\n\nuse GuzzleHttp\\Client;\n\n$client = new Client();\n$response = $client->request('GET', 'https://jsonplaceholder.typicode.com/posts/1');\n$data = json_decode($response->getBody(), true);\n\necho 'Заголовок: ' . $data['title'] . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `GuzzleHttp\\Client` отправляет GET-запрос.\n- Ответ парсится как JSON и выводится.\n- Примечание: Требуется подключение к интернету.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Безопасность важна при работе с Composer:\n- Устанавливайте пакеты только из доверенных источников (Packagist).\n- Храните `composer.lock` в системе контроля версий (например, Git).\n- Проверяйте обновления безопасности: `composer audit`.\nПример (проверка безопасности):"
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "composer audit"
+      },
+      {
+        "type": "paragraph",
+        "text": "Эта команда проверяет пакеты на наличие проблем безопасности. Для исправления уязвимостей используйте `composer update`."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\n// Использование класса без автозагрузки\nclass MissingClass {\n  public function test() {\n    return 'Тест!';\n  }\n}\n\n$instance = new MissingClass();\necho $instance->test() . \"\\n\";\n\n// Правильный подход: Автозагрузка с Composer\nrequire 'vendor/autoload.php';\n\n$instance = new App\\MyClass();\necho $instance->sayHello() . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый пример вызывает ошибку из-за использования класса без автозагрузки.\n- Правильный подход использует автозагрузку Composer.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте Composer в каждом проекте. Храните `composer.lock` в системе контроля версий. Обращайтесь к официальной документации Packagist (https://packagist.org).\n- **Альтернативы**: Для небольших проектов можно управлять библиотеками вручную, но это не рекомендуется.\n- Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Пример Composer для самостоятельного тестирования\nrequire 'vendor/autoload.php';\n\nuse Monolog\\Logger;\nuse Monolog\\Handler\\StreamHandler;\n\n$log = new Logger('test_app');\n$log->pushHandler(new StreamHandler('logs/test.log', Logger::INFO));\n\n$log->info('Это тестовое сообщение!');\necho 'Лог записан! Проверьте файл logs/test.log.' . \"\\n\";\n?>"
+      }
+    ]
+  }
+}
