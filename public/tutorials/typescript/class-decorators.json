@@ -1,0 +1,492 @@
+{
+  "id": "class-decorators",
+  "az": {
+    "title": "Sinif Dekoratorları",
+    "icon": "FiStar",
+    "language": "typescript",
+    "description": "Siniflərə tətbiq edilən dekoratorlar.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Sinif Dekoratorları Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də sinif dekoratorları siniflərə metadata əlavə etmək və ya onların davranışını dəyişdirmək üçün istifadə olunan xüsusi funksiyalardır. Dekoratorlar `@` simvolu ilə başlayır və sinfin konstruktoruna tətbiq olunur. Sinif dekoratorları sinfin strukturunu və ya davranışını dəyişdirmək, məsələn, sinfi qorumaq, loglama əlavə etmək və ya çərçivələrdə (Angular, NestJS) xüsusi funksionallıq təmin etmək üçün istifadə olunur. Dekoratorlar TypeScript-də eksperimental xüsusiyyətdir və `tsconfig.json` faylında `\"experimentalDecorators\": true` parametri ilə aktivləşdirilməlidir. JavaScript-də də dekoratorlar ES təklifi kimi mövcuddur, lakin TypeScript-də tip təhlükəsizliyi ilə daha effektiv istifadə olunur. Bu JSON faylda sinif dekoratorlarının tərifi, istifadə məqsədləri, tətbiqi, `tsconfig.json`-da aktivləşdirilməsi, JavaScript ilə fərqləri, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sinif Dekoratorlarının Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sinif dekoratorları TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Metadata əlavə etmək**: Sinflərə əlavə məlumat əlavə etmək, məsələn, çərçivələrdə konfiqurasiya.\n- **Davranışın dəyişdirilməsi**: Sinfin konstruktorunu və ya prototipini dəyişdirmək.\n- **Avtomatlaşdırma**: Loglama, doğrulama və ya sinfin yaradılmasını izləmək.\n- **Çərçivə inteqrasiyası**: Angular-da `@Component`, NestJS-də `@Controller` kimi dekoratorlar.\n- **Təkrar istifadə**: Ümumi funksionallığı təkrar yazmadan tətbiq etmək.\nJavaScript-də sinif dekoratorları oxşar məqsədlərə xidmət edir, lakin TypeScript-də tip təhlükəsizliyi ilə tamamlanır."
+      },
+      {
+        "type": "heading",
+        "text": "Dekoratorların Aktivləşdirilməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sinif dekoratorları TypeScript-də eksperimental xüsusiyyətdir və istifadə etmək üçün `tsconfig.json` faylında aşağıdakı parametri aktivləşdirmək lazımdır:"
+      },
+      {
+        "type": "code",
+        "language": "json",
+        "code": "{\n  \"compilerOptions\": {\n    \"experimentalDecorators\": true,\n    \"emitDecoratorMetadata\": true\n  }\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `\"experimentalDecorators\": true` sinif dekoratorlarını aktivləşdirir.\n- `\"emitDecoratorMetadata\": true` metadata refleksiyası üçün lazımdır (məsələn, çərçivələrdə).\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Sinif Dekoratoru"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sinif dekoratorları birbaşa sinfə tətbiq olunur və sinfin konstruktorunu və ya davranışını dəyişdirə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Sadə sinif dekoratoru\nfunction logClass(constructor: Function) {\n  console.log(`Created class: ${constructor.name}`);\n}\n\n@logClass\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice'); // Created class: Person\nconsole.log(person.greet()); // Hello, Alice!\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `logClass` dekoratoru sinfin yaradılmasını konsola yazır.\n- `@logClass` dekoratoru `Person` sinfinə tətbiq olunur.\n- Sinif obyektinin yaradılması zamanı dekorator işə düşür.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Dekorator Fabriki"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dekorator fabrikləri dekoratorun davranışını dinamik şəkildə konfiqurasiya etmək üçün istifadə olunur. Fabrik funksiyası dekoratoru qaytarır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Dekorator fabriki\nfunction addPrefix(prefix: string) {\n  return function (constructor: Function) {\n    console.log(`${prefix}: ${constructor.name}`);\n  };\n}\n\n@addPrefix('Info')\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice'); // Info: Person\nconsole.log(person.greet()); // Hello, Alice!\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `addPrefix` dekorator fabriki sinfin adına prefiks əlavə edir.\n- `@addPrefix('Info')` dekoratoru `Person` sinfinə tətbiq olunur.\n- Dekorator fabriki sayəsində dinamik davranış təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sinif Dekoratorları ilə JavaScript-in Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sinif dekoratorları TypeScript-də və JavaScript-də oxşar sintaksisə malikdir, lakin fərqlər var:\n- **TypeScript**: Tip təhlükəsizliyi ilə inteqrasiya olunur və eksperimental xüsusiyyətdir.\n- **JavaScript**: Dekoratorlar ES təklifi kimi mövcuddur, lakin hələ standartlaşmayıb.\n- **İstifadə**: TypeScript-də sinif dekoratorları çərçivələrdə (məsələn, Angular, NestJS) daha geniş istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// TypeScript sinif dekoratoru\nfunction sealed(constructor: Function) {\n  Object.seal(constructor);\n  Object.seal(constructor.prototype);\n}\n\n@sealed\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice');\nconsole.log(person.greet()); // Hello, Alice!\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `sealed` dekoratoru sinfin və onun prototipinin dəyişdirilməsinin qarşısını alır.\n- TypeScript-də tip təhlükəsizliyi dəstəklənir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Təhlükəsizliyi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sinif dekoratorları TypeScript-in tip sistemi ilə tam inteqrasiya olunur və tip xətalarını kompilyasiya zamanı aşkarlamağa imkan verir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Tip təhlükəsizliyi ilə sinif dekoratoru\nfunction restrictClass(constructor: Function) {\n  console.log(`Restricted class: ${constructor.name}`);\n}\n\n@restrictClass\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice'); // Restricted class: Person\nconsole.log(person.greet()); // Hello, Alice!\n// const invalid = new Person(123); // Xəta: Argument of type 'number' is not assignable to 'string'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `restrictClass` dekoratoru sinfin yaradılmasını qeydə alır.\n- `name` xüsusiyyəti `string` tipində olmalıdır, yanlış tip xətaya səbəb olur.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan sinif dekoratoru\nfunction freezeClass(constructor: Function) {\n  Object.freeze(constructor);\n  Object.freeze(constructor.prototype);\n}\n\n@freezeClass\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice');\nconsole.log(person.greet()); // Hello, Alice!\n// person.greet = () => 'Modified'; // Xəta: Cannot assign to read-only property\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `freezeClass` dekoratoru sinfin və prototipinin dəyişdirilməsini qadağan edir.\n- Sinfin metodlarının dəyişdirilməsi cəhdi xətaya səbəb olur.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sinif dekoratorları real layihələrdə aşağıdakı ssenarilərdə istifadə olunur:\n- **Çərçivələr**: Angular-da `@Component`, `@Injectable`, NestJS-də `@Controller` dekoratorları.\n- **Loglama**: Sinif yaradılmasını və ya istifadəsini qeydə almaq.\n- **Doğrulama**: Sinif xüsusiyyətlərinin doğruluğunu yoxlamaq.\n- **Konfiqurasiya**: Sinfi çərçivələrə inteqrasiya etmək üçün konfiqurasiya əlavə etmək.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\nfunction registerClass(constructor: Function) {\n  console.log(`Registered class: ${constructor.name} for dependency injection`);\n}\n\n@registerClass\nclass UserService {\n  constructor(public name: string) {}\n  getUser(): string {\n    return `User: ${this.name}`;\n  }\n}\n\nconst service = new UserService('Alice'); // Registered class: UserService for dependency injection\nconsole.log(service.getUser()); // User: Alice\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `registerClass` dekoratoru sinfin çərçivədə qeydiyyatını simulyasiya edir.\n- `UserService` sinfinə tətbiq olunur.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sinif dekoratorları qabaqcıl TypeScript xüsusiyyətləri ilə də istifadə oluna bilər:\n- **Metadata refleksiyası**: `reflect-metadata` kitabxanası ilə sinflərə metadata əlavə etmək.\n- **Çoxsaylı dekoratorlar**: Bir sinfə birdən çox dekorator tətbiq etmək.\nBu mövzular haqqında ətraflı məlumat üçün TypeScript sənədlərinə (https://www.typescriptlang.org/docs) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Sinif dekoratorlarını çərçivələrdə və ya spesifik tapşırıqlar üçün istifadə edin. `tsconfig.json`-da `\"experimentalDecorators\": true` parametrini aktivləşdirin. Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Dekoratorlar əvəzinə funksiyalar və ya sinif metodları ilə oxşar funksionallıq əldə edilə bilər, lakin dekoratorlar daha qısa və oxunaqlıdır.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün sinif dekoratoru nümunəsi\nfunction logClass(constructor: Function) {\n  console.log(`Created class: ${constructor.name}`);\n}\n\n@logClass\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice'); // Created class: Person\nconsole.log(person.greet()); // Hello, Alice!\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Class Decorators",
+    "icon": "FiStar",
+    "language": "typescript",
+    "description": "Decorators applied to classes.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Class Decorators?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, class decorators are special functions used to add metadata or modify the behavior of classes. Decorators start with the `@` symbol and are applied to a class’s constructor. Class decorators are used to alter the class’s structure or behavior, such as sealing the class, adding logging, or enabling framework-specific functionality (e.g., Angular, NestJS). Decorators are an experimental feature in TypeScript and require enabling in `tsconfig.json` with `\"experimentalDecorators\": true`. They are also proposed for JavaScript as an ES feature, but TypeScript uses them more effectively with type safety. This JSON file explains the definition, purposes, application, enabling in `tsconfig.json`, differences from JavaScript, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Class Decorators"
+      },
+      {
+        "type": "paragraph",
+        "text": "Class decorators in TypeScript serve the following purposes:\n- **Adding metadata**: Attach additional information to classes, e.g., for framework configuration.\n- **Behavior modification**: Modify the class’s constructor or prototype.\n- **Automation**: Automate tasks like logging or class creation tracking.\n- **Framework integration**: Used in frameworks like Angular’s `@Component` or NestJS’s `@Controller`.\n- **Reusability**: Apply common functionality without rewriting code.\nJavaScript class decorators serve similar purposes, but TypeScript enhances them with type safety."
+      },
+      {
+        "type": "heading",
+        "text": "Enabling Decorators"
+      },
+      {
+        "type": "paragraph",
+        "text": "Class decorators are an experimental feature in TypeScript and require enabling in `tsconfig.json` with the following settings:"
+      },
+      {
+        "type": "code",
+        "language": "json",
+        "code": "{\n  \"compilerOptions\": {\n    \"experimentalDecorators\": true,\n    \"emitDecoratorMetadata\": true\n  }\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `\"experimentalDecorators\": true` enables class decorators.\n- `\"emitDecoratorMetadata\": true` enables metadata reflection (e.g., for frameworks).\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Class Decorator"
+      },
+      {
+        "type": "paragraph",
+        "text": "Class decorators are applied directly to a class and can modify its constructor or behavior.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Simple class decorator\nfunction logClass(constructor: Function) {\n  console.log(`Created class: ${constructor.name}`);\n}\n\n@logClass\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice'); // Created class: Person\nconsole.log(person.greet()); // Hello, Alice!\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `logClass` decorator logs the class creation to the console.\n- The `@logClass` decorator is applied to the `Person` class.\n- The decorator runs when a class instance is created.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Decorator Factory"
+      },
+      {
+        "type": "paragraph",
+        "text": "Decorator factories are used to dynamically configure a decorator’s behavior. A factory function returns a decorator.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Decorator factory\nfunction addPrefix(prefix: string) {\n  return function (constructor: Function) {\n    console.log(`${prefix}: ${constructor.name}`);\n  };\n}\n\n@addPrefix('Info')\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice'); // Info: Person\nconsole.log(person.greet()); // Hello, Alice!\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `addPrefix` decorator factory adds a prefix to the class name.\n- The `@addPrefix('Info')` decorator is applied to the `Person` class.\n- The factory enables dynamic behavior.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Class Decorators vs. JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Class decorators in TypeScript and JavaScript share similar syntax but differ:\n- **TypeScript**: Integrates with type safety and is experimental.\n- **JavaScript**: Decorators are an ES proposal and not yet standardized.\n- **Usage**: TypeScript class decorators are widely used in frameworks like Angular and NestJS.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// TypeScript class decorator\nfunction sealed(constructor: Function) {\n  Object.seal(constructor);\n  Object.seal(constructor.prototype);\n}\n\n@sealed\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice');\nconsole.log(person.greet()); // Hello, Alice!\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `sealed` decorator prevents modifications to the class and its prototype.\n- TypeScript supports type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Safety"
+      },
+      {
+        "type": "paragraph",
+        "text": "Class decorators integrate fully with TypeScript’s type system, catching type errors at compile time.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type safety with class decorator\nfunction restrictClass(constructor: Function) {\n  console.log(`Restricted class: ${constructor.name}`);\n}\n\n@restrictClass\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice'); // Restricted class: Person\nconsole.log(person.greet()); // Hello, Alice!\n// const invalid = new Person(123); // Error: Argument of type 'number' is not assignable to 'string'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `restrictClass` decorator logs class creation.\n- The `name` property must be a `string`, and incorrect types cause a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone class decorator\nfunction freezeClass(constructor: Function) {\n  Object.freeze(constructor);\n  Object.freeze(constructor.prototype);\n}\n\n@freezeClass\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice');\nconsole.log(person.greet()); // Hello, Alice!\n// person.greet = () => 'Modified'; // Error: Cannot assign to read-only property\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `freezeClass` decorator prevents modifications to the class and its prototype.\n- Attempting to modify class methods causes an error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Class decorators are used in real-world projects for:\n- **Frameworks**: Angular’s `@Component`, `@Injectable`, or NestJS’s `@Controller` decorators.\n- **Logging**: Logging class creation or usage.\n- **Validation**: Validating class properties.\n- **Configuration**: Adding configuration for framework integration.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\nfunction registerClass(constructor: Function) {\n  console.log(`Registered class: ${constructor.name} for dependency injection`);\n}\n\n@registerClass\nclass UserService {\n  constructor(public name: string) {}\n  getUser(): string {\n    return `User: ${this.name}`;\n  }\n}\n\nconst service = new UserService('Alice'); // Registered class: UserService for dependency injection\nconsole.log(service.getUser()); // User: Alice\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `registerClass` decorator simulates class registration in a framework.\n- It is applied to the `UserService` class.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Class decorators can be used with advanced TypeScript features:\n- **Metadata reflection**: Adding metadata to classes using the `reflect-metadata` library.\n- **Multiple decorators**: Applying multiple decorators to a single class.\nFor more details, refer to the TypeScript documentation (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use class decorators in frameworks or for specific tasks. Enable `\"experimentalDecorators\": true` in `tsconfig.json`. Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Similar functionality can be achieved with functions or class methods, but decorators are more concise and readable.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself class decorator example\nfunction logClass(constructor: Function) {\n  console.log(`Created class: ${constructor.name}`);\n}\n\n@logClass\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice'); // Created class: Person\nconsole.log(person.greet()); // Hello, Alice!\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Декораторы классов",
+    "icon": "FiStar",
+    "language": "typescript",
+    "description": "Декораторы, применяемые к классам.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое декораторы классов?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript декораторы классов — это специальные функции, используемые для добавления метаданных или изменения поведения классов. Декораторы начинаются с символа `@` и применяются к конструктору класса. Декораторы классов используются для изменения структуры или поведения класса, например, для защиты класса, добавления логирования или обеспечения функциональности в фреймворках (например, Angular, NestJS). Декораторы являются экспериментальной функцией в TypeScript и требуют включения в `tsconfig.json` с параметром `\"experimentalDecorators\": true`. Они также предложены для JavaScript как часть стандарта ES, но в TypeScript используются более эффективно благодаря безопасности типов. Этот JSON-файл подробно объясняет определение, назначение, применение, включение в `tsconfig.json`, отличия от JavaScript, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение декораторов классов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы классов в TypeScript используются для следующих целей:\n- **Добавление метаданных**: Прикрепление дополнительной информации к классам, например, для конфигурации фреймворков.\n- **Изменение поведения**: Модификация конструктора или прототипа класса.\n- **Автоматизация**: Автоматизация задач, таких как логирование или отслеживание создания класса.\n- **Интеграция с фреймворками**: Используются в фреймворках, таких как `@Component` в Angular или `@Controller` в NestJS.\n- **Повторное использование**: Применение общей функциональности без переписывания кода.\nДекораторы классов в JavaScript служат схожим целям, но TypeScript дополняет их безопасностью типов."
+      },
+      {
+        "type": "heading",
+        "text": "Включение декораторов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы классов — это экспериментальная функция в TypeScript, и для их использования нужно включить следующие параметры в `tsconfig.json`:"
+      },
+      {
+        "type": "code",
+        "language": "json",
+        "code": "{\n  \"compilerOptions\": {\n    \"experimentalDecorators\": true,\n    \"emitDecoratorMetadata\": true\n  }\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `\"experimentalDecorators\": true` включает декораторы классов.\n- `\"emitDecoratorMetadata\": true` включает отражение метаданных (например, для фреймворков).\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Простой декоратор класса"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы классов применяются непосредственно к классу и могут изменять его конструктор или поведение.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Простой декоратор класса\nfunction logClass(constructor: Function) {\n  console.log(`Created class: ${constructor.name}`);\n}\n\n@logClass\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice'); // Created class: Person\nconsole.log(person.greet()); // Hello, Alice!\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Декоратор `logClass` логирует создание класса в консоль.\n- Декоратор `@logClass` применяется к классу `Person`.\n- Декоратор срабатывает при создании экземпляра класса.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Фабрика декораторов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Фабрики декораторов используются для динамической настройки поведения декоратора. Функция-фабрика возвращает декоратор.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Фабрика декораторов\nfunction addPrefix(prefix: string) {\n  return function (constructor: Function) {\n    console.log(`${prefix}: ${constructor.name}`);\n  };\n}\n\n@addPrefix('Info')\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice'); // Info: Person\nconsole.log(person.greet()); // Hello, Alice!\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Фабрика декораторов `addPrefix` добавляет префикс к имени класса.\n- Декоратор `@addPrefix('Info')` применяется к классу `Person`.\n- Фабрика обеспечивает динамическое поведение.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Декораторы классов против JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы классов в TypeScript и JavaScript имеют схожий синтаксис, но различаются:\n- **TypeScript**: Интегрированы с системой типов и являются экспериментальной функцией.\n- **JavaScript**: Декораторы — это предложение ES и еще не стандартизированы.\n- **Использование**: Декораторы классов в TypeScript широко применяются в фреймворках, таких как Angular и NestJS.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Декоратор класса TypeScript\nfunction sealed(constructor: Function) {\n  Object.seal(constructor);\n  Object.seal(constructor.prototype);\n}\n\n@sealed\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice');\nconsole.log(person.greet()); // Hello, Alice!\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Декоратор `sealed` предотвращает изменение класса и его прототипа.\n- TypeScript поддерживает безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Безопасность типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы классов полностью интегрированы с системой типов TypeScript, что позволяет выявлять ошибки типов на этапе компиляции.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Безопасность типов с декоратором класса\nfunction restrictClass(constructor: Function) {\n  console.log(`Restricted class: ${constructor.name}`);\n}\n\n@restrictClass\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice'); // Restricted class: Person\nconsole.log(person.greet()); // Hello, Alice!\n// const invalid = new Person(123); // Ошибка: Аргумент типа 'number' не соответствует 'string'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Декоратор `restrictClass` логирует создание класса.\n- Свойство `name` должно быть строкой, и неправильные типы вызывают ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nfunction freezeClass(constructor: Function) {\n  Object.freeze(constructor);\n  Object.freeze(constructor.prototype);\n}\n\n@freezeClass\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice');\nconsole.log(person.greet()); // Hello, Alice!\n// person.greet = () => 'Modified'; // Ошибка: Нельзя присвоить значение свойству только для чтения\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Декоратор `freezeClass` предотвращает изменение класса и его прототипа.\n- Попытка изменить методы класса вызывает ошибку.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы классов используются в реальных проектах для:\n- **Фреймворки**: Декораторы `@Component`, `@Injectable` в Angular или `@Controller` в NestJS.\n- **Логирование**: Логирование создания или использования класса.\n- **Валидация**: Проверка свойств класса.\n- **Конфигурация**: Добавление конфигурации для интеграции с фреймворками.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\nfunction registerClass(constructor: Function) {\n  console.log(`Registered class: ${constructor.name} for dependency injection`);\n}\n\n@registerClass\nclass UserService {\n  constructor(public name: string) {}\n  getUser(): string {\n    return `User: ${this.name}`;\n  }\n}\n\nconst service = new UserService('Alice'); // Registered class: UserService for dependency injection\nconsole.log(service.getUser()); // User: Alice\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Декоратор `registerClass` имитирует регистрацию класса в фреймворке.\n- Применяется к классу `UserService`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы классов могут использоваться с продвинутыми возможностями TypeScript:\n- **Отражение метаданных**: Добавление метаданных к классам с помощью библиотеки `reflect-metadata`.\n- **Множественные декораторы**: Применение нескольких декораторов к одному классу.\nДля получения дополнительной информации обратитесь к документации TypeScript (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте декораторы классов во фреймворках или для специфических задач. Включите `\"experimentalDecorators\": true` в `tsconfig.json`. Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Аналогичную функциональность можно реализовать с помощью функций или методов класса, но декораторы более лаконичны и читаемы.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример декоратора класса для самостоятельного тестирования\nfunction logClass(constructor: Function) {\n  console.log(`Created class: ${constructor.name}`);\n}\n\n@logClass\nclass Person {\n  constructor(public name: string) {}\n  greet(): string {\n    return `Hello, ${this.name}!`;\n  }\n}\n\nconst person = new Person('Alice'); // Created class: Person\nconsole.log(person.greet()); // Hello, Alice!\n"
+      }
+    ]
+  }
+}

@@ -344,13 +344,9 @@ export default function TutorialTopicPage() {
         }
       } else {
         console.log('Lesson already visited locally:', safeTopicId);
-        // Even if already visited, make sure state includes this lesson
-        if (!visited.includes(safeTopicId)) {
-          const newVisited = [...visited, safeTopicId];
-          setVisitedLessons(newVisited);
-        } else {
-          setVisitedLessons(visited);
-        }
+        // Even if already visited, make sure state includes this lesson and is up to date
+        const newVisited = visited.includes(safeTopicId) ? visited : [...visited, safeTopicId];
+        setVisitedLessons(newVisited);
       }
     };
     
@@ -522,9 +518,13 @@ export default function TutorialTopicPage() {
               const visitedArr = Array.isArray(visitedLessons)
                 ? visitedLessons
                 : [];
-              const isVisited = visitedArr.includes(topic.id);
+              // Check if topic is visited in state OR if it's the current topic (which should always be marked as visited)
+              // Also check localStorage directly for the most up-to-date info
+              const currentVisitedLessons = JSON.parse(localStorage.getItem("visitedLessons") || "{}");
+              const currentVisitedArr = safeLanguage ? (currentVisitedLessons[safeLanguage] || []) : [];
+              const isVisited = visitedArr.includes(topic.id) || currentVisitedArr.includes(topic.id) || topic.id === safeTopicId;
               if (topic.id === safeTopicId) {
-                console.log(`🔥 [Sidebar] Current topic ${topic.id} - visitedArr:`, visitedArr, 'isVisited:', isVisited);
+                console.log(`🔥 [Sidebar] Current topic ${topic.id} - visitedArr:`, visitedArr, 'isVisited:', isVisited, 'isCurrent:', topic.id === safeTopicId);
               }
               return (
                 <button
@@ -569,7 +569,7 @@ export default function TutorialTopicPage() {
             >
               <FavoriteButton
                 type="LESSON"
-                itemId={safeTopicId}
+                itemId={`languages/${safeLanguage}/${safeTopicId}`}
                 title={topicContent?.title || selectedTopic?.title || "Mövzu"}
                 description={topicContent?.description || selectedTopic?.description}
                 language={decodeURIComponent(safeLanguage)}

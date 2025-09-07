@@ -270,7 +270,9 @@ export default function TutorialFrameworkTopicPage() {
         }
       } else {
         console.log('Framework lesson already visited locally:', safeTopicId);
-        setVisitedLessons(visited);
+        // Even if already visited, make sure state includes this lesson and is up to date
+        const newVisited = visited.includes(safeTopicId) ? visited : [...visited, safeTopicId];
+        setVisitedLessons(newVisited);
       }
     };
     
@@ -398,9 +400,13 @@ export default function TutorialFrameworkTopicPage() {
               const visitedArr = Array.isArray(visitedLessons)
                 ? visitedLessons
                 : [];
-              const isVisited = visitedArr.includes(topic.id);
-              if (isVisited) {
-                console.log(`[Framework Sidebar] Topic ${topic.id} is visited`);
+              // Check if topic is visited in state OR if it's the current topic (which should always be marked as visited)
+              // Also check localStorage directly for the most up-to-date info
+              const currentVisitedLessons = JSON.parse(localStorage.getItem("visitedLessons") || "{}");
+              const currentVisitedArr = safeFramework ? (currentVisitedLessons[safeFramework] || []) : [];
+              const isVisited = visitedArr.includes(topic.id) || currentVisitedArr.includes(topic.id) || topic.id === safeTopicId;
+              if (topic.id === safeTopicId) {
+                console.log(`🔥 [Framework Sidebar] Current topic ${topic.id} - visitedArr:`, visitedArr, 'isVisited:', isVisited, 'isCurrent:', topic.id === safeTopicId);
               }
               return (
                 <button
@@ -445,7 +451,7 @@ export default function TutorialFrameworkTopicPage() {
             >
               <FavoriteButton
                 type="LESSON"
-                itemId={safeTopicId}
+                itemId={`frameworks/${safeFramework}/${safeTopicId}`}
                 title={topicContent?.title || selectedTopic?.title || "Mövzu"}
                 description={topicContent?.description || selectedTopic?.description}
                 language={decodeURIComponent(safeFramework)}

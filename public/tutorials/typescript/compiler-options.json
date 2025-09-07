@@ -1,0 +1,543 @@
+{
+  "id": "compiler-options",
+  "az": {
+    "title": "Kompilyator Seçimləri",
+    "icon": "FiSettings",
+    "language": "typescript",
+    "description": "tsconfig.json faylında kompilyator seçimləri.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Kompilyator Seçimləri Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də kompilyator seçimləri TypeScript kodunun necə JavaScript-ə çevriləcəyini və tip yoxlamasının necə aparılacağını idarə etmək üçün `tsconfig.json` faylında təyin olunan parametrlərdir. Bu seçimlər TypeScript kompilyatorunun (tsc) davranışını dəyişdirir və kodun keyfiyyətini, uyğunluğunu və performansını təmin etmək üçün istifadə olunur. `tsconfig.json` faylı layihənin kök qovluğunda yerləşir və layihənin strukturunu, hədəf JavaScript versiyasını, modulları və tip yoxlama qaydalarını müəyyənləşdirir. JavaScript-də belə bir konfiqurasiya faylı yoxdur, çünki JavaScript dinamik tipli dildir və kompilyasiya tələb etmir. Bu JSON faylda kompilyator seçimlərinin tərifi, məqsədləri, ən çox istifadə olunan seçimlər, ciddi rejimə daxil olan seçimlər, JavaScript ilə fərqləri, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Kompilyator Seçimlərinin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kompilyator seçimləri aşağıdakı məqsədlər üçün istifadə olunur:\n- **Kompilyasiya nəticəsini idarə etmək**: Hədəf JavaScript versiyasını (məsələn, ES5, ES6) və modul sistemini müəyyənləşdirmək.\n- **Tip təhlükəsizliyini artırmaq**: Sərt tip yoxlama qaydaları ilə kodun etibarlılığını artırmaq.\n- **Layihə strukturunu tənzimləmək**: Hansı faylların kompilyasiya ediləcəyini və çıxış qovluğunu təyin etmək.\n- **Performansı optimallaşdırmaq**: Məsələn, inkremental kompilyasiya ilə daha sürətli kompilyasiya.\n- **Çərçivə uyğunluğu**: Angular, React və ya Node.js kimi mühitlərə uyğunlaşdırmaq.\nJavaScript-də bu cür seçimlər yoxdur, çünki kod birbaşa icra olunur."
+      },
+      {
+        "type": "heading",
+        "text": "tsconfig.json Faylının Strukturu"
+      },
+      {
+        "type": "paragraph",
+        "text": "`tsconfig.json` faylı TypeScript layihələrinin əsas konfiqurasiya faylıdır. Əsas bölmələrə aşağıdakılar daxildir:\n- `compilerOptions`: Kompilyatorun davranışını təyin edir.\n- `include`: Kompilyasiya ediləcək faylları müəyyənləşdirir.\n- `exclude`: Kompilyasiyadan kənarlaşdırılacaq faylları müəyyənləşdirir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "json",
+        "code": "{\n  \"compilerOptions\": {\n    \"target\": \"es6\",\n    \"module\": \"commonjs\",\n    \"outDir\": \"./dist\",\n    \"strict\": true\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\"]\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `target`: JavaScript çıxış versiyasını (ES6) təyin edir.\n- `module`: Modul sistemini (CommonJS) müəyyənləşdirir.\n- `outDir`: Kompilyasiya nəticələrinin saxlanacağı qovluğu təyin edir.\n- `strict`: Ciddi tip yoxlamasını aktivləşdirir.\n- `include` və `exclude`: Hansı faylların kompilyasiya ediləcəyini və ya kənarlaşdırılacağını göstərir.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Ən Çox İstifadə Olunan Kompilyator Seçimləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Aşağıda ən çox istifadə olunan kompilyator seçimləri izah olunur:\n- **target**: JavaScript çıxış versiyasını təyin edir (məsələn, `es5`, `es6`, `esnext`).\n- **module**: Modul sistemini müəyyənləşdirir (məsələn, `commonjs`, `esnext`, `amd`).\n- **outDir**: Kompilyasiya nəticələrinin saxlanacağı qovluğu təyin edir.\n- **rootDir**: Layihənin kök qovluğunu təyin edir.\n- **strict**: Bütün ciddi rejim seçimlərini aktivləşdirir.\n- **sourceMap**: Hata ayıklama üçün `.map` faylları yaradır.\n- **esModuleInterop**: ES modulları ilə CommonJS modulları arasında uyğunluğu təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Kompilyator Seçimi Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fərqli `target` və `module` seçimləri ilə kompilyasiya nəticələri dəyişir.\nNümunə (`target: es5`):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"target\": \"es5\",\n//     \"module\": \"commonjs\"\n//   }\n// }\n\nlet message: string = 'Hello, World!';\nconsole.log(message);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kompilyasiya nəticəsi (ES5, CommonJS):\n```javascript\n\"use strict\";\nvar message = 'Hello, World!';\nconsole.log(message);\n```\nNümunə (`target: es6`):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"target\": \"es6\",\n//     \"module\": \"esnext\"\n//   }\n// }\n\nlet message: string = 'Hello, World!';\nconsole.log(message);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kompilyasiya nəticəsi (ES6, ESNext):\n```javascript\nlet message = 'Hello, World!';\nconsole.log(message);\n```\nBu kodda:\n- `target: es5` köhnə brauzerlər üçün `var` və `\"use strict\"` istifadə edir.\n- `target: es6` müasir `let` və daha sadə sintaksis yaradır.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Ciddi Rejim Seçimləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "`strict: true` aşağıdakı ciddi rejim seçimlərini aktivləşdirir:\n- **noImplicitAny**: Tipi açıq şəkildə müəyyən edilməyən dəyişənlər üçün xəta verir.\n- **strictNullChecks**: `null` və `undefined` dəyərlərinin açıq yoxlanılmasını tələb edir.\n- **strictFunctionTypes**: Funksiya tiplərinin daha sərt yoxlanılmasını təmin edir.\n- **strictBindCallApply**: `bind`, `call` və `apply` metodlarının düzgün istifadəsini yoxlayır.\n- **noImplicitThis**: `this` dəyərinin tipi açıq müəyyən edilmədən istifadəsini qadağan edir.\n- **alwaysStrict**: JavaScript koduna `'use strict'` direktivini əlavə edir.\n- **noImplicitReturns**: Funksiyaların bütün yollarının dəyər qaytarmasını tələb edir.\n- **noFallthroughCasesInSwitch**: `switch` ifadələrində `case` bloklarının düşməsinin qarşısını alır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"strict\": true\n//   }\n// }\n\nfunction greet(name: string) {\n  return `Hello, ${name}!`;\n}\n\nconsole.log(greet('Alice')); // Hello, Alice!\n// console.log(greet()); // Xəta: An argument for 'name' was not provided\n// console.log(greet(null)); // Xəta: Argument of type 'null' is not assignable to parameter of type 'string'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `strictNullChecks` və `noImplicitAny` sayəsində `null` və ya `undefined` keçirilməsi xəta verir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Kompilyator Seçimləri ilə JavaScript-in Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də kompilyator seçimləri JavaScript-dən fərqlənir, çünki:\n- **TypeScript**: Statik tip yoxlaması və kompilyasiya prosesi ilə kodun etibarlılığını artırır.\n- **JavaScript**: Dinamik tipli dildir və kompilyasiya tələb etmir.\n- **Fərqlər**: TypeScript-də `tsconfig.json` ilə çıxış formatı, tip yoxlaması və layihə strukturu idarə olunur, JavaScript-də isə bu proseslər yoxdur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"target\": \"es6\",\n//     \"strict\": true\n//   }\n// }\n\nfunction add(a: number, b: number): number {\n  return a + b;\n}\n\nconsole.log(add(5, 10)); // 15\n// console.log(add('5', 10)); // Xəta: Argument of type 'string' is not assignable to parameter of type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `strict` rejimi yanlış tip istifadəsini aşkarlayır.\n- JavaScript-də bu kod xətasız işləyər, lakin gözlənilməz nəticə verə bilər (məsələn, `510`).\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Təhlükəsizliyi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kompilyator seçimləri, xüsusilə `strict` rejimi, TypeScript-in tip sistemindən maksimum istifadə edərək kodun etibarlılığını artırır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"strict\": true\n//   }\n// }\n\ninterface User {\n  name: string;\n  age: number;\n}\n\nfunction printUser(user: User) {\n  console.log(`Name: ${user.name}, Age: ${user.age}`);\n}\n\nconst user = { name: 'Alice', age: 25 };\nprintUser(user); // Name: Alice, Age: 25\n// printUser({ name: 'Bob' }); // Xəta: Property 'age' is missing\n// printUser({ name: 'Bob', age: '30' }); // Xəta: Type 'string' is not assignable to type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `User` interfeysi `name` və `age` xüsusiyyətlərini müəyyən edir.\n- `strict` rejimi yanlış və ya çatışmayan tipləri aşkarlayır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"strict\": true\n//   }\n// }\n\nfunction divide(a: number, b: number): number {\n  return a / b;\n}\n\nconsole.log(divide(10, 2)); // 5\n// console.log(divide(10, 0)); // Xəta: Sıfıra bölmə aşkarlanmayıb, lakin icra zamanı problem ola bilər\n// console.log(divide('10', 2)); // Xəta: Argument of type 'string' is not assignable to parameter of type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `strict` rejimi yanlış tip istifadəsini aşkarlayır.\n- Sıfıra bölmə kimi icra zamanı xətalar kompilyator tərəfindən aşkarlanmır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kompilyator seçimləri real layihələrdə aşağıdakı ssenarilərdə istifadə olunur:\n- **Böyük layihələr**: Layihə strukturunu və tip təhlükəsizliyini idarə etmək.\n- **Çərçivələr**: Angular, React və ya Node.js üçün uyğun konfiqurasiyalar.\n- **API inteqrasiyası**: API cavablarının tipini düzgün yoxlamaq.\n- **Kompilyasiya performansı**: `incremental` ilə sürətli kompilyasiya.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"target\": \"es6\",\n//     \"module\": \"commonjs\",\n//     \"outDir\": \"./dist\",\n//     \"strict\": true\n//   }\n// }\n\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nfunction displayProduct(product: Product) {\n  console.log(`Product: ${product.name}, Price: ${product.price}`);\n}\n\nconst product = { id: 1, name: 'Laptop', price: 1000 };\ndisplayProduct(product); // Product: Laptop, Price: 1000\n// displayProduct({ id: '1', name: 'Phone' }); // Xəta: Property 'price' is missing, Type 'string' is not assignable to type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Product` interfeysi məhsulun strukturunu müəyyən edir.\n- `strict` rejimi yanlış tipləri aşkarlayır.\n- `outDir` çıxış qovluğunu təyin edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kompilyator seçimləri qabaqcıl TypeScript xüsusiyyətləri ilə də istifadə oluna bilər:\n- **incremental**: Daha sürətli kompilyasiya üçün yalnız dəyişiklikləri yenidən kompilyasiya edir.\n- **tsBuildInfoFile**: İnkremental kompilyasiya üçün məlumat faylını təyin edir.\nBu mövzular haqqında ətraflı məlumat üçün TypeScript sənədlərinə (https://www.typescriptlang.org/docs) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Yeni layihələrdə `tsconfig.json` faylı yaradın və `strict: true` ilə başlayın. Layihənin tələblərinə uyğun `target` və `module` seçin. Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: `tsconfig.json` əvəzinə komanda sətrində `tsc` ilə seçimləri təyin edə bilərsiniz, lakin bu, böyük layihələrdə praktik deyil.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"target\": \"es6\",\n//     \"module\": \"commonjs\",\n//     \"strict\": true\n//   }\n// }\n\ninterface User {\n  name: string;\n  age: number;\n}\n\nfunction printUser(user: User) {\n  console.log(`Name: ${user.name}, Age: ${user.age}`);\n}\n\nconst user = { name: 'Alice', age: 25 };\nprintUser(user); // Name: Alice, Age: 25\n// printUser({ name: 'Bob' }); // Xəta: Property 'age' is missing\n// printUser({ name: 'Bob', age: '30' }); // Xəta: Type 'string' is not assignable to type 'number'\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Compiler Options",
+    "icon": "FiSettings",
+    "language": "typescript",
+    "description": "Compiler options in the tsconfig.json file.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Compiler Options?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, compiler options are settings defined in the `tsconfig.json` file to control how TypeScript code is compiled into JavaScript and how type checking is performed. These options configure the behavior of the TypeScript compiler (tsc) and are used to ensure code quality, compatibility, and performance. The `tsconfig.json` file is typically located in the project’s root directory and defines the project structure, target JavaScript version, module system, and type-checking rules. JavaScript, being a dynamically typed language, does not require compilation or such configuration. This JSON file explains the definition, purposes, commonly used options, strict mode options, differences from JavaScript, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Compiler Options"
+      },
+      {
+        "type": "paragraph",
+        "text": "Compiler options serve the following purposes:\n- **Control compilation output**: Specify the target JavaScript version (e.g., ES5, ES6) and module system.\n- **Enhance type safety**: Enforce strict type-checking rules to improve code reliability.\n- **Manage project structure**: Define which files to compile and the output directory.\n- **Optimize performance**: Enable faster compilation, e.g., with incremental builds.\n- **Framework compatibility**: Tailor settings for environments like Angular, React, or Node.js.\nJavaScript lacks such options since it runs directly without compilation."
+      },
+      {
+        "type": "heading",
+        "text": "Structure of tsconfig.json"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `tsconfig.json` file is the main configuration file for TypeScript projects. Key sections include:\n- `compilerOptions`: Defines the compiler’s behavior.\n- `include`: Specifies files to be compiled.\n- `exclude`: Specifies files to be excluded from compilation.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "json",
+        "code": "{\n  \"compilerOptions\": {\n    \"target\": \"es6\",\n    \"module\": \"commonjs\",\n    \"outDir\": \"./dist\",\n    \"strict\": true\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\"]\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `target`: Specifies the JavaScript output version (ES6).\n- `module`: Defines the module system (CommonJS).\n- `outDir`: Sets the output directory for compiled files.\n- `strict`: Enables strict type checking.\n- `include` and `exclude`: Define which files to compile or exclude.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Commonly Used Compiler Options"
+      },
+      {
+        "type": "paragraph",
+        "text": "Below are commonly used compiler options:\n- **target**: Sets the JavaScript output version (e.g., `es5`, `es6`, `esnext`).\n- **module**: Specifies the module system (e.g., `commonjs`, `esnext`, `amd`).\n- **outDir**: Defines the output directory for compiled files.\n- **rootDir**: Specifies the root directory of the project.\n- **strict**: Enables all strict mode options.\n- **sourceMap**: Generates `.map` files for debugging.\n- **esModuleInterop**: Ensures compatibility between ES modules and CommonJS."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Compiler Option Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "Different `target` and `module` options produce different compilation results.\nExample (`target: es5`):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"target\": \"es5\",\n//     \"module\": \"commonjs\"\n//   }\n// }\n\nlet message: string = 'Hello, World!';\nconsole.log(message);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Compilation output (ES5, CommonJS):\n```javascript\n\"use strict\";\nvar message = 'Hello, World!';\nconsole.log(message);\n```\nExample (`target: es6`):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"target\": \"es6\",\n//     \"module\": \"esnext\"\n//   }\n// }\n\nlet message: string = 'Hello, World!';\nconsole.log(message);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Compilation output (ES6, ESNext):\n```javascript\nlet message = 'Hello, World!';\nconsole.log(message);\n```\nIn this code:\n- `target: es5` uses `var` and `\"use strict\"` for older browsers.\n- `target: es6` produces modern `let` and simpler syntax.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Strict Mode Options"
+      },
+      {
+        "type": "paragraph",
+        "text": "`strict: true` enables the following strict mode options:\n- **noImplicitAny**: Throws an error for variables or parameters without an explicit type.\n- **strictNullChecks**: Requires explicit checking for `null` and `undefined`.\n- **strictFunctionTypes**: Enforces stricter function type checking.\n- **strictBindCallApply**: Ensures correct usage of `bind`, `call`, and `apply` methods.\n- **noImplicitThis**: Prohibits using `this` without an explicit type.\n- **alwaysStrict**: Adds `'use strict'` to JavaScript output.\n- **noImplicitReturns**: Requires all function paths to return a value.\n- **noFallthroughCasesInSwitch**: Prevents fallthrough in `switch` statements.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"strict\": true\n//   }\n// }\n\nfunction greet(name: string) {\n  return `Hello, ${name}!`;\n}\n\nconsole.log(greet('Alice')); // Hello, Alice!\n// console.log(greet()); // Error: An argument for 'name' was not provided\n// console.log(greet(null)); // Error: Argument of type 'null' is not assignable to parameter of type 'string'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `strictNullChecks` and `noImplicitAny` prevent passing `null` or `undefined`.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Compiler Options vs. JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Compiler options in TypeScript differ from JavaScript because:\n- **TypeScript**: Provides static type checking and a compilation process to enhance code reliability.\n- **JavaScript**: Is dynamically typed and requires no compilation.\n- **Differences**: TypeScript’s `tsconfig.json` controls output format, type checking, and project structure, while JavaScript lacks these controls.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"target\": \"es6\",\n//     \"strict\": true\n//   }\n// }\n\nfunction add(a: number, b: number): number {\n  return a + b;\n}\n\nconsole.log(add(5, 10)); // 15\n// console.log(add('5', 10)); // Error: Argument of type 'string' is not assignable to parameter of type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `strict` mode catches incorrect type usage.\n- In JavaScript, this code would run but might produce unexpected results (e.g., `510`).\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Safety"
+      },
+      {
+        "type": "paragraph",
+        "text": "Compiler options, especially `strict` mode, maximize TypeScript’s type system to improve code reliability.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"strict\": true\n//   }\n// }\n\ninterface User {\n  name: string;\n  age: number;\n}\n\nfunction printUser(user: User) {\n  console.log(`Name: ${user.name}, Age: ${user.age}`);\n}\n\nconst user = { name: 'Alice', age: 25 };\nprintUser(user); // Name: Alice, Age: 25\n// printUser({ name: 'Bob' }); // Error: Property 'age' is missing\n// printUser({ name: 'Bob', age: '30' }); // Error: Type 'string' is not assignable to type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `User` interface defines the structure with `name` and `age` properties.\n- `strict` mode catches missing or incorrect types.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"strict\": true\n//   }\n// }\n\nfunction divide(a: number, b: number): number {\n  return a / b;\n}\n\nconsole.log(divide(10, 2)); // 5\n// console.log(divide(10, 0)); // Error not caught by compiler, but runtime issue\n// console.log(divide('10', 2)); // Error: Argument of type 'string' is not assignable to parameter of type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `strict` mode catches incorrect type usage.\n- Runtime errors like division by zero are not caught by the compiler.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Compiler options are used in real-world projects for:\n- **Large projects**: Managing project structure and type safety.\n- **Frameworks**: Configuring for Angular, React, or Node.js.\n- **API integration**: Ensuring API responses match expected types.\n- **Compilation performance**: Using `incremental` for faster builds.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"target\": \"es6\",\n//     \"module\": \"commonjs\",\n//     \"outDir\": \"./dist\",\n//     \"strict\": true\n//   }\n// }\n\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nfunction displayProduct(product: Product) {\n  console.log(`Product: ${product.name}, Price: ${product.price}`);\n}\n\nconst product = { id: 1, name: 'Laptop', price: 1000 };\ndisplayProduct(product); // Product: Laptop, Price: 1000\n// displayProduct({ id: '1', name: 'Phone' }); // Error: Property 'price' is missing, Type 'string' is not assignable to type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Product` interface defines the product structure.\n- `strict` mode catches incorrect types.\n- `outDir` specifies the output directory.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Compiler options can be used with advanced TypeScript features:\n- **incremental**: Compiles only changed files for faster builds.\n- **tsBuildInfoFile**: Specifies the file for incremental compilation metadata.\nFor more details, refer to the TypeScript documentation (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Create a `tsconfig.json` file for new projects and start with `strict: true`. Choose `target` and `module` based on project requirements. Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Instead of `tsconfig.json`, you can specify options via the `tsc` command line, but this is impractical for large projects.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"target\": \"es6\",\n//     \"module\": \"commonjs\",\n//     \"strict\": true\n//   }\n// }\n\ninterface User {\n  name: string;\n  age: number;\n}\n\nfunction printUser(user: User) {\n  console.log(`Name: ${user.name}, Age: ${user.age}`);\n}\n\nconst user = { name: 'Alice', age: 25 };\nprintUser(user); // Name: Alice, Age: 25\n// printUser({ name: 'Bob' }); // Error: Property 'age' is missing\n// printUser({ name: 'Bob', age: '30' }); // Error: Type 'string' is not assignable to type 'number'\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Параметры компилятора",
+    "icon": "FiSettings",
+    "language": "typescript",
+    "description": "Параметры компилятора в файле tsconfig.json.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое параметры компилятора?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript параметры компилятора — это настройки, определенные в файле `tsconfig.json`, которые управляют процессом компиляции TypeScript-кода в JavaScript и проверкой типов. Эти параметры определяют поведение компилятора TypeScript (tsc) и используются для обеспечения качества кода, совместимости и производительности. Файл `tsconfig.json` обычно находится в корневой директории проекта и определяет структуру проекта, целевую версию JavaScript, систему модулей и правила проверки типов. В JavaScript, как в динамически типизированном языке, таких настроек нет, так как компиляция не требуется. Этот JSON-файл подробно объясняет определение, назначение, наиболее используемые параметры, параметры строгого режима, отличия от JavaScript, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение параметров компилятора"
+      },
+      {
+        "type": "paragraph",
+        "text": "Параметры компилятора используются для следующих целей:\n- **Управление результатом компиляции**: Указание целевой версии JavaScript (например, ES5, ES6) и системы модулей.\n- **Повышение безопасности типов**: Включение строгих правил проверки типов для повышения надежности кода.\n- **Управление структурой проекта**: Определение файлов для компиляции и выходной директории.\n- **Оптимизация производительности**: Например, ускорение компиляции с помощью инкрементальной сборки.\n- **Совместимость с фреймворками**: Настройка под среды, такие как Angular, React или Node.js.\nВ JavaScript таких параметров нет, так как код выполняется напрямую без компиляции."
+      },
+      {
+        "type": "heading",
+        "text": "Структура файла tsconfig.json"
+      },
+      {
+        "type": "paragraph",
+        "text": "Файл `tsconfig.json` — это основной файл конфигурации для проектов TypeScript. Основные разделы включают:\n- `compilerOptions`: Определяет поведение компилятора.\n- `include`: Указывает файлы для компиляции.\n- `exclude`: Указывает файлы, исключаемые из компиляции.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "json",
+        "code": "{\n  \"compilerOptions\": {\n    \"target\": \"es6\",\n    \"module\": \"commonjs\",\n    \"outDir\": \"./dist\",\n    \"strict\": true\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\"]\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `target`: Указывает версию JavaScript для вывода (ES6).\n- `module`: Определяет систему модулей (CommonJS).\n- `outDir`: Указывает директорию для скомпилированных файлов.\n- `strict`: Включает строгую проверку типов.\n- `include` и `exclude`: Определяют, какие файлы компилировать или исключать.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Наиболее используемые параметры компилятора"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ниже описаны наиболее используемые параметры компилятора:\n- **target**: Указывает версию JavaScript для вывода (например, `es5`, `es6`, `esnext`).\n- **module**: Определяет систему модулей (например, `commonjs`, `esnext`, `amd`).\n- **outDir**: Указывает директорию для скомпилированных файлов.\n- **rootDir**: Определяет корневую директорию проекта.\n- **strict**: Включает все параметры строгого режима.\n- **sourceMap**: Создает файлы `.map` для отладки.\n- **esModuleInterop**: Обеспечивает совместимость между ES-модулями и CommonJS."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример параметров компилятора"
+      },
+      {
+        "type": "paragraph",
+        "text": "Разные параметры `target` и `module` дают разные результаты компиляции.\nПример (`target: es5`):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"target\": \"es5\",\n//     \"module\": \"commonjs\"\n//   }\n// }\n\nlet message: string = 'Hello, World!';\nconsole.log(message);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Результат компиляции (ES5, CommonJS):\n```javascript\n\"use strict\";\nvar message = 'Hello, World!';\nconsole.log(message);\n```\nПример (`target: es6`):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"target\": \"es6\",\n//     \"module\": \"esnext\"\n//   }\n// }\n\nlet message: string = 'Hello, World!';\nconsole.log(message);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Результат компиляции (ES6, ESNext):\n```javascript\nlet message = 'Hello, World!';\nconsole.log(message);\n```\nВ этом коде:\n- `target: es5` использует `var` и `\"use strict\"` для старых браузеров.\n- `target: es6` создает современный синтаксис с `let`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Параметры строгого режима"
+      },
+      {
+        "type": "paragraph",
+        "text": "`strict: true` включает следующие параметры строгого режима:\n- **noImplicitAny**: Выдает ошибку для переменных или параметров без явного типа.\n- **strictNullChecks**: Требует явной проверки значений `null` и `undefined`.\n- **strictFunctionTypes**: Обеспечивает более строгую проверку типов функций.\n- **strictBindCallApply**: Проверяет корректное использование методов `bind`, `call` и `apply`.\n- **noImplicitThis**: Запрещает использование `this` без явного типа.\n- **alwaysStrict**: Добавляет директиву `'use strict'` в JavaScript-код.\n- **noImplicitReturns**: Требует, чтобы все пути выполнения функции возвращали значение.\n- **noFallthroughCasesInSwitch**: Предотвращает падение через блоки `case` в `switch`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"strict\": true\n//   }\n// }\n\nfunction greet(name: string) {\n  return `Hello, ${name}!`;\n}\n\nconsole.log(greet('Alice')); // Hello, Alice!\n// console.log(greet()); // Ошибка: Аргумент для 'name' не предоставлен\n// console.log(greet(null)); // Ошибка: Тип 'null' не может быть присвоен параметру типа 'string'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `strictNullChecks` и `noImplicitAny` предотвращают передачу `null` или `undefined`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Параметры компилятора против JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Параметры компилятора в TypeScript отличаются от JavaScript, потому что:\n- **TypeScript**: Предоставляет статическую проверку типов и процесс компиляции для повышения надежности кода.\n- **JavaScript**: Динамически типизированный язык, не требующий компиляции.\n- **Различия**: `tsconfig.json` в TypeScript управляет форматом вывода, проверкой типов и структурой проекта, тогда как в JavaScript таких механизмов нет.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"target\": \"es6\",\n//     \"strict\": true\n//   }\n// }\n\nfunction add(a: number, b: number): number {\n  return a + b;\n}\n\nconsole.log(add(5, 10)); // 15\n// console.log(add('5', 10)); // Ошибка: Тип 'string' не может быть присвоен параметру типа 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `strict` режим выявляет неправильное использование типов.\n- В JavaScript этот код выполнится, но может дать неожиданный результат (например, `510`).\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Безопасность типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Параметры компилятора, особенно режим `strict`, максимизируют использование системы типов TypeScript для повышения надежности кода.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"strict\": true\n//   }\n// }\n\ninterface User {\n  name: string;\n  age: number;\n}\n\nfunction printUser(user: User) {\n  console.log(`Name: ${user.name}, Age: ${user.age}`);\n}\n\nconst user = { name: 'Alice', age: 25 };\nprintUser(user); // Name: Alice, Age: 25\n// printUser({ name: 'Bob' }); // Ошибка: Свойство 'age' отсутствует\n// printUser({ name: 'Bob', age: '30' }); // Ошибка: Тип 'string' не может быть присвоен типу 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `User` определяет структуру с полями `name` и `age`.\n- `strict` режим выявляет отсутствующие или неправильные типы.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"strict\": true\n//   }\n// }\n\nfunction divide(a: number, b: number): number {\n  return a / b;\n}\n\nconsole.log(divide(10, 2)); // 5\n// console.log(divide(10, 0)); // Ошибка не выявляется компилятором, но возможна проблема во время выполнения\n// console.log(divide('10', 2)); // Ошибка: Тип 'string' не может быть присвоен параметру типа 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `strict` режим выявляет неправильное использование типов.\n- Ошибки времени выполнения, такие как деление на ноль, не выявляются компилятором.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Параметры компилятора используются в реальных проектах для:\n- **Крупные проекты**: Управление структурой проекта и безопасностью типов.\n- **Фреймворки**: Настройка для Angular, React или Node.js.\n- **Интеграция с API**: Проверка соответствия типов ответов API.\n- **Производительность компиляции**: Использование `incremental` для ускорения сборки.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"target\": \"es6\",\n//     \"module\": \"commonjs\",\n//     \"outDir\": \"./dist\",\n//     \"strict\": true\n//   }\n// }\n\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nfunction displayProduct(product: Product) {\n  console.log(`Product: ${product.name}, Price: ${product.price}`);\n}\n\nconst product = { id: 1, name: 'Laptop', price: 1000 };\ndisplayProduct(product); // Product: Laptop, Price: 1000\n// displayProduct({ id: '1', name: 'Phone' }); // Ошибка: Свойство 'price' отсутствует, Тип 'string' не может быть присвоен типу 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Product` определяет структуру продукта.\n- `strict` режим выявляет неправильные типы.\n- `outDir` указывает выходную директорию.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Параметры компилятора могут использоваться с продвинутыми возможностями TypeScript:\n- **incremental**: Компилирует только измененные файлы для ускорения сборки.\n- **tsBuildInfoFile**: Указывает файл для метаданных инкрементальной компиляции.\nДля получения дополнительной информации обратитесь к документации TypeScript (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Создайте файл `tsconfig.json` для новых проектов и начните с `strict: true`. Выберите `target` и `module` в зависимости от требований проекта. Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо `tsconfig.json` можно указывать параметры через командную строку `tsc`, но это непрактично для крупных проектов.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// tsconfig.json\n// {\n//   \"compilerOptions\": {\n//     \"target\": \"es6\",\n//     \"module\": \"commonjs\",\n//     \"strict\": true\n//   }\n// }\n\ninterface User {\n  name: string;\n  age: number;\n}\n\nfunction printUser(user: User) {\n  console.log(`Name: ${user.name}, Age: ${user.age}`);\n}\n\nconst user = { name: 'Alice', age: 25 };\nprintUser(user); // Name: Alice, Age: 25\n// printUser({ name: 'Bob' }); // Ошибка: Свойство 'age' отсутствует\n// printUser({ name: 'Bob', age: '30' }); // Ошибка: Тип 'string' не может быть присвоен типу 'number'\n"
+      }
+    ]
+  }
+}

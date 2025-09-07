@@ -1,0 +1,594 @@
+{
+  "id": "strict-mode",
+  "az": {
+    "title": "Ciddi Rejim",
+    "icon": "FiSettings",
+    "language": "typescript",
+    "description": "TypeScript ciddi tip yoxlaması.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Ciddi Rejim Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də ciddi rejim (strict mode) kodunuzun tip təhlükəsizliyini artırmaq üçün bir sıra sərt tip yoxlama qaydalarını aktivləşdirən konfiqurasiyadır. Ciddi rejim `tsconfig.json` faylında `\"strict\": true` parametri ilə aktivləşdirilir və bir neçə alt konfiqurasiya parametrini (məsələn, `strictNullChecks`, `noImplicitAny`, `strictFunctionTypes`) özündə birləşdirir. Bu rejim kodda potensial səhvləri erkən aşkarlamağa kömək edir, xüsusilə böyük layihələrdə və ya komanda ilə işləyərkən faydalıdır. Ciddi rejim TypeScript-in əsas üstünlüyü olan tip təhlükəsizliyini maksimum səviyyəyə qaldırır. JavaScript-də belə bir mexanizm yoxdur, çünki JavaScript dinamik tipli dildir və tip yoxlamasını dəstəkləmir. Bu JSON faylda ciddi rejimin tərifi, məqsədləri, aktivləşdirilməsi, daxil olan xüsusiyyətlər, JavaScript ilə fərqləri, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Ciddi Rejimin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ciddi rejim TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Tip təhlükəsizliyini artırmaq**: Kodda tip xətalarını kompilyasiya zamanı aşkarlamaq.\n- **Səhvlərin qarşısını almaq**: `null` və `undefined` kimi gözlənilməz dəyərlərdən qaçınmaq.\n- **Daha yaxşı kod keyfiyyəti**: Kodun oxunaqlığını və strukturunu yaxşılaşdırmaq.\n- **Komanda işində uyğunluq**: Böyük layihələrdə tip yoxlamasını standartlaşdırmaq.\n- **Çərçivə inteqrasiyası**: Angular, React kimi çərçivələrdə ciddi tip yoxlamasından faydalanmaq.\nJavaScript-də tip yoxlaması olmadığı üçün ciddi rejim kimi bir anlayış yoxdur, lakin TypeScript-də bu rejim kodun etibarlılığını artırır."
+      },
+      {
+        "type": "heading",
+        "text": "Ciddi Rejimin Aktivləşdirilməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ciddi rejim TypeScript-də `tsconfig.json` faylında `\"strict\": true` parametri ilə aktivləşdirilir. Bu parametr aşağıdakı alt parametrləri avtomatik aktivləşdirir:\n- `noImplicitAny`\n- `strictNullChecks`\n- `strictFunctionTypes`\n- `strictBindCallApply`\n- `noImplicitThis`\n- `alwaysStrict`\n- `noImplicitReturns`\n- `noFallthroughCasesInSwitch`"
+      },
+      {
+        "type": "code",
+        "language": "json",
+        "code": "{\n  \"compilerOptions\": {\n    \"strict\": true\n  }\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `\"strict\": true` bütün ciddi rejim parametrlərini aktivləşdirir.\n- İsterseniz, ayrı-ayrı parametrləri (məsələn, `\"strictNullChecks\": true`) aktivləşdirə bilərsiniz.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Ciddi Rejimin Daxil Etdiyi Xüsusiyyətlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ciddi rejim aşağıdakı xüsusiyyətləri əhatə edir:\n- **noImplicitAny**: Tipi açıq şəkildə müəyyən edilməyən dəyişənlər üçün xəta verir.\n- **strictNullChecks**: `null` və `undefined` dəyərlərinin açıq şəkildə yoxlanılmasını tələb edir.\n- **strictFunctionTypes**: Funksiya tiplərinin daha sərt yoxlanılmasını təmin edir.\n- **strictBindCallApply**: `bind`, `call` və `apply` metodlarının düzgün istifadəsini yoxlayır.\n- **noImplicitThis**: `this` dəyərinin tipi açıq şəkildə müəyyən edilmədən istifadəsini qadağan edir.\n- **alwaysStrict**: JavaScript koduna `'use strict'` direktivini avtomatik əlavə edir.\n- **noImplicitReturns**: Funksiyaların bütün mümkün yollarının dəyər qaytarmasını tələb edir.\n- **noFallthroughCasesInSwitch**: `switch` ifadələrində `case` bloklarının düşməsinin qarşısını alır."
+      },
+      {
+        "type": "heading",
+        "text": "Sadə Ciddi Rejim Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ciddi rejim aktiv olduqda və olmadıqda kodun davranışı fərqlidir.\nNümunə (ciddi rejim olmadan):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Ciddi rejim olmadan\nfunction greet(name) {\n  return `Hello, ${name}!`;\n}\n\nconsole.log(greet('Alice')); // Hello, Alice!\nconsole.log(greet()); // Hello, undefined!\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `name` parametrinin tipi müəyyən edilməyib və `undefined` keçirilə bilər.\n- Ciddi rejim olmadan bu kod xətasız işləyir.\nNümunə (ciddi rejim ilə):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Ciddi rejim ilə\nfunction greet(name: string) {\n  return `Hello, ${name}!`;\n}\n\nconsole.log(greet('Alice')); // Hello, Alice!\n// console.log(greet()); // Xəta: An argument for 'name' was not provided\n// console.log(greet(null)); // Xəta: Argument of type 'null' is not assignable to parameter of type 'string'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `noImplicitAny` sayəsində `name` parametrinin tipi açıq şəkildə müəyyən edilməlidir.\n- `strictNullChecks` sayəsində `null` və `undefined` keçirilməsi qadağandır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "noImplicitAny"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu parametr tipi açıq şəkildə müəyyən edilməyən dəyişənlər və parametrlər üçün xəta verir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// noImplicitAny ilə\nfunction processValue(value: string) {\n  return value.toUpperCase();\n}\n\nconsole.log(processValue('hello')); // HELLO\n// function processInvalid(value) { // Xəta: Parameter 'value' implicitly has an 'any' type\n//   return value;\n// }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `value` parametrinin tipi `string` kimi müəyyən edilib.\n- Tipi müəyyən edilməyən parametr xəta verir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "strictNullChecks"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu parametr `null` və `undefined` dəyərlərinin açıq şəkildə yoxlanılmasını tələb edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// strictNullChecks ilə\nfunction getLength(text: string) {\n  return text.length;\n}\n\nconsole.log(getLength('hello')); // 5\n// console.log(getLength(null)); // Xəta: Argument of type 'null' is not assignable to parameter of type 'string'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `text` parametrinin tipi `string` kimi müəyyən edilib.\n- `null` və ya `undefined` keçirilməsi xəta verir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Ciddi Rejim ilə JavaScript-in Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ciddi rejim TypeScript-ə xasdır və JavaScript-də yoxdur, çünki:\n- **TypeScript**: Statik tip yoxlaması ilə kodun etibarlılığını artırır.\n- **JavaScript**: Dinamik tipli dildir və tip yoxlaması yoxdur.\n- **Fərqlər**: TypeScript-də ciddi rejim `null`, `undefined` və ya tip uyğunsuzluqlarını erkən aşkarlayır, JavaScript-də isə bu xətalar yalnız icra zamanı (runtime) görünür.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Ciddi rejim ilə\nfunction add(a: number, b: number): number {\n  return a + b;\n}\n\nconsole.log(add(5, 10)); // 15\n// console.log(add('5', 10)); // Xəta: Argument of type 'string' is not assignable to parameter of type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `a` və `b` parametrlərinin tipi `number` kimi müəyyən edilib.\n- Yanlış tip istifadəsi kompilyasiya zamanı xəta verir.\n- JavaScript-də bu kod xətasız işləyər, lakin gözlənilməz nəticə verə bilər (məsələn, `510`).\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Təhlükəsizliyi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ciddi rejim TypeScript-in tip sistemindən maksimum istifadə edərək kodun etibarlılığını artırır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Tip təhlükəsizliyi ilə\ninterface User {\n  name: string;\n  age: number;\n}\n\nfunction printUser(user: User) {\n  console.log(`Name: ${user.name}, Age: ${user.age}`);\n}\n\nconst user = { name: 'Alice', age: 25 };\nprintUser(user); // Name: Alice, Age: 25\n// printUser({ name: 'Bob' }); // Xəta: Property 'age' is missing\n// printUser({ name: 'Bob', age: '30' }); // Xəta: Type 'string' is not assignable to type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `User` interfeysi `name` və `age` xüsusiyyətlərini müəyyən edir.\n- Ciddi rejim sayəsində yanlış və ya çatışmayan tiplər xəta verir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Ciddi rejim ilə səhvə yol açan nümunə\nfunction divide(a: number, b: number): number {\n  return a / b;\n}\n\nconsole.log(divide(10, 2)); // 5\n// console.log(divide(10, 0)); // Xəta: Sıfıra bölmə aşkarlanmayıb, lakin icra zamanı problem ola bilər\n// console.log(divide('10', 2)); // Xəta: Argument of type 'string' is not assignable to parameter of type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Ciddi rejim yanlış tip istifadəsini (məsələn, `string` əvəzinə `number`) aşkarlayır.\n- Sıfıra bölmə kimi icra zamanı xətalar ciddi rejim tərəfindən aşkarlanmır, lakin tip xətaları qabaqlanır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ciddi rejim real layihələrdə aşağıdakı ssenarilərdə istifadə olunur:\n- **Böyük layihələr**: Komanda ilə işləyərkən tip uyğunsuzluqlarını azaltmaq.\n- **Çərçivələr**: Angular, React və ya NestJS kimi çərçivələrdə tip təhlükəsizliyini artırmaq.\n- **API inteqrasiyası**: API cavablarının tipini düzgün yoxlamaq.\n- **Kod keyfiyyəti**: Kodun oxunaqlığını və strukturunu yaxşılaşdırmaq.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nfunction displayProduct(product: Product) {\n  console.log(`Product: ${product.name}, Price: ${product.price}`);\n}\n\nconst product = { id: 1, name: 'Laptop', price: 1000 };\ndisplayProduct(product); // Product: Laptop, Price: 1000\n// displayProduct({ id: '1', name: 'Phone' }); // Xəta: Property 'price' is missing, Type 'string' is not assignable to type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Product` interfeysi məhsulun strukturunu müəyyən edir.\n- Ciddi rejim yanlış və ya çatışmayan tipləri aşkarlayır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ciddi rejim qabaqcıl TypeScript xüsusiyyətləri ilə də istifadə oluna bilər:\n- **Tip təhlili**: TypeScript-in inlay hints və ya tip inferensiyası ilə daha yaxşı tip yoxlaması.\n- **Şərti tiplər**: Ciddi rejim şərti tiplərlə daha dəqiq işləyir.\nBu mövzular haqqında ətraflı məlumat üçün TypeScript sənədlərinə (https://www.typescriptlang.org/docs) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Ciddi rejimi yeni layihələrdə və ya böyük komanda ilə işləyərkən istifadə edin. `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin. Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Ciddi rejim əvəzinə ayrı-ayrı parametrləri (məsələn, `strictNullChecks`) aktivləşdirə bilərsiniz, lakin tam ciddi rejim daha yaxşı təhlükəsizlik təmin edir.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün ciddi rejim nümunəsi\ninterface User {\n  name: string;\n  age: number;\n}\n\nfunction printUser(user: User) {\n  console.log(`Name: ${user.name}, Age: ${user.age}`);\n}\n\nconst user = { name: 'Alice', age: 25 };\nprintUser(user); // Name: Alice, Age: 25\n// printUser({ name: 'Bob' }); // Xəta: Property 'age' is missing\n// printUser({ name: 'Bob', age: '30' }); // Xəta: Type 'string' is not assignable to type 'number'\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Strict Mode",
+    "icon": "FiSettings",
+    "language": "typescript",
+    "description": "TypeScript strict type checking.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Is Strict Mode?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, strict mode is a configuration that enables a set of strict type-checking rules to enhance the type safety of your code. Strict mode is activated in the `tsconfig.json` file with the `\"strict\": true` setting, which combines several sub-options (e.g., `strictNullChecks`, `noImplicitAny`, `strictFunctionTypes`). This mode helps catch potential errors early, especially in large projects or when working in teams. Strict mode maximizes TypeScript’s type safety, a key advantage over JavaScript, which lacks static type checking as a dynamically typed language. This JSON file explains the definition, purposes, activation, included features, differences from JavaScript, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Strict Mode"
+      },
+      {
+        "type": "paragraph",
+        "text": "Strict mode in TypeScript serves the following purposes:\n- **Enhance type safety**: Catch type-related errors during compilation.\n- **Prevent errors**: Avoid issues with `null` and `undefined` values.\n- **Improve code quality**: Enhance code readability and structure.\n- **Team collaboration**: Standardize type checking in large projects.\n- **Framework integration**: Leverage strict type checking in frameworks like Angular or React.\nJavaScript lacks type checking, so strict mode is unique to TypeScript, significantly improving code reliability."
+      },
+      {
+        "type": "heading",
+        "text": "Enabling Strict Mode"
+      },
+      {
+        "type": "paragraph",
+        "text": "Strict mode is enabled in TypeScript via the `tsconfig.json` file with the `\"strict\": true` setting. This automatically enables the following sub-options:\n- `noImplicitAny`\n- `strictNullChecks`\n- `strictFunctionTypes`\n- `strictBindCallApply`\n- `noImplicitThis`\n- `alwaysStrict`\n- `noImplicitReturns`\n- `noFallthroughCasesInSwitch`"
+      },
+      {
+        "type": "code",
+        "language": "json",
+        "code": "{\n  \"compilerOptions\": {\n    \"strict\": true\n  }\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `\"strict\": true` enables all strict mode sub-options.\n- You can enable individual options (e.g., `\"strictNullChecks\": true`) if preferred.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Features Included in Strict Mode"
+      },
+      {
+        "type": "paragraph",
+        "text": "Strict mode includes the following features:\n- **noImplicitAny**: Throws an error for variables or parameters without an explicit type.\n- **strictNullChecks**: Requires explicit checking for `null` and `undefined` values.\n- **strictFunctionTypes**: Enforces stricter checking for function types.\n- **strictBindCallApply**: Ensures correct usage of `bind`, `call`, and `apply` methods.\n- **noImplicitThis**: Prohibits using `this` without an explicit type.\n- **alwaysStrict**: Automatically adds `'use strict'` to JavaScript output.\n- **noImplicitReturns**: Requires all code paths in a function to return a value.\n- **noFallthroughCasesInSwitch**: Prevents fallthrough in `switch` statements."
+      },
+      {
+        "type": "heading",
+        "text": "Simple Strict Mode Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "The behavior of code differs with and without strict mode.\nExample (without strict mode):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Without strict mode\nfunction greet(name) {\n  return `Hello, ${name}!`;\n}\n\nconsole.log(greet('Alice')); // Hello, Alice!\nconsole.log(greet()); // Hello, undefined!\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `name` parameter has no explicit type and accepts `undefined`.\n- Without strict mode, this code runs without errors.\nExample (with strict mode):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// With strict mode\nfunction greet(name: string) {\n  return `Hello, ${name}!`;\n}\n\nconsole.log(greet('Alice')); // Hello, Alice!\n// console.log(greet()); // Error: An argument for 'name' was not provided\n// console.log(greet(null)); // Error: Argument of type 'null' is not assignable to parameter of type 'string'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `noImplicitAny` requires the `name` parameter to have an explicit type.\n- `strictNullChecks` prevents passing `null` or `undefined`.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "noImplicitAny"
+      },
+      {
+        "type": "paragraph",
+        "text": "This option throws an error for variables or parameters without an explicit type.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// With noImplicitAny\nfunction processValue(value: string) {\n  return value.toUpperCase();\n}\n\nconsole.log(processValue('hello')); // HELLO\n// function processInvalid(value) { // Error: Parameter 'value' implicitly has an 'any' type\n//   return value;\n// }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `value` parameter is explicitly typed as `string`.\n- A parameter without a type throws an error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "strictNullChecks"
+      },
+      {
+        "type": "paragraph",
+        "text": "This option requires explicit checking for `null` and `undefined` values.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// With strictNullChecks\nfunction getLength(text: string) {\n  return text.length;\n}\n\nconsole.log(getLength('hello')); // 5\n// console.log(getLength(null)); // Error: Argument of type 'null' is not assignable to parameter of type 'string'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `text` parameter is typed as `string`.\n- Passing `null` or `undefined` throws an error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Strict Mode vs. JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Strict mode is unique to TypeScript and does not exist in JavaScript because:\n- **TypeScript**: Provides static type checking to improve code reliability.\n- **JavaScript**: Is dynamically typed with no type checking.\n- **Differences**: Strict mode catches `null`, `undefined`, or type mismatches early, while JavaScript errors appear only at runtime.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// With strict mode\nfunction add(a: number, b: number): number {\n  return a + b;\n}\n\nconsole.log(add(5, 10)); // 15\n// console.log(add('5', 10)); // Error: Argument of type 'string' is not assignable to parameter of type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `a` and `b` parameters are typed as `number`.\n- Incorrect types cause a compile-time error.\n- In JavaScript, this code would run but might produce unexpected results (e.g., `510`).\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Safety"
+      },
+      {
+        "type": "paragraph",
+        "text": "Strict mode maximizes TypeScript’s type system to improve code reliability.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// With type safety\ninterface User {\n  name: string;\n  age: number;\n}\n\nfunction printUser(user: User) {\n  console.log(`Name: ${user.name}, Age: ${user.age}`);\n}\n\nconst user = { name: 'Alice', age: 25 };\nprintUser(user); // Name: Alice, Age: 25\n// printUser({ name: 'Bob' }); // Error: Property 'age' is missing\n// printUser({ name: 'Bob', age: '30' }); // Error: Type 'string' is not assignable to type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `User` interface defines the structure with `name` and `age` properties.\n- Strict mode catches missing or incorrect types.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example with strict mode\nfunction divide(a: number, b: number): number {\n  return a / b;\n}\n\nconsole.log(divide(10, 2)); // 5\n// console.log(divide(10, 0)); // Error not caught by strict mode, but runtime issue\n// console.log(divide('10', 2)); // Error: Argument of type 'string' is not assignable to parameter of type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Strict mode catches incorrect type usage (e.g., `string` instead of `number`).\n- Runtime errors like division by zero are not caught by strict mode but are mitigated by type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Strict mode is used in real-world projects for:\n- **Large projects**: Reducing type mismatches in team collaborations.\n- **Frameworks**: Enhancing type safety in Angular, React, or NestJS.\n- **API integration**: Ensuring API responses match expected types.\n- **Code quality**: Improving code readability and structure.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nfunction displayProduct(product: Product) {\n  console.log(`Product: ${product.name}, Price: ${product.price}`);\n}\n\nconst product = { id: 1, name: 'Laptop', price: 1000 };\ndisplayProduct(product); // Product: Laptop, Price: 1000\n// displayProduct({ id: '1', name: 'Phone' }); // Error: Property 'price' is missing, Type 'string' is not assignable to type 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Product` interface defines the product structure.\n- Strict mode catches incorrect or missing types.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Strict mode can be used with advanced TypeScript features:\n- **Type inference**: Improved type checking with inlay hints or type inference.\n- **Conditional types**: Strict mode works more precisely with conditional types.\nFor more details, refer to the TypeScript documentation (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use strict mode in new projects or when working in large teams. Enable `\"strict\": true` in `tsconfig.json`. Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Instead of full strict mode, enable individual options (e.g., `strictNullChecks`), though full strict mode provides better safety.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself strict mode example\ninterface User {\n  name: string;\n  age: number;\n}\n\nfunction printUser(user: User) {\n  console.log(`Name: ${user.name}, Age: ${user.age}`);\n}\n\nconst user = { name: 'Alice', age: 25 };\nprintUser(user); // Name: Alice, Age: 25\n// printUser({ name: 'Bob' }); // Error: Property 'age' is missing\n// printUser({ name: 'Bob', age: '30' }); // Error: Type 'string' is not assignable to type 'number'\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Строгий режим",
+    "icon": "FiSettings",
+    "language": "typescript",
+    "description": "Строгая проверка типов в TypeScript.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое строгий режим?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript строгий режим (strict mode) — это конфигурация, которая включает набор строгих правил проверки типов для повышения безопасности кода. Строгий режим активируется в файле `tsconfig.json` с параметром `\"strict\": true`, который объединяет несколько подпараметров (например, `strictNullChecks`, `noImplicitAny`, `strictFunctionTypes`). Этот режим помогает выявлять потенциальные ошибки на ранних этапах, особенно в крупных проектах или при работе в команде. Строгий режим максимизирует преимущества TypeScript в области безопасности типов, чего нет в JavaScript, так как это динамически типизированный язык. Этот JSON-файл подробно объясняет определение, назначение, активацию, включенные функции, отличия от JavaScript, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение строгого режима"
+      },
+      {
+        "type": "paragraph",
+        "text": "Строгий режим в TypeScript используется для следующих целей:\n- **Повышение безопасности типов**: Выявление ошибок, связанных с типами, на этапе компиляции.\n- **Предотвращение ошибок**: Избежание проблем с `null` и `undefined`.\n- **Улучшение качества кода**: Повышение читаемости и структуры кода.\n- **Работа в команде**: Стандартизация проверки типов в крупных проектах.\n- **Интеграция с фреймворками**: Использование строгой проверки типов в фреймворках, таких как Angular или React.\nВ JavaScript отсутствует проверка типов, поэтому понятие строгого режима применимо только к TypeScript, что значительно повышает надежность кода."
+      },
+      {
+        "type": "heading",
+        "text": "Активация строгого режима"
+      },
+      {
+        "type": "paragraph",
+        "text": "Строгий режим активируется в TypeScript через файл `tsconfig.json` с параметром `\"strict\": true`. Этот параметр автоматически включает следующие подпараметры:\n- `noImplicitAny`\n- `strictNullChecks`\n- `strictFunctionTypes`\n- `strictBindCallApply`\n- `noImplicitThis`\n- `alwaysStrict`\n- `noImplicitReturns`\n- `noFallthroughCasesInSwitch`"
+      },
+      {
+        "type": "code",
+        "language": "json",
+        "code": "{\n  \"compilerOptions\": {\n    \"strict\": true\n  }\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `\"strict\": true` включает все подпараметры строгого режима.\n- При желании можно включить отдельные параметры (например, `\"strictNullChecks\": true`).\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Функции, включенные в строгий режим"
+      },
+      {
+        "type": "paragraph",
+        "text": "Строгий режим включает следующие функции:\n- **noImplicitAny**: Выдает ошибку для переменных или параметров без явного типа.\n- **strictNullChecks**: Требует явной проверки значений `null` и `undefined`.\n- **strictFunctionTypes**: Обеспечивает более строгую проверку типов функций.\n- **strictBindCallApply**: Проверяет корректное использование методов `bind`, `call` и `apply`.\n- **noImplicitThis**: Запрещает использование `this` без явного типа.\n- **alwaysStrict**: Автоматически добавляет директиву `'use strict'` в JavaScript-код.\n- **noImplicitReturns**: Требует, чтобы все пути выполнения функции возвращали значение.\n- **noFallthroughCasesInSwitch**: Предотвращает падение через блоки `case` в `switch`."
+      },
+      {
+        "type": "heading",
+        "text": "Простой пример строгого режима"
+      },
+      {
+        "type": "paragraph",
+        "text": "Поведение кода отличается при включенном и выключенном строгом режиме.\nПример (без строгого режима):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Без строгого режима\nfunction greet(name) {\n  return `Hello, ${name}!`;\n}\n\nconsole.log(greet('Alice')); // Hello, Alice!\nconsole.log(greet()); // Hello, undefined!\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Параметр `name` не имеет явного типа и принимает `undefined`.\n- Без строгого режима код выполняется без ошибок.\nПример (со строгим режимом):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Со строгим режимом\nfunction greet(name: string) {\n  return `Hello, ${name}!`;\n}\n\nconsole.log(greet('Alice')); // Hello, Alice!\n// console.log(greet()); // Ошибка: Аргумент для 'name' не предоставлен\n// console.log(greet(null)); // Ошибка: Тип 'null' не может быть присвоен параметру типа 'string'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `noImplicitAny` требует явного указания типа параметра `name`.\n- `strictNullChecks` запрещает передачу `null` или `undefined`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "noImplicitAny"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот параметр выдает ошибку для переменных или параметров без явного типа.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// С noImplicitAny\nfunction processValue(value: string) {\n  return value.toUpperCase();\n}\n\nconsole.log(processValue('hello')); // HELLO\n// function processInvalid(value) { // Ошибка: Параметр 'value' неявно имеет тип 'any'\n//   return value;\n// }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Параметр `value` явно типизирован как `string`.\n- Параметр без типа вызывает ошибку.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "strictNullChecks"
+      },
+      {
+        "type": "paragraph",
+        "text": "Этот параметр требует явной проверки значений `null` и `undefined`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// С strictNullChecks\nfunction getLength(text: string) {\n  return text.length;\n}\n\nconsole.log(getLength('hello')); // 5\n// console.log(getLength(null)); // Ошибка: Тип 'null' не может быть присвоен параметру типа 'string'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Параметр `text` типизирован как `string`.\n- Передача `null` или `undefined` вызывает ошибку.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Строгий режим против JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Строгий режим присущ только TypeScript и отсутствует в JavaScript, потому что:\n- **TypeScript**: Предоставляет статическую проверку типов для повышения надежности кода.\n- **JavaScript**: Динамически типизированный язык без проверки типов.\n- **Различия**: Строгий режим выявляет `null`, `undefined` или несоответствия типов на этапе компиляции, тогда как в JavaScript ошибки проявляются только во время выполнения.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Со строгим режимом\nfunction add(a: number, b: number): number {\n  return a + b;\n}\n\nconsole.log(add(5, 10)); // 15\n// console.log(add('5', 10)); // Ошибка: Тип 'string' не может быть присвоен параметру типа 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Параметры `a` и `b` типизированы как `number`.\n- Неправильные типы вызывают ошибку на этапе компиляции.\n- В JavaScript этот код выполнится, но может дать неожиданный результат (например, `510`).\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Безопасность типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Строгий режим максимизирует использование системы типов TypeScript для повышения надежности кода.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// С безопасностью типов\ninterface User {\n  name: string;\n  age: number;\n}\n\nfunction printUser(user: User) {\n  console.log(`Name: ${user.name}, Age: ${user.age}`);\n}\n\nconst user = { name: 'Alice', age: 25 };\nprintUser(user); // Name: Alice, Age: 25\n// printUser({ name: 'Bob' }); // Ошибка: Свойство 'age' отсутствует\n// printUser({ name: 'Bob', age: '30' }); // Ошибка: Тип 'string' не может быть присвоен типу 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `User` определяет структуру с полями `name` и `age`.\n- Строгий режим выявляет отсутствующие или неправильные типы.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку со строгим режимом\nfunction divide(a: number, b: number): number {\n  return a / b;\n}\n\nconsole.log(divide(10, 2)); // 5\n// console.log(divide(10, 0)); // Ошибка не выявляется строгим режимом, но возможна проблема во время выполнения\n// console.log(divide('10', 2)); // Ошибка: Тип 'string' не может быть присвоен параметру типа 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Строгий режим выявляет неправильное использование типов (например, `string` вместо `number`).\n- Ошибки времени выполнения, такие как деление на ноль, не выявляются строгим режимом, но безопасность типов предотвращает другие проблемы.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Строгий режим используется в реальных проектах для:\n- **Крупные проекты**: Уменьшение несоответствий типов при работе в команде.\n- **Фреймворки**: Повышение безопасности типов в Angular, React или NestJS.\n- **Интеграция с API**: Проверка соответствия типов ответов API.\n- **Качество кода**: Улучшение читаемости и структуры кода.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nfunction displayProduct(product: Product) {\n  console.log(`Product: ${product.name}, Price: ${product.price}`);\n}\n\nconst product = { id: 1, name: 'Laptop', price: 1000 };\ndisplayProduct(product); // Product: Laptop, Price: 1000\n// displayProduct({ id: '1', name: 'Phone' }); // Ошибка: Свойство 'price' отсутствует, Тип 'string' не может быть присвоен типу 'number'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Product` определяет структуру продукта.\n- Строгий режим выявляет неправильные или отсутствующие типы.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Строгий режим может использоваться с продвинутыми возможностями TypeScript:\n- **Вывод типов**: Улучшенная проверка типов с помощью подсказок типов или вывода типов.\n- **Условные типы**: Строгий режим работает точнее с условными типами.\nДля получения дополнительной информации обратитесь к документации TypeScript (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте строгий режим в новых проектах или при работе в больших командах. Включите `\"strict\": true` в `tsconfig.json`. Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо полного строгого режима можно включить отдельные параметры (например, `strictNullChecks`), но полный строгий режим обеспечивает лучшую безопасность.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример строгого режима для самостоятельного тестирования\ninterface User {\n  name: string;\n  age: number;\n}\n\nfunction printUser(user: User) {\n  console.log(`Name: ${user.name}, Age: ${user.age}`);\n}\n\nconst user = { name: 'Alice', age: 25 };\nprintUser(user); // Name: Alice, Age: 25\n// printUser({ name: 'Bob' }); // Ошибка: Свойство 'age' отсутствует\n// printUser({ name: 'Bob', age: '30' }); // Ошибка: Тип 'string' не может быть присвоен типу 'number'\n"
+      }
+    ]
+  }
+}

@@ -38,6 +38,31 @@ interface ProfileProgressProps {
   setSelectedTab: (tab: string) => void;
 }
 
+// Helper function to get month labels for GitHub-style calendar
+const getMonthLabels = (streakDays: any[]) => {
+  const months = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'İyn', 'İyl', 'Avq', 'Sen', 'Okt', 'Noy', 'Dek'];
+  const labels: string[] = [];
+  let currentMonth = -1;
+  
+  // Group days by weeks (52 weeks)
+  for (let week = 0; week < 52; week++) {
+    const dayIndex = week * 7; // First day of each week
+    if (dayIndex < streakDays.length) {
+      const day = streakDays[dayIndex];
+      const month = day.month - 1; // Convert to 0-based index
+      
+      if (month !== currentMonth) {
+        labels.push(months[month]);
+        currentMonth = month;
+      } else {
+        labels.push(''); // Empty for weeks that don't start a new month
+      }
+    }
+  }
+  
+  return labels;
+};
+
 export default function ProfileProgress({
   userStats,
   loading,
@@ -293,43 +318,81 @@ export default function ProfileProgress({
           Study Streak
         </h4>
         <div className={progressStyles.streakContent}>
-          <div className={progressStyles.streakGrid}>
-            {/* Weekday labels - 7 days */}
-            <div className={progressStyles.weekdayLabel}>B</div>
-            <div className={progressStyles.weekdayLabel}>Ç</div>
-            <div className={progressStyles.weekdayLabel}>C</div>
-            <div className={progressStyles.weekdayLabel}>Ç</div>
-            <div className={progressStyles.weekdayLabel}>C</div>
-            <div className={progressStyles.weekdayLabel}>Ş</div>
-            <div className={progressStyles.weekdayLabel}>B</div>
-            {streakDays.map((day: any, index: number) => (
-              <div 
-                key={index} 
-                className={`${progressStyles.streakDay} ${
-                  day.isActive ? progressStyles.active : ''
-                } ${day.isToday ? progressStyles.today : ''}`}
-                title={`${day.isActive ? 'Active' : 'Inactive'}`}
-              >
-                {day.day}
-              </div>
-            ))}
-          </div>
-          <div className={progressStyles.streakInfo}>
-            <div className={progressStyles.streakCount}>
-              <span className={progressStyles.streakCountNumber}>
-                {userStats?.loginStreak || 0}
-              </span>
-              <span className={progressStyles.streakCountLabel}>
-                day streak
-              </span>
+          {/* GitHub-style calendar */}
+          <div className={progressStyles.githubCalendar}>
+            {/* Month labels */}
+            <div className={progressStyles.monthLabels}>
+              {getMonthLabels(streakDays).map((month, index) => (
+                <div key={index} className={progressStyles.monthLabel}>
+                  {month}
+                </div>
+              ))}
             </div>
-            <div className={progressStyles.streakLongest}>
-              <span className={progressStyles.streakLongestLabel}>
-                Longest streak
-              </span>
-              <span className={progressStyles.streakLongestNumber}>
-                {userStats?.longestStreak || 0} days
-              </span>
+            
+            {/* Calendar grid */}
+            <div className={progressStyles.calendarGrid}>
+              {/* Weekday labels */}
+              <div className={progressStyles.weekdayLabels}>
+                <div className={progressStyles.weekdayLabel}>B</div>
+                <div className={progressStyles.weekdayLabel}></div>
+                <div className={progressStyles.weekdayLabel}>Ç</div>
+                <div className={progressStyles.weekdayLabel}></div>
+                <div className={progressStyles.weekdayLabel}>C</div>
+                <div className={progressStyles.weekdayLabel}></div>
+                <div className={progressStyles.weekdayLabel}>B</div>
+              </div>
+              
+              {/* Activity squares */}
+              <div className={progressStyles.activityGrid}>
+                {streakDays.map((day: any, index: number) => (
+                  <div 
+                    key={index} 
+                    className={`${progressStyles.activitySquare} ${progressStyles[`level${day.activityLevel || 0}`]} ${
+                      day.isToday ? progressStyles.today : ''
+                    }`}
+                    title={`${day.month}/${day.day}/${day.year}: ${
+                      day.activityLevel > 0 
+                        ? `${day.lessonsViewed + day.exercisesSolved + day.quizzesTaken} activities`
+                        : 'No activity'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          {/* Stats and Legend */}
+          <div className={progressStyles.streakStats}>
+            <div className={progressStyles.streakInfo}>
+              <div className={progressStyles.streakCount}>
+                <span className={progressStyles.streakCountNumber}>
+                  {userStats?.loginStreak || 0}
+                </span>
+                <span className={progressStyles.streakCountLabel}>
+                  day streak
+                </span>
+              </div>
+              <div className={progressStyles.streakLongest}>
+                <span className={progressStyles.streakLongestLabel}>
+                  Longest streak
+                </span>
+                <span className={progressStyles.streakLongestNumber}>
+                  {userStats?.longestStreak || 0} days
+                </span>
+              </div>
+            </div>
+            
+            {/* Activity Legend */}
+            <div className={progressStyles.activityLegend}>
+              <span className={progressStyles.legendLabel}>Less</span>
+              <div className={progressStyles.legendSquares}>
+                <div className={`${progressStyles.activitySquare} ${progressStyles.level0}`}></div>
+                <div className={`${progressStyles.activitySquare} ${progressStyles.level1}`}></div>
+                <div className={`${progressStyles.activitySquare} ${progressStyles.level2}`}></div>
+                <div className={`${progressStyles.activitySquare} ${progressStyles.level3}`}></div>
+                <div className={`${progressStyles.activitySquare} ${progressStyles.level4}`}></div>
+              </div>
+              <span className={progressStyles.legendLabel}>More</span>
             </div>
           </div>
         </div>

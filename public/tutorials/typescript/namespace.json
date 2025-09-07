@@ -1,0 +1,492 @@
+{
+    "id": "namespace",
+    "az": {
+      "title": "Namespace",
+      "icon": "FiFolder",
+      "language": "typescript",
+      "description": "Kod təşkili üçün namespace.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Namespace Nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "TypeScript-də namespace (ad məkanı) kodun mütəşəkkil saxlanması və ad toqquşmalarının (name collisions) qarşısını almaq üçün istifadə olunan bir mexanizmdir. Namespace-lər, funksiyaları, sinifləri, interfeysləri və digər kod elementlərini bir məntiqi qrupda birləşdirir. Bu, xüsusilə böyük layihələrdə kodun oxunaqlığını və strukturunu yaxşılaşdırır. Namespace-lər JavaScript-də birbaşa ekvivalentə malik deyil, lakin oxşar məqsədlər üçün IIFE (Immediately Invoked Function Expression) və ya obyektlər istifadə edilə bilər. TypeScript-də namespace-lər `namespace` açar sözü ilə təyin edilir və ES modulları ilə müqayisədə daha ənənəvi bir yanaşmadır. Namespace-lər modullardan fərqlidir, çünki modullar fayl əsaslıdır və `import`/`export` mexanizmləri ilə işləyir, namespace-lər isə eyni fayl daxilində və ya bir neçə faylda kod təşkilini təmin edir. Bu JSON faylda namespace-lərin tərifi, istifadə məqsədləri, modullardan fərqləri, JavaScript ilə fərqləri, sintaksisi, daxili və xarici istifadəsi, iyerarxik namespace-lər, fayllar arasında namespace-lər, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "Namespace-lərin Məqsədi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespace-lər TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Kod təşkili**: Əlaqəli kod elementlərini bir yerdə q Elle: group.\n- **Ad toqquşmalarının qarşısını almaq**: Eyni adlı dəyişənlərin toqquşmasını önləyir.\n- **Oxunaqlılıq**: Kodun məqsədini və strukturunu aydınlaşdırır.\n- **Təkrar istifadə**: Eyni namespace daxilində kod elementlərini təkrar istifadə etməyə imkan verir.\n- **Layihənin miqyası**: Böyük layihələrdə kodun idarə olunmasını asanlaşdırır.\nJavaScript-də namespace-lərin birbaşa analoqu yoxdur, lakin obyektlər və ya IIFE-lər oxşar məqsədlərə xidmət edə bilər. Lakin TypeScript-in namespace-ləri tip təhlükəsizliyi ilə inteqrasiya olunur."
+        },
+        {
+          "type": "heading",
+          "text": "Namespace Sintaksisi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespace-lər `namespace` açar sözü ilə təyin edilir. Daxilində funksiyalar, siniflər, interfeyslər və dəyişənlər yerləşdirilə bilər.\nNümunə (sadə namespace):"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Sadə namespace\nnamespace MyApp {\n  export function greet(name: string): string {\n    return `Hello, ${name}!`;\n  }\n}\n\nconsole.log(MyApp.greet('Alice')); // Hello, Alice!\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- `MyApp` adlı namespace daxilində `greet` funksiyası təyin edilir.\n- `export` açar sözü ilə funksiya namespace xaricində istifadəyə açıq olur.\n- `MyApp.greet` ilə funksiyaya müraciət edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "İyerarxik Namespace-lər"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespace-lər nöqtə ilə (`.`) ayrılaraq iyerarxik şəkildə təşkil edilə bilər.\nNümunə:"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// İyerarxik namespace\nnamespace MyApp.Utilities {\n  export function toUpperCase(str: string): string {\n    return str.toUpperCase();\n  }\n}\n\nconsole.log(MyApp.Utilities.toUpperCase('hello')); // HELLO\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- `MyApp.Utilities` iyerarxik namespace-dir.\n- `toUpperCase` funksiyası `Utilities` namespace-i daxilindədir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "Fayllar Arasında Namespace-lər"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespace-lər bir neçə faylda istifadə oluna bilər, lakin bunun üçün `/// <reference path=\"...\" />` direktivi və ya `outFile` kompilyasiya parametri istifadə edilməlidir.\nNümunə (bir faylda):"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Namespace-in çoxfayllı istifadəsi\n// Fərz edək ki, bu kod utils.ts faylındadır\nnamespace MyApp {\n  export function log(message: string): void {\n    console.log(message);\n  }\n}\n\n// Digər faylda (main.ts)\n/// <reference path=\"utils.ts\" />\nMyApp.log('Test message'); // Test message\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- `utils.ts` faylında `MyApp` namespace-i təyin edilir.\n- `main.ts` faylı `/// <reference path=\"utils.ts\" />` ilə buna istinad edir.\n- `MyApp.log` ilə funksiya çağırılır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "Namespace-lər ilə Modulların Fərqi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespace-lər və modullar oxşar görünə bilər, lakin fərqləri var:\n- **Namespace-lər**: Eyni fayl daxilində və ya çoxfayllı layihələrdə kod təşkilini təmin edir, lakin `import`/`export` tələb etmir.\n- **Modullar**: Fayl əsaslıdır və ES modulları (`import`/`export`) ilə işləyir.\n- **İstifadə sahəsi**: Namespace-lər köhnə layihələrdə və ya modulların dəstəklənmədiyi mühitlərdə istifadə olunur.\nNümunə:"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Namespace nümunəsi\nnamespace MyApp {\n  export function sayHello(): string {\n    return 'Hello!';\n  }\n}\n\n// Modul nümunəsi\n// Fərz edək ki, bu kod module.ts faylındadır\nexport function sayHello(): string {\n  return 'Hello!';\n}\n\n// main.ts faylında\n// import { sayHello } from './module';\nconsole.log(MyApp.sayHello()); // Hello!\n// console.log(sayHello()); // Modul ilə\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- Namespace istifadəsi modullara nisbətən daha sadədir, lakin modullar daha müasir və tövsiyə olunandır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "Tip Təhlükəsizliyi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespace-lər TypeScript-in tip sistemi ilə tam inteqrasiya olunur və tip təhlükəsizliyini təmin edir.\nNümunə:"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Tip təhlükəsizliyi ilə namespace\nnamespace MyApp {\n  export interface User {\n    name: string;\n    age: number;\n  }\n\n  export function printUser(user: User): void {\n    console.log(`Name: ${user.name}, Age: ${user.age}`);\n  }\n}\n\nconst user: MyApp.User = { name: 'Alice', age: 25 };\nMyApp.printUser(user); // Name: Alice, Age: 25\n// MyApp.printUser({ name: 'Bob' }); // Xəta: age xüsusiyyəti yoxdur\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- `User` interfeysi `MyApp` namespace-i daxilində təyin edilir.\n- `printUser` funksiyası yalnız `User` tipinə uyğun obyektləri qəbul edir.\n- Tip xətaları kompilyasiya zamanı aşkar edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "Səhvə Yol Açan Nümunə"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Səhvə yol açan namespace istifadəsi\nnamespace MyApp {\n  export function calculate(value: number): number {\n    return value * 2;\n  }\n}\n\n// Yanlış istifadə\n// console.log(MyApp.calculate('10')); // Xəta: string number tipinə uyğun deyil\nconsole.log(MyApp.calculate(10)); // 20\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- `calculate` funksiyası yalnız `number` tipini qəbul edir.\n- Yanlış tip istifadəsi kompilyasiya xətasına səbəb olur.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "Real Layihələrdə İstifadə Ssenariləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespace-lər real layihələrdə aşağıdakı ssenarilərdə istifadə olunur:\n- **Köhnə layihələr**: ES modullarından əvvəlki TypeScript layihələrində.\n- **Böyük kod bazaları**: Əlaqəli funksiyaların və siniflərin qruplaşdırılması.\n- **Kütüphanalar**: Üçüncü tərəf kitabxanalarının təşkili.\n- **Tip tərifi faylları**: `.d.ts` fayllarında tip təriflərini təşkil etmək.\nNümunə (real ssenari):"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Real layihə ssenarisi\nnamespace MyApp.Data {\n  export interface Product {\n    id: number;\n    name: string;\n  }\n\n  export function getProduct(id: number): Product {\n    return { id, name: `Product ${id}` };\n  }\n}\n\nconst product = MyApp.Data.getProduct(1);\nconsole.log(product.name); // Product 1\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- `MyApp.Data` namespace-i məlumatla əlaqəli funksiyaları və tipləri qruplaşdırır.\n- `getProduct` funksiyası `Product` tipində obyekt qaytarır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "Qabaqcıl Mövzulara Qısa İstinad"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespace-lər qabaqcıl TypeScript xüsusiyyətləri ilə də istifadə oluna bilər, lakin müasir layihələrdə ES modulları ilə əvəzlənir:\n- **Namespace-lərin köhnəlməsi**: ES modulları daha çevik və müasir bir alternativdir.\n- **UMD və Global Namespace-lər**: Köhnə JavaScript kitabxanaları ilə uyğunluq.\nBu mövzular haqqında ətraflı məlumat üçün TypeScript sənədlərinə (https://www.typescriptlang.org/docs) baxın."
+        },
+        {
+          "type": "heading",
+          "text": "Tövsiyələr və Alternativlər"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Tövsiyələr**: Müasir layihələrdə ES modullarını üstün tutun. Namespace-ləri kiçik layihələrdə və ya köhnə kod bazalarında istifadə edin. `tsconfig.json`-da `\"module\": \"esnext\"` parametrini aktivləşdirin. Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: ES modulları (`import`/`export`) namespace-lərdən daha müasir və tövsiyə olunan bir yanaşmadır.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "Sınaq Üçün Nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Sınaq üçün namespace nümunəsi\nnamespace MyApp {\n  export function add(a: number, b: number): number {\n    return a + b;\n  }\n}\n\nconsole.log(MyApp.add(5, 3)); // 8\n"
+        }
+      ]
+    },
+    "en": {
+      "title": "Namespace",
+      "icon": "FiFolder",
+      "language": "typescript",
+      "description": "Organizing code with namespaces.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "What Are Namespaces?"
+        },
+        {
+          "type": "paragraph",
+          "text": "In TypeScript, namespaces are a mechanism for organizing code and preventing name collisions. They group related functions, classes, interfaces, and variables into a logical unit, improving code readability and structure, especially in large projects. Namespaces do not have a direct equivalent in JavaScript, but similar functionality can be achieved using IIFEs (Immediately Invoked Function Expressions) or objects. In TypeScript, namespaces are defined using the `namespace` keyword and are a more traditional approach compared to ES modules. Unlike modules, which are file-based and use `import`/`export`, namespaces organize code within a single file or across multiple files. This JSON file explains the definition, purposes, differences from modules, differences from JavaScript, syntax, internal and external usage, nested namespaces, multi-file namespaces, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "Purpose of Namespaces"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespaces in TypeScript serve the following purposes:\n- **Code organization**: Group related code elements together.\n- **Name collision prevention**: Avoid conflicts between variables with the same name.\n- **Readability**: Clarify the intent and structure of code.\n- **Reusability**: Allow code elements to be reused within a namespace.\n- **Project scope**: Simplify code management in large projects.\nJavaScript lacks direct namespace equivalents, but objects or IIFEs can serve similar purposes. TypeScript’s namespaces integrate with its type system for added safety."
+        },
+        {
+          "type": "heading",
+          "text": "Namespace Syntax"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespaces are defined using the `namespace` keyword and can contain functions, classes, interfaces, and variables.\nExample (simple namespace):"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Simple namespace\nnamespace MyApp {\n  export function greet(name: string): string {\n    return `Hello, ${name}!`;\n  }\n}\n\nconsole.log(MyApp.greet('Alice')); // Hello, Alice!\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- The `MyApp` namespace defines a `greet` function.\n- The `export` keyword makes the function accessible outside the namespace.\n- The function is called using `MyApp.greet`.\n- You can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "Nested Namespaces"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespaces can be nested using dot notation (`.`).\nExample:"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Nested namespace\nnamespace MyApp.Utilities {\n  export function toUpperCase(str: string): string {\n    return str.toUpperCase();\n  }\n}\n\nconsole.log(MyApp.Utilities.toUpperCase('hello')); // HELLO\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- `MyApp.Utilities` is a nested namespace.\n- The `toUpperCase` function is defined within the `Utilities` namespace.\n- You can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "Namespaces Across Files"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespaces can be used across multiple files using the `/// <reference path=\"...\" />` directive or the `outFile` compilation option.\nExample (single file):"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Multi-file namespace\n// Assume this is in utils.ts\nnamespace MyApp {\n  export function log(message: string): void {\n    console.log(message);\n  }\n}\n\n// In another file (main.ts)\n/// <reference path=\"utils.ts\" />\nMyApp.log('Test message'); // Test message\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- The `MyApp` namespace is defined in `utils.ts`.\n- The `main.ts` file references it using `/// <reference path=\"utils.ts\" />`.\n- The `log` function is called with `MyApp.log`.\n- You can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "Namespaces vs. Modules"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespaces and modules may seem similar, but they differ:\n- **Namespaces**: Organize code within a file or across files without requiring `import`/`export`.\n- **Modules**: File-based and use ES module `import`/`export` mechanisms.\n- **Use cases**: Namespaces are used in legacy projects or environments where modules are not supported.\nExample:"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Namespace example\nnamespace MyApp {\n  export function sayHello(): string {\n    return 'Hello!';\n  }\n}\n\n// Module example\n// Assume this is in module.ts\nexport function sayHello(): string {\n  return 'Hello!';\n}\n\n// In main.ts\n// import { sayHello } from './module';\nconsole.log(MyApp.sayHello()); // Hello!\n// console.log(sayHello()); // With module\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- The namespace approach is simpler but less modern than modules.\n- Modules are preferred in modern TypeScript projects.\n- You can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "Type Safety"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespaces integrate fully with TypeScript’s type system, ensuring type safety.\nExample:"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Type safety with namespace\nnamespace MyApp {\n  export interface User {\n    name: string;\n    age: number;\n  }\n\n  export function printUser(user: User): void {\n    console.log(`Name: ${user.name}, Age: ${user.age}`);\n  }\n}\n\nconst user: MyApp.User = { name: 'Alice', age: 25 };\nMyApp.printUser(user); // Name: Alice, Age: 25\n// MyApp.printUser({ name: 'Bob' }); // Error: Property 'age' is missing\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- The `User` interface is defined within the `MyApp` namespace.\n- The `printUser` function only accepts `User` type objects.\n- Type errors are caught at compile time.\n- You can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "Error-Prone Example"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Error-prone namespace usage\nnamespace MyApp {\n  export function calculate(value: number): number {\n    return value * 2;\n  }\n}\n\n// Incorrect usage\n// console.log(MyApp.calculate('10')); // Error: Argument of type 'string' is not assignable to 'number'\nconsole.log(MyApp.calculate(10)); // 20\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- The `calculate` function expects a `number` type.\n- Passing a `string` causes a compilation error.\n- You can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "Real-World Usage Scenarios"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespaces are used in real-world projects for:\n- **Legacy projects**: Pre-ES module TypeScript projects.\n- **Large codebases**: Grouping related functions and classes.\n- **Libraries**: Organizing third-party library code.\n- **Type definition files**: Structuring type definitions in `.d.ts` files.\nExample (real-world scenario):"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Real-world scenario\nnamespace MyApp.Data {\n  export interface Product {\n    id: number;\n    name: string;\n  }\n\n  export function getProduct(id: number): Product {\n    return { id, name: `Product ${id}` };\n  }\n}\n\nconst product = MyApp.Data.getProduct(1);\nconsole.log(product.name); // Product 1\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- The `MyApp.Data` namespace groups data-related functions and types.\n- The `getProduct` function returns a `Product` type object.\n- You can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "Brief Reference to Advanced Topics"
+        },
+        {
+          "type": "paragraph",
+          "text": "Namespaces can be used with advanced TypeScript features, but they are being phased out in favor of ES modules:\n- **Namespace deprecation**: ES modules are a more modern alternative.\n- **UMD and global namespaces**: For compatibility with legacy JavaScript libraries.\nFor more details, refer to the TypeScript documentation (https://www.typescriptlang.org/docs)."
+        },
+        {
+          "type": "heading",
+          "text": "Recommendations and Alternatives"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Recommendations**: Prefer ES modules in modern projects. Use namespaces in small or legacy projects. Enable `\"module\": \"esnext\"` in `tsconfig.json`. Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: ES modules (`import`/`export`) are a more modern and recommended approach.\n- You can test the code below in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "Try it Yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Try it yourself namespace example\nnamespace MyApp {\n  export function add(a: number, b: number): number {\n    return a + b;\n  }\n}\n\nconsole.log(MyApp.add(5, 3)); // 8\n"
+        }
+      ]
+    },
+    "ru": {
+      "title": "Пространства имен",
+      "icon": "FiFolder",
+      "language": "typescript",
+      "description": "Организация кода с помощью пространств имен.",
+      "content": [
+        {
+          "type": "heading",
+          "text": "Что такое пространства имен?"
+        },
+        {
+          "type": "paragraph",
+          "text": "В TypeScript пространства имен (namespaces) — это механизм для организации кода и предотвращения конфликтов имен. Они группируют связанные функции, классы, интерфейсы и переменные в логическую единицу, улучшая читаемость и структуру кода, особенно в больших проектах. В JavaScript прямого эквивалента пространствам имен нет, но аналогичная функциональность может быть реализована с помощью IIFE (Immediately Invoked Function Expressions) или объектов. В TypeScript пространства имен определяются с помощью ключевого слова `namespace` и представляют собой более традиционный подход по сравнению с ES-модулями. В отличие от модулей, которые основаны на файлах и используют `import`/`export`, пространства имен организуют код в пределах одного файла или нескольких файлов. Этот JSON-файл подробно объясняет определение, назначение, отличия от модулей, отличия от JavaScript, синтаксис, внутреннее и внешнее использование, вложенные пространства имен, многофайловые пространства имен, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "Назначение пространств имен"
+        },
+        {
+          "type": "paragraph",
+          "text": "Пространства имен в TypeScript используются для следующих целей:\n- **Организация кода**: Группировка связанных элементов кода.\n- **Предотвращение конфликтов имен**: Избежание коллизий переменных с одинаковыми именами.\n- **Читаемость**: Уточнение назначения и структуры кода.\n- **Повторное использование**: Возможность повторного использования элементов кода в пределах пространства имен.\n- **Масштаб проекта**: Упрощение управления кодом в больших проектах.\nВ JavaScript нет прямых эквивалентов пространствам имен, но объекты или IIFE могут выполнять аналогичные функции. Пространства имен TypeScript интегрированы с системой типов для дополнительной безопасности."
+        },
+        {
+          "type": "heading",
+          "text": "Синтаксис пространств имен"
+        },
+        {
+          "type": "paragraph",
+          "text": "Пространства имен определяются с помощью ключевого слова `namespace` и могут содержать функции, классы, интерфейсы и переменные.\nПример (простое пространство имен):"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Простое пространство имен\nnamespace MyApp {\n  export function greet(name: string): string {\n    return `Hello, ${name}!`;\n  }\n}\n\nconsole.log(MyApp.greet('Alice')); // Hello, Alice!\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- Пространство имен `MyApp` определяет функцию `greet`.\n- Ключевое слово `export` делает функцию доступной за пределами пространства имен.\n- Функция вызывается с помощью `MyApp.greet`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "Вложенные пространства имен"
+        },
+        {
+          "type": "paragraph",
+          "text": "Пространства имен могут быть вложенными с использованием точечной нотации (`.`).\nПример:"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Вложенное пространство имен\nnamespace MyApp.Utilities {\n  export function toUpperCase(str: string): string {\n    return str.toUpperCase();\n  }\n}\n\nconsole.log(MyApp.Utilities.toUpperCase('hello')); // HELLO\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- `MyApp.Utilities` — это вложенное пространство имен.\n- Функция `toUpperCase` определена внутри пространства имен `Utilities`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "Пространства имен в нескольких файлах"
+        },
+        {
+          "type": "paragraph",
+          "text": "Пространства имен могут использоваться в нескольких файлах с помощью директивы `/// <reference path=\"...\" />` или параметра компиляции `outFile`.\nПример (один файл):"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Многофайловое пространство имен\n// Предположим, это в файле utils.ts\nnamespace MyApp {\n  export function log(message: string): void {\n    console.log(message);\n  }\n}\n\n// В другом файле (main.ts)\n/// <reference path=\"utils.ts\" />\nMyApp.log('Test message'); // Test message\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- Пространство имен `MyApp` определено в файле `utils.ts`.\n- Файл `main.ts` ссылается на него с помощью `/// <reference path=\"utils.ts\" />`.\n- Функция `log` вызывается с помощью `MyApp.log`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "Пространства имен против модулей"
+        },
+        {
+          "type": "paragraph",
+          "text": "Пространства имен и модули могут казаться похожими, но имеют отличия:\n- **Пространства имен**: Организуют код внутри файла или между файлами без использования `import`/`export`.\n- **Модули**: Основаны на файлах и используют механизмы ES-модулей (`import`/`export`).\n- **Области применения**: Пространства имен используются в устаревших проектах или средах, где модули не поддерживаются.\nПример:"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Пример пространства имен\nnamespace MyApp {\n  export function sayHello(): string {\n    return 'Hello!';\n  }\n}\n\n// Пример модуля\n// Предположим, это в файле module.ts\nexport function sayHello(): string {\n  return 'Hello!';\n}\n\n// В файле main.ts\n// import { sayHello } from './module';\nconsole.log(MyApp.sayHello()); // Hello!\n// console.log(sayHello()); // С модулем\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- Подход с пространством имен проще, но менее современен, чем модули.\n- Модули предпочтительны в современных проектах TypeScript.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "Безопасность типов"
+        },
+        {
+          "type": "paragraph",
+          "text": "Пространства имен полностью интегрированы с системой типов TypeScript, обеспечивая безопасность типов.\nПример:"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Безопасность типов с пространством имен\nnamespace MyApp {\n  export interface User {\n    name: string;\n    age: number;\n  }\n\n  export function printUser(user: User): void {\n    console.log(`Name: ${user.name}, Age: ${user.age}`);\n  }\n}\n\nconst user: MyApp.User = { name: 'Alice', age: 25 };\nMyApp.printUser(user); // Name: Alice, Age: 25\n// MyApp.printUser({ name: 'Bob' }); // Ошибка: Отсутствует свойство 'age'\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- Интерфейс `User` определен внутри пространства имен `MyApp`.\n- Функция `printUser` принимает только объекты типа `User`.\n- Ошибки типов обнаруживаются на этапе компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "Пример, вызывающий ошибку"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Пример, вызывающий ошибку\nnamespace MyApp {\n  export function calculate(value: number): number {\n    return value * 2;\n  }\n}\n\n// Неправильное использование\n// console.log(MyApp.calculate('10')); // Ошибка: Аргумент типа 'string' не соответствует 'number'\nconsole.log(MyApp.calculate(10)); // 20\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- Функция `calculate` ожидает тип `number`.\n- Передача `string` вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "Сценарии использования в реальных проектах"
+        },
+        {
+          "type": "paragraph",
+          "text": "Пространства имен используются в реальных проектах для:\n- **Устаревших проектов**: Проекты TypeScript до появления ES-модулей.\n- **Больших баз кода**: Группировка связанных функций и классов.\n- **Библиотек**: Организация кода сторонних библиотек.\n- **Файлов определений типов**: Структурирование определений типов в файлах `.d.ts`.\nПример (реальный сценарий):"
+        },
+        {
+          "type": "code",
+          "language": "typescript",
+          "code": "// Реальный сценарий\nnamespace MyApp.Data {\n  export interface Product {\n    id: number;\n    name: string;\n  }\n\n  export function getProduct(id: number): Product {\n    return { id, name: `Product ${id}` };\n  }\n}\n\nconst product = MyApp.Data.getProduct(1);\nconsole.log(product.name); // Product 1\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- Пространство имен `MyApp.Data` группирует функции и типы, связанные с данными.\n- Функция `getProduct` возвращает объект типа `Product`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "Краткое упоминание продвинутых тем"
+        },
+        {
+          "type": "paragraph",
+          "text": "Пространства имен могут использоваться с продвинутыми возможностями TypeScript, но они постепенно заменяются ES-модулями:\n- **Устаревание пространств имен**: ES-модули являются более современной альтернативой.\n- **UMD и глобальные пространства имен**: Для совместимости с устаревшими библиотеками JavaScript.\nДля получения дополнительной информации обратитесь к документации TypeScript (https://www.typescriptlang.org/docs)."
+        },
+        {
+          "type": "heading",
+          "text": "Рекомендации и альтернативы"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Рекомендации**: Предпочитайте ES-модули в современных проектах. Используйте пространства имен в небольших или устаревших проектах. Включите `\"module\": \"esnext\"` в `tsconfig.json`. Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: ES-модули (`import`/`export`) — более современный и рекомендуемый подход.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "Попробуйте сами"
+        },
+        {
+          "type": "editor",
+          "initialCode": "// Пример пространства имен для самостоятельного тестирования\nnamespace MyApp {\n  export function add(a: number, b: number): number {\n    return a + b;\n  }\n}\n\nconsole.log(MyApp.add(5, 3)); // 8\n"
+        }
+      ]
+    }
+  }

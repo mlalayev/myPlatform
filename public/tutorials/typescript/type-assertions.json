@@ -1,0 +1,594 @@
+{
+  "id": "type-assertions",
+  "az": {
+    "title": "Tip Təsdiqləri",
+    "icon": "FiCheck",
+    "language": "typescript",
+    "description": "Kompilyatora tip haqqında məlumat vermək.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Tip Təsdiqləri Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də tip təsdiqləri (type assertions) kompilyatora dəyişənin müəyyən bir tipdə olduğunu bildirmək üçün istifadə olunur. Bu, proqramçının TypeScript-in tip sistemindən daha çox məlumatlı olduğu hallarda faydalıdır. Məsələn, bir dəyişən `any` və ya `unknown` tipindədirsə, lakin siz onun `string` olduğunu bilirsinizsə, tip təsdiqi ilə bunu kompilyatora bildirə bilərsiniz. Tip təsdiqləri TypeScript-in tip sistemində runtime yoxlamalarını əvəz etmir, yalnız kompilyasiya zamanı tip təhlükəsizliyini təmin edir. JavaScript-də tip təsdiqləri yoxdur, çünki JavaScript dinamik tipli dildir və tip yoxlamaları yalnız runtime zamanı aparılır. Tip təsdiqləri ilə tip qoruyucularının fərqi ondadır ki, tip qoruyucuları runtime yoxlamaları ilə tip daraltmasını (type narrowing) təmin edir, tip təsdiqləri isə sadəcə kompilyatora dəyişənin tipini 'təsdiq' edir. Bu JSON faylda tip təsdiqlərinin tərifi, istifadə məqsədləri, tip qoruyucularından fərqləri, JavaScript ilə fərqləri, sintaksisi, funksiyalarda, obyektlərdə, DOM elementlərində və birlik tiplərində istifadəsi, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Təsdiqlərinin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip təsdiqləri TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Tip dəqiqləşdirməsi**: Kompilyatora dəyişənin müəyyən bir tipdə olduğunu bildirmək.\n- **Tip təhlükəsizliyi**: Kompilyasiya zamanı tip xətalarının qarşısını almaq.\n- **DOM ilə iş**: DOM elementlərinin tiplərini dəqiqləşdirmək.\n- **Dinamik tiplərlə iş**: `any` və ya `unknown` tipli dəyişənlərlə işləyərkən.\n- **Oxunaqlılıq**: Kodun məqsədini və tip təsdiqini açıq şəkildə ifadə etmək.\nJavaScript-də tip təsdiqləri olmadığı üçün proqramçı runtime yoxlamaları ilə özü məsuliyyət daşıyır, TypeScript isə bu prosesi kompilyasiya zamanı asanlaşdırır."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Təsdiqlərinin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də tip təsdiqləri iki sintaksisdən istifadə edir:\n- **Angle bracket sintaksisi**: `<Tip>dəyişən`\n- **as sintaksisi**: `dəyişən as Tip`\n`as` sintaksisi daha müasirdir və JSX ilə uyğun gəldiyi üçün daha çox istifadə olunur.\nNümunə (sadə tip təsdiqi):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Sadə tip təsdiqi\nlet value: any = 'Hello';\nlet strLength: number = (value as string).length;\n// və ya\nlet strLength2: number = (<string>value).length;\n\nconsole.log(strLength); // 5\nconsole.log(strLength2); // 5\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `value` dəyişəni `any` tipindədir, lakin `as string` ilə `string` olduğunu təsdiqləyirik.\n- Kompilyator `value`-nu `string` kimi qəbul edir və `length` xüsusiyyətinə icazə verir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Təsdiqləri ilə DOM Elementlərində İş"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip təsdiqləri DOM elementləri ilə işləyərkən tez-tez istifadə olunur, çünki TypeScript DOM elementinin dəqiq tipini həmişə bilmir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// DOM ilə tip təsdiqi\nlet input = document.getElementById('myInput') as HTMLInputElement;\nconsole.log(input.value); // input.value-ə təhlükəsiz müraciət\n\n// Tip təsdiqi olmadan\nlet input2 = document.getElementById('myInput');\n// console.log(input2.value); // Xəta: value xüsusiyyəti HTMLElement tipində yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `document.getElementById` `HTMLElement | null` qaytarır, lakin biz `as HTMLInputElement` ilə dəqiqləşdiririk.\n- Tip təsdiqi ilə `value` xüsusiyyətinə təhlükəsiz müraciət edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Birlik Tipləri ilə Tip Təsdiqləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Birlik tipləri ilə işləyərkən tip təsdiqləri dəqiq tipə müraciət etmək üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Birlik tipləri ilə tip təsdiqi\nfunction processValue(value: string | number) {\n  let result: string;\n  if (typeof value === 'string') {\n    result = value; // Avtomatik tip daraltması\n  } else {\n    result = (value as number).toFixed(2);\n  }\n  console.log(result);\n}\n\nprocessValue('Hello'); // Hello\nprocessValue(42); // 42.00\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `typeof` ilə tip daraltması avtomatik aparılır, lakin `as number` ilə dəqiqləşdirmə də mümkündür.\n- Tip təsdiqi ilə `toFixed` metoduna təhlükəsiz müraciət edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "unknown Tipi ilə Tip Təsdiqləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "`unknown` tipi `any`-dən daha təhlükəsizdir, lakin tip təsdiqləri tələb edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// unknown ilə tip təsdiqi\nfunction processUnknown(value: unknown) {\n  if (typeof value === 'string') {\n    console.log((value as string).toUpperCase());\n  } else if (typeof value === 'number') {\n    console.log((value as number).toFixed(2));\n  } else {\n    console.log('Unknown type');\n  }\n}\n\nprocessUnknown('Hello'); // HELLO\nprocessUnknown(42); // 42.00\nprocessUnknown(true); // Unknown type\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `unknown` tipi ilə işləyərkən `typeof` ilə yoxlama aparılır və `as` ilə tip təsdiqlənir.\n- Tip təhlükəsizliyi kompilyasiya zamanı təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Təsdiqləri ilə Tip Qoruyucularının Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip təsdiqləri və tip qoruyucuları fərqli məqsədlərə xidmət edir:\n- **Tip təsdiqləri**: Kompilyatora dəyişənin tipini bildirir, runtime yoxlaması aparmır.\n- **Tip qoruyucuları**: Runtime yoxlamaları ilə tip daraltmasını təmin edir.\n- **Təhlükəsizlik**: Tip təsdiqləri yanlış istifadə edilərsə, runtime səhvlərinə səbəb ola bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Tip təsdiqi vs tip qoruyucusu\nfunction unsafeAssert(value: any) {\n  console.log((value as string).toUpperCase()); // Riskli: value string olmaya bilər\n}\n\nfunction safeGuard(value: any) {\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log('Not a string');\n  }\n}\n\nunsafeAssert('Hello'); // HELLO\n// unsafeAssert(42); // Runtime səhvi: toUpperCase metoduna malik deyil\nsafeGuard('Hello'); // HELLO\nsafeGuard(42); // Not a string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `unsafeAssert` tip təsdiqi ilə riskli şəkildə işləyir.\n- `safeGuard` tip qoruyucusu ilə təhlükəsizdir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Təsdiqlərinin Obyektlərdə İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip təsdiqləri obyektlərin xüsusiyyətlərinə müraciət etmək üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Obyektlərdə tip təsdiqi\ninterface User {\n  name: string;\n}\n\nlet data: any = { name: 'Alice' };\nlet user = data as User;\nconsole.log(user.name); // Alice\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `data` dəyişəni `any` tipindədir, lakin `as User` ilə `User` interfeysinə təsdiqlənir.\n- `name` xüsusiyyətinə təhlükəsiz müraciət edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip təsdiqləri kodun təhlükəsizliyini artıra bilər, lakin diqqətli olmaq lazımdır:\n- Tip təsdiqlərini yalnız dəyişənin tipindən əmin olduğunuzda istifadə edin.\n- `any` və `unknown` tiplərindən ehtiyatla istifadə edin.\n- Mümkünsə, tip qoruyucularından istifadə edin, çünki onlar runtime yoxlamasını təmin edir.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\nfunction processData(data: unknown) {\n  if (typeof data === 'string') {\n    return (data as string).toUpperCase();\n  }\n  return 'Unknown';\n}\n\nconsole.log(processData('Hello')); // HELLO\nconsole.log(processData(42)); // Unknown\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `unknown` tipi ilə işləyərkən `typeof` yoxlaması aparılır.\n- Tip təsdiqi yalnız təhlükəsiz hallarda istifadə olunur.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nfunction riskyAssert(value: any) {\n  return (value as string).toUpperCase(); // Riskli: value string olmaya bilər\n}\n\n// Düzgün yol\nfunction safeProcess(value: any) {\n  if (typeof value === 'string') {\n    return value.toUpperCase();\n  }\n  return 'Not a string';\n}\n\nconsole.log(riskyAssert('Hello')); // HELLO\n// console.log(riskyAssert(42)); // Runtime səhvi: toUpperCase metoduna malik deyil\nconsole.log(safeProcess('Hello')); // HELLO\nconsole.log(safeProcess(42)); // Not a string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `riskyAssert` tip təsdiqi ilə riskli şəkildə işləyir.\n- `safeProcess` tip qoruyucusu ilə təhlükəsizdir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip təsdiqləri real layihələrdə geniş istifadə olunur:\n- **API cavablarının idarə edilməsi**: API-dən gələn dinamik məlumatların tiplərini dəqiqləşdirmək.\n- **DOM manipulyasiyası**: DOM elementlərinin tiplərini təyin etmək.\n- **Dinamik məlumatlarla iş**: Xarici mənbələrdən gələn `any` və ya `unknown` tipli məlumatlarla iş.\n- **Komponent kitabxanaları**: React və ya Angular kimi kitabxanalarda dinamik tiplərlə iş.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface Product {\n  id: number;\n  name: string;\n}\n\nfunction fetchProduct(data: any) {\n  let product = data as Product;\n  console.log(`Product: ${product.name}, ID: ${product.id}`);\n}\n\nfetchProduct({ id: 1, name: 'Laptop' }); // Product: Laptop, ID: 1\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `data` dəyişəni `any` tipindədir, lakin `as Product` ilə `Product` interfeysinə təsdiqlənir.\n- Tip təhlükəsizliyi kompilyasiya zamanı təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip təsdiqləri qabaqcıl TypeScript xüsusiyyətləri ilə də istifadə oluna bilər:\n- **Non-null Assertion (`!`)**: Dəyişənin `null` və ya `undefined` olmadığını təsdiqləmək.\n- **Definite Assignment Assertion (`!`)**: Dəyişənin təyin olunduğunu bildirmək.\nBu mövzular haqqında ətraflı məlumat üçün TypeScript sənədlərinə (https://www.typescriptlang.org/docs) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Tip təsdiqlərini yalnız tipdən əmin olduğunuzda istifadə edin. `any` və `unknown` tiplərindən ehtiyatla istifadə edin. Mümkünsə, tip qoruyucularından istifadə edin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Tip təsdiqləri əvəzinə tip qoruyucuları və ya runtime yoxlamaları istifadə edilə bilər, lakin tip təsdiqləri daha qısa və çevikdir.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün tip təsdiqi nümunəsi\nlet value: any = 'Test';\nlet result = (value as string).toUpperCase();\nconsole.log(result); // TEST\n\n// DOM ilə nümunə\nlet element = document.getElementById('myInput') as HTMLInputElement;\nconsole.log(element.value || 'No value'); // No value (statik nümunə)\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Type Assertions",
+    "icon": "FiCheck",
+    "language": "typescript",
+    "description": "Informing the compiler about a variable's type.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Type Assertions?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, type assertions are used to tell the compiler that a variable is of a specific type. This is useful when the programmer knows more about the type than TypeScript’s type system can infer. For example, if a variable is of type `any` or `unknown` but you know it’s a `string`, you can use a type assertion to inform the compiler. Type assertions do not perform runtime checks; they only ensure type safety at compile time. JavaScript does not have type assertions, as it is a dynamically typed language where type checks occur only at runtime. Type assertions differ from type guards, which use runtime checks to narrow types, while assertions simply tell the compiler to treat a variable as a specific type. This JSON file explains the definition, purposes, differences from type guards, differences from JavaScript, syntax, usage in functions, objects, DOM elements, and union types, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Type Assertions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type assertions in TypeScript serve the following purposes:\n- **Type clarification**: Inform the compiler of a variable’s specific type.\n- **Type safety**: Prevent type errors at compile time.\n- **DOM manipulation**: Specify types for DOM elements.\n- **Dynamic types**: Work with `any` or `unknown` typed variables.\n- **Readability**: Clearly express the intent of type usage in code.\nIn JavaScript, since type assertions don’t exist, the programmer is responsible for runtime checks, while TypeScript simplifies this process at compile time."
+      },
+      {
+        "type": "heading",
+        "text": "Syntax of Type Assertions"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript supports two syntaxes for type assertions:\n- **Angle bracket syntax**: `<Type>variable`\n- **as syntax**: `variable as Type`\nThe `as` syntax is more modern and preferred, especially with JSX compatibility.\nExample (simple type assertion):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Simple type assertion\nlet value: any = 'Hello';\nlet strLength: number = (value as string).length;\n// or\nlet strLength2: number = (<string>value).length;\n\nconsole.log(strLength); // 5\nconsole.log(strLength2); // 5\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `value` is of type `any`, but `as string` asserts it’s a `string`.\n- The compiler treats `value` as a `string`, allowing access to `length`.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Assertions with DOM Elements"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type assertions are commonly used when working with DOM elements, as TypeScript may not know the exact type of an element.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type assertion with DOM\nlet input = document.getElementById('myInput') as HTMLInputElement;\nconsole.log(input.value); // Safe access to input.value\n\n// Without type assertion\nlet input2 = document.getElementById('myInput');\n// console.log(input2.value); // Error: value does not exist on HTMLElement\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `document.getElementById` returns `HTMLElement | null`, but we assert it’s an `HTMLInputElement`.\n- The assertion allows safe access to `value`.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Assertions with Union Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "With union types, type assertions help access specific type properties.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type assertion with union types\nfunction processValue(value: string | number) {\n  let result: string;\n  if (typeof value === 'string') {\n    result = value; // Automatic type narrowing\n  } else {\n    result = (value as number).toFixed(2);\n  }\n  console.log(result);\n}\n\nprocessValue('Hello'); // Hello\nprocessValue(42); // 42.00\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `typeof` provides automatic type narrowing, but `as number` can also clarify the type.\n- The assertion ensures safe access to `toFixed`.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Assertions with unknown Type"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `unknown` type is safer than `any` but requires type assertions.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type assertion with unknown\nfunction processUnknown(value: unknown) {\n  if (typeof value === 'string') {\n    console.log((value as string).toUpperCase());\n  } else if (typeof value === 'number') {\n    console.log((value as number).toFixed(2));\n  } else {\n    console.log('Unknown type');\n  }\n}\n\nprocessUnknown('Hello'); // HELLO\nprocessUnknown(42); // 42.00\nprocessUnknown(true); // Unknown type\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `unknown` requires `typeof` checks and type assertions.\n- Type safety is enforced at compile time.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Assertions vs. Type Guards"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type assertions and type guards serve different purposes:\n- **Type assertions**: Tell the compiler a variable’s type without runtime checks.\n- **Type guards**: Use runtime checks to narrow types.\n- **Safety**: Incorrect type assertions can cause runtime errors.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type assertion vs. type guard\nfunction unsafeAssert(value: any) {\n  console.log((value as string).toUpperCase()); // Risky: value may not be a string\n}\n\nfunction safeGuard(value: any) {\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log('Not a string');\n  }\n}\n\nunsafeAssert('Hello'); // HELLO\n// unsafeAssert(42); // Runtime error: toUpperCase is not a function\nsafeGuard('Hello'); // HELLO\nsafeGuard(42); // Not a string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `unsafeAssert` uses a risky type assertion.\n- `safeGuard` uses a type guard for safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Assertions with Objects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type assertions are used to access object properties safely.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type assertion with objects\ninterface User {\n  name: string;\n}\n\nlet data: any = { name: 'Alice' };\nlet user = data as User;\nconsole.log(user.name); // Alice\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `data` is of type `any`, but `as User` asserts it’s a `User`.\n- The `name` property is accessed safely.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type assertions can enhance code safety, but caution is needed:\n- Use type assertions only when certain of the type.\n- Be cautious with `any` and `unknown` types.\n- Prefer type guards when possible, as they provide runtime checks.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\nfunction processData(data: unknown) {\n  if (typeof data === 'string') {\n    return (data as string).toUpperCase();\n  }\n  return 'Unknown';\n}\n\nconsole.log(processData('Hello')); // HELLO\nconsole.log(processData(42)); // Unknown\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `unknown` is checked with `typeof` before asserting.\n- Type assertions are used safely.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nfunction riskyAssert(value: any) {\n  return (value as string).toUpperCase(); // Risky: value may not be a string\n}\n\n// Correct approach\nfunction safeProcess(value: any) {\n  if (typeof value === 'string') {\n    return value.toUpperCase();\n  }\n  return 'Not a string';\n}\n\nconsole.log(riskyAssert('Hello')); // HELLO\n// console.log(riskyAssert(42)); // Runtime error: toUpperCase is not a function\nconsole.log(safeProcess('Hello')); // HELLO\nconsole.log(safeProcess(42)); // Not a string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `riskyAssert` uses a risky type assertion.\n- `safeProcess` uses a type guard for safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type assertions are widely used in real projects:\n- **API response handling**: Clarifying types for dynamic API data.\n- **DOM manipulation**: Specifying types for DOM elements.\n- **Dynamic data**: Working with `any` or `unknown` data from external sources.\n- **Component libraries**: Handling dynamic types in React or Angular.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface Product {\n  id: number;\n  name: string;\n}\n\nfunction fetchProduct(data: any) {\n  let product = data as Product;\n  console.log(`Product: ${product.name}, ID: ${product.id}`);\n}\n\nfetchProduct({ id: 1, name: 'Laptop' }); // Product: Laptop, ID: 1\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `data` is of type `any`, but `as Product` asserts it’s a `Product`.\n- Type safety is enforced at compile time.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type assertions can be used with advanced TypeScript features:\n- **Non-null Assertion (`!`)**: Asserting a variable is not `null` or `undefined`.\n- **Definite Assignment Assertion (`!`)**: Asserting a variable is assigned.\nFor more details, refer to the TypeScript documentation (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use type assertions only when certain of the type. Be cautious with `any` and `unknown`. Prefer type guards when possible. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Type guards or runtime checks can be used instead of type assertions, but assertions are shorter and more flexible.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself type assertion example\nlet value: any = 'Test';\nlet result = (value as string).toUpperCase();\nconsole.log(result); // TEST\n\n// DOM example\nlet element = document.getElementById('myInput') as HTMLInputElement;\nconsole.log(element.value || 'No value'); // No value (static example)\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Утверждения типов",
+    "icon": "FiCheck",
+    "language": "typescript",
+    "description": "Сообщение компилятору о типе переменной.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое утверждения типов?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript утверждения типов (type assertions) используются для того, чтобы сообщить компилятору, что переменная имеет определенный тип. Это полезно, когда программист знает больше о типе, чем может определить система типов TypeScript. Например, если переменная имеет тип `any` или `unknown`, но вы знаете, что это `string`, вы можете использовать утверждение типа, чтобы сообщить об этом компилятору. Утверждения типов не выполняют проверки во время выполнения; они обеспечивают безопасность типов только на этапе компиляции. В JavaScript утверждений типов нет, так как это динамически типизированный язык, и проверки типов выполняются только во время выполнения. Утверждения типов отличаются от типовых охранников, которые используют проверки во время выполнения для сужения типов, тогда как утверждения просто указывают компилятору рассматривать переменную как определенный тип. Этот JSON-файл подробно объясняет определение, назначение, отличия от типовых охранников, отличия от JavaScript, синтаксис, использование в функциях, объектах, DOM-элементах и объединенных типах, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение утверждений типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Утверждения типов в TypeScript используются для следующих целей:\n- **Уточнение типа**: Сообщение компилятору о конкретном типе переменной.\n- **Безопасность типов**: Предотвращение ошибок типов на этапе компиляции.\n- **Работа с DOM**: Уточнение типов для DOM-элементов.\n- **Работа с динамическими типами**: Работа с переменными типов `any` или `unknown`.\n- **Читаемость**: Ясное выражение намерения использования типа в коде.\nВ JavaScript, поскольку утверждений типов нет, программист отвечает за проверки во время выполнения, тогда как TypeScript упрощает этот процесс на этапе компиляции."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис утверждений типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript поддерживает два синтаксиса для утверждений типов:\n- **Синтаксис угловых скобок**: `<Тип>переменная`\n- **Синтаксис as**: `переменная as Тип`\nСинтаксис `as` является более современным и предпочтительным, особенно из-за совместимости с JSX.\nПример (простое утверждение типа):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Простое утверждение типа\nlet value: any = 'Hello';\nlet strLength: number = (value as string).length;\n// или\nlet strLength2: number = (<string>value).length;\n\nconsole.log(strLength); // 5\nconsole.log(strLength2); // 5\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Переменная `value` имеет тип `any`, но `as string` утверждает, что это `string`.\n- Компилятор рассматривает `value` как `string`, разрешая доступ к `length`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Утверждения типов с DOM-элементами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Утверждения типов часто используются при работе с DOM-элементами, так как TypeScript не всегда знает точный тип элемента.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Утверждение типа с DOM\nlet input = document.getElementById('myInput') as HTMLInputElement;\nconsole.log(input.value); // Безопасный доступ к input.value\n\n// Без утверждения типа\nlet input2 = document.getElementById('myInput');\n// console.log(input2.value); // Ошибка: value не существует в HTMLElement\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `document.getElementById` возвращает `HTMLElement | null`, но мы утверждаем, что это `HTMLInputElement`.\n- Утверждение позволяет безопасно обращаться к `value`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Утверждения типов с объединенными типами"
+      },
+      {
+        "type": "paragraph",
+        "text": "При работе с объединенными типами утверждения типов помогают обращаться к свойствам конкретного типа.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Утверждение типа с объединенными типами\nfunction processValue(value: string | number) {\n  let result: string;\n  if (typeof value === 'string') {\n    result = value; // Автоматическое сужение типа\n  } else {\n    result = (value as number).toFixed(2);\n  }\n  console.log(result);\n}\n\nprocessValue('Hello'); // Hello\nprocessValue(42); // 42.00\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `typeof` обеспечивает автоматическое сужение типа, но `as number` также может уточнить тип.\n- Утверждение обеспечивает безопасный доступ к `toFixed`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Утверждения типов с типом unknown"
+      },
+      {
+        "type": "paragraph",
+        "text": "Тип `unknown` безопаснее, чем `any`, но требует утверждений типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Утверждение типа с unknown\nfunction processUnknown(value: unknown) {\n  if (typeof value === 'string') {\n    console.log((value as string).toUpperCase());\n  } else if (typeof value === 'number') {\n    console.log((value as number).toFixed(2));\n  } else {\n    console.log('Unknown type');\n  }\n}\n\nprocessUnknown('Hello'); // HELLO\nprocessUnknown(42); // 42.00\nprocessUnknown(true); // Unknown type\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `unknown` требует проверки `typeof` и утверждений типов.\n- Безопасность типов обеспечивается на этапе компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Утверждения типов против типовых охранников"
+      },
+      {
+        "type": "paragraph",
+        "text": "Утверждения типов и типовые охранники служат разным целям:\n- **Утверждения типов**: Сообщают компилятору тип переменной без проверок во время выполнения.\n- **Типовые охранники**: Используют проверки во время выполнения для сужения типов.\n- **Безопасность**: Неправильные утверждения типов могут привести к ошибкам во время выполнения.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Утверждение типа против типового охранника\nfunction unsafeAssert(value: any) {\n  console.log((value as string).toUpperCase()); // Рискованно: value может не быть строкой\n}\n\nfunction safeGuard(value: any) {\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log('Not a string');\n  }\n}\n\nunsafeAssert('Hello'); // HELLO\n// unsafeAssert(42); // Ошибка времени выполнения: toUpperCase не является функцией\nsafeGuard('Hello'); // HELLO\nsafeGuard(42); // Not a string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `unsafeAssert` использует рискованное утверждение типа.\n- `safeGuard` использует типовой охранник для безопасности.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Утверждения типов с объектами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Утверждения типов используются для безопасного доступа к свойствам объектов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Утверждение типа с объектами\ninterface User {\n  name: string;\n}\n\nlet data: any = { name: 'Alice' };\nlet user = data as User;\nconsole.log(user.name); // Alice\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Переменная `data` имеет тип `any`, но `as User` утверждает, что это `User`.\n- Свойство `name` доступно безопасно.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Утверждения типов могут повысить безопасность кода, но требуется осторожность:\n- Используйте утверждения типов только при уверенности в типе.\n- Будьте осторожны с типами `any` и `unknown`.\n- По возможности используйте типовые охранники, так как они обеспечивают проверки во время выполнения.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\nfunction processData(data: unknown) {\n  if (typeof data === 'string') {\n    return (data as string).toUpperCase();\n  }\n  return 'Unknown';\n}\n\nconsole.log(processData('Hello')); // HELLO\nconsole.log(processData(42)); // Unknown\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `unknown` проверяется с помощью `typeof` перед утверждением.\n- Утверждения типов используются безопасно.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nfunction riskyAssert(value: any) {\n  return (value as string).toUpperCase(); // Рискованно: value может не быть строкой\n}\n\n// Правильный подход\nfunction safeProcess(value: any) {\n  if (typeof value === 'string') {\n    return value.toUpperCase();\n  }\n  return 'Not a string';\n}\n\nconsole.log(riskyAssert('Hello')); // HELLO\n// console.log(riskyAssert(42)); // Ошибка времени выполнения: toUpperCase не является функцией\nconsole.log(safeProcess('Hello')); // HELLO\nconsole.log(safeProcess(42)); // Not a string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `riskyAssert` использует рискованное утверждение типа.\n- `safeProcess` использует типовой охранник для безопасности.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Утверждения типов широко используются в реальных проектах:\n- **Обработка ответов API**: Уточнение типов для динамических данных API.\n- **Манипуляция DOM**: Указание типов для DOM-элементов.\n- **Работа с динамическими данными**: Работа с данными `any` или `unknown` из внешних источников.\n- **Библиотеки компонентов**: Обработка динамических типов в React или Angular.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface Product {\n  id: number;\n  name: string;\n}\n\nfunction fetchProduct(data: any) {\n  let product = data as Product;\n  console.log(`Product: ${product.name}, ID: ${product.id}`);\n}\n\nfetchProduct({ id: 1, name: 'Laptop' }); // Product: Laptop, ID: 1\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Переменная `data` имеет тип `any`, но `as Product` утверждает, что это `Product`.\n- Безопасность типов обеспечивается на этапе компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Утверждения типов могут использоваться с продвинутыми возможностями TypeScript:\n- **Утверждение ненулевого значения (`!`)**: Утверждение, что переменная не является `null` или `undefined`.\n- **Утверждение определенного присваивания (`!`)**: Утверждение, что переменная присвоена.\nДля получения дополнительной информации обратитесь к документации TypeScript (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте утверждения типов только при уверенности в типе. Будьте осторожны с типами `any` и `unknown`. По возможности используйте типовые охранники. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо утверждений типов можно использовать типовые охранники или проверки во время выполнения, но утверждения типов короче и гибче.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример утверждения типа для самостоятельного тестирования\nlet value: any = 'Test';\nlet result = (value as string).toUpperCase();\nconsole.log(result); // TEST\n\n// Пример с DOM\nlet element = document.getElementById('myInput') as HTMLInputElement;\nconsole.log(element.value || 'No value'); // No value (статический пример)\n"
+      }
+    ]
+  }
+}

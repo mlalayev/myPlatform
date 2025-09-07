@@ -274,15 +274,17 @@ export default function TutorialsFrameworksPage() {
     const isCompleted = progress.percent === 100 && progress.total > 0;
 
     const cardContent = (
-      <div
-        className={
-          unavailable
-            ? `${styles.languageItem} ${styles.languageItemUnavailable}`
-            : isCompleted
-            ? `${styles.languageItem} ${styles.completed}`
-            : styles.languageItem
-        }
-      >
+      <div className={isCompleted ? styles.hoverArea : ''}>
+        <div className={isCompleted ? styles.cardWrapper : ''}>
+          <div
+            className={
+              unavailable
+                ? `${styles.frameworkItem} ${styles.frameworkItemUnavailable}`
+                : isCompleted
+                ? `${styles.frameworkItem} ${styles.completed}`
+                : styles.frameworkItem
+            }
+          >
         <div className={styles.itemContent}>
           <div className={styles.itemLeft}>
             <div className={styles.itemIcon}>
@@ -313,17 +315,45 @@ export default function TutorialsFrameworksPage() {
               />
             </div>
             <span className={`${styles.progressText} ${isCompleted ? styles.completedText : ''}`}>
-              {progress.percent}% tamamlandı
+              {progress.percent}%
             </span>
           </div>
         )}
         
+        {/* Card Back Side - Only for completed lessons */}
         {isCompleted && (
-          <div className={styles.completedBadge}>
-            <FiIcons.FiCheck size={16} />
-            Tamamlandı
+          <div className={styles.cardBack}>
+            <div className={styles.cardBackButtons}>
+              <button 
+                className={styles.cardBackButton}
+                onClick={() => window.location.href = `/az/tutorials/frameworks/${apiFrameworkName}`}
+              >
+                <FiIcons.FiBookOpen size={16} />
+                Dərslərə Bax
+              </button>
+              <button 
+                className={`${styles.cardBackButton} ${styles.secondary}`}
+                onClick={() => {
+                  // TODO: Implement test system
+                  alert('Test sistemi tezliklə əlavə ediləcək!');
+                }}
+              >
+                <FiIcons.FiAward size={16} />
+                Test Et
+              </button>
+              <button 
+                className={`${styles.cardBackButton} ${styles.success}`}
+                onClick={() => window.location.href = `/az/exercises`}
+              >
+                <FiIcons.FiTarget size={16} />
+                Məşqlər
+              </button>
+            </div>
           </div>
         )}
+        
+        </div>
+        </div>
       </div>
     );
 

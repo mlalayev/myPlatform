@@ -745,7 +745,8 @@ async function getStreakData(userId: number) {
     const now = new Date();
     
     // Use proper timezone calculation - get current date in Azerbaijan
-    const azerbaijanTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Baku"}));
+    const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
     const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
     
     // Debug: Check if we're getting the right date
@@ -762,35 +763,38 @@ async function getStreakData(userId: number) {
     console.log('Backend Streak Debug - Today month:', today.getMonth() + 1);
     console.log('Backend Streak Debug - Today year:', today.getFullYear());
     
-    // Get activities for the last 28 days (including today)
-    const twentyEightDaysAgo = new Date(today);
-    twentyEightDaysAgo.setDate(today.getDate() - 27);
-    twentyEightDaysAgo.setHours(0, 0, 0, 0);
+    // Get activities for the last 365 days (full year like GitHub)
+    const oneYearAgo = new Date(today);
+    oneYearAgo.setDate(today.getDate() - 364); // 365 days including today
+    oneYearAgo.setHours(0, 0, 0, 0);
 
-    console.log('Backend Streak Debug - 28 days ago:', twentyEightDaysAgo.toISOString());
-    console.log('Backend Streak Debug - 28 days ago day:', twentyEightDaysAgo.getDate());
+    console.log('Backend Streak Debug - One year ago:', oneYearAgo.toISOString());
+    console.log('Backend Streak Debug - One year ago day:', oneYearAgo.getDate());
 
     const dailyActivities = await prisma.dailyActivity.findMany({
       where: {
         userId,
-        date: { gte: twentyEightDaysAgo }
+        date: { gte: oneYearAgo }
       },
       orderBy: { date: 'asc' }
     });
 
     console.log('Backend Streak Debug - Found activities:', dailyActivities.length);
 
-    // Create array of last 28 days
+    // Create array of last 365 days (GitHub-style)
     const streakDays = [];
     
-    // Start from 28 days ago and go to today
-    for (let i = 0; i < 28; i++) {
-      const currentDate = new Date(twentyEightDaysAgo);
-      currentDate.setDate(twentyEightDaysAgo.getDate() + i);
+    // Start from one year ago and go to today
+    for (let i = 0; i < 365; i++) {
+      const currentDate = new Date(oneYearAgo);
+      currentDate.setDate(oneYearAgo.getDate() + i);
       currentDate.setHours(0, 0, 0, 0);
       
       const dayOfMonth = currentDate.getDate();
-      const isToday = i === 27; // Last position is today
+      const month = currentDate.getMonth();
+      const year = currentDate.getFullYear();
+      const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
+      const isToday = i === 364; // Last position is today
       
       // Find activity for this specific date
       const dayActivity = dailyActivities.find((activity: any) => {
@@ -801,13 +805,27 @@ async function getStreakData(userId: number) {
       
       const isActive = dayActivity && (dayActivity.lessonsViewed > 0 || dayActivity.exercisesSolved > 0 || dayActivity.quizzesTaken > 0);
       
+      // Calculate activity level (0-4 like GitHub)
+      let activityLevel = 0;
+      if (dayActivity) {
+        const totalActivity = (dayActivity.lessonsViewed || 0) + (dayActivity.exercisesSolved || 0) + (dayActivity.quizzesTaken || 0);
+        if (totalActivity >= 10) activityLevel = 4;
+        else if (totalActivity >= 7) activityLevel = 3;
+        else if (totalActivity >= 4) activityLevel = 2;
+        else if (totalActivity >= 1) activityLevel = 1;
+      }
+      
       // Debug for last 5 days
-      if (i >= 23) {
+      if (i >= 360) {
         console.log(`Backend Streak Debug - Day ${i + 1}:`, {
           date: currentDate.toISOString(),
           dayOfMonth,
+          month: month + 1,
+          year,
+          dayOfWeek,
           isToday,
           isActive,
+          activityLevel,
           index: i
         });
       }
@@ -815,8 +833,12 @@ async function getStreakData(userId: number) {
       streakDays.push({ 
         date: currentDate.toISOString(), 
         day: dayOfMonth,
+        month: month + 1,
+        year,
+        dayOfWeek,
         isActive, 
         isToday,
+        activityLevel,
         lessonsViewed: dayActivity?.lessonsViewed || 0,
         exercisesSolved: dayActivity?.exercisesSolved || 0,
         quizzesTaken: dayActivity?.quizzesTaken || 0

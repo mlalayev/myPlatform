@@ -88,13 +88,18 @@ export default function ProfileFavorites() {
 
   const navigateToItem = (favorite: Favorite) => {
     if (favorite.type === 'LESSON') {
-      // Navigate to lesson page - we need language and lesson ID
-      // Since we store language in the favorite, we can construct the URL
-      if (favorite.language) {
-        window.location.href = `/az/tutorials/languages/${favorite.language}/${favorite.itemId}`;
+      // Check if itemId contains the full path (new format)
+      if (favorite.itemId.includes('/')) {
+        // New format: "languages/javascript/basics" or "frameworks/react/basics"
+        window.location.href = `/az/tutorials/${favorite.itemId}`;
       } else {
-        // Fallback - try to find the lesson in tutorials
-        window.location.href = `/az/tutorials`;
+        // Old format: just the lesson ID, use language for navigation
+        if (favorite.language) {
+          window.location.href = `/az/tutorials/languages/${favorite.language}/${favorite.itemId}`;
+        } else {
+          // Fallback - try to find the lesson in tutorials
+          window.location.href = `/az/tutorials`;
+        }
       }
     } else if (favorite.type === 'EXERCISE') {
       // Navigate to exercise page
