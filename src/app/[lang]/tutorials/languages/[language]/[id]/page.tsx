@@ -262,9 +262,11 @@ export default function TutorialTopicPage() {
             JSON.stringify(visitedLessonsByLang)
           );
         } catch (e) {
+          console.log('🔥 fetchVisited - error, setting empty array');
           setVisitedLessons([]);
         }
       } else {
+        console.log('🔥 fetchVisited - setting state from localStorage:', visited);
         setVisitedLessons(visited);
       }
     };
@@ -289,6 +291,7 @@ export default function TutorialTopicPage() {
       // Always update the state first to show the tick immediately
       if (!visited.includes(safeTopicId)) {
         const newVisited = [...visited, safeTopicId];
+        console.log('🔥 Setting visitedLessons state to:', newVisited);
         setVisitedLessons(newVisited);
         
         // Update localStorage
@@ -298,12 +301,15 @@ export default function TutorialTopicPage() {
           JSON.stringify(visitedLessonsByLang)
         );
         
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('visitedLessonsUpdated', {
-          detail: { language: safeLanguage, lessonId: safeTopicId }
-        }));
+        // Dispatch custom event to notify other components (with small delay)
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('visitedLessonsUpdated', {
+            detail: { language: safeLanguage, lessonId: safeTopicId }
+          }));
+        }, 100);
         
-        console.log('Marking lesson as visited:', safeTopicId, 'language:', safeLanguage);
+        console.log('🔥 Marking lesson as visited:', safeTopicId, 'language:', safeLanguage);
+        console.log('🔥 Updated localStorage visitedLessons:', JSON.parse(localStorage.getItem("visitedLessons") || "{}"));
         
         // Sync to server only if user is logged in
         if (session?.user) {
@@ -338,7 +344,13 @@ export default function TutorialTopicPage() {
         }
       } else {
         console.log('Lesson already visited locally:', safeTopicId);
-        setVisitedLessons(visited);
+        // Even if already visited, make sure state includes this lesson
+        if (!visited.includes(safeTopicId)) {
+          const newVisited = [...visited, safeTopicId];
+          setVisitedLessons(newVisited);
+        } else {
+          setVisitedLessons(visited);
+        }
       }
     };
     
@@ -511,8 +523,8 @@ export default function TutorialTopicPage() {
                 ? visitedLessons
                 : [];
               const isVisited = visitedArr.includes(topic.id);
-              if (isVisited) {
-                console.log(`[Sidebar] Topic ${topic.id} is visited`);
+              if (topic.id === safeTopicId) {
+                console.log(`🔥 [Sidebar] Current topic ${topic.id} - visitedArr:`, visitedArr, 'isVisited:', isVisited);
               }
               return (
                 <button

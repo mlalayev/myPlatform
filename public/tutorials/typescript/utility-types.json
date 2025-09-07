@@ -1,0 +1,1221 @@
+{
+  "id": "utility-types",
+  "az": {
+    "title": "Yardımçı Tiplər",
+    "icon": "FiTool",
+    "language": "typescript",
+    "description": "Partial, Required, Pick, Omit və s.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Yardımçı Tiplər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də yardımçı tiplər (utility types) mövcud tipləri dəyişdirmək və ya yeni tiplər yaratmaq üçün istifadə olunan daxili alətlərdir. Bu tiplər generic tiplər və şərti tiplər əsasında qurulur və kodun tip təhlükəsizliyini artırmaq, təkrar istifadəni asanlaşdırmaq və oxunaqlılığı artırmaq üçün nəzərdə tutulub. Məsələn, `Partial` bir obyektin bütün xüsusiyyətlərini opsional edir, `Required` isə əksinə, bütün xüsusiyyətləri mütləq tələb olunan edir. `Pick` və `Omit` tipləri obyektin müəyyən xüsusiyyətlərini seçmək və ya çıxarmaq üçün istifadə olunur. JavaScript-də belə bir mexanizm yoxdur, buna görə adətən `any` tipi istifadə olunur ki, bu da tip təhlükəsizliyini azaldır və runtime səhvlərinə səbəb ola bilər. TypeScript-də yardımçı tiplər kompilyasiya zamanı tip yoxlamasını gücləndirir və səhvləri azaltmağa kömək edir. Bu JSON faylda `Partial`, `Required`, `Pick`, `Omit`, `Readonly`, `Record`, `Exclude`, `Extract`, `NonNullable`, `ReturnType`, `Parameters` kimi yardımçı tiplərin tərifi, istifadə məqsədləri, generic və şərti tiplərlə əlaqəsi, JavaScript ilə fərqləri, sintaksisi, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Yardımçı Tiplərin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yardımçı tiplər TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Tip transformasiyası**: Mövcud tipləri dəyişdirərək yeni tiplər yaratmaq.\n- **Tip təhlükəsizliyi**: Tip strukturunu daha dəqiq idarə etmək.\n- **Kodun təkrar istifadəsi**: Tipləri yenidən istifadə edilə bilən şəkildə təyin etmək.\n- **Oxunaqlılıq**: Kodun məqsədini və tip strukturunu aydın ifadə etmək.\n- **Səhvlərin qarşısını almaq**: Yanlış tiplərin istifadəsini kompilyasiya zamanı aşkar etmək.\nJavaScript-də oxşar funksionallıq üçün `any` tipi istifadə olunur, lakin bu, tip təhlükəsizliyini təmin etmir və runtime səhvlərinə yol aça bilər. Yardımçı tiplər bu problemi həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Yardımçı Tiplərin Sintaksisi və Nümunələri"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də yardımçı tiplər generic və şərti tiplər əsasında qurulur. Aşağıda ən çox istifadə olunan yardımçı tiplər və onların sadə və mürəkkəb nümunələri verilmişdir."
+      },
+      {
+        "type": "heading",
+        "text": "1. Partial<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Partial<T>` bir obyektin bütün xüsusiyyətlərini opsional (isteğe bağlı) edir.\nSadə nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Partial<T> sadə nümunə\ninterface User {\n  id: number;\n  name: string;\n  age: number;\n}\n\ntype PartialUser = Partial<User>;\n\nlet user: PartialUser = { id: 1 }; // name və age opsionaldır\n\nconsole.log(user); // { id: 1 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Partial<User>` `User` interfeysinin bütün xüsusiyyətlərini opsional edir.\n- Obyektə yalnız `id` daxil edilə bilər, digər xüsusiyyətlər tələb olunmur.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz.\nMürəkkəb nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Partial<T> mürəkkəb nümunə\ninterface User {\n  id: number;\n  name: string;\n  profile: { bio: string; avatar: string };\n}\n\ntype PartialUser = Partial<User>;\n\nfunction updateUser(user: PartialUser): User {\n  return {\n    id: user.id ?? 0,\n    name: user.name ?? 'Unknown',\n    profile: user.profile ?? { bio: '', avatar: '' }\n  };\n}\n\nlet updatedUser = updateUser({ name: 'Alice', profile: { bio: 'Developer' } });\n\nconsole.log(updatedUser); // { id: 0, name: 'Alice', profile: { bio: 'Developer', avatar: '' } }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Partial<User>` mürəkkəb obyekt strukturunda (`profile` daxil olmaqla) bütün xüsusiyyətləri opsional edir.\n- `updateUser` funksiyası qismən məlumatla işləyir və tam `User` obyekti qaytarır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "2. Required<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Required<T>` bir obyektin bütün xüsusiyyətlərini mütləq tələb olunan edir.\nSadə nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Required<T> sadə nümunə\ninterface User {\n  id?: number;\n  name?: string;\n  age?: number;\n}\n\ntype RequiredUser = Required<User>;\n\nlet user: RequiredUser = { id: 1, name: 'Alice', age: 30 }; // Bütün xüsusiyyətlər tələb olunur\n// let invalidUser: RequiredUser = { id: 1 }; // Xəta: name və age tələb olunur\n\nconsole.log(user); // { id: 1, name: 'Alice', age: 30 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Required<User>` `User` interfeysinin bütün xüsusiyyətlərini mütləq tələb olunan edir.\n- Yanlış obyekt təyin edilməsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz.\nMürəkkəb nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Required<T> mürəkkəb nümunə\ninterface User {\n  id?: number;\n  name?: string;\n  profile?: { bio: string; avatar?: string };\n}\n\ntype RequiredUser = Required<User>;\n\nlet user: RequiredUser = {\n  id: 1,\n  name: 'Alice',\n  profile: { bio: 'Developer', avatar: 'avatar.png' }\n}; // Bütün xüsusiyyətlər tələb olunur\n// let invalidUser: RequiredUser = { id: 1, name: 'Alice' }; // Xəta: profile tələb olunur\n\nconsole.log(user); // { id: 1, name: 'Alice', profile: { bio: 'Developer', avatar: 'avatar.png' } }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Required<User>` daxili obyektləri (`profile`) da mütləq tələb olunan edir.\n- Yanlış obyekt təyin edilməsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "3. Pick<T, K>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Pick<T, K>` bir obyekt tipindən yalnız müəyyən xüsusiyyətləri seçir.\nSadə nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Pick<T, K> sadə nümunə\ninterface User {\n  id: number;\n  name: string;\n  age: number;\n}\n\ntype UserSubset = Pick<User, 'id' | 'name'>;\n\nlet user: UserSubset = { id: 1, name: 'Alice' }; // Yalnız id və name tələb olunur\n// let invalidUser: UserSubset = { id: 1, age: 30 }; // Xəta: age UserSubset-də yoxdur\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Pick<User, 'id' | 'name'>` `User` interfeysindən yalnız `id` və `name` xüsusiyyətlərini seçir.\n- Digər xüsusiyyətlər (məsələn, `age`) daxil edilə bilməz.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz.\nMürəkkəb nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Pick<T, K> mürəkkəb nümunə\ninterface User {\n  id: number;\n  name: string;\n  profile: { bio: string; avatar: string };\n}\n\ntype UserBasicInfo = Pick<User, 'id' | 'name'>;\n\nfunction displayUserInfo(user: UserBasicInfo) {\n  return `ID: ${user.id}, Name: ${user.name}`;\n}\n\nlet result = displayUserInfo({ id: 1, name: 'Alice' });\n\nconsole.log(result); // ID: 1, Name: Alice\n// let invalid = displayUserInfo({ id: 1, profile: { bio: 'Developer', avatar: '' } }); // Xəta: profile UserBasicInfo-da yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Pick<User, 'id' | 'name'>` yalnız `id` və `name` xüsusiyyətlərini seçir.\n- Funksiya yalnız bu xüsusiyyətlərlə işləyir, digər xüsusiyyətlər qəbul edilmir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "4. Omit<T, K>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Omit<T, K>` bir obyekt tipindən müəyyən xüsusiyyətləri çıxarır.\nSadə nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Omit<T, K> sadə nümunə\ninterface User {\n  id: number;\n  name: string;\n  age: number;\n}\n\ntype UserWithoutAge = Omit<User, 'age'>;\n\nlet user: UserWithoutAge = { id: 1, name: 'Alice' }; // age daxil edilə bilməz\n// let invalidUser: UserWithoutAge = { id: 1, name: 'Alice', age: 30 }; // Xəta: age UserWithoutAge-də yoxdur\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Omit<User, 'age'>` `User` interfeysindən `age` xüsusiyyətini çıxarır.\n- Yalnız `id` və `name` xüsusiyyətləri qalır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz.\nMürəkkəb nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Omit<T, K> mürəkkəb nümunə\ninterface User {\n  id: number;\n  name: string;\n  profile: { bio: string; avatar: string };\n}\n\ntype UserWithoutProfile = Omit<User, 'profile'>;\n\nfunction saveUser(user: UserWithoutProfile) {\n  return { id: user.id, name: user.name };\n}\n\nlet savedUser = saveUser({ id: 1, name: 'Alice' });\n\nconsole.log(savedUser); // { id: 1, name: 'Alice' }\n// let invalid = saveUser({ id: 1, name: 'Alice', profile: { bio: '', avatar: '' } }); // Xəta: profile UserWithoutProfile-da yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Omit<User, 'profile'>` `profile` xüsusiyyətini çıxarır, yalnız `id` və `name` qalır.\n- Funksiya yalnız bu xüsusiyyətlərlə işləyir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "5. Readonly<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Readonly<T>` bir obyektin bütün xüsusiyyətlərini yalnız oxuna bilən (read-only) edir.\nSadə nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly<T> sadə nümunə\ninterface User {\n  id: number;\n  name: string;\n}\n\ntype ReadonlyUser = Readonly<User>;\n\nlet user: ReadonlyUser = { id: 1, name: 'Alice' };\n// user.id = 2; // Xəta: id yalnız oxuna biləndir\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Readonly<User>` `User` interfeysinin bütün xüsusiyyətlərini yalnız oxuna bilən edir.\n- Xüsusiyyətlərə yeni dəyər təyin etmək kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz.\nMürəkkəb nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly<T> mürəkkəb nümunə\ninterface User {\n  id: number;\n  name: string;\n  profile: { bio: string; avatar: string };\n}\n\ntype ReadonlyUser = Readonly<User>;\n\nlet user: ReadonlyUser = {\n  id: 1,\n  name: 'Alice',\n  profile: { bio: 'Developer', avatar: 'avatar.png' }\n};\n// user.profile.bio = 'Designer'; // Xəta: profile.bio yalnız oxuna biləndir\n\nconsole.log(user); // { id: 1, name: 'Alice', profile: { bio: 'Developer', avatar: 'avatar.png' } }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Readonly<User>` daxili obyektləri (`profile`) da yalnız oxuna bilən edir.\n- Xüsusiyyətlərə dəyişiklik etmək kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "6. Record<K, T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Record<K, T>` açarları `K` tipində, dəyərləri `T` tipində olan obyekt tipi yaradır.\nSadə nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Record<K, T> sadə nümunə\ntype Role = 'admin' | 'user' | 'guest';\ninterface UserInfo {\n  name: string;\n  age: number;\n}\n\ntype UserRoles = Record<Role, UserInfo>;\n\nlet roles: UserRoles = {\n  admin: { name: 'Alice', age: 30 },\n  user: { name: 'Bob', age: 25 },\n  guest: { name: 'Charlie', age: 20 }\n};\n\nconsole.log(roles); // { admin: { name: 'Alice', age: 30 }, user: { name: 'Bob', age: 25 }, guest: { name: 'Charlie', age: 20 } }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Record<Role, UserInfo>` açarları `Role` union tipində, dəyərləri `UserInfo` tipində olan obyekt yaradır.\n- Yanlış açar və ya dəyər tipi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz.\nMürəkkəb nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Record<K, T> mürəkkəb nümunə\ntype Status = 'active' | 'inactive';\ninterface UserDetails {\n  id: number;\n  name: string;\n}\n\ntype StatusMap = Record<Status, UserDetails[]>;\n\nlet statusMap: StatusMap = {\n  active: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }],\n  inactive: [{ id: 3, name: 'Charlie' }]\n};\n\nconsole.log(statusMap); // { active: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }], inactive: [{ id: 3, name: 'Charlie' }] }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Record<Status, UserDetails[]>` açarları `Status` tipində, dəyərləri `UserDetails` massivi olan obyekt yaradır.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "7. Exclude<T, U>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Exclude<T, U>` `T` union tipindən `U`-ya uyğun olan tipləri çıxarır.\nSadə nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Exclude<T, U> sadə nümunə\ntype PossibleTypes = string | number | boolean;\ntype ExcludedTypes = Exclude<PossibleTypes, string | number>;\n\nlet value: ExcludedTypes = true; // Yalnız boolean qalır\n// let invalidValue: ExcludedTypes = 'Hello'; // Xəta: string ExcludedTypes-də yoxdur\n\nconsole.log(value); // true\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Exclude<PossibleTypes, string | number>` `string` və `number` tiplərini çıxarır, yalnız `boolean` qalır.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz.\nMürəkkəb nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Exclude<T, U> mürəkkəb nümunə\ntype PossibleTypes = 'read' | 'write' | 'delete' | 'update';\ntype RestrictedActions = Exclude<PossibleTypes, 'delete' | 'update'>;\n\nfunction performAction(action: RestrictedActions) {\n  return `Performing ${action}`;\n}\n\nlet result = performAction('read');\n\nconsole.log(result); // Performing read\n// let invalid = performAction('delete'); // Xəta: delete RestrictedActions-da yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Exclude<PossibleTypes, 'delete' | 'update'>` yalnız `read` və `write` tiplərini saxlayır.\n- Funksiya yalnız icazə verilən tiplərlə işləyir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "8. Extract<T, U>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Extract<T, U>` `T` union tipindən yalnız `U`-ya uyğun olan tipləri seçir.\nSadə nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Extract<T, U> sadə nümunə\ntype PossibleTypes = string | number | boolean;\ntype ExtractedTypes = Extract<PossibleTypes, string | number>;\n\nlet value: ExtractedTypes = 'Hello'; // string və ya number ola bilər\n// let invalidValue: ExtractedTypes = true; // Xəta: boolean ExtractedTypes-də yoxdur\n\nconsole.log(value); // Hello\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Extract<PossibleTypes, string | number>` yalnız `string` və `number` tiplərini seçir.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz.\nMürəkkəb nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Extract<T, U> mürəkkəb nümunə\ntype Actions = 'read' | 'write' | 'delete' | 'update';\ntype AllowedActions = Extract<Actions, 'read' | 'write'>;\n\nfunction executeAction(action: AllowedActions) {\n  return `Executing ${action}`;\n}\n\nlet result = executeAction('write');\n\nconsole.log(result); // Executing write\n// let invalid = executeAction('delete'); // Xəta: delete AllowedActions-da yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Extract<Actions, 'read' | 'write'>` yalnız `read` və `write` tiplərini seçir.\n- Funksiya yalnız icazə verilən tiplərlə işləyir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "9. NonNullable<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`NonNullable<T>` `T` tipindən `null` və `undefined` tiplərini çıxarır.\nSadə nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// NonNullable<T> sadə nümunə\ntype NullableType = string | number | null | undefined;\ntype NonNullableType = NonNullable<NullableType>;\n\nlet value: NonNullableType = 'Hello'; // string və ya number ola bilər\n// let invalidValue: NonNullableType = null; // Xəta: null NonNullableType-də yoxdur\n\nconsole.log(value); // Hello\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `NonNullable<NullableType>` `null` və `undefined` tiplərini çıxarır, yalnız `string` və `number` qalır.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz.\nMürəkkəb nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// NonNullable<T> mürəkkəb nümunə\ntype UserData = { id: number; name: string | null };\ntype NonNullableUserData = NonNullable<UserData['name']>;\n\nfunction processUserName(name: NonNullableUserData) {\n  return name.toUpperCase();\n}\n\nlet result = processUserName('Alice');\n\nconsole.log(result); // ALICE\n// let invalid = processUserName(null); // Xəta: null NonNullableUserData-da yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `NonNullable<UserData['name']>` `name` xüsusiyyətindən `null` tipini çıxarır.\n- Funksiya yalnız `string` tiplə işləyir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "10. ReturnType<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`ReturnType<T>` bir funksiyanın qaytarma tipini çıxarır.\nSadə nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// ReturnType<T> sadə nümunə\nfunction getUser() {\n  return { id: 1, name: 'Alice' };\n}\n\ntype UserReturnType = ReturnType<typeof getUser>;\n\nlet user: UserReturnType = { id: 1, name: 'Alice' };\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ReturnType<typeof getUser>` `getUser` funksiyasının qaytarma tipini (`{ id: number; name: string }`) çıxarır.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz.\nMürəkkəb nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// ReturnType<T> mürəkkəb nümunə\nfunction fetchUser(id: number): { id: number; name: string } | { error: string } {\n  return id > 0 ? { id, name: 'Alice' } : { error: 'Invalid ID' };\n}\n\ntype FetchUserResult = ReturnType<typeof fetchUser>;\n\nlet result: FetchUserResult = { id: 1, name: 'Alice' };\nlet errorResult: FetchUserResult = { error: 'Invalid ID' };\n\nconsole.log(result); // { id: 1, name: 'Alice' }\nconsole.log(errorResult); // { error: 'Invalid ID' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ReturnType<typeof fetchUser>` funksiyanın qaytarma tipini (`{ id: number; name: string } | { error: string }`) çıxarır.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "11. Parameters<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Parameters<T>` bir funksiyanın parametr tiplərini çıxarır.\nSadə nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Parameters<T> sadə nümunə\nfunction createUser(id: number, name: string) {\n  return { id, name };\n}\n\ntype UserParams = Parameters<typeof createUser>;\n\nlet params: UserParams = [1, 'Alice'];\n// let invalidParams: UserParams = [1]; // Xəta: name parametri tələb olunur\n\nconsole.log(params); // [1, 'Alice']\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Parameters<typeof createUser>` `createUser` funksiyasının parametr tiplərini (`[number, string]`) çıxarır.\n- Yanlış parametr tipləri kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz.\nMürəkkəb nümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Parameters<T> mürəkkəb nümunə\nfunction updateUser(id: number, updates: { name?: string; age?: number }) {\n  return { id, ...updates };\n}\n\ntype UpdateUserParams = Parameters<typeof updateUser>;\n\nlet params: UpdateUserParams = [1, { name: 'Alice', age: 30 }];\n\nconsole.log(params); // [1, { name: 'Alice', age: 30 }]\n// let invalidParams: UpdateUserParams = [1]; // Xəta: updates parametri tələb olunur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Parameters<typeof updateUser>` funksiyanın parametr tiplərini (`[number, { name?: string; age?: number }]`) çıxarır.\n- Yanlış parametr tipləri kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "JavaScript ilə Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "JavaScript-də yardımçı tiplər yoxdur, çünki JavaScript dinamik tip sisteminə malikdir. Buna görə JavaScript-də oxşar funksionallıq üçün adətən `any` tipi istifadə olunur, lakin bu, tip təhlükəsizliyini təmin etmir. TypeScript-də yardımçı tiplər ilə:\n- Tiplər kompilyasiya zamanı dəqiq idarə olunur.\n- Yanlış tiplər istifadə edildikdə xəta aşkar edilir.\n- Kodun oxunaqlılığı və təhlükəsizliyi artır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// JavaScript-də oxşar kod\nfunction updateUserJS(user) {\n  return { ...user, name: user.name || 'Unknown' };\n}\n\nconsole.log(updateUserJS({ id: 1 })); // { id: 1, name: 'Unknown' }\nconsole.log(updateUserJS({ age: 30 })); // { age: 30, name: 'Unknown' }, lakin xəta yoxdur\n\n// TypeScript-də təhlükəsiz kod\ninterface User {\n  id: number;\n  name?: string;\n}\ntype PartialUser = Partial<User>;\n\nfunction updateUserTS(user: PartialUser): User {\n  return { id: user.id ?? 0, name: user.name || 'Unknown' };\n}\n\nconsole.log(updateUserTS({ id: 1 })); // { id: 1, name: 'Unknown' }\n// console.log(updateUserTS({ age: 30 })); // Xəta: id tələb olunur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- JavaScript-də `updateUserJS` funksiyası `any` tipi ilə işləyir və runtime səhvlərinə yol aça bilər.\n- TypeScript-də `updateUserTS` `Partial` ilə təhlükəsizdir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yardımçı tiplər kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Yardımçı tipləri dəqiq təyin edin.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- Lazım olduqda bir neçə yardımçı tipi birləşdirin.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\ninterface User {\n  id: number;\n  name: string;\n  age?: number;\n}\n\ntype SafeUser = Required<Pick<User, 'id' | 'name'>>;\n\nlet user: SafeUser = { id: 1, name: 'Alice' }; // id və name tələb olunur\n// let invalidUser: SafeUser = { id: 1 }; // Xəta: name tələb olunur\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Required<Pick<User, 'id' | 'name'>>` `User` interfeysindən `id` və `name` xüsusiyyətlərini seçir və onları mütləq tələb olunan edir.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nfunction unsafeUpdateUser(user: any): any {\n  return { ...user, name: user.name || 'Unknown' };\n}\n\nconsole.log(unsafeUpdateUser({ id: 1 })); // { id: 1, name: 'Unknown' }\nconsole.log(unsafeUpdateUser({ age: 30 })); // { age: 30, name: 'Unknown' }, lakin xəta yoxdur\n\n// Düzgün yol\ninterface User {\n  id: number;\n  name?: string;\n}\ntype PartialUser = Partial<User>;\n\nfunction safeUpdateUser(user: PartialUser): User {\n  return { id: user.id ?? 0, name: user.name || 'Unknown' };\n}\n\nconsole.log(safeUpdateUser({ id: 1 })); // { id: 1, name: 'Unknown' }\n// console.log(safeUpdateUser({ age: 30 })); // Xəta: id tələb olunur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime səhvlərinə səbəb ola bilər.\n- `Partial` ilə `safeUpdateUser` funksiyası təhlükəsizdir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yardımçı tiplər real layihələrdə geniş istifadə olunur:\n- **API cavablarının idarə edilməsi**: API-dən gələn məlumatların strukturunu dəyişdirmək.\n- **Komponent kitabxanaları**: React və ya Angular kimi kitabxanalarda tipləri idarə etmək.\n- **Formaların yoxlanılması**: Form məlumatlarının opsional və ya tələb olunan xüsusiyyətlərini təyin etmək.\n- **Məlumat strukturunun optimallaşdırılması**: Lazımsız xüsusiyyətləri çıxarmaq və ya yeni strukturlar yaratmaq.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface ApiUser {\n  id: number;\n  name: string;\n  email?: string;\n  role?: string;\n}\n\ntype CreateUserInput = Partial<Pick<ApiUser, 'name' | 'email'>> & { id: number };\n\nfunction createUser(input: CreateUserInput): ApiUser {\n  return { id: input.id, name: input.name || 'Unknown', email: input.email, role: 'user' };\n}\n\nlet user = createUser({ id: 1, name: 'Alice' });\n\nconsole.log(user); // { id: 1, name: 'Alice', email: undefined, role: 'user' }\n// let invalidUser = createUser({ name: 'Bob' }); // Xəta: id tələb olunur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Partial<Pick<ApiUser, 'name' | 'email'>> & { id: number }` `name` və `email` xüsusiyyətlərini opsional, `id`-ni isə mütləq tələb olunan edir.\n- Tip təhlükəsizliyi kompilyasiya zamanı təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yardımçı tiplər qabaqcıl TypeScript xüsusiyyətləri ilə də istifadə oluna bilər:\n- **Mapped Types**: Obyekt tiplərini dinamik şəkildə dəyişdirmək.\n- **Distributive Conditional Types**: Şərti tiplərin union tipləri ilə avtomatik paylanması.\nBu mövzular haqqında ətraflı məlumat üçün TypeScript sənədlərinə (https://www.typescriptlang.org/docs) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Yardımçı tipləri tip təhlükəsizliyini artırmaq və kodun təkrar istifadəsini asanlaşdırmaq üçün istifadə edin. `any` əvəzinə dəqiq yardımçı tipləri seçin. `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin. Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Yardımçı tiplər əvəzinə `any` istifadə edilə bilər, lakin bu, təhlükəsiz deyil.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün yardımçı tiplər nümunəsi\ninterface User {\n  id: number;\n  name: string;\n  age?: number;\n}\n\ntype PartialUser = Partial<User>;\n\nlet user: PartialUser = { id: 1 }; // name və age opsionaldır\n\nconsole.log(user); // { id: 1 }\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Utility Types",
+    "icon": "FiTool",
+    "language": "typescript",
+    "description": "Partial, Required, Pick, Omit, and more.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Utility Types?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, utility types are built-in tools used to transform or create new types from existing ones. These types are built on generics and conditional types and are designed to enhance type safety, facilitate code reuse, and improve readability. For example, `Partial` makes all properties of an object optional, while `Required` makes all properties mandatory. `Pick` and `Omit` types are used to select or exclude specific properties from an object. JavaScript lacks such a mechanism, so the `any` type is typically used, which reduces type safety and can lead to runtime errors. In TypeScript, utility types strengthen type checking at compile time and help reduce errors. This JSON file explains the definition, usage purposes, relationship with generics and conditional types, differences from JavaScript, syntax, type safety, and real-world usage scenarios for utility types like `Partial`, `Required`, `Pick`, `Omit`, `Readonly`, `Record`, `Exclude`, `Extract`, `NonNullable`, `ReturnType`, and `Parameters` in great detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Utility Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Utility types in TypeScript are used for the following purposes:\n- **Type transformation**: Creating new types by modifying existing ones.\n- **Type safety**: Managing type structures more precisely.\n- **Code reuse**: Defining types in a reusable way.\n- **Readability**: Clearly expressing the intent and type structure of the code.\n- **Error prevention**: Detecting incorrect type usage at compile time.\nIn JavaScript, similar functionality is achieved using the `any` type, but this does not ensure type safety and can lead to runtime errors. Utility types address this issue."
+      },
+      {
+        "type": "heading",
+        "text": "Syntax and Examples of Utility Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Utility types in TypeScript are built on generics and conditional types. Below are the most commonly used utility types along with their simple and complex examples."
+      },
+      {
+        "type": "heading",
+        "text": "1. Partial<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Partial<T>` makes all properties of an object optional.\nSimple example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Partial<T> simple example\ninterface User {\n  id: number;\n  name: string;\n  age: number;\n}\n\ntype PartialUser = Partial<User>;\n\nlet user: PartialUser = { id: 1 }; // name and age are optional\n\nconsole.log(user); // { id: 1 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Partial<User>` makes all properties of the `User` interface optional.\n- An object can include only `id`, and other properties are not required.\n- You can test this code in our site’s editor.\nComplex example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Partial<T> complex example\ninterface User {\n  id: number;\n  name: string;\n  profile: { bio: string; avatar: string };\n}\n\ntype PartialUser = Partial<User>;\n\nfunction updateUser(user: PartialUser): User {\n  return {\n    id: user.id ?? 0,\n    name: user.name ?? 'Unknown',\n    profile: user.profile ?? { bio: '', avatar: '' }\n  };\n}\n\nlet updatedUser = updateUser({ name: 'Alice', profile: { bio: 'Developer' } });\n\nconsole.log(updatedUser); // { id: 0, name: 'Alice', profile: { bio: 'Developer', avatar: '' } }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Partial<User>` makes all properties, including nested ones (like `profile`), optional.\n- The `updateUser` function works with partial data and returns a complete `User` object.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "2. Required<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Required<T>` makes all properties of an object mandatory.\nSimple example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Required<T> simple example\ninterface User {\n  id?: number;\n  name?: string;\n  age?: number;\n}\n\ntype RequiredUser = Required<User>;\n\nlet user: RequiredUser = { id: 1, name: 'Alice', age: 30 }; // All properties are required\n// let invalidUser: RequiredUser = { id: 1 }; // Error: name and age are required\n\nconsole.log(user); // { id: 1, name: 'Alice', age: 30 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Required<User>` makes all properties of the `User` interface mandatory.\n- Assigning an incomplete object causes a compilation error.\n- You can test this code in our site’s editor.\nComplex example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Required<T> complex example\ninterface User {\n  id?: number;\n  name?: string;\n  profile?: { bio: string; avatar?: string };\n}\n\ntype RequiredUser = Required<User>;\n\nlet user: RequiredUser = {\n  id: 1,\n  name: 'Alice',\n  profile: { bio: 'Developer', avatar: 'avatar.png' }\n}; // All properties are required\n// let invalidUser: RequiredUser = { id: 1, name: 'Alice' }; // Error: profile is required\n\nconsole.log(user); // { id: 1, name: 'Alice', profile: { bio: 'Developer', avatar: 'avatar.png' } }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Required<User>` makes nested objects (like `profile`) mandatory as well.\n- Assigning an incomplete object causes a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "3. Pick<T, K>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Pick<T, K>` selects specific properties from an object type.\nSimple example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Pick<T, K> simple example\ninterface User {\n  id: number;\n  name: string;\n  age: number;\n}\n\ntype UserSubset = Pick<User, 'id' | 'name'>;\n\nlet user: UserSubset = { id: 1, name: 'Alice' }; // Only id and name are required\n// let invalidUser: UserSubset = { id: 1, age: 30 }; // Error: age is not in UserSubset\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Pick<User, 'id' | 'name'>` selects only the `id` and `name` properties from the `User` interface.\n- Other properties (e.g., `age`) cannot be included.\n- You can test this code in our site’s editor.\nComplex example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Pick<T, K> complex example\ninterface User {\n  id: number;\n  name: string;\n  profile: { bio: string; avatar: string };\n}\n\ntype UserBasicInfo = Pick<User, 'id' | 'name'>;\n\nfunction displayUserInfo(user: UserBasicInfo) {\n  return `ID: ${user.id}, Name: ${user.name}`;\n}\n\nlet result = displayUserInfo({ id: 1, name: 'Alice' });\n\nconsole.log(result); // ID: 1, Name: Alice\n// let invalid = displayUserInfo({ id: 1, profile: { bio: 'Developer', avatar: '' } }); // Error: profile is not in UserBasicInfo\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Pick<User, 'id' | 'name'>` selects only the `id` and `name` properties.\n- The function works only with these properties, and other properties are not accepted.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "4. Omit<T, K>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Omit<T, K>` excludes specific properties from an object type.\nSimple example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Omit<T, K> simple example\ninterface User {\n  id: number;\n  name: string;\n  age: number;\n}\n\ntype UserWithoutAge = Omit<User, 'age'>;\n\nlet user: UserWithoutAge = { id: 1, name: 'Alice' }; // age cannot be included\n// let invalidUser: UserWithoutAge = { id: 1, name: 'Alice', age: 30 }; // Error: age is not in UserWithoutAge\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Omit<User, 'age'>` excludes the `age` property from the `User` interface.\n- Only `id` and `name` properties remain.\n- You can test this code in our site’s editor.\nComplex example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Omit<T, K> complex example\ninterface User {\n  id: number;\n  name: string;\n  profile: { bio: string; avatar: string };\n}\n\ntype UserWithoutProfile = Omit<User, 'profile'>;\n\nfunction saveUser(user: UserWithoutProfile) {\n  return { id: user.id, name: user.name };\n}\n\nlet savedUser = saveUser({ id: 1, name: 'Alice' });\n\nconsole.log(savedUser); // { id: 1, name: 'Alice' }\n// let invalid = saveUser({ id: 1, name: 'Alice', profile: { bio: '', avatar: '' } }); // Error: profile is not in UserWithoutProfile\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Omit<User, 'profile'>` excludes the `profile` property, leaving only `id` and `name`.\n- The function works only with these properties.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "5. Readonly<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Readonly<T>` makes all properties of an object read-only.\nSimple example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly<T> simple example\ninterface User {\n  id: number;\n  name: string;\n}\n\ntype ReadonlyUser = Readonly<User>;\n\nlet user: ReadonlyUser = { id: 1, name: 'Alice' };\n// user.id = 2; // Error: id is read-only\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Readonly<User>` makes all properties of the `User` interface read-only.\n- Assigning new values to properties causes a compilation error.\n- You can test this code in our site’s editor.\nComplex example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly<T> complex example\ninterface User {\n  id: number;\n  name: string;\n  profile: { bio: string; avatar: string };\n}\n\ntype ReadonlyUser = Readonly<User>;\n\nlet user: ReadonlyUser = {\n  id: 1,\n  name: 'Alice',\n  profile: { bio: 'Developer', avatar: 'avatar.png' }\n};\n// user.profile.bio = 'Designer'; // Error: profile.bio is read-only\n\nconsole.log(user); // { id: 1, name: 'Alice', profile: { bio: 'Developer', avatar: 'avatar.png' } }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Readonly<User>` makes nested objects (like `profile`) read-only as well.\n- Modifying properties causes a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "6. Record<K, T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Record<K, T>` creates an object type with keys of type `K` and values of type `T`.\nSimple example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Record<K, T> simple example\ntype Role = 'admin' | 'user' | 'guest';\ninterface UserInfo {\n  name: string;\n  age: number;\n}\n\ntype UserRoles = Record<Role, UserInfo>;\n\nlet roles: UserRoles = {\n  admin: { name: 'Alice', age: 30 },\n  user: { name: 'Bob', age: 25 },\n  guest: { name: 'Charlie', age: 20 }\n};\n\nconsole.log(roles); // { admin: { name: 'Alice', age: 30 }, user: { name: 'Bob', age: 25 }, guest: { name: 'Charlie', age: 20 } }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Record<Role, UserInfo>` creates an object with keys of type `Role` and values of type `UserInfo`.\n- Using incorrect key or value types causes a compilation error.\n- You can test this code in our site’s editor.\nComplex example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Record<K, T> complex example\ntype Status = 'active' | 'inactive';\ninterface UserDetails {\n  id: number;\n  name: string;\n}\n\ntype StatusMap = Record<Status, UserDetails[]>;\n\nlet statusMap: StatusMap = {\n  active: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }],\n  inactive: [{ id: 3, name: 'Charlie' }]\n};\n\nconsole.log(statusMap); // { active: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }], inactive: [{ id: 3, name: 'Charlie' }] }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Record<Status, UserDetails[]>` creates an object with keys of type `Status` and values as arrays of `UserDetails`.\n- Using incorrect types causes a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "7. Exclude<T, U>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Exclude<T, U>` removes types from a union type `T` that are assignable to `U`.\nSimple example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Exclude<T, U> simple example\ntype PossibleTypes = string | number | boolean;\ntype ExcludedTypes = Exclude<PossibleTypes, string | number>;\n\nlet value: ExcludedTypes = true; // Only boolean remains\n// let invalidValue: ExcludedTypes = 'Hello'; // Error: string is not in ExcludedTypes\n\nconsole.log(value); // true\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Exclude<PossibleTypes, string | number>` removes `string` and `number` types, leaving only `boolean`.\n- Using incorrect types causes a compilation error.\n- You can test this code in our site’s editor.\nComplex example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Exclude<T, U> complex example\ntype PossibleTypes = 'read' | 'write' | 'delete' | 'update';\ntype RestrictedActions = Exclude<PossibleTypes, 'delete' | 'update'>;\n\nfunction performAction(action: RestrictedActions) {\n  return `Performing ${action}`;\n}\n\nlet result = performAction('read');\n\nconsole.log(result); // Performing read\n// let invalid = performAction('delete'); // Error: delete is not in RestrictedActions\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Exclude<PossibleTypes, 'delete' | 'update'>` retains only `read` and `write` types.\n- The function works only with allowed types.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "8. Extract<T, U>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Extract<T, U>` selects types from a union type `T` that are assignable to `U`.\nSimple example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Extract<T, U> simple example\ntype PossibleTypes = string | number | boolean;\ntype ExtractedTypes = Extract<PossibleTypes, string | number>;\n\nlet value: ExtractedTypes = 'Hello'; // string or number allowed\n// let invalidValue: ExtractedTypes = true; // Error: boolean is not in ExtractedTypes\n\nconsole.log(value); // Hello\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Extract<PossibleTypes, string | number>` selects only `string` and `number` types.\n- Using incorrect types causes a compilation error.\n- You can test this code in our site’s editor.\nComplex example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Extract<T, U> complex example\ntype Actions = 'read' | 'write' | 'delete' | 'update';\ntype AllowedActions = Extract<Actions, 'read' | 'write'>;\n\nfunction executeAction(action: AllowedActions) {\n  return `Executing ${action}`;\n}\n\nlet result = executeAction('write');\n\nconsole.log(result); // Executing write\n// let invalid = executeAction('delete'); // Error: delete is not in AllowedActions\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Extract<Actions, 'read' | 'write'>` selects only `read` and `write` types.\n- The function works only with allowed types.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "9. NonNullable<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`NonNullable<T>` removes `null` and `undefined` types from `T`.\nSimple example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// NonNullable<T> simple example\ntype NullableType = string | number | null | undefined;\ntype NonNullableType = NonNullable<NullableType>;\n\nlet value: NonNullableType = 'Hello'; // string or number allowed\n// let invalidValue: NonNullableType = null; // Error: null is not in NonNullableType\n\nconsole.log(value); // Hello\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `NonNullable<NullableType>` removes `null` and `undefined`, leaving only `string` and `number`.\n- Using incorrect types causes a compilation error.\n- You can test this code in our site’s editor.\nComplex example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// NonNullable<T> complex example\ntype UserData = { id: number; name: string | null };\ntype NonNullableUserData = NonNullable<UserData['name']>;\n\nfunction processUserName(name: NonNullableUserData) {\n  return name.toUpperCase();\n}\n\nlet result = processUserName('Alice');\n\nconsole.log(result); // ALICE\n// let invalid = processUserName(null); // Error: null is not in NonNullableUserData\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `NonNullable<UserData['name']>` removes `null` from the `name` property’s type.\n- The function works only with `string` types.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "10. ReturnType<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`ReturnType<T>` extracts the return type of a function.\nSimple example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// ReturnType<T> simple example\nfunction getUser() {\n  return { id: 1, name: 'Alice' };\n}\n\ntype UserReturnType = ReturnType<typeof getUser>;\n\nlet user: UserReturnType = { id: 1, name: 'Alice' };\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ReturnType<typeof getUser>` extracts the return type of the `getUser` function (`{ id: number; name: string }`).\n- Using incorrect types causes a compilation error.\n- You can test this code in our site’s editor.\nComplex example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// ReturnType<T> complex example\nfunction fetchUser(id: number): { id: number; name: string } | { error: string } {\n  return id > 0 ? { id, name: 'Alice' } : { error: 'Invalid ID' };\n}\n\ntype FetchUserResult = ReturnType<typeof fetchUser>;\n\nlet result: FetchUserResult = { id: 1, name: 'Alice' };\nlet errorResult: FetchUserResult = { error: 'Invalid ID' };\n\nconsole.log(result); // { id: 1, name: 'Alice' }\nconsole.log(errorResult); // { error: 'Invalid ID' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ReturnType<typeof fetchUser>` extracts the return type of the `fetchUser` function (`{ id: number; name: string } | { error: string }`).\n- Using incorrect types causes a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "11. Parameters<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Parameters<T>` extracts the parameter types of a function.\nSimple example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Parameters<T> simple example\nfunction createUser(id: number, name: string) {\n  return { id, name };\n}\n\ntype UserParams = Parameters<typeof createUser>;\n\nlet params: UserParams = [1, 'Alice'];\n// let invalidParams: UserParams = [1]; // Error: name parameter is required\n\nconsole.log(params); // [1, 'Alice']\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Parameters<typeof createUser>` extracts the parameter types of the `createUser` function (`[number, string]`).\n- Using incorrect parameter types causes a compilation error.\n- You can test this code in our site’s editor.\nComplex example:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Parameters<T> complex example\nfunction updateUser(id: number, updates: { name?: string; age?: number }) {\n  return { id, ...updates };\n}\n\ntype UpdateUserParams = Parameters<typeof updateUser>;\n\nlet params: UpdateUserParams = [1, { name: 'Alice', age: 30 }];\n\nconsole.log(params); // [1, { name: 'Alice', age: 30 }]\n// let invalidParams: UpdateUserParams = [1]; // Error: updates parameter is required\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Parameters<typeof updateUser>` extracts the parameter types of the `updateUser` function (`[number, { name?: string; age?: number }]`).\n- Using incorrect parameter types causes a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Differences from JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "JavaScript does not have utility types because it uses a dynamic type system. Therefore, in JavaScript, the `any` type is typically used for similar functionality, but this does not ensure type safety. With utility types in TypeScript:\n- Types are precisely managed at compile time.\n- Incorrect type usage is detected as an error.\n- Code readability and safety are improved.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Similar code in JavaScript\nfunction updateUserJS(user) {\n  return { ...user, name: user.name || 'Unknown' };\n}\n\nconsole.log(updateUserJS({ id: 1 })); // { id: 1, name: 'Unknown' }\nconsole.log(updateUserJS({ age: 30 })); // { age: 30, name: 'Unknown' }, but no error\n\n// Safe code in TypeScript\ninterface User {\n  id: number;\n  name?: string;\n}\ntype PartialUser = Partial<User>;\n\nfunction updateUserTS(user: PartialUser): User {\n  return { id: user.id ?? 0, name: user.name || 'Unknown' };\n}\n\nconsole.log(updateUserTS({ id: 1 })); // { id: 1, name: 'Unknown' }\n// console.log(updateUserTS({ age: 30 })); // Error: id is required\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `updateUserJS` function in JavaScript uses the `any` type and can lead to runtime errors.\n- The `updateUserTS` function in TypeScript, using `Partial`, is safe.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Safety Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Utility types enhance code safety, but caution is needed:\n- Define utility types precisely.\n- Avoid using the `any` type, as it reduces type safety.\n- Combine multiple utility types when necessary.\n- Enable the `\"strict\": true` setting in `tsconfig.json`.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Safety example\ninterface User {\n  id: number;\n  name: string;\n  age?: number;\n}\n\ntype SafeUser = Required<Pick<User, 'id' | 'name'>>;\n\nlet user: SafeUser = { id: 1, name: 'Alice' }; // id and name are required\n// let invalidUser: SafeUser = { id: 1 }; // Error: name is required\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Required<Pick<User, 'id' | 'name'>>` selects the `id` and `name` properties from the `User` interface and makes them mandatory.\n- Using incorrect types causes a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nfunction unsafeUpdateUser(user: any): any {\n  return { ...user, name: user.name || 'Unknown' };\n}\n\nconsole.log(unsafeUpdateUser({ id: 1 })); // { id: 1, name: 'Unknown' }\nconsole.log(unsafeUpdateUser({ age: 30 })); // { age: 30, name: 'Unknown' }, but no error\n\n// Correct approach\ninterface User {\n  id: number;\n  name?: string;\n}\ntype PartialUser = Partial<User>;\n\nfunction safeUpdateUser(user: PartialUser): User {\n  return { id: user.id ?? 0, name: user.name || 'Unknown' };\n}\n\nconsole.log(safeUpdateUser({ id: 1 })); // { id: 1, name: 'Unknown' }\n// console.log(safeUpdateUser({ age: 30 })); // Error: id is required\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `any` type is unsafe and can lead to runtime errors.\n- The `safeUpdateUser` function, using `Partial`, is safe.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Utility types are widely used in real-world projects:\n- **Managing API responses**: Modifying the structure of data from APIs.\n- **Component libraries**: Managing types in libraries like React or Angular.\n- **Form validation**: Defining optional or required properties for form data.\n- **Data structure optimization**: Removing unnecessary properties or creating new structures.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface ApiUser {\n  id: number;\n  name: string;\n  email?: string;\n  role?: string;\n}\n\ntype CreateUserInput = Partial<Pick<ApiUser, 'name' | 'email'>> & { id: number };\n\nfunction createUser(input: CreateUserInput): ApiUser {\n  return { id: input.id, name: input.name || 'Unknown', email: input.email, role: 'user' };\n}\n\nlet user = createUser({ id: 1, name: 'Alice' });\n\nconsole.log(user); // { id: 1, name: 'Alice', email: undefined, role: 'user' }\n// let invalidUser = createUser({ name: 'Bob' }); // Error: id is required\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Partial<Pick<ApiUser, 'name' | 'email'>> & { id: number }` makes `name` and `email` properties optional while requiring `id`.\n- Type safety is ensured at compile time.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Utility types can also be used with advanced TypeScript features:\n- **Mapped Types**: Dynamically transforming object types.\n- **Distributive Conditional Types**: Automatically distributing conditional types over unions.\nFor more details on these topics, refer to the TypeScript documentation (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use utility types to enhance type safety and facilitate code reuse. Choose precise utility types instead of `any`. Enable the `\"strict\": true` setting in `tsconfig.json`. Refer to the official documentation (https://www.typescriptlang.org/docs) for guidance.\n- **Alternatives**: The `any` type can be used instead of utility types, but it is not safe.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Example for Testing"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Example for testing utility types\ninterface User {\n  id: number;\n  name: string;\n  age?: number;\n}\n\ntype PartialUser = Partial<User>;\n\nlet user: PartialUser = { id: 1 }; // name and age are optional\n\nconsole.log(user); // { id: 1 }\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Утилитарные типы",
+    "icon": "FiTool",
+    "language": "typescript",
+    "description": "Partial, Required, Pick, Omit и другие.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое утилитарные типы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript утилитарные типы — это встроенные инструменты, используемые для преобразования или создания новых типов на основе существующих. Эти типы основаны на обобщённых (generic) и условных типах и предназначены для повышения безопасности типов, упрощения повторного использования кода и улучшения читаемости. Например, `Partial` делает все свойства объекта необязательными, тогда как `Required` делает все свойства обязательными. Типы `Pick` и `Omit` используются для выбора или исключения определённых свойств объекта. В JavaScript такого механизма нет, поэтому обычно используется тип `any`, что снижает безопасность типов и может привести к ошибкам во время выполнения. В TypeScript утилитарные типы усиливают проверку типов на этапе компиляции и помогают уменьшить количество ошибок. В этом JSON-файле подробно объясняются определение, цели использования, связь с обобщёнными и условными типами, отличия от JavaScript, синтаксис, безопасность типов и сценарии использования в реальных проектах для утилитарных типов, таких как `Partial`, `Required`, `Pick`, `Omit`, `Readonly`, `Record`, `Exclude`, `Extract`, `NonNullable`, `ReturnType` и `Parameters`. Ниже вы можете протестировать код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Цели утилитарных типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Утилитарные типы в TypeScript используются для следующих целей:\n- **Преобразование типов**: Создание новых типов путём изменения существующих.\n- **Безопасность типов**: Более точное управление структурой типов.\n- **Повторное использование кода**: Определение типов для многократного использования.\n- **Читаемость**: Чёткое выражение назначения и структуры типов в коде.\n- **Предотвращение ошибок**: Обнаружение неправильного использования типов на этапе компиляции.\nВ JavaScript для аналогичной функциональности используется тип `any`, но он не обеспечивает безопасность типов и может привести к ошибкам во время выполнения. Утилитарные типы решают эту проблему."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис и примеры утилитарных типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Утилитарные типы в TypeScript основаны на обобщённых и условных типах. Ниже приведены наиболее часто используемые утилитарные типы с простыми и сложными примерами."
+      },
+      {
+        "type": "heading",
+        "text": "1. Partial<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Partial<T>` делает все свойства объекта необязательными.\nПростой пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Partial<T> простой пример\ninterface User {\n  id: number;\n  name: string;\n  age: number;\n}\n\ntype PartialUser = Partial<User>;\n\nlet user: PartialUser = { id: 1 }; // name и age необязательны\n\nconsole.log(user); // { id: 1 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Partial<User>` делает все свойства интерфейса `User` необязательными.\n- Объект может содержать только `id`, другие свойства не требуются.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте.\nСложный пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Partial<T> сложный пример\ninterface User {\n  id: number;\n  name: string;\n  profile: { bio: string; avatar: string };\n}\n\ntype PartialUser = Partial<User>;\n\nfunction updateUser(user: PartialUser): User {\n  return {\n    id: user.id ?? 0,\n    name: user.name ?? 'Unknown',\n    profile: user.profile ?? { bio: '', avatar: '' }\n  };\n}\n\nlet updatedUser = updateUser({ name: 'Alice', profile: { bio: 'Developer' } });\n\nconsole.log(updatedUser); // { id: 0, name: 'Alice', profile: { bio: 'Developer', avatar: '' } }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Partial<User>` делает все свойства, включая вложенные (например, `profile`), необязательными.\n- Функция `updateUser` работает с частичными данными и возвращает полный объект `User`.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "2. Required<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Required<T>` делает все свойства объекта обязательными.\nПростой пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Required<T> простой пример\ninterface User {\n  id?: number;\n  name?: string;\n  age?: number;\n}\n\ntype RequiredUser = Required<User>;\n\nlet user: RequiredUser = { id: 1, name: 'Alice', age: 30 }; // Все свойства обязательны\n// let invalidUser: RequiredUser = { id: 1 }; // Ошибка: name и age обязательны\n\nconsole.log(user); // { id: 1, name: 'Alice', age: 30 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Required<User>` делает все свойства интерфейса `User` обязательными.\n- Присваивание неполного объекта вызывает ошибку компиляции.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте.\nСложный пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Required<T> сложный пример\ninterface User {\n  id?: number;\n  name?: string;\n  profile?: { bio: string; avatar?: string };\n}\n\ntype RequiredUser = Required<User>;\n\nlet user: RequiredUser = {\n  id: 1,\n  name: 'Alice',\n  profile: { bio: 'Developer', avatar: 'avatar.png' }\n}; // Все свойства обязательны\n// let invalidUser: RequiredUser = { id: 1, name: 'Alice' }; // Ошибка: profile обязателен\n\nconsole.log(user); // { id: 1, name: 'Alice', profile: { bio: 'Developer', avatar: 'avatar.png' } }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Required<User>` делает вложенные объекты (например, `profile`) обязательными.\n- Присваивание неполного объекта вызывает ошибку компиляции.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "3. Pick<T, K>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Pick<T, K>` выбирает определённые свойства из типа объекта.\nПростой пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Pick<T, K> простой пример\ninterface User {\n  id: number;\n  name: string;\n  age: number;\n}\n\ntype UserSubset = Pick<User, 'id' | 'name'>;\n\nlet user: UserSubset = { id: 1, name: 'Alice' }; // Требуются только id и name\n// let invalidUser: UserSubset = { id: 1, age: 30 }; // Ошибка: age отсутствует в UserSubset\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Pick<User, 'id' | 'name'>` выбирает только свойства `id` и `name` из интерфейса `User`.\n- Другие свойства (например, `age`) не могут быть включены.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте.\nСложный пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Pick<T, K> сложный пример\ninterface User {\n  id: number;\n  name: string;\n  profile: { bio: string; avatar: string };\n}\n\ntype UserBasicInfo = Pick<User, 'id' | 'name'>;\n\nfunction displayUserInfo(user: UserBasicInfo) {\n  return `ID: ${user.id}, Name: ${user.name}`;\n}\n\nlet result = displayUserInfo({ id: 1, name: 'Alice' });\n\nconsole.log(result); // ID: 1, Name: Alice\n// let invalid = displayUserInfo({ id: 1, profile: { bio: 'Developer', avatar: '' } }); // Ошибка: profile отсутствует в UserBasicInfo\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Pick<User, 'id' | 'name'>` выбирает только свойства `id` и `name`.\n- Функция работает только с этими свойствами, другие не принимаются.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "4. Omit<T, K>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Omit<T, K>` исключает определённые свойства из типа объекта.\nПростой пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Omit<T, K> простой пример\ninterface User {\n  id: number;\n  name: string;\n  age: number;\n}\n\ntype UserWithoutAge = Omit<User, 'age'>;\n\nlet user: UserWithoutAge = { id: 1, name: 'Alice' }; // age не может быть включён\n// let invalidUser: UserWithoutAge = { id: 1, name: 'Alice', age: 30 }; // Ошибка: age отсутствует в UserWithoutAge\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Omit<User, 'age'>` исключает свойство `age` из интерфейса `User`.\n- Остаются только свойства `id` и `name`.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте.\nСложный пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Omit<T, K> сложный пример\ninterface User {\n  id: number;\n  name: string;\n  profile: { bio: string; avatar: string };\n}\n\ntype UserWithoutProfile = Omit<User, 'profile'>;\n\nfunction saveUser(user: UserWithoutProfile) {\n  return { id: user.id, name: user.name };\n}\n\nlet savedUser = saveUser({ id: 1, name: 'Alice' });\n\nconsole.log(savedUser); // { id: 1, name: 'Alice' }\n// let invalid = saveUser({ id: 1, name: 'Alice', profile: { bio: '', avatar: '' } }); // Ошибка: profile отсутствует в UserWithoutProfile\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Omit<User, 'profile'>` исключает свойство `profile`, оставляя только `id` и `name`.\n- Функция работает только с этими свойствами.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "5. Readonly<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Readonly<T>` делает все свойства объекта доступными только для чтения.\nПростой пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly<T> простой пример\ninterface User {\n  id: number;\n  name: string;\n}\n\ntype ReadonlyUser = Readonly<User>;\n\nlet user: ReadonlyUser = { id: 1, name: 'Alice' };\n// user.id = 2; // Ошибка: id доступно только для чтения\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Readonly<User>` делает все свойства интерфейса `User` доступными только для чтения.\n- Изменение свойств вызывает ошибку компиляции.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте.\nСложный пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly<T> сложный пример\ninterface User {\n  id: number;\n  name: string;\n  profile: { bio: string; avatar: string };\n}\n\ntype ReadonlyUser = Readonly<User>;\n\nlet user: ReadonlyUser = {\n  id: 1,\n  name: 'Alice',\n  profile: { bio: 'Developer', avatar: 'avatar.png' }\n};\n// user.profile.bio = 'Designer'; // Ошибка: profile.bio доступно только для чтения\n\nconsole.log(user); // { id: 1, name: 'Alice', profile: { bio: 'Developer', avatar: 'avatar.png' } }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Readonly<User>` делает вложенные объекты (например, `profile`) доступными только для чтения.\n- Изменение свойств вызывает ошибку компиляции.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "6. Record<K, T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Record<K, T>` создаёт тип объекта с ключами типа `K` и значениями типа `T`.\nПростой пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Record<K, T> простой пример\ntype Role = 'admin' | 'user' | 'guest';\ninterface UserInfo {\n  name: string;\n  age: number;\n}\n\ntype UserRoles = Record<Role, UserInfo>;\n\nlet roles: UserRoles = {\n  admin: { name: 'Alice', age: 30 },\n  user: { name: 'Bob', age: 25 },\n  guest: { name: 'Charlie', age: 20 }\n};\n\nconsole.log(roles); // { admin: { name: 'Alice', age: 30 }, user: { name: 'Bob', age: 25 }, guest: { name: 'Charlie', age: 20 } }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Record<Role, UserInfo>` создаёт объект с ключами типа `Role` и значениями типа `UserInfo`.\n- Использование неправильных ключей или типов значений вызывает ошибку компиляции.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте.\nСложный пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Record<K, T> сложный пример\ntype Status = 'active' | 'inactive';\ninterface UserDetails {\n  id: number;\n  name: string;\n}\n\ntype StatusMap = Record<Status, UserDetails[]>;\n\nlet statusMap: StatusMap = {\n  active: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }],\n  inactive: [{ id: 3, name: 'Charlie' }]\n};\n\nconsole.log(statusMap); // { active: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }], inactive: [{ id: 3, name: 'Charlie' }] }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Record<Status, UserDetails[]>` создаёт объект с ключами типа `Status` и значениями в виде массивов `UserDetails`.\n- Использование неправильных типов вызывает ошибку компиляции.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "7. Exclude<T, U>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Exclude<T, U>` удаляет из объединённого типа `T` те типы, которые совместимы с `U`.\nПростой пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Exclude<T, U> простой пример\ntype PossibleTypes = string | number | boolean;\ntype ExcludedTypes = Exclude<PossibleTypes, string | number>;\n\nlet value: ExcludedTypes = true; // Остаётся только boolean\n// let invalidValue: ExcludedTypes = 'Hello'; // Ошибка: string отсутствует в ExcludedTypes\n\nconsole.log(value); // true\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Exclude<PossibleTypes, string | number>` удаляет типы `string` и `number`, оставляя только `boolean`.\n- Использование неправильных типов вызывает ошибку компиляции.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте.\nСложный пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Exclude<T, U> сложный пример\ntype PossibleTypes = 'read' | 'write' | 'delete' | 'update';\ntype RestrictedActions = Exclude<PossibleTypes, 'delete' | 'update'>;\n\nfunction performAction(action: RestrictedActions) {\n  return `Performing ${action}`;\n}\n\nlet result = performAction('read');\n\nconsole.log(result); // Performing read\n// let invalid = performAction('delete'); // Ошибка: delete отсутствует в RestrictedActions\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Exclude<PossibleTypes, 'delete' | 'update'>` сохраняет только типы `read` и `write`.\n- Функция работает только с разрешёнными типами.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "8. Extract<T, U>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Extract<T, U>` выбирает из объединённого типа `T` только те типы, которые совместимы с `U`.\nПростой пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Extract<T, U> простой пример\ntype PossibleTypes = string | number | boolean;\ntype ExtractedTypes = Extract<PossibleTypes, string | number>;\n\nlet value: ExtractedTypes = 'Hello'; // Допустимы string или number\n// let invalidValue: ExtractedTypes = true; // Ошибка: boolean отсутствует в ExtractedTypes\n\nconsole.log(value); // Hello\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Extract<PossibleTypes, string | number>` выбирает только типы `string` и `number`.\n- Использование неправильных типов вызывает ошибку компиляции.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте.\nСложный пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Extract<T, U> сложный пример\ntype Actions = 'read' | 'write' | 'delete' | 'update';\ntype AllowedActions = Extract<Actions, 'read' | 'write'>;\n\nfunction executeAction(action: AllowedActions) {\n  return `Executing ${action}`;\n}\n\nlet result = executeAction('write');\n\nconsole.log(result); // Executing write\n// let invalid = executeAction('delete'); // Ошибка: delete отсутствует в AllowedActions\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Extract<Actions, 'read' | 'write'>` выбирает только типы `read` и `write`.\n- Функция работает только с разрешёнными типами.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "9. NonNullable<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`NonNullable<T>` удаляет типы `null` и `undefined` из типа `T`.\nПростой пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// NonNullable<T> простой пример\ntype NullableType = string | number | null | undefined;\ntype NonNullableType = NonNullable<NullableType>;\n\nlet value: NonNullableType = 'Hello'; // Допустимы string или number\n// let invalidValue: NonNullableType = null; // Ошибка: null отсутствует в NonNullableType\n\nconsole.log(value); // Hello\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `NonNullable<NullableType>` удаляет `null` и `undefined`, оставляя только `string` и `number`.\n- Использование неправильных типов вызывает ошибку компиляции.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте.\nСложный пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// NonNullable<T> сложный пример\ntype UserData = { id: number; name: string | null };\ntype NonNullableUserData = NonNullable<UserData['name']>;\n\nfunction processUserName(name: NonNullableUserData) {\n  return name.toUpperCase();\n}\n\nlet result = processUserName('Alice');\n\nconsole.log(result); // ALICE\n// let invalid = processUserName(null); // Ошибка: null отсутствует в NonNullableUserData\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `NonNullable<UserData['name']>` удаляет тип `null` из свойства `name`.\n- Функция работает только с типом `string`.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "10. ReturnType<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`ReturnType<T>` извлекает тип возвращаемого значения функции.\nПростой пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// ReturnType<T> простой пример\nfunction getUser() {\n  return { id: 1, name: 'Alice' };\n}\n\ntype UserReturnType = ReturnType<typeof getUser>;\n\nlet user: UserReturnType = { id: 1, name: 'Alice' };\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ReturnType<typeof getUser>` извлекает тип возвращаемого значения функции `getUser` (`{ id: number; name: string }`).\n- Использование неправильных типов вызывает ошибку компиляции.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте.\nСложный пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// ReturnType<T> сложный пример\nfunction fetchUser(id: number): { id: number; name: string } | { error: string } {\n  return id > 0 ? { id, name: 'Alice' } : { error: 'Invalid ID' };\n}\n\ntype FetchUserResult = ReturnType<typeof fetchUser>;\n\nlet result: FetchUserResult = { id: 1, name: 'Alice' };\nlet errorResult: FetchUserResult = { error: 'Invalid ID' };\n\nconsole.log(result); // { id: 1, name: 'Alice' }\nconsole.log(errorResult); // { error: 'Invalid ID' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ReturnType<typeof fetchUser>` извлекает тип возвращаемого значения функции `fetchUser` (`{ id: number; name: string } | { error: string }`).\n- Использование неправильных типов вызывает ошибку компиляции.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "11. Parameters<T>"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Parameters<T>` извлекает типы параметров функции.\nПростой пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Parameters<T> простой пример\nfunction createUser(id: number, name: string) {\n  return { id, name };\n}\n\ntype UserParams = Parameters<typeof createUser>;\n\nlet params: UserParams = [1, 'Alice'];\n// let invalidParams: UserParams = [1]; // Ошибка: параметр name обязателен\n\nconsole.log(params); // [1, 'Alice']\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Parameters<typeof createUser>` извлекает типы параметров функции `createUser` (`[number, string]`).\n- Использование неправильных типов параметров вызывает ошибку компиляции.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте.\nСложный пример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Parameters<T> сложный пример\nfunction updateUser(id: number, updates: { name?: string; age?: number }) {\n  return { id, ...updates };\n}\n\ntype UpdateUserParams = Parameters<typeof updateUser>;\n\nlet params: UpdateUserParams = [1, { name: 'Alice', age: 30 }];\n\nconsole.log(params); // [1, { name: 'Alice', age: 30 }]\n// let invalidParams: UpdateUserParams = [1]; // Ошибка: параметр updates обязателен\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Parameters<typeof updateUser>` извлекает типы параметров функции `updateUser` (`[number, { name?: string; age?: number }]`).\n- Использование неправильных типов параметров вызывает ошибку компиляции.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Отличия от JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "В JavaScript утилитарных типов нет, так как он использует динамическую типизацию. Поэтому в JavaScript для аналогичной функциональности обычно используется тип `any`, но он не обеспечивает безопасность типов. С утилитарными типами в TypeScript:\n- Типы точно управляются на этапе компиляции.\n- Неправильное использование типов обнаруживается как ошибка.\n- Улучшается читаемость и безопасность кода.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Аналогичный код в JavaScript\nfunction updateUserJS(user) {\n  return { ...user, name: user.name || 'Unknown' };\n}\n\nconsole.log(updateUserJS({ id: 1 })); // { id: 1, name: 'Unknown' }\nconsole.log(updateUserJS({ age: 30 })); // { age: 30, name: 'Unknown' }, но ошибки нет\n\n// Безопасный код в TypeScript\ninterface User {\n  id: number;\n  name?: string;\n}\ntype PartialUser = Partial<User>;\n\nfunction updateUserTS(user: PartialUser): User {\n  return { id: user.id ?? 0, name: user.name || 'Unknown' };\n}\n\nconsole.log(updateUserTS({ id: 1 })); // { id: 1, name: 'Unknown' }\n// console.log(updateUserTS({ age: 30 })); // Ошибка: id обязателен\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `updateUserJS` в JavaScript использует тип `any` и может привести к ошибкам во время выполнения.\n- Функция `updateUserTS` в TypeScript, использующая `Partial`, безопасна.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Утилитарные типы повышают безопасность кода, но нужно быть осторожным:\n- Точно определяйте утилитарные типы.\n- Избегайте использования типа `any`, так как он снижает безопасность типов.\n- При необходимости комбинируйте несколько утилитарных типов.\n- Активируйте параметр `\"strict\": true` в `tsconfig.json`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\ninterface User {\n  id: number;\n  name: string;\n  age?: number;\n}\n\ntype SafeUser = Required<Pick<User, 'id' | 'name'>>;\n\nlet user: SafeUser = { id: 1, name: 'Alice' }; // id и name обязательны\n// let invalidUser: SafeUser = { id: 1 }; // Ошибка: name обязателен\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Required<Pick<User, 'id' | 'name'>>` выбирает свойства `id` и `name` из интерфейса `User` и делает их обязательными.\n- Использование неправильных типов вызывает ошибку компиляции.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, приводящий к ошибке"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, приводящий к ошибке\nfunction unsafeUpdateUser(user: any): any {\n  return { ...user, name: user.name || 'Unknown' };\n}\n\nconsole.log(unsafeUpdateUser({ id: 1 })); // { id: 1, name: 'Unknown' }\nconsole.log(unsafeUpdateUser({ age: 30 })); // { age: 30, name: 'Unknown' }, но ошибки нет\n\n// Правильный подход\ninterface User {\n  id: number;\n  name?: string;\n}\ntype PartialUser = Partial<User>;\n\nfunction safeUpdateUser(user: PartialUser): User {\n  return { id: user.id ?? 0, name: user.name || 'Unknown' };\n}\n\nconsole.log(safeUpdateUser({ id: 1 })); // { id: 1, name: 'Unknown' }\n// console.log(safeUpdateUser({ age: 30 })); // Ошибка: id обязателен\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `any` небезопасен и может привести к ошибкам во время выполнения.\n- Функция `safeUpdateUser`, использующая `Partial`, безопасна.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Утилитарные типы широко используются в реальных проектах:\n- **Управление ответами API**: Изменение структуры данных, получаемых от API.\n- **Библиотеки компонентов**: Управление типами в библиотеках, таких как React или Angular.\n- **Проверка форм**: Определение необязательных или обязательных свойств для данных форм.\n- **Оптимизация структуры данных**: Удаление ненужных свойств или создание новых структур.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface ApiUser {\n  id: number;\n  name: string;\n  email?: string;\n  role?: string;\n}\n\ntype CreateUserInput = Partial<Pick<ApiUser, 'name' | 'email'>> & { id: number };\n\nfunction createUser(input: CreateUserInput): ApiUser {\n  return { id: input.id, name: input.name || 'Unknown', email: input.email, role: 'user' };\n}\n\nlet user = createUser({ id: 1, name: 'Alice' });\n\nconsole.log(user); // { id: 1, name: 'Alice', email: undefined, role: 'user' }\n// let invalidUser = createUser({ name: 'Bob' }); // Ошибка: id обязателен\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Partial<Pick<ApiUser, 'name' | 'email'>> & { id: number }` делает свойства `name` и `email` необязательными, а `id` — обязательным.\n- Безопасность типов обеспечивается на этапе компиляции.\n- Ниже вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Краткая ссылка на продвинутые темы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Утилитарные типы также могут использоваться с продвинутыми возможностями TypeScript:\n- **Mapped Types**: Динамическое преобразование типов объектов.\n- **Distributive Conditional Types**: Автоматическое распределение условных типов по объединениям.\nДля получения дополнительной информации по этим темам обратитесь к документации TypeScript (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте утилитарные типы для повышения безопасности типов и упрощения повторного использования кода. Выбирайте точные утилитарные типы вместо `any`. Активируйте параметр `\"strict\": true` в `tsconfig.json`. Обращайтесь к официальной документации (https://www.typescriptlang.org/docs) за дополнительной информацией.\n- **Альтернативы**: Вместо утилитарных типов можно использовать `any`, но это небезопасно.\n- Ниже вы можете протестировать код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример для тестирования"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример для тестирования утилитарных типов\ninterface User {\n  id: number;\n  name: string;\n  age?: number;\n}\n\ntype PartialUser = Partial<User>;\n\nlet user: PartialUser = { id: 1 }; // name и age необязательны\n\nconsole.log(user); // { id: 1 }\n"
+      }
+    ]
+  }
+}

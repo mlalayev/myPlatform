@@ -228,10 +228,12 @@ export default function TutorialFrameworkTopicPage() {
           JSON.stringify(visitedLessonsByFramework)
         );
         
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('visitedLessonsUpdated', {
-          detail: { framework: safeFramework, lessonId: safeTopicId }
-        }));
+        // Dispatch custom event to notify other components (with small delay)
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('visitedLessonsUpdated', {
+            detail: { framework: safeFramework, lessonId: safeTopicId }
+          }));
+        }, 100);
         
         console.log('Marking framework lesson as visited:', safeTopicId, 'framework:', safeFramework);
         

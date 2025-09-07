@@ -351,7 +351,7 @@ export default function TutorialLanguagePage() {
         ).length;
         const percent =
           total > 0 ? Math.round((visitedCount / total) * 100) : 0;
-        console.log(`${apiLangName} progress: ${visitedCount}/${total} = ${percent}%`);
+        console.log(`🔥 ${apiLangName} progress: ${visitedCount}/${total} = ${percent}%`);
         progressData[apiLangName] = { percent, visited: visitedCount, total };
       }
       setLanguageProgress(progressData);
@@ -371,8 +371,11 @@ export default function TutorialLanguagePage() {
 
     // Listen for custom event (when lesson is visited in same tab)
     const handleVisitedLessonsUpdate = (e: CustomEvent) => {
-      console.log('Visited lessons updated in same tab, refreshing progress...', e.detail);
-      fetchAllProgress();
+      console.log('🔥 Visited lessons updated in same tab, refreshing progress...', e.detail);
+      console.log('🔥 Current languageProgress before update:', languageProgress);
+      fetchAllProgress().then(() => {
+        console.log('🔥 Progress refreshed after custom event');
+      });
     };
 
     // Listen for window focus (when returning from lesson page)

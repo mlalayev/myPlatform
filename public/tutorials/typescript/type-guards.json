@@ -1,0 +1,645 @@
+{
+  "id": "type-guards",
+  "az": {
+    "title": "Tip Qoruyucuları",
+    "icon": "FiShield",
+    "language": "typescript",
+    "description": "Runtime zamanı tip yoxlaması.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Tip Qoruyucuları Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də tip qoruyucuları (type guards) runtime zamanı dəyişənin tipini dəqiqləşdirmək üçün istifadə olunan mexanizmdir. Bu, xüsusilə birlik tipləri (union types) ilə işləyərkən faydalıdır, çünki TypeScript-in tip sistemi kompilyasiya zamanı dəyişənin hansı tip olduğunu dəqiq bilməyə bilər. Tip qoruyucuları `typeof`, `instanceof`, `in` operatorları və ya istifadəçi tərəfindən təyin edilmiş funksiyalar vasitəsilə tip daraltmasını (type narrowing) təmin edir. Məsələn, bir dəyişən `string | number` tipindədirsə, tip qoruyucusu onun `string` və ya `number` olduğunu yoxlayır və kodun düzgün işləməsini təmin edir. JavaScript-də tip qoruyucuları yoxdur, lakin oxşar yoxlamalar `typeof` və ya `instanceof` ilə əl ilə edilə bilər, ancaq TypeScript-də bu yoxlamalar tip sisteminə inteqrasiya olunur və kompilyasiya zamanı təhlükəsizlik təmin edilir. Bu JSON faylda tip qoruyucularının tərifi, istifadə məqsədləri, adi tip yoxlamalarından fərqləri, JavaScript ilə fərqləri, sintaksisi, müxtəlif tip qoruyucuları, funksiyalarda, siniflərdə və birlik tiplərində istifadəsi, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Qoruyucularının Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip qoruyucuları TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Tip daraltması**: Birlik tipləri ilə işləyərkən dəyişənin konkret tipini müəyyənləşdirmək.\n- **Tip təhlükəsizliyi**: Runtime zamanı yanlış tip istifadəsinin qarşısını almaq.\n- **Oxunaqlılıq**: Kodun məqsədini və tip yoxlamasını aydın ifadə etmək.\n- **Səhvlərin qarşısını almaq**: Kompilyasiya zamanı potensial tip səhvlərini aşkar etmək.\n- **Çeviklik**: Müxtəlif tiplərlə işləyən kod yazmaq.\nJavaScript-də oxşar yoxlamalar əl ilə aparılır, lakin TypeScript tip qoruyucuları ilə bu proses avtomatlaşdırılır və tip sistemi ilə inteqrasiya olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Qoruyucularının Sintaksisi və Növləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip qoruyucuları müxtəlif yollarla tətbiq edilə bilər: `typeof`, `instanceof`, `in` operatorları və istifadəçi tərəfindən təyin edilmiş funksiyalar. Hər biri müəyyən ssenarilərdə istifadə olunur.\nNümunə (`typeof` ilə sadə tip qoruyucusu):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// typeof ilə tip qoruyucusu\nfunction printValue(value: string | number) {\n  if (typeof value === 'string') {\n    console.log(`String: ${value.toUpperCase()}`);\n  } else {\n    console.log(`Number: ${value.toFixed(2)}`);\n  }\n}\n\nprintValue('Hello'); // String: HELLO\nprintValue(42); // Number: 42.00\n// printValue(true); // Xəta: boolean string | number tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `typeof` operatoru `value` dəyişəninin `string` və ya `number` olduğunu yoxlayır.\n- Tip daraltması ilə `value` yalnız uyğun metodlarla istifadə olunur.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "instanceof ilə Tip Qoruyucusu"
+      },
+      {
+        "type": "paragraph",
+        "text": "Siniflərlə işləyərkən `instanceof` operatoru obyektin müəyyən bir sinfə aid olub-olmadığını yoxlayır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// instanceof ilə tip qoruyucusu\nclass Dog {\n  bark() {\n    return 'Woof!';\n  }\n}\n\nclass Cat {\n  meow() {\n    return 'Meow!';\n  }\n}\n\nfunction makeSound(animal: Dog | Cat) {\n  if (animal instanceof Dog) {\n    console.log(animal.bark());\n  } else {\n    console.log(animal.meow());\n  }\n}\n\nmakeSound(new Dog()); // Woof!\nmakeSound(new Cat()); // Meow!\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `instanceof` operatoru `animal` dəyişəninin `Dog` və ya `Cat` sinfinə aid olduğunu yoxlayır.\n- Tip daraltması ilə yalnız müvafiq metodlar çağırılır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "in Operatoru ilə Tip Qoruyucusu"
+      },
+      {
+        "type": "paragraph",
+        "text": "`in` operatoru obyektin müəyyən bir xüsusiyyətə malik olub-olmadığını yoxlayır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// in operatoru ilə tip qoruyucusu\ninterface User {\n  name: string;\n}\n\ninterface Admin {\n  role: string;\n}\n\nfunction checkAccess(person: User | Admin) {\n  if ('name' in person) {\n    console.log(`User: ${person.name}`);\n  } else {\n    console.log(`Admin: ${person.role}`);\n  }\n}\n\ncheckAccess({ name: 'Alice' }); // User: Alice\ncheckAccess({ role: 'SuperAdmin' }); // Admin: SuperAdmin\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `in` operatoru `person` obyektində `name` və ya `role` xüsusiyyətinin olub-olmadığını yoxlayır.\n- Tip daraltması ilə yalnız mövcud xüsusiyyətlərə müraciət edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "İstifadəçi Tərəfindən Təyin Edilmiş Tip Qoruyucuları"
+      },
+      {
+        "type": "paragraph",
+        "text": "İstifadəçi tərəfindən təyin edilmiş tip qoruyucuları xüsusi funksiyalar vasitəsilə tip daraltmasını təmin edir. Bunlar `is` açar sözü ilə təyin edilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// İstifadəçi tərəfindən təyin edilmiş tip qoruyucusu\nfunction isString(value: any): value is string {\n  return typeof value === 'string';\n}\n\nfunction printSafe(value: string | number) {\n  if (isString(value)) {\n    console.log(`String: ${value.toUpperCase()}`);\n  } else {\n    console.log(`Number: ${value.toFixed(2)}`);\n  }\n}\n\nprintSafe('Hello'); // String: HELLO\nprintSafe(42); // Number: 42.00\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `isString` funksiyası `value is string` qaytararaq tip daraltmasını təmin edir.\n- Tip təhlükəsizliyi kompilyasiya zamanı yoxlanılır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Birlik Tipləri (Union Types) ilə Tip Qoruyucuları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip qoruyucuları birlik tipləri ilə işləyərkən xüsusilə faydalıdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Birlik tipləri ilə tip qoruyucusu\ninterface Car {\n  kind: 'car';\n  model: string;\n}\n\ninterface Bike {\n  kind: 'bike';\n  hasBell: boolean;\n}\n\nfunction describeVehicle(vehicle: Car | Bike) {\n  if (vehicle.kind === 'car') {\n    console.log(`Car model: ${vehicle.model}`);\n  } else {\n    console.log(`Bike has bell: ${vehicle.hasBell}`);\n  }\n}\n\ndescribeVehicle({ kind: 'car', model: 'Toyota' }); // Car model: Toyota\ndescribeVehicle({ kind: 'bike', hasBell: true }); // Bike has bell: true\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `kind` xüsusiyyəti discriminated union kimi istifadə olunur.\n- Tip daraltması ilə yalnız müvafiq xüsusiyyətlərə müraciət edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Qoruyucuları ilə Adi Tip Yoxlamalarının Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip qoruyucuları adi tip yoxlamalarından fərqlənir:\n- **Tip daraltması**: Tip qoruyucuları TypeScript-in tip sisteminə inteqrasiya olunur və kompilyasiya zamanı tip təhlükəsizliyini təmin edir.\n- **Oxunaqlılıq**: Tip qoruyucuları kodun məqsədini daha aydın ifadə edir.\n- **Təhlükəsizlik**: JavaScript-də adi yoxlamalar (məsələn, `typeof`) runtime səhvlərinə yol aça bilər, TypeScript isə bunları kompilyasiya zamanı aşkar edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Adi yoxlama ilə tip qoruyucusunun müqayisəsi\nfunction unsafeCheck(value: any) {\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log(value.toFixed(2)); // Riskli: value number olmaya bilər\n  }\n}\n\nfunction safeCheck(value: string | number) {\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log(value.toFixed(2));\n  }\n}\n\nunsafeCheck('Hello'); // HELLO\nunsafeCheck(42); // 42.00\n// unsafeCheck(true); // Runtime səhvi: toFixed metoduna malik deyil\nsafeCheck('Hello'); // HELLO\nsafeCheck(42); // 42.00\n// safeCheck(true); // Xəta: boolean string | number tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `unsafeCheck` `any` tipi ilə işləyir və təhlükəsiz deyil.\n- `safeCheck` tip qoruyucusu ilə tip təhlükəsizliyini təmin edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Qoruyucularının Siniflərdə İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip qoruyucuları siniflərdə `instanceof` ilə istifadə olunaraq obyektin tipini dəqiqləşdirir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Siniflərdə tip qoruyucusu\nclass Employee {\n  work() {\n    return 'Working';\n  }\n}\n\nclass Manager {\n  manage() {\n    return 'Managing';\n  }\n}\n\nfunction processPerson(person: Employee | Manager) {\n  if (person instanceof Employee) {\n    console.log(person.work());\n  } else {\n    console.log(person.manage());\n  }\n}\n\nprocessPerson(new Employee()); // Working\nprocessPerson(new Manager()); // Managing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `instanceof` ilə `person` dəyişəninin `Employee` və ya `Manager` sinfinə aid olduğu yoxlanılır.\n- Tip daraltması ilə yalnız müvafiq metodlar çağırılır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip qoruyucuları kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Tip qoruyucularını dəqiq təyin edin.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- Birlik tipləri ilə işləyərkən discriminated union və ya xüsusi xüsusiyyətlərdən istifadə edin.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\ninterface User {\n  kind: 'user';\n  name: string;\n}\n\ninterface Admin {\n  kind: 'admin';\n  role: string;\n}\n\nfunction safeAccess(person: User | Admin) {\n  if (person.kind === 'user') {\n    return person.name;\n  }\n  return person.role;\n}\n\nconsole.log(safeAccess({ kind: 'user', name: 'Alice' })); // Alice\nconsole.log(safeAccess({ kind: 'admin', role: 'SuperAdmin' })); // SuperAdmin\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `kind` xüsusiyyəti discriminated union kimi istifadə olunur.\n- Tip təhlükəsizliyi kompilyasiya zamanı təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nfunction unsafePrint(value: any) {\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log(value.toFixed(2)); // Riskli: value number olmaya bilər\n  }\n}\n\n// Düzgün yol\nfunction safePrint(value: string | number) {\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log(value.toFixed(2));\n  }\n}\n\nunsafePrint('Hello'); // HELLO\nunsafePrint(42); // 42.00\n// unsafePrint(true); // Runtime səhvi: toFixed metoduna malik deyil\nsafePrint('Hello'); // HELLO\nsafePrint(42); // 42.00\n// safePrint(true); // Xəta: boolean string | number tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime səhvlərinə səbəb ola bilər.\n- Tip qoruyucuları ilə tip təhlükəsizliyi təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip qoruyucuları real layihələrdə geniş istifadə olunur:\n- **API cavablarının idarə edilməsi**: Müxtəlif tipli cavabların yoxlanılması.\n- **Komponent kitabxanaları**: React və ya Angular kimi kitabxanalarda dinamik tiplərlə iş.\n- **Məlumat strukturları**: Müxtəlif tipli məlumatlarla işləyən strukturların yoxlanılması.\n- **Səhv idarəetməsi**: Yanlış tiplərin istifadəsinin qarşısını almaq.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface SuccessResponse {\n  kind: 'success';\n  data: { id: number; name: string };\n}\n\ninterface ErrorResponse {\n  kind: 'error';\n  message: string;\n}\n\nfunction handleResponse(response: SuccessResponse | ErrorResponse) {\n  if (response.kind === 'success') {\n    console.log(`Data: ${response.data.name}`);\n  } else {\n    console.log(`Error: ${response.message}`);\n  }\n}\n\nhandleResponse({ kind: 'success', data: { id: 1, name: 'Product' } }); // Data: Product\nhandleResponse({ kind: 'error', message: 'Not found' }); // Error: Not found\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `kind` xüsusiyyəti discriminated union kimi istifadə olunur.\n- Tip təhlükəsizliyi kompilyasiya zamanı təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip qoruyucuları qabaqcıl TypeScript xüsusiyyətləri ilə də istifadə oluna bilər:\n- **Discriminated Unions**: Xüsusi xüsusiyyətlərlə tip daraltması.\n- **Type Predicates**: İstifadəçi tərəfindən təyin edilmiş qoruyucularla qabaqcıl yoxlamalar.\n- **Type Assertions**: Bəzi hallarda `as` ilə tip təsdiqi.\nBu mövzular haqqında ətraflı məlumat üçün TypeScript sənədlərinə (https://www.typescriptlang.org/docs) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Tip qoruyucularını birlik tipləri ilə işləyərkən istifadə edin. `any` əvəzinə dəqiq tipləri seçin. Discriminated unions və ya xüsusi xüsusiyyətlərdən faydalanın. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Tip qoruyucuları əvəzinə `any` və ya adi JavaScript yoxlamaları istifadə edilə bilər, lakin tip qoruyucuları daha təhlükəsiz və oxunaqlıdır.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün tip qoruyucusu nümunəsi\nfunction isNumber(value: any): value is number {\n  return typeof value === 'number';\n}\n\nfunction printValue(value: string | number) {\n  if (isNumber(value)) {\n    console.log(`Number: ${value.toFixed(2)}`);\n  } else {\n    console.log(`String: ${value.toUpperCase()}`);\n  }\n}\n\nprintValue(42); // Number: 42.00\nprintValue('Test'); // String: TEST\n// printValue(true); // Xəta: boolean string | number tipinə uyğun deyil\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Type Guards",
+    "icon": "FiShield",
+    "language": "typescript",
+    "description": "Runtime type checking.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Type Guards?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, type guards are mechanisms used to narrow down the type of a variable at runtime. They are particularly useful when working with union types, as TypeScript’s type system may not know the exact type of a variable at compile time. Type guards use `typeof`, `instanceof`, `in` operators, or user-defined functions to perform type narrowing. For example, if a variable is of type `string | number`, a type guard checks whether it’s a `string` or a `number`, ensuring the code operates correctly. JavaScript does not have type guards, but similar checks can be done manually with `typeof` or `instanceof`, though TypeScript integrates these checks into its type system for compile-time safety. This JSON file explains the definition, purposes, differences from regular type checks, differences from JavaScript, syntax, types of type guards, usage in functions, classes, and union types, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Type Guards"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type guards in TypeScript serve the following purposes:\n- **Type narrowing**: Determine the specific type of a variable in union types.\n- **Type safety**: Prevent incorrect type usage at runtime.\n- **Readability**: Clearly express the intent of type checking in code.\n- **Error prevention**: Catch potential type errors at compile time.\n- **Flexibility**: Write code that works with multiple types safely.\nIn JavaScript, similar checks are done manually, but TypeScript automates this process and integrates it with the type system."
+      },
+      {
+        "type": "heading",
+        "text": "Syntax and Types of Type Guards"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type guards can be implemented in several ways: `typeof`, `instanceof`, `in` operators, and user-defined functions. Each is used in specific scenarios.\nExample (`typeof` type guard):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// typeof type guard\nfunction printValue(value: string | number) {\n  if (typeof value === 'string') {\n    console.log(`String: ${value.toUpperCase()}`);\n  } else {\n    console.log(`Number: ${value.toFixed(2)}`);\n  }\n}\n\nprintValue('Hello'); // String: HELLO\nprintValue(42); // Number: 42.00\n// printValue(true); // Error: boolean is not assignable to string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `typeof` operator checks if `value` is a `string` or `number`.\n- Type narrowing ensures only appropriate methods are used.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "instanceof Type Guard"
+      },
+      {
+        "type": "paragraph",
+        "text": "When working with classes, the `instanceof` operator checks if an object is an instance of a specific class.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// instanceof type guard\nclass Dog {\n  bark() {\n    return 'Woof!';\n  }\n}\n\nclass Cat {\n  meow() {\n    return 'Meow!';\n  }\n}\n\nfunction makeSound(animal: Dog | Cat) {\n  if (animal instanceof Dog) {\n    console.log(animal.bark());\n  } else {\n    console.log(animal.meow());\n  }\n}\n\nmakeSound(new Dog()); // Woof!\nmakeSound(new Cat()); // Meow!\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `instanceof` operator checks if `animal` is a `Dog` or `Cat`.\n- Type narrowing ensures only appropriate methods are called.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "in Operator Type Guard"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `in` operator checks if an object has a specific property.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// in operator type guard\ninterface User {\n  name: string;\n}\n\ninterface Admin {\n  role: string;\n}\n\nfunction checkAccess(person: User | Admin) {\n  if ('name' in person) {\n    console.log(`User: ${person.name}`);\n  } else {\n    console.log(`Admin: ${person.role}`);\n  }\n}\n\ncheckAccess({ name: 'Alice' }); // User: Alice\ncheckAccess({ role: 'SuperAdmin' }); // Admin: SuperAdmin\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `in` operator checks if `person` has a `name` or `role` property.\n- Type narrowing ensures only existing properties are accessed.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "User-Defined Type Guards"
+      },
+      {
+        "type": "paragraph",
+        "text": "User-defined type guards use custom functions with the `is` keyword to narrow types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// User-defined type guard\nfunction isString(value: any): value is string {\n  return typeof value === 'string';\n}\n\nfunction printSafe(value: string | number) {\n  if (isString(value)) {\n    console.log(`String: ${value.toUpperCase()}`);\n  } else {\n    console.log(`Number: ${value.toFixed(2)}`);\n  }\n}\n\nprintSafe('Hello'); // String: HELLO\nprintSafe(42); // Number: 42.00\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `isString` function uses `value is string` to narrow the type.\n- Type safety is enforced at compile time.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Guards with Union Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type guards are particularly useful with union types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type guard with union types\ninterface Car {\n  kind: 'car';\n  model: string;\n}\n\ninterface Bike {\n  kind: 'bike';\n  hasBell: boolean;\n}\n\nfunction describeVehicle(vehicle: Car | Bike) {\n  if (vehicle.kind === 'car') {\n    console.log(`Car model: ${vehicle.model}`);\n  } else {\n    console.log(`Bike has bell: ${vehicle.hasBell}`);\n  }\n}\n\ndescribeVehicle({ kind: 'car', model: 'Toyota' }); // Car model: Toyota\ndescribeVehicle({ kind: 'bike', hasBell: true }); // Bike has bell: true\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `kind` property acts as a discriminated union.\n- Type narrowing ensures only appropriate properties are accessed.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Guards vs. Regular Type Checks"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type guards differ from regular type checks:\n- **Type narrowing**: Type guards integrate with TypeScript’s type system for compile-time safety.\n- **Readability**: Type guards clearly express the intent of type checking.\n- **Safety**: JavaScript’s manual checks (e.g., `typeof`) may lead to runtime errors, while TypeScript catches errors at compile time.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Regular check vs. type guard\nfunction unsafeCheck(value: any) {\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log(value.toFixed(2)); // Risky: value may not be a number\n  }\n}\n\nfunction safeCheck(value: string | number) {\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log(value.toFixed(2));\n  }\n}\n\nunsafeCheck('Hello'); // HELLO\nunsafeCheck(42); // 42.00\n// unsafeCheck(true); // Runtime error: toFixed is not a function\nsafeCheck('Hello'); // HELLO\nsafeCheck(42); // 42.00\n// safeCheck(true); // Error: boolean is not assignable to string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `unsafeCheck` uses `any` and is unsafe.\n- `safeCheck` uses a type guard for type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Guards in Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type guards in classes use `instanceof` to narrow object types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type guard in classes\nclass Employee {\n  work() {\n    return 'Working';\n  }\n}\n\nclass Manager {\n  manage() {\n    return 'Managing';\n  }\n}\n\nfunction processPerson(person: Employee | Manager) {\n  if (person instanceof Employee) {\n    console.log(person.work());\n  } else {\n    console.log(person.manage());\n  }\n}\n\nprocessPerson(new Employee()); // Working\nprocessPerson(new Manager()); // Managing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `instanceof` checks if `person` is an `Employee` or `Manager`.\n- Type narrowing ensures only appropriate methods are called.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type guards enhance code safety, but caution is needed:\n- Define type guards precisely.\n- Avoid `any` as it reduces type safety.\n- Use discriminated unions or specific properties when working with union types.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\ninterface User {\n  kind: 'user';\n  name: string;\n}\n\ninterface Admin {\n  kind: 'admin';\n  role: string;\n}\n\nfunction safeAccess(person: User | Admin) {\n  if (person.kind === 'user') {\n    return person.name;\n  }\n  return person.role;\n}\n\nconsole.log(safeAccess({ kind: 'user', name: 'Alice' })); // Alice\nconsole.log(safeAccess({ kind: 'admin', role: 'SuperAdmin' })); // SuperAdmin\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `kind` property acts as a discriminated union.\n- Type safety is enforced at compile time.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nfunction unsafePrint(value: any) {\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log(value.toFixed(2)); // Risky: value may not be a number\n  }\n}\n\n// Correct approach\nfunction safePrint(value: string | number) {\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log(value.toFixed(2));\n  }\n}\n\nunsafePrint('Hello'); // HELLO\nunsafePrint(42); // 42.00\n// unsafePrint(true); // Runtime error: toFixed is not a function\nsafePrint('Hello'); // HELLO\nsafePrint(42); // 42.00\n// safePrint(true); // Error: boolean is not assignable to string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and may cause runtime errors.\n- Type guards ensure type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type guards are widely used in real projects:\n- **API response handling**: Checking different types of API responses.\n- **Component libraries**: Working with dynamic types in React or Angular.\n- **Data structures**: Validating structures with various types.\n- **Error handling**: Preventing incorrect type usage.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface SuccessResponse {\n  kind: 'success';\n  data: { id: number; name: string };\n}\n\ninterface ErrorResponse {\n  kind: 'error';\n  message: string;\n}\n\nfunction handleResponse(response: SuccessResponse | ErrorResponse) {\n  if (response.kind === 'success') {\n    console.log(`Data: ${response.data.name}`);\n  } else {\n    console.log(`Error: ${response.message}`);\n  }\n}\n\nhandleResponse({ kind: 'success', data: { id: 1, name: 'Product' } }); // Data: Product\nhandleResponse({ kind: 'error', message: 'Not found' }); // Error: Not found\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `kind` property acts as a discriminated union.\n- Type safety is enforced at compile time.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type guards can be used with advanced TypeScript features:\n- **Discriminated Unions**: Type narrowing with specific properties.\n- **Type Predicates**: Advanced checks with user-defined type guards.\n- **Type Assertions**: Using `as` for type confirmation in some cases.\nFor more details, refer to the TypeScript documentation (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use type guards when working with union types. Prefer precise types over `any`. Leverage discriminated unions or specific properties. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Instead of type guards, `any` or manual JavaScript checks can be used, but type guards are safer and more readable.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself type guard example\nfunction isNumber(value: any): value is number {\n  return typeof value === 'number';\n}\n\nfunction printValue(value: string | number) {\n  if (isNumber(value)) {\n    console.log(`Number: ${value.toFixed(2)}`);\n  } else {\n    console.log(`String: ${value.toUpperCase()}`);\n  }\n}\n\nprintValue(42); // Number: 42.00\nprintValue('Test'); // String: TEST\n// printValue(true); // Error: boolean is not assignable to string | number\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Типовые охранники",
+    "icon": "FiShield",
+    "language": "typescript",
+    "description": "Проверка типов во время выполнения.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое типовые охранники?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript типовые охранники (type guards) — это механизм, используемый для уточнения типа переменной во время выполнения. Они особенно полезны при работе с объединенными типами (union types), поскольку система типов TypeScript не всегда может точно определить тип переменной на этапе компиляции. Типовые охранники используют операторы `typeof`, `instanceof`, `in` или пользовательские функции для выполнения сужения типов (type narrowing). Например, если переменная имеет тип `string | number`, типовой охранник проверяет, является ли она `string` или `number`, обеспечивая корректную работу кода. В JavaScript типовых охранников нет, но аналогичные проверки можно выполнять вручную с помощью `typeof` или `instanceof`, однако TypeScript интегрирует эти проверки в свою систему типов для обеспечения безопасности на этапе компиляции. Этот JSON-файл подробно объясняет определение, назначение, отличия от обычных проверок типов, отличия от JavaScript, синтаксис, виды типовых охранников, использование в функциях, классах и объединенных типах, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение типовых охранников"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типовые охранники в TypeScript используются для следующих целей:\n- **Сужение типов**: Определение конкретного типа переменной в объединенных типах.\n- **Безопасность типов**: Предотвращение неправильного использования типов во время выполнения.\n- **Читаемость**: Ясное выражение намерения проверки типов в коде.\n- **Предотвращение ошибок**: Обнаружение потенциальных ошибок типов на этапе компиляции.\n- **Гибкость**: Написание кода, безопасно работающего с несколькими типами.\nВ JavaScript аналогичные проверки выполняются вручную, но TypeScript автоматизирует этот процесс и интегрирует его с системой типов."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис и виды типовых охранников"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типовые охранники могут быть реализованы несколькими способами: `typeof`, `instanceof`, оператор `in` и пользовательские функции. Каждый используется в определенных сценариях.\nПример (типовой охранник `typeof`):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Типовой охранник typeof\nfunction printValue(value: string | number) {\n  if (typeof value === 'string') {\n    console.log(`String: ${value.toUpperCase()}`);\n  } else {\n    console.log(`Number: ${value.toFixed(2)}`);\n  }\n}\n\nprintValue('Hello'); // String: HELLO\nprintValue(42); // Number: 42.00\n// printValue(true); // Ошибка: boolean не соответствует типу string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Оператор `typeof` проверяет, является ли `value` типом `string` или `number`.\n- Сужение типов обеспечивает использование только подходящих методов.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Типовой охранник instanceof"
+      },
+      {
+        "type": "paragraph",
+        "text": "При работе с классами оператор `instanceof` проверяет, является ли объект экземпляром определенного класса.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Типовой охранник instanceof\nclass Dog {\n  bark() {\n    return 'Woof!';\n  }\n}\n\nclass Cat {\n  meow() {\n    return 'Meow!';\n  }\n}\n\nfunction makeSound(animal: Dog | Cat) {\n  if (animal instanceof Dog) {\n    console.log(animal.bark());\n  } else {\n    console.log(animal.meow());\n  }\n}\n\nmakeSound(new Dog()); // Woof!\nmakeSound(new Cat()); // Meow!\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Оператор `instanceof` проверяет, является ли `animal` экземпляром `Dog` или `Cat`.\n- Сужение типов обеспечивает вызов только подходящих методов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Типовой охранник с оператором in"
+      },
+      {
+        "type": "paragraph",
+        "text": "Оператор `in` проверяет, есть ли у объекта определенное свойство.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Типовой охранник с оператором in\ninterface User {\n  name: string;\n}\n\ninterface Admin {\n  role: string;\n}\n\nfunction checkAccess(person: User | Admin) {\n  if ('name' in person) {\n    console.log(`User: ${person.name}`);\n  } else {\n    console.log(`Admin: ${person.role}`);\n  }\n}\n\ncheckAccess({ name: 'Alice' }); // User: Alice\ncheckAccess({ role: 'SuperAdmin' }); // Admin: SuperAdmin\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Оператор `in` проверяет, есть ли у `person` свойство `name` или `role`.\n- Сужение типов обеспечивает доступ только к существующим свойствам.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пользовательские типовые охранники"
+      },
+      {
+        "type": "paragraph",
+        "text": "Пользовательские типовые охранники используют функции с ключевым словом `is` для сужения типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пользовательский типовой охранник\nfunction isString(value: any): value is string {\n  return typeof value === 'string';\n}\n\nfunction printSafe(value: string | number) {\n  if (isString(value)) {\n    console.log(`String: ${value.toUpperCase()}`);\n  } else {\n    console.log(`Number: ${value.toFixed(2)}`);\n  }\n}\n\nprintSafe('Hello'); // String: HELLO\nprintSafe(42); // Number: 42.00\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `isString` использует `value is string` для сужения типа.\n- Безопасность типов обеспечивается на этапе компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Типовые охранники с объединенными типами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типовые охранники особенно полезны при работе с объединенными типами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Типовой охранник с объединенными типами\ninterface Car {\n  kind: 'car';\n  model: string;\n}\n\ninterface Bike {\n  kind: 'bike';\n  hasBell: boolean;\n}\n\nfunction describeVehicle(vehicle: Car | Bike) {\n  if (vehicle.kind === 'car') {\n    console.log(`Car model: ${vehicle.model}`);\n  } else {\n    console.log(`Bike has bell: ${vehicle.hasBell}`);\n  }\n}\n\ndescribeVehicle({ kind: 'car', model: 'Toyota' }); // Car model: Toyota\ndescribeVehicle({ kind: 'bike', hasBell: true }); // Bike has bell: true\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Свойство `kind` используется как дискриминированный объединенный тип.\n- Сужение типов обеспечивает доступ только к соответствующим свойствам.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Типовые охранники против обычных проверок типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типовые охранники отличаются от обычных проверок типов:\n- **Сужение типов**: Типовые охранники интегрированы с системой типов TypeScript для обеспечения безопасности на этапе компиляции.\n- **Читаемость**: Типовые охранники четко выражают намерение проверки типов.\n- **Безопасность**: Ручные проверки в JavaScript (например, `typeof`) могут привести к ошибкам во время выполнения, тогда как TypeScript обнаруживает ошибки на этапе компиляции.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Обычная проверка против типового охранника\nfunction unsafeCheck(value: any) {\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log(value.toFixed(2)); // Рискованно: value может не быть числом\n  }\n}\n\nfunction safeCheck(value: string | number) {\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log(value.toFixed(2));\n  }\n}\n\nunsafeCheck('Hello'); // HELLO\nunsafeCheck(42); // 42.00\n// unsafeCheck(true); // Ошибка времени выполнения: toFixed не является функцией\nsafeCheck('Hello'); // HELLO\nsafeCheck(42); // 42.00\n// safeCheck(true); // Ошибка: boolean не соответствует типу string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `unsafeCheck` использует `any` и является небезопасным.\n- `safeCheck` использует типовой охранник для обеспечения безопасности типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Типовые охранники в классах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типовые охранники в классах используют `instanceof` для уточнения типов объектов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Типовой охранник в классах\nclass Employee {\n  work() {\n    return 'Working';\n  }\n}\n\nclass Manager {\n  manage() {\n    return 'Managing';\n  }\n}\n\nfunction processPerson(person: Employee | Manager) {\n  if (person instanceof Employee) {\n    console.log(person.work());\n  } else {\n    console.log(person.manage());\n  }\n}\n\nprocessPerson(new Employee()); // Working\nprocessPerson(new Manager()); // Managing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `instanceof` проверяет, является ли `person` экземпляром `Employee` или `Manager`.\n- Сужение типов обеспечивает вызов только подходящих методов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типовые охранники повышают безопасность кода, но требуется осторожность:\n- Точно определяйте типовые охранники.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Используйте дискриминированные объединенные типы или специфические свойства при работе с объединенными типами.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\ninterface User {\n  kind: 'user';\n  name: string;\n}\n\ninterface Admin {\n  kind: 'admin';\n  role: string;\n}\n\nfunction safeAccess(person: User | Admin) {\n  if (person.kind === 'user') {\n    return person.name;\n  }\n  return person.role;\n}\n\nconsole.log(safeAccess({ kind: 'user', name: 'Alice' })); // Alice\nconsole.log(safeAccess({ kind: 'admin', role: 'SuperAdmin' })); // SuperAdmin\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Свойство `kind` используется как дискриминированный объединенный тип.\n- Безопасность типов обеспечивается на этапе компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nfunction unsafePrint(value: any) {\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log(value.toFixed(2)); // Рискованно: value может не быть числом\n  }\n}\n\n// Правильный подход\nfunction safePrint(value: string | number) {\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log(value.toFixed(2));\n  }\n}\n\nunsafePrint('Hello'); // HELLO\nunsafePrint(42); // 42.00\n// unsafePrint(true); // Ошибка времени выполнения: toFixed не является функцией\nsafePrint('Hello'); // HELLO\nsafePrint(42); // 42.00\n// safePrint(true); // Ошибка: boolean не соответствует типу string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Типовые охранники обеспечивают безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типовые охранники широко используются в реальных проектах:\n- **Обработка ответов API**: Проверка различных типов ответов API.\n- **Библиотеки компонентов**: Работа с динамическими типами в React или Angular.\n- **Структуры данных**: Проверка структур с различными типами.\n- **Обработка ошибок**: Предотвращение неправильного использования типов.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface SuccessResponse {\n  kind: 'success';\n  data: { id: number; name: string };\n}\n\ninterface ErrorResponse {\n  kind: 'error';\n  message: string;\n}\n\nfunction handleResponse(response: SuccessResponse | ErrorResponse) {\n  if (response.kind === 'success') {\n    console.log(`Data: ${response.data.name}`);\n  } else {\n    console.log(`Error: ${response.message}`);\n  }\n}\n\nhandleResponse({ kind: 'success', data: { id: 1, name: 'Product' } }); // Data: Product\nhandleResponse({ kind: 'error', message: 'Not found' }); // Error: Not found\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Свойство `kind` используется как дискриминированный объединенный тип.\n- Безопасность типов обеспечивается на этапе компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типовые охранники могут использоваться с продвинутыми возможностями TypeScript:\n- **Дискриминированные объединенные типы**: Сужение типов с помощью специфических свойств.\n- **Предикаты типов**: Продвинутые проверки с пользовательскими типовыми охранниками.\n- **Утверждения типов**: Использование `as` для подтверждения типа в некоторых случаях.\nДля получения дополнительной информации обратитесь к документации TypeScript (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте типовые охранники при работе с объединенными типами. Предпочитайте точные типы вместо `any`. Используйте дискриминированные объединенные типы или специфические свойства. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо типовых охранников можно использовать `any` или ручные проверки JavaScript, но типовые охранники более безопасны и читаемы.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример типового охранника для самостоятельного тестирования\nfunction isNumber(value: any): value is number {\n  return typeof value === 'number';\n}\n\nfunction printValue(value: string | number) {\n  if (isNumber(value)) {\n    console.log(`Number: ${value.toFixed(2)}`);\n  } else {\n    console.log(`String: ${value.toUpperCase()}`);\n  }\n}\n\nprintValue(42); // Number: 42.00\nprintValue('Test'); // String: TEST\n// printValue(true); // Ошибка: boolean не соответствует типу string | number\n"
+      }
+    ]
+  }
+}
