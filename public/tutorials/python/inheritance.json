@@ -1,0 +1,699 @@
+{
+  "id": "inheritance",
+  "az": {
+    "title": "İrsiilik (Inheritance)",
+    "icon": "FiCornerDownRight",
+    "language": "python",
+    "description": "Siniflər arasında irsi əlaqə.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# İrsiyyət (Inheritance) Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "İrsiyyət Python-da Obyekt Yönümlü Proqramlaşdırmanın (OOP) əsas prinsiplərindən biridir. Bu, bir sinifin (törəmə sinif) başqa sinifin (ana sinif) atributlarını və metodlarını miras almasına imkan verir. İrsiyyət kodun təkrar istifadəsini asanlaşdırır və siniflər arasında iyerarxik əlaqə yaradır. Bu JSON faylda irsiyyətin əsasları, ana və törəmə siniflər, `super()` funksiyası, metodların override edilməsi, çoxsəviyyəli irsiyyət, çoxsaylı irsiyyət, polimorfizm ilə əlaqəsi, `isinstance()` və `issubclass()` funksiyaları, `for` və `while` dövrləri ilə obyektlərin işlədilməsi, TypeScript/JavaScript-dəki irsiyyətlə müqayisə, səhvlərdən qaçınma yolları və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Kod nümunələri istifadəçi girişi tələb etmir, UTF-8 uyğundur və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# İrsiyyətin Əsasları"
+      },
+      {
+        "type": "paragraph",
+        "text": "İrsiyyət ana sinifdən törəmə sinifə atributların və metodların keçməsini təmin edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Sadə irsiyyət\nclass Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def make_sound(self):\n        return f'{self.name} səs çıxarır.'\n\nclass Dog(Animal):\n    pass\n\ndog = Dog('Rex')\nprint(dog.make_sound())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Animal` ana sinifdir.\n- `Dog` sinifi `Animal` sinifindən miras alır.\n- `Dog` öz `__init__` metoduna malik olmasa da, ana sinfin metodunu istifadə edir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# super() Funksiyası"
+      },
+      {
+        "type": "paragraph",
+        "text": "`super()` funksiyası ana sinfin metodlarını və konstruktorunu çağırmaq üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# super() ilə irsiyyət\nclass Vehicle:\n    def __init__(self, brand):\n        self.brand = brand\n\n    def start_engine(self):\n        return f'{self.brand} mühərriki işə salındı.'\n\nclass Car(Vehicle):\n    def __init__(self, brand, model):\n        super().__init__(brand)\n        self.model = model\n\n    def display_info(self):\n        return f'{self.brand} {self.model}'\n\ncar = Car('Toyota', 'Camry')\nprint(car.start_engine())\nprint(car.display_info())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Vehicle` ana sinifdir.\n- `Car` sinifi `super()` ilə ana sinfin `__init__` metodunu çağırır.\n- `display_info` törəmə sinfə xas metodudur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Metodların Override Edilməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Törəmə sinif ana sinfin metodunu yenidən təyin edə bilər (override).\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Metod override\nclass Animal:\n    def make_sound(self):\n        return 'Ümumi səs'\n\nclass Cat(Animal):\n    def make_sound(self):\n        return 'Miyav!'\n\ncat = Cat()\nprint(cat.make_sound())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Cat` sinifi `make_sound` metodunu override edir.\n- Ana sinfin metodu əvəzinə öz versiyasını istifadə edir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Çoxsəviyyəli İrsiyyət"
+      },
+      {
+        "type": "paragraph",
+        "text": "Çoxsəviyyəli irsiyyət bir sinfin başqa sinfdən, onun da başqa sinfdən miras almasıdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Çoxsəviyyəli irsiyyət\nclass Vehicle:\n    def __init__(self, brand):\n        self.brand = brand\n\nclass Car(Vehicle):\n    def __init__(self, brand, model):\n        super().__init__(brand)\n        self.model = model\n\nclass ElectricCar(Car):\n    def __init__(self, brand, model, battery_capacity):\n        super().__init__(brand, model)\n        self.battery_capacity = battery_capacity\n\n    def display_info(self):\n        return f'{self.brand} {self.model}, Batareya: {self.battery_capacity} kWh'\n\nelectric_car = ElectricCar('Tesla', 'Model S', 100)\nprint(electric_car.display_info())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Vehicle` -> `Car` -> `ElectricCar` iyerarxiyası yaradılır.\n- Hər sinif əvvəlki sinfin xüsusiyyətlərini miras alır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Çoxsaylı İrsiyyət (Multiple Inheritance)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Çoxsaylı irsiyyət bir sinfin birdən çox ana sinfdən miras almasıdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Çoxsaylı irsiyyət\nclass Flyer:\n    def fly(self):\n        return 'Uçur!'\n\nclass Swimmer:\n    def swim(self):\n        return 'Üzür!'\n\nclass Duck(Flyer, Swimmer):\n    def quack(self):\n        return 'Vaq-vaq!'\n\nduck = Duck()\nprint(duck.fly())\nprint(duck.swim())\nprint(duck.quack())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Duck` sinifi `Flyer` və `Swimmer` siniflərindən miras alır.\n- Hər iki ana sinfin metodlarını istifadə edir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Polimorfizm ilə Əlaqə"
+      },
+      {
+        "type": "paragraph",
+        "text": "İrsiyyət polimorfizmlə sıx bağlıdır, çünki törəmə siniflər eyni metodları fərqli şəkildə həyata keçirə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Polimorfizm\nclass Animal:\n    def make_sound(self):\n        return 'Səs!'\n\nclass Dog(Animal):\n    def make_sound(self):\n        return 'Hav-hav!'\n\nclass Cat(Animal):\n    def make_sound(self):\n        return 'Miyav!'\n\nanimals = [Dog(), Cat()]\nfor animal in animals:\n    print(animal.make_sound())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Dog` və `Cat` sinifləri `make_sound` metodunu fərqli şəkildə həyata keçirir.\n- `for` dövrü ilə polimorfizm nümayiş etdirilir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# isinstance() və issubclass() Funksiyaları"
+      },
+      {
+        "type": "paragraph",
+        "text": "`isinstance()` obyektin sinifə aid olub-olmadığını, `issubclass()` isə sinfin başqa sinfdən törəmə olub-olmadığını yoxlayır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# isinstance() və issubclass()\nclass Animal:\n    pass\n\nclass Dog(Animal):\n    pass\n\ndog = Dog()\nprint(isinstance(dog, Dog))\nprint(isinstance(dog, Animal))\nprint(issubclass(Dog, Animal))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `isinstance(dog, Dog)` və `isinstance(dog, Animal)` `True` qaytarır.\n- `issubclass(Dog, Animal)` sinfin törəmə olduğunu göstərir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# for və while Dövrləri ilə İrsiyyət"
+      },
+      {
+        "type": "paragraph",
+        "text": "İrsiyyətdən istifadə edən obyektlər siyahılarda saxlanılaraq `for` və ya `while` dövrləri ilə işlənə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# for və while ilə irsiyyət\nclass Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def info(self):\n        return f'Ad: {self.name}'\n\nclass Dog(Animal):\n    def info(self):\n        return f'Ad: {self.name}, Növ: İt'\n\nanimals = [Dog('Rex'), Dog('Max')]\n\n# for dövrü\nprint('for dövrü ilə obyektlər:')\nfor animal in animals:\n    print(animal.info())\n\n# while dövrü\nprint('while dövrü ilə obyektlər:')\nindex = 0\nwhile index < len(animals):\n    print(animals[index].info())\n    index += 1\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Dog` sinifi `Animal` sinfindən miras alır.\n- `for` və `while` dövrləri ilə obyektlər işlənir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Python ilə TypeScript və JavaScript-in Müqayisəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da irsiyyət JavaScript/TypeScript-dəki irsiyyətə oxşardır:\n- **Sintaksis**: Hər iki dildə `class` və `super()` istifadə olunur.\n- **Fərqlər**: Python-da çoxsaylı irsiyyət dəstəklənir, JavaScript-də isə yoxdur.\nNümunə (Python vs JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Python kodu\nclass Animal:\n    def make_sound(self):\n        return 'Səs!'\n\nclass Dog(Animal):\n    def make_sound(self):\n        return 'Hav-hav!'\n\ndog = Dog()\nprint(dog.make_sound())\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// JavaScript kodu\nclass Animal {\n    makeSound() {\n        return 'Sound!';\n    }\n}\n\nclass Dog extends Animal {\n    makeSound() {\n        return 'Woof!';\n    }\n}\n\nconst dog = new Dog();\nconsole.log(dog.makeSound());\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Hər iki dildə irsiyyət və metod override nümayiş etdirilir.\nAşağıda bu kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Səhvlərdən Qaçınma Yolları"
+      },
+      {
+        "type": "paragraph",
+        "text": "İrsiyyətlə işləyərkən səhvlərdən qaçınmaq üçün:\n- **Metod çakışmaları**: Override edilən metodları diqqətlə idarə edin.\n- **super() istifadəsi**: Ana sinfin metodlarını düzgün çağırın.\n- **Sadəlik**: Çox mürəkkəb iyerarxiyalardan qaçın.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Səhvlərdən qaçınma\nclass Animal:\n    def make_sound(self):\n        return 'Səs!'\n\nclass Dog(Animal):\n    def make_sound(self):\n        try:\n            return f'{super().make_sound()} Hav-hav!'\n        except AttributeError:\n            return 'Xəta: Ana sinif metodu tapılmadı!'\n\ndog = Dog()\nprint(dog.make_sound())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `super()` ilə ana sinfin metodu çağırılır.\n- `AttributeError` tutulur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "İrsiyyət real layihələrdə aşağıdakı ssenarilərdə istifadə olunur:\n- **Modelləşdirmə**: Real dünya obyektlərinin iyerarxiyası.\n- **Kod təkrar istifadəsi**: Ümumi funksionallığı paylaşma.\n- **Baxım**: Böyük layihələrdə strukturlaşdırma.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Layihədə istifadə\nclass Employee:\n    def __init__(self, name, salary):\n        self.name = name\n        self.salary = salary\n\n    def info(self):\n        return f'{self.name}: {self.salary} AZN'\n\nclass Manager(Employee):\n    def __init__(self, name, salary, department):\n        super().__init__(name, salary)\n        self.department = department\n\n    def info(self):\n        return f'{self.name}: {self.salary} AZN, Departament: {self.department}'\n\nemployees = [Employee('Ali', 2000), Manager('Ayşe', 3000, 'HR')]\nfor emp in employees:\n    print(emp.info())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Manager` sinifi `Employee` sinfindən miras alır.\n- Polimorfizm ilə fərqli `info` metodları çağırılır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "İrsiyyətlə bağlı qabaqcıl mövzular:\n- **Abstrakt siniflər**: `abc` modulu ilə məcburi metodlar təyin etmə.\n- **Metod Rezolyusiya Sırası (MRO)**: Çoxsaylı irsiyyətdə metod sırasını müəyyənləşdirmə.\nBu mövzular haqqında ətraflı məlumat üçün Python sənədlərinə (https://docs.python.org) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "# Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Sadə iyerarxiyalar istifadə edin, `super()`-i düzgün tətbiq edin, rəsmi sənədlərdən (https://docs.python.org) faydalanın.\n- **Alternativlər**: Kiçik layihələrdə irsiyyət əvəzinə kompozisiyadan istifadə.\nAşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# Sınaq üçün Python nümunəsi\nclass Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def make_sound(self):\n        return f'{self.name} səs çıxarır.'\n\nclass Dog(Animal):\n    def make_sound(self):\n        return f'{self.name}: Hav-hav!'\n\ndog = Dog('Rex')\nprint(dog.make_sound())\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Inheritance",
+    "icon": "FiCornerDownRight",
+    "language": "python",
+    "description": "Hierarchical relationships between classes.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# What is Inheritance?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inheritance is a core principle of Object-Oriented Programming (OOP) in Python, allowing a class (child class) to inherit attributes and methods from another class (parent class). It promotes code reuse and establishes a hierarchical relationship between classes. This JSON file explains inheritance basics, parent and child classes, the `super()` function, method overriding, multilevel inheritance, multiple inheritance, its relation to polymorphism, `isinstance()` and `issubclass()` functions, working with inherited objects in `for` and `while` loops, comparison with TypeScript/JavaScript inheritance, error avoidance strategies, and real-world usage scenarios in detail. Code examples do not require user input, are UTF-8 compatible, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Basics of Inheritance"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inheritance allows a child class to inherit attributes and methods from a parent class.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Simple inheritance\nclass Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def make_sound(self):\n        return f'{self.name} makes a sound.'\n\nclass Dog(Animal):\n    pass\n\ndog = Dog('Rex')\nprint(dog.make_sound())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Animal` is the parent class.\n- `Dog` inherits from `Animal`.\n- `Dog` uses the parent’s method without defining its own `__init__`.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# The super() Function"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `super()` function calls methods and constructors from the parent class.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Inheritance with super()\nclass Vehicle:\n    def __init__(self, brand):\n        self.brand = brand\n\n    def start_engine(self):\n        return f'{self.brand} engine started.'\n\nclass Car(Vehicle):\n    def __init__(self, brand, model):\n        super().__init__(brand)\n        self.model = model\n\n    def display_info(self):\n        return f'{self.brand} {self.model}'\n\ncar = Car('Toyota', 'Camry')\nprint(car.start_engine())\nprint(car.display_info())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Vehicle` is the parent class.\n- `Car` uses `super()` to call the parent’s `__init__` method.\n- `display_info` is specific to the child class.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Method Overriding"
+      },
+      {
+        "type": "paragraph",
+        "text": "A child class can redefine (override) a parent class’s method.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Method overriding\nclass Animal:\n    def make_sound(self):\n        return 'Generic sound'\n\nclass Cat(Animal):\n    def make_sound(self):\n        return 'Meow!'\n\ncat = Cat()\nprint(cat.make_sound())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Cat` overrides the `make_sound` method.\n- The child class’s version is used instead of the parent’s.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Multilevel Inheritance"
+      },
+      {
+        "type": "paragraph",
+        "text": "Multilevel inheritance involves a class inheriting from another class, which itself inherits from another.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Multilevel inheritance\nclass Vehicle:\n    def __init__(self, brand):\n        self.brand = brand\n\nclass Car(Vehicle):\n    def __init__(self, brand, model):\n        super().__init__(brand)\n        self.model = model\n\nclass ElectricCar(Car):\n    def __init__(self, brand, model, battery_capacity):\n        super().__init__(brand, model)\n        self.battery_capacity = battery_capacity\n\n    def display_info(self):\n        return f'{self.brand} {self.model}, Battery: {self.battery_capacity} kWh'\n\nelectric_car = ElectricCar('Tesla', 'Model S', 100)\nprint(electric_car.display_info())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Vehicle` -> `Car` -> `ElectricCar` forms a hierarchy.\n- Each class inherits from the previous one.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Multiple Inheritance"
+      },
+      {
+        "type": "paragraph",
+        "text": "Multiple inheritance allows a class to inherit from multiple parent classes.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Multiple inheritance\nclass Flyer:\n    def fly(self):\n        return 'Flying!'\n\nclass Swimmer:\n    def swim(self):\n        return 'Swimming!'\n\nclass Duck(Flyer, Swimmer):\n    def quack(self):\n        return 'Quack!'\n\nduck = Duck()\nprint(duck.fly())\nprint(duck.swim())\nprint(duck.quack())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Duck` inherits from both `Flyer` and `Swimmer`.\n- It can use methods from both parent classes.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Relation to Polymorphism"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inheritance is closely tied to polymorphism, as child classes can implement the same method differently.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Polymorphism\nclass Animal:\n    def make_sound(self):\n        return 'Sound!'\n\nclass Dog(Animal):\n    def make_sound(self):\n        return 'Woof!'\n\nclass Cat(Animal):\n    def make_sound(self):\n        return 'Meow!'\n\nanimals = [Dog(), Cat()]\nfor animal in animals:\n    print(animal.make_sound())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Dog` and `Cat` implement `make_sound` differently.\n- A `for` loop demonstrates polymorphism.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# isinstance() and issubclass() Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "`isinstance()` checks if an object belongs to a class, and `issubclass()` checks if a class is a subclass of another.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# isinstance() and issubclass()\nclass Animal:\n    pass\n\nclass Dog(Animal):\n    pass\n\ndog = Dog()\nprint(isinstance(dog, Dog))\nprint(isinstance(dog, Animal))\nprint(issubclass(Dog, Animal))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `isinstance(dog, Dog)` and `isinstance(dog, Animal)` return `True`.\n- `issubclass(Dog, Animal)` confirms `Dog` is a subclass.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Working with Inheritance in for and while Loops"
+      },
+      {
+        "type": "paragraph",
+        "text": "Objects from inherited classes can be stored in lists and processed with `for` or `while` loops.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Inheritance with for and while loops\nclass Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def info(self):\n        return f'Name: {self.name}'\n\nclass Dog(Animal):\n    def info(self):\n        return f'Name: {self.name}, Type: Dog'\n\nanimals = [Dog('Rex'), Dog('Max')]\n\n# for loop\nprint('Objects with for loop:')\nfor animal in animals:\n    print(animal.info())\n\n# while loop\nprint('Objects with while loop:')\nindex = 0\nwhile index < len(animals):\n    print(animals[index].info())\n    index += 1\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Dog` inherits from `Animal`.\n- `for` and `while` loops process the objects.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Python vs. TypeScript and JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inheritance in Python is similar to JavaScript/TypeScript:\n- **Syntax**: Both use `class` and `super()`.\n- **Differences**: Python supports multiple inheritance, JavaScript does not.\nExample (Python vs. JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Python code\nclass Animal:\n    def make_sound(self):\n        return 'Sound!'\n\nclass Dog(Animal):\n    def make_sound(self):\n        return 'Woof!'\n\ndog = Dog()\nprint(dog.make_sound())\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// JavaScript code\nclass Animal {\n    makeSound() {\n        return 'Sound!';\n    }\n}\n\nclass Dog extends Animal {\n    makeSound() {\n        return 'Woof!';\n    }\n}\n\nconst dog = new Dog();\nconsole.log(dog.makeSound());\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Both languages show inheritance and method overriding.\nYou can test these codes in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Avoiding Errors"
+      },
+      {
+        "type": "paragraph",
+        "text": "To avoid errors with inheritance:\n- **Method conflicts**: Carefully manage overridden methods.\n- **super() usage**: Correctly call parent class methods.\n- **Simplicity**: Avoid overly complex hierarchies.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Avoiding errors\nclass Animal:\n    def make_sound(self):\n        return 'Sound!'\n\nclass Dog(Animal):\n    def make_sound(self):\n        try:\n            return f'{super().make_sound()} Woof!'\n        except AttributeError:\n            return 'Error: Parent method not found!'\n\ndog = Dog()\nprint(dog.make_sound())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `super()` calls the parent’s method.\n- `AttributeError` is caught.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inheritance is used in real-world projects for:\n- **Modeling**: Representing real-world hierarchies.\n- **Code reuse**: Sharing common functionality.\n- **Maintenance**: Structuring large projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Project usage\nclass Employee:\n    def __init__(self, name, salary):\n        self.name = name\n        self.salary = salary\n\n    def info(self):\n        return f'{self.name}: {self.salary} USD'\n\nclass Manager(Employee):\n    def __init__(self, name, salary, department):\n        super().__init__(name, salary)\n        self.department = department\n\n    def info(self):\n        return f'{self.name}: {self.salary} USD, Department: {self.department}'\n\nemployees = [Employee('Ali', 2000), Manager('Ayşe', 3000, 'HR')]\nfor emp in employees:\n    print(emp.info())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Manager` inherits from `Employee`.\n- Polymorphism is used to call different `info` methods.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advanced topics related to inheritance:\n- **Abstract classes**: Using the `abc` module to enforce method implementation.\n- **Method Resolution Order (MRO)**: Determining method lookup order in multiple inheritance.\nFor more details, refer to the Python documentation (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use simple hierarchies, apply `super()` correctly, and refer to the official documentation (https://docs.python.org).\n- **Alternatives**: Use composition instead of inheritance for small projects.\nYou can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# Try it yourself Python example\nclass Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def make_sound(self):\n        return f'{self.name} makes a sound.'\n\nclass Dog(Animal):\n    def make_sound(self):\n        return f'{self.name}: Woof!'\n\ndog = Dog('Rex')\nprint(dog.make_sound())\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Наследование",
+    "icon": "FiCornerDownRight",
+    "language": "python",
+    "description": "Иерархические отношения между классами.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Что такое наследование?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Наследование — это один из ключевых принципов объектно-ориентированного программирования (ООП) в Python, позволяющий дочернему классу наследовать атрибуты и методы родительского класса. Оно способствует повторному использованию кода и создает иерархические отношения между классами. Этот JSON-файл подробно объясняет основы наследования, родительские и дочерние классы, функцию `super()`, переопределение методов, многоуровневое наследование, множественное наследование, связь с полиморфизмом, функции `isinstance()` и `issubclass()`, работу с объектами в циклах `for` и `while`, сравнение с наследованием в TypeScript/JavaScript, способы избежания ошибок и сценарии использования в реальных проектах. Примеры кода не требуют ввода пользователя, совместимы с UTF-8, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Основы наследования"
+      },
+      {
+        "type": "paragraph",
+        "text": "Наследование позволяет дочернему классу наследовать атрибуты и методы родительского класса.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Простое наследование\nclass Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def make_sound(self):\n        return f'{self.name} издает звук.'\n\nclass Dog(Animal):\n    pass\n\ndog = Dog('Рекс')\nprint(dog.make_sound())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Animal` — родительский класс.\n- `Dog` наследует от `Animal`.\n- `Dog` использует метод родителя, не определяя собственный `__init__`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Функция super()"
+      },
+      {
+        "type": "paragraph",
+        "text": "Функция `super()` вызывает методы и конструкторы родительского класса.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Наследование с super()\nclass Vehicle:\n    def __init__(self, brand):\n        self.brand = brand\n\n    def start_engine(self):\n        return f'{self.brand} двигатель запущен.'\n\nclass Car(Vehicle):\n    def __init__(self, brand, model):\n        super().__init__(brand)\n        self.model = model\n\n    def display_info(self):\n        return f'{self.brand} {self.model}'\n\ncar = Car('Toyota', 'Camry')\nprint(car.start_engine())\nprint(car.display_info())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Vehicle` — родительский класс.\n- `Car` использует `super()` для вызова метода `__init__` родителя.\n- `display_info` — метод, специфичный для дочернего класса.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Переопределение методов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дочерний класс может переопределять (override) методы родительского класса.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Переопределение методов\nclass Animal:\n    def make_sound(self):\n        return 'Общий звук'\n\nclass Cat(Animal):\n    def make_sound(self):\n        return 'Мяу!'\n\ncat = Cat()\nprint(cat.make_sound())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Cat` переопределяет метод `make_sound`.\n- Используется версия метода дочернего класса.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Многоуровневое наследование"
+      },
+      {
+        "type": "paragraph",
+        "text": "Многоуровневое наследование предполагает, что класс наследует от другого класса, который сам наследует от другого.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Многоуровневое наследование\nclass Vehicle:\n    def __init__(self, brand):\n        self.brand = brand\n\nclass Car(Vehicle):\n    def __init__(self, brand, model):\n        super().__init__(brand)\n        self.model = model\n\nclass ElectricCar(Car):\n    def __init__(self, brand, model, battery_capacity):\n        super().__init__(brand, model)\n        self.battery_capacity = battery_capacity\n\n    def display_info(self):\n        return f'{self.brand} {self.model}, Батарея: {self.battery_capacity} кВтч'\n\nelectric_car = ElectricCar('Tesla', 'Model S', 100)\nprint(electric_car.display_info())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Vehicle` -> `Car` -> `ElectricCar` образуют иерархию.\n- Каждый класс наследует от предыдущего.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Множественное наследование"
+      },
+      {
+        "type": "paragraph",
+        "text": "Множественное наследование позволяет классу наследовать от нескольких родительских классов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Множественное наследование\nclass Flyer:\n    def fly(self):\n        return 'Летает!'\n\nclass Swimmer:\n    def swim(self):\n        return 'Плавает!'\n\nclass Duck(Flyer, Swimmer):\n    def quack(self):\n        return 'Кря-кря!'\n\nduck = Duck()\nprint(duck.fly())\nprint(duck.swim())\nprint(duck.quack())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Duck` наследует от `Flyer` и `Swimmer`.\n- Он может использовать методы обоих родительских классов.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Связь с полиморфизмом"
+      },
+      {
+        "type": "paragraph",
+        "text": "Наследование тесно связано с полиморфизмом, так как дочерние классы могут по-разному реализовывать один и тот же метод.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Полиморфизм\nclass Animal:\n    def make_sound(self):\n        return 'Звук!'\n\nclass Dog(Animal):\n    def make_sound(self):\n        return 'Гав-гав!'\n\nclass Cat(Animal):\n    def make_sound(self):\n        return 'Мяу!'\n\nanimals = [Dog(), Cat()]\nfor animal in animals:\n    print(animal.make_sound())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Dog` и `Cat` по-разному реализуют метод `make_sound`.\n- Цикл `for` демонстрирует полиморфизм.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Функции isinstance() и issubclass()"
+      },
+      {
+        "type": "paragraph",
+        "text": "`isinstance()` проверяет, принадлежит ли объект классу, а `issubclass()` проверяет, является ли класс подклассом другого.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# isinstance() и issubclass()\nclass Animal:\n    pass\n\nclass Dog(Animal):\n    pass\n\ndog = Dog()\nprint(isinstance(dog, Dog))\nprint(isinstance(dog, Animal))\nprint(issubclass(Dog, Animal))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `isinstance(dog, Dog)` и `isinstance(dog, Animal)` возвращают `True`.\n- `issubclass(Dog, Animal)` подтверждает, что `Dog` — подкласс.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Работа с наследованием в циклах for и while"
+      },
+      {
+        "type": "paragraph",
+        "text": "Объекты из унаследованных классов могут храниться в списках и обрабатываться с помощью циклов `for` или `while`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Наследование с циклами for и while\nclass Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def info(self):\n        return f'Имя: {self.name}'\n\nclass Dog(Animal):\n    def info(self):\n        return f'Имя: {self.name}, Тип: Собака'\n\nanimals = [Dog('Рекс'), Dog('Макс')]\n\n# Цикл for\nprint('Объекты с циклом for:')\nfor animal in animals:\n    print(animal.info())\n\n# Цикл while\nprint('Объекты с циклом while:')\nindex = 0\nwhile index < len(animals):\n    print(animals[index].info())\n    index += 1\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Dog` наследует от `Animal`.\n- Циклы `for` и `while` обрабатывают объекты.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Python против TypeScript и JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Наследование в Python схоже с наследованием в JavaScript/TypeScript:\n- **Синтаксис**: Оба используют `class` и `super()`.\n- **Различия**: Python поддерживает множественное наследование, JavaScript — нет.\nПример (Python против JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Код Python\nclass Animal:\n    def make_sound(self):\n        return 'Звук!'\n\nclass Dog(Animal):\n    def make_sound(self):\n        return 'Гав-гав!'\n\ndog = Dog()\nprint(dog.make_sound())\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Код JavaScript\nclass Animal {\n    makeSound() {\n        return 'Sound!';\n    }\n}\n\nclass Dog extends Animal {\n    makeSound() {\n        return 'Woof!';\n    }\n}\n\nconst dog = new Dog();\nconsole.log(dog.makeSound());\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Оба языка демонстрируют наследование и переопределение методов.\nВы можете протестировать эти коды в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Избежание ошибок"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы избежать ошибок при работе с наследованием:\n- **Конфликты методов**: Тщательно управляйте переопределенными методами.\n- **Использование super()**: Правильно вызывайте методы родительского класса.\n- **Простота**: Избегайте слишком сложных иерархий.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Избежание ошибок\nclass Animal:\n    def make_sound(self):\n        return 'Звук!'\n\nclass Dog(Animal):\n    def make_sound(self):\n        try:\n            return f'{super().make_sound()} Гав-гав!'\n        except AttributeError:\n            return 'Ошибка: Метод родителя не найден!'\n\ndog = Dog()\nprint(dog.make_sound())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `super()` вызывает метод родителя.\n- Перехватывается `AttributeError`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Наследование используется в реальных проектах для:\n- **Моделирование**: Представление иерархий реального мира.\n- **Повторное использование кода**: Совместное использование общей функциональности.\n- **Обслуживание**: Структурирование больших проектов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Использование в проекте\nclass Employee:\n    def __init__(self, name, salary):\n        self.name = name\n        self.salary = salary\n\n    def info(self):\n        return f'{self.name}: {self.salary} USD'\n\nclass Manager(Employee):\n    def __init__(self, name, salary, department):\n        super().__init__(name, salary)\n        self.department = department\n\n    def info(self):\n        return f'{self.name}: {self.salary} USD, Отдел: {self.department}'\n\nemployees = [Employee('Али', 2000), Manager('Айше', 3000, 'HR')]\nfor emp in employees:\n    print(emp.info())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Manager` наследует от `Employee`.\n- Полиморфизм используется для вызова различных методов `info`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Продвинутые темы, связанные с наследованием:\n- **Абстрактные классы**: Использование модуля `abc` для принудительной реализации методов.\n- **Порядок разрешения методов (MRO)**: Определение порядка поиска методов при множественном наследовании.\nДля получения дополнительной информации обратитесь к документации Python (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте простые иерархии, корректно применяйте `super()`, обращайтесь к официальной документации (https://docs.python.org).\n- **Альтернативы**: Используйте композицию вместо наследования для небольших проектов.\nВы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# Пример Python для самостоятельного тестирования\nclass Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def make_sound(self):\n        return f'{self.name} издает звук.'\n\nclass Dog(Animal):\n    def make_sound(self):\n        return f'{self.name}: Гав-гав!'\n\ndog = Dog('Рекс')\nprint(dog.make_sound())\n"
+      }
+    ]
+  }
+}

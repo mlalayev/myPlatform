@@ -1,0 +1,513 @@
+{
+  "id": "c-extensions",
+  "az": {
+    "title": "C Genişləndirmələri və Cython",
+    "icon": "FiCpu",
+    "language": "python",
+    "description": "Performans üçün C/Cython ilə Python modulları yazmaq.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# C Genişləndirmələri və Cython Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da C genişləndirmələri (C Extensions) və Cython performansın artırılması üçün istifadə olunan alətlərdir. C genişləndirmələri Python modullarını C və ya C++ ilə yazmağa imkan verir, Cython isə Python kodunu C koduna çevirərək sürətləndirir. Bu JSON faylda C genişləndirmələrinin və Cython-un əsasları, performansın optimallaşdırılması, C ilə Python modulları yazmaq, Cython ilə optimizasiya, üstünlüklər və mənfi cəhətlər, TypeScript/JavaScript-dəki performans optimizasiyası ilə müqayisə, səhvlərdən qaçınma yolları, yaddaş istifadəsi və real layihələrdə istifadə ssenariləri detallı şəkildə izah olunacaq. Kod nümunələri istifadəçi girişi tələb etmir, UTF-8 uyğundur və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# C Genişləndirmələri ilə Python Modulu Yazmaq"
+      },
+      {
+        "type": "paragraph",
+        "text": "C genişləndirmələri Python-un C API-sindən istifadə edərək modullar yazmağa imkan verir. Bu, xüsusilə hesablama-intensiv tapşırıqlar üçün faydalıdır.\nNümunə (C və Python):"
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// simple_module.c\n#include <Python.h>\n\nstatic PyObject* say_hello(PyObject* self, PyObject* args) {\n    return Py_BuildValue(\"s\", \"Salam, Dünya!\");\n}\n\nstatic PyMethodDef module_methods[] = {\n    {\"say_hello\", say_hello, METH_NOARGS, \"Sadə salam funksiyası.\"},\n    {NULL, NULL, 0, NULL}\n};\n\nstatic struct PyModuleDef simple_module = {\n    PyModuleDef_HEAD_INIT,\n    \"simple_module\",\n    \"Sadə C modulu\",\n    -1,\n    module_methods\n};\n\nPyMODINIT_FUNC PyInit_simple_module(void) {\n    return PyModule_Create(&simple_module);\n}\n"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# test_module.py\n# import simple_module\n# print(simple_module.say_hello())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `simple_module.c` C ilə yazılmış sadə Python modulu yaradır.\n- `say_hello` funksiyası Python-dan çağırıla bilər.\n- Python skripti modulu idxal edir və funksiyanı çağırır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz (kompilyasiya tələb olunur)."
+      },
+      {
+        "type": "heading",
+        "text": "# Cython ilə Optimallaşdırma"
+      },
+      {
+        "type": "paragraph",
+        "text": "Cython Python kodunu C koduna çevirərək sürətləndirir. Python sintaksisinə yaxın olduğu üçün öyrənmək asandır.\nNümunə (Cython):"
+      },
+      {
+        "type": "code",
+        "language": "cython",
+        "code": "# fast_sum.pyx\ncpdef int fast_sum(int n):\n    cdef int total = 0\n    cdef int i\n    for i in range(n):\n        total += i\n    return total\n"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# test_cython.py\n# import fast_sum\n# print(fast_sum.fast_sum(1000))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fast_sum.pyx` Cython ilə yazılmış sürətli cəmləmə funksiyasıdır.\n- `cpdef` həm Python, həm də C səviyyəsində çağırıla bilən funksiya yaradır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz (kompilyasiya tələb olunur)."
+      },
+      {
+        "type": "heading",
+        "text": "# C Genişləndirmələri və Cython-un Üstünlükləri və Mənfi Cəhətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "C genişləndirmələri və Cython-un öz üstünlükləri və mənfi cəhətləri var:\n- **C Genişləndirmələri**:\n  - Üstünlük: Maksimum performans, tam nəzarət.\n  - Mənfi cəhət: Mürəkkəb, səhvə meyilli.\n- **Cython**:\n  - Üstünlük: Python-a yaxın sintaksis, asan istifadə.\n  - Mənfi cəhət: C qədər tam nəzarət vermir."
+      },
+      {
+        "type": "heading",
+        "text": "# Python ilə TypeScript və JavaScript-in Müqayisəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da C genişləndirmələri və Cython JavaScript/TypeScript-dəki performans optimizasiyasından fərqlidir:\n- **Python (C/Cython)**: Aşağı səviyyəli optimizasiya, C ilə inteqrasiya.\n- **JavaScript/TypeScript**: WebAssembly və ya optimallaşdırılmış JS mühərrikləri istifadə olunur.\nNümunə (Cython vs WebAssembly):"
+      },
+      {
+        "type": "code",
+        "language": "cython",
+        "code": "# fast_multiply.pyx\ncpdef int fast_multiply(int a, int b):\n    return a * b\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// fast_multiply.js\nfunction fastMultiply(a, b) {\n    return a * b;\n}\nconsole.log(fastMultiply(5, 10));\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Cython sürətli çarpma funksiyası yaradır.\n- JavaScript-də oxşar funksiya sadədir, lakin WebAssembly ilə daha sürətli ola bilər.\nAşağıda bu kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Səhvlərdən Qaçınma Yolları"
+      },
+      {
+        "type": "paragraph",
+        "text": "C genişləndirmələri və Cython ilə işləyərkən səhvlərdən qaçınmaq üçün:\n- **Yaddaş idarəetməsi**: C-də yaddaş sızmalarına diqqət edin.\n- **Sadəlik**: Mürəkkəb strukturlardan çəkinin.\n- **Debugging**: Səhvləri tapmaq üçün loglar əlavə edin.\nNümunə (C ilə təhlükəsiz yaddaş idarəetməsi):"
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// safe_module.c\n#include <Python.h>\n\nstatic PyObject* safe_function(PyObject* self, PyObject* args) {\n    PyObject* result = NULL;\n    result = Py_BuildValue(\"i\", 42);\n    if (!result) {\n        PyErr_SetString(PyExc_RuntimeError, \"Nəticə yaradıla bilmədi\");\n        return NULL;\n    }\n    return result;\n}\n\nstatic PyMethodDef module_methods[] = {\n    {\"safe_function\", safe_function, METH_NOARGS, \"Təhlükəsiz funksiya.\"},\n    {NULL, NULL, 0, NULL}\n};\n\nstatic struct PyModuleDef safe_module = {\n    PyModuleDef_HEAD_INIT,\n    \"safe_module\",\n    \"Təhlükəsiz C modulu\",\n    -1,\n    module_methods\n};\n\nPyMODINIT_FUNC PyInit_safe_module(void) {\n    return PyModule_Create(&safe_module);\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Yaddaş sızmalarına qarşı yoxlama aparılır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz (kompilyasiya tələb olunur)."
+      },
+      {
+        "type": "heading",
+        "text": "# Yaddaş İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "C genişləndirmələri və Cython yaddaş istifadəsini optimallaşdırır, çünki C səviyyəsində işləyir.\nNümunə (Cython):"
+      },
+      {
+        "type": "code",
+        "language": "cython",
+        "code": "# memory_efficient.pyx\ncpdef int memory_efficient_sum(int n):\n    cdef int total = 0\n    cdef int i\n    for i in range(n):\n        total += i\n    return total\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Cython yaddaş səmərəliliyini artırır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz (kompilyasiya tələb olunur)."
+      },
+      {
+        "type": "heading",
+        "text": "# Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "C genişləndirmələri və Cython real layihələrdə aşağıdakı ssenarilərdə istifadə olunur:\n- **Elmi hesablamalar**: NumPy, SciPy kimi kitabxanalar.\n- **Maşın öyrənməsi**: TensorFlow, PyTorch-un aşağı səviyyəli komponentləri.\n- **Oyun inkişafı**: Performans kritik modullar.\nNümunə (Cython ilə sadə hesablama):"
+      },
+      {
+        "type": "code",
+        "language": "cython",
+        "code": "# compute.pyx\ncpdef double compute_average(double[:] numbers):\n    cdef int n = numbers.shape[0]\n    cdef double total = 0\n    cdef int i\n    for i in range(n):\n        total += numbers[i]\n    return total / n\n"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# test_compute.py\nimport numpy as np\n# import compute\n# numbers = np.array([1.0, 2.0, 3.0, 4.0])\n# print(compute.compute_average(numbers))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Cython ilə sürətli orta hesablama funksiyası yaradılır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz (kompilyasiya tələb olunur)."
+      },
+      {
+        "type": "heading",
+        "text": "# Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "C genişləndirmələri və Cython ilə bağlı qabaqcıl mövzular:\n- **Çoxsaplılıq**: C genişləndirmələrində çoxsaplı icra.\n- **GPU inteqrasiyası**: Cython ilə CUDA istifadəsi.\nBu mövzular haqqında ətraflı məlumat üçün Python sənədlərinə (https://docs.python.org) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "# Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Sadə C genişləndirmələri yazın, Cython-u yeni başlayanlar üçün seçin, rəsmi sənədlərdən (https://docs.python.org) faydalanın.\n- **Alternativlər**: Sadə optimizasiyalar üçün NumPy və ya JIT kompilyatorları (Numba) istifadə edin.\nAşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# test_cython.pyx\ncpdef int simple_sum(int n):\n    cdef int total = 0\n    cdef int i\n    for i in range(n):\n        total += i\n    return total\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "C Extensions & Cython",
+    "icon": "FiCpu",
+    "language": "python",
+    "description": "Writing Python modules in C/Cython for performance.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# What are C Extensions and Cython?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C Extensions and Cython are tools for improving Python performance. C Extensions allow writing Python modules in C or C++, while Cython converts Python code to C for faster execution. This JSON file explains the basics of C Extensions and Cython, performance optimization, writing C modules, optimizing with Cython, pros and cons, comparison with TypeScript/JavaScript performance optimization, error avoidance, memory usage, and real-world use cases in detail. Code examples do not require user input, are UTF-8 compatible, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Writing a Python Module with C Extensions"
+      },
+      {
+        "type": "paragraph",
+        "text": "C Extensions use Python’s C API to create modules, ideal for compute-intensive tasks.\nExample (C and Python):"
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// simple_module.c\n#include <Python.h>\n\nstatic PyObject* say_hello(PyObject* self, PyObject* args) {\n    return Py_BuildValue(\"s\", \"Hello, World!\");\n}\n\nstatic PyMethodDef module_methods[] = {\n    {\"say_hello\", say_hello, METH_NOARGS, \"A simple hello function.\"},\n    {NULL, NULL, 0, NULL}\n};\n\nstatic struct PyModuleDef simple_module = {\n    PyModuleDef_HEAD_INIT,\n    \"simple_module\",\n    \"A simple C module\",\n    -1,\n    module_methods\n};\n\nPyMODINIT_FUNC PyInit_simple_module(void) {\n    return PyModule_Create(&simple_module);\n}\n"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# test_module.py\n# import simple_module\n# print(simple_module.say_hello())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `simple_module.c` creates a simple Python module in C.\n- `say_hello` is callable from Python.\n- The Python script imports and calls the module.\nYou can test this code in our site’s editor (compilation required)."
+      },
+      {
+        "type": "heading",
+        "text": "# Optimizing with Cython"
+      },
+      {
+        "type": "paragraph",
+        "text": "Cython converts Python code to C, speeding up execution while maintaining Python-like syntax.\nExample (Cython):"
+      },
+      {
+        "type": "code",
+        "language": "cython",
+        "code": "# fast_sum.pyx\ncpdef int fast_sum(int n):\n    cdef int total = 0\n    cdef int i\n    for i in range(n):\n        total += i\n    return total\n"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# test_cython.py\n# import fast_sum\n# print(fast_sum.fast_sum(1000))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `fast_sum.pyx` is a Cython function for fast summation.\n- `cpdef` creates a function callable from both Python and C.\nYou can test this code in our site’s editor (compilation required)."
+      },
+      {
+        "type": "heading",
+        "text": "# Pros and Cons of C Extensions and Cython"
+      },
+      {
+        "type": "paragraph",
+        "text": "C Extensions and Cython have their strengths and weaknesses:\n- **C Extensions**:\n  - Pros: Maximum performance, full control.\n  - Cons: Complex, error-prone.\n- **Cython**:\n  - Pros: Python-like syntax, easier to use.\n  - Cons: Less control than C."
+      },
+      {
+        "type": "heading",
+        "text": "# Python vs. TypeScript and JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python’s C Extensions and Cython differ from JavaScript/TypeScript performance optimization:\n- **Python (C/Cython)**: Low-level optimization with C integration.\n- **JavaScript/TypeScript**: Uses WebAssembly or optimized JS engines.\nExample (Cython vs. WebAssembly):"
+      },
+      {
+        "type": "code",
+        "language": "cython",
+        "code": "# fast_multiply.pyx\ncpdef int fast_multiply(int a, int b):\n    return a * b\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// fast_multiply.js\nfunction fastMultiply(a, b) {\n    return a * b;\n}\nconsole.log(fastMultiply(5, 10));\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Cython creates a fast multiplication function.\n- JavaScript’s equivalent is simple but can be faster with WebAssembly.\nYou can test these codes in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Avoiding Errors"
+      },
+      {
+        "type": "paragraph",
+        "text": "To avoid errors with C Extensions and Cython:\n- **Memory management**: Watch for memory leaks in C.\n- **Simplicity**: Avoid complex structures.\n- **Debugging**: Add logs to track errors.\nExample (Safe memory management in C):"
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// safe_module.c\n#include <Python.h>\n\nstatic PyObject* safe_function(PyObject* self, PyObject* args) {\n    PyObject* result = NULL;\n    result = Py_BuildValue(\"i\", 42);\n    if (!result) {\n        PyErr_SetString(PyExc_RuntimeError, \"Result could not be created\");\n        return NULL;\n    }\n    return result;\n}\n\nstatic PyMethodDef module_methods[] = {\n    {\"safe_function\", safe_function, METH_NOARGS, \"Safe function.\"},\n    {NULL, NULL, 0, NULL}\n};\n\nstatic struct PyModuleDef safe_module = {\n    PyModuleDef_HEAD_INIT,\n    \"safe_module\",\n    \"Safe C module\",\n    -1,\n    module_methods\n};\n\nPyMODINIT_FUNC PyInit_safe_module(void) {\n    return PyModule_Create(&safe_module);\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Memory leaks are checked.\nYou can test this code in our site’s editor (compilation required)."
+      },
+      {
+        "type": "heading",
+        "text": "# Memory Usage"
+      },
+      {
+        "type": "paragraph",
+        "text": "C Extensions and Cython optimize memory usage by operating at the C level.\nExample (Cython):"
+      },
+      {
+        "type": "code",
+        "language": "cython",
+        "code": "# memory_efficient.pyx\ncpdef int memory_efficient_sum(int n):\n    cdef int total = 0\n    cdef int i\n    for i in range(n):\n        total += i\n    return total\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Cython improves memory efficiency.\nYou can test this code in our site’s editor (compilation required)."
+      },
+      {
+        "type": "heading",
+        "text": "# Real-World Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "C Extensions and Cython are used in real-world projects for:\n- **Scientific computing**: Libraries like NumPy, SciPy.\n- **Machine learning**: Low-level components in TensorFlow, PyTorch.\n- **Game development**: Performance-critical modules.\nExample (Cython for computation):"
+      },
+      {
+        "type": "code",
+        "language": "cython",
+        "code": "# compute.pyx\ncpdef double compute_average(double[:] numbers):\n    cdef int n = numbers.shape[0]\n    cdef double total = 0\n    cdef int i\n    for i in range(n):\n        total += numbers[i]\n    return total / n\n"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# test_compute.py\nimport numpy as np\n# import compute\n# numbers = np.array([1.0, 2.0, 3.0, 4.0])\n# print(compute.compute_average(numbers))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Cython computes an average efficiently.\nYou can test this code in our site’s editor (compilation required)."
+      },
+      {
+        "type": "heading",
+        "text": "# Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advanced topics for C Extensions and Cython:\n- **Multithreading**: Multithreaded C Extensions.\n- **GPU integration**: Using CUDA with Cython.\nFor more details, refer to the Python documentation (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Write simple C Extensions, prefer Cython for beginners, refer to the official documentation (https://docs.python.org).\n- **Alternatives**: Use NumPy or JIT compilers (Numba) for simpler optimizations.\nYou can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# test_cython.pyx\ncpdef int simple_sum(int n):\n    cdef int total = 0\n    cdef int i\n    for i in range(n):\n        total += i\n    return total\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "C-расширения и Cython",
+    "icon": "FiCpu",
+    "language": "python",
+    "description": "Написание модулей Python на C/Cython для повышения производительности.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Что такое C-расширения и Cython?"
+      },
+      {
+        "type": "paragraph",
+        "text": "C-расширения и Cython — это инструменты для повышения производительности Python. C-расширения позволяют писать модули Python на C или C++, а Cython преобразует код Python в C для ускорения выполнения. Этот JSON-файл подробно объясняет основы C-расширений и Cython, оптимизацию производительности, написание модулей на C, оптимизацию с помощью Cython, их плюсы и минусы, сравнение с оптимизацией производительности в TypeScript/JavaScript, способы избежания ошибок, использование памяти и сценарии использования в реальных проектах. Примеры кода не требуют ввода пользователя, совместимы с UTF-8, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Написание модуля Python с использованием C-расширений"
+      },
+      {
+        "type": "paragraph",
+        "text": "C-расширения используют C API Python для создания модулей, что идеально подходит для задач с высокой вычислительной нагрузкой.\nПример (C и Python):"
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// simple_module.c\n#include <Python.h>\n\nstatic PyObject* say_hello(PyObject* self, PyObject* args) {\n    return Py_BuildValue(\"s\", \"Привет, мир!\");\n}\n\nstatic PyMethodDef module_methods[] = {\n    {\"say_hello\", say_hello, METH_NOARGS, \"Простая функция приветствия.\"},\n    {NULL, NULL, 0, NULL}\n};\n\nstatic struct PyModuleDef simple_module = {\n    PyModuleDef_HEAD_INIT,\n    \"simple_module\",\n    \"Простой C-модуль\",\n    -1,\n    module_methods\n};\n\nPyMODINIT_FUNC PyInit_simple_module(void) {\n    return PyModule_Create(&simple_module);\n}\n"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# test_module.py\n# import simple_module\n# print(simple_module.say_hello())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `simple_module.c` создает простой модуль Python на C.\n- `say_hello` вызывается из Python.\n- Скрипт Python импортирует и вызывает модуль.\nВы можете протестировать этот код в редакторе на нашем сайте (требуется компиляция)."
+      },
+      {
+        "type": "heading",
+        "text": "# Оптимизация с помощью Cython"
+      },
+      {
+        "type": "paragraph",
+        "text": "Cython преобразует код Python в C, ускоряя выполнение, сохраняя при этом синтаксис, близкий к Python.\nПример (Cython):"
+      },
+      {
+        "type": "code",
+        "language": "cython",
+        "code": "# fast_sum.pyx\ncpdef int fast_sum(int n):\n    cdef int total = 0\n    cdef int i\n    for i in range(n):\n        total += i\n    return total\n"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# test_cython.py\n# import fast_sum\n# print(fast_sum.fast_sum(1000))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `fast_sum.pyx` — это функция Cython для быстрого суммирования.\n- `cpdef` создает функцию, вызываемую как из Python, так и из C.\nВы можете протестировать этот код в редакторе на нашем сайте (требуется компиляция)."
+      },
+      {
+        "type": "heading",
+        "text": "# Плюсы и минусы C-расширений и Cython"
+      },
+      {
+        "type": "paragraph",
+        "text": "У C-расширений и Cython есть свои сильные и слабые стороны:\n- **C-расширения**:\n  - Плюсы: Максимальная производительность, полный контроль.\n  - Минусы: Сложность, склонность к ошибкам.\n- **Cython**:\n  - Плюсы: Синтаксис, близкий к Python, простота использования.\n  - Минусы: Меньший контроль, чем в C."
+      },
+      {
+        "type": "heading",
+        "text": "# Python против TypeScript и JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "C-расширения и Cython в Python отличаются от оптимизации производительности в JavaScript/TypeScript:\n- **Python (C/Cython)**: Низкоуровневая оптимизация с интеграцией C.\n- **JavaScript/TypeScript**: Использует WebAssembly или оптимизированные JS-движки.\nПример (Cython против WebAssembly):"
+      },
+      {
+        "type": "code",
+        "language": "cython",
+        "code": "# fast_multiply.pyx\ncpdef int fast_multiply(int a, int b):\n    return a * b\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// fast_multiply.js\nfunction fastMultiply(a, b) {\n    return a * b;\n}\nconsole.log(fastMultiply(5, 10));\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Cython создает быструю функцию умножения.\n- Эквивалент в JavaScript прост, но может быть быстрее с WebAssembly.\nВы можете протестировать эти коды в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Избежание ошибок"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы избежать ошибок при работе с C-расширениями и Cython:\n- **Управление памятью**: Следите за утечками памяти в C.\n- **Простота**: Избегайте сложных структур.\n- **Отладка**: Добавляйте логи для отслеживания ошибок.\nПример (безопасное управление памятью в C):"
+      },
+      {
+        "type": "code",
+        "language": "c",
+        "code": "// safe_module.c\n#include <Python.h>\n\nstatic PyObject* safe_function(PyObject* self, PyObject* args) {\n    PyObject* result = NULL;\n    result = Py_BuildValue(\"i\", 42);\n    if (!result) {\n        PyErr_SetString(PyExc_RuntimeError, \"Результат не может быть создан\");\n        return NULL;\n    }\n    return result;\n}\n\nstatic PyMethodDef module_methods[] = {\n    {\"safe_function\", safe_function, METH_NOARGS, \"Безопасная функция.\"},\n    {NULL, NULL, 0, NULL}\n};\n\nstatic struct PyModuleDef safe_module = {\n    PyModuleDef_HEAD_INIT,\n    \"safe_module\",\n    \"Безопасный C-модуль\",\n    -1,\n    module_methods\n};\n\nPyMODINIT_FUNC PyInit_safe_module(void) {\n    return PyModule_Create(&safe_module);\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Проверяются утечки памяти.\nВы можете протестировать этот код в редакторе на нашем сайте (требуется компиляция)."
+      },
+      {
+        "type": "heading",
+        "text": "# Использование памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "C-расширения и Cython оптимизируют использование памяти за счет работы на уровне C.\nПример (Cython):"
+      },
+      {
+        "type": "code",
+        "language": "cython",
+        "code": "# memory_efficient.pyx\ncpdef int memory_efficient_sum(int n):\n    cdef int total = 0\n    cdef int i\n    for i in range(n):\n        total += i\n    return total\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Cython повышает эффективность использования памяти.\nВы можете протестировать этот код в редакторе на нашем сайте (требуется компиляция)."
+      },
+      {
+        "type": "heading",
+        "text": "# Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "C-расширения и Cython используются в реальных проектах для:\n- **Научные вычисления**: Библиотеки, такие как NumPy, SciPy.\n- **Машинное обучение**: Низкоуровневые компоненты в TensorFlow, PyTorch.\n- **Разработка игр**: Модули с критической производительностью.\nПример (Cython для вычислений):"
+      },
+      {
+        "type": "code",
+        "language": "cython",
+        "code": "# compute.pyx\ncpdef double compute_average(double[:] numbers):\n    cdef int n = numbers.shape[0]\n    cdef double total = 0\n    cdef int i\n    for i in range(n):\n        total += numbers[i]\n    return total / n\n"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# test_compute.py\nimport numpy as np\n# import compute\n# numbers = np.array([1.0, 2.0, 3.0, 4.0])\n# print(compute.compute_average(numbers))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Cython эффективно вычисляет среднее значение.\nВы можете протестировать этот код в редакторе на нашем сайте (требуется компиляция)."
+      },
+      {
+        "type": "heading",
+        "text": "# Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Продвинутые темы, связанные с C-расширениями и Cython:\n- **Многопоточность**: Многопоточные C-расширения.\n- **Интеграция с GPU**: Использование CUDA с Cython.\nДля получения дополнительной информации обратитесь к документации Python (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Пишите простые C-расширения, выбирайте Cython для новичков, обращайтесь к официальной документации (https://docs.python.org).\n- **Альтернативы**: Используйте NumPy или JIT-компиляторы (Numba) для простых оптимизаций.\nВы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# test_cython.pyx\ncpdef int simple_sum(int n):\n    cdef int total = 0\n    cdef int i\n    for i in range(n):\n        total += i\n    return total\n"
+      }
+    ]
+  }
+}

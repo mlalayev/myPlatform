@@ -1,0 +1,546 @@
+{
+  "id": "recursion",
+  "az": {
+    "title": "Rekursiya",
+    "icon": "FiRefreshCw",
+    "language": "python",
+    "description": "Özünü çağıran funksiyalar.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Rekursiya Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Rekursiya, bir funksiyanın özünü təkrar-təkrar çağırması prosesidir. Python-da rekursiya problemi kiçik alt problemlərə bölərək həll etmək üçün istifadə olunur. Hər rekursiv çağırış problemi daha sadə formada həll edir, nəticədə baza şərtinə (rekursiyanın dayandığı nöqtəyə) çatır. Bu JSON faylda rekursiyanın əsasları, özünü çağıran funksiyalar, rekursiya ilə iterasiya arasındakı fərqlər, üstünlükləri və mənfi cəhətləri, `for` və `while` dövrləri ilə müqayisə, TypeScript/JavaScript-dəki rekursiya ilə müqayisə, səhvlərdən qaçınma yolları, yaddaş istifadəsi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Kod nümunələri istifadəçi girişi tələb etmir, UTF-8 uyğundur və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Rekursiv Funksiyaların Əsasları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Rekursiv funksiya iki əsas hissədən ibarətdir:\n- **Baza şərti**: Rekursiyanın dayandığı şərt.\n- **Rekursiv çağırış**: Funksiyanın özünü çağırması.\nNümunə (faktorial hesablama):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Faktorial hesablama (rekursiv)\ndef factorial(n):\n    if n == 0 or n == 1:  # Baza şərti\n        return 1\n    return n * factorial(n - 1)  # Rekursiv çağırış\n\nprint(factorial(5))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `factorial(5)` hesablamaq üçün funksiya özünü çağırır (5 * 4 * 3 * 2 * 1 = 120).\n- Baza şərti `n == 0 or n == 1` olduqda rekursiya dayanır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Rekursiya və İterasiya Müqayisəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Rekursiya və iterasiya (dövrlər) eyni problemi həll edə bilər, lakin fərqli üsullarla:\n- **Rekursiya**: Problemi kiçik alt problemlərə bölür, daha oxunaqlıdır.\n- **İterasiya**: Dövrlərdən (`for`, `while`) istifadə edir, adətən daha sürətli və az yaddaş istifadə edir.\nNümunə (faktorialın iterasiya ilə hesablanması):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Faktorial (iterasiya)\ndef factorial_iterative(n):\n    result = 1\n    for i in range(1, n + 1):\n        result *= i\n    return result\n\nprint(factorial_iterative(5))\n\n# Faktorial (rekursiya)\ndef factorial_recursive(n):\n    if n == 0 or n == 1:\n        return 1\n    return n * factorial_recursive(n - 1)\n\nprint(factorial_recursive(5))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İterasiya versiyası yaddaşı daha effektiv istifadə edir.\n- Rekursiv versiya daha sadə və oxunaqlıdır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Rekursiyanın Üstünlükləri və Mənfi Cəhətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Rekursiyanın üstünlükləri:\n- Mürəkkəb problemləri sadələşdirir (məsələn, ağac strukturunun keçidi).\n- Kod daha qısa və oxunaqlı olur.\nMənfi cəhətləri:\n- Böyük yaddaş istifadəsi (hər çağırış yaddaşda yığın yaradır).\n- Maksimum rekursiya dərinliyi xətası (`RecursionError`).\nNümunə (Fibonacci ardıcıllığı):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Fibonacci (rekursiv)\ndef fibonacci(n):\n    if n <= 1:  # Baza şərti\n        return n\n    return fibonacci(n - 1) + fibonacci(n - 2)\n\nprint(fibonacci(6))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fibonacci(6)` 8 qaytarır (0, 1, 1, 2, 3, 5, 8).\n- Böyük `n` dəyərləri üçün çoxlu rekursiv çağırış yaddaş problemləri yarada bilər.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# for və while Dövrləri ilə Müqayisə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Rekursiya ilə eyni problemi `for` və ya `while` dövrləri ilə həll etmək mümkündür.\nNümunə (Fibonacci iterasiya ilə):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Fibonacci (iterasiya ilə)\ndef fibonacci_iterative(n):\n    if n <= 1:\n        return n\n    a, b = 0, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    return b\n\nprint(fibonacci_iterative(6))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İterasiya ilə Fibonacci daha az yaddaş istifadə edir.\n- Rekursiya ilə müqayisədə daha sürətlidir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Python ilə TypeScript və JavaScript-in Müqayisəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da rekursiya TypeScript/JavaScript-dəki rekursiyaya çox oxşardır:\n- **Sintaksis**: Hər iki dildə funksiyalar özlərini çağırır.\n- **Fərqlər**: JavaScript-də quyruq rekursiyası optimizasiyası (tail call optimization) bəzi mühitlərdə məhduddur.\nNümunə (Python vs JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Python kodu\ndef factorial(n):\n    if n == 0 or n == 1:\n        return 1\n    return n * factorial(n - 1)\n\nprint(factorial(5))\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// JavaScript kodu\nfunction factorial(n) {\n    if (n === 0 || n === 1) {\n        return 1;\n    }\n    return n * factorial(n - 1);\n}\n\nconsole.log(factorial(5));\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Hər iki dilin sintaksisi oxşardır.\n- Python və JavaScript-də rekursiya eyni şəkildə işləyir.\nAşağıda bu kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Səhvlərdən Qaçınma Yolları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Rekursiya ilə işləyərkən səhvlərdən qaçınmaq üçün:\n- **Baza şərti**: Həmişə düzgün baza şərti təyin edin.\n- **Maksimum dərinlik**: Böyük dəyərlərdə `RecursionError` qarşısını almaq üçün iterasiyadan istifadə edin.\n- **Sadəlik**: Mürəkkəb rekursiyalardan çəkinin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Səhvlərdən qaçınma\ndef safe_factorial(n):\n    try:\n        if n == 0 or n == 1:\n            return 1\n        return n * safe_factorial(n - 1)\n    except RecursionError:\n        return 'Çox dərin rekursiya! İterasiyadan istifadə edin.'\n\nprint(safe_factorial(5))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `try-except` ilə `RecursionError` tutulur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Yaddaş İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Rekursiya yaddaşda hər çağırış üçün yeni yığın çərçivəsi yaradır.\nNümunə (yaddaş istifadəsi):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Yaddaş istifadəsi\nimport sys\nprint(f'Rekursiya dərinliyi limiti: {sys.getrecursionlimit()}')\n\ndef deep_recursion(n):\n    if n == 0:\n        return 0\n    return deep_recursion(n - 1) + 1\n\ntry:\n    print(deep_recursion(1000))\nexcept RecursionError:\n    print('Maksimum rekursiya dərinliyi keçildi!')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `sys.getrecursionlimit()` maksimum rekursiya dərinliyini göstərir.\n- Böyük dəyərlərdə `RecursionError` yaranır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Rekursiya real layihələrdə aşağıdakı ssenarilərdə istifadə olunur:\n- **Ağac strukturunun keçidi**: Fayl sistemləri və ya iyerarxik verilənlər.\n- **Divide-and-Conquer**: Məsələn, merge sort və ya quicksort.\n- **Dinamik proqramlaşdırma**: Fibonacci və ya knapsack problemi.\nNümunə (ağac keçidi):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Ağac keçidi (rekursiv)\ndef traverse_tree(node):\n    if not node:\n        return\n    print(node['value'])\n    for child in node.get('children', []):\n        traverse_tree(child)\n\ntree = {\n    'value': 'A',\n    'children': [\n        {'value': 'B', 'children': []},\n        {'value': 'C', 'children': [{'value': 'D', 'children': []}]}\n    ]\n}\n\ntraverse_tree(tree)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `traverse_tree` ağac strukturunu rekursiv şəkildə keçir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Rekursiya ilə bağlı qabaqcıl mövzular:\n- **Quyruq rekursiyası**: Yaddaş istifadəsini azaltmaq üçün optimizasiya.\n- **Memorizasiya**: Təkrar hesablamaların qarşısını almaq.\nBu mövzular haqqında ətraflı məlumat üçün Python sənədlərinə (https://docs.python.org) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "# Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Düzgün baza şərti təyin edin, böyük dəyərlərdə iterasiyadan istifadə edin, rəsmi sənədlərdən (https://docs.python.org) faydalanın.\n- **Alternativlər**: Sadə problemlər üçün `for` və ya `while` dövrlərindən istifadə edin.\nAşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# Sınaq üçün Python nümunəsi\ndef factorial(n):\n    if n == 0 or n == 1:\n        return 1\n    return n * factorial(n - 1)\n\nprint(factorial(5))\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Recursion",
+    "icon": "FiRefreshCw",
+    "language": "python",
+    "description": "Self-calling functions.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# What is Recursion?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Recursion is the process where a function calls itself repeatedly. In Python, recursion is used to solve problems by breaking them into smaller subproblems, eventually reaching a base case where recursion stops. This JSON file explains recursion basics, self-calling functions, differences between recursion and iteration, advantages and disadvantages, comparison with `for` and `while` loops, comparison with TypeScript/JavaScript recursion, error avoidance strategies, memory usage, and real-world usage scenarios in detail. Code examples do not require user input, are UTF-8 compatible, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Basics of Recursive Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "A recursive function consists of two main parts:\n- **Base case**: The condition where recursion stops.\n- **Recursive call**: The function calling itself.\nExample (factorial calculation):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Factorial calculation (recursive)\ndef factorial(n):\n    if n == 0 or n == 1:  # Base case\n        return 1\n    return n * factorial(n - 1)  # Recursive call\n\nprint(factorial(5))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `factorial(5)` computes 5 * 4 * 3 * 2 * 1 = 120.\n- The base case `n == 0 or n == 1` stops recursion.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Recursion vs. Iteration"
+      },
+      {
+        "type": "paragraph",
+        "text": "Recursion and iteration (loops) can solve the same problems but in different ways:\n- **Recursion**: Breaks problems into smaller subproblems, more readable.\n- **Iteration**: Uses loops (`for`, `while`), typically faster and uses less memory.\nExample (factorial with iteration):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Factorial (iterative)\ndef factorial_iterative(n):\n    result = 1\n    for i in range(1, n + 1):\n        result *= i\n    return result\n\nprint(factorial_iterative(5))\n\n# Factorial (recursive)\ndef factorial_recursive(n):\n    if n == 0 or n == 1:\n        return 1\n    return n * factorial_recursive(n - 1)\n\nprint(factorial_recursive(5))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The iterative version uses less memory.\n- The recursive version is simpler and more readable.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Advantages and Disadvantages of Recursion"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advantages of recursion:\n- Simplifies complex problems (e.g., tree traversal).\n- Code is shorter and more readable.\nDisadvantages:\n- High memory usage (each call creates a stack frame).\n- Risk of `RecursionError` for deep recursion.\nExample (Fibonacci sequence):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Fibonacci (recursive)\ndef fibonacci(n):\n    if n <= 1:  # Base case\n        return n\n    return fibonacci(n - 1) + fibonacci(n - 2)\n\nprint(fibonacci(6))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `fibonacci(6)` returns 8 (0, 1, 1, 2, 3, 5, 8).\n- Large `n` values may cause memory issues due to multiple recursive calls.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Comparison with for and while Loops"
+      },
+      {
+        "type": "paragraph",
+        "text": "The same problem can be solved using `for` or `while` loops instead of recursion.\nExample (Fibonacci with iteration):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Fibonacci (iterative)\ndef fibonacci_iterative(n):\n    if n <= 1:\n        return n\n    a, b = 0, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    return b\n\nprint(fibonacci_iterative(6))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The iterative Fibonacci uses less memory.\n- It’s faster compared to recursion.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Python vs. TypeScript and JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Recursion in Python is very similar to recursion in TypeScript/JavaScript:\n- **Syntax**: Both languages use self-calling functions.\n- **Differences**: JavaScript’s tail call optimization is limited in some environments.\nExample (Python vs. JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Python code\ndef factorial(n):\n    if n == 0 or n == 1:\n        return 1\n    return n * factorial(n - 1)\n\nprint(factorial(5))\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// JavaScript code\nfunction factorial(n) {\n    if (n === 0 || n === 1) {\n        return 1;\n    }\n    return n * factorial(n - 1);\n}\n\nconsole.log(factorial(5));\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Syntax is similar in both languages.\n- Recursion works the same in Python and JavaScript.\nYou can test these codes in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Avoiding Errors"
+      },
+      {
+        "type": "paragraph",
+        "text": "To avoid errors with recursion:\n- **Base case**: Always define a proper base case.\n- **Max recursion depth**: Use iteration for large inputs to avoid `RecursionError`.\n- **Simplicity**: Avoid overly complex recursive functions.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Avoiding errors\ndef safe_factorial(n):\n    try:\n        if n == 0 or n == 1:\n            return 1\n        return n * safe_factorial(n - 1)\n    except RecursionError:\n        return 'Too deep recursion! Use iteration.'\n\nprint(safe_factorial(5))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `try-except` catches `RecursionError`.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Memory Usage"
+      },
+      {
+        "type": "paragraph",
+        "text": "Recursion creates a new stack frame for each call, increasing memory usage.\nExample (memory usage):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Memory usage\nimport sys\nprint(f'Recursion depth limit: {sys.getrecursionlimit()}')\n\ndef deep_recursion(n):\n    if n == 0:\n        return 0\n    return deep_recursion(n - 1) + 1\n\ntry:\n    print(deep_recursion(1000))\nexcept RecursionError:\n    print('Maximum recursion depth exceeded!')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `sys.getrecursionlimit()` shows the maximum recursion depth.\n- Large values cause `RecursionError`.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Recursion is used in real-world projects for:\n- **Tree traversal**: File systems or hierarchical data.\n- **Divide-and-Conquer**: Algorithms like merge sort or quicksort.\n- **Dynamic programming**: Problems like Fibonacci or knapsack.\nExample (tree traversal):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Tree traversal (recursive)\ndef traverse_tree(node):\n    if not node:\n        return\n    print(node['value'])\n    for child in node.get('children', []):\n        traverse_tree(child)\n\ntree = {\n    'value': 'A',\n    'children': [\n        {'value': 'B', 'children': []},\n        {'value': 'C', 'children': [{'value': 'D', 'children': []}]}\n    ]\n}\n\ntraverse_tree(tree)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `traverse_tree` recursively traverses a tree structure.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advanced topics related to recursion:\n- **Tail recursion**: Optimization to reduce memory usage.\n- **Memoization**: Avoiding redundant calculations.\nFor more details, refer to the Python documentation (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Define proper base cases, use iteration for large inputs, refer to the official documentation (https://docs.python.org).\n- **Alternatives**: Use `for` or `while` loops for simple problems.\nYou can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# Try it yourself Python example\ndef factorial(n):\n    if n == 0 or n == 1:\n        return 1\n    return n * factorial(n - 1)\n\nprint(factorial(5))\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Рекурсия",
+    "icon": "FiRefreshCw",
+    "language": "python",
+    "description": "Функции, вызывающие сами себя.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Что такое рекурсия?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Рекурсия — это процесс, при котором функция вызывает сама себя. В Python рекурсия используется для решения задач путем их разбиения на меньшие подзадачи, пока не будет достигнуто базовое условие, при котором рекурсия останавливается. Этот JSON-файл подробно объясняет основы рекурсии, функции, вызывающие сами себя, различия между рекурсией и итерацией, преимущества и недостатки, сравнение с циклами `for` и `while`, сравнение с рекурсией в TypeScript/JavaScript, способы избежания ошибок, использование памяти и сценарии использования в реальных проектах. Примеры кода не требуют ввода пользователя, совместимы с UTF-8, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Основы рекурсивных функций"
+      },
+      {
+        "type": "paragraph",
+        "text": "Рекурсивная функция состоит из двух основных частей:\n- **Базовое условие**: Условие, при котором рекурсия останавливается.\n- **Рекурсивный вызов**: Функция вызывает сама себя.\nПример (вычисление факториала):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Вычисление факториала (рекурсивно)\ndef factorial(n):\n    if n == 0 or n == 1:  # Базовое условие\n        return 1\n    return n * factorial(n - 1)  # Рекурсивный вызов\n\nprint(factorial(5))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `factorial(5)` вычисляет 5 * 4 * 3 * 2 * 1 = 120.\n- Базовое условие `n == 0 or n == 1` останавливает рекурсию.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Рекурсия против итерации"
+      },
+      {
+        "type": "paragraph",
+        "text": "Рекурсия и итерация (циклы) могут решать одну и ту же задачу разными способами:\n- **Рекурсия**: Разбивает задачу на меньшие подзадачи, более читаема.\n- **Итерация**: Использует циклы (`for`, `while`), обычно быстрее и использует меньше памяти.\nПример (факториал с итерацией):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Факториал (итеративно)\ndef factorial_iterative(n):\n    result = 1\n    for i in range(1, n + 1):\n        result *= i\n    return result\n\nprint(factorial_iterative(5))\n\n# Факториал (рекурсивно)\ndef factorial_recursive(n):\n    if n == 0 or n == 1:\n        return 1\n    return n * factorial_recursive(n - 1)\n\nprint(factorial_recursive(5))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Итеративная версия использует меньше памяти.\n- Рекурсивная версия проще и более читаема.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Преимущества и недостатки рекурсии"
+      },
+      {
+        "type": "paragraph",
+        "text": "Преимущества рекурсии:\n- Упрощает сложные задачи (например, обход дерева).\n- Код короче и читабельнее.\nНедостатки:\n- Высокое использование памяти (каждый вызов создает кадр стека).\n- Риск ошибки `RecursionError` при глубокой рекурсии.\nПример (последовательность Фибоначчи):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Фибоначчи (рекурсивно)\ndef fibonacci(n):\n    if n <= 1:  # Базовое условие\n        return n\n    return fibonacci(n - 1) + fibonacci(n - 2)\n\nprint(fibonacci(6))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `fibonacci(6)` возвращает 8 (0, 1, 1, 2, 3, 5, 8).\n- Большие значения `n` могут вызвать проблемы с памятью из-за множества рекурсивных вызовов.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Сравнение с циклами for и while"
+      },
+      {
+        "type": "paragraph",
+        "text": "Одну и ту же задачу можно решить с помощью циклов `for` или `while` вместо рекурсии.\nПример (Фибоначчи с итерацией):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Фибоначчи (итеративно)\ndef fibonacci_iterative(n):\n    if n <= 1:\n        return n\n    a, b = 0, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    return b\n\nprint(fibonacci_iterative(6))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Итеративная версия Фибоначчи использует меньше памяти.\n- Она быстрее по сравнению с рекурсией.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Python против TypeScript и JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Рекурсия в Python очень похожа на рекурсию в TypeScript/JavaScript:\n- **Синтаксис**: В обоих языках функции вызывают сами себя.\n- **Различия**: Оптимизация хвостовой рекурсии в JavaScript ограничена в некоторых средах.\nПример (Python против JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Код Python\ndef factorial(n):\n    if n == 0 or n == 1:\n        return 1\n    return n * factorial(n - 1)\n\nprint(factorial(5))\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Код JavaScript\nfunction factorial(n) {\n    if (n === 0 || n === 1) {\n        return 1;\n    }\n    return n * factorial(n - 1);\n}\n\nconsole.log(factorial(5));\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Синтаксис похож в обоих языках.\n- Рекурсия работает одинаково в Python и JavaScript.\nВы можете протестировать эти коды в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Избежание ошибок"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы избежать ошибок при работе с рекурсией:\n- **Базовое условие**: Всегда определяйте правильное базовое условие.\n- **Максимальная глубина**: Используйте итерацию для больших входных данных, чтобы избежать `RecursionError`.\n- **Простота**: Избегайте чрезмерно сложных рекурсивных функций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Избежание ошибок\ndef safe_factorial(n):\n    try:\n        if n == 0 or n == 1:\n            return 1\n        return n * safe_factorial(n - 1)\n    except RecursionError:\n        return 'Слишком глубокая рекурсия! Используйте итерацию.'\n\nprint(safe_factorial(5))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `try-except` перехватывает `RecursionError`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Использование памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "Рекурсия создает новый кадр стека для каждого вызова, увеличивая использование памяти.\nПример (использование памяти):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Использование памяти\nimport sys\nprint(f'Лимит глубины рекурсии: {sys.getrecursionlimit()}')\n\ndef deep_recursion(n):\n    if n == 0:\n        return 0\n    return deep_recursion(n - 1) + 1\n\ntry:\n    print(deep_recursion(1000))\nexcept RecursionError:\n    print('Превышена максимальная глубина рекурсии!')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `sys.getrecursionlimit()` показывает максимальную глубину рекурсии.\n- Большие значения вызывают `RecursionError`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Рекурсия используется в реальных проектах для:\n- **Обход дерева**: Файловые системы или иерархические данные.\n- **Разделяй и властвуй**: Алгоритмы, такие как сортировка слиянием или быстрая сортировка.\n- **Динамическое программирование**: Задачи, такие как Фибоначчи или рюкзак.\nПример (обход дерева):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Обход дерева (рекурсивно)\ndef traverse_tree(node):\n    if not node:\n        return\n    print(node['value'])\n    for child in node.get('children', []):\n        traverse_tree(child)\n\ntree = {\n    'value': 'A',\n    'children': [\n        {'value': 'B', 'children': []},\n        {'value': 'C', 'children': [{'value': 'D', 'children': []}]}\n    ]\n}\n\ntraverse_tree(tree)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `traverse_tree` рекурсивно обходит древовидную структуру.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Продвинутые темы, связанные с рекурсией:\n- **Хвостовая рекурсия**: Оптимизация для уменьшения использования памяти.\n- **Мемоизация**: Избежание повторных вычислений.\nДля получения дополнительной информации обратитесь к документации Python (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Определяйте правильные базовые условия, используйте итерацию для больших входных данных, обращайтесь к официальной документации (https://docs.python.org).\n- **Альтернативы**: Используйте циклы `for` или `while` для простых задач.\nВы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# Пример Python для самостоятельного тестирования\ndef factorial(n):\n    if n == 0 or n == 1:\n        return 1\n    return n * factorial(n - 1)\n\nprint(factorial(5))\n"
+      }
+    ]
+  }
+}

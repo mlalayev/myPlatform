@@ -1,0 +1,480 @@
+{
+  "id": "memory-management",
+  "az": {
+    "title": "Yaddaş İdarəetməsi və Zibil Toplama",
+    "icon": "FiDatabase",
+    "language": "python",
+    "description": "Zibil toplama, istinad dövrləri və yaddaş profilləşdirilməsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Yaddaş İdarəetməsi Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da yaddaş idarəetməsi obyektlərin yaddaşda necə saxlanıldığını və silindiyini idarə edir. Python avtomatik yaddaş idarəetməsi üçün zibil toplama (garbage collection) mexanizmindən istifadə edir. Bu JSON faylda zibil toplama, istinad dövrləri (reference cycles), yaddaş profilləşdirilməsi (`tracemalloc`), `gc` modulu, səhvlərdən qaçınma yolları, yaddaş optimizasiyası və real layihələrdə istifadə ssenariləri detallı şəkildə izah olunacaq. Kod nümunələri istifadəçi girişi tələb etmir, UTF-8 uyğundur və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Zibil Toplama (Garbage Collection)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da zibil toplama istifadə olunmayan obyektləri yaddaşdan silir. Əsas mexanizm istinad sayımı (reference counting) və istinad dövrlərini aşkarlamaq üçün zibil toplayıcıdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import sys\n\ndef reference_count_example():\n    my_list = [1, 2, 3]\n    print(sys.getrefcount(my_list))  # İstinad sayımı\n    another_reference = my_list\n    print(sys.getrefcount(my_list))  # İstinad sayımı artır\n    del another_reference\n    print(sys.getrefcount(my_list))  # İstinad sayımı azalır\n\nreference_count_example()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `sys.getrefcount` obyektə olan istinadların sayını göstərir.\n- İstinad sayımı sıfıra düşəndə obyekt yaddaşdan silinir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# İstinad Dövrləri (Reference Cycles)"
+      },
+      {
+        "type": "paragraph",
+        "text": "İstinad dövrləri obyektlərin bir-birinə istinad etdiyi və zibil toplayıcı tərəfindən silinmədiyi vəziyyətlərdir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import gc\n\ndef create_cycle():\n    list1 = []\n    list2 = []\n    list1.append(list2)\n    list2.append(list1)\n    print('Dövr yaradıldı')\n\ngc.disable()  # Zibil toplayıcını söndür\ncreate_cycle()\nprint(f'Zibil toplama aktivdir: {gc.isenabled()}')\ngc.enable()  # Zibil toplayıcını yenidən aktivləşdir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `list1` və `list2` bir-birinə istinad edir, dövr yaradır.\n- `gc` modulu ilə zibil toplayıcı idarə olunur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# gc Modulu ilə İş"
+      },
+      {
+        "type": "paragraph",
+        "text": "`gc` modulu zibil toplayıcıyı idarə etmək üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import gc\n\ndef gc_example():\n    my_object = [1, 2, 3]\n    del my_object\n    gc.collect()  # Əl ilə zibil toplama\n    print('Zibil toplama işə salındı')\n\ngc_example()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `gc.collect()` əl ilə zibil toplama prosesini başlatır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Yaddaş Profilləşdirilməsi ilə tracemalloc"
+      },
+      {
+        "type": "paragraph",
+        "text": "`tracemalloc` modulu yaddaş istifadəsini izləmək üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import tracemalloc\n\ndef memory_usage_example():\n    tracemalloc.start()\n    my_list = [i for i in range(1000)]\n    snapshot = tracemalloc.take_snapshot()\n    top_stats = snapshot.statistics('lineno')\n    print('Ən çox yaddaş istifadə edən sətirlər:')\n    for stat in top_stats[:3]:\n        print(stat)\n\nmemory_usage_example()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `tracemalloc` yaddaş istifadəsini izləyir.\n- `take_snapshot` yaddaş vəziyyətini qeyd edir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Səhvlərdən Qaçınma Yolları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yaddaş idarəetməsində səhvlərdən qaçınmaq üçün:\n- **İstinadları təmizləyin**: Böyük obyektlərə istinadları silin.\n- **Zibil toplayıcıdan istifadə**: Lazım gəldikdə `gc.collect()` çağırın.\n- **Yaddaş sızmalarını izləyin**: `tracemalloc` ilə yaddaş sızmalarını aşkar edin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import gc\n\ndef avoid_leak():\n    my_list = [i for i in range(1000)]\n    del my_list  # İstinadı sil\n    gc.collect()  # Zibil toplama\n    print('Yaddaş təmizləndi')\n\navoid_leak()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `del my_list` istinadı silir.\n- `gc.collect()` yaddaşı təmizləyir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Yaddaş Optimizasiyası"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yaddaş optimizasiyası üçün böyük obyektlərdən qaçınmaq və effektiv strukturlardan istifadə etmək lazımdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def optimize_memory():\n    # Böyük siyahı əvəzinə generator istifadə et\n    numbers = (i for i in range(1000))  # Generator\n    total = sum(numbers)\n    print(f'Cəm: {total}')\n\noptimize_memory()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Generator siyahı əvəzinə istifadə olunur, bu da yaddaş istifadəsini azaldır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yaddaş idarəetməsi real layihələrdə aşağıdakı ssenarilərdə istifadə olunur:\n- **Yaddaş sızmalarının qarşısını almaq**: Böyük verilənlər bazası ilə işləyərkən.\n- **Performans optimizasiyası**: Yaddaş istifadəsini minimuma endirmək.\n- **Böyük verilənlər ilə iş**: Yaddaşın effektiv idarə edilməsi.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import tracemalloc\n\ndef process_large_data():\n    tracemalloc.start()\n    data = [i for i in range(10000)]\n    snapshot = tracemalloc.take_snapshot()\n    print('Yaddaş istifadəsi:', snapshot.statistics('lineno')[0])\n    del data\n\nprocess_large_data()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `tracemalloc` böyük verilənlərin yaddaş istifadəsini izləyir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Yaddaş idarəetməsi ilə bağlı qabaqcıl mövzular:\n- **Çoxsaplılıq**: Çoxsaplı proqramlarda yaddaş idarəetməsi.\n- **C genişləndirmələri**: Yaddaş optimizasiyası üçün C ilə iş.\nBu mövzular haqqında ətraflı məlumat üçün Python sənədlərinə (https://docs.python.org) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "# Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: `tracemalloc` ilə yaddaş istifadəsini izləyin, generatorlardan istifadə edin, rəsmi sənədlərdən (https://docs.python.org) faydalanın.\n- **Alternativlər**: Kiçik layihələrdə sadə yaddaş idarəetmə üsullarından istifadə edin.\nAşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import gc\n\ndef memory_test():\n    my_list = [i for i in range(1000)]\n    print('Siyahı yaradıldı')\n    del my_list\n    gc.collect()\n    print('Yaddaş təmizləndi')\n\nmemory_test()\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Memory Management & Garbage Collection",
+    "icon": "FiDatabase",
+    "language": "python",
+    "description": "Garbage collection, reference cycles, and memory profiling.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# What is Memory Management?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Memory management in Python controls how objects are stored and removed from memory. Python uses automatic memory management through garbage collection. This JSON file explains garbage collection, reference cycles, memory profiling with `tracemalloc`, the `gc` module, error avoidance, memory optimization, and real-world use cases in detail. Code examples do not require user input, are UTF-8 compatible, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Garbage Collection"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python’s garbage collector removes unused objects from memory using reference counting and cycle detection.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import sys\n\ndef reference_count_example():\n    my_list = [1, 2, 3]\n    print(sys.getrefcount(my_list))  # Reference count\n    another_reference = my_list\n    print(sys.getrefcount(my_list))  # Reference count increases\n    del another_reference\n    print(sys.getrefcount(my_list))  # Reference count decreases\n\nreference_count_example()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `sys.getrefcount` shows the number of references to an object.\n- When the reference count drops to zero, the object is removed.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Reference Cycles"
+      },
+      {
+        "type": "paragraph",
+        "text": "Reference cycles occur when objects reference each other, preventing garbage collection.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import gc\n\ndef create_cycle():\n    list1 = []\n    list2 = []\n    list1.append(list2)\n    list2.append(list1)\n    print('Cycle created')\n\ngc.disable()  # Disable garbage collector\ncreate_cycle()\nprint(f'Garbage collection enabled: {gc.isenabled()}')\ngc.enable()  # Re-enable garbage collector\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `list1` and `list2` create a reference cycle.\n- `gc` module controls the garbage collector.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Working with the gc Module"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `gc` module manages the garbage collector.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import gc\n\ndef gc_example():\n    my_object = [1, 2, 3]\n    del my_object\n    gc.collect()  # Manual garbage collection\n    print('Garbage collection triggered')\n\ngc_example()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `gc.collect()` triggers manual garbage collection.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Memory Profiling with tracemalloc"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `tracemalloc` module tracks memory usage.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import tracemalloc\n\ndef memory_usage_example():\n    tracemalloc.start()\n    my_list = [i for i in range(1000)]\n    snapshot = tracemalloc.take_snapshot()\n    top_stats = snapshot.statistics('lineno')\n    print('Top memory usage by line:')\n    for stat in top_stats[:3]:\n        print(stat)\n\nmemory_usage_example()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `tracemalloc` monitors memory usage.\n- `take_snapshot` captures the memory state.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Avoiding Errors"
+      },
+      {
+        "type": "paragraph",
+        "text": "To avoid memory-related errors:\n- **Clear references**: Remove references to large objects.\n- **Use garbage collector**: Call `gc.collect()` when needed.\n- **Track memory leaks**: Use `tracemalloc` to detect leaks.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import gc\n\ndef avoid_leak():\n    my_list = [i for i in range(1000)]\n    del my_list  # Remove reference\n    gc.collect()  # Trigger garbage collection\n    print('Memory cleared')\n\navoid_leak()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `del my_list` removes the reference.\n- `gc.collect()` clears memory.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Memory Optimization"
+      },
+      {
+        "type": "paragraph",
+        "text": "Memory optimization involves avoiding large objects and using efficient structures.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def optimize_memory():\n    # Use generator instead of large list\n    numbers = (i for i in range(1000))  # Generator\n    total = sum(numbers)\n    print(f'Sum: {total}')\n\noptimize_memory()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- A generator is used instead of a list to reduce memory usage.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Real-World Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Memory management is used in real-world projects for:\n- **Preventing memory leaks**: When working with large datasets.\n- **Performance optimization**: Minimizing memory usage.\n- **Large data processing**: Efficient memory management.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import tracemalloc\n\ndef process_large_data():\n    tracemalloc.start()\n    data = [i for i in range(10000)]\n    snapshot = tracemalloc.take_snapshot()\n    print('Memory usage:', snapshot.statistics('lineno')[0])\n    del data\n\nprocess_large_data()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `tracemalloc` tracks memory usage for large data.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advanced topics related to memory management:\n- **Multithreading**: Memory management in multithreaded programs.\n- **C extensions**: Memory optimization with C.\nFor more details, refer to the Python documentation (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use `tracemalloc` to monitor memory, prefer generators, refer to the official documentation (https://docs.python.org).\n- **Alternatives**: Use simple memory management techniques for small projects.\nYou can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import gc\n\ndef memory_test():\n    my_list = [i for i in range(1000)]\n    print('List created')\n    del my_list\n    gc.collect()\n    print('Memory cleared')\n\nmemory_test()\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Управление памятью и сборка мусора",
+    "icon": "FiDatabase",
+    "language": "python",
+    "description": "Сборка мусора, циклические ссылки и профилирование памяти.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Что такое управление памятью?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Управление памятью в Python контролирует, как объекты хранятся и удаляются из памяти. Python использует автоматическое управление памятью через сборку мусора. Этот JSON-файл подробно объясняет сборку мусора, циклические ссылки, профилирование памяти с помощью `tracemalloc`, модуль `gc`, способы избежания ошибок, оптимизацию памяти и сценарии использования в реальных проектах. Примеры кода не требуют ввода пользователя, совместимы с UTF-8, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Сборка мусора"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сборщик мусора Python удаляет неиспользуемые объекты из памяти с помощью подсчета ссылок и обнаружения циклических ссылок.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import sys\n\ndef reference_count_example():\n    my_list = [1, 2, 3]\n    print(sys.getrefcount(my_list))  # Количество ссылок\n    another_reference = my_list\n    print(sys.getrefcount(my_list))  # Количество ссылок увеличивается\n    del another_reference\n    print(sys.getrefcount(my_list))  # Количество ссылок уменьшается\n\nreference_count_example()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `sys.getrefcount` показывает количество ссылок на объект.\n- Когда количество ссылок падает до нуля, объект удаляется.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Циклические ссылки"
+      },
+      {
+        "type": "paragraph",
+        "text": "Циклические ссылки возникают, когда объекты ссылаются друг на друга, препятствуя сборке мусора.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import gc\n\ndef create_cycle():\n    list1 = []\n    list2 = []\n    list1.append(list2)\n    list2.append(list1)\n    print('Цикл создан')\n\ngc.disable()  # Отключить сборщик мусора\ncreate_cycle()\nprint(f'Сборка мусора активна: {gc.isenabled()}')\ngc.enable()  # Включить сборщик мусора\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `list1` и `list2` создают циклическую ссылку.\n- Модуль `gc` управляет сборщиком мусора.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Работа с модулем gc"
+      },
+      {
+        "type": "paragraph",
+        "text": "Модуль `gc` управляет сборщиком мусора.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import gc\n\ndef gc_example():\n    my_object = [1, 2, 3]\n    del my_object\n    gc.collect()  # Ручная сборка мусора\n    print('Сборка мусора запущена')\n\ngc_example()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `gc.collect()` запускает ручную сборку мусора.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Профилирование памяти с помощью tracemalloc"
+      },
+      {
+        "type": "paragraph",
+        "text": "Модуль `tracemalloc` отслеживает использование памяти.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import tracemalloc\n\ndef memory_usage_example():\n    tracemalloc.start()\n    my_list = [i for i in range(1000)]\n    snapshot = tracemalloc.take_snapshot()\n    top_stats = snapshot.statistics('lineno')\n    print('Основные потребители памяти по строкам:')\n    for stat in top_stats[:3]:\n        print(stat)\n\nmemory_usage_example()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `tracemalloc` отслеживает использование памяти.\n- `take_snapshot` фиксирует состояние памяти.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Избежание ошибок"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы избежать ошибок, связанных с памятью:\n- **Очищайте ссылки**: Удаляйте ссылки на большие объекты.\n- **Используйте сборщик мусора**: Вызывайте `gc.collect()` при необходимости.\n- **Отслеживайте утечки памяти**: Используйте `tracemalloc` для обнаружения утечек.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import gc\n\ndef avoid_leak():\n    my_list = [i for i in range(1000)]\n    del my_list  # Удалить ссылку\n    gc.collect()  # Запустить сборку мусора\n    print('Память очищена')\n\navoid_leak()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `del my_list` удаляет ссылку.\n- `gc.collect()` очищает память.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Оптимизация памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "Оптимизация памяти включает избегание больших объектов и использование эффективных структур.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def optimize_memory():\n    # Использовать генератор вместо большого списка\n    numbers = (i for i in range(1000))  # Генератор\n    total = sum(numbers)\n    print(f'Сумма: {total}')\n\noptimize_memory()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Генератор используется вместо списка для уменьшения потребления памяти.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Управление памятью используется в реальных проектах для:\n- **Предотвращение утечек памяти**: При работе с большими наборами данных.\n- **Оптимизация производительности**: Минимизация использования памяти.\n- **Обработка больших данных**: Эффективное управление памятью.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import tracemalloc\n\ndef process_large_data():\n    tracemalloc.start()\n    data = [i for i in range(10000)]\n    snapshot = tracemalloc.take_snapshot()\n    print('Использование памяти:', snapshot.statistics('lineno')[0])\n    del data\n\nprocess_large_data()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `tracemalloc` отслеживает использование памяти для больших данных.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Продвинутые темы, связанные с управлением памятью:\n- **Многопоточность**: Управление памятью в многопоточных программах.\n- **Расширения на C**: Оптимизация памяти с помощью C.\nДля получения дополнительной информации обратитесь к документации Python (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте `tracemalloc` для отслеживания памяти, предпочитайте генераторы, обращайтесь к официальной документации (https://docs.python.org).\n- **Альтернативы**: Используйте простые методы управления памятью для небольших проектов.\nВы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import gc\n\ndef memory_test():\n    my_list = [i for i in range(1000)]\n    print('Список создан')\n    del my_list\n    gc.collect()\n    print('Память очищена')\n\nmemory_test()\n"
+      }
+    ]
+  }
+}

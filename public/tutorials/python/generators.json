@@ -1,0 +1,597 @@
+{
+  "id": "generators",
+  "az": {
+    "title": "Generatorlar və yield",
+    "icon": "FiRefreshCw",
+    "language": "python",
+    "description": "Generator funksiyaları və yield açar sözü.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Generatorlar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da generatorlar böyük verilənlər toplusunu effektiv şəkildə idarə etmək üçün istifadə olunan xüsusi funksiyalardır. `yield` açar sözü ilə dəyərləri bir-bir qaytarır, bütün siyahını yaddaşda saxlamaq əvəzinə hər çağırışda bir dəyər istehsal edir. Bu, yaddaş istifadəsini azaldır və performansı artırır. Bu JSON faylda generatorların əsasları, `yield` açar sözü, generator ifadələri, siyahılarla fərqləri, `for` və `while` dövrləri ilə istifadə, `next()` və `iter()` funksiyaları, yaddaş effektivliyi, TypeScript/JavaScript-dəki generatorlarla müqayisə, səhvlərdən qaçınma yolları və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Kod nümunələri istifadəçi girişi tələb etmir, UTF-8 uyğundur və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Generator Funksiyaları və yield"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generator funksiyaları `yield` açar sözü ilə dəyərləri tək-tək qaytarır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Sadə generator funksiyası\ndef number_generator():\n    yield 1\n    yield 2\n    yield 3\n\ngen = number_generator()\nprint(next(gen))\nprint(next(gen))\nprint(next(gen))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `number_generator` hər çağırışda bir rəqəm qaytarır.\n- `next()` funksiyası növbəti dəyəri alır.\n- Generator bitdikdə `StopIteration` xətası yaranır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Generator İfadələri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generator ifadələri siyahı ifadələrinə bənzəyir, lakin dəyərləri yaddaşda saxlamır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Generator ifadəsi\ngen_expr = (x * 2 for x in range(3))\nprint(next(gen_expr))\nprint(next(gen_expr))\nprint(next(gen_expr))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `(x * 2 for x in range(3))` generator ifadəsidir.\n- Dəyərlər tək-tək istehsal olunur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Generatorlar və Siyahılar Arasındakı Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generatorlar və siyahılar fərqli xüsusiyyətlərə malikdir:\n- **Siyahılar**: Bütün dəyərləri yaddaşda saxlayır.\n- **Generatorlar**: Dəyərləri tək-tək istehsal edir, yaddaşı az istifadə edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Generator və siyahı müqayisəsi\nimport sys\n\n# Siyahı\nnumbers_list = [x for x in range(1000)]\nprint(f'Siyahının ölçüsü: {sys.getsizeof(numbers_list)} bayt')\n\n# Generator\ngen = (x for x in range(1000))\nprint(f'Generatorun ölçüsü: {sys.getsizeof(gen)} bayt')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `sys.getsizeof` ilə yaddaş istifadəsi müqayisə olunur.\n- Generator siyahıya nisbətən az yaddaş istifadə edir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# for və while Dövrləri ilə Generatorlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generatorlar `for` və `while` dövrləri ilə effektiv işləyir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# for və while ilə generatorlar\ndef even_numbers():\n    n = 0\n    while n < 6:\n        yield n\n        n += 2\n\ngen = even_numbers()\n\n# for dövrü\nprint('for dövrü ilə:')\nfor num in gen:\n    print(num)\n\ngen = even_numbers()  # Yenidən generator yarat\n# while dövrü\nprint('while dövrü ilə:')\nwhile True:\n    try:\n        print(next(gen))\n    except StopIteration:\n        break\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `even_numbers` cüt rəqəmləri qaytarır.\n- `for` dövrü generatoru avtomatik işlədir.\n- `while` dövrü `next()` ilə dəyərləri alır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# next() və iter() Funksiyaları"
+      },
+      {
+        "type": "paragraph",
+        "text": "`next()` generatorun növbəti dəyərini alır, `iter()` isə obyektə iterator yaradır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# next() və iter()\ndef my_generator():\n    yield 'Bir'\n    yield 'İki'\n    yield 'Üç'\n\ngen = my_generator()\nprint(next(gen))\nprint(next(gen))\n\n# Siyahıdan iterator yaratma\nmy_list = [1, 2, 3]\niterator = iter(my_list)\nprint(next(iterator))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `next(gen)` generatorun dəyərlərini tək-tək qaytarır.\n- `iter(my_list)` siyahını iteratora çevirir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Yaddaş Effektivliyi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generatorlar böyük verilənlər toplusunda yaddaş istifadəsini azaldır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Yaddaş effektivliyi\ndef large_range():\n    for i in range(1000000):\n        yield i\n\ngen = large_range()\nfor _ in range(5):  # İlk 5 dəyəri çap et\n    print(next(gen))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `large_range` milyonlarla dəyəri yaddaşda saxlamadan qaytarır.\n- İlk 5 dəyər çap olunur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Python ilə TypeScript və JavaScript-in Müqayisəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da generatorlar JavaScript/TypeScript-dəki generatorlara oxşardır:\n- **Sintaksis**: Hər iki dildə `yield` və `function*` (JavaScript-də) istifadə olunur.\n- **Fərqlər**: JavaScript-də generatorlar ES6 ilə gəlib və `function*` sintaksisi tələb olunur.\nNümunə (Python vs JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Python kodu\ndef number_generator():\n    yield 1\n    yield 2\n    yield 3\n\ngen = number_generator()\nprint(next(gen))\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// JavaScript kodu\nfunction* numberGenerator() {\n    yield 1;\n    yield 2;\n    yield 3;\n}\n\nconst gen = numberGenerator();\nconsole.log(gen.next().value);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Python-da `yield` sadə şəkildə istifadə olunur.\n- JavaScript-də `function*` və `.next().value` istifadə olunur.\nAşağıda bu kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Səhvlərdən Qaçınma Yolları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generatorlarla işləyərkən səhvlərdən qaçınmaq üçün:\n- **StopIteration**: `next()` çağırışlarında xətaları tutun.\n- **Generatorun təkrar istifadəsi**: Generatorlar bir dəfə istifadə olunur, təkrar üçün yeni generator yaradın.\n- **Sadəlik**: Mürəkkəb generatorlardan çəkinin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Səhvlərdən qaçınma\ndef safe_generator():\n    for i in range(3):\n        yield i\n\ngen = safe_generator()\ntry:\n    print(next(gen))\n    print(next(gen))\n    print(next(gen))\n    print(next(gen))  # StopIteration\nexcept StopIteration:\n    print('Generator bitdi!')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `try-except` ilə `StopIteration` xətası tutulur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generatorlar real layihələrdə aşağıdakı ssenarilərdə istifadə olunur:\n- **Böyük verilənlər**: Böyük faylları sətir-sətir oxuma.\n- **Striminq**: Real vaxt rejimində məlumat emalı.\n- **Sonsuz ardıcıllıqlar**: Məsələn, Fibonacci ədədləri.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Layihədə istifadə\ndef fibonacci(n):\n    a, b = 0, 1\n    for _ in range(n):\n        yield a\n        a, b = b, a + b\n\nfib = fibonacci(5)\nfor num in fib:\n    print(num)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fibonacci` generatoru ilk 5 Fibonacci ədədini qaytarır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generatorlarla bağlı qabaqcıl mövzular:\n- **Korutinlər**: `yield` ilə iki tərəfli rabitə.\n- **yield from**: Alt generatorlardan dəyərləri ötürmə.\nBu mövzular haqqında ətraflı məlumat üçün Python sənədlərinə (https://docs.python.org) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "# Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Böyük verilənlər üçün generatorlardan istifadə edin, `try-except` ilə xətaları idarə edin, rəsmi sənədlərdən (https://docs.python.org) faydalanın.\n- **Alternativlər**: Kiçik verilənlər üçün siyahılardan istifadə edin.\nAşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# Sınaq üçün Python nümunəsi\ndef number_generator():\n    yield 1\n    yield 2\n    yield 3\n\ngen = number_generator()\nprint(next(gen))\nprint(next(gen))\nprint(next(gen))\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Generators and yield",
+    "icon": "FiRefreshCw",
+    "language": "python",
+    "description": "Generator functions and the yield keyword.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# What are Generators?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In Python, generators are special functions used to efficiently handle large datasets by producing values one at a time using the `yield` keyword, instead of storing an entire list in memory. This reduces memory usage and improves performance. This JSON file explains generator basics, the `yield` keyword, generator expressions, differences from lists, usage with `for` and `while` loops, `next()` and `iter()` functions, memory efficiency, comparison with TypeScript/JavaScript generators, error avoidance strategies, and real-world usage scenarios in detail. Code examples do not require user input, are UTF-8 compatible, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Generator Functions and yield"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generator functions use `yield` to return values one by one.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Simple generator function\ndef number_generator():\n    yield 1\n    yield 2\n    yield 3\n\ngen = number_generator()\nprint(next(gen))\nprint(next(gen))\nprint(next(gen))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `number_generator` yields one number at a time.\n- `next()` retrieves the next value.\n- A `StopIteration` exception is raised when the generator is exhausted.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Generator Expressions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generator expressions are similar to list comprehensions but produce values lazily.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Generator expression\ngen_expr = (x * 2 for x in range(3))\nprint(next(gen_expr))\nprint(next(gen_expr))\nprint(next(gen_expr))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `(x * 2 for x in range(3))` is a generator expression.\n- Values are generated one by one.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Generators vs. Lists"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generators and lists have different characteristics:\n- **Lists**: Store all values in memory.\n- **Generators**: Produce values one at a time, using less memory.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Generator vs. list comparison\nimport sys\n\n# List\nnumbers_list = [x for x in range(1000)]\nprint(f'List size: {sys.getsizeof(numbers_list)} bytes')\n\n# Generator\ngen = (x for x in range(1000))\nprint(f'Generator size: {sys.getsizeof(gen)} bytes')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `sys.getsizeof` compares memory usage.\n- Generators use significantly less memory than lists.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Generators with for and while Loops"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generators work efficiently with `for` and `while` loops.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Generators with for and while loops\ndef even_numbers():\n    n = 0\n    while n < 6:\n        yield n\n        n += 2\n\ngen = even_numbers()\n\n# for loop\nprint('With for loop:')\nfor num in gen:\n    print(num)\n\ngen = even_numbers()  # Recreate generator\n# while loop\nprint('With while loop:')\nwhile True:\n    try:\n        print(next(gen))\n    except StopIteration:\n        break\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `even_numbers` yields even numbers.\n- `for` loop automatically iterates over the generator.\n- `while` loop uses `next()` to retrieve values.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# next() and iter() Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "`next()` retrieves the next value from a generator, and `iter()` creates an iterator from an object.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# next() and iter()\ndef my_generator():\n    yield 'One'\n    yield 'Two'\n    yield 'Three'\n\ngen = my_generator()\nprint(next(gen))\nprint(next(gen))\n\n# Creating iterator from list\nmy_list = [1, 2, 3]\niterator = iter(my_list)\nprint(next(iterator))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `next(gen)` retrieves generator values one by one.\n- `iter(my_list)` converts a list to an iterator.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Memory Efficiency"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generators reduce memory usage for large datasets.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Memory efficiency\ndef large_range():\n    for i in range(1000000):\n        yield i\n\ngen = large_range()\nfor _ in range(5):  # Print first 5 values\n    print(next(gen))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `large_range` yields millions of values without storing them.\n- Only the first 5 values are printed.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Python vs. TypeScript and JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python generators are similar to TypeScript/JavaScript generators:\n- **Syntax**: Both use `yield`, but JavaScript requires `function*`.\n- **Differences**: JavaScript generators were introduced in ES6 and use `function*` syntax.\nExample (Python vs. JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Python code\ndef number_generator():\n    yield 1\n    yield 2\n    yield 3\n\ngen = number_generator()\nprint(next(gen))\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// JavaScript code\nfunction* numberGenerator() {\n    yield 1;\n    yield 2;\n    yield 3;\n}\n\nconst gen = numberGenerator();\nconsole.log(gen.next().value);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Python uses `yield` simply.\n- JavaScript uses `function*` and `.next().value`.\nYou can test these codes in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Avoiding Errors"
+      },
+      {
+        "type": "paragraph",
+        "text": "To avoid errors with generators:\n- **StopIteration**: Handle `next()` calls with try-except.\n- **Generator reuse**: Generators are single-use; recreate for reuse.\n- **Simplicity**: Avoid overly complex generators.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Avoiding errors\ndef safe_generator():\n    for i in range(3):\n        yield i\n\ngen = safe_generator()\ntry:\n    print(next(gen))\n    print(next(gen))\n    print(next(gen))\n    print(next(gen))  # StopIteration\nexcept StopIteration:\n    print('Generator exhausted!')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `try-except` catches `StopIteration`.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generators are used in real-world projects for:\n- **Large datasets**: Reading large files line by line.\n- **Streaming**: Processing data in real-time.\n- **Infinite sequences**: Generating Fibonacci numbers.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Project usage\ndef fibonacci(n):\n    a, b = 0, 1\n    for _ in range(n):\n        yield a\n        a, b = b, a + b\n\nfib = fibonacci(5)\nfor num in fib:\n    print(num)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `fibonacci` yields the first 5 Fibonacci numbers.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advanced topics related to generators:\n- **Coroutines**: Using `yield` for two-way communication.\n- **yield from**: Delegating to sub-generators.\nFor more details, refer to the Python documentation (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use generators for large datasets, handle errors with try-except, refer to the official documentation (https://docs.python.org).\n- **Alternatives**: Use lists for small datasets.\nYou can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# Try it yourself Python example\ndef number_generator():\n    yield 1\n    yield 2\n    yield 3\n\ngen = number_generator()\nprint(next(gen))\nprint(next(gen))\nprint(next(gen))\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Генераторы и yield",
+    "icon": "FiRefreshCw",
+    "language": "python",
+    "description": "Генераторные функции и ключевое слово yield.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Что такое генераторы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В Python генераторы — это специальные функции, используемые для эффективной обработки больших наборов данных, возвращая значения по одному с помощью ключевого слова `yield`, вместо хранения всего списка в памяти. Это уменьшает использование памяти и повышает производительность. Этот JSON-файл подробно объясняет основы генераторов, ключевое слово `yield`, генераторные выражения, отличия от списков, использование с циклами `for` и `while`, функции `next()` и `iter()`, эффективность памяти, сравнение с генераторами в TypeScript/JavaScript, способы избежания ошибок и сценарии использования в реальных проектах. Примеры кода не требуют ввода пользователя, совместимы с UTF-8, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Генераторные функции и yield"
+      },
+      {
+        "type": "paragraph",
+        "text": "Генераторные функции используют `yield` для возврата значений по одному.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Простая генераторная функция\ndef number_generator():\n    yield 1\n    yield 2\n    yield 3\n\ngen = number_generator()\nprint(next(gen))\nprint(next(gen))\nprint(next(gen))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `number_generator` возвращает одно число за раз.\n- `next()` получает следующее значение.\n- При исчерпании генератора возникает исключение `StopIteration`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Генераторные выражения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Генераторные выражения похожи на списковые выражения, но создают значения лениво.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Генераторное выражение\ngen_expr = (x * 2 for x in range(3))\nprint(next(gen_expr))\nprint(next(gen_expr))\nprint(next(gen_expr))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `(x * 2 for x in range(3))` — это генераторное выражение.\n- Значения создаются по одному.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Генераторы против списков"
+      },
+      {
+        "type": "paragraph",
+        "text": "Генераторы и списки имеют разные характеристики:\n- **Списки**: Хранят все значения в памяти.\n- **Генераторы**: Создают значения по одному, используя меньше памяти.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Сравнение генератора и списка\nimport sys\n\n# Список\nnumbers_list = [x for x in range(1000)]\nprint(f'Размер списка: {sys.getsizeof(numbers_list)} байт')\n\n# Генератор\ngen = (x for x in range(1000))\nprint(f'Размер генератора: {sys.getsizeof(gen)} байт')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `sys.getsizeof` сравнивает использование памяти.\n- Генераторы используют значительно меньше памяти, чем списки.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Генераторы с циклами for и while"
+      },
+      {
+        "type": "paragraph",
+        "text": "Генераторы эффективно работают с циклами `for` и `while`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Генераторы с циклами for и while\ndef even_numbers():\n    n = 0\n    while n < 6:\n        yield n\n        n += 2\n\ngen = even_numbers()\n\n# Цикл for\nprint('С циклом for:')\nfor num in gen:\n    print(num)\n\ngen = even_numbers()  # Повторное создание генератора\n# Цикл while\nprint('С циклом while:')\nwhile True:\n    try:\n        print(next(gen))\n    except StopIteration:\n        break\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `even_numbers` возвращает четные числа.\n- Цикл `for` автоматически итерирует генератор.\n- Цикл `while` использует `next()` для получения значений.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Функции next() и iter()"
+      },
+      {
+        "type": "paragraph",
+        "text": "`next()` получает следующее значение из генератора, а `iter()` создает итератор из объекта.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# next() и iter()\ndef my_generator():\n    yield 'Один'\n    yield 'Два'\n    yield 'Три'\n\ngen = my_generator()\nprint(next(gen))\nprint(next(gen))\n\n# Создание итератора из списка\nmy_list = [1, 2, 3]\niterator = iter(my_list)\nprint(next(iterator))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `next(gen)` получает значения генератора по одному.\n- `iter(my_list)` преобразует список в итератор.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Эффективность памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "Генераторы уменьшают использование памяти для больших наборов данных.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Эффективность памяти\ndef large_range():\n    for i in range(1000000):\n        yield i\n\ngen = large_range()\nfor _ in range(5):  # Печать первых 5 значений\n    print(next(gen))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `large_range` возвращает миллионы значений без их хранения.\n- Печатаются только первые 5 значений.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Python против TypeScript и JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Генераторы в Python схожи с генераторами в TypeScript/JavaScript:\n- **Синтаксис**: Оба используют `yield`, но в JavaScript требуется `function*`.\n- **Различия**: Генераторы в JavaScript появились в ES6 и используют синтаксис `function*`.\nПример (Python против JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Код Python\ndef number_generator():\n    yield 1\n    yield 2\n    yield 3\n\ngen = number_generator()\nprint(next(gen))\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Код JavaScript\nfunction* numberGenerator() {\n    yield 1;\n    yield 2;\n    yield 3;\n}\n\nconst gen = numberGenerator();\nconsole.log(gen.next().value);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- В Python `yield` используется просто.\n- В JavaScript используется `function*` и `.next().value`.\nВы можете протестировать эти коды в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Избежание ошибок"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы избежать ошибок с генераторами:\n- **StopIteration**: Обрабатывайте вызовы `next()` с помощью try-except.\n- **Повторное использование генератора**: Генераторы одноразовые, создавайте новый генератор для повторного использования.\n- **Простота**: Избегайте слишком сложных генераторов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Избежание ошибок\ndef safe_generator():\n    for i in range(3):\n        yield i\n\ngen = safe_generator()\ntry:\n    print(next(gen))\n    print(next(gen))\n    print(next(gen))\n    print(next(gen))  # StopIteration\nexcept StopIteration:\n    print('Генератор исчерпан!')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `try-except` перехватывает `StopIteration`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Генераторы используются в реальных проектах для:\n- **Большие наборы данных**: Чтение больших файлов построчно.\n- **Потоковая обработка**: Обработка данных в реальном времени.\n- **Бесконечные последовательности**: Например, числа Фибоначчи.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Использование в проекте\ndef fibonacci(n):\n    a, b = 0, 1\n    for _ in range(n):\n        yield a\n        a, b = b, a + b\n\nfib = fibonacci(5)\nfor num in fib:\n    print(num)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `fibonacci` возвращает первые 5 чисел Фибоначчи.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Продвинутые темы, связанные с генераторами:\n- **Корутины**: Использование `yield` для двустороннего взаимодействия.\n- **yield from**: Делегирование подгенераторам.\nДля получения дополнительной информации обратитесь к документации Python (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте генераторы для больших наборов данных, обрабатывайте ошибки с помощью try-except, обращайтесь к официальной документации (https://docs.python.org).\n- **Альтернативы**: Используйте списки для небольших наборов данных.\nВы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# Пример Python для самостоятельного тестирования\ndef number_generator():\n    yield 1\n    yield 2\n    yield 3\n\ngen = number_generator()\nprint(next(gen))\nprint(next(gen))\nprint(next(gen))\n"
+      }
+    ]
+  }
+}

@@ -1,0 +1,546 @@
+{
+  "id": "type-hints",
+  "az": {
+    "title": "Tip İşarələri və Statik Tipizasiya",
+    "icon": "FiEdit",
+    "language": "python",
+    "description": "Tip annotasiyaları, mypy və statik analiz.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Tip İşarələri Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip işarələri (type hints) Python-da kodun oxunaqlılığını və etibarlılığını artırmaq üçün dəyişənlərə, funksiyalara və siniflərə tipləri təyin etməyə imkan verən bir mexanizmdir. Python dinamik tipli bir dildir, lakin tip işarələri ilə statik tip yoxlaması aparmaq mümkündür. `mypy` kimi alətlər bu işarələri analiz edərək səhvləri aşkarlayır. Bu JSON faylda tip işarələrinin əsasları, `mypy` ilə statik analiz, tip annotasiyalarının sintaksisi, TypeScript-dəki tip sistemləri ilə müqayisə, səhvlərdən qaçınma yolları, yaddaş istifadəsi və real layihələrdə istifadə ssenariləri detallı şəkildə izah olunacaq. Kod nümunələri istifadəçi girişi tələb etmir, UTF-8 uyğundur və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Sadə Tip İşarələri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip işarələri dəyişənlərə və funksiyalara tipləri təyin etmək üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def add_numbers(a: int, b: int) -> int:\n    return a + b\n\nnumber: int = 42\nname: str = 'Dünya'\n\nprint(add_numbers(3, 5))\nprint(number, name)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `a: int` və `b: int` funksiya arqumentlərinin tipini göstərir.\n- `-> int` funksiyanın qaytardığı dəyərin tipini təyin edir.\n- `number: int` və `name: str` dəyişənlərə tiplər əlavə edir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz. `mypy` ilə yoxlamaq üçün redaktorda statik analiz aktivləşdirilə bilər."
+      },
+      {
+        "type": "heading",
+        "text": "# mypy ilə Statik Analiz"
+      },
+      {
+        "type": "paragraph",
+        "text": "`mypy` Python kodunda tip səhvlərini aşkarlayan statik analiz alətidir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def greet(name: str) -> str:\n    return f'Salam, {name}!'\n\n# Səhv: int tipində arqument verilib\nresult = greet(42)  # mypy səhv göstərəcək\n\nprint(result)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `mypy` `greet` funksiyasına `int` tipində arqument verildiyini aşkarlayacaq.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz, lakin `mypy` ilə statik analiz üçün redaktorda müvafiq parametri aktivləşdirməlisiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Kompleks Tip İşarələri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da `typing` modulu ilə siyahılar, lüğətlər və digər kompleks tiplər təyin edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from typing import List, Dict\n\ndef process_data(numbers: List[int], info: Dict[str, str]) -> None:\n    print(f'Sayılar: {numbers}')\n    print(f'Məlumat: {info}')\n\ndata: List[int] = [1, 2, 3]\ninfo: Dict[str, str] = {'ad': 'Dünya', 'salam': 'Hello'}\n\nprocess_data(data, info)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `List[int]` siyahının yalnız tam ədədlərdən ibarət olduğunu göstərir.\n- `Dict[str, str]` lüğətin açar və dəyərlərinin sətir olduğunu təyin edir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Siniflərdə Tip İşarələri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Siniflərdə də tip işarələri istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "class Person:\n    def __init__(self, name: str, age: int) -> None:\n        self.name: str = name\n        self.age: int = age\n\n    def introduce(self) -> str:\n        return f'Mən {self.name}, {self.age} yaşım var'\n\nperson: Person = Person('Dünya', 20)\nprint(person.introduce())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `name: str` və `age: int` sinif atributlarının tiplərini təyin edir.\n- `-> str` metodun qaytardığı dəyərin tipini göstərir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Python ilə TypeScript-in Müqayisəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da tip işarələri TypeScript-dəki tip sistemlərinə bənzəyir, lakin fərqlər var:\n- **Python**: Tip işarələri opsionaldır, statik analiz alətləri (məsələn, mypy) ilə yoxlanılır.\n- **TypeScript**: Tip yoxlaması kompilyasiya zamanı məcburidir.\nNümunə (Python vs TypeScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def multiply(a: int, b: int) -> int:\n    return a * b\n\nprint(multiply(4, 5))\n"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "function multiply(a: number, b: number): number {\n    return a * b;\n}\n\nconsole.log(multiply(4, 5));\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Python-da tip işarələri `mypy` ilə yoxlanılır.\n- TypeScript-də tip yoxlaması kompilyator tərəfindən avtomatik aparılır.\nAşağıda bu kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Səhvlərdən Qaçınma Yolları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip işarələri ilə işləyərkən səhvlərdən qaçınmaq üçün:\n- **`mypy` istifadəsi**: Kodunuzu mütəmadi olaraq `mypy` ilə yoxlayın.\n- **Sadə tiplər**: Mürəkkəb tip strukturlarından çəkinin.\n- **Annotasiyaların düzgünlüyü**: Tipləri dəqiq təyin edin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from typing import Optional\n\ndef safe_divide(a: int, b: int) -> Optional[float]:\n    if b == 0:\n        return None\n    return a / b\n\nprint(safe_divide(10, 2))\nprint(safe_divide(10, 0))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Optional[float]` qaytarılacaq dəyərin `float` və ya `None` ola biləcəyini göstərir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Yaddaş İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip işarələri çalışarkən yaddaş istifadəsinə əhəmiyyətli təsir göstərmir, çünki onlar yalnız statik analiz zamanı istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from typing import List\n\ndef sum_numbers(numbers: List[int]) -> int:\n    return sum(numbers)\n\nnumbers: List[int] = [1, 2, 3, 4, 5]\nprint(sum_numbers(numbers))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Tip işarələri yaddaş istifadəsini artırmır, çünki yalnız statik analizdə iştirak edir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip işarələri real layihələrdə aşağıdakı ssenarilərdə istifadə olunur:\n- **Kod oxunaqlılığı**: Böyük layihələrdə kodun başa düşülməsini asanlaşdırır.\n- **Səhv aşkarlama**: `mypy` ilə tip səhvləri erkən aşkarlanır.\n- **Komanda işində**: Tip işarələri kodun başqaları tərəfindən başa düşülməsini yaxşılaşdırır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from typing import Tuple\n\ndef get_user_info(user_id: int) -> Tuple[str, int]:\n    return ('Dünya', 20)\n\nname, age = get_user_info(1)\nprint(f'Ad: {name}, Yaş: {age}')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Tuple[str, int]` qaytarılacaq dəyərin sətir və tam ədəddən ibarət olduğunu göstərir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip işarələri ilə bağlı qabaqcıl mövzular:\n- **Generik tiplər**: `typing.Generic` ilə dinamik tiplər.\n- **Protokollar**: `typing.Protocol` ilə struktur tiplər.\n- **Performans təsirləri**: Tip yoxlamasının icra müddətinə təsiri.\nBu mövzular haqqında ətraflı məlumat üçün Python sənədlərinə (https://docs.python.org) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "# Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: `mypy` ilə statik analiz aparın, sadə tiplərdən istifadə edin, rəsmi sənədlərdən (https://docs.python.org) faydalanın.\n- **Alternativlər**: Kiçik layihələrdə tip işarələri istifadə etmədən kod yaza bilərsiniz.\nAşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "from typing import List\n\ndef calculate_average(numbers: List[float]) -> float:\n    return sum(numbers) / len(numbers)\n\nnumbers: List[float] = [1.0, 2.0, 3.0, 4.0]\nprint(calculate_average(numbers))\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Type Hints & Static Typing",
+    "icon": "FiEdit",
+    "language": "python",
+    "description": "Type annotations, mypy, and static analysis.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# What are Type Hints?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type hints in Python allow developers to specify the types of variables, function arguments, and return values to improve code readability and reliability. Python is a dynamically typed language, but type hints enable static type checking with tools like `mypy`. This JSON file explains the basics of type hints, static analysis with `mypy`, type annotation syntax, comparison with TypeScript’s type system, error avoidance, memory usage, and real-world use cases in detail. Code examples do not require user input, are UTF-8 compatible, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Simple Type Hints"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type hints are used to specify types for variables and functions.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def add_numbers(a: int, b: int) -> int:\n    return a + b\n\nnumber: int = 42\nname: str = 'World'\n\nprint(add_numbers(3, 5))\nprint(number, name)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `a: int` and `b: int` specify the argument types.\n- `-> int` indicates the return type.\n- `number: int` and `name: str` assign types to variables.\nYou can test this code in our site’s editor. Use `mypy` in the editor for static analysis."
+      },
+      {
+        "type": "heading",
+        "text": "# Static Analysis with mypy"
+      },
+      {
+        "type": "paragraph",
+        "text": "`mypy` is a static analysis tool that detects type errors in Python code.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def greet(name: str) -> str:\n    return f'Hello, {name}!'\n\n# Error: passing an int instead of str\nresult = greet(42)  # mypy will flag an error\n\nprint(result)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `mypy` detects that an `int` was passed to a function expecting a `str`.\nYou can test this code in our site’s editor, but enable static analysis for `mypy` checking."
+      },
+      {
+        "type": "heading",
+        "text": "# Complex Type Hints"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `typing` module allows specifying complex types like lists and dictionaries.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from typing import List, Dict\n\ndef process_data(numbers: List[int], info: Dict[str, str]) -> None:\n    print(f'Numbers: {numbers}')\n    print(f'Info: {info}')\n\ndata: List[int] = [1, 2, 3]\ninfo: Dict[str, str] = {'name': 'World', 'greeting': 'Hello'}\n\nprocess_data(data, info)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `List[int]` specifies a list of integers.\n- `Dict[str, str]` indicates a dictionary with string keys and values.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Type Hints in Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type hints can also be used in classes.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "class Person:\n    def __init__(self, name: str, age: int) -> None:\n        self.name: str = name\n        self.age: int = age\n\n    def introduce(self) -> str:\n        return f'I am {self.name}, {self.age} years old'\n\nperson: Person = Person('World', 20)\nprint(person.introduce())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `name: str` and `age: int` specify class attribute types.\n- `-> str` indicates the method’s return type.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Python vs. TypeScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python’s type hints are similar to TypeScript’s type system, but differences exist:\n- **Python**: Type hints are optional and checked with tools like `mypy`.\n- **TypeScript**: Type checking is mandatory during compilation.\nExample (Python vs. TypeScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def multiply(a: int, b: int) -> int:\n    return a * b\n\nprint(multiply(4, 5))\n"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "function multiply(a: number, b: number): number {\n    return a * b;\n}\n\nconsole.log(multiply(4, 5));\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Python uses `mypy` for type checking.\n- TypeScript enforces type checking during compilation.\nYou can test these codes in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Avoiding Errors"
+      },
+      {
+        "type": "paragraph",
+        "text": "To avoid errors with type hints:\n- **Use `mypy`**: Regularly check your code with `mypy`.\n- **Simple types**: Avoid overly complex type structures.\n- **Accurate annotations**: Specify types precisely.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from typing import Optional\n\ndef safe_divide(a: int, b: int) -> Optional[float]:\n    if b == 0:\n        return None\n    return a / b\n\nprint(safe_divide(10, 2))\nprint(safe_divide(10, 0))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Optional[float]` indicates the return value can be a `float` or `None`.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Memory Usage"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type hints do not significantly impact memory usage, as they are only used during static analysis.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from typing import List\n\ndef sum_numbers(numbers: List[int]) -> int:\n    return sum(numbers)\n\nnumbers: List[int] = [1, 2, 3, 4, 5]\nprint(sum_numbers(numbers))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Type hints do not increase memory usage, as they are only for static analysis.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Real-World Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type hints are used in real-world projects for:\n- **Code readability**: Improving understanding in large projects.\n- **Error detection**: Catching type errors early with `mypy`.\n- **Team collaboration**: Making code easier for others to understand.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from typing import Tuple\n\ndef get_user_info(user_id: int) -> Tuple[str, int]:\n    return ('World', 20)\n\nname, age = get_user_info(1)\nprint(f'Name: {name}, Age: {age}')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Tuple[str, int]` specifies a tuple with a string and an integer.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advanced topics related to type hints:\n- **Generic types**: Using `typing.Generic` for dynamic types.\n- **Protocols**: Using `typing.Protocol` for structural typing.\n- **Performance impacts**: Effects of type checking on runtime.\nFor more details, refer to the Python documentation (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use `mypy` for static analysis, prefer simple types, refer to the official documentation (https://docs.python.org).\n- **Alternatives**: Skip type hints for small projects.\nYou can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "from typing import List\n\ndef calculate_average(numbers: List[float]) -> float:\n    return sum(numbers) / len(numbers)\n\nnumbers: List[float] = [1.0, 2.0, 3.0, 4.0]\nprint(calculate_average(numbers))\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Типовые подсказки и статическая типизация",
+    "icon": "FiEdit",
+    "language": "python",
+    "description": "Аннотации типов, mypy и статический анализ.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Что такое типовые подсказки?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типовые подсказки (type hints) в Python позволяют указывать типы переменных, аргументов функций и возвращаемых значений для повышения читаемости и надежности кода. Python — это динамически типизированный язык, но типовые подсказки позволяют выполнять статическую проверку типов с помощью инструментов, таких как `mypy`. Этот JSON-файл подробно объясняет основы типовых подсказок, статический анализ с помощью `mypy`, синтаксис аннотаций типов, сравнение с системой типов TypeScript, способы избежания ошибок, использование памяти и сценарии использования в реальных проектах. Примеры кода не требуют ввода пользователя, совместимы с UTF-8, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Простые типовые подсказки"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типовые подсказки используются для указания типов переменных и функций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def add_numbers(a: int, b: int) -> int:\n    return a + b\n\nnumber: int = 42\nname: str = 'Мир'\n\nprint(add_numbers(3, 5))\nprint(number, name)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `a: int` и `b: int` указывают типы аргументов.\n- `-> int` обозначает тип возвращаемого значения.\n- `number: int` и `name: str` задают типы переменных.\nВы можете протестировать этот код в редакторе на нашем сайте. Используйте `mypy` в редакторе для статического анализа."
+      },
+      {
+        "type": "heading",
+        "text": "# Статический анализ с помощью mypy"
+      },
+      {
+        "type": "paragraph",
+        "text": "`mypy` — это инструмент статического анализа, который выявляет ошибки типов в коде Python.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def greet(name: str) -> str:\n    return f'Привет, {name}!'\n\n# Ошибка: передан int вместо str\nresult = greet(42)  # mypy укажет на ошибку\n\nprint(result)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `mypy` обнаруживает, что функции передан `int` вместо ожидаемого `str`.\nВы можете протестировать этот код в редакторе на нашем сайте, но включите статический анализ для проверки `mypy`."
+      },
+      {
+        "type": "heading",
+        "text": "# Сложные типовые подсказки"
+      },
+      {
+        "type": "paragraph",
+        "text": "Модуль `typing` позволяет указывать сложные типы, такие как списки и словари.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from typing import List, Dict\n\ndef process_data(numbers: List[int], info: Dict[str, str]) -> None:\n    print(f'Числа: {numbers}')\n    print(f'Информация: {info}')\n\ndata: List[int] = [1, 2, 3]\ninfo: Dict[str, str] = {'имя': 'Мир', 'привет': 'Hello'}\n\nprocess_data(data, info)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `List[int]` указывает, что список содержит целые числа.\n- `Dict[str, str]` обозначает словарь с ключами и значениями строкового типа.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Типовые подсказки в классах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типовые подсказки могут использоваться в классах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "class Person:\n    def __init__(self, name: str, age: int) -> None:\n        self.name: str = name\n        self.age: int = age\n\n    def introduce(self) -> str:\n        return f'Я {self.name}, мне {self.age} лет'\n\nperson: Person = Person('Мир', 20)\nprint(person.introduce())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `name: str` и `age: int` задают типы атрибутов класса.\n- `-> str` указывает тип возвращаемого значения метода.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Python против TypeScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типовые подсказки в Python похожи на систему типов TypeScript, но есть различия:\n- **Python**: Типовые подсказки необязательны и проверяются инструментами, такими как `mypy`.\n- **TypeScript**: Проверка типов обязательна во время компиляции.\nПример (Python против TypeScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def multiply(a: int, b: int) -> int:\n    return a * b\n\nprint(multiply(4, 5))\n"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "function multiply(a: number, b: number): number {\n    return a * b;\n}\n\nconsole.log(multiply(4, 5));\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- В Python проверка типов выполняется с помощью `mypy`.\n- В TypeScript проверка типов выполняется компилятором автоматически.\nВы можете протестировать эти коды в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Избежание ошибок"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы избежать ошибок при работе с типовыми подсказками:\n- **Используйте `mypy`**: Регулярно проверяйте код с помощью `mypy`.\n- **Простые типы**: Избегайте слишком сложных структур типов.\n- **Точные аннотации**: Указывайте типы точно.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from typing import Optional\n\ndef safe_divide(a: int, b: int) -> Optional[float]:\n    if b == 0:\n        return None\n    return a / b\n\nprint(safe_divide(10, 2))\nprint(safe_divide(10, 0))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Optional[float]` указывает, что возвращаемое значение может быть `float` или `None`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Использование памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типовые подсказки не оказывают существенного влияния на использование памяти, так как они используются только во время статического анализа.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from typing import List\n\ndef sum_numbers(numbers: List[int]) -> int:\n    return sum(numbers)\n\nnumbers: List[int] = [1, 2, 3, 4, 5]\nprint(sum_numbers(numbers))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Типовые подсказки не увеличивают использование памяти, так как используются только для статического анализа.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типовые подсказки используются в реальных проектах для:\n- **Читаемость кода**: Улучшение понимания кода в крупных проектах.\n- **Обнаружение ошибок**: Раннее выявление ошибок типов с помощью `mypy`.\n- **Работа в команде**: Упрощение понимания кода другими разработчиками.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from typing import Tuple\n\ndef get_user_info(user_id: int) -> Tuple[str, int]:\n    return ('Мир', 20)\n\nname, age = get_user_info(1)\nprint(f'Имя: {name}, Возраст: {age}')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Tuple[str, int]` указывает, что возвращается кортеж со строкой и целым числом.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Продвинутые темы, связанные с типовыми подсказками:\n- **Обобщенные типы**: Использование `typing.Generic` для динамических типов.\n- **Протоколы**: Использование `typing.Protocol` для структурной типизации.\n- **Влияние на производительность**: Влияние проверки типов на время выполнения.\nДля получения дополнительной информации обратитесь к документации Python (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте `mypy` для статического анализа, предпочитайте простые типы, обращайтесь к официальной документации (https://docs.python.org).\n- **Альтернативы**: Пропускайте типовые подсказки для небольших проектов.\nВы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "from typing import List\n\ndef calculate_average(numbers: List[float]) -> float:\n    return sum(numbers) / len(numbers)\n\nnumbers: List[float] = [1.0, 2.0, 3.0, 4.0]\nprint(calculate_average(numbers))\n"
+      }
+    ]
+  }
+}
