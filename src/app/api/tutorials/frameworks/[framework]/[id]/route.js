@@ -3,66 +3,37 @@ import path from "path";
 import { promises as fs } from "fs";
 
 export async function GET(req, context) {
-  const { framework, id } = context.params;
+  // In newer Next.js versions, params can be a Promise
+  const { framework, id } = await context.params;
 
   try {
-    // Check if framework has a folder structure
-    const folderPath = path.join(
-      process.cwd(),
-      "src",
-      "app",
-      "api",
-      "tutorials",
-      "frameworks",
-      "[framework]",
-      "topics",
-      framework
-    );
-    const indexPath = path.join(folderPath, "index.json");
+    // Resolve paths under public/tutorials/<framework>
+    const baseDir = path.join(process.cwd(), "public", "tutorials", framework);
+    const topicsPath = path.join(baseDir, "topics.json");
 
-    // Try to read from folder structure first
-    try {
-      const indexContents = await fs.readFile(indexPath, "utf-8");
-      const topicList = JSON.parse(indexContents);
+    // Read topics.json and ensure the requested topic exists
+    const topicsContents = await fs.readFile(topicsPath, "utf-8");
+    const topics = JSON.parse(topicsContents);
+    const topicExists = Array.isArray(topics.az)
+      ? topics.az.some((t) => t.id === id)
+      : Array.isArray(topics)
+      ? topics.some((t) => t.id === id)
+      : false;
 
-      // Find the specific topic
-      const topicInfo = topicList.find((topic) => topic.id === id);
-
-      if (!topicInfo) {
-        return NextResponse.json({ error: "Topic not found" }, { status: 404 });
-      }
-
-      // Load the specific topic from its file
-      const topicPath = path.join(folderPath, topicInfo.file);
-      const topicContents = await fs.readFile(topicPath, "utf-8");
-      const topic = JSON.parse(topicContents);
-
-      return NextResponse.json(topic);
-    } catch (e) {
-      // Fallback to old single file structure
-      const filePath = path.join(
-        process.cwd(),
-        "src",
-        "app",
-        "api",
-        "tutorials",
-        "frameworks",
-        "[framework]",
-        "topics",
-        `${framework}.json`
-      );
-      const fileContents = await fs.readFile(filePath, "utf-8");
-      const topics = JSON.parse(fileContents);
-
-      const topic = topics.find((t) => t.id === id);
-
-      if (!topic) {
-        return NextResponse.json({ error: "Topic not found" }, { status: 404 });
-      }
-
-      return NextResponse.json(topic);
+    if (!topicExists) {
+      return NextResponse.json({ error: "Topic not found" }, { status: 404 });
     }
+
+    // Load the specific lesson file: public/tutorials/<framework>/<id>.json
+    const lessonPath = path.join(baseDir, `${id}.json`);
+    const lessonContents = await fs.readFile(lessonPath, "utf-8");
+    const lesson = JSON.parse(lessonContents);
+
+    return NextResponse.json(lesson);
   } catch (e) {
+    if (e && e.code === "ENOENT") {
+      return NextResponse.json({ error: "Topic not found" }, { status: 404 });
+    }
     console.error("Error loading topic:", e);
     return NextResponse.json(
       { error: "Internal server error" },

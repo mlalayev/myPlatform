@@ -1,0 +1,351 @@
+{
+  "id": "forms",
+  "az": {
+    "title": "Formlar",
+    "icon": "FiFileText",
+    "language": "javascript",
+    "description": "Form idarəetməsi və submit",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// Formlar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "React-də **formlar** istifadəçi məlumatlarını toplamaq üçün istifadə olunur, məsələn, ad, e-poçt və ya şifrə kimi daxiletmələr. Formlar adətən `<input>`, `<textarea>` və `<select>` kimi elementlərdən ibarətdir. React-də formlar iki yolla idarə olunur: **kontrollu komponentlər** (state ilə idarə olunur) və **qeyri-kontrollu komponentlər** (state olmadan). Bu dərsdə formların necə işlədiyini, `onChange` ilə daxiletmələrin idarəsini və məlumatların işlənməsini öyrənəcəksiniz. Qeyd: Sandbox mühitində `<form>` elementinin `onSubmit` hadisəsi işləmir, buna görə nümunələrdə düymə klikləri (`onClick`) ilə məlumat işlənməsi göstəriləcək. Kod nümunələri sadədir, istifadəçi girişi tələb etmir və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Niyə Formlar İstifadə Edilir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Formların üstünlükləri:\n- **İstifadəçi məlumatları**: İstifadəçi daxiletmələrini toplamaq üçün istifadə olunur.\n- **İnteraktivlik**: Dinamik formada daxiletmələri idarə edir.\n- **Vəlidlik yoxlaması**: Daxil edilən məlumatların düzgünlüyünü yoxlamağa imkan verir.\n- **Dinamik UI**: State ilə birləşdirildikdə UI-ni yeniləyir."
+      },
+      {
+        "type": "heading",
+        "text": "// Kontrollu Komponentlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kontrollu komponentlərdə form elementlərinin dəyəri React state-i ilə idarə olunur. `onChange` hadisəsi ilə istifadəçi daxiletmələri state-ə yazılır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState } from 'react';\n\nfunction InputForm() {\n  const [name, setName] = useState('');\n  const handleChange = (event) => {\n    setName(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Ad: ${name}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" value={name} onChange={handleChange} placeholder=\"Adınızı daxil edin\" />\n      <button onClick={handleSubmit}>Göndər</button>\n      <p>Daxil edilən ad: {name}</p>\n    </div>\n  );\n}\n\nconsole.log('Kontrollu forma komponenti yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `useState` ilə `name` dəyişəni saxlanılır.\n- `onChange` hadisəsi ilə istifadəçi daxiletməsi `name` state-inə yazılır.\n- `handleSubmit` düyməyə basdıqda daxil edilən adı göstərir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Qeyri-Kontrollu Komponentlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Qeyri-kontrollu komponentlərdə form elementlərinin dəyəri React state-i ilə idarə olunmur, əvəzinə DOM-dan `ref` ilə alınır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useRef } from 'react';\n\nfunction UncontrolledForm() {\n  const nameRef = useRef();\n  const handleSubmit = () => {\n    alert(`Ad: ${nameRef.current.value}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" ref={nameRef} placeholder=\"Adınızı daxil edin\" />\n      <button onClick={handleSubmit}>Göndər</button>\n    </div>\n  );\n}\n\nconsole.log('Qeyri-kontrollu forma komponenti yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `useRef` ilə `nameRef` input elementinə bağlantı yaradır.\n- `handleSubmit` düyməyə basdıqda `nameRef.current.value` ilə dəyəri alır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Çoxlu Daxiletmələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "Çoxlu daxiletmələri idarə etmək üçün state obyektindən istifadə edilir. `onChange` hadisəsində `name` atributu ilə hansı daxiletmənin dəyişdiyi müəyyənləşdirilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState } from 'react';\n\nfunction MultiInputForm() {\n  const [formData, setFormData] = useState({ name: '', email: '' });\n  const handleChange = (event) => {\n    const { name, value } = event.target;\n    setFormData({ ...formData, [name]: value });\n  };\n  const handleSubmit = () => {\n    alert(`Ad: ${formData.name}, E-poçt: ${formData.email}`);\n  };\n  return (\n    <div>\n      <input\n        type=\"text\"\n        name=\"name\"\n        value={formData.name}\n        onChange={handleChange}\n        placeholder=\"Adınızı daxil edin\"\n      />\n      <input\n        type=\"email\"\n        name=\"email\"\n        value={formData.email}\n        onChange={handleChange}\n        placeholder=\"E-poçtunuzu daxil edin\"\n      />\n      <button onClick={handleSubmit}>Göndər</button>\n      <p>Ad: {formData.name}</p>\n      <p>E-poçt: {formData.email}</p>\n    </div>\n  );\n}\n\nconsole.log('Çoxlu daxiletməli forma komponenti yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `formData` state-i `name` və `email` dəyərlərini saxlayır.\n- `onChange` ilə `event.target.name` istifadə edilərək müvafiq dəyər yenilənir.\n- `handleSubmit` düyməyə basdıqda məlumatları göstərir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Select Elementləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "`<select>` elementləri də kontrollu komponent kimi idarə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState } from 'react';\n\nfunction SelectForm() {\n  const [fruit, setFruit] = useState('alma');\n  const handleChange = (event) => {\n    setFruit(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Seçilən meyvə: ${fruit}`);\n  };\n  return (\n    <div>\n      <select value={fruit} onChange={handleChange}>\n        <option value=\"alma\">Alma</option>\n        <option value=\"armud\">Armud</option>\n        <option value=\"gilas\">Gilas</option>\n      </select>\n      <button onClick={handleSubmit}>Göndər</button>\n      <p>Seçilən meyvə: {fruit}</p>\n    </div>\n  );\n}\n\nconsole.log('Select forma komponenti yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fruit` state-i seçilən dəyəri saxlayır.\n- `onChange` ilə seçilən dəyər yenilənir.\n- `handleSubmit` düyməyə basdıqda seçilən dəyəri göstərir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Formların Məhdudiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Formlarla bağlı diqqət edilməli məqamlar:\n- **Sandbox məhdudiyyətləri**: `<form>` elementinin `onSubmit` hadisəsi sandbox mühitində işləmir, buna görə `onClick` istifadə olunur.\n- **Kontrollu vs Qeyri-kontrollu**: Kontrollu komponentlər daha çox idarəetmə təmin edir, lakin daha çox kod tələb edir.\n- **Vəlidlik yoxlaması**: Böyük formlarda məlumatların düzgünlüyünü yoxlamaq üçün əlavə məntiq lazımdır.\n- **Performans**: Çoxlu daxiletmələr state-i çox yenilədikdə performansı poza bilər."
+      },
+      {
+        "type": "heading",
+        "text": "// Tövsiyələr və Resurslar"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Sadə formlarla başlayın, məsələn, tək daxiletməli və ya select formalar.\n- **Resurslar**: Rəsmi React sənədləri (https://react.dev), formlar haqqında dərslər.\nAşağıda nümunə kodu sınaqdan keçirə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useState } from 'react';\n\nfunction App() {\n  const [text, setText] = useState('');\n  const handleChange = (event) => {\n    setText(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Daxil edilən mətn: ${text}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" value={text} onChange={handleChange} placeholder=\"Mətn daxil edin\" />\n      <button onClick={handleSubmit}>Göndər</button>\n      <p>Mətn: {text}</p>\n    </div>\n  );\n}\n\nconsole.log('Sadə forma komponenti');\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Forms",
+    "icon": "FiFileText",
+    "language": "javascript",
+    "description": "Form handling and submission",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// What are Forms?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In React, **forms** are used to collect user input, such as names, emails, or passwords. Forms typically include elements like `<input>`, `<textarea>`, and `<select>`. React handles forms in two ways: **controlled components** (managed with state) and **uncontrolled components** (managed without state). This lesson covers how forms work, handling inputs with `onChange`, and processing data. Note: The `<form>` element’s `onSubmit` event doesn’t work in sandboxed environments, so examples use button clicks (`onClick`) for data submission. Code examples are simple, require no user input, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Why Use Forms?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Benefits of forms:\n- **User input**: Collects data from users.\n- **Interactivity**: Dynamically handles user inputs.\n- **Validation**: Allows checking the correctness of input data.\n- **Dynamic UI**: Updates the UI when combined with state."
+      },
+      {
+        "type": "heading",
+        "text": "// Controlled Components"
+      },
+      {
+        "type": "paragraph",
+        "text": "In controlled components, form element values are managed by React state. The `onChange` event updates the state with user input.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState } from 'react';\n\nfunction InputForm() {\n  const [name, setName] = useState('');\n  const handleChange = (event) => {\n    setName(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Name: ${name}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" value={name} onChange={handleChange} placeholder=\"Enter your name\" />\n      <button onClick={handleSubmit}>Submit</button>\n      <p>Entered name: {name}</p>\n    </div>\n  );\n}\n\nconsole.log('Controlled form component created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `useState` stores the `name` variable.\n- `onChange` updates `name` with user input.\n- `handleSubmit` displays the entered name when the button is clicked.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Uncontrolled Components"
+      },
+      {
+        "type": "paragraph",
+        "text": "In uncontrolled components, form element values are not managed by state but accessed via the DOM using `ref`.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useRef } from 'react';\n\nfunction UncontrolledForm() {\n  const nameRef = useRef();\n  const handleSubmit = () => {\n    alert(`Name: ${nameRef.current.value}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" ref={nameRef} placeholder=\"Enter your name\" />\n      <button onClick={handleSubmit}>Submit</button>\n    </div>\n  );\n}\n\nconsole.log('Uncontrolled form component created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `useRef` creates a reference to the input element.\n- `handleSubmit` accesses the input value via `nameRef.current.value`.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Multiple Inputs"
+      },
+      {
+        "type": "paragraph",
+        "text": "Multiple inputs can be managed using a state object. The `name` attribute in `onChange` identifies which input is updated.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState } from 'react';\n\nfunction MultiInputForm() {\n  const [formData, setFormData] = useState({ name: '', email: '' });\n  const handleChange = (event) => {\n    const { name, value } = event.target;\n    setFormData({ ...formData, [name]: value });\n  };\n  const handleSubmit = () => {\n    alert(`Name: ${formData.name}, Email: ${formData.email}`);\n  };\n  return (\n    <div>\n      <input\n        type=\"text\"\n        name=\"name\"\n        value={formData.name}\n        onChange={handleChange}\n        placeholder=\"Enter your name\"\n      />\n      <input\n        type=\"email\"\n        name=\"email\"\n        value={formData.email}\n        onChange={handleChange}\n        placeholder=\"Enter your email\"\n      />\n      <button onClick={handleSubmit}>Submit</button>\n      <p>Name: {formData.name}</p>\n      <p>Email: {formData.email}</p>\n    </div>\n  );\n}\n\nconsole.log('Multi-input form component created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `formData` state stores `name` and `email` values.\n- `onChange` uses `event.target.name` to update the corresponding value.\n- `handleSubmit` displays the form data when the button is clicked.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Select Elements"
+      },
+      {
+        "type": "paragraph",
+        "text": "`<select>` elements can also be managed as controlled components.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState } from 'react';\n\nfunction SelectForm() {\n  const [fruit, setFruit] = useState('apple');\n  const handleChange = (event) => {\n    setFruit(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Selected fruit: ${fruit}`);\n  };\n  return (\n    <div>\n      <select value={fruit} onChange={handleChange}>\n        <option value=\"apple\">Apple</option>\n        <option value=\"pear\">Pear</option>\n        <option value=\"cherry\">Cherry</option>\n      </select>\n      <button onClick={handleSubmit}>Submit</button>\n      <p>Selected fruit: {fruit}</p>\n    </div>\n  );\n}\n\nconsole.log('Select form component created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `fruit` state stores the selected value.\n- `onChange` updates the selected value.\n- `handleSubmit` displays the selected value when the button is clicked.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Limitations of Forms"
+      },
+      {
+        "type": "paragraph",
+        "text": "Key points about forms:\n- **Sandbox limitations**: The `<form>` element’s `onSubmit` event doesn’t work in sandboxed environments, so `onClick` is used instead.\n- **Controlled vs uncontrolled**: Controlled components offer more control but require more code.\n- **Validation**: Large forms need additional logic for input validation.\n- **Performance**: Multiple inputs updating state frequently can impact performance."
+      },
+      {
+        "type": "heading",
+        "text": "// Recommendations and Resources"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Start with simple forms, like single-input or select forms.\n- **Resources**: Official React documentation (https://react.dev), form handling tutorials.\nYou can test the example code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Try It Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useState } from 'react';\n\nfunction App() {\n  const [text, setText] = useState('');\n  const handleChange = (event) => {\n    setText(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Entered text: ${text}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" value={text} onChange={handleChange} placeholder=\"Enter text\" />\n      <button onClick={handleSubmit}>Submit</button>\n      <p>Text: {text}</p>\n    </div>\n  );\n}\n\nconsole.log('Simple form component');\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Формы",
+    "icon": "FiFileText",
+    "language": "javascript",
+    "description": "Обработка форм и отправка",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// Что такое формы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В React **формы** используются для сбора данных от пользователя, таких как имя, email или пароль. Формы обычно включают элементы `<input>`, `<textarea>` и `<select>`. В React формы обрабатываются двумя способами: **контролируемые компоненты** (управляются с помощью состояния) и **неконтролируемые компоненты** (без состояния). В этом уроке вы узнаете, как работают формы, как обрабатывать ввод с помощью `onChange` и как обрабатывать данные. Примечание: Событие `onSubmit` элемента `<form>` не работает в sandbox-окружении, поэтому в примерах используется обработка данных через клики по кнопке (`onClick`). Примеры кода просты, не требуют ввода пользователя, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Зачем использовать формы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Преимущества форм:\n- **Сбор данных**: Собирают данные от пользователя.\n- **Интерактивность**: Динамически обрабатывают пользовательский ввод.\n- **Валидация**: Позволяют проверять корректность введенных данных.\n- **Динамический UI**: Обновляют интерфейс при использовании с состоянием."
+      },
+      {
+        "type": "heading",
+        "text": "// Контролируемые компоненты"
+      },
+      {
+        "type": "paragraph",
+        "text": "В контролируемых компонентах значения элементов формы управляются через состояние React. Событие `onChange` обновляет состояние с пользовательским вводом.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState } from 'react';\n\nfunction InputForm() {\n  const [name, setName] = useState('');\n  const handleChange = (event) => {\n    setName(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Имя: ${name}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" value={name} onChange={handleChange} placeholder=\"Введите ваше имя\" />\n      <button onClick={handleSubmit}>Отправить</button>\n      <p>Введенное имя: {name}</p>\n    </div>\n  );\n}\n\nconsole.log('Контролируемый компонент формы создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `useState` сохраняет переменную `name`.\n- `onChange` обновляет `name` с пользовательским вводом.\n- `handleSubmit` отображает введенное имя при клике на кнопку.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Неконтролируемые компоненты"
+      },
+      {
+        "type": "paragraph",
+        "text": "В неконтролируемых компонентах значения элементов формы не управляются состоянием, а получаются из DOM с помощью `ref`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useRef } from 'react';\n\nfunction UncontrolledForm() {\n  const nameRef = useRef();\n  const handleSubmit = () => {\n    alert(`Имя: ${nameRef.current.value}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" ref={nameRef} placeholder=\"Введите ваше имя\" />\n      <button onClick={handleSubmit}>Отправить</button>\n    </div>\n  );\n}\n\nconsole.log('Неконтролируемый компонент формы создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `useRef` создает ссылку на элемент ввода.\n- `handleSubmit` получает значение ввода через `nameRef.current.value`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Множественные поля ввода"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для управления несколькими полями ввода используется объект состояния. Атрибут `name` в `onChange` определяет, какое поле обновляется.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState } from 'react';\n\nfunction MultiInputForm() {\n  const [formData, setFormData] = useState({ name: '', email: '' });\n  const handleChange = (event) => {\n    const { name, value } = event.target;\n    setFormData({ ...formData, [name]: value });\n  };\n  const handleSubmit = () => {\n    alert(`Имя: ${formData.name}, Email: ${formData.email}`);\n  };\n  return (\n    <div>\n      <input\n        type=\"text\"\n        name=\"name\"\n        value={formData.name}\n        onChange={handleChange}\n        placeholder=\"Введите ваше имя\"\n      />\n      <input\n        type=\"email\"\n        name=\"email\"\n        value={formData.email}\n        onChange={handleChange}\n        placeholder=\"Введите ваш email\"\n      />\n      <button onClick={handleSubmit}>Отправить</button>\n      <p>Имя: {formData.name}</p>\n      <p>Email: {formData.email}</p>\n    </div>\n  );\n}\n\nconsole.log('Компонент формы с множественными полями создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `formData` хранит значения `name` и `email`.\n- `onChange` использует `event.target.name` для обновления соответствующего значения.\n- `handleSubmit` отображает данные формы при клике на кнопку.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Элементы Select"
+      },
+      {
+        "type": "paragraph",
+        "text": "Элементы `<select>` также могут управляться как контролируемые компоненты.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState } from 'react';\n\nfunction SelectForm() {\n  const [fruit, setFruit] = useState('apple');\n  const handleChange = (event) => {\n    setFruit(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Выбранный фрукт: ${fruit}`);\n  };\n  return (\n    <div>\n      <select value={fruit} onChange={handleChange}>\n        <option value=\"apple\">Яблоко</option>\n        <option value=\"pear\">Груша</option>\n        <option value=\"cherry\">Вишня</option>\n      </select>\n      <button onClick={handleSubmit}>Отправить</button>\n      <p>Выбранный фрукт: {fruit}</p>\n    </div>\n  );\n}\n\nconsole.log('Компонент формы с select создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `fruit` хранит выбранное значение.\n- `onChange` обновляет выбранное значение.\n- `handleSubmit` отображает выбранное значение при клике на кнопку.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Ограничения форм"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ключевые моменты о формах:\n- **Ограничения sandbox**: Событие `onSubmit` элемента `<form>` не работает в sandbox-окружении, поэтому используется `onClick`.\n- **Контролируемые vs неконтролируемые**: Контролируемые компоненты дают больше контроля, но требуют больше кода.\n- **Валидация**: Для больших форм требуется дополнительная логика для проверки данных.\n- **Производительность**: Множественные поля ввода, часто обновляющие состояние, могут влиять на производительность."
+      },
+      {
+        "type": "heading",
+        "text": "// Рекомендации и ресурсы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Начните с простых форм, таких как формы с одним полем ввода или select.\n- **Ресурсы**: Официальная документация React (https://react.dev), уроки по обработке форм.\nВы можете протестировать пример кода ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useState } from 'react';\n\nfunction App() {\n  const [text, setText] = useState('');\n  const handleChange = (event) => {\n    setText(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Введенный текст: ${text}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" value={text} onChange={handleChange} placeholder=\"Введите текст\" />\n      <button onClick={handleSubmit}>Отправить</button>\n      <p>Текст: {text}</p>\n    </div>\n  );\n}\n\nconsole.log('Простой компонент формы');\n"
+      }
+    ]
+  }
+}
