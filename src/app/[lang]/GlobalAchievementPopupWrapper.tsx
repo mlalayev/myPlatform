@@ -16,36 +16,18 @@ export default function GlobalAchievementPopupWrapper() {
     }
   }, [showAchievementPopup]);
   
-  // Check for new achievements when component mounts
+  // OPTIMIZED: Check for new achievements only when user completes an action
+  // Removed automatic polling to improve performance
   useEffect(() => {
-    const checkNewAchievements = async () => {
-      try {
-        // Sync achievements to check for new ones
-        const syncResponse = await fetch('/api/user/sync-achievements', {
-          method: 'POST'
-        });
-        
-        if (syncResponse.ok) {
-          const syncData = await syncResponse.json();
-          
-          // If there are new achievements, show the first one
-          if (syncData.newAchievementsForPopup && syncData.newAchievementsForPopup.length > 0) {
-            console.log('🎉 New achievement found:', syncData.newAchievementsForPopup[0]);
-            showAchievementPopup(syncData.newAchievementsForPopup[0]);
-          }
-        }
-      } catch (error) {
-        console.error('Error checking for new achievements:', error);
+    // Listen for custom achievement events instead of polling
+    const handleAchievementEvent = (event: any) => {
+      if (event.detail && event.detail.achievement) {
+        showAchievementPopup(event.detail.achievement);
       }
     };
 
-    // Check immediately when component mounts
-    checkNewAchievements();
-
-    // Also check every 30 seconds for new achievements
-    const interval = setInterval(checkNewAchievements, 30000);
-
-    return () => clearInterval(interval);
+    window.addEventListener('newAchievement', handleAchievementEvent);
+    return () => window.removeEventListener('newAchievement', handleAchievementEvent);
   }, [showAchievementPopup]);
   
   const handleNavigateToProfile = () => {

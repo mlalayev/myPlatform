@@ -261,7 +261,7 @@ const profileTabs = [
   // Trigger login point popup check when profile page loads
   // Removed profile page popup trigger since popup now works on all pages
 
-  // Fetch calendar data
+  // OPTIMIZED: Fetch calendar data only when progress tab is selected
   useEffect(() => {
     const fetchCalendarData = async () => {
       try {
@@ -273,7 +273,6 @@ const profileTabs = [
           setCalendarData(data);
         } else {
           console.error("Failed to fetch calendar data:", response.status, response.statusText);
-          // Set default calendar data if API is not available
           setCalendarData({
             days: [],
             totalStudyTime: 0,
@@ -283,7 +282,6 @@ const profileTabs = [
         }
       } catch (error) {
         console.error("Error fetching calendar data:", error);
-        // Set default calendar data on network error
         setCalendarData({
           days: [],
           totalStudyTime: 0,
@@ -293,10 +291,11 @@ const profileTabs = [
       }
     };
 
-    if (session) {
+    // Only fetch if session exists and progress tab is selected
+    if (session && selectedTab === 'progress' && !calendarData) {
       fetchCalendarData();
     }
-  }, [session, currentMonth, currentYear]);
+  }, [session, currentMonth, currentYear, selectedTab, calendarData]);
 
   // Log activity function
   const logActivity = async (

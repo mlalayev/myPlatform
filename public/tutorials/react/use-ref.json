@@ -1,0 +1,276 @@
+{
+  "id": "use-ref",
+  "az": {
+    "title": "useRef və useImperativeHandle",
+    "icon": "FiTarget",
+    "language": "javascript",
+    "description": "DOM referansları, dəyişməyən konteynerlər və imperativ API",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// useRef Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "React-də **useRef** hook-u iki əsas məqsədlə istifadə olunur: DOM elementlərinə birbaşa giriş əldə etmək və renderlər arasında dəyişməyən (mutable) dəyərləri saxlamaq. useRef qaytardığı obyektin `.current` xüsusiyyəti ilə dəyəri saxlayır və bu dəyər dəyişdikdə komponent yenidən render olunmur. Bu dərsdə useRef-in DOM referansları, dəyişməyən konteynerlər və useImperativeHandle ilə imperativ API yaratmaq üçün necə istifadə olunduğunu öyrənəcəksiniz. Kod nümunələri sadədir, istifadəçi girişi tələb etmir və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useRef ilə DOM Referansı"
+      },
+      {
+        "type": "paragraph",
+        "text": "useRef DOM elementlərinə (məsələn, input, div) birbaşa giriş əldə etmək üçün istifadə olunur. Bu, fokuslama, ölçmə və ya digər DOM əməliyyatları üçün lazımdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useRef } from 'react';\n\nfunction FocusInput() {\n  const inputRef = useRef();\n\n  const handleClick = () => {\n    inputRef.current.focus();\n  };\n\n  return (\n    <div>\n      <input type=\"text\" ref={inputRef} placeholder=\"Buraya klik edin\" />\n      <button onClick={handleClick}>Inputa fokus ver</button>\n    </div>\n  );\n}\n\nconsole.log('useRef ilə DOM referansı yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `useRef` ilə `inputRef` yaradılır.\n- `ref` atributu inputa `inputRef` bağlanır.\n- Düyməyə basdıqda `inputRef.current.focus()` ilə input fokuslanır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useRef ilə Dəyişməyən Konteyner"
+      },
+      {
+        "type": "paragraph",
+        "text": "useRef renderlər arasında dəyişməyən dəyərləri saxlamaq üçün istifadə olunur. Bu dəyər dəyişdikdə komponent yenidən render olunmur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useRef, useEffect } from 'react';\n\nfunction Counter() {\n  const renderCount = useRef(0);\n\n  useEffect(() => {\n    renderCount.current = renderCount.current + 1;\n  });\n\n  return <p>Komponent {renderCount.current} dəfə render olundu</p>;\n}\n\nconsole.log('useRef ilə dəyişməyən konteyner yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `renderCount` useRef ilə yaradılır və ilkin dəyəri 0 olur.\n- `useEffect` hər renderdə `renderCount.current`-i artırır.\n- Dəyər dəyişsə də komponent yenidən render olunmur (sayı izləmək üçün useEffect istifadə olunur).\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useImperativeHandle"
+      },
+      {
+        "type": "paragraph",
+        "text": "`useImperativeHandle` parent komponentə child komponentin imperativ metodlarını (məsələn, fokuslama) ötürmək üçün istifadə olunur. Bu, ref ilə birləşdirilərək child komponentin daxili funksiyalarını idarə etməyə imkan verir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useRef, useImperativeHandle, forwardRef } from 'react';\n\nconst FancyInput = forwardRef((props, ref) => {\n  const inputRef = useRef();\n\n  useImperativeHandle(ref, () => ({\n    focus: () => {\n      inputRef.current.focus();\n    },\n    clear: () => {\n      inputRef.current.value = '';\n    }\n  }));\n\n  return <input ref={inputRef} type=\"text\" placeholder=\"Buraya yazın\" />;\n});\n\nfunction Parent() {\n  const fancyInputRef = useRef();\n\n  const handleClick = () => {\n    fancyInputRef.current.focus();\n  };\n\n  return (\n    <div>\n      <FancyInput ref={fancyInputRef} />\n      <button onClick={handleClick}>Fokus ver</button>\n    </div>\n  );\n}\n\nconsole.log('useImperativeHandle ilə komponent yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `FancyInput` forwardRef ilə ref qəbul edir.\n- `useImperativeHandle` ref-ə `focus` və `clear` metodlarını əlavə edir.\n- Parent komponent `fancyInputRef.current.focus()` ilə child inputu fokuslayır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useRef-in Üstünlükləri və Məhdudiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Üstünlükləri:\n- DOM-a birbaşa giriş.\n- Render olmadan dəyərləri saxlamaq.\n- Memory leak qarşısını almaq (məsələn, timer ID saxlamaq).\nMəhdudiyyətləri:\n- Çox istifadə performans problemlərinə səbəb ola bilər.\n- Imperativ kod React-in deklarativ fəlsəfəsinə zidd ola bilər."
+      },
+      {
+        "type": "heading",
+        "text": "// Tövsiyələr və Resurslar"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: useRef-i yalnız lazım olduqda istifadə edin (məsələn, fokuslama, timer ID). State ilə əvəz edilə bilən hallarda state üstünlük verin.\n- **Resurslar**: Rəsmi React sənədləri (https://react.dev/reference/react/useRef), useRef haqqında dərslər.\nAşağıda nümunə kodu sınaqdan keçirə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useRef } from 'react';\n\nfunction App() {\n  const inputRef = useRef();\n\n  const handleClick = () => {\n    inputRef.current.focus();\n  };\n\n  return (\n    <div>\n      <input type=\"text\" ref={inputRef} placeholder=\"Buraya klik edin\" />\n      <button onClick={handleClick}>Fokus ver</button>\n    </div>\n  );\n}\n\nconsole.log('Sadə useRef komponenti');\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "useRef and useImperativeHandle",
+    "icon": "FiTarget",
+    "language": "javascript",
+    "description": "DOM references, mutable containers, and imperative API",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// What is useRef?"
+      },
+      {
+        "type": "paragraph",
+        "text": "The **useRef** hook in React is used for two main purposes: accessing DOM elements directly and storing mutable values across renders. The object returned by useRef has a `.current` property that holds the value, and changing it does not trigger a re-render. This lesson covers using useRef for DOM references, mutable containers, and creating imperative APIs with useImperativeHandle. Code examples are simple, require no user input, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// useRef for DOM References"
+      },
+      {
+        "type": "paragraph",
+        "text": "useRef provides direct access to DOM elements (e.g., inputs, divs) for operations like focusing or measuring.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useRef } from 'react';\n\nfunction FocusInput() {\n  const inputRef = useRef();\n\n  const handleClick = () => {\n    inputRef.current.focus();\n  };\n\n  return (\n    <div>\n      <input type=\"text\" ref={inputRef} placeholder=\"Click here\" />\n      <button onClick={handleClick}>Focus Input</button>\n    </div>\n  );\n}\n\nconsole.log('DOM reference with useRef created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `useRef` creates `inputRef`.\n- The `ref` attribute attaches `inputRef` to the input.\n- Clicking the button calls `inputRef.current.focus()` to focus the input.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// useRef as Mutable Container"
+      },
+      {
+        "type": "paragraph",
+        "text": "useRef stores values that persist across renders without causing re-renders when changed.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useRef, useEffect } from 'react';\n\nfunction Counter() {\n  const renderCount = useRef(0);\n\n  useEffect(() => {\n    renderCount.current = renderCount.current + 1;\n  });\n\n  return <p>Component rendered {renderCount.current} times</p>;\n}\n\nconsole.log('Mutable container with useRef created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `renderCount` is created with useRef and initialized to 0.\n- `useEffect` increments `renderCount.current` on each render.\n- Changing the value does not trigger a re-render.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// useImperativeHandle"
+      },
+      {
+        "type": "paragraph",
+        "text": "`useImperativeHandle` exposes custom methods from a child component to a parent via ref. Used with forwardRef for imperative APIs.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useRef, useImperativeHandle, forwardRef } from 'react';\n\nconst FancyInput = forwardRef((props, ref) => {\n  const inputRef = useRef();\n\n  useImperativeHandle(ref, () => ({\n    focus: () => {\n      inputRef.current.focus();\n    },\n    clear: () => {\n      inputRef.current.value = '';\n    }\n  }));\n\n  return <input ref={inputRef} type=\"text\" placeholder=\"Type here\" />;\n});\n\nfunction Parent() {\n  const fancyInputRef = useRef();\n\n  const handleClick = () => {\n    fancyInputRef.current.focus();\n  };\n\n  return (\n    <div>\n      <FancyInput ref={fancyInputRef} />\n      <button onClick={handleClick}>Focus</button>\n    </div>\n  );\n}\n\nconsole.log('Component with useImperativeHandle created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `FancyInput` uses forwardRef to accept a ref.\n- `useImperativeHandle` exposes `focus` and `clear` methods via ref.\n- The parent calls `fancyInputRef.current.focus()` to focus the child input.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Advantages and Limitations of useRef"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advantages:\n- Direct DOM access.\n- Store values without causing re-renders.\n- Prevent memory leaks (e.g., storing timer IDs).\nLimitations:\n- Overuse can lead to performance issues.\n- Imperative code can conflict with React’s declarative philosophy."
+      },
+      {
+        "type": "heading",
+        "text": "// Recommendations and Resources"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use useRef only when necessary (e.g., focusing, timer IDs). Prefer state for values that affect rendering.\n- **Resources**: Official React documentation (https://react.dev/reference/react/useRef), useRef tutorials.\nYou can test the example code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Try It Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useRef } from 'react';\n\nfunction App() {\n  const inputRef = useRef();\n\n  const handleClick = () => {\n    inputRef.current.focus();\n  };\n\n  return (\n    <div>\n      <input type=\"text\" ref={inputRef} placeholder=\"Click here\" />\n      <button onClick={handleClick}>Focus</button>\n    </div>\n  );\n}\n\nconsole.log('Simple useRef component');\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "useRef и useImperativeHandle",
+    "icon": "FiTarget",
+    "language": "javascript",
+    "description": "DOM-ссылки, изменяемые контейнеры и императивный API",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// Что такое useRef?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Хук **useRef** в React используется для двух основных целей: прямого доступа к DOM-элементам и хранения изменяемых значений между рендерами. Объект, возвращаемый useRef, имеет свойство `.current`, которое хранит значение, и изменение его не вызывает повторный рендер. В этом уроке вы узнаете, как использовать useRef для DOM-ссылок, изменяемых контейнеров и создания императивного API с useImperativeHandle. Примеры кода просты, не требуют ввода пользователя, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// useRef для DOM-ссылок"
+      },
+      {
+        "type": "paragraph",
+        "text": "useRef предоставляет прямой доступ к DOM-элементам (например, input, div) для операций вроде фокусировки или измерения.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useRef } from 'react';\n\nfunction FocusInput() {\n  const inputRef = useRef();\n\n  const handleClick = () => {\n    inputRef.current.focus();\n  };\n\n  return (\n    <div>\n      <input type=\"text\" ref={inputRef} placeholder=\"Нажмите сюда\" />\n      <button onClick={handleClick}>Фокус на input</button>\n    </div>\n  );\n}\n\nconsole.log('DOM-ссылка с useRef создана');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `useRef` создает `inputRef`.\n- Атрибут `ref` привязывает `inputRef` к input.\n- Клик по кнопке вызывает `inputRef.current.focus()` для фокусировки input.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// useRef как изменяемый контейнер"
+      },
+      {
+        "type": "paragraph",
+        "text": "useRef хранит значения, которые сохраняются между рендерами без вызова повторного рендера.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useRef, useEffect } from 'react';\n\nfunction Counter() {\n  const renderCount = useRef(0);\n\n  useEffect(() => {\n    renderCount.current = renderCount.current + 1;\n  });\n\n  return <p>Компонент отрендерился {renderCount.current} раз</p>;\n}\n\nconsole.log('Изменяемый контейнер с useRef создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `renderCount` создается с useRef и инициализируется 0.\n- `useEffect` увеличивает `renderCount.current` при каждом рендере.\n- Изменение значения не вызывает повторный рендер.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// useImperativeHandle"
+      },
+      {
+        "type": "paragraph",
+        "text": "`useImperativeHandle` позволяет передавать кастомные методы из дочернего компонента родительскому через ref. Используется с forwardRef для императивного API.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useRef, useImperativeHandle, forwardRef } from 'react';\n\nconst FancyInput = forwardRef((props, ref) => {\n  const inputRef = useRef();\n\n  useImperativeHandle(ref, () => ({\n    focus: () => {\n      inputRef.current.focus();\n    },\n    clear: () => {\n      inputRef.current.value = '';\n    }\n  }));\n\n  return <input ref={inputRef} type=\"text\" placeholder=\"Пишите здесь\" />;\n});\n\nfunction Parent() {\n  const fancyInputRef = useRef();\n\n  const handleClick = () => {\n    fancyInputRef.current.focus();\n  };\n\n  return (\n    <div>\n      <FancyInput ref={fancyInputRef} />\n      <button onClick={handleClick}>Фокус</button>\n    </div>\n  );\n}\n\nconsole.log('Компонент с useImperativeHandle создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `FancyInput` использует forwardRef для принятия ref.\n- `useImperativeHandle` предоставляет методы `focus` и `clear` через ref.\n- Родитель вызывает `fancyInputRef.current.focus()` для фокусировки дочернего input.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Преимущества и ограничения useRef"
+      },
+      {
+        "type": "paragraph",
+        "text": "Преимущества:\n- Прямой доступ к DOM.\n- Хранение значений без повторных рендеров.\n- Предотвращение утечек памяти (например, хранение ID таймера).\nОграничения:\n- Чрезмерное использование может вызвать проблемы с производительностью.\n- Императивный код может противоречить декларативной философии React."
+      },
+      {
+        "type": "heading",
+        "text": "// Рекомендации и ресурсы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте useRef только при необходимости (например, фокусировка, ID таймера). Предпочитайте state для значений, влияющих на рендер.\n- **Ресурсы**: Официальная документация React (https://react.dev/reference/react/useRef), уроки по useRef.\nВы можете протестировать пример кода ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useRef } from 'react';\n\nfunction App() {\n  const inputRef = useRef();\n\n  const handleClick = () => {\n    inputRef.current.focus();\n  };\n\n  return (\n    <div>\n      <input type=\"text\" ref={inputRef} placeholder=\"Нажмите сюда\" />\n      <button onClick={handleClick}>Фокус</button>\n    </div>\n  );\n}\n\nconsole.log('Простой компонент с useRef');\n"
+      }
+    ]
+  }
+}

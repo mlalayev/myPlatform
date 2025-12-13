@@ -1,0 +1,423 @@
+{
+  "id": "controlled-uncontrolled",
+  "az": {
+    "title": "Kontrollu / Kontrollsuz",
+    "icon": "FiSliders",
+    "language": "javascript",
+    "description": "Inputların idarə olunan və olunmayan formaları",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// Kontrollu və Qeyri-Kontrollu Komponentlər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "React-də formalar və inputlar iki üsulla idarə olunur: **kontrollu komponentlər** və **qeyri-kontrollu komponentlər**. Kontrollu komponentlərdə inputların dəyəri React-in state (vəziyyət) mexanizmi ilə idarə olunur. Hər dəyişiklik state-də saxlanılır və UI buna uyğun yenilənir. Qeyri-kontrollu komponentlərdə isə dəyərlər birbaşa DOM-dan alınır və state istifadə edilmir. Bu dərsdə hər iki metodun necə işlədiyini, onların üstünlüklərini, məhdudiyyətlərini və praktik nümunələrini öyrənəcəksiniz. Qeyd: Sandbox mühitində `<form>` elementinin `onSubmit` hadisəsi işləmir, buna görə nümunələrdə düymə klikləri (`onClick`) ilə məlumatlar işlənəcək. Kodlar sadədir, istifadəçi girişi tələb etmir və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Kontrollu Komponentlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kontrollu komponentlərdə inputun dəyəri React state-i ilə tam sinxronlaşdırılır. `value` atributu state-dən alınır və `onChange` hadisəsi ilə istifadəçi daxiletmələri state-ə yazılır. Bu, inputun dəyərinə tam nəzarət etməyə imkan verir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState } from 'react';\n\nfunction ControlledInput() {\n  const [text, setText] = useState('');\n  const handleChange = (event) => {\n    setText(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Daxil edilən mətn: ${text}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" value={text} onChange={handleChange} placeholder=\"Mətn daxil edin\" />\n      <button onClick={handleSubmit}>Göndər</button>\n      <p>Mətn: {text}</p>\n    </div>\n  );\n}\n\nconsole.log('Kontrollu input komponenti yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `useState` ilə `text` dəyişəni yaradılır və saxlanılır.\n- `value` atributu `text` state-i ilə sinxronlaşdırılır.\n- `onChange` hadisəsi istifadəçi daxiletməsini `text`-ə yazır.\n- `handleSubmit` düyməyə basdıqda daxil edilən mətni göstərir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Qeyri-Kontrollu Komponentlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Qeyri-kontrollu komponentlərdə inputun dəyəri state ilə idarə olunmur. Bunun əvəzinə `useRef` hook-u ilə DOM-dan birbaşa dəyər alınır. Bu metod daha az kod tələb edir, lakin nəzarət məhdudlaşır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useRef } from 'react';\n\nfunction UncontrolledInput() {\n  const textRef = useRef();\n  const handleSubmit = () => {\n    alert(`Daxil edilən mətn: ${textRef.current.value}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" ref={textRef} placeholder=\"Mətn daxil edin\" />\n      <button onClick={handleSubmit}>Göndər</button>\n    </div>\n  );\n}\n\nconsole.log('Qeyri-kontrollu input komponenti yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `useRef` ilə `textRef` input elementinə bağlantı yaradır.\n- `handleSubmit` düyməyə basdıqda `textRef.current.value` ilə inputun dəyərini alır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Kontrollu Komponentlərin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kontrollu komponentlərin üstünlükləri:\n- **Tam nəzarət**: Input dəyərləri state ilə idarə olunduğu üçün hər dəyişikliyə nəzarət etmək mümkündür.\n- **Dərhal vəlidlik yoxlaması**: Daxil edilən məlumatları anında yoxlamaq və ya dəyişdirmək asandır.\n- **Dinamik UI**: State dəyişdikdə UI avtomatik yenilənir.\n- **Mürəkkəb formalar**: Çoxlu inputlar və mürəkkəb vəlidlik qaydaları üçün idealdır."
+      },
+      {
+        "type": "heading",
+        "text": "// Kontrollu Komponentlərin Məhdudiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kontrollu komponentlərin məhdudiyyətləri:\n- **Daha çox kod**: Hər input üçün state və `onChange` funksiyası yazılmalıdır.\n- **Performans**: Çoxlu inputlar və tez-tez state yeniləmələri performansı azalda bilər."
+      },
+      {
+        "type": "heading",
+        "text": "// Qeyri-Kontrollu Komponentlərin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Qeyri-kontrollu komponentlərin üstünlükləri:\n- **Sadəlik**: State istifadə edilmədiyi üçün kod daha qısa və sadə olur.\n- **Performans**: State yeniləmələri olmadığı üçün daha sürətli işləyir.\n- **Sadə formalar**: Tək inputlu və ya sadə formalar üçün əlverişlidir."
+      },
+      {
+        "type": "heading",
+        "text": "// Qeyri-Kontrollu Komponentlərin Məhdudiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Qeyri-kontrollu komponentlərin məhdudiyyətləri:\n- **Məhdud nəzarət**: Dəyərlərə birbaşa nəzarət etmək çətindir.\n- **Vəlidlik yoxlaması**: Məlumatların doğruluğunu yoxlamaq üçün əlavə kod yazılmalıdır.\n- **Dinamik UI**: State istifadə edilmədiyi üçün UI-ni dinamik yeniləmək çətinləşir."
+      },
+      {
+        "type": "heading",
+        "text": "// Çoxlu Kontrollu Inputlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bir neçə inputu idarə etmək üçün state obyektindən istifadə edilir. `name` atributu ilə hansı inputun dəyişdiyi müəyyənləşdirilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState } from 'react';\n\nfunction MultiInputForm() {\n  const [formData, setFormData] = useState({ username: '', email: '' });\n  const handleChange = (event) => {\n    const { name, value } = event.target;\n    setFormData({ ...formData, [name]: value });\n  };\n  const handleSubmit = () => {\n    alert(`İstifadəçi adı: ${formData.username}, E-poçt: ${formData.email}`);\n  };\n  return (\n    <div>\n      <input\n        type=\"text\"\n        name=\"username\"\n        value={formData.username}\n        onChange={handleChange}\n        placeholder=\"İstifadəçi adınızı daxil edin\"\n      />\n      <input\n        type=\"email\"\n        name=\"email\"\n        value={formData.email}\n        onChange={handleChange}\n        placeholder=\"E-poçtunuzu daxil edin\"\n      />\n      <button onClick={handleSubmit}>Göndər</button>\n      <p>İstifadəçi adı: {formData.username}</p>\n      <p>E-poçt: {formData.email}</p>\n    </div>\n  );\n}\n\nconsole.log('Çoxlu kontrollu input komponenti yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `formData` state-i `username` və `email` dəyərlərini saxlayır.\n- `onChange` ilə `event.target.name` istifadə edilərək müvafiq dəyər yenilənir.\n- `handleSubmit` düyməyə basdıqda daxil edilən məlumatları göstərir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Kontrollu və Qeyri-Kontrollu Komponentlərin Birləşməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bəzi hallarda hər iki metod eyni formada istifadə edilə bilər. Aşağıdakı nümunədə kontrollu və qeyri-kontrollu inputlar birgə işləyir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useRef } from 'react';\n\nfunction MixedInputForm() {\n  const [username, setUsername] = useState('');\n  const emailRef = useRef();\n  const handleChange = (event) => {\n    setUsername(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`İstifadəçi adı (kontrollu): ${username}, E-poçt (qeyri-kontrollu): ${emailRef.current.value}`);\n  };\n  return (\n    <div>\n      <input\n        type=\"text\"\n        value={username}\n        onChange={handleChange}\n        placeholder=\"İstifadəçi adınızı daxil edin\"\n      />\n      <input type=\"email\" ref={emailRef} placeholder=\"E-poçtunuzu daxil edin\" />\n      <button onClick={handleSubmit}>Göndər</button>\n      <p>İstifadəçi adı (kontrollu): {username}</p>\n    </div>\n  );\n}\n\nconsole.log('Kontrollu və qeyri-kontrollu input komponenti yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `username` kontrollu input kimi state ilə idarə olunur.\n- `email` qeyri-kontrollu input kimi `useRef` ilə idarə olunur.\n- `handleSubmit` düyməyə basdıqda hər iki dəyəri göstərir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Hansı Metodu Seçməli?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metod seçimi layihənin tələblərindən asılıdır:\n- **Kontrollu komponentlər**: Mürəkkəb formalar, vəlidlik yoxlaması və dinamik UI üçün uyğundur.\n- **Qeyri-kontrollu komponentlər**: Sadə formalar və ya performansın önəmli olduğu hallar üçün daha yaxşıdır.\n- **Birləşmə**: Böyük formlarda bəzi inputları kontrollu, digərlərini qeyri-kontrollu etmək olar."
+      },
+      {
+        "type": "heading",
+        "text": "// Tövsiyələr və Resurslar"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Sadə formalar üçün qeyri-kontrollu komponentlərlə başlayın. Mürəkkəb vəlidlik yoxlamaları və ya dinamik UI üçün kontrollu komponentlərdən istifadə edin.\n- **Resurslar**: Rəsmi React sənədləri (https://react.dev), kontrollu və qeyri-kontrollu komponentlər haqqında dərslər.\nAşağıda nümunə kodu sınaqdan keçirə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useState } from 'react';\n\nfunction App() {\n  const [text, setText] = useState('');\n  const handleChange = (event) => {\n    setText(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Daxil edilən mətn: ${text}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" value={text} onChange={handleChange} placeholder=\"Mətn daxil edin\" />\n      <button onClick={handleSubmit}>Göndər</button>\n      <p>Mətn: {text}</p>\n    </div>\n  );\n}\n\nconsole.log('Sadə kontrollu input komponenti');\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Controlled / Uncontrolled",
+    "icon": "FiSliders",
+    "language": "javascript",
+    "description": "Managed and unmanaged forms of inputs",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// What are Controlled and Uncontrolled Components?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In React, forms and inputs are managed in two ways: **controlled components** and **uncontrolled components**. Controlled components manage input values through React state, updating the state with every change. Uncontrolled components access values directly from the DOM without using state. This lesson explains how both methods work, their advantages, limitations, and practical examples. Note: The `<form>` element’s `onSubmit` event doesn’t work in sandboxed environments, so examples use button clicks (`onClick`) for data processing. Code examples are simple, require no user input, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Controlled Components"
+      },
+      {
+        "type": "paragraph",
+        "text": "In controlled components, the input’s value is fully synchronized with React state. The `value` attribute is tied to the state, and `onChange` updates the state with user input, providing complete control over the input.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState } from 'react';\n\nfunction ControlledInput() {\n  const [text, setText] = useState('');\n  const handleChange = (event) => {\n    setText(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Entered text: ${text}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" value={text} onChange={handleChange} placeholder=\"Enter text\" />\n      <button onClick={handleSubmit}>Submit</button>\n      <p>Text: {text}</p>\n    </div>\n  );\n}\n\nconsole.log('Controlled input component created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `useState` creates and stores the `text` variable.\n- The `value` attribute is synchronized with `text`.\n- `onChange` updates `text` with user input.\n- `handleSubmit` displays the entered text when the button is clicked.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Uncontrolled Components"
+      },
+      {
+        "type": "paragraph",
+        "text": "In uncontrolled components, the input’s value is not managed by state. Instead, `useRef` is used to access the value directly from the DOM. This method requires less code but offers limited control.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useRef } from 'react';\n\nfunction UncontrolledInput() {\n  const textRef = useRef();\n  const handleSubmit = () => {\n    alert(`Entered text: ${textRef.current.value}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" ref={textRef} placeholder=\"Enter text\" />\n      <button onClick={handleSubmit}>Submit</button>\n    </div>\n  );\n}\n\nconsole.log('Uncontrolled input component created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `useRef` creates a reference to the input element.\n- `handleSubmit` retrieves the input value using `textRef.current.value`.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Advantages of Controlled Components"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advantages of controlled components:\n- **Full control**: Input values are managed by state, allowing complete control over changes.\n- **Real-time validation**: Easy to validate or modify input data instantly.\n- **Dynamic UI**: State updates automatically refresh the UI.\n- **Complex forms**: Ideal for forms with multiple inputs or complex validation rules."
+      },
+      {
+        "type": "heading",
+        "text": "// Limitations of Controlled Components"
+      },
+      {
+        "type": "paragraph",
+        "text": "Limitations of controlled components:\n- **More code**: Requires state and `onChange` handlers for each input.\n- **Performance**: Frequent state updates with multiple inputs can impact performance."
+      },
+      {
+        "type": "heading",
+        "text": "// Advantages of Uncontrolled Components"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advantages of uncontrolled components:\n- **Simplicity**: Less code is needed since state is not used.\n- **Performance**: Faster because it avoids state updates.\n- **Simple forms**: Suitable for single inputs or simple forms."
+      },
+      {
+        "type": "heading",
+        "text": "// Limitations of Uncontrolled Components"
+      },
+      {
+        "type": "paragraph",
+        "text": "Limitations of uncontrolled components:\n- **Limited control**: Direct control over values is more difficult.\n- **Validation**: Requires additional code for input validation.\n- **Dynamic UI**: Harder to update the UI dynamically without state."
+      },
+      {
+        "type": "heading",
+        "text": "// Multiple Controlled Inputs"
+      },
+      {
+        "type": "paragraph",
+        "text": "Multiple inputs are managed using a state object. The `name` attribute in `onChange` identifies which input is updated.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState } from 'react';\n\nfunction MultiInputForm() {\n  const [formData, setFormData] = useState({ username: '', email: '' });\n  const handleChange = (event) => {\n    const { name, value } = event.target;\n    setFormData({ ...formData, [name]: value });\n  };\n  const handleSubmit = () => {\n    alert(`Username: ${formData.username}, Email: ${formData.email}`);\n  };\n  return (\n    <div>\n      <input\n        type=\"text\"\n        name=\"username\"\n        value={formData.username}\n        onChange={handleChange}\n        placeholder=\"Enter your username\"\n      />\n      <input\n        type=\"email\"\n        name=\"email\"\n        value={formData.email}\n        onChange={handleChange}\n        placeholder=\"Enter your email\"\n      />\n      <button onClick={handleSubmit}>Submit</button>\n      <p>Username: {formData.username}</p>\n      <p>Email: {formData.email}</p>\n    </div>\n  );\n}\n\nconsole.log('Multi-controlled input component created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `formData` state stores `username` and `email` values.\n- `onChange` uses `event.target.name` to update the corresponding value.\n- `handleSubmit` displays the entered data when the button is clicked.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Combining Controlled and Uncontrolled Components"
+      },
+      {
+        "type": "paragraph",
+        "text": "In some cases, both methods can be used in the same form. The example below combines a controlled input with an uncontrolled input.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useRef } from 'react';\n\nfunction MixedInputForm() {\n  const [username, setUsername] = useState('');\n  const emailRef = useRef();\n  const handleChange = (event) => {\n    setUsername(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Username (controlled): ${username}, Email (uncontrolled): ${emailRef.current.value}`);\n  };\n  return (\n    <div>\n      <input\n        type=\"text\"\n        value={username}\n        onChange={handleChange}\n        placeholder=\"Enter your username\"\n      />\n      <input type=\"email\" ref={emailRef} placeholder=\"Enter your email\" />\n      <button onClick={handleSubmit}>Submit</button>\n      <p>Username (controlled): {username}</p>\n    </div>\n  );\n}\n\nconsole.log('Combined controlled and uncontrolled input component created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `username` is a controlled input managed by state.\n- `email` is an uncontrolled input managed by `useRef`.\n- `handleSubmit` displays both values when the button is clicked.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Which Method to Choose?"
+      },
+      {
+        "type": "paragraph",
+        "text": "The choice of method depends on project requirements:\n- **Controlled components**: Best for complex forms, validation, or dynamic UI.\n- **Uncontrolled components**: Ideal for simple forms or when performance is critical.\n- **Combination**: In large forms, some inputs can be controlled, and others uncontrolled."
+      },
+      {
+        "type": "heading",
+        "text": "// Recommendations and Resources"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Start with uncontrolled components for simple forms. Use controlled components for complex validation or dynamic UI.\n- **Resources**: Official React documentation (https://react.dev), tutorials on controlled and uncontrolled components.\nYou can test the example code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Try It Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useState } from 'react';\n\nfunction App() {\n  const [text, setText] = useState('');\n  const handleChange = (event) => {\n    setText(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Entered text: ${text}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" value={text} onChange={handleChange} placeholder=\"Enter text\" />\n      <button onClick={handleSubmit}>Submit</button>\n      <p>Text: {text}</p>\n    </div>\n  );\n}\n\nconsole.log('Simple controlled input component');\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Контролируемые / Неконтролируемые",
+    "icon": "FiSliders",
+    "language": "javascript",
+    "description": "Управляемые и неуправляемые формы ввода",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// Что такое контролируемые и неконтролируемые компоненты?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В React формы и поля ввода управляются двумя способами: **контролируемые компоненты** и **неконтролируемые компоненты**. Контролируемые компоненты управляют значениями полей через состояние React, обновляя его при каждом изменении. Неконтролируемые компоненты получают значения напрямую из DOM без использования состояния. В этом уроке вы узнаете, как работают оба метода, их преимущества, ограничения и практические примеры. Примечание: Событие `onSubmit` элемента `<form>` не работает в sandbox-окружении, поэтому в примерах используется обработка данных через клики по кнопке (`onClick`). Примеры кода просты, не требуют ввода пользователя, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Контролируемые компоненты"
+      },
+      {
+        "type": "paragraph",
+        "text": "В контролируемых компонентах значение поля ввода полностью синхронизировано с состоянием React. Атрибут `value` привязан к состоянию, а `onChange` обновляет состояние с пользовательским вводом, обеспечивая полный контроль над полем.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState } from 'react';\n\nfunction ControlledInput() {\n  const [text, setText] = useState('');\n  const handleChange = (event) => {\n    setText(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Введенный текст: ${text}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" value={text} onChange={handleChange} placeholder=\"Введите текст\" />\n      <button onClick={handleSubmit}>Отправить</button>\n      <p>Текст: {text}</p>\n    </div>\n  );\n}\n\nconsole.log('Контролируемый компонент ввода создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `useState` создает и сохраняет переменную `text`.\n- Атрибут `value` синхронизирован с `text`.\n- `onChange` обновляет `text` с пользовательским вводом.\n- `handleSubmit` отображает введенный текст при клике на кнопку.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Неконтролируемые компоненты"
+      },
+      {
+        "type": "paragraph",
+        "text": "В неконтролируемых компонентах значение поля ввода не управляется состоянием. Вместо этого используется хук `useRef` для получения значения напрямую из DOM. Этот метод требует меньше кода, но контроль ограничен.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useRef } from 'react';\n\nfunction UncontrolledInput() {\n  const textRef = useRef();\n  const handleSubmit = () => {\n    alert(`Введенный текст: ${textRef.current.value}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" ref={textRef} placeholder=\"Введите текст\" />\n      <button onClick={handleSubmit}>Отправить</button>\n    </div>\n  );\n}\n\nconsole.log('Неконтролируемый компонент ввода создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `useRef` создает ссылку на элемент ввода.\n- `handleSubmit` получает значение ввода через `textRef.current.value`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Преимущества контролируемых компонентов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Преимущества контролируемых компонентов:\n- **Полный контроль**: Значения полей полностью управляются состоянием, что позволяет следить за всеми изменениями.\n- **Мгновенная валидация**: Легко проверять или изменять введенные данные в реальном времени.\n- **Динамический UI**: Изменения состояния автоматически обновляют интерфейс.\n- **Сложные формы**: Идеальны для форм с множеством полей или сложными правилами валидации."
+      },
+      {
+        "type": "heading",
+        "text": "// Ограничения контролируемых компонентов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ограничения контролируемых компонентов:\n- **Больше кода**: Для каждого поля требуется состояние и обработчик `onChange`.\n- **Производительность**: Частые обновления состояния при множественных полях могут снижать производительность."
+      },
+      {
+        "type": "heading",
+        "text": "// Преимущества неконтролируемых компонентов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Преимущества неконтролируемых компонентов:\n- **Простота**: Меньше кода, так как состояние не используется.\n- **Производительность**: Быстрее, так как нет обновлений состояния.\n- **Простые формы**: Подходят для форм с одним полем или простыми задачами."
+      },
+      {
+        "type": "heading",
+        "text": "// Ограничения неконтролируемых компонентов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ограничения неконтролируемых компонентов:\n- **Ограниченный контроль**: Прямое управление значениями затруднено.\n- **Валидация**: Требуется дополнительный код для проверки данных.\n- **Динамический UI**: Сложнее обновлять интерфейс динамически без состояния."
+      },
+      {
+        "type": "heading",
+        "text": "// Множественные контролируемые поля ввода"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для управления несколькими полями ввода используется объект состояния. Атрибут `name` в `onChange` определяет, какое поле обновляется.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState } from 'react';\n\nfunction MultiInputForm() {\n  const [formData, setFormData] = useState({ username: '', email: '' });\n  const handleChange = (event) => {\n    const { name, value } = event.target;\n    setFormData({ ...formData, [name]: value });\n  };\n  const handleSubmit = () => {\n    alert(`Имя пользователя: ${formData.username}, Email: ${formData.email}`);\n  };\n  return (\n    <div>\n      <input\n        type=\"text\"\n        name=\"username\"\n        value={formData.username}\n        onChange={handleChange}\n        placeholder=\"Введите имя пользователя\"\n      />\n      <input\n        type=\"email\"\n        name=\"email\"\n        value={formData.email}\n        onChange={handleChange}\n        placeholder=\"Введите ваш email\"\n      />\n      <button onClick={handleSubmit}>Отправить</button>\n      <p>Имя пользователя: {formData.username}</p>\n      <p>Email: {formData.email}</p>\n    </div>\n  );\n}\n\nconsole.log('Компонент с множественными контролируемыми полями создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `formData` хранит значения `username` и `email`.\n- `onChange` использует `event.target.name` для обновления соответствующего значения.\n- `handleSubmit` отображает введенные данные при клике на кнопку.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Комбинирование контролируемых и неконтролируемых компонентов"
+      },
+      {
+        "type": "paragraph",
+        "text": "В некоторых случаях оба метода можно использовать в одной форме. В примере ниже комбинируются контролируемое и неконтролируемое поле ввода.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useRef } from 'react';\n\nfunction MixedInputForm() {\n  const [username, setUsername] = useState('');\n  const emailRef = useRef();\n  const handleChange = (event) => {\n    setUsername(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Имя пользователя (контролируемое): ${username}, Email (неконтролируемое): ${emailRef.current.value}`);\n  };\n  return (\n    <div>\n      <input\n        type=\"text\"\n        value={username}\n        onChange={handleChange}\n        placeholder=\"Введите имя пользователя\"\n      />\n      <input type=\"email\" ref={emailRef} placeholder=\"Введите ваш email\" />\n      <button onClick={handleSubmit}>Отправить</button>\n      <p>Имя пользователя (контролируемое): {username}</p>\n    </div>\n  );\n}\n\nconsole.log('Компонент с комбинацией контролируемого и неконтролируемого создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `username` — контролируемое поле, управляемое состоянием.\n- `email` — неконтролируемое поле, управляемое через `useRef`.\n- `handleSubmit` отображает оба значения при клике на кнопку.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Какой метод выбрать?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Выбор метода зависит от требований проекта:\n- **Контролируемые компоненты**: Лучше для сложных форм, валидации или динамического UI.\n- **Неконтролируемые компоненты**: Идеальны для простых форм или когда важна производительность.\n- **Комбинация**: В больших формах некоторые поля могут быть контролируемыми, а другие — неконтролируемыми."
+      },
+      {
+        "type": "heading",
+        "text": "// Рекомендации и ресурсы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Начните с неконтролируемых компонентов для простых форм. Используйте контролируемые компоненты для сложной валидации или динамического UI.\n- **Ресурсы**: Официальная документация React (https://react.dev), уроки по контролируемым и неконтролируемым компонентам.\nВы можете протестировать пример кода ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useState } from 'react';\n\nfunction App() {\n  const [text, setText] = useState('');\n  const handleChange = (event) => {\n    setText(event.target.value);\n  };\n  const handleSubmit = () => {\n    alert(`Введенный текст: ${text}`);\n  };\n  return (\n    <div>\n      <input type=\"text\" value={text} onChange={handleChange} placeholder=\"Введите текст\" />\n      <button onClick={handleSubmit}>Отправить</button>\n      <p>Текст: {text}</p>\n    </div>\n  );\n}\n\nconsole.log('Простой контролируемый компонент ввода');\n"
+      }
+    ]
+  }
+}

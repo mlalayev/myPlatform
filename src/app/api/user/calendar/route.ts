@@ -23,30 +23,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Get Azərbaycan vaxtı ilə bugünkü gün
+    // OPTIMIZED: Get Azərbaycan vaxtı ilə bugünkü gün (removed debug logging)
     const now = new Date();
-    
-    // Use proper timezone calculation
     const azerbaijanTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Baku"}));
     const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
     
-    console.log('Calendar Debug - Current UTC time:', now.toISOString());
-    console.log('Calendar Debug - Azerbaijan time:', azerbaijanTime.toISOString());
-    console.log('Calendar Debug - Today (Final):', today.toISOString());
-    console.log('Calendar Debug - Today day:', today.getDate());
-    console.log('Calendar Debug - Today month:', today.getMonth() + 1);
-    
-    // Son 7 günü hesabla (bugünkü gün də daxil olmaqla)
     const endDate = new Date(today);
     const startDate = new Date(today);
-    startDate.setDate(startDate.getDate() - 6); // 7 gün əvvəl
-
-    console.log('Calendar date range:', {
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      today: today.toISOString(),
-      azerbaijanTime: azerbaijanTime.toISOString()
-    });
+    startDate.setDate(startDate.getDate() - 6);
 
     // Initialize variables for calendar data
     let dailyActivities: any[] = [];
@@ -187,15 +171,18 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    // OPTIMIZED: Add caching headers (30 seconds cache)
+    const response = NextResponse.json({
       year,
       month,
       calendarData,
-      weeklyStats: {
+      monthlyStats: {
         ...weeklyStats,
         currentStreak
       }
     });
+    response.headers.set('Cache-Control', 'private, max-age=30, stale-while-revalidate=60');
+    return response;
 
   } catch (error) {
     console.error("Error fetching calendar data:", error);

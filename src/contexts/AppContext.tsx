@@ -74,70 +74,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [session?.user?.email]);
 
-  // Session tracking functionality - SIMPLIFIED (no login/logout tracking)
+  // OPTIMIZED: Session tracking disabled for page load performance
+  // Sessions are now tracked only when user actively studies (tutorial pages, exercises)
   useEffect(() => {
-    if (!isClient || status !== 'authenticated' || !session || sessionId) return;
-
-    // Start session when user is authenticated (only once)
-    const startSession = async () => {
-      try {
-        const response = await fetch('/api/user/session', {
-          method: 'POST',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setSessionId(data.sessionId);
-        }
-      } catch (error) {
-        console.error('Error starting session:', error);
-      }
-    };
-
-    startSession();
+    if (!isClient || status !== 'authenticated' || !session) return;
+    
+    // Set a mock session ID for compatibility
+    if (!sessionId) {
+      setSessionId(Date.now());
+    }
   }, [isClient, session, status, sessionId]);
 
-    // End session when page is unloaded
-  useEffect(() => {
-    if (!sessionId) return;
-
-    const endSession = async () => {
-        try {
-          await fetch('/api/user/session', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionId })
-          });
-        } catch (error) {
-          console.error('Error ending session:', error);
-      }
-    };
-
-    // Add event listeners for page unload
-    const handleBeforeUnload = () => {
-      // Use sendBeacon for reliability
-      if (sessionId) {
-        navigator.sendBeacon('/api/user/session', JSON.stringify({
-          sessionId,
-          method: 'PUT'
-        }));
-      }
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        endSession();
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      endSession();
-    };
-  }, [sessionId]);
+  // OPTIMIZED: Removed session end tracking for better performance
+  // Study time is now tracked through actual activities (lesson views, exercises)
 
   // Public activity logging function
   const logActivity = useCallback(async (type: string, description: string, metadata: any = {}) => {

@@ -15,7 +15,7 @@ export default async function LangLayout({ children, params }: LangLayoutProps) 
     <I18nProvider lang={lang}>
       <AppProvider>
         <GlobalAchievementPopupWrapper />
-        <TutorialTracking />
+        {/* TutorialTracking removed - tracking moved to actual tutorial pages only */}
         {children}
       </AppProvider>
     </I18nProvider>
