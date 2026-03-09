@@ -1,0 +1,351 @@
+{
+    "id": "auth-nextauth",
+    "az": {
+      "title": "Auth (NextAuth)",
+      "icon": "FiLock",
+      "language": "javascript",
+      "description": "Providerlər, JWT/sessiya, callbacks",
+      "content": [
+        {
+          "type": "heading",
+          "text": "// NextAuth Nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "NextAuth.js (indiki Auth.js) Next.js üçün autentikasiya kitabxanasıdır. Google, GitHub, email kimi providerlərlə girişi asanlaşdırır. Sessiya idarəetməsi, JWT, callbacks dəstəkləyir. App Router və Pages Router ilə işləyir. Bu dərsdə NextAuth-un əsas xüsusiyyətlərini, provider qurulmasını və sadə nümunələri öyrənəcəksiniz. Kod nümunələri sadədir və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// NextAuth Qurulumu"
+        },
+        {
+          "type": "paragraph",
+          "text": "Quraşdırma:\n`npm install next-auth`\nApp Router üçün `app/api/auth/[...nextauth]/route.js` yaradın."
+        },
+        {
+          "type": "heading",
+          "text": "// Sadə Provider (Credentials)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Email/parol ilə giriş.\nNümunə:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "// app/api/auth/[...nextauth]/route.js\nimport NextAuth from 'next-auth';\n\nconst handler = NextAuth({\n  providers: [\n    {\n      id: 'credentials',\n      name: 'Credentials',\n      credentials: {\n        email: { label: 'Email', type: 'text' },\n        password: { label: 'Parol', type: 'password' }\n      },\n      async authorize(credentials) {\n        // Mock user\n        if (credentials.email === 'user@example.com' && credentials.password === '123') {\n          return { id: '1', name: 'Test User', email: 'user@example.com' };\n        }\n        return null;\n      }\n    }\n  ]\n});\n\nexport { handler as GET, handler as POST };\n\nconsole.log('Credentials provider yaradıldı');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- Credentials provider ilə mock giriş.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// OAuth Provider (Google)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Google ilə giriş.\nNümunə:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "// app/api/auth/[...nextauth]/route.js\nimport NextAuth from 'next-auth';\nimport GoogleProvider from 'next-auth/providers/google';\n\nconst handler = NextAuth({\n  providers: [\n    GoogleProvider({\n      clientId: process.env.GOOGLE_CLIENT_ID,\n      clientSecret: process.env.GOOGLE_CLIENT_SECRET\n    })\n  ]\n});\n\nexport { handler as GET, handler as POST };\n\nconsole.log('Google provider yaradıldı');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- `.env` faylında GOOGLE_CLIENT_ID və SECRET təyin edin.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// Sessiya və JWT"
+        },
+        {
+          "type": "paragraph",
+          "text": "Sessiya idarəetməsi.\nNümunə:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const handler = NextAuth({\n  session: {\n    strategy: 'jwt' // və ya 'database'\n  },\n  callbacks: {\n    async session({ session, token }) {\n      session.user.id = token.sub;\n      return session;\n    }\n  }\n});\n\nconsole.log('JWT sessiya yaradıldı');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- `strategy: 'jwt'` ilə JWT istifadə.\n- Callbacks ilə sessiya özəlləşdirilir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// Client-də İstifadə (useSession)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Sessiya oxumaq.\nNümunə:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "'use client';\n\nimport { useSession } from 'next-auth/react';\n\nexport default function Profile() {\n  const { data: session, status } = useSession();\n\n  if (status === 'loading') return <p>Yüklənir...</p>;\n  if (!session) return <p>Giriş edin</p>;\n\n  return <p>Salam, {session.user.name}</p>;\n}\n\nconsole.log('useSession nümunəsi');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- `useSession` ilə sessiya statusu və data.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// NextAuth-in Üstünlükləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Üstünlükləri:\n- Çox provider dəstəyi.\n- Asan quruluş.\n- Təhlükəsiz sessiya.\n- App Router uyğunluğu."
+        },
+        {
+          "type": "heading",
+          "text": "// Tövsiyələr və Resurslar"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Tövsiyələr**: OAuth üçün Google/GitHub istifadə edin. JWT strategy seçin.\n- **Resurslar**: Rəsmi NextAuth sənədləri (https://authjs.dev).\nAşağıda nümunə kodu sınaqdan keçirə bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// Sınaq Üçün Nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "'use client';\n\nimport { useSession } from 'next-auth/react';\n\nexport default function AuthStatus() {\n  const { data: session } = useSession();\n\n  return (\n    <div>\n      {session ? <p>Giriş edildi: {session.user?.name}</p> : <p>Giriş yoxdur</p>}\n    </div>\n  );\n}\n\nconsole.log('Sadə sessiya yoxlaması');\n"
+        }
+      ]
+    },
+    "en": {
+      "title": "Auth (NextAuth)",
+      "icon": "FiLock",
+      "language": "javascript",
+      "description": "Providers, JWT/session, callbacks",
+      "content": [
+        {
+          "type": "heading",
+          "text": "// What is NextAuth?"
+        },
+        {
+          "type": "paragraph",
+          "text": "NextAuth.js (now Auth.js) is authentication library for Next.js. Supports providers like Google, GitHub, email. Handles session management, JWT, callbacks. Works with App and Pages Router. This lesson covers main features, provider setup, simple examples. Code examples are simple and you can test them in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// NextAuth Setup"
+        },
+        {
+          "type": "paragraph",
+          "text": "Install:\n`npm install next-auth`\nFor App Router, create `app/api/auth/[...nextauth]/route.js`."
+        },
+        {
+          "type": "heading",
+          "text": "// Simple Provider (Credentials)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Email/password login.\nExample:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "// app/api/auth/[...nextauth]/route.js\nimport NextAuth from 'next-auth';\n\nconst handler = NextAuth({\n  providers: [\n    {\n      id: 'credentials',\n      name: 'Credentials',\n      credentials: {\n        email: { label: 'Email', type: 'text' },\n        password: { label: 'Password', type: 'password' }\n      },\n      async authorize(credentials) {\n        // Mock user\n        if (credentials.email === 'user@example.com' && credentials.password === '123') {\n          return { id: '1', name: 'Test User', email: 'user@example.com' };\n        }\n        return null;\n      }\n    }\n  ]\n});\n\nexport { handler as GET, handler as POST };\n\nconsole.log('Credentials provider created');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- Credentials provider with mock login.\nYou can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// OAuth Provider (Google)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Google login.\nExample:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "// app/api/auth/[...nextauth]/route.js\nimport NextAuth from 'next-auth';\nimport GoogleProvider from 'next-auth/providers/google';\n\nconst handler = NextAuth({\n  providers: [\n    GoogleProvider({\n      clientId: process.env.GOOGLE_CLIENT_ID,\n      clientSecret: process.env.GOOGLE_CLIENT_SECRET\n    })\n  ]\n});\n\nexport { handler as GET, handler as POST };\n\nconsole.log('Google provider created');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- Set GOOGLE_CLIENT_ID and SECRET in .env.\nYou can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// Session and JWT"
+        },
+        {
+          "type": "paragraph",
+          "text": "Session management.\nExample:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const handler = NextAuth({\n  session: {\n    strategy: 'jwt' // or 'database'\n  },\n  callbacks: {\n    async session({ session, token }) {\n      session.user.id = token.sub;\n      return session;\n    }\n  }\n});\n\nconsole.log('JWT session created');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- `strategy: 'jwt'` uses JWT.\n- Customize session with callbacks.\nYou can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// Client Side Usage (useSession)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Read session.\nExample:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "'use client';\n\nimport { useSession } from 'next-auth/react';\n\nexport default function Profile() {\n  const { data: session, status } = useSession();\n\n  if (status === 'loading') return <p>Loading...</p>;\n  if (!session) return <p>Please login</p>;\n\n  return <p>Hello, {session.user.name}</p>;\n}\n\nconsole.log('useSession example');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- `useSession` gets session status and data.\nYou can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// Advantages of NextAuth"
+        },
+        {
+          "type": "paragraph",
+          "text": "Advantages:\n- Many providers.\n- Easy setup.\n- Secure session.\n- App Router compatible."
+        },
+        {
+          "type": "heading",
+          "text": "// Recommendations and Resources"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Recommendations**: Use Google/GitHub for OAuth. Choose JWT strategy.\n- **Resources**: Official NextAuth docs (https://authjs.dev).\nYou can test the example code below in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// Try It Yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "'use client';\n\nimport { useSession } from 'next-auth/react';\n\nexport default function AuthStatus() {\n  const { data: session } = useSession();\n\n  return (\n    <div>\n      {session ? <p>Logged in: {session.user?.name}</p> : <p>Not logged in</p>}\n    </div>\n  );\n}\n\nconsole.log('Simple session check');\n"
+        }
+      ]
+    },
+    "ru": {
+      "title": "Auth (NextAuth)",
+      "icon": "FiLock",
+      "language": "javascript",
+      "description": "Провайдеры, JWT/сессия, callbacks",
+      "content": [
+        {
+          "type": "heading",
+          "text": "// Что такое NextAuth?"
+        },
+        {
+          "type": "paragraph",
+          "text": "NextAuth.js (теперь Auth.js) — библиотека аутентификации для Next.js. Поддерживает провайдеры Google, GitHub, email. Управляет сессиями, JWT, callbacks. Работает с App и Pages Router. В этом уроке вы узнаете основные возможности, настройку провайдеров и простые примеры. Примеры кода просты и вы можете протестировать их в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// Установка NextAuth"
+        },
+        {
+          "type": "paragraph",
+          "text": "Установка:\n`npm install next-auth`\nДля App Router создайте `app/api/auth/[...nextauth]/route.js`."
+        },
+        {
+          "type": "heading",
+          "text": "// Простой провайдер (Credentials)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Вход по email/паролю.\nПример:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "// app/api/auth/[...nextauth]/route.js\nimport NextAuth from 'next-auth';\n\nconst handler = NextAuth({\n  providers: [\n    {\n      id: 'credentials',\n      name: 'Credentials',\n      credentials: {\n        email: { label: 'Email', type: 'text' },\n        password: { label: 'Пароль', type: 'password' }\n      },\n      async authorize(credentials) {\n        // Mock пользователь\n        if (credentials.email === 'user@example.com' && credentials.password === '123') {\n          return { id: '1', name: 'Test User', email: 'user@example.com' };\n        }\n        return null;\n      }\n    }\n  ]\n});\n\nexport { handler as GET, handler as POST };\n\nconsole.log('Провайдер Credentials создан');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- Провайдер Credentials с mock входом.\nВы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// OAuth Провайдер (Google)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Вход через Google.\nПример:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "// app/api/auth/[...nextauth]/route.js\nimport NextAuth from 'next-auth';\nimport GoogleProvider from 'next-auth/providers/google';\n\nconst handler = NextAuth({\n  providers: [\n    GoogleProvider({\n      clientId: process.env.GOOGLE_CLIENT_ID,\n      clientSecret: process.env.GOOGLE_CLIENT_SECRET\n    })\n  ]\n});\n\nexport { handler as GET, handler as POST };\n\nconsole.log('Провайдер Google создан');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- Установите GOOGLE_CLIENT_ID и SECRET в .env.\nВы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// Сессия и JWT"
+        },
+        {
+          "type": "paragraph",
+          "text": "Управление сессией.\nПример:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const handler = NextAuth({\n  session: {\n    strategy: 'jwt' // или 'database'\n  },\n  callbacks: {\n    async session({ session, token }) {\n      session.user.id = token.sub;\n      return session;\n    }\n  }\n});\n\nconsole.log('JWT сессия создана');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- `strategy: 'jwt'` использует JWT.\n- Кастомизация сессии с callbacks.\nВы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// Использование на клиенте (useSession)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Чтение сессии.\nПример:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "'use client';\n\nimport { useSession } from 'next-auth/react';\n\nexport default function Profile() {\n  const { data: session, status } = useSession();\n\n  if (status === 'loading') return <p>Загрузка...</p>;\n  if (!session) return <p>Войдите в систему</p>;\n\n  return <p>Привет, {session.user.name}</p>;\n}\n\nconsole.log('Пример useSession');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- `useSession` получает статус и данные сессии.\nВы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// Преимущества NextAuth"
+        },
+        {
+          "type": "paragraph",
+          "text": "Преимущества:\n- Много провайдеров.\n- Простая настройка.\n- Безопасная сессия.\n- Совместимость с App Router."
+        },
+        {
+          "type": "heading",
+          "text": "// Рекомендации и ресурсы"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Рекомендации**: Для OAuth используйте Google/GitHub. Выбирайте JWT strategy.\n- **Ресурсы**: Официальные docs NextAuth (https://authjs.dev).\nВы можете протестировать пример кода ниже в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// Попробуйте сами"
+        },
+        {
+          "type": "editor",
+          "initialCode": "'use client';\n\nimport { useSession } from 'next-auth/react';\n\nexport default function AuthStatus() {\n  const { data: session } = useSession();\n\n  return (\n    <div>\n      {session ? <p>Вошли: {session.user?.name}</p> : <p>Не вошли</p>}\n    </div>\n  );\n}\n\nconsole.log('Простая проверка сессии');\n"
+        }
+      ]
+    }
+  }

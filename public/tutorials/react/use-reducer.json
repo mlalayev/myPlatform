@@ -1,0 +1,324 @@
+{
+  "id": "use-reducer",
+  "az": {
+    "title": "useReducer",
+    "icon": "FiDivideCircle",
+    "language": "javascript",
+    "description": "Kompleks state məntiqinin idarəsi",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// useReducer Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "React-də **useReducer** hook-u kompleks state məntiqini idarə etmək üçün istifadə olunur. useState-in alternatividir və Redux pattern-ə bənzəyir. useReducer reducer funksiyası və ilkin state qəbul edir və `[state, dispatch]` qaytarır. Dispatch ilə action göndərilir və reducer state-i yeniləyir. Bu dərsdə useReducer-in necə işlədiyini, nə vaxt istifadə olunacağını və sadə nümunələri öyrənəcəksiniz. Kod nümunələri sadədir, istifadəçi girişi tələb etmir və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useReducer-in Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "useReducer üç parametr qəbul edir:\n- **Reducer funksiyası**: (state, action) => newState şəklində.\n- **İlkin state**: Başlanğıc state dəyəri.\n- **Init funksiyası** (optional): Lazy ilkin state yaratmaq üçün.\nQaytarır: `[state, dispatch]` – state oxumaq, dispatch action göndərmək üçün."
+      },
+      {
+        "type": "heading",
+        "text": "// Sadə Sayaç Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "useState ilə eyni funksionallıq, lakin useReducer ilə.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useReducer } from 'react';\n\nconst initialState = { count: 0 };\n\nfunction reducer(state, action) {\n  switch (action.type) {\n    case 'increment':\n      return { count: state.count + 1 };\n    case 'decrement':\n      return { count: state.count - 1 };\n    case 'reset':\n      return { count: 0 };\n    default:\n      return state;\n  }\n}\n\nfunction Counter() {\n  const [state, dispatch] = useReducer(reducer, initialState);\n\n  return (\n    <div>\n      <p>Say: {state.count}</p>\n      <button onClick={() => dispatch({ type: 'increment' })}>Artır</button>\n      <button onClick={() => dispatch({ type: 'decrement' })}>Azalt</button>\n      <button onClick={() => dispatch({ type: 'reset' })}>Sıfırla</button>\n    </div>\n  );\n}\n\nconsole.log('useReducer ilə sadə sayaç yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `reducer` funksiyası action type-ına görə state-i yeniləyir.\n- `dispatch` ilə action göndərilir.\n- State obyekti saxlanılır və yenilənir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Kompleks State Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bir neçə dəyəri idarə etmək üçün useReducer daha uyğundur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useReducer } from 'react';\n\nconst initialState = { name: '', email: '', age: 0 };\n\nfunction reducer(state, action) {\n  switch (action.type) {\n    case 'setName':\n      return { ...state, name: action.payload };\n    case 'setEmail':\n      return { ...state, email: action.payload };\n    case 'setAge':\n      return { ...state, age: action.payload };\n    case 'reset':\n      return initialState;\n    default:\n      return state;\n  }\n}\n\nfunction Form() {\n  const [state, dispatch] = useReducer(reducer, initialState);\n\n  return (\n    <div>\n      <input\n        type=\"text\"\n        placeholder=\"Ad\"\n        onChange={(e) => dispatch({ type: 'setName', payload: e.target.value })}\n      />\n      <input\n        type=\"email\"\n        placeholder=\"E-poçt\"\n        onChange={(e) => dispatch({ type: 'setEmail', payload: e.target.value })}\n      />\n      <input\n        type=\"number\"\n        placeholder=\"Yaş\"\n        onChange={(e) => dispatch({ type: 'setAge', payload: Number(e.target.value) })}\n      />\n      <button onClick={() => dispatch({ type: 'reset' })}>Sıfırla</button>\n      <p>Ad: {state.name}</p>\n      <p>E-poçt: {state.email}</p>\n      <p>Yaş: {state.age}</p>\n    </div>\n  );\n}\n\nconsole.log('useReducer ilə kompleks state yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `reducer` bir neçə action-ı idarə edir.\n- `payload` ilə dəyərlər ötürülür.\n- Bütün state məntiqı reducer-də mərkəzləşdirilir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useReducer və useState Arasındakı Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fərqlər:\n- **useState**: Sadə state üçün (string, number).\n- **useReducer**: Kompleks state məntiqində (bir neçə action, obyekt state).\n- useReducer daha proqnozlaşdırılan (predictable) state yeniləmələri təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "// Lazy Initialization"
+      },
+      {
+        "type": "paragraph",
+        "text": "useReducer-in üçüncü parametri ilə ilkin state lazy yaradıla bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useReducer } from 'react';\n\nfunction init(initialCount) {\n  return { count: initialCount };\n}\n\nfunction Counter({ initialCount }) {\n  const [state, dispatch] = useReducer(reducer, initialCount, init);\n\n  // reducer funksiyası eynidir...\n\n  return (\n    <div>\n      <p>Say: {state.count}</p>\n      <button onClick={() => dispatch({ type: 'increment' })}>Artır</button>\n    </div>\n  );\n}\n\nconsole.log('Lazy init ilə useReducer yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `init` funksiyası ilkin state-i lazy yaradır.\n- İlkin state hesablanması bahalı olduqda faydalıdır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useReducer-un Üstünlükləri və Məhdudiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Üstünlükləri:\n- Kompleks state məntiqini mərkəzləşdirir.\n- Proqnozlaşdırılan state yeniləmələri.\n- Test etmək asandır (reducer saf funksiyadır).\nMəhdudiyyətləri:\n- Sadə state üçün çox kod tələb edir (useState daha sadədir).\n- Böyük tətbiqlərdə Context ilə birləşdirilməlidir."
+      },
+      {
+        "type": "heading",
+        "text": "// Tövsiyələr və Resurslar"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Sadə state üçün useState, kompleks məntiq üçün useReducer istifadə edin. Action type-ları konstant kimi saxlayın.\n- **Resurslar**: Rəsmi React sənədləri (https://react.dev/reference/react/useReducer), useReducer haqqında dərslər.\nAşağıda nümunə kodu sınaqdan keçirə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useReducer } from 'react';\n\nconst initialState = { count: 0 };\n\nfunction reducer(state, action) {\n  switch (action.type) {\n    case 'increment':\n      return { count: state.count + 1 };\n    case 'decrement':\n      return { count: state.count - 1 };\n    default:\n      return state;\n  }\n}\n\nfunction App() {\n  const [state, dispatch] = useReducer(reducer, initialState);\n\n  return (\n    <div>\n      <p>Say: {state.count}</p>\n      <button onClick={() => dispatch({ type: 'increment' })}>Artır</button>\n      <button onClick={() => dispatch({ type: 'decrement' })}>Azalt</button>\n    </div>\n  );\n}\n\nconsole.log('Sadə useReducer komponenti');\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "useReducer",
+    "icon": "FiDivideCircle",
+    "language": "javascript",
+    "description": "Managing complex state logic",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// What is useReducer?"
+      },
+      {
+        "type": "paragraph",
+        "text": "The **useReducer** hook in React is used to manage complex state logic. It is an alternative to useState and follows a Redux-like pattern. useReducer accepts a reducer function and initial state, returning `[state, dispatch]`. Dispatch sends actions, and the reducer updates the state. This lesson covers how useReducer works, when to use it, and simple examples. Code examples are simple, require no user input, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Syntax of useReducer"
+      },
+      {
+        "type": "paragraph",
+        "text": "useReducer accepts three parameters:\n- **Reducer function**: (state, action) => newState.\n- **Initial state**: Starting state value.\n- **Init function** (optional): For lazy initial state creation.\nReturns: `[state, dispatch]` – state for reading, dispatch for sending actions."
+      },
+      {
+        "type": "heading",
+        "text": "// Simple Counter Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "Same functionality as useState but with useReducer.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useReducer } from 'react';\n\nconst initialState = { count: 0 };\n\nfunction reducer(state, action) {\n  switch (action.type) {\n    case 'increment':\n      return { count: state.count + 1 };\n    case 'decrement':\n      return { count: state.count - 1 };\n    case 'reset':\n      return { count: 0 };\n    default:\n      return state;\n  }\n}\n\nfunction Counter() {\n  const [state, dispatch] = useReducer(reducer, initialState);\n\n  return (\n    <div>\n      <p>Count: {state.count}</p>\n      <button onClick={() => dispatch({ type: 'increment' })}>Increment</button>\n      <button onClick={() => dispatch({ type: 'decrement' })}>Decrement</button>\n      <button onClick={() => dispatch({ type: 'reset' })}>Reset</button>\n    </div>\n  );\n}\n\nconsole.log('Simple counter with useReducer created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `reducer` function updates state based on action type.\n- `dispatch` sends actions.\n- State is stored as an object and updated.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Complex State Example"
+      },
+      {
+        "type": "paragraph",
+        "text": "useReducer is better for managing multiple values.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useReducer } from 'react';\n\nconst initialState = { name: '', email: '', age: 0 };\n\nfunction reducer(state, action) {\n  switch (action.type) {\n    case 'setName':\n      return { ...state, name: action.payload };\n    case 'setEmail':\n      return { ...state, email: action.payload };\n    case 'setAge':\n      return { ...state, age: action.payload };\n    case 'reset':\n      return initialState;\n    default:\n      return state;\n  }\n}\n\nfunction Form() {\n  const [state, dispatch] = useReducer(reducer, initialState);\n\n  return (\n    <div>\n      <input\n        type=\"text\"\n        placeholder=\"Name\"\n        onChange={(e) => dispatch({ type: 'setName', payload: e.target.value })}\n      />\n      <input\n        type=\"email\"\n        placeholder=\"Email\"\n        onChange={(e) => dispatch({ type: 'setEmail', payload: e.target.value })}\n      />\n      <input\n        type=\"number\"\n        placeholder=\"Age\"\n        onChange={(e) => dispatch({ type: 'setAge', payload: Number(e.target.value) })}\n      />\n      <button onClick={() => dispatch({ type: 'reset' })}>Reset</button>\n      <p>Name: {state.name}</p>\n      <p>Email: {state.email}</p>\n      <p>Age: {state.age}</p>\n    </div>\n  );\n}\n\nconsole.log('Complex state with useReducer created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `reducer` handles multiple actions.\n- `payload` passes values.\n- All state logic is centralized in the reducer.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Differences Between useReducer and useState"
+      },
+      {
+        "type": "paragraph",
+        "text": "Differences:\n- **useState**: For simple state (string, number).\n- **useReducer**: For complex state logic (multiple actions, object state).\n- useReducer provides more predictable state updates."
+      },
+      {
+        "type": "heading",
+        "text": "// Lazy Initialization"
+      },
+      {
+        "type": "paragraph",
+        "text": "The third parameter of useReducer allows lazy initial state creation.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useReducer } from 'react';\n\nfunction init(initialCount) {\n  return { count: initialCount };\n}\n\nfunction Counter({ initialCount }) {\n  const [state, dispatch] = useReducer(reducer, initialCount, init);\n\n  // reducer function is the same...\n\n  return (\n    <div>\n      <p>Count: {state.count}</p>\n      <button onClick={() => dispatch({ type: 'increment' })}>Increment</button>\n    </div>\n  );\n}\n\nconsole.log('useReducer with lazy init created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `init` function lazily creates the initial state.\n- Useful when initial state calculation is expensive.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Advantages and Limitations of useReducer"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advantages:\n- Centralizes complex state logic.\n- Predictable state updates.\n- Easy to test (reducer is a pure function).\nLimitations:\n- More code for simple state (useState is simpler).\n- In large apps, combine with Context."
+      },
+      {
+        "type": "heading",
+        "text": "// Recommendations and Resources"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use useState for simple state, useReducer for complex logic. Keep action types as constants.\n- **Resources**: Official React documentation (https://react.dev/reference/react/useReducer), useReducer tutorials.\nYou can test the example code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Try It Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useReducer } from 'react';\n\nconst initialState = { count: 0 };\n\nfunction reducer(state, action) {\n  switch (action.type) {\n    case 'increment':\n      return { count: state.count + 1 };\n    case 'decrement':\n      return { count: state.count - 1 };\n    default:\n      return state;\n  }\n}\n\nfunction App() {\n  const [state, dispatch] = useReducer(reducer, initialState);\n\n  return (\n    <div>\n      <p>Count: {state.count}</p>\n      <button onClick={() => dispatch({ type: 'increment' })}>Increment</button>\n      <button onClick={() => dispatch({ type: 'decrement' })}>Decrement</button>\n    </div>\n  );\n}\n\nconsole.log('Simple useReducer component');\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "useReducer",
+    "icon": "FiDivideCircle",
+    "language": "javascript",
+    "description": "Управление сложной логикой состояния",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// Что такое useReducer?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Хук **useReducer** в React используется для управления сложной логикой состояния. Это альтернатива useState и следует паттерну Redux. useReducer принимает функцию reducer и начальное состояние, возвращая `[state, dispatch]`. Dispatch отправляет действия, а reducer обновляет состояние. В этом уроке вы узнаете, как работает useReducer, когда его использовать и простые примеры. Примеры кода просты, не требуют ввода пользователя, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Синтаксис useReducer"
+      },
+      {
+        "type": "paragraph",
+        "text": "useReducer принимает три параметра:\n- **Функция reducer**: (state, action) => newState.\n- **Начальное состояние**: Стартовое значение состояния.\n- **Функция init** (необязательная): Для ленивой инициализации состояния.\nВозвращает: `[state, dispatch]` – state для чтения, dispatch для отправки действий."
+      },
+      {
+        "type": "heading",
+        "text": "// Простой пример счетчика"
+      },
+      {
+        "type": "paragraph",
+        "text": "Такая же функциональность, как useState, но с useReducer.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useReducer } from 'react';\n\nconst initialState = { count: 0 };\n\nfunction reducer(state, action) {\n  switch (action.type) {\n    case 'increment':\n      return { count: state.count + 1 };\n    case 'decrement':\n      return { count: state.count - 1 };\n    case 'reset':\n      return { count: 0 };\n    default:\n      return state;\n  }\n}\n\nfunction Counter() {\n  const [state, dispatch] = useReducer(reducer, initialState);\n\n  return (\n    <div>\n      <p>Счет: {state.count}</p>\n      <button onClick={() => dispatch({ type: 'increment' })}>Увеличить</button>\n      <button onClick={() => dispatch({ type: 'decrement' })}>Уменьшить</button>\n      <button onClick={() => dispatch({ type: 'reset' })}>Сброс</button>\n    </div>\n  );\n}\n\nconsole.log('Простой счетчик с useReducer создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `reducer` обновляет состояние в зависимости от типа действия.\n- `dispatch` отправляет действия.\n- Состояние хранится как объект и обновляется.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Пример со сложным состоянием"
+      },
+      {
+        "type": "paragraph",
+        "text": "useReducer лучше подходит для управления несколькими значениями.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useReducer } from 'react';\n\nconst initialState = { name: '', email: '', age: 0 };\n\nfunction reducer(state, action) {\n  switch (action.type) {\n    case 'setName':\n      return { ...state, name: action.payload };\n    case 'setEmail':\n      return { ...state, email: action.payload };\n    case 'setAge':\n      return { ...state, age: action.payload };\n    case 'reset':\n      return initialState;\n    default:\n      return state;\n  }\n}\n\nfunction Form() {\n  const [state, dispatch] = useReducer(reducer, initialState);\n\n  return (\n    <div>\n      <input\n        type=\"text\"\n        placeholder=\"Имя\"\n        onChange={(e) => dispatch({ type: 'setName', payload: e.target.value })}\n      />\n      <input\n        type=\"email\"\n        placeholder=\"Email\"\n        onChange={(e) => dispatch({ type: 'setEmail', payload: e.target.value })}\n      />\n      <input\n        type=\"number\"\n        placeholder=\"Возраст\"\n        onChange={(e) => dispatch({ type: 'setAge', payload: Number(e.target.value) })}\n      />\n      <button onClick={() => dispatch({ type: 'reset' })}>Сброс</button>\n      <p>Имя: {state.name}</p>\n      <p>Email: {state.email}</p>\n      <p>Возраст: {state.age}</p>\n    </div>\n  );\n}\n\nconsole.log('Сложное состояние с useReducer создано');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `reducer` обрабатывает несколько действий.\n- `payload` передает значения.\n- Вся логика состояния централизована в reducer.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Различия между useReducer и useState"
+      },
+      {
+        "type": "paragraph",
+        "text": "Различия:\n- **useState**: Для простого состояния (строка, число).\n- **useReducer**: Для сложной логики состояния (несколько действий, объект состояния).\n- useReducer обеспечивает более предсказуемые обновления состояния."
+      },
+      {
+        "type": "heading",
+        "text": "// Ленивая инициализация"
+      },
+      {
+        "type": "paragraph",
+        "text": "Третий параметр useReducer позволяет лениво создавать начальное состояние.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useReducer } from 'react';\n\nfunction init(initialCount) {\n  return { count: initialCount };\n}\n\nfunction Counter({ initialCount }) {\n  const [state, dispatch] = useReducer(reducer, initialCount, init);\n\n  // функция reducer та же...\n\n  return (\n    <div>\n      <p>Счет: {state.count}</p>\n      <button onClick={() => dispatch({ type: 'increment' })}>Увеличить</button>\n    </div>\n  );\n}\n\nconsole.log('useReducer с ленивой инициализацией создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `init` лениво создает начальное состояние.\n- Полезно, когда вычисление начального состояния дорогое.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Преимущества и ограничения useReducer"
+      },
+      {
+        "type": "paragraph",
+        "text": "Преимущества:\n- Централизует сложную логику состояния.\n- Предсказуемые обновления состояния.\n- Легко тестировать (reducer — чистая функция).\nОграничения:\n- Больше кода для простого состояния (useState проще).\n- В больших приложениях комбинировать с Context."
+      },
+      {
+        "type": "heading",
+        "text": "// Рекомендации и ресурсы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте useState для простого состояния, useReducer для сложной логики. Храните типы действий как константы.\n- **Ресурсы**: Официальная документация React (https://react.dev/reference/react/useReducer), уроки по useReducer.\nВы можете протестировать пример кода ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useReducer } from 'react';\n\nconst initialState = { count: 0 };\n\nfunction reducer(state, action) {\n  switch (action.type) {\n    case 'increment':\n      return { count: state.count + 1 };\n    case 'decrement':\n      return { count: state.count - 1 };\n    default:\n      return state;\n  }\n}\n\nfunction App() {\n  const [state, dispatch] = useReducer(reducer, initialState);\n\n  return (\n    <div>\n      <p>Счет: {state.count}</p>\n      <button onClick={() => dispatch({ type: 'increment' })}>Увеличить</button>\n      <button onClick={() => dispatch({ type: 'decrement' })}>Уменьшить</button>\n    </div>\n  );\n}\n\nconsole.log('Простой компонент с useReducer');\n"
+      }
+    ]
+  }
+}

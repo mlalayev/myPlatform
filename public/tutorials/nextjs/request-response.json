@@ -1,0 +1,327 @@
+{
+  "id": "request-response",
+  "az": {
+    "title": "Request/Response Util-ləri",
+    "icon": "FiCornerDownLeft",
+    "language": "javascript",
+    "description": "cookies, headers, NextRequest/NextResponse",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// Request/Response Util-ləri Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Next.js-də **Request və Response util-ləri** server tərəfində (Route Handlers, Middleware, Server Actions) sorğu məlumatlarını (headers, cookies) oxumaq və cavabda dəyişdirmək üçün istifadə olunur. `NextRequest` və `NextResponse` obyektləri ilə cookies, headers, redirect və s. idarə edilir. Bu, autentikasiya, session idarəetməsi və custom cavablar üçün vacibdir. Bu dərsdə bu util-lərin necə işlədiyini və sadə nümunələri öyrənəcəksiniz. Kod nümunələri sadədir və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Cookies Oxumaq və Yazmaq"
+      },
+      {
+        "type": "paragraph",
+        "text": "Route Handler-də cookies ilə iş.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// app/api/cookie/route.js\nexport async function GET(request) {\n  const cookie = request.cookies.get('theme')?.value || 'light';\n\n  const response = NextResponse.next();\n  response.cookies.set('theme', cookie === 'light' ? 'dark' : 'light', { path: '/' });\n\n  return Response.json({ currentTheme: cookie });\n}\n\nimport { NextResponse } from 'next/server';\n\nconsole.log('Cookies util nümunəsi');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `request.cookies.get` ilə cookie oxunur.\n- `response.cookies.set` ilə yeni cookie yazılır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Headers Oxumaq"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sorğu header-lərini oxumaq.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// app/api/headers/route.js\nexport async function GET(request) {\n  const userAgent = request.headers.get('user-agent');\n  const auth = request.headers.get('authorization');\n\n  return Response.json({ userAgent, hasAuth: !!auth });\n}\n\nconsole.log('Headers oxumaq nümunəsi');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `request.headers.get` ilə header oxunur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Redirect və Rewrite"
+      },
+      {
+        "type": "paragraph",
+        "text": "Cavabda redirect.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// app/api/redirect/route.js\nimport { NextResponse } from 'next/server';\n\nexport async function GET() {\n  return NextResponse.redirect(new URL('/dashboard', request.url));\n}\n\nconsole.log('Redirect nümunəsi');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `NextResponse.redirect` ilə yönləndirmə.\n- `NextResponse.rewrite` ilə rewrite da mümkündür.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Middleware-də Request/Response"
+      },
+      {
+        "type": "paragraph",
+        "text": "Middleware-də util-lər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// middleware.js\nimport { NextResponse } from 'next/server';\n\nexport function middleware(request) {\n  if (request.nextUrl.pathname.startsWith('/admin')) {\n    // Auth yoxlaması\n    return NextResponse.redirect(new URL('/login', request.url));\n  }\n  return NextResponse.next();\n}\n\nconsole.log('Middleware nümunəsi');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Middleware-də request və response idarəsi.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Üstünlükləri və Təhlükəsizlik"
+      },
+      {
+        "type": "paragraph",
+        "text": "Üstünlükləri:\n- Cookies və headers asan idarəsi.\n- Təhlükəsiz redirect/rewrite.\n- Server tərəfində tam nəzarət."
+      },
+      {
+        "type": "heading",
+        "text": "// Tövsiyələr və Resurslar"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Cookies üçün `httpOnly` və `secure` istifadə edin.\n- **Resurslar**: Rəsmi Next.js Request/Response sənədləri (https://nextjs.org/docs/app/api-reference/functions/next-request).\nAşağıda nümunə kodu sınaqdan keçirə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import { NextResponse } from 'next/server';\n\nexport async function GET(request) {\n  const cookie = request.cookies.get('session')?.value || 'yoxdur';\n  return Response.json({ sessionCookie: cookie });\n}\n\nconsole.log('Sadə Request util');\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Request/Response Utilities",
+    "icon": "FiCornerDownLeft",
+    "language": "javascript",
+    "description": "cookies, headers, NextRequest/NextResponse",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// What are Request/Response Utilities?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In Next.js, **Request and Response utilities** are used on server side (Route Handlers, Middleware, Server Actions) to read request data (headers, cookies) and modify responses. `NextRequest` and `NextResponse` objects handle cookies, headers, redirect, etc. Essential for authentication, session management, custom responses. This lesson covers how these utilities work and simple examples. Code examples are simple and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Reading and Writing Cookies"
+      },
+      {
+        "type": "paragraph",
+        "text": "Working with cookies in Route Handler.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// app/api/cookie/route.js\nimport { NextResponse } from 'next/server';\n\nexport async function GET(request) {\n  const cookie = request.cookies.get('theme')?.value || 'light';\n\n  const response = NextResponse.next();\n  response.cookies.set('theme', cookie === 'light' ? 'dark' : 'light', { path: '/' });\n\n  return Response.json({ currentTheme: cookie });\n}\n\nconsole.log('Cookies utility example');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Read cookie with `request.cookies.get`.\n- Set new cookie with `response.cookies.set`.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Reading Headers"
+      },
+      {
+        "type": "paragraph",
+        "text": "Read request headers.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// app/api/headers/route.js\nexport async function GET(request) {\n  const userAgent = request.headers.get('user-agent');\n  const auth = request.headers.get('authorization');\n\n  return Response.json({ userAgent, hasAuth: !!auth });\n}\n\nconsole.log('Headers reading example');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Read header with `request.headers.get`.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Redirect and Rewrite"
+      },
+      {
+        "type": "paragraph",
+        "text": "Redirect in response.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// app/api/redirect/route.js\nimport { NextResponse } from 'next/server';\n\nexport async function GET(request) {\n  return NextResponse.redirect(new URL('/dashboard', request.url));\n}\n\nconsole.log('Redirect example');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Redirect with `NextResponse.redirect`.\n- `NextResponse.rewrite` also possible.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Request/Response in Middleware"
+      },
+      {
+        "type": "paragraph",
+        "text": "Utilities in middleware.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// middleware.js\nimport { NextResponse } from 'next/server';\n\nexport function middleware(request) {\n  if (request.nextUrl.pathname.startsWith('/admin')) {\n    // Auth check\n    return NextResponse.redirect(new URL('/login', request.url));\n  }\n  return NextResponse.next();\n}\n\nconsole.log('Middleware example');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Manage request and response in middleware.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Advantages and Security"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advantages:\n- Easy cookie and header management.\n- Secure redirect/rewrite.\n- Full control on server side."
+      },
+      {
+        "type": "heading",
+        "text": "// Recommendations and Resources"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use `httpOnly` and `secure` for cookies.\n- **Resources**: Official Next.js Request/Response docs (https://nextjs.org/docs/app/api-reference/functions/next-request).\nYou can test the example code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Try It Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import { NextResponse } from 'next/server';\n\nexport async function GET(request) {\n  const cookie = request.cookies.get('session')?.value || 'none';\n  return Response.json({ sessionCookie: cookie });\n}\n\nconsole.log('Simple Request utility');\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Утилиты Request/Response",
+    "icon": "FiCornerDownLeft",
+    "language": "javascript",
+    "description": "cookies, headers, NextRequest/NextResponse",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// Что такое утилиты Request/Response?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В Next.js **утилиты Request и Response** используются на серверной стороне (Route Handlers, Middleware, Server Actions) для чтения данных запроса (headers, cookies) и модификации ответа. Объекты `NextRequest` и `NextResponse` управляют cookies, headers, redirect и т.д. Необходимо для аутентификации, управления сессиями и кастомных ответов. В этом уроке вы узнаете, как работают эти утилиты и простые примеры. Примеры кода просты и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Чтение и запись Cookies"
+      },
+      {
+        "type": "paragraph",
+        "text": "Работа с cookies в Route Handler.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// app/api/cookie/route.js\nimport { NextResponse } from 'next/server';\n\nexport async function GET(request) {\n  const cookie = request.cookies.get('theme')?.value || 'light';\n\n  const response = NextResponse.next();\n  response.cookies.set('theme', cookie === 'light' ? 'dark' : 'light', { path: '/' });\n\n  return Response.json({ currentTheme: cookie });\n}\n\nconsole.log('Пример утилиты cookies');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Чтение cookie с `request.cookies.get`.\n- Запись новой cookie с `response.cookies.set`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Чтение Headers"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтение заголовков запроса.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// app/api/headers/route.js\nexport async function GET(request) {\n  const userAgent = request.headers.get('user-agent');\n  const auth = request.headers.get('authorization');\n\n  return Response.json({ userAgent, hasAuth: !!auth });\n}\n\nconsole.log('Пример чтения headers');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Чтение header с `request.headers.get`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Redirect и Rewrite"
+      },
+      {
+        "type": "paragraph",
+        "text": "Редирект в ответе.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// app/api/redirect/route.js\nimport { NextResponse } from 'next/server';\n\nexport async function GET(request) {\n  return NextResponse.redirect(new URL('/dashboard', request.url));\n}\n\nconsole.log('Пример redirect');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Редирект с `NextResponse.redirect`.\n- Возможен и `NextResponse.rewrite`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Request/Response в Middleware"
+      },
+      {
+        "type": "paragraph",
+        "text": "Утилиты в middleware.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// middleware.js\nimport { NextResponse } from 'next/server';\n\nexport function middleware(request) {\n  if (request.nextUrl.pathname.startsWith('/admin')) {\n    // Проверка auth\n    return NextResponse.redirect(new URL('/login', request.url));\n  }\n  return NextResponse.next();\n}\n\nconsole.log('Пример middleware');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Управление request и response в middleware.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Преимущества и безопасность"
+      },
+      {
+        "type": "paragraph",
+        "text": "Преимущества:\n- Легкое управление cookies и headers.\n- Безопасный redirect/rewrite.\n- Полный контроль на сервере."
+      },
+      {
+        "type": "heading",
+        "text": "// Рекомендации и ресурсы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Для cookies используйте `httpOnly` и `secure`.\n- **Ресурсы**: Официальные docs Next.js Request/Response (https://nextjs.org/docs/app/api-reference/functions/next-request).\nВы можете протестировать пример кода ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import { NextResponse } from 'next/server';\n\nexport async function GET(request) {\n  const cookie = request.cookies.get('session')?.value || 'none';\n  return Response.json({ sessionCookie: cookie });\n}\n\nconsole.log('Простая утилита Request');\n"
+      }
+    ]
+  }
+}

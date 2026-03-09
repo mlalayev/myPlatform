@@ -1,0 +1,273 @@
+{
+  "id": "use-callback",
+  "az": {
+    "title": "useCallback",
+    "icon": "FiRepeat",
+    "language": "javascript",
+    "description": "Funksiyaların memorizasiyası",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// useCallback Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "React-də **useCallback** hook-u funksiyaları memorizasiya (keşləmək) üçün istifadə olunur. Bu, funksiyanın referansını saxlayır və yalnız asılılıqlar (dependencies) dəyişdikdə yeni funksiya yaradır. useCallback child komponentlərə ötürülən funksiyaların lazımsız yenidən yaradılmasının qarşısını alır və performansını artırır. Bu dərsdə useCallback-in necə işlədiyini, nə vaxt istifadə olunacağını və sadə nümunələri öyrənəcəksiniz. Kod nümunələri sadədir, istifadəçi girişi tələb etmir və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useCallback-in Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "useCallback iki parametr qəbul edir:\n- **Callback funksiyası**: Memorizasiya olunacaq funksiya.\n- **Asılılıq massivi**: Funksiyanın nə vaxt yenidən yaradılacağını müəyyənləşdirir.\nƏgər asılılıqlar dəyişməzsə, əvvəlki funksiya referansı qaytarılır."
+      },
+      {
+        "type": "heading",
+        "text": "// useCallback ilə Funksiya Memorizasiyası"
+      },
+      {
+        "type": "paragraph",
+        "text": "Child komponentə ötürülən funksiyanın lazımsız yenidən render olunmasının qarşısını almaq üçün.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useCallback, memo } from 'react';\n\nconst Child = memo(({ onIncrement }) => {\n  console.log('Child komponent render olundu');\n  return <button onClick={onIncrement}>Artır</button>;\n});\n\nfunction Parent() {\n  const [count, setCount] = useState(0);\n\n  const handleIncrement = useCallback(() => {\n    setCount(c => c + 1);\n  }, []); // Boş massiv – funksiya yalnız bir dəfə yaradılır\n\n  return (\n    <div>\n      <p>Say: {count}</p>\n      <Child onIncrement={handleIncrement} />\n    </div>\n  );\n}\n\nconsole.log('useCallback ilə funksiya memorizasiyası yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `handleIncrement` useCallback ilə memorizasiya olunur.\n- Boş asılılıq massivi (`[]`) ilə funksiya yalnız bir dəfə yaradılır.\n- `Child` komponenti memo ilə qorunur və yalnız `onIncrement` dəyişəndə render olunur.\n- `useCallback` olmadan hər renderdə yeni funksiya yaradılacaq və Child yenidən render olunacaq.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Asılılıq Massivi ilə useCallback"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asılılıq massivi funksiyanın nə vaxt yenidən yaradılacağını müəyyənləşdirir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useCallback } from 'react';\n\nfunction Example() {\n  const [count, setCount] = useState(0);\n  const [step, setStep] = useState(1);\n\n  const increment = useCallback(() => {\n    setCount(c => c + step);\n  }, [step]); // step dəyişəndə funksiya yenidən yaradılır\n\n  return (\n    <div>\n      <p>Say: {count}</p>\n      <button onClick={increment}>Artır ({step})</button>\n      <button onClick={() => setStep(step + 1)}>Addımı artır</button>\n    </div>\n  );\n}\n\nconsole.log('Asılılıq massivi ilə useCallback yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `increment` funksiyası `step` dəyərindən asılıdır.\n- `step` dəyişəndə funksiya yenidən yaradılır və aktual `step` dəyəri istifadə olunur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useCallback və useMemo Arasındakı Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fərqlər:\n- **useCallback**: Funksiyaları memorizasiya edir (funksiya referansı saxlayır).\n- **useMemo**: Dəyərləri (number, object və s.) memorizasiya edir.\nuseCallback(fn, deps) eynidir useMemo(() => fn, deps)."
+      },
+      {
+        "type": "heading",
+        "text": "// useCallback-un Üstünlükləri və Məhdudiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Üstünlükləri:\n- Child komponentlərin lazımsız render olunmasının qarşısını alır.\n- Performansı artırır (xüsusilə böyük tətbiqlərdə).\n- Funksiya referanslarını stabil saxlayır.\nMəhdudiyyətləri:\n- Yanlış asılılıqlar səhvlərə səbəb ola bilər (stale closure).\n- Çox istifadə kodun oxunaqlılığını azalda bilər."
+      },
+      {
+        "type": "heading",
+        "text": "// Tövsiyələr və Resurslar"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: useCallback-i yalnız child komponentlərə ötürülən funksiyalar üçün istifadə edin. Asılılıq massivini diqqətlə təyin edin.\n- **Resurslar**: Rəsmi React sənədləri (https://react.dev/reference/react/useCallback), useCallback haqqında dərslər.\nAşağıda nümunə kodu sınaqdan keçirə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useState, useCallback } from 'react';\n\nfunction App() {\n  const [count, setCount] = useState(0);\n\n  const increment = useCallback(() => {\n    setCount(c => c + 1);\n  }, []);\n\n  return (\n    <div>\n      <p>Say: {count}</p>\n      <button onClick={increment}>Artır</button>\n    </div>\n  );\n}\n\nconsole.log('Sadə useCallback komponenti');\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "useCallback",
+    "icon": "FiRepeat",
+    "language": "javascript",
+    "description": "Memoizing functions",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// What is useCallback?"
+      },
+      {
+        "type": "paragraph",
+        "text": "The **useCallback** hook in React is used to memoize functions. It caches the function reference and only creates a new function when dependencies change. useCallback prevents unnecessary re-creation of functions passed to child components, improving performance. This lesson covers how useCallback works, when to use it, and simple examples. Code examples are simple, require no user input, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Syntax of useCallback"
+      },
+      {
+        "type": "paragraph",
+        "text": "useCallback takes two parameters:\n- **Callback function**: The function to memoize.\n- **Dependency array**: Controls when a new function is created.\nIf dependencies don’t change, the previous function reference is returned."
+      },
+      {
+        "type": "heading",
+        "text": "// Function Memoization with useCallback"
+      },
+      {
+        "type": "paragraph",
+        "text": "To prevent unnecessary re-renders in child components receiving functions as props.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useCallback, memo } from 'react';\n\nconst Child = memo(({ onIncrement }) => {\n  console.log('Child component rendered');\n  return <button onClick={onIncrement}>Increment</button>;\n});\n\nfunction Parent() {\n  const [count, setCount] = useState(0);\n\n  const handleIncrement = useCallback(() => {\n    setCount(c => c + 1);\n  }, []); // Empty array – function created only once\n\n  return (\n    <div>\n      <p>Count: {count}</p>\n      <Child onIncrement={handleIncrement} />\n    </div>\n  );\n}\n\nconsole.log('Function memoization with useCallback created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `handleIncrement` is memoized with useCallback.\n- Empty dependency array (`[]`) creates the function only once.\n- `Child` is wrapped with memo and only re-renders if `onIncrement` changes.\n- Without useCallback, a new function would be created on every render, causing Child to re-render.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// useCallback with Dependency Array"
+      },
+      {
+        "type": "paragraph",
+        "text": "The dependency array determines when a new function is created.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useCallback } from 'react';\n\nfunction Example() {\n  const [count, setCount] = useState(0);\n  const [step, setStep] = useState(1);\n\n  const increment = useCallback(() => {\n    setCount(c => c + step);\n  }, [step]); // New function when step changes\n\n  return (\n    <div>\n      <p>Count: {count}</p>\n      <button onClick={increment}>Increment ({step})</button>\n      <button onClick={() => setStep(step + 1)}>Increase step</button>\n    </div>\n  );\n}\n\nconsole.log('useCallback with dependency array created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `increment` function depends on `step`.\n- A new function is created when `step` changes, capturing the current `step` value.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Differences Between useCallback and useMemo"
+      },
+      {
+        "type": "paragraph",
+        "text": "Differences:\n- **useCallback**: Memoizes functions (caches the function reference).\n- **useMemo**: Memoizes values (numbers, objects, etc.).\nuseCallback(fn, deps) is equivalent to useMemo(() => fn, deps)."
+      },
+      {
+        "type": "heading",
+        "text": "// Advantages and Limitations of useCallback"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advantages:\n- Prevents unnecessary re-renders in child components.\n- Improves performance (especially in large apps).\n- Keeps function references stable.\nLimitations:\n- Incorrect dependencies can cause bugs (stale closures).\n- Overuse can reduce code readability."
+      },
+      {
+        "type": "heading",
+        "text": "// Recommendations and Resources"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use useCallback only for functions passed to child components. Carefully specify the dependency array.\n- **Resources**: Official React documentation (https://react.dev/reference/react/useCallback), useCallback tutorials.\nYou can test the example code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Try It Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useState, useCallback } from 'react';\n\nfunction App() {\n  const [count, setCount] = useState(0);\n\n  const increment = useCallback(() => {\n    setCount(c => c + 1);\n  }, []);\n\n  return (\n    <div>\n      <p>Count: {count}</p>\n      <button onClick={increment}>Increment</button>\n    </div>\n  );\n}\n\nconsole.log('Simple useCallback component');\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "useCallback",
+    "icon": "FiRepeat",
+    "language": "javascript",
+    "description": "Мемоизация функций",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// Что такое useCallback?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Хук **useCallback** в React используется для мемоизации функций. Он кэширует ссылку на функцию и создает новую только при изменении зависимостей. useCallback предотвращает ненужное пересоздание функций, передаваемых дочерним компонентам, повышая производительность. В этом уроке вы узнаете, как работает useCallback, когда его использовать и простые примеры. Примеры кода просты, не требуют ввода пользователя, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Синтаксис useCallback"
+      },
+      {
+        "type": "paragraph",
+        "text": "useCallback принимает два параметра:\n- **Функция-колбэк**: Функция для мемоизации.\n- **Массив зависимостей**: Определяет, когда создавать новую функцию.\nЕсли зависимости не изменились, возвращается предыдущая ссылка на функцию."
+      },
+      {
+        "type": "heading",
+        "text": "// Мемоизация функций с useCallback"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы предотвратить ненужные перерендеры дочерних компонентов, получающих функции как props.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useCallback, memo } from 'react';\n\nconst Child = memo(({ onIncrement }) => {\n  console.log('Дочерний компонент отрендерился');\n  return <button onClick={onIncrement}>Увеличить</button>;\n});\n\nfunction Parent() {\n  const [count, setCount] = useState(0);\n\n  const handleIncrement = useCallback(() => {\n    setCount(c => c + 1);\n  }, []); // Пустой массив — функция создается только один раз\n\n  return (\n    <div>\n      <p>Счет: {count}</p>\n      <Child onIncrement={handleIncrement} />\n    </div>\n  );\n}\n\nconsole.log('Мемоизация функции с useCallback создана');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `handleIncrement` мемозируется с useCallback.\n- Пустой массив зависимостей (`[]`) создает функцию только один раз.\n- `Child` обернут в memo и перерендерится только при изменении `onIncrement`.\n- Без useCallback новая функция создавалась бы при каждом рендере, вызывая перерендер Child.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// useCallback с массивом зависимостей"
+      },
+      {
+        "type": "paragraph",
+        "text": "Массив зависимостей определяет, когда создается новая функция.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useCallback } from 'react';\n\nfunction Example() {\n  const [count, setCount] = useState(0);\n  const [step, setStep] = useState(1);\n\n  const increment = useCallback(() => {\n    setCount(c => c + step);\n  }, [step]); // Новая функция при изменении step\n\n  return (\n    <div>\n      <p>Счет: {count}</p>\n      <button onClick={increment}>Увеличить ({step})</button>\n      <button onClick={() => setStep(step + 1)}>Увеличить шаг</button>\n    </div>\n  );\n}\n\nconsole.log('useCallback с массивом зависимостей создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `increment` зависит от `step`.\n- Новая функция создается при изменении `step`, захватывая актуальное значение.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Различия между useCallback и useMemo"
+      },
+      {
+        "type": "paragraph",
+        "text": "Различия:\n- **useCallback**: Мемозирует функции (кэширует ссылку на функцию).\n- **useMemo**: Мемозирует значения (числа, объекты и т.д.).\nuseCallback(fn, deps) эквивалентен useMemo(() => fn, deps)."
+      },
+      {
+        "type": "heading",
+        "text": "// Преимущества и ограничения useCallback"
+      },
+      {
+        "type": "paragraph",
+        "text": "Преимущества:\n- Предотвращает ненужные перерендеры дочерних компонентов.\n- Повышает производительность (особенно в больших приложениях).\n- Сохраняет стабильные ссылки на функции.\nОграничения:\n- Неправильные зависимости могут вызвать ошибки (stale closure).\n- Чрезмерное использование может снизить читаемость кода."
+      },
+      {
+        "type": "heading",
+        "text": "// Рекомендации и ресурсы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте useCallback только для функций, передаваемых дочерним компонентам. Тщательно указывайте массив зависимостей.\n- **Ресурсы**: Официальная документация React (https://react.dev/reference/react/useCallback), уроки по useCallback.\nВы можете протестировать пример кода ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useState, useCallback } from 'react';\n\nfunction App() {\n  const [count, setCount] = useState(0);\n\n  const increment = useCallback(() => {\n    setCount(c => c + 1);\n  }, []);\n\n  return (\n    <div>\n      <p>Счет: {count}</p>\n      <button onClick={increment}>Увеличить</button>\n    </div>\n  );\n}\n\nconsole.log('Простой компонент с useCallback');\n"
+      }
+    ]
+  }
+}

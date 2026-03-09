@@ -1,0 +1,300 @@
+{
+  "id": "server-actions",
+  "az": {
+    "title": "Server Actions",
+    "icon": "FiCpu",
+    "language": "javascript",
+    "description": "Form submit, mutasiyalar və təhlükəsizlik",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// Server Actions Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Next.js-də **Server Actions** serverdə işləyən funksiyalardır və client-dən birbaşa çağırıla bilər. Form submit, data mutasiyaları (yaratma, yeniləmə, silmə) üçün istifadə olunur. `'use server'` direktivi ilə işarələnir. API route-lara ehtiyac qalmır, daha sadə və təhlükəsizdir. Bu dərsdə Server Actions-in necə işlədiyini, form ilə istifadəsini və təhlükəsizliyini öyrənəcəksiniz. Kod nümunələri sadədir və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Sadə Server Action"
+      },
+      {
+        "type": "paragraph",
+        "text": "Serverdə işləyən funksiya.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// app/actions.js\n'use server';\n\nexport async function createUser(formData) {\n  const name = formData.get('name');\n  // Mock: baza əlavə\n  return { success: true, message: `Istifadəçi ${name} yaradıldı` };\n}\n\nconsole.log('Sadə Server Action yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `'use server'` ilə server action olur.\n- `formData` ilə forma məlumatları alınır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Form ilə Server Action"
+      },
+      {
+        "type": "paragraph",
+        "text": "Forma submit zamanı Server Action çağırılır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// app/page.js\nimport { createUser } from './actions';\n\nexport default function FormPage() {\n  return (\n    <form action={createUser}>\n      <input type=\"text\" name=\"name\" placeholder=\"Ad\" required />\n      <button type=\"submit\">Göndər</button>\n    </form>\n  );\n}\n\nconsole.log('Form ilə Server Action yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `action={createUser}` ilə submit zamanı server action çağırılır.\n- Avtomatik pending state və optimistik yeniləmə.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useOptimistic ilə Optimistik Yeniləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Server cavabı gəlməzdən əvvəl UI yenilənir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "'use client';\n\nimport { useOptimistic, useState } from 'react';\n\nexport default function OptimisticExample() {\n  const [items, setItems] = useState([]);\n  const [optimisticItems, addOptimistic] = useOptimistic(items);\n\n  async function addItem(formData) {\n    addOptimistic([...items, formData.get('item')]);\n    // Server action\n  }\n\n  return (\n    <div>\n      <form action={addItem}>\n        <input name=\"item\" />\n        <button>Göndər</button>\n      </form>\n      <ul>{optimisticItems.map(i => <li>{i}</li>)}</ul>\n    </div>\n  );\n}\n\nconsole.log('Optimistik yeniləmə nümunəsi');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `useOptimistic` ilə UI dərhal yenilənir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Təhlükəsizlik"
+      },
+      {
+        "type": "paragraph",
+        "text": "Təhlükəsizlik xüsusiyyətləri:\n- CSRF mühafizəsi.\n- Avtomatik serializasiya.\n- Yalnız serverdə işləyir.\n- Sensitive data client-ə göndərilmir."
+      },
+      {
+        "type": "heading",
+        "text": "// Server Actions-in Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Üstünlükləri:\n- API route-lara ehtiyac yoxdur.\n- Daha sadə mutasiyalar.\n- Avtomatik revalidation.\n- Təhlükəsiz və performant."
+      },
+      {
+        "type": "heading",
+        "text": "// Tövsiyələr və Resurslar"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Form və mutasiyalar üçün Server Actions istifadə edin.\n- **Resurslar**: Rəsmi Next.js Server Actions sənədləri (https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations).\nAşağıda nümunə kodu sınaqdan keçirə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "'use server';\n\nexport async function helloAction() {\n  return { message: 'Salam Server Action-dan!' };\n}\n\nconsole.log('Sadə Server Action');\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Server Actions",
+    "icon": "FiCpu",
+    "language": "javascript",
+    "description": "Form submit, mutations, and security",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// What are Server Actions?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In Next.js, **Server Actions** are functions that run on the server and can be called directly from the client. Used for form submits, data mutations (create, update, delete). Marked with `'use server'` directive. No need for API routes, simpler and more secure. This lesson covers how Server Actions work, form usage, and security. Code examples are simple and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Simple Server Action"
+      },
+      {
+        "type": "paragraph",
+        "text": "Function running on server.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// app/actions.js\n'use server';\n\nexport async function createUser(formData) {\n  const name = formData.get('name');\n  // Mock: add to database\n  return { success: true, message: `User ${name} created` };\n}\n\nconsole.log('Simple Server Action created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `'use server'` makes it server action.\n- Read form data with `formData`.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Server Action with Form"
+      },
+      {
+        "type": "paragraph",
+        "text": "Call Server Action on form submit.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// app/page.js\nimport { createUser } from './actions';\n\nexport default function FormPage() {\n  return (\n    <form action={createUser}>\n      <input type=\"text\" name=\"name\" placeholder=\"Name\" required />\n      <button type=\"submit\">Submit</button>\n    </form>\n  );\n}\n\nconsole.log('Server Action with form created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `action={createUser}` calls server action on submit.\n- Automatic pending state and optimistic updates.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Optimistic Updates with useOptimistic"
+      },
+      {
+        "type": "paragraph",
+        "text": "Update UI before server response.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "'use client';\n\nimport { useOptimistic, useState } from 'react';\n\nexport default function OptimisticExample() {\n  const [items, setItems] = useState([]);\n  const [optimisticItems, addOptimistic] = useOptimistic(items);\n\n  async function addItem(formData) {\n    addOptimistic([...items, formData.get('item')]);\n    // Server action\n  }\n\n  return (\n    <div>\n      <form action={addItem}>\n        <input name=\"item\" />\n        <button>Submit</button>\n      </form>\n      <ul>{optimisticItems.map(i => <li>{i}</li>)}</ul>\n    </div>\n  );\n}\n\nconsole.log('Optimistic update example');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `useOptimistic` updates UI immediately.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Security"
+      },
+      {
+        "type": "paragraph",
+        "text": "Security features:\n- CSRF protection.\n- Automatic serialization.\n- Runs only on server.\n- Sensitive data not sent to client."
+      },
+      {
+        "type": "heading",
+        "text": "// Advantages of Server Actions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advantages:\n- No need for API routes.\n- Simpler mutations.\n- Automatic revalidation.\n- Secure and performant."
+      },
+      {
+        "type": "heading",
+        "text": "// Recommendations and Resources"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use Server Actions for forms and mutations.\n- **Resources**: Official Next.js Server Actions docs (https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations).\nYou can test the example code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Try It Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "'use server';\n\nexport async function helloAction() {\n  return { message: 'Hello from Server Action!' };\n}\n\nconsole.log('Simple Server Action');\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Server Actions",
+    "icon": "FiCpu",
+    "language": "javascript",
+    "description": "Отправка форм, мутации и безопасность",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// Что такое Server Actions?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В Next.js **Server Actions** — функции, выполняющиеся на сервере и вызываемые напрямую с клиента. Используются для отправки форм, мутаций данных (создание, обновление, удаление). Отмечаются директивой `'use server'`. Не нужны API routes, проще и безопаснее. В этом уроке вы узнаете, как работают Server Actions, использование с формами и безопасность. Примеры кода просты и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Простой Server Action"
+      },
+      {
+        "type": "paragraph",
+        "text": "Функция, выполняющаяся на сервере.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// app/actions.js\n'use server';\n\nexport async function createUser(formData) {\n  const name = formData.get('name');\n  // Mock: добавление в базу\n  return { success: true, message: `Пользователь ${name} создан` };\n}\n\nconsole.log('Простой Server Action создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `'use server'` делает функцию серверной.\n- Чтение данных формы с `formData`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Server Action с формой"
+      },
+      {
+        "type": "paragraph",
+        "text": "Вызов Server Action при отправке формы.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// app/page.js\nimport { createUser } from './actions';\n\nexport default function FormPage() {\n  return (\n    <form action={createUser}>\n      <input type=\"text\" name=\"name\" placeholder=\"Имя\" required />\n      <button type=\"submit\">Отправить</button>\n    </form>\n  );\n}\n\nconsole.log('Server Action с формой создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `action={createUser}` вызывает server action при submit.\n- Автоматическое pending state и оптимистичные обновления.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Оптимистичные обновления с useOptimistic"
+      },
+      {
+        "type": "paragraph",
+        "text": "Обновление UI до ответа сервера.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "'use client';\n\nimport { useOptimistic, useState } from 'react';\n\nexport default function OptimisticExample() {\n  const [items, setItems] = useState([]);\n  const [optimisticItems, addOptimistic] = useOptimistic(items);\n\n  async function addItem(formData) {\n    addOptimistic([...items, formData.get('item')]);\n    // Server action\n  }\n\n  return (\n    <div>\n      <form action={addItem}>\n        <input name=\"item\" />\n        <button>Отправить</button>\n      </form>\n      <ul>{optimisticItems.map(i => <li>{i}</li>)}</ul>\n    </div>\n  );\n}\n\nconsole.log('Пример оптимистичного обновления');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `useOptimistic` обновляет UI сразу.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Безопасность"
+      },
+      {
+        "type": "paragraph",
+        "text": "Функции безопасности:\n- Защита от CSRF.\n- Автоматическая сериализация.\n- Выполняется только на сервере.\n- Чувствительные данные не отправляются клиенту."
+      },
+      {
+        "type": "heading",
+        "text": "// Преимущества Server Actions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Преимущества:\n- Не нужны API routes.\n- Проще мутации.\n- Автоматическая revalidation.\n- Безопасно и производительно."
+      },
+      {
+        "type": "heading",
+        "text": "// Рекомендации и ресурсы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте Server Actions для форм и мутаций.\n- **Ресурсы**: Официальные docs Next.js Server Actions (https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations).\nВы можете протестировать пример кода ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "'use server';\n\nexport async function helloAction() {\n  return { message: 'Привет от Server Action!' };\n}\n\nconsole.log('Простой Server Action');\n"
+      }
+    ]
+  }
+}
