@@ -2,10 +2,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import MonacoEditor from "@monaco-editor/react";
 import styles from "./JsTryEditor.module.css";
-import SavadliButton from "../Buttons/savadliButton/SavadliButton";
-import CopyButton from "../Buttons/copyButton/CopyButton";
 import * as Babel from "@babel/standalone";
 import { useI18n } from "@/contexts/I18nContext";
+import { FiCopy, FiCode } from "react-icons/fi";
 
 interface JsTryEditorProps {
   value?: string;
@@ -204,6 +203,7 @@ export default function JsTryEditor({
   const [showOutput, setShowOutput] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [parsedOutput, setParsedOutput] = useState<Array<{type: string, content: string, key: string}>>([]);
+  const [copied, setCopied] = useState(false);
 
   // Parse colored console output
   const parseColoredOutput = (logs: string[]) => {
@@ -220,8 +220,6 @@ export default function JsTryEditor({
     });
   };
   const workerRef = useRef<Worker | null>(null);
-
-  console.log(language);
 
   function tWithOverride(key: string) {
     return (
@@ -242,6 +240,16 @@ export default function JsTryEditor({
     setShowOutput(false);
     setParsedOutput([]);
   }, [language, value, languageCodes]);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* ignore */
+    }
+  };
 
   const handleChange = (val: string | undefined) => {
     const newCode = val ?? "";
@@ -518,63 +526,84 @@ export default function JsTryEditor({
   return (
     <>
       <div className={styles.editorSection}>
-        <MonacoEditor
-          key={language} // Force re-render when language changes
-          height="300px"
-          defaultLanguage={language}
-          language={language}
-          value={code}
-          path={`/${language}/main.${getFileExtension(language)}`} // Unique path per language
-          onChange={handleChange}
-          theme="vs-dark"
-          options={{
-            fontSize: 16,
-            minimap: { enabled: false },
-            scrollBeyondLastLine: false,
-            wordWrap: "on",
-          }}
-          onMount={(editor: any, monaco: any) => {
-            if (language === "javascript") {
-              monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(
-                {
-                  noSemanticValidation: true,
-                  noSyntaxValidation: false,
-                }
-              );
-              monaco.languages.typescript.javascriptDefaults.setCompilerOptions(
-                {
-                  allowNonTsExtensions: true,
-                  checkJs: false,
-                  noEmit: true,
-                }
-              );
-            }
-          }}
-        />
-        {showRunButton && (
-          <SavadliButton
-            position="absolute"
-            bottom="5px"
-            right="10px"
-            text={isLoading ? "Çalışır..." : "Kodlaşdır"}
-            onClick={() => runCode()}
-            disabled={isLoading}
+        <div className={styles.monacoWrap}>
+          <MonacoEditor
+            key={language}
+            height="100%"
+            defaultLanguage={language}
+            language={language}
+            value={code}
+            path={`/${language}/main.${getFileExtension(language)}`}
+            onChange={handleChange}
+            theme="vs-dark"
+            options={{
+              fontSize: 15,
+              minimap: { enabled: false },
+              scrollBeyondLastLine: false,
+              wordWrap: "on",
+              padding: { top: 12, bottom: 12 },
+              lineNumbersMinChars: 3,
+              roundedSelection: true,
+              fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+            }}
+            onMount={(editor: any, monaco: any) => {
+              if (language === "javascript") {
+                monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(
+                  {
+                    noSemanticValidation: true,
+                    noSyntaxValidation: false,
+                  }
+                );
+                monaco.languages.typescript.javascriptDefaults.setCompilerOptions(
+                  {
+                    allowNonTsExtensions: true,
+                    checkJs: false,
+                    noEmit: true,
+                  }
+                );
+              }
+            }}
           />
-        )}
-        {showCopyButton && (
-          <CopyButton
-            position="absolute"
-            bottom="5px"
-            right="160px"
-            text={code}
-          ></CopyButton>
+        </div>
+        {(showCopyButton || showRunButton) && (
+          <div className={styles.editorToolbar}>
+            {showCopyButton && (
+              <button
+                type="button"
+                className={styles.toolbarBtnSecondary}
+                onClick={() => void handleCopy()}
+                aria-label={t("tryeditor.copyCode")}
+              >
+                <FiCopy className={styles.toolbarBtnIcon} aria-hidden />
+                {t("tryeditor.copyCode")}
+              </button>
+            )}
+            {showRunButton && (
+              <button
+                type="button"
+                className={styles.toolbarBtnPrimary}
+                onClick={() => void runCode()}
+                disabled={isLoading}
+                aria-busy={isLoading}
+                aria-label={t("tryeditor.runCode")}
+              >
+                <FiCode className={styles.toolbarBtnIcon} aria-hidden />
+                {isLoading ? t("tryeditor.running") : t("tryeditor.runCode")}
+              </button>
+            )}
+          </div>
         )}
       </div>
+      {copied && (
+        <div className={styles.copyToast} role="status">
+          {t("tryeditor.copied")}
+        </div>
+      )}
       {showOutput && (parsedOutput.length > 0 || output || error) && (
         <div className={styles.tryOutputBox}>
           {parsedOutput.length > 0 && (
             <div className={styles.outputSection}>
-              <div className={styles.outputLabel}>Nəticə:</div>
+              <div className={styles.outputLabel}>{t("tryeditor.outputLabel")}</div>
               <div className={styles.coloredOutput}>
                 {parsedOutput.map((logItem) => (
                   <div 
@@ -589,7 +618,7 @@ export default function JsTryEditor({
           )}
           {!parsedOutput.length && output && (
             <div className={styles.outputSection}>
-              <div className={styles.outputLabel}>Nəticə:</div>
+              <div className={styles.outputLabel}>{t("tryeditor.outputLabel")}</div>
               <pre className={styles.output}>{output}</pre>
             </div>
           )}

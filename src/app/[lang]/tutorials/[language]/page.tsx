@@ -370,12 +370,8 @@ export default function TutorialLanguagePage() {
     };
 
     // Listen for custom event (when lesson is visited in same tab)
-    const handleVisitedLessonsUpdate = (e: CustomEvent) => {
-      console.log('🔥 Visited lessons updated in same tab, refreshing progress...', e.detail);
-      console.log('🔥 Current languageProgress before update:', languageProgress);
-      fetchAllProgress().then(() => {
-        console.log('🔥 Progress refreshed after custom event');
-      });
+    const handleVisitedLessonsUpdate = () => {
+      fetchAllProgress();
     };
 
     // Listen for window focus (when returning from lesson page)
@@ -395,7 +391,7 @@ export default function TutorialLanguagePage() {
       window.removeEventListener('focus', handleWindowFocus);
       window.removeEventListener('visitedLessonsUpdated', handleVisitedLessonsUpdate as EventListener);
     };
-  }, [fetchAllProgress, languageProgress]);
+  }, [fetchAllProgress]);
 
   React.useEffect(() => {
     if (language !== "languages") return;

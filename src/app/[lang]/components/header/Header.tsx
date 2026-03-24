@@ -13,14 +13,13 @@ import {
   FiSettings,
   FiLogOut,
   FiShield,
+  FiMenu,
+  FiX,
 } from "react-icons/fi";
 import { usePathname, useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
-import { useAchievement } from "@/contexts/AchievementContext";
-
-
 const languages = [
   { code: "en", label: "EN" },
   { code: "az", label: "AZ" },
@@ -37,8 +36,11 @@ const Header: React.FC = () => {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   // OPTIMIZED: Removed debug logging for better performance
 
@@ -94,12 +96,61 @@ const Header: React.FC = () => {
     };
   }, [dropdownOpen]);
 
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 992px)");
+    const onChange = () => {
+      if (mq.matches) setMobileMenuOpen(false);
+    };
+    mq.addEventListener("change", onChange);
+    onChange();
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileMenuOpen(false);
+    };
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const onPointerDown = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (
+        mobileNavRef.current?.contains(t) ||
+        menuButtonRef.current?.contains(t)
+      ) {
+        return;
+      }
+      setMobileMenuOpen(false);
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [mobileMenuOpen]);
+
   return (
     <header className={HeaderStyle.header}>
       <div className={HeaderStyle.leftSection}>
-        <Image src={WhiteLogo} alt="Logo" className={HeaderStyle.logo} />
+        <Link href={`/${currentLang}`} className={HeaderStyle.logoLink}>
+          <Image src={WhiteLogo} alt="Logo" className={HeaderStyle.logo} priority />
+        </Link>
       </div>
-      <nav className={HeaderStyle.navbar}>
+      <nav
+        className={`${HeaderStyle.navbar} ${HeaderStyle.navbarDesktop}`}
+        aria-label={t("header.mainNavigation")}
+      >
         {navItems.map((item) => (
           <Link
             key={item.label}
@@ -166,7 +217,7 @@ const Header: React.FC = () => {
             aria-label="Login"
           >
             <span className={HeaderStyle.loginIcon}><FiLogIn /></span>
-            Login
+            <span className={HeaderStyle.loginLabel}>Login</span>
           </Link>
         ) : (
           <div className={HeaderStyle.profileDropdown} ref={profileDropdownRef}>
@@ -260,9 +311,38 @@ const Header: React.FC = () => {
             )}
           </div>
         )}
+        <button
+          ref={menuButtonRef}
+          type="button"
+          className={`${HeaderStyle.menuButton} ${HeaderStyle.menuToggle}`}
+          aria-expanded={mobileMenuOpen}
+          aria-controls="header-mobile-nav"
+          onClick={() => setMobileMenuOpen((v) => !v)}
+          aria-label={mobileMenuOpen ? t("header.closeMenu") : t("header.openMenu")}
+        >
+          {mobileMenuOpen ? <FiX /> : <FiMenu />}
+        </button>
       </div>
-      
 
+      <nav
+        ref={mobileNavRef}
+        id="header-mobile-nav"
+        className={`${HeaderStyle.mobileNav} ${mobileMenuOpen ? HeaderStyle.mobileNavOpen : ""}`}
+        aria-hidden={!mobileMenuOpen}
+        aria-label={t("header.mainNavigation")}
+      >
+        {navItems.map((item) => (
+          <Link
+            key={`m-${item.label}`}
+            href={item.href}
+            className={HeaderStyle.mobileNavLink}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <span className={HeaderStyle.navIcon}>{item.icon}</span>
+            <span>{item.label}</span>
+          </Link>
+        ))}
+      </nav>
     </header>
   );
 };
