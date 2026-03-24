@@ -55,7 +55,7 @@ const getMonthLabels = (streakDays: any[]) => {
         labels.push(months[month]);
         currentMonth = month;
       } else {
-        labels.push(''); // Empty for weeks that don't start a new month
+        labels.push(''); // Empty for weeks that do not start a new month
       }
     }
   }

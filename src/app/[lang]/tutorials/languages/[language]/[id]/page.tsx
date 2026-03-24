@@ -351,7 +351,8 @@ export default function TutorialTopicPage() {
     };
     
     markVisited();
-  }, [safeTopicId, safeLanguage, session?.user, logActivity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [safeTopicId, safeLanguage]);
 
   // Algoritm mövzusu üçün localStorage-dan oxu
   useEffect(() => {

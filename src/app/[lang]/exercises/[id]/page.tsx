@@ -314,7 +314,7 @@ export default function ExerciseDetailPage({
     if (exercise) {
       refreshLatestSubmission();
     }
-  }, [exercise, refreshLatestSubmission]); // Only run when exercise changes, not after every submission
+  }, [exercise, refreshLatestSubmission]);
 
   // Load status from localStorage on mount
   useEffect(() => {
@@ -344,7 +344,8 @@ export default function ExerciseDetailPage({
           }
         );
       }
-  }, [exercise, id, session, logActivity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exercise, id, session]);
 
   // Autosave code to localStorage on every change
   useEffect(() => {

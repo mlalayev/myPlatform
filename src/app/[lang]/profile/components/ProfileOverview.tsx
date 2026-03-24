@@ -101,7 +101,7 @@ export default function ProfileOverview({
     } else {
       setSolvedExercisesData([]);
     }
-  }, [userStats?.solvedExercisesData]); // Depend on the entire array to detect changes
+  }, [userStats]);
 
   if (loading) {
     return (
