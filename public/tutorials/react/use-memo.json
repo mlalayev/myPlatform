@@ -1,0 +1,273 @@
+{
+  "id": "use-memo",
+  "az": {
+    "title": "useMemo",
+    "icon": "FiCpu",
+    "language": "javascript",
+    "description": "Hesablamaların keşlənməsi",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// useMemo Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "React-də **useMemo** hook-u bahalı (expensive) hesablamaları keşləmək (memoize) üçün istifadə olunur. Bu, hesablamanın nəticəsini yadda saxlayır və yalnız asılılıqlar (dependencies) dəyişdikdə yenidən hesablayır. useMemo komponentin performansını artırır, çünki lazımsız hesablamaların qarşısını alır. Bu dərsdə useMemo-nun necə işlədiyini, nə vaxt istifadə olunacağını və sadə nümunələri öyrənəcəksiniz. Kod nümunələri sadədir, istifadəçi girişi tələb etmir və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useMemo-in Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "useMemo iki parametr qəbul edir:\n- **Callback funksiyası**: Hesablanacaq dəyəri qaytaran funksiya.\n- **Asılılıq massivi**: Callback-in nə vaxt yenidən işləyəcəyini müəyyənləşdirir.\nƏgər asılılıqlar dəyişməzsə, keşlənmiş dəyər qaytarılır."
+      },
+      {
+        "type": "heading",
+        "text": "// Bahalı Hesablama Nümunəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bahalı hesablama simulyasiyası ilə useMemo-nun faydasını göstərək.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useMemo } from 'react';\n\nfunction ExpensiveCalculation() {\n  const [count, setCount] = useState(1);\n  const [otherState, setOtherState] = useState(0);\n\n  const expensiveResult = useMemo(() => {\n    console.log('Bahalı hesablama işləyir...');\n    let result = 0;\n    for (let i = 0; i < count * 1000000; i++) {\n      result += i;\n    }\n    return result;\n  }, [count]);\n\n  return (\n    <div>\n      <p>Hesablama nəticəsi: {expensiveResult}</p>\n      <button onClick={() => setCount(count + 1)}>Count artır (+1)</button>\n      <button onClick={() => setOtherState(otherState + 1)}>Digər state artır ({otherState})</button>\n    </div>\n  );\n}\n\nconsole.log('useMemo ilə bahalı hesablama komponenti yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `expensiveResult` useMemo ilə keşlənir.\n- Asılılıq massivi yalnız `count` olduğu üçün hesablama yalnız `count` dəyişəndə yenidən işləyir.\n- `otherState` dəyişdikdə hesablama yenidən işləmir (performans qazanılır).\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useMemo ilə Obyektlərin Keşlənməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hər renderdə yeni obyekt yaradılmasının qarşısını almaq üçün useMemo istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useMemo } from 'react';\n\nfunction ObjectMemo() {\n  const [name, setName] = useState('Aysel');\n  const [age, setAge] = useState(20);\n\n  const person = useMemo(() => {\n    return { name, age };\n  }, [name, age]);\n\n  console.log('Person obyekti:', person);\n\n  return (\n    <div>\n      <p>Ad: {name}, Yaş: {age}</p>\n      <button onClick={() => setName('Günel')}>Adı dəyiş</button>\n      <button onClick={() => setAge(age + 1)}>Yaşı artır</button>\n    </div>\n  );\n}\n\nconsole.log('useMemo ilə obyekt keşlənməsi yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `person` obyekti useMemo ilə keşlənir.\n- Obyekt yalnız `name` və ya `age` dəyişəndə yenidən yaradılır.\n- Bu, lazımsız obyekt müqayisələrinin qarşısını alır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useMemo və useCallback Arasındakı Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fərqlər:\n- **useMemo**: Dəyərləri (number, string, object) keşləyir.\n- **useCallback**: Funksiyaları keşləyir.\nHər ikisi performans optimizasiyası üçündür."
+      },
+      {
+        "type": "heading",
+        "text": "// useMemo-nun Üstünlükləri və Məhdudiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Üstünlükləri:\n- Bahalı hesablamaları optimallaşdırır.\n- Lazımsız renderlərin qarşısını alır.\n- Obyekt və massivlərin stabil referanslarını təmin edir.\nMəhdudiyyətləri:\n- Yanlış asılılıqlar səhvlərə səbəb ola bilər.\n- Çox istifadə kodun oxunaqlılığını azalda bilər."
+      },
+      {
+        "type": "heading",
+        "text": "// Tövsiyələr və Resurslar"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: useMemo-nu yalnız bahalı hesablamalar və ya obyekt stabilizasiyası üçün istifadə edin. Asılılıq massivini diqqətlə təyin edin.\n- **Resurslar**: Rəsmi React sənədləri (https://react.dev/reference/react/useMemo), useMemo haqqında dərslər.\nAşağıda nümunə kodu sınaqdan keçirə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useState, useMemo } from 'react';\n\nfunction App() {\n  const [number, setNumber] = useState(5);\n  const [increment, setIncrement] = useState(0);\n\n  const doubled = useMemo(() => {\n    console.log('Doubled hesablama işləyir');\n    return number * 2;\n  }, [number]);\n\n  return (\n    <div>\n      <p>Ədəd: {number}, İkiqat: {doubled}</p>\n      <button onClick={() => setNumber(number + 1)}>Ədədi artır</button>\n      <button onClick={() => setIncrement(increment + 1)}>Digər ({increment})</button>\n    </div>\n  );\n}\n\nconsole.log('Sadə useMemo komponenti');\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "useMemo",
+    "icon": "FiCpu",
+    "language": "javascript",
+    "description": "Memoizing expensive calculations",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// What is useMemo?"
+      },
+      {
+        "type": "paragraph",
+        "text": "The **useMemo** hook in React is used to memoize (cache) expensive calculations. It stores the result of a computation and only recalculates when dependencies change. useMemo improves performance by preventing unnecessary recalculations. This lesson covers how useMemo works, when to use it, and simple examples. Code examples are simple, require no user input, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Syntax of useMemo"
+      },
+      {
+        "type": "paragraph",
+        "text": "useMemo takes two parameters:\n- **Callback function**: Returns the value to memoize.\n- **Dependency array**: Controls when the callback re-runs.\nIf dependencies don’t change, the cached value is returned."
+      },
+      {
+        "type": "heading",
+        "text": "// Example with Expensive Calculation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Demonstrating the benefit of useMemo with a simulated expensive calculation.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useMemo } from 'react';\n\nfunction ExpensiveCalculation() {\n  const [count, setCount] = useState(1);\n  const [otherState, setOtherState] = useState(0);\n\n  const expensiveResult = useMemo(() => {\n    console.log('Expensive calculation running...');\n    let result = 0;\n    for (let i = 0; i < count * 1000000; i++) {\n      result += i;\n    }\n    return result;\n  }, [count]);\n\n  return (\n    <div>\n      <p>Calculation result: {expensiveResult}</p>\n      <button onClick={() => setCount(count + 1)}>Increment count (+1)</button>\n      <button onClick={() => setOtherState(otherState + 1)}>Other state ({otherState})</button>\n    </div>\n  );\n}\n\nconsole.log('Component with useMemo for expensive calculation created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `expensiveResult` is memoized with useMemo.\n- The calculation only re-runs when `count` changes.\n- Changing `otherState` does not trigger the expensive calculation (performance gain).\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Memoizing Objects with useMemo"
+      },
+      {
+        "type": "paragraph",
+        "text": "useMemo prevents creating new objects on every render.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useMemo } from 'react';\n\nfunction ObjectMemo() {\n  const [name, setName] = useState('Aysel');\n  const [age, setAge] = useState(20);\n\n  const person = useMemo(() => {\n    return { name, age };\n  }, [name, age]);\n\n  console.log('Person object:', person);\n\n  return (\n    <div>\n      <p>Name: {name}, Age: {age}</p>\n      <button onClick={() => setName('Günel')}>Change name</button>\n      <button onClick={() => setAge(age + 1)}>Increment age</button>\n    </div>\n  );\n}\n\nconsole.log('Object memoization with useMemo created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `person` object is memoized with useMemo.\n- The object is recreated only when `name` or `age` changes.\n- This prevents unnecessary object comparisons.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Differences Between useMemo and useCallback"
+      },
+      {
+        "type": "paragraph",
+        "text": "Differences:\n- **useMemo**: Memoizes values (numbers, strings, objects).\n- **useCallback**: Memoizes functions.\nBoth are for performance optimization."
+      },
+      {
+        "type": "heading",
+        "text": "// Advantages and Limitations of useMemo"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advantages:\n- Optimizes expensive calculations.\n- Prevents unnecessary re-renders.\n- Provides stable references for objects and arrays.\nLimitations:\n- Incorrect dependencies can cause bugs.\n- Overuse can reduce code readability."
+      },
+      {
+        "type": "heading",
+        "text": "// Recommendations and Resources"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use useMemo only for expensive calculations or object stabilization. Carefully specify the dependency array.\n- **Resources**: Official React documentation (https://react.dev/reference/react/useMemo), useMemo tutorials.\nYou can test the example code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Try It Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useState, useMemo } from 'react';\n\nfunction App() {\n  const [number, setNumber] = useState(5);\n  const [increment, setIncrement] = useState(0);\n\n  const doubled = useMemo(() => {\n    console.log('Doubled calculation running');\n    return number * 2;\n  }, [number]);\n\n  return (\n    <div>\n      <p>Number: {number}, Doubled: {doubled}</p>\n      <button onClick={() => setNumber(number + 1)}>Increment number</button>\n      <button onClick={() => setIncrement(increment + 1)}>Other ({increment})</button>\n    </div>\n  );\n}\n\nconsole.log('Simple useMemo component');\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "useMemo",
+    "icon": "FiCpu",
+    "language": "javascript",
+    "description": "Кэширование вычислений",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// Что такое useMemo?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Хук **useMemo** в React используется для мемоизации (кэширования) дорогих вычислений. Он сохраняет результат вычисления и пересчитывает только при изменении зависимостей. useMemo повышает производительность, предотвращая ненужные вычисления. В этом уроке вы узнаете, как работает useMemo, когда его использовать и простые примеры. Примеры кода просты, не требуют ввода пользователя, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Синтаксис useMemo"
+      },
+      {
+        "type": "paragraph",
+        "text": "useMemo принимает два параметра:\n- **Функция-колбэк**: Возвращает значение для мемоизации.\n- **Массив зависимостей**: Определяет, когда перезапускать колбэк.\nЕсли зависимости не изменились, возвращается кэшированное значение."
+      },
+      {
+        "type": "heading",
+        "text": "// Пример с дорогим вычислением"
+      },
+      {
+        "type": "paragraph",
+        "text": "Демонстрация пользы useMemo с симуляцией дорогого вычисления.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useMemo } from 'react';\n\nfunction ExpensiveCalculation() {\n  const [count, setCount] = useState(1);\n  const [otherState, setOtherState] = useState(0);\n\n  const expensiveResult = useMemo(() => {\n    console.log('Дорогое вычисление выполняется...');\n    let result = 0;\n    for (let i = 0; i < count * 1000000; i++) {\n      result += i;\n    }\n    return result;\n  }, [count]);\n\n  return (\n    <div>\n      <p>Результат вычисления: {expensiveResult}</p>\n      <button onClick={() => setCount(count + 1)}>Увеличить count (+1)</button>\n      <button onClick={() => setOtherState(otherState + 1)}>Другое состояние ({otherState})</button>\n    </div>\n  );\n}\n\nconsole.log('Компонент с useMemo для дорогого вычисления создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `expensiveResult` мемозируется с useMemo.\n- Вычисление повторяется только при изменении `count`.\n- Изменение `otherState` не вызывает дорогое вычисление (выигрыш в производительности).\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Мемоизация объектов с useMemo"
+      },
+      {
+        "type": "paragraph",
+        "text": "useMemo предотвращает создание новых объектов при каждом рендере.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useMemo } from 'react';\n\nfunction ObjectMemo() {\n  const [name, setName] = useState('Айсель');\n  const [age, setAge] = useState(20);\n\n  const person = useMemo(() => {\n    return { name, age };\n  }, [name, age]);\n\n  console.log('Объект person:', person);\n\n  return (\n    <div>\n      <p>Имя: {name}, Возраст: {age}</p>\n      <button onClick={() => setName('Гюнель')}>Изменить имя</button>\n      <button onClick={() => setAge(age + 1)}>Увеличить возраст</button>\n    </div>\n  );\n}\n\nconsole.log('Мемоизация объекта с useMemo создана');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Объект `person` мемозируется с useMemo.\n- Объект пересоздается только при изменении `name` или `age`.\n- Это предотвращает ненужные сравнения объектов.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Различия между useMemo и useCallback"
+      },
+      {
+        "type": "paragraph",
+        "text": "Различия:\n- **useMemo**: Мемозирует значения (числа, строки, объекты).\n- **useCallback**: Мемозирует функции.\nОба используются для оптимизации производительности."
+      },
+      {
+        "type": "heading",
+        "text": "// Преимущества и ограничения useMemo"
+      },
+      {
+        "type": "paragraph",
+        "text": "Преимущества:\n- Оптимизирует дорогие вычисления.\n- Предотвращает ненужные перерендеры.\n- Обеспечивает стабильные ссылки на объекты и массивы.\nОграничения:\n- Неправильные зависимости могут вызвать ошибки.\n- Чрезмерное использование может снизить читаемость кода."
+      },
+      {
+        "type": "heading",
+        "text": "// Рекомендации и ресурсы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте useMemo только для дорогих вычислений или стабилизации объектов. Тщательно указывайте массив зависимостей.\n- **Ресурсы**: Официальная документация React (https://react.dev/reference/react/useMemo), уроки по useMemo.\nВы можете протестировать пример кода ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useState, useMemo } from 'react';\n\nfunction App() {\n  const [number, setNumber] = useState(5);\n  const [increment, setIncrement] = useState(0);\n\n  const doubled = useMemo(() => {\n    console.log('Вычисление удвоения выполняется');\n    return number * 2;\n  }, [number]);\n\n  return (\n    <div>\n      <p>Число: {number}, Удвоенное: {doubled}</p>\n      <button onClick={() => setNumber(number + 1)}>Увеличить число</button>\n      <button onClick={() => setIncrement(increment + 1)}>Другое ({increment})</button>\n    </div>\n  );\n}\n\nconsole.log('Простой компонент с useMemo');\n"
+      }
+    ]
+  }
+}

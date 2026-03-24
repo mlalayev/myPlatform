@@ -1,0 +1,546 @@
+{
+  "id": "error-handling",
+  "az": {
+    "title": "Xəta və İstisna İdarəetməsi",
+    "icon": "FiAlertCircle",
+    "language": "php",
+    "description": "Xəta və istisna idarəetməsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də Xəta və İstisna İdarəetməsi Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də xəta və istisna idarəetməsi proqramın gözlənilməz vəziyyətlərdə (səhvlər, xətalar, problemlər) düzgün davranmasını təmin etmək üçün istifadə olunur. Xətalar (errors) adətən sintaksis səhvləri, faylın olmaması və ya dəyişənin təyin edilməməsi kimi problemlərdir. İstisnalar (exceptions) isə proqramın normal axışını pozan və xüsusi idarəetmə tələb edən vəziyyətlərdir, məsələn, verilənlər bazasına qoşulma xətası. Bu JSON faylda xəta və istisnaların fərqləri, onların idarəetmə üsulları (try-catch, error reporting, custom error handlers), təhlükəsizlik aspektləri, praktik nümunələr və səhvlərdən qaçınma yolları çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz. PHP 8.1 və ya daha yeni versiyadan istifadə etdiyinizə əmin olun."
+      },
+      {
+        "type": "heading",
+        "text": "Xətalar və İstisnalar Arasındakı Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də xətalar və istisnalar fərqli mexanizmlərdir:\n- **Xətalar (Errors)**: Proqramın icra oluna bilməməsinə səbəb olan problemlərdir (məsələn, faylın olmaması, səhv funksiya adı). Bunlar adətən `error_reporting` və ya xüsusi xəta işləyiciləri ilə idarə olunur.\n- **İstisnalar (Exceptions)**: Proqramın normal axışını pozan və `try-catch` bloku ilə idarə olunan vəziyyətlərdir (məsələn, verilənlər bazası xətası).\n- Xətalar daha ümumi və aşağı səviyyəli problemlərdir, istisnalar isə daha idarə oluna bilən və strukturlaşdırılmışdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Xəta və istisna nümunəsi\n// Xəta: Təyin edilməmiş dəyişən\necho $undefined_variable; // Notice: Undefined variable\n\n// İstisna: Faylın olmaması\ntry {\n  if (!file_exists('non_existent_file.txt')) {\n    throw new Exception('Fayl tapılmadı!');\n  }\n} catch (Exception $e) {\n  echo 'İstisna: ' . $e->getMessage();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `$undefined_variable` təyin edilmədiyi üçün xəta (Notice) yaranır.\n- `throw new Exception` ilə istisna yaradılır və `try-catch` ilə tutulur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Xəta Səviyyələri və Error Reporting"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də xətalar müxtəlif səviyyələrdə olur: `E_NOTICE`, `E_WARNING`, `E_ERROR`, `E_DEPRECATED` və s. `error_reporting` funksiyası ilə hansı xətaların göstəriləcəyini təyin edə bilərsiniz.\nƏsas səviyyələr:\n- `E_NOTICE`: Kiçik səhvlər (məsələn, təyin edilməmiş dəyişən).\n- `E_WARNING`: Proqramın davam etməsinə mane olmayan xətalar (məsələn, fayl tapılmaması).\n- `E_ERROR`: Proqramın icrasını dayandıran ciddi xətalar.\n- `E_ALL`: Bütün xətaları göstərir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Xəta səviyyələri və error reporting\nerror_reporting(E_ALL);\nini_set('display_errors', 1);\n\necho $undefined_variable; // Notice: Undefined variable\n\nfile_get_contents('non_existent_file.txt'); // Warning: Failed to open stream\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `error_reporting(E_ALL)` bütün xətaları aktivləşdirir.\n- `ini_set('display_errors', 1)` xətaların ekranda göstərilməsini təmin edir.\n- Qeyd: Real layihələrdə xətaları ekranda göstərmək əvəzinə log fayllarına yazmaq daha təhlükəsizdir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Try-Catch ilə İstisna İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "İstisnalar `try-catch` bloku ilə idarə olunur. `try` bloku potensial xətalı kodu ehtiva edir, `catch` bloku isə istisnaları tutur və idarə edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Try-catch nümunəsi\ntry {\n  $number = 10;\n  if ($number > 5) {\n    throw new Exception('Rəqəm 5-dən böyükdür!');\n  }\n} catch (Exception $e) {\n  echo 'İstisna: ' . $e->getMessage();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `throw new Exception` istisna yaradır.\n- `catch` bloku istisnanın mesajını ekrana çıxarır.\n- `getMessage()` istisnanın mətnini qaytarır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Xüsusi Xəta İşləyicisi (Custom Error Handler)"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də xüsusi xəta işləyiciləri `set_error_handler` ilə təyin edilir. Bu, xətaları standart PHP davranışından fərqli şəkildə idarə etməyə imkan verir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Xüsusi xəta işləyicisi\nfunction customErrorHandler($errno, $errstr, $errfile, $errline) {\n  echo \"Xəta [$errno]: $errstr in $errfile on line $errline\\n\";\n}\n\nset_error_handler('customErrorHandler');\n\necho $undefined_variable; // Xüsusi xəta mesajı göstəriləcək\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `customErrorHandler` funksiyası xəta detallarını öz formatında göstərir.\n- `set_error_handler` ilə xüsusi işləyici təyin edilir.\n- `$undefined_variable` xəta yaradır və xüsusi işləyici tərəfindən idarə olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Xüsusi İstisna İşləyicisi (Custom Exception Handler)"
+      },
+      {
+        "type": "paragraph",
+        "text": "İstisnalar üçün xüsusi işləyici `set_exception_handler` ilə təyin edilir. Bu, tutulmamış istisnaları idarə etməyə imkan verir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Xüsusi istisna işləyicisi\nfunction customExceptionHandler($exception) {\n  echo 'Tutulmamış istisna: ' . $exception->getMessage();\n}\n\nset_exception_handler('customExceptionHandler');\n\nthrow new Exception('Test istisna!');\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `customExceptionHandler` tutulmamış istisnaları idarə edir.\n- `set_exception_handler` ilə xüsusi işləyici təyin edilir.\n- `throw new Exception` istisna yaradır və xüsusi işləyici tərəfindən tutulur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xəta və istisna idarəetməsində təhlükəsizlik vacibdir:\n- Xəta mesajlarını real layihələrdə ekranda göstərməyin, log fayllarına yazın.\n- Həssas məlumatları (məsələn, verilənlər bazası parolu) xəta mesajlarında açıqlamayın.\n- `try-catch` ilə istisnaları tutaraq proqramın qəzaya uğramasının qarşısını alın.\n- `error_reporting(0)` ilə xətaları gizlədə bilərsiniz, lakin bu, diqqətli istifadə tələb edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Təhlükəsiz xəta idarəetməsi\nini_set('display_errors', 0); // Ekranda xətaları gizlət\nerror_reporting(E_ALL);\n\ntry {\n  $conn = new PDO('mysql:host=localhost;dbname=non_existent_db', 'root', '');\n} catch (PDOException $e) {\n  error_log('Verilənlər bazası xətası: ' . $e->getMessage());\n  echo 'Xəta baş verdi, zəhmət olmasa daha sonra cəhd edin.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `display_errors` söndürülüb, xətalar ekranda göstərilmir.\n- `error_log` ilə xətalar fayla yazılır.\n- İstifadəçiyə ümumi xəta mesajı göstərilir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Fayl Əməliyyatlarında Xəta İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayl əməliyyatları tez-tez xətalara səbəb olur (məsələn, fayl tapılmaması). Bunu idarə etmək üçün istisnalardan istifadə edək.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Fayl əməliyyatlarında xəta idarəetməsi\ntry {\n  $file = 'non_existent_file.txt';\n  if (!file_exists($file)) {\n    throw new Exception('Fayl tapılmadı: ' . $file);\n  }\n  $content = file_get_contents($file);\n  echo 'Fayl məzmunu: ' . $content;\n} catch (Exception $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `file_exists` ilə faylın mövcudluğu yoxlanılır.\n- Əgər fayl tapılmırsa, istisna atılır.\n- `catch` bloku xətanı idarə edir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Verilənlər Bazası Xəta İdarəetməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Verilənlər bazası ilə işləyərkən istisnalar tez-tez istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Verilənlər bazası xəta idarəetməsi\ntry {\n  $conn = new PDO('mysql:host=localhost;dbname=non_existent_db', 'root', '');\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n  echo 'Verilənlər bazasına qoşuldu!';\n} catch (PDOException $e) {\n  echo 'Verilənlər bazası xətası: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `PDOException` ilə verilənlər bazası xətaları tutulur.\n- `setAttribute` ilə xəta rejimi aktivləşdirilir.\n- `$conn = null` bağlantını bağlayır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\n// Xəta idarə olunmadan\nfile_get_contents('non_existent_file.txt'); // Warning: Failed to open stream\n\n// Düzgün yol\ntry {\n  if (!file_exists('non_existent_file.txt')) {\n    throw new Exception('Fayl tapılmadı!');\n  }\n} catch (Exception $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk nümunədə xəta idarə olunmur və PHP standart xəta mesajı göstərir.\n- Düzgün yolda `try-catch` ilə xəta idarə olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Həmişə `try-catch` istifadə edin. Xətaları log fayllarına yazın. Həssas məlumatları xəta mesajlarında göstərməyin. PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/) faydalanın.\n- **Alternativlər**: Xəta idarəetməsi üçün xarici kitabxanalar (məsələn, Monolog) istifadə edilə bilər. Çərçivələr (Laravel, Symfony) daxili xəta idarəetmə alətləri təklif edir.\n- Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün xəta idarəetməsi\ntry {\n  $value = 0;\n  if ($value === 0) {\n    throw new Exception('Dəyər sıfır ola bilməz!');\n  }\n  echo 10 / $value;\n} catch (Exception $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Error and Exception Handling",
+    "icon": "FiAlertCircle",
+    "language": "php",
+    "description": "Error and exception management in PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Error and Exception Handling in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Error and exception handling in PHP ensures that a program can handle unexpected situations (errors, issues) gracefully. Errors are typically problems like syntax mistakes, missing files, or undefined variables. Exceptions are events that disrupt the normal flow of a program and require special handling, such as database connection failures. This JSON file explains the differences between errors and exceptions, their handling methods (try-catch, error reporting, custom error handlers), security aspects, practical examples, and ways to avoid common mistakes in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP. Ensure you are using PHP 8.1 or a newer version."
+      },
+      {
+        "type": "heading",
+        "text": "Differences Between Errors and Exceptions"
+      },
+      {
+        "type": "paragraph",
+        "text": "In PHP, errors and exceptions are distinct mechanisms:\n- **Errors**: Problems that prevent program execution, such as undefined variables or missing files. These are handled with `error_reporting` or custom error handlers.\n- **Exceptions**: Events that disrupt the program’s normal flow and are managed with `try-catch` blocks, such as database errors.\n- Errors are more general and low-level, while exceptions are structured and manageable.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error and exception example\n// Error: Undefined variable\necho $undefined_variable; // Notice: Undefined variable\n\n// Exception: File not found\ntry {\n  if (!file_exists('non_existent_file.txt')) {\n    throw new Exception('File not found!');\n  }\n} catch (Exception $e) {\n  echo 'Exception: ' . $e->getMessage();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `$undefined_variable` triggers an error (Notice) because it’s undefined.\n- `throw new Exception` creates an exception, caught by the `try-catch` block.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error Levels and Error Reporting"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP has various error levels: `E_NOTICE`, `E_WARNING`, `E_ERROR`, `E_DEPRECATED`, etc. The `error_reporting` function controls which errors are displayed.\nKey levels:\n- `E_NOTICE`: Minor issues (e.g., undefined variable).\n- `E_WARNING`: Non-fatal errors (e.g., missing file).\n- `E_ERROR`: Fatal errors that stop execution.\n- `E_ALL`: Displays all errors.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error levels and reporting\nerror_reporting(E_ALL);\nini_set('display_errors', 1);\n\necho $undefined_variable; // Notice: Undefined variable\n\nfile_get_contents('non_existent_file.txt'); // Warning: Failed to open stream\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `error_reporting(E_ALL)` enables all errors.\n- `ini_set('display_errors', 1)` shows errors on the screen.\n- Note: In production, log errors to a file instead of displaying them for security.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try-Catch for Exception Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "Exceptions are handled with `try-catch` blocks. The `try` block contains potentially problematic code, and the `catch` block handles exceptions.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Try-catch example\ntry {\n  $number = 10;\n  if ($number > 5) {\n    throw new Exception('Number is greater than 5!');\n  }\n} catch (Exception $e) {\n  echo 'Exception: ' . $e->getMessage();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `throw new Exception` creates an exception.\n- The `catch` block displays the exception message.\n- `getMessage()` returns the exception’s text.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Custom Error Handler"
+      },
+      {
+        "type": "paragraph",
+        "text": "Custom error handlers are set with `set_error_handler` to manage errors differently from PHP’s default behavior.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Custom error handler\nfunction customErrorHandler($errno, $errstr, $errfile, $errline) {\n  echo \"Error [$errno]: $errstr in $errfile on line $errline\\n\";\n}\n\nset_error_handler('customErrorHandler');\n\necho $undefined_variable; // Custom error message displayed\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `customErrorHandler` formats error details.\n- `set_error_handler` sets the custom handler.\n- `$undefined_variable` triggers an error, managed by the custom handler.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Custom Exception Handler"
+      },
+      {
+        "type": "paragraph",
+        "text": "Custom exception handlers are set with `set_exception_handler` to manage uncaught exceptions.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Custom exception handler\nfunction customExceptionHandler($exception) {\n  echo 'Uncaught exception: ' . $exception->getMessage();\n}\n\nset_exception_handler('customExceptionHandler');\n\nthrow new Exception('Test exception!');\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `customExceptionHandler` handles uncaught exceptions.\n- `set_exception_handler` sets the custom handler.\n- `throw new Exception` triggers an exception, caught by the custom handler.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Security is critical in error and exception handling:\n- Avoid displaying error messages in production; log them to files.\n- Do not expose sensitive information (e.g., database passwords) in error messages.\n- Use `try-catch` to prevent crashes.\n- Use `error_reporting(0)` to hide errors, but use it cautiously.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Secure error handling\nini_set('display_errors', 0); // Hide errors on screen\nerror_reporting(E_ALL);\n\ntry {\n  $conn = new PDO('mysql:host=localhost;dbname=non_existent_db', 'root', '');\n} catch (PDOException $e) {\n  error_log('Database error: ' . $e->getMessage());\n  echo 'An error occurred, please try again later.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `display_errors` is disabled to hide errors on the screen.\n- `error_log` writes errors to a log file.\n- A generic error message is shown to the user.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: File Operations Error Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "File operations often cause errors (e.g., missing files). Let’s handle them with exceptions.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// File operations error handling\ntry {\n  $file = 'non_existent_file.txt';\n  if (!file_exists($file)) {\n    throw new Exception('File not found: ' . $file);\n  }\n  $content = file_get_contents($file);\n  echo 'File content: ' . $content;\n} catch (Exception $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `file_exists` checks if the file exists.\n- If the file is missing, an exception is thrown.\n- The `catch` block handles the error.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Database Error Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "Exceptions are commonly used in database operations.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Database error handling\ntry {\n  $conn = new PDO('mysql:host=localhost;dbname=non_existent_db', 'root', '');\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n  echo 'Connected to database!';\n} catch (PDOException $e) {\n  echo 'Database error: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `PDOException` catches database errors.\n- `setAttribute` enables error mode.\n- `$conn = null` closes the connection.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\n// No error handling\nfile_get_contents('non_existent_file.txt'); // Warning: Failed to open stream\n\n// Correct approach\ntry {\n  if (!file_exists('non_existent_file.txt')) {\n    throw new Exception('File not found!');\n  }\n} catch (Exception $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first example lacks error handling, causing a PHP warning.\n- The correct approach uses `try-catch` to handle the error.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Always use `try-catch`. Log errors to files. Avoid exposing sensitive data in error messages. Refer to PHP’s official documentation (https://www.php.net/manual/en/).\n- **Alternatives**: Use external libraries (e.g., Monolog) for error handling. Frameworks (Laravel, Symfony) offer built-in error handling tools.\n- You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself error handling\ntry {\n  $value = 0;\n  if ($value === 0) {\n    throw new Exception('Value cannot be zero!');\n  }\n  echo 10 / $value;\n} catch (Exception $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Обработка ошибок и исключений",
+    "icon": "FiAlertCircle",
+    "language": "php",
+    "description": "Управление ошибками и исключениями в PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое обработка ошибок и исключений в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Обработка ошибок и исключений в PHP обеспечивает корректное поведение программы в непредвиденных ситуациях (ошибки, проблемы). Ошибки — это обычно проблемы, такие как синтаксические ошибки, отсутствие файла или неопределенные переменные. Исключения — это события, нарушающие нормальный ход программы и требующие специальной обработки, например, ошибки подключения к базе данных. Этот JSON-файл подробно объясняет различия между ошибками и исключениями, методы их обработки (try-catch, error reporting, пользовательские обработчики ошибок), аспекты безопасности, практические примеры и способы избежания ошибок. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP. Убедитесь, что вы используете PHP 8.1 или новее."
+      },
+      {
+        "type": "heading",
+        "text": "Различия между ошибками и исключениями"
+      },
+      {
+        "type": "paragraph",
+        "text": "В PHP ошибки и исключения — это разные механизмы:\n- **Ошибки**: Проблемы, препятствующие выполнению программы, такие как неопределенные переменные или отсутствие файлов. Обрабатываются с помощью `error_reporting` или пользовательских обработчиков ошибок.\n- **Исключения**: События, нарушающие нормальный ход программы и обрабатываемые с помощью блоков `try-catch`, например, ошибки базы данных.\n- Ошибки более общие и низкоуровневые, исключения — структурированные и управляемые.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример ошибки и исключения\n// Ошибка: Неопределенная переменная\necho $undefined_variable; // Notice: Undefined variable\n\n// Исключение: Файл не найден\ntry {\n  if (!file_exists('non_existent_file.txt')) {\n    throw new Exception('Файл не найден!');\n  }\n} catch (Exception $e) {\n  echo 'Исключение: ' . $e->getMessage();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `$undefined_variable` вызывает ошибку (Notice), так как переменная не определена.\n- `throw new Exception` создает исключение, которое обрабатывается блоком `try-catch`.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Уровни ошибок и отчетность об ошибках"
+      },
+      {
+        "type": "paragraph",
+        "text": "В PHP существуют различные уровни ошибок: `E_NOTICE`, `E_WARNING`, `E_ERROR`, `E_DEPRECATED` и т.д. Функция `error_reporting` определяет, какие ошибки отображаются.\nОсновные уровни:\n- `E_NOTICE`: Незначительные проблемы (например, неопределенная переменная).\n- `E_WARNING`: Некритические ошибки (например, отсутствие файла).\n- `E_ERROR`: Фатальные ошибки, останавливающие выполнение.\n- `E_ALL`: Отображает все ошибки.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Уровни ошибок и отчетность\nerror_reporting(E_ALL);\nini_set('display_errors', 1);\n\necho $undefined_variable; // Notice: Undefined variable\n\nfile_get_contents('non_existent_file.txt'); // Warning: Failed to open stream\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `error_reporting(E_ALL)` включает все ошибки.\n- `ini_set('display_errors', 1)` отображает ошибки на экране.\n- Примечание: В продакшене лучше записывать ошибки в лог-файлы, а не отображать их.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Try-Catch для обработки исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Исключения обрабатываются с помощью блоков `try-catch`. Блок `try` содержит потенциально проблемный код, а блок `catch` обрабатывает исключения.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример try-catch\ntry {\n  $number = 10;\n  if ($number > 5) {\n    throw new Exception('Число больше 5!');\n  }\n} catch (Exception $e) {\n  echo 'Исключение: ' . $e->getMessage();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `throw new Exception` создает исключение.\n- Блок `catch` отображает сообщение исключения.\n- `getMessage()` возвращает текст исключения.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пользовательский обработчик ошибок"
+      },
+      {
+        "type": "paragraph",
+        "text": "Пользовательские обработчики ошибок задаются с помощью `set_error_handler`, чтобы управлять ошибками иначе, чем в стандартном поведении PHP.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пользовательский обработчик ошибок\nfunction customErrorHandler($errno, $errstr, $errfile, $errline) {\n  echo \"Ошибка [$errno]: $errstr в $errfile на строке $errline\\n\";\n}\n\nset_error_handler('customErrorHandler');\n\necho $undefined_variable; // Отображается пользовательское сообщение об ошибке\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `customErrorHandler` форматирует детали ошибки.\n- `set_error_handler` задает пользовательский обработчик.\n- `$undefined_variable` вызывает ошибку, обрабатываемую пользовательским обработчиком.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пользовательский обработчик исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Пользовательские обработчики исключений задаются с помощью `set_exception_handler` для управления необработанными исключениями.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пользовательский обработчик исключений\nfunction customExceptionHandler($exception) {\n  echo 'Необработанное исключение: ' . $exception->getMessage();\n}\n\nset_exception_handler('customExceptionHandler');\n\nthrow new Exception('Тестовое исключение!');\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `customExceptionHandler` обрабатывает необработанные исключения.\n- `set_exception_handler` задает пользовательский обработчик.\n- `throw new Exception` вызывает исключение, которое обрабатывается пользовательским обработчиком.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Безопасность важна при обработке ошибок и исключений:\n- Не отображайте сообщения об ошибках в продакшене, записывайте их в лог-файлы.\n- Не раскрывайте конфиденциальную информацию (например, пароли базы данных) в сообщениях об ошибках.\n- Используйте `try-catch` для предотвращения сбоев.\n- Используйте `error_reporting(0)` для скрытия ошибок, но с осторожностью.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Безопасная обработка ошибок\nini_set('display_errors', 0); // Скрыть ошибки на экране\nerror_reporting(E_ALL);\n\ntry {\n  $conn = new PDO('mysql:host=localhost;dbname=non_existent_db', 'root', '');\n} catch (PDOException $e) {\n  error_log('Ошибка базы данных: ' . $e->getMessage());\n  echo 'Произошла ошибка, попробуйте позже.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `display_errors` отключен, ошибки не отображаются на экране.\n- `error_log` записывает ошибки в лог-файл.\n- Пользователю показывается общее сообщение об ошибке.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Обработка ошибок при файловых операциях"
+      },
+      {
+        "type": "paragraph",
+        "text": "Файловые операции часто вызывают ошибки (например, отсутствие файла). Обработаем их с помощью исключений.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Обработка ошибок при файловых операциях\ntry {\n  $file = 'non_existent_file.txt';\n  if (!file_exists($file)) {\n    throw new Exception('Файл не найден: ' . $file);\n  }\n  $content = file_get_contents($file);\n  echo 'Содержимое файла: ' . $content;\n} catch (Exception $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `file_exists` проверяет наличие файла.\n- Если файл отсутствует, выбрасывается исключение.\n- Блок `catch` обрабатывает ошибку.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Обработка ошибок базы данных"
+      },
+      {
+        "type": "paragraph",
+        "text": "Исключения часто используются при операциях с базой данных.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Обработка ошибок базы данных\ntry {\n  $conn = new PDO('mysql:host=localhost;dbname=non_existent_db', 'root', '');\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n  echo 'Подключено к базе данных!';\n} catch (PDOException $e) {\n  echo 'Ошибка базы данных: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `PDOException` перехватывает ошибки базы данных.\n- `setAttribute` включает режим обработки ошибок.\n- `$conn = null` закрывает соединение.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\n// Без обработки ошибок\nfile_get_contents('non_existent_file.txt'); // Warning: Failed to open stream\n\n// Правильный подход\ntry {\n  if (!file_exists('non_existent_file.txt')) {\n    throw new Exception('Файл не найден!');\n  }\n} catch (Exception $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый пример не обрабатывает ошибку, вызывая стандартное предупреждение PHP.\n- Правильный подход использует `try-catch` для обработки ошибки.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Всегда используйте `try-catch`. Записывайте ошибки в лог-файлы. Не раскрывайте конфиденциальную информацию в сообщениях об ошибках. Обратитесь к официальной документации PHP (https://www.php.net/manual/en/).\n- **Альтернативы**: Используйте внешние библиотеки (например, Monolog) для обработки ошибок. Фреймворки (Laravel, Symfony) предлагают встроенные инструменты обработки ошибок.\n- Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Попробуйте сами обработку ошибок\ntry {\n  $value = 0;\n  if ($value === 0) {\n    throw new Exception('Значение не может быть нулем!');\n  }\n  echo 10 / $value;\n} catch (Exception $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n?>"
+      }
+    ]
+  }
+}

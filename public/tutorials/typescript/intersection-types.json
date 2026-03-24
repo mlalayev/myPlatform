@@ -1,0 +1,570 @@
+{
+  "id": "intersection-types",
+  "az": {
+    "title": "Intersection Tiplər",
+    "icon": "FiLink2",
+    "language": "typescript",
+    "description": "Bir neçə tipin xüsusiyyətlərini birləşdirən tiplər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Intersection Tiplər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də intersection tiplər bir neçə tipin xüsusiyyətlərini birləşdirərək yeni bir tip yaratmaq üçün istifadə olunur. Intersection tiplər `&` operatoru ilə təyin edilir və bir dəyişənin bütün birləşdirilmiş tiplərin xüsusiyyətlərinə malik olmasını təmin edir. Məsələn, bir obyekt həm `User` tipinin, həm də `Employee` tipinin xüsusiyyətlərinə sahib ola bilər. Bu, TypeScript-in statik tip sistemi sayəsində kodun çevikliyini və tip təhlükəsizliyini artırır. JavaScript-də tiplər dinamikdir və obyektlərə istənilən xüsusiyyət əlavə oluna bilər, bu da runtime səhvlərinə səbəb ola bilər. TypeScript-də intersection tiplər bu cür səhvləri kompilyasiya zamanı aşkarlayır. Intersection tiplər obyektlərdə, interfeyslərdə, type aliases ilə və funksiyalarda istifadə edilə bilər. Bu JSON faylda intersection tiplərinin tərifi, istifadə məqsədləri, JavaScript ilə fərqləri, union tipləri ilə fərqləri, sintaksisi, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Intersection Tiplərinin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection tipləri TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Xüsusiyyətlərin birləşdirilməsi**: Bir neçə tipin xüsusiyyətlərini bir obyektə birləşdirir.\n- **Tip təhlükəsizliyi**: Bütün tələb olunan xüsusiyyətlərin mövcud olmasını təmin edir.\n- **Oxunaqlılıq**: Kodun hansı xüsusiyyətlərlə işlədiyini açıq şəkildə göstərir.\n- **Alət dəstəyi**: Kod redaktorları tiplərə əsasən avtomatik tamamlamalar təklif edir.\nJavaScript-də obyektlərə dinamik olaraq xüsusiyyətlər əlavə oluna bilər, lakin bu, səhvlərə yol aça bilər. TypeScript-də intersection tiplər strukturlaşdırılmış və təhlükəsiz birləşmə təmin edir."
+      },
+      {
+        "type": "heading",
+        "text": "Intersection Tiplərinin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection tipləri `&` operatoru ilə təyin edilir. Dəyişən, obyekt və ya funksiya bütün birləşdirilmiş tiplərin xüsusiyyətlərinə malik olmalıdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Intersection tiplərinin sintaksisi\ninterface Person {\n  name: string;\n}\n\ninterface Worker {\n  job: string;\n}\n\ntype Employee = Person & Worker;\n\nlet employee: Employee = {\n  name: 'Ali',\n  job: 'Developer'\n};\n\nconsole.log(employee); // { name: 'Ali', job: 'Developer' }\n// let invalid: Employee = { name: 'Vəli' }; // Xəta: job xüsusiyyəti yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Employee` tipi `Person` və `Worker` tiplərinin birləşməsidir.\n- `employee` obyektinin həm `name`, həm də `job` xüsusiyyətləri olmalıdır.\n- Əskik xüsusiyyət kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Intersection Tipləri ilə Union Tiplərinin Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection tiplər (`&`) və union tiplər (`|`) fərqli məqsədlərə xidmət edir:\n- **Intersection tiplər**: Bütün tiplərin xüsusiyyətlərini birləşdirir (və).\n- **Union tiplər**: Yalnız bir tipin xüsusiyyətlərini tələb edir (və ya).\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Intersection vs Union\ninterface Person {\n  name: string;\n}\n\ninterface Worker {\n  job: string;\n}\n\ntype Employee = Person & Worker;\ntype Visitor = Person | Worker;\n\nlet employee: Employee = { name: 'Ali', job: 'Developer' };\nlet visitor: Visitor = { name: 'Vəli' }; // Yalnız name kifayətdir\n\nconsole.log(employee); // { name: 'Ali', job: 'Developer' }\nconsole.log(visitor); // { name: 'Vəli' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Employee` həm `name`, həm də `job` tələb edir.\n- `Visitor` yalnız birini tələb edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Obyektlərlə Intersection Tiplər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection tiplər əsasən obyekt tipləri ilə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Obyektlərlə intersection tiplər\ninterface Contact {\n  email: string;\n}\n\ninterface Profile {\n  username: string;\n}\n\ntype User = Contact & Profile;\n\nlet user: User = {\n  email: 'ali@example.com',\n  username: 'ali123'\n};\n\nconsole.log(user); // { email: 'ali@example.com', username: 'ali123' }\n// let invalid: User = { email: 'veli@example.com' }; // Xəta: username yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `User` tipi `Contact` və `Profile` tiplərinin birləşməsidir.\n- `user` obyektinin hər iki xüsusiyyəti olmalıdır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiyalarda Intersection Tiplər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection tiplər funksiya parametrlərində və ya qaytarma dəyərlərində istifadə edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Funksiyalarda intersection tiplər\ninterface HasId {\n  id: number;\n}\n\ninterface HasName {\n  name: string;\n}\n\ntype IdentifiedPerson = HasId & HasName;\n\nfunction printDetails(person: IdentifiedPerson): string {\n  return `ID: ${person.id}, Name: ${person.name}`;\n}\n\nlet person: IdentifiedPerson = { id: 1, name: 'Ali' };\nconsole.log(printDetails(person)); // ID: 1, Name: Ali\n// let invalid: IdentifiedPerson = { id: 2 }; // Xəta: name yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `IdentifiedPerson` tipi `HasId` və `HasName` tiplərinin birləşməsidir.\n- `printDetails` funksiyası hər iki xüsusiyyəti tələb edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Interfeyslərdə və Type Aliases ilə Intersection"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection tiplər interfeyslərdə və ya type aliases ilə təyin edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Interfeyslərdə və type aliases ilə intersection\ntype Address = {\n  city: string;\n};\n\ninterface Details {\n  age: number;\n}\n\ntype Citizen = Address & Details;\n\nlet citizen: Citizen = {\n  city: 'Baku',\n  age: 25\n};\n\nconsole.log(citizen); // { city: 'Baku', age: 25 }\n// let invalid: Citizen = { city: 'Istanbul' }; // Xəta: age yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Citizen` tipi `Address` və `Details` tiplərinin birləşməsidir.\n- Əskik xüsusiyyət kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Intersection Tipləri ilə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection tipləri real layihələrdə müxtəlif ssenarilərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Praktik nümunə\ninterface Product {\n  id: number;\n  name: string;\n}\n\ninterface Priced {\n  price: number;\n}\n\ntype PricedProduct = Product & Priced;\n\nfunction displayProduct(product: PricedProduct): string {\n  return `ID: ${product.id}, Name: ${product.name}, Price: ${product.price}`;\n}\n\nlet product: PricedProduct = {\n  id: 1,\n  name: 'Laptop',\n  price: 1000\n};\n\nconsole.log(displayProduct(product)); // ID: 1, Name: Laptop, Price: 1000\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `PricedProduct` tipi `Product` və `Priced` tiplərinin birləşməsidir.\n- `displayProduct` funksiyası bütün xüsusiyyətləri tələb edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection tipləri kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Bütün tələb olunan xüsusiyyətlərin mövcud olduğundan əmin olun.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\ninterface User {\n  name: string;\n}\n\ninterface Role {\n  role: string;\n}\n\ntype Admin = User & Role;\n\nfunction getAdminInfo(admin: Admin): string {\n  return `${admin.name} is ${admin.role}`;\n}\n\nlet admin: Admin = { name: 'Ali', role: 'Administrator' };\nconsole.log(getAdminInfo(admin)); // Ali is Administrator\n// let invalid: Admin = { name: 'Vəli' }; // Xəta: role yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Admin` tipi hər iki xüsusiyyəti tələb edir.\n- Əskik xüsusiyyət kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet unsafe: any = { name: 'Ali' };\nconsole.log(unsafe.name, unsafe.job); // undefined, runtime xətası ola bilər\n\n// Düzgün yol\ninterface Person {\n  name: string;\n}\n\ninterface Worker {\n  job: string;\n}\n\ntype Employee = Person & Worker;\nlet employee: Employee = { name: 'Ali', job: 'Developer' };\nconsole.log(employee.name, employee.job); // Ali, Developer\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime xətalarına səbəb ola bilər.\n- Intersection tipi təhlükəsizliyi təmin edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection tipləri real layihələrdə geniş istifadə olunur:\n- **API cavabları**: Müxtəlif məlumat strukturlarını birləşdirmək.\n- **Kompleks obyektlər**: Çoxsaylı xüsusiyyətləri olan obyektlər yaratmaq.\n- **Rəqəmsal modellər**: Fərqli rolları və ya funksiyaları birləşdirmək.\n- **Utility tipləri**: Yenidən istifadə edilə bilən tiplər yaratmaq.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface Item {\n  id: number;\n  name: string;\n}\n\ninterface Discountable {\n  discount: number;\n}\n\ntype DiscountedItem = Item & Discountable;\n\nfunction calculateFinalPrice(item: DiscountedItem): number {\n  return item.id * item.discount;\n}\n\nlet item: DiscountedItem = { id: 1, name: 'Phone', discount: 0.9 };\nconsole.log(calculateFinalPrice(item)); // 0.9\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `DiscountedItem` tipi `Item` və `Discountable` tiplərinin birləşməsidir.\n- `calculateFinalPrice` funksiyası bütün xüsusiyyətləri istifadə edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Dəqiq tiplərdən istifadə edin. `any` əvəzinə intersection tipləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Intersection tipləri əvəzinə `any` və ya JavaScript dinamik tipləri istifadə edilə bilər, lakin intersection tiplər təhlükəsizlik və oxunaqlılıq baxımından üstündür.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün intersection tipləri nümunəsi\ninterface User {\n  name: string;\n}\n\ninterface Role {\n  role: string;\n}\n\ntype Admin = User & Role;\n\nconst admin: Admin = { name: 'Məmməd', role: 'Admin' };\nconsole.log(admin.name, admin.role); // Məmməd, Admin\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Intersection Types",
+    "icon": "FiLink2",
+    "language": "typescript",
+    "description": "Types that combine the properties of multiple types.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Intersection Types?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection types in TypeScript combine the properties of multiple types into a single type using the `&` operator. This ensures that a variable must have all the properties of the combined types. For example, an object can have both the properties of a `User` type and an `Employee` type. Intersection types enhance code flexibility and type safety through TypeScript’s static type system. In JavaScript, objects can dynamically gain properties, which may lead to runtime errors. TypeScript’s intersection types catch such errors at compile time. Intersection types can be used with objects, interfaces, type aliases, and functions. This JSON file explains intersection types’ definition, purposes, differences from JavaScript, differences from union types, syntax, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Intersection Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection types in TypeScript serve the following purposes:\n- **Property combination**: Combine the properties of multiple types into one object.\n- **Type safety**: Ensure all required properties are present.\n- **Readability**: Clearly indicate the properties a variable must have.\n- **Tooling support**: Code editors provide autocompletion based on types.\nIn JavaScript, objects can dynamically gain properties, which may cause errors. TypeScript’s intersection types provide structured and safe combination."
+      },
+      {
+        "type": "heading",
+        "text": "Intersection Type Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection types are defined using the `&` operator. A variable, object, or function must have all the properties of the combined types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Intersection type syntax\ninterface Person {\n  name: string;\n}\n\ninterface Worker {\n  job: string;\n}\n\ntype Employee = Person & Worker;\n\nlet employee: Employee = {\n  name: 'Alice',\n  job: 'Developer'\n};\n\nconsole.log(employee); // { name: 'Alice', job: 'Developer' }\n// let invalid: Employee = { name: 'Bob' }; // Error: property 'job' is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Employee` type combines `Person` and `Worker` types.\n- `employee` object must have both `name` and `job` properties.\n- Missing properties trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Intersection Types vs. Union Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection types (`&`) and union types (`|`) serve different purposes:\n- **Intersection types**: Combine all properties of multiple types (and).\n- **Union types**: Require only one type’s properties (or).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Intersection vs Union\ninterface Person {\n  name: string;\n}\n\ninterface Worker {\n  job: string;\n}\n\ntype Employee = Person & Worker;\ntype Visitor = Person | Worker;\n\nlet employee: Employee = { name: 'Alice', job: 'Developer' };\nlet visitor: Visitor = { name: 'Bob' }; // Only name is enough\n\nconsole.log(employee); // { name: 'Alice', job: 'Developer' }\nconsole.log(visitor); // { name: 'Bob' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Employee` requires both `name` and `job`.\n- `Visitor` requires only one of them.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Intersection Types with Objects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection types are primarily used with object types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Intersection types with objects\ninterface Contact {\n  email: string;\n}\n\ninterface Profile {\n  username: string;\n}\n\ntype User = Contact & Profile;\n\nlet user: User = {\n  email: 'alice@example.com',\n  username: 'alice123'\n};\n\nconsole.log(user); // { email: 'alice@example.com', username: 'alice123' }\n// let invalid: User = { email: 'bob@example.com' }; // Error: username is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `User` type combines `Contact` and `Profile` types.\n- `user` object must have both properties.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Intersection Types in Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection types can be used in function parameters or return values.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Intersection types in functions\ninterface HasId {\n  id: number;\n}\n\ninterface HasName {\n  name: string;\n}\n\ntype IdentifiedPerson = HasId & HasName;\n\nfunction printDetails(person: IdentifiedPerson): string {\n  return `ID: ${person.id}, Name: ${person.name}`;\n}\n\nlet person: IdentifiedPerson = { id: 1, name: 'Alice' };\nconsole.log(printDetails(person)); // ID: 1, Name: Alice\n// let invalid: IdentifiedPerson = { id: 2 }; // Error: name is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `IdentifiedPerson` type combines `HasId` and `HasName` types.\n- `printDetails` function requires both properties.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Intersection in Interfaces and Type Aliases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection types can be defined in interfaces or type aliases.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Intersection in interfaces and type aliases\ntype Address = {\n  city: string;\n};\n\ninterface Details {\n  age: number;\n}\n\ntype Citizen = Address & Details;\n\nlet citizen: Citizen = {\n  city: 'London',\n  age: 25\n};\n\nconsole.log(citizen); // { city: 'London', age: 25 }\n// let invalid: Citizen = { city: 'Paris' }; // Error: age is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Citizen` type combines `Address` and `Details` types.\n- Missing properties trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Working with Intersection Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection types are used in various scenarios in real projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Practical example\ninterface Product {\n  id: number;\n  name: string;\n}\n\ninterface Priced {\n  price: number;\n}\n\ntype PricedProduct = Product & Priced;\n\nfunction displayProduct(product: PricedProduct): string {\n  return `ID: ${product.id}, Name: ${product.name}, Price: ${product.price}`;\n}\n\nlet product: PricedProduct = {\n  id: 1,\n  name: 'Laptop',\n  price: 1000\n};\n\nconsole.log(displayProduct(product)); // ID: 1, Name: Laptop, Price: 1000\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `PricedProduct` type combines `Product` and `Priced` types.\n- `displayProduct` function uses all properties.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection types enhance code safety, but caution is needed:\n- Ensure all required properties are present.\n- Avoid `any` as it reduces type safety.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\ninterface User {\n  name: string;\n}\n\ninterface Role {\n  role: string;\n}\n\ntype Admin = User & Role;\n\nfunction getAdminInfo(admin: Admin): string {\n  return `${admin.name} is ${admin.role}`;\n}\n\nlet admin: Admin = { name: 'Alice', role: 'Administrator' };\nconsole.log(getAdminInfo(admin)); // Alice is Administrator\n// let invalid: Admin = { name: 'Bob' }; // Error: role is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Admin` type requires both properties.\n- Missing properties trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet unsafe: any = { name: 'Alice' };\nconsole.log(unsafe.name, unsafe.job); // undefined, may cause runtime errors\n\n// Correct approach\ninterface Person {\n  name: string;\n}\n\ninterface Worker {\n  job: string;\n}\n\ntype Employee = Person & Worker;\nlet employee: Employee = { name: 'Alice', job: 'Developer' };\nconsole.log(employee.name, employee.job); // Alice, Developer\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and may cause runtime errors.\n- Intersection type ensures type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Intersection types are widely used in real projects:\n- **API responses**: Combining multiple data structures.\n- **Complex objects**: Creating objects with multiple properties.\n- **Digital models**: Combining different roles or functionalities.\n- **Utility types**: Creating reusable types.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface Item {\n  id: number;\n  name: string;\n}\n\ninterface Discountable {\n  discount: number;\n}\n\ntype DiscountedItem = Item & Discountable;\n\nfunction calculateFinalPrice(item: DiscountedItem): number {\n  return item.id * item.discount;\n}\n\nlet item: DiscountedItem = { id: 1, name: 'Phone', discount: 0.9 };\nconsole.log(calculateFinalPrice(item)); // 0.9\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `DiscountedItem` type combines `Item` and `Discountable` types.\n- `calculateFinalPrice` function uses all properties.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use precise types. Prefer intersection types over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Instead of intersection types, `any` or JavaScript’s dynamic typing can be used, but intersection types offer better safety and readability.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself intersection types example\ninterface User {\n  name: string;\n}\n\ninterface Role {\n  role: string;\n}\n\ntype Admin = User & Role;\n\nconst admin: Admin = { name: 'John', role: 'Admin' };\nconsole.log(admin.name, admin.role); // John, Admin\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Типы пересечения",
+    "icon": "FiLink2",
+    "language": "typescript",
+    "description": "Типы, объединяющие свойства нескольких типов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое типы пересечения?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы пересечения в TypeScript объединяют свойства нескольких типов в один тип с помощью оператора `&`. Это гарантирует, что переменная должна иметь все свойства объединенных типов. Например, объект может иметь свойства как типа `User`, так и типа `Employee`. Типы пересечения повышают гибкость и безопасность типов благодаря статической системе типов TypeScript. В JavaScript объекты могут динамически получать свойства, что может привести к ошибкам во время выполнения. Типы пересечения TypeScript обнаруживают такие ошибки на этапе компиляции. Типы пересечения могут использоваться с объектами, интерфейсами, псевдонимами типов и функциями. Этот JSON-файл подробно объясняет определение типов пересечения, их назначение, отличия от JavaScript, отличия от типов объединения, синтаксис, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение типов пересечения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы пересечения в TypeScript используются для следующих целей:\n- **Объединение свойств**: Объединяют свойства нескольких типов в один объект.\n- **Безопасность типов**: Гарантируют наличие всех требуемых свойств.\n- **Читаемость**: Четко указывают, какие свойства должен иметь объект.\n- **Поддержка инструментов**: Редакторы кода предоставляют автодополнение на основе типов.\nВ JavaScript объекты могут динамически получать свойства, что может вызвать ошибки. Типы пересечения TypeScript обеспечивают структурированное и безопасное объединение."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис типов пересечения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы пересечения определяются с помощью оператора `&`. Переменная, объект или функция должны иметь все свойства объединенных типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Синтаксис типов пересечения\ninterface Person {\n  name: string;\n}\n\ninterface Worker {\n  job: string;\n}\n\ntype Employee = Person & Worker;\n\nlet employee: Employee = {\n  name: 'Алиса',\n  job: 'Разработчик'\n};\n\nconsole.log(employee); // { name: 'Алиса', job: 'Разработчик' }\n// let invalid: Employee = { name: 'Боб' }; // Ошибка: отсутствует свойство 'job'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `Employee` объединяет типы `Person` и `Worker`.\n- Объект `employee` должен иметь свойства `name` и `job`.\n- Отсутствие свойств вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Типы пересечения против типов объединения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы пересечения (`&`) и типы объединения (`|`) служат разным целям:\n- **Типы пересечения**: Объединяют все свойства нескольких типов (и).\n- **Типы объединения**: Требуют свойства только одного типа (или).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пересечение против объединения\ninterface Person {\n  name: string;\n}\n\ninterface Worker {\n  job: string;\n}\n\ntype Employee = Person & Worker;\ntype Visitor = Person | Worker;\n\nlet employee: Employee = { name: 'Алиса', job: 'Разработчик' };\nlet visitor: Visitor = { name: 'Боб' }; // Достаточно только name\n\nconsole.log(employee); // { name: 'Алиса', job: 'Разработчик' }\nconsole.log(visitor); // { name: 'Боб' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Employee` требует наличия `name` и `job`.\n- `Visitor` требует только одного из них.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Типы пересечения с объектами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы пересечения в основном используются с объектными типами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Типы пересечения с объектами\ninterface Contact {\n  email: string;\n}\n\ninterface Profile {\n  username: string;\n}\n\ntype User = Contact & Profile;\n\nlet user: User = {\n  email: 'alice@example.com',\n  username: 'alice123'\n};\n\nconsole.log(user); // { email: 'alice@example.com', username: 'alice123' }\n// let invalid: User = { email: 'bob@example.com' }; // Ошибка: отсутствует username\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `User` объединяет типы `Contact` и `Profile`.\n- Объект `user` должен иметь оба свойства.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Типы пересечения в функциях"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы пересечения могут использоваться в параметрах или возвращаемых значениях функций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Типы пересечения в функциях\ninterface HasId {\n  id: number;\n}\n\ninterface HasName {\n  name: string;\n}\n\ntype IdentifiedPerson = HasId & HasName;\n\nfunction printDetails(person: IdentifiedPerson): string {\n  return `ID: ${person.id}, Имя: ${person.name}`;\n}\n\nlet person: IdentifiedPerson = { id: 1, name: 'Алиса' };\nconsole.log(printDetails(person)); // ID: 1, Имя: Алиса\n// let invalid: IdentifiedPerson = { id: 2 }; // Ошибка: отсутствует name\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `IdentifiedPerson` объединяет типы `HasId` и `HasName`.\n- Функция `printDetails` требует оба свойства.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пересечение в интерфейсах и псевдонимах типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы пересечения могут быть определены в интерфейсах или псевдонимах типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пересечение в интерфейсах и псевдонимах типов\ntype Address = {\n  city: string;\n};\n\ninterface Details {\n  age: number;\n}\n\ntype Citizen = Address & Details;\n\nlet citizen: Citizen = {\n  city: 'Лондон',\n  age: 25\n};\n\nconsole.log(citizen); // { city: 'Лондон', age: 25 }\n// let invalid: Citizen = { city: 'Париж' }; // Ошибка: отсутствует age\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `Citizen` объединяет типы `Address` и `Details`.\n- Отсутствие свойств вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Работа с типами пересечения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы пересечения используются в различных сценариях в реальных проектах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Практический пример\ninterface Product {\n  id: number;\n  name: string;\n}\n\ninterface Priced {\n  price: number;\n}\n\ntype PricedProduct = Product & Priced;\n\nfunction displayProduct(product: PricedProduct): string {\n  return `ID: ${product.id}, Название: ${product.name}, Цена: ${product.price}`;\n}\n\nlet product: PricedProduct = {\n  id: 1,\n  name: 'Ноутбук',\n  price: 1000\n};\n\nconsole.log(displayProduct(product)); // ID: 1, Название: Ноутбук, Цена: 1000\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `PricedProduct` объединяет типы `Product` и `Priced`.\n- Функция `displayProduct` использует все свойства.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы пересечения повышают безопасность кода, но требуется осторожность:\n- Убедитесь, что все требуемые свойства присутствуют.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\ninterface User {\n  name: string;\n}\n\ninterface Role {\n  role: string;\n}\n\ntype Admin = User & Role;\n\nfunction getAdminInfo(admin: Admin): string {\n  return `${admin.name} является ${admin.role}`;\n}\n\nlet admin: Admin = { name: 'Алиса', role: 'Администратор' };\nconsole.log(getAdminInfo(admin)); // Алиса является Администратор\n// let invalid: Admin = { name: 'Боб' }; // Ошибка: отсутствует role\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `Admin` требует оба свойства.\n- Отсутствие свойств вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet unsafe: any = { name: 'Алиса' };\nconsole.log(unsafe.name, unsafe.job); // undefined, может вызвать ошибки во время выполнения\n\n// Правильный подход\ninterface Person {\n  name: string;\n}\n\ninterface Worker {\n  job: string;\n}\n\ntype Employee = Person & Worker;\nlet employee: Employee = { name: 'Алиса', job: 'Разработчик' };\nconsole.log(employee.name, employee.job); // Алиса, Разработчик\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Тип пересечения обеспечивает безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы пересечения широко используются в реальных проектах:\n- **Ответы API**: Объединение различных структур данных.\n- **Сложные объекты**: Создание объектов с множеством свойств.\n- **Цифровые модели**: Объединение разных ролей или функциональностей.\n- **Утилитарные типы**: Создание многоразовых типов.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface Item {\n  id: number;\n  name: string;\n}\n\ninterface Discountable {\n  discount: number;\n}\n\ntype DiscountedItem = Item & Discountable;\n\nfunction calculateFinalPrice(item: DiscountedItem): number {\n  return item.id * item.discount;\n}\n\nlet item: DiscountedItem = { id: 1, name: 'Телефон', discount: 0.9 };\nconsole.log(calculateFinalPrice(item)); // 0.9\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `DiscountedItem` объединяет типы `Item` и `Discountable`.\n- Функция `calculateFinalPrice` использует все свойства.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте точные типы. Предпочитайте типы пересечения вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо типов пересечения можно использовать `any` или динамическую типизацию JavaScript, но типы пересечения обеспечивают лучшую безопасность и читаемость.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример типов пересечения для самостоятельного тестирования\ninterface User {\n  name: string;\n}\n\ninterface Role {\n  role: string;\n}\n\ntype Admin = User & Role;\n\nconst admin: Admin = { name: 'Джон', role: 'Админ' };\nconsole.log(admin.name, admin.role); // Джон, Админ\n"
+      }
+    ]
+  }
+}

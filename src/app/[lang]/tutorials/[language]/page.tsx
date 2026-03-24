@@ -292,29 +292,27 @@ export default function TutorialLanguagePage() {
     }
   }, [language, langKey, router]);
 
-  useEffect(() => {
-    // Fetch progress for available languages only
-    const fetchAllProgress = async () => {
-      const progressData: LanguageProgress = {};
-      let visitedLessonsByLang: VisitedLessonsByLang = {};
-      try {
-        const res = await fetch("/api/user/lessons");
-        if (res.ok) {
-          const data = await res.json();
-          visitedLessonsByLang =
-            typeof data === "object" && !Array.isArray(data) && data !== null
-              ? data
-              : {};
-        } else {
-          visitedLessonsByLang = JSON.parse(
-            localStorage.getItem("visitedLessons") || "{}"
-          );
-        }
-      } catch (e) {
+  const fetchAllProgress = React.useCallback(async () => {
+    const progressData: LanguageProgress = {};
+    let visitedLessonsByLang: VisitedLessonsByLang = {};
+    try {
+      const res = await fetch("/api/user/lessons");
+      if (res.ok) {
+        const data = await res.json();
+        visitedLessonsByLang =
+          typeof data === "object" && !Array.isArray(data) && data !== null
+            ? data
+            : {};
+      } else {
         visitedLessonsByLang = JSON.parse(
           localStorage.getItem("visitedLessons") || "{}"
         );
       }
+    } catch (e) {
+      visitedLessonsByLang = JSON.parse(
+        localStorage.getItem("visitedLessons") || "{}"
+      );
+    }
       for (const lang of languages) {
         const apiLangName = getApiLanguageName(lang.name);
         console.log(`Language: ${lang.name}, API Name: ${apiLangName}`);
@@ -353,13 +351,51 @@ export default function TutorialLanguagePage() {
         ).length;
         const percent =
           total > 0 ? Math.round((visitedCount / total) * 100) : 0;
-        console.log(`${apiLangName} progress: ${visitedCount}/${total} = ${percent}%`);
+        console.log(`🔥 ${apiLangName} progress: ${visitedCount}/${total} = ${percent}%`);
         progressData[apiLangName] = { percent, visited: visitedCount, total };
       }
       setLanguageProgress(progressData);
-    };
+    }, [langKey]);
+
+  useEffect(() => {
+    // Initial fetch
     fetchAllProgress();
-  }, [langKey]);
+
+    // Listen for localStorage changes (when lesson is visited from other tabs)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'visitedLessons') {
+        console.log('Visited lessons updated from other tab, refreshing progress...');
+        fetchAllProgress();
+      }
+    };
+
+    // Listen for custom event (when lesson is visited in same tab)
+    const handleVisitedLessonsUpdate = (e: CustomEvent) => {
+      console.log('🔥 Visited lessons updated in same tab, refreshing progress...', e.detail);
+      console.log('🔥 Current languageProgress before update:', languageProgress);
+      fetchAllProgress().then(() => {
+        console.log('🔥 Progress refreshed after custom event');
+      });
+    };
+
+    // Listen for window focus (when returning from lesson page)
+    const handleWindowFocus = () => {
+      console.log('Window focused, refreshing progress...');
+      fetchAllProgress();
+    };
+
+    // Add event listeners
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('focus', handleWindowFocus);
+    window.addEventListener('visitedLessonsUpdated', handleVisitedLessonsUpdate as EventListener);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', handleWindowFocus);
+      window.removeEventListener('visitedLessonsUpdated', handleVisitedLessonsUpdate as EventListener);
+    };
+  }, [fetchAllProgress, languageProgress]);
 
   React.useEffect(() => {
     if (language !== "languages") return;
@@ -445,15 +481,17 @@ export default function TutorialLanguagePage() {
     const isCompleted = progress.percent === 100 && progress.total > 0;
 
     const cardContent = (
-      <div
-        className={
-          unavailable
-            ? `${styles.languageItem} ${styles.languageItemUnavailable}`
-            : isCompleted
-            ? `${styles.languageItem} ${styles.completed}`
-            : styles.languageItem
-        }
-      >
+      <div className={isCompleted ? styles.hoverArea : ''}>
+        <div className={isCompleted ? styles.cardWrapper : ''}>
+          <div
+            className={
+              unavailable
+                ? `${styles.languageItem} ${styles.languageItemUnavailable}`
+                : isCompleted
+                ? `${styles.languageItem} ${styles.completed}`
+                : styles.languageItem
+            }
+          >
         <div className={styles.itemContent}>
           <div className={styles.itemLeft}>
             <div className={styles.itemIcon}>
@@ -487,17 +525,45 @@ export default function TutorialLanguagePage() {
               />
             </div>
             <span className={`${styles.progressText} ${isCompleted ? styles.completedText : ''}`}>
-              {progress.percent}% tamamlandı
+              {progress.percent}%
             </span>
           </div>
         )}
         
+        {/* Card Back Side - Only for completed lessons */}
         {isCompleted && (
-          <div className={styles.completedBadge}>
-            <FiIcons.FiCheck size={16} />
-            Tamamlandı
+          <div className={styles.cardBack}>
+            <div className={styles.cardBackButtons}>
+              <button 
+                className={styles.cardBackButton}
+                onClick={() => window.location.href = `/az/tutorials/languages/${apiLangName}`}
+              >
+                <FiIcons.FiBookOpen size={16} />
+                Dərslərə Bax
+              </button>
+              <button 
+                className={`${styles.cardBackButton} ${styles.secondary}`}
+                onClick={() => {
+                  // TODO: Implement test system
+                  alert('Test sistemi tezliklə əlavə ediləcək!');
+                }}
+              >
+                <FiIcons.FiAward size={16} />
+                Test Et
+              </button>
+              <button 
+                className={`${styles.cardBackButton} ${styles.success}`}
+                onClick={() => window.location.href = `/az/exercises`}
+              >
+                <FiIcons.FiTarget size={16} />
+                Məşqlər
+              </button>
+            </div>
           </div>
         )}
+        
+        </div>
+        </div>
       </div>
     );
     if (isLink) {
@@ -528,8 +594,8 @@ export default function TutorialLanguagePage() {
           titleKey="tutorials.frameworks.title"
           subtitleKey="tutorials.frameworks.subtitle"
         />
-        <div className={styles.categoryListWrapper}>
-          <div className={styles.tutorialsGrid}>
+        <div className={styles.languagesWrapper}>
+          <div className={styles.languagesList}>
             {frameworks.map((fw) => (
               <TutorialCard key={fw.name} item={fw} />
             ))}

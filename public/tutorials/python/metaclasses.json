@@ -1,0 +1,546 @@
+{
+  "id": "metaclasses",
+  "az": {
+    "title": "Metaclasses və Sinif Yaradılması",
+    "icon": "FiBox",
+    "language": "python",
+    "description": "Metaclasses ilə sinif yaradılmasının fərdiləşdirilməsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Metaclasses Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da metaclass, sinifləri yaradan sinifdir. Adi siniflər obyektləri yaradır, metaclass-lar isə sinifləri yaradır. Metaclass-lar sinifin strukturunu, davranışını və ya atributlarını fərdiləşdirmək üçün istifadə olunur. Bu JSON faylda metaclass-ların əsasları, `type` sinifi, metaclass-ların istifadəsi, `__new__` və `__init__` metodları, metaclass-lar ilə adi siniflər arasındakı fərqlər, TypeScript/JavaScript-dəki sinif mexanizmləri ilə müqayisə, səhvlərdən qaçınma yolları, yaddaş istifadəsi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Kod nümunələri istifadəçi girişi tələb etmir, UTF-8 uyğundur və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# type Sinifi və Sinif Yaradılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da bütün siniflər standart olaraq `type` metaclass-ından istifadə edir. `type` həm sinif yaratmaq, həm də obyektin tipini öyrənmək üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# type ilə sinif yaradılması\nMyClass = type('MyClass', (), {'x': 1})\nobj = MyClass()\nprint(obj.x)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `type('MyClass', (), {'x': 1})` yeni bir sinif yaradır.\n- `MyClass` sinifinin `x` atributu var.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Öz Metaclass-ın Yaradılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metaclass yaratmaq üçün `type` sinifindən miras alan bir sinif yazılır və `__new__` və ya `__init__` metodları fərdiləşdirilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Öz metaclass-ın yaradılması\nclass MyMeta(type):\n    def __new__(cls, name, bases, attrs):\n        attrs['custom_attr'] = 'Mənim xüsusi atributum'\n        return super().__new__(cls, name, bases, attrs)\n\nclass MyClass(metaclass=MyMeta):\n    pass\n\nobj = MyClass()\nprint(obj.custom_attr)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `MyMeta` metaclass-ı sinifə `custom_attr` atributu əlavə edir.\n- `MyClass` bu metaclass-dan istifadə edir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# __new__ və __init__ Metodları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metaclass-larda iki əsas metod var:\n- `__new__`: Sinifi yaratmaq üçün istifadə olunur (obyektin yaradılmasından əvvəl).\n- `__init__`: Sinifi başlatmaq üçün istifadə olunur (obyekt yaradıldıqdan sonra).\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# __new__ və __init__ ilə metaclass\nclass MyMeta(type):\n    def __new__(cls, name, bases, attrs):\n        print(f'{name} sinifi yaradılır')\n        return super().__new__(cls, name, bases, attrs)\n\n    def __init__(cls, name, bases, attrs):\n        print(f'{name} sinifi başlatılır')\n        super().__init__(name, bases, attrs)\n\nclass MyClass(metaclass=MyMeta):\n    pass\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `__new__` sinifin yaradılmasını idarə edir.\n- `__init__` sinifin başlanğıc konfiqurasiyasını edir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Metaclass-lar ilə Adi Siniflər Arasındakı Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metaclass-lar və adi siniflər fərqlidir:\n- **Adi siniflər**: Obyektləri yaradır.\n- **Metaclass-lar**: Sinifləri yaradır və onların davranışını fərdiləşdirir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Adi sinif və metaclass müqayisəsi\nclass RegularClass:\n    x = 1\n\nclass MetaClass(type):\n    def __new__(cls, name, bases, attrs):\n        attrs['x'] = 100\n        return super().__new__(cls, name, bases, attrs)\n\nclass CustomClass(metaclass=MetaClass):\n    pass\n\nprint(RegularClass().x)\nprint(CustomClass().x)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `RegularClass` adi sinifdir, `x` dəyəri 1-dir.\n- `CustomClass` metaclass ilə `x` dəyərini 100 edir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Python ilə TypeScript və JavaScript-in Müqayisəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da metaclass-lar TypeScript/JavaScript-dəki sinif mexanizmlərindən fərqlidir:\n- **Python**: Metaclass-lar sinif yaradılmasını tam fərdiləşdirir.\n- **JavaScript/TypeScript**: Sinif dekoratorları oxşar funksiyanı yerinə yetirir, lakin daha məhduddur.\nNümunə (Python vs JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Python metaclass\nclass MyMeta(type):\n    def __new__(cls, name, bases, attrs):\n        attrs['custom'] = 'Python'\n        return super().__new__(cls, name, bases, attrs)\n\nclass MyClass(metaclass=MyMeta):\n    pass\n\nprint(MyClass.custom)\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// JavaScript dekoratoru\nfunction addCustom(constructor) {\n    constructor.custom = 'JavaScript';\n}\n\n@addCustom\nclass MyClass {\n}\n\nconsole.log(MyClass.custom);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Python-da metaclass sinifə atribut əlavə edir.\n- JavaScript-də dekorator oxşar iş görür.\nAşağıda bu kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Səhvlərdən Qaçınma Yolları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metaclass-larla işləyərkən səhvlərdən qaçınmaq üçün:\n- **Düzgün miras**: `type` və ya başqa metaclass-dan miras alın.\n- **Sadəlik**: Mürəkkəb metaclass-lardan çəkinin.\n- **Debugging**: Metaclass metodlarında çap funksiyalarından istifadə edin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Səhvlərdən qaçınma\nclass SafeMeta(type):\n    def __new__(cls, name, bases, attrs):\n        try:\n            print(f'{name} sinifi yaradılır')\n            return super().__new__(cls, name, bases, attrs)\n        except Exception as e:\n            print(f'Xəta: {e}')\n            raise\n\nclass MyClass(metaclass=SafeMeta):\n    pass\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `try-except` ilə xətalar tutulur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Yaddaş İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metaclass-lar adətən az yaddaş istifadə edir, çünki sinifin yaradılması zamanı işləyir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Yaddaş istifadəsi\nimport sys\n\nclass MyMeta(type):\n    def __new__(cls, name, bases, attrs):\n        return super().__new__(cls, name, bases, attrs)\n\nclass MyClass(metaclass=MyMeta):\n    pass\n\nprint(f'MyClass ölçüsü: {sys.getsizeof(MyClass)} bayt')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `sys.getsizeof` sinifin yaddaş istifadəsini göstərir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metaclass-lar real layihələrdə aşağıdakı ssenarilərdə istifadə olunur:\n- **ORM sistemləri**: Django kimi çərçivələrdə modelləri fərdiləşdirmək.\n- **Sinif validasiyası**: Sinif atributlarını yoxlamaq.\n- **Avtomatik qeydiyyat**: Sinifləri avtomatik qeydə almaq.\nNümunə (sadə ORM simulyasiyası):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Sadə ORM metaclass\nclass ModelMeta(type):\n    def __new__(cls, name, bases, attrs):\n        attrs['fields'] = {k: v for k, v in attrs.items() if not k.startswith('__')}\n        return super().__new__(cls, name, bases, attrs)\n\nclass User(metaclass=ModelMeta):\n    username = str\n    email = str\n\nprint(User.fields)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ModelMeta` sinif atributlarını `fields` dict-inə yığır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metaclass-larla bağlı qabaqcıl mövzular:\n- **Çoxsaylı metaclass-lar**: Birdən çox metaclass-ın istifadəsi.\n- **Metaclass konfliktləri**: Miras zəncirindəki problemlər.\nBu mövzular haqqında ətraflı məlumat üçün Python sənədlərinə (https://docs.python.org) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "# Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Sadə metaclass-lar istifadə edin, xətaları `try-except` ilə idarə edin, rəsmi sənədlərdən (https://docs.python.org) faydalanın.\n- **Alternativlər**: Sadə problemlər üçün sinif dekoratorlarından istifadə edin.\nAşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# Sınaq üçün Python nümunəsi\nclass MyMeta(type):\n    def __new__(cls, name, bases, attrs):\n        attrs['custom_attr'] = 'Mənim xüsusi atributum'\n        return super().__new__(cls, name, bases, attrs)\n\nclass MyClass(metaclass=MyMeta):\n    pass\n\nprint(MyClass.custom_attr)\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Metaclasses & Class Creation",
+    "icon": "FiBox",
+    "language": "python",
+    "description": "Customizing class creation with metaclasses.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# What are Metaclasses?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In Python, a metaclass is a class that creates other classes. While regular classes create objects, metaclasses create classes, allowing customization of class structure, behavior, or attributes. This JSON file explains metaclass basics, the `type` class, metaclass usage, `__new__` and `__init__` methods, differences between metaclasses and regular classes, comparison with TypeScript/JavaScript class mechanisms, error avoidance strategies, memory usage, and real-world usage scenarios in detail. Code examples do not require user input, are UTF-8 compatible, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# The type Class and Class Creation"
+      },
+      {
+        "type": "paragraph",
+        "text": "In Python, all classes use the `type` metaclass by default. The `type` class is used both to create classes and to check an object’s type.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Class creation with type\nMyClass = type('MyClass', (), {'x': 1})\nobj = MyClass()\nprint(obj.x)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `type('MyClass', (), {'x': 1})` creates a new class.\n- `MyClass` has an `x` attribute.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Creating a Custom Metaclass"
+      },
+      {
+        "type": "paragraph",
+        "text": "To create a metaclass, inherit from `type` and customize `__new__` or `__init__` methods.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Creating a custom metaclass\nclass MyMeta(type):\n    def __new__(cls, name, bases, attrs):\n        attrs['custom_attr'] = 'My custom attribute'\n        return super().__new__(cls, name, bases, attrs)\n\nclass MyClass(metaclass=MyMeta):\n    pass\n\nobj = MyClass()\nprint(obj.custom_attr)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `MyMeta` adds a `custom_attr` attribute to the class.\n- `MyClass` uses this metaclass.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# __new__ and __init__ Methods"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metaclasses use two main methods:\n- `__new__`: Used to create the class (before instantiation).\n- `__init__`: Used to initialize the class (after creation).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Metaclass with __new__ and __init__\nclass MyMeta(type):\n    def __new__(cls, name, bases, attrs):\n        print(f'Creating class {name}')\n        return super().__new__(cls, name, bases, attrs)\n\n    def __init__(cls, name, bases, attrs):\n        print(f'Initializing class {name}')\n        super().__init__(name, bases, attrs)\n\nclass MyClass(metaclass=MyMeta):\n    pass\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `__new__` handles class creation.\n- `__init__` handles class initialization.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Metaclasses vs. Regular Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metaclasses and regular classes differ:\n- **Regular classes**: Create objects.\n- **Metaclasses**: Create classes and customize their behavior.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Regular class vs. metaclass\nclass RegularClass:\n    x = 1\n\nclass MetaClass(type):\n    def __new__(cls, name, bases, attrs):\n        attrs['x'] = 100\n        return super().__new__(cls, name, bases, attrs)\n\nclass CustomClass(metaclass=MetaClass):\n    pass\n\nprint(RegularClass().x)\nprint(CustomClass().x)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `RegularClass` is a standard class with `x` set to 1.\n- `CustomClass` uses a metaclass to set `x` to 100.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Python vs. TypeScript and JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python’s metaclasses differ from TypeScript/JavaScript class mechanisms:\n- **Python**: Metaclasses fully customize class creation.\n- **JavaScript/TypeScript**: Class decorators provide similar functionality but are more limited.\nExample (Python vs. JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Python metaclass\nclass MyMeta(type):\n    def __new__(cls, name, bases, attrs):\n        attrs['custom'] = 'Python'\n        return super().__new__(cls, name, bases, attrs)\n\nclass MyClass(metaclass=MyMeta):\n    pass\n\nprint(MyClass.custom)\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// JavaScript decorator\nfunction addCustom(constructor) {\n    constructor.custom = 'JavaScript';\n}\n\n@addCustom\nclass MyClass {\n}\n\nconsole.log(MyClass.custom);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Python’s metaclass adds a class attribute.\n- JavaScript’s decorator does a similar job.\nYou can test these codes in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Avoiding Errors"
+      },
+      {
+        "type": "paragraph",
+        "text": "To avoid errors with metaclasses:\n- **Proper inheritance**: Inherit from `type` or another metaclass.\n- **Simplicity**: Avoid overly complex metaclasses.\n- **Debugging**: Use print statements in metaclass methods for debugging.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Avoiding errors\nclass SafeMeta(type):\n    def __new__(cls, name, bases, attrs):\n        try:\n            print(f'Creating class {name}')\n            return super().__new__(cls, name, bases, attrs)\n        except Exception as e:\n            print(f'Error: {e}')\n            raise\n\nclass MyClass(metaclass=SafeMeta):\n    pass\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `try-except` catches errors during class creation.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Memory Usage"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metaclasses typically use minimal memory since they operate during class creation.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Memory usage\nimport sys\n\nclass MyMeta(type):\n    def __new__(cls, name, bases, attrs):\n        return super().__new__(cls, name, bases, attrs)\n\nclass MyClass(metaclass=MyMeta):\n    pass\n\nprint(f'MyClass size: {sys.getsizeof(MyClass)} bytes')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `sys.getsizeof` shows the memory usage of the class.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Metaclasses are used in real-world projects for:\n- **ORM systems**: Customizing models in frameworks like Django.\n- **Class validation**: Validating class attributes.\n- **Automatic registration**: Registering classes automatically.\nExample (simple ORM simulation):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Simple ORM metaclass\nclass ModelMeta(type):\n    def __new__(cls, name, bases, attrs):\n        attrs['fields'] = {k: v for k, v in attrs.items() if not k.startswith('__')}\n        return super().__new__(cls, name, bases, attrs)\n\nclass User(metaclass=ModelMeta):\n    username = str\n    email = str\n\nprint(User.fields)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ModelMeta` collects class attributes into a `fields` dictionary.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advanced topics related to metaclasses:\n- **Multiple metaclasses**: Using more than one metaclass.\n- **Metaclass conflicts**: Issues in inheritance chains.\nFor more details, refer to the Python documentation (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use simple metaclasses, handle errors with try-except, refer to the official documentation (https://docs.python.org).\n- **Alternatives**: Use class decorators for simpler problems.\nYou can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# Try it yourself Python example\nclass MyMeta(type):\n    def __new__(cls, name, bases, attrs):\n        attrs['custom_attr'] = 'My custom attribute'\n        return super().__new__(cls, name, bases, attrs)\n\nclass MyClass(metaclass=MyMeta):\n    pass\n\nprint(MyClass.custom_attr)\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Метаклассы и создание классов",
+    "icon": "FiBox",
+    "language": "python",
+    "description": "Настройка создания классов с помощью метаклассов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Что такое метаклассы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В Python метакласс — это класс, который создает другие классы. Если обычные классы создают объекты, то метаклассы создают классы, позволяя настраивать их структуру, поведение или атрибуты. Этот JSON-файл подробно объясняет основы метаклассов, класс `type`, использование метаклассов, методы `__new__` и `__init__`, различия между метаклассами и обычными классами, сравнение с механизмами классов в TypeScript/JavaScript, способы избежания ошибок, использование памяти и сценарии использования в реальных проектах. Примеры кода не требуют ввода пользователя, совместимы с UTF-8, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Класс type и создание классов"
+      },
+      {
+        "type": "paragraph",
+        "text": "В Python все классы по умолчанию используют метакласс `type`. Класс `type` используется как для создания классов, так и для проверки типа объекта.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Создание класса с помощью type\nMyClass = type('MyClass', (), {'x': 1})\nobj = MyClass()\nprint(obj.x)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `type('MyClass', (), {'x': 1})` создает новый класс.\n- `MyClass` имеет атрибут `x`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Создание собственного метакласса"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для создания метакласса наследуйтесь от `type` и настройте методы `__new__` или `__init__`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Создание собственного метакласса\nclass MyMeta(type):\n    def __new__(cls, name, bases, attrs):\n        attrs['custom_attr'] = 'Мой пользовательский атрибут'\n        return super().__new__(cls, name, bases, attrs)\n\nclass MyClass(metaclass=MyMeta):\n    pass\n\nobj = MyClass()\nprint(obj.custom_attr)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `MyMeta` добавляет атрибут `custom_attr` к классу.\n- `MyClass` использует этот метакласс.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Методы __new__ и __init__"
+      },
+      {
+        "type": "paragraph",
+        "text": "В метаклассах используются два основных метода:\n- `__new__`: Используется для создания класса (до экземпляра).\n- `__init__`: Используется для инициализации класса (после создания).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Метакласс с __new__ и __init__\nclass MyMeta(type):\n    def __new__(cls, name, bases, attrs):\n        print(f'Создается класс {name}')\n        return super().__new__(cls, name, bases, attrs)\n\n    def __init__(cls, name, bases, attrs):\n        print(f'Инициализируется класс {name}')\n        super().__init__(name, bases, attrs)\n\nclass MyClass(metaclass=MyMeta):\n    pass\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `__new__` управляет созданием класса.\n- `__init__` управляет инициализацией класса.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Метаклассы против обычных классов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Метаклассы и обычные классы различаются:\n- **Обычные классы**: Создают объекты.\n- **Метаклассы**: Создают классы и настраивают их поведение.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Обычный класс против метакласса\nclass RegularClass:\n    x = 1\n\nclass MetaClass(type):\n    def __new__(cls, name, bases, attrs):\n        attrs['x'] = 100\n        return super().__new__(cls, name, bases, attrs)\n\nclass CustomClass(metaclass=MetaClass):\n    pass\n\nprint(RegularClass().x)\nprint(CustomClass().x)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `RegularClass` — обычный класс с `x`, равным 1.\n- `CustomClass` использует метакласс для установки `x` равным 100.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Python против TypeScript и JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Метаклассы в Python отличаются от механизмов классов в TypeScript/JavaScript:\n- **Python**: Метаклассы полностью настраивают создание классов.\n- **JavaScript/TypeScript**: Декораторы классов выполняют схожую функцию, но более ограничены.\nПример (Python против JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Метакласс Python\nclass MyMeta(type):\n    def __new__(cls, name, bases, attrs):\n        attrs['custom'] = 'Python'\n        return super().__new__(cls, name, bases, attrs)\n\nclass MyClass(metaclass=MyMeta):\n    pass\n\nprint(MyClass.custom)\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Декоратор JavaScript\nfunction addCustom(constructor) {\n    constructor.custom = 'JavaScript';\n}\n\n@addCustom\nclass MyClass {\n}\n\nconsole.log(MyClass.custom);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Метакласс Python добавляет атрибут класса.\n- Декоратор JavaScript выполняет аналогичную задачу.\nВы можете протестировать эти коды в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Избежание ошибок"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы избежать ошибок при работе с метаклассами:\n- **Правильное наследование**: Наследуйтесь от `type` или другого метакласса.\n- **Простота**: Избегайте слишком сложных метаклассов.\n- **Отладка**: Используйте операторы print в методах метакласса для отладки.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Избежание ошибок\nclass SafeMeta(type):\n    def __new__(cls, name, bases, attrs):\n        try:\n            print(f'Создается класс {name}')\n            return super().__new__(cls, name, bases, attrs)\n        except Exception as e:\n            print(f'Ошибка: {e}')\n            raise\n\nclass MyClass(metaclass=SafeMeta):\n    pass\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `try-except` перехватывает ошибки при создании класса.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Использование памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "Метаклассы обычно используют мало памяти, так как работают во время создания класса.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Использование памяти\nimport sys\n\nclass MyMeta(type):\n    def __new__(cls, name, bases, attrs):\n        return super().__new__(cls, name, bases, attrs)\n\nclass MyClass(metaclass=MyMeta):\n    pass\n\nprint(f'Размер MyClass: {sys.getsizeof(MyClass)} байт')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `sys.getsizeof` показывает использование памяти классом.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Метаклассы используются в реальных проектах для:\n- **ORM-системы**: Настройка моделей в фреймворках, таких как Django.\n- **Валидация классов**: Проверка атрибутов класса.\n- **Автоматическая регистрация**: Автоматическая регистрация классов.\nПример (простая симуляция ORM):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Простой метакласс ORM\nclass ModelMeta(type):\n    def __new__(cls, name, bases, attrs):\n        attrs['fields'] = {k: v for k, v in attrs.items() if not k.startswith('__')}\n        return super().__new__(cls, name, bases, attrs)\n\nclass User(metaclass=ModelMeta):\n    username = str\n    email = str\n\nprint(User.fields)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ModelMeta` собирает атрибуты класса в словарь `fields`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Продвинутые темы, связанные с метаклассами:\n- **Множественные метаклассы**: Использование нескольких метаклассов.\n- **Конфликты метаклассов**: Проблемы в цепочке наследования.\nДля получения дополнительной информации обратитесь к документации Python (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте простые метаклассы, обрабатывайте ошибки с помощью try-except, обращайтесь к официальной документации (https://docs.python.org).\n- **Альтернативы**: Используйте декораторы классов для более простых задач.\nВы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# Пример Python для самостоятельного тестирования\nclass MyMeta(type):\n    def __new__(cls, name, bases, attrs):\n        attrs['custom_attr'] = 'Мой пользовательский атрибут'\n        return super().__new__(cls, name, bases, attrs)\n\nclass MyClass(metaclass=MyMeta):\n    pass\n\nprint(MyClass.custom_attr)\n"
+      }
+    ]
+  }
+}

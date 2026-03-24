@@ -1,0 +1,495 @@
+{
+  "id": "streams-advanced",
+  "az": {
+    "title": "Axınlar və Axın Sarıcıları",
+    "icon": "FiActivity",
+    "language": "php",
+    "description": "Axın API-si, sarıcılar və fayl axınları.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də Axınlar və Axın Sarıcıları Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də axınlar (streams) müxtəlif mənbələrdən (fayllar, şəbəkə, yaddaş və s.) məlumatların ardıcıl oxunması və ya yazılması üçün istifadə olunan abstrakt bir mexanizmdir. Axın sarıcıları (stream wrappers) isə bu axınları idarə etmək üçün protokollardır (məsələn, `file://`, `http://`, `ftp://`). Axınlar PHP-nin fayl sistemləri, şəbəkə resursları və ya xüsusi məlumat mənbələri ilə işləməyi asanlaşdırır. Bu JSON faylda axınların tərifi, axın sarıcılarının növləri, fayl axınları ilə iş, xüsusi axın sarıcılarının yaradılması, təhlükəsizlik aspektləri və praktik nümunələr çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz. PHP 8.1 və ya daha yeni versiyadan istifadə etdiyinizə əmin olun."
+      },
+      {
+        "type": "heading",
+        "text": "Axınların Əsasları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Axınlar PHP-də məlumatların axını kimi düşünülə bilər – məsələn, fayldan məlumat oxumaq və ya şəbəkəyə sorğu göndərmək. PHP-də axınlar aşağıdakı funksiyalarla işləyir:\n- `fopen()`: Axını açır.\n- `fread()`: Axından məlumat oxuyur.\n- `fwrite()`: Axına məlumat yazır.\n- `fclose()`: Axını bağlayır.\nAxınlar müxtəlif protokollar (sarıcılar) ilə işləyir: `file://`, `http://`, `php://` və s.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Sadə fayl axını\n$file = fopen('test.txt', 'r');\nif ($file) {\n  $content = fread($file, filesize('test.txt'));\n  echo 'Fayl məzmunu: ' . $content;\n  fclose($file);\n} else {\n  echo 'Fayl açıla bilmədi.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fopen('test.txt', 'r')` faylı oxuma rejimində açır.\n- `fread()` faylın məzmununu oxuyur.\n- `fclose()` axını bağlayır.\n- Qeyd: `test.txt` faylının mövcud olduğundan əmin olun.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Axın Sarıcıları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Axın sarıcıları axınların hansı protokolla işlədiyini təyin edir. PHP-də daxili sarıcılar:\n- `file://`: Yerli fayl sisteminə giriş.\n- `http://`/`https://`: Veb resurslara giriş.\n- `ftp://`: FTP serverlərinə giriş.\n- `php://`: PHP-yə xas axınlar (məsələn, `php://stdin`, `php://stdout`, `php://memory`).\nNümunə (HTTP axını):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// HTTP axını\n$content = file_get_contents('https://example.com');\nif ($content !== false) {\n  echo 'Veb səhifənin məzmunu: ' . substr($content, 0, 100) . '...';\n} else {\n  echo 'Veb səhifəyə daxil olmaq mümkün olmadı.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `file_get_contents('https://example.com')` HTTP axını ilə veb səhifənin məzmununu oxuyur.\n- İlk 100 simvol göstərilir.\n- Qeyd: İnternet bağlantısı tələb olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "PHP:// Axınları"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də `php://` sarıcıları xüsusi məqsədlər üçün istifadə olunur:\n- `php://stdin`: Standart giriş axını.\n- `php://stdout`: Standart çıxış axını.\n- `php://memory`: Yaddaşda müvəqqəti axın.\n- `php://temp`: Müvəqqəti faylda axın.\nNümunə (`php://memory`):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// php://memory axını\n$stream = fopen('php://memory', 'r+');\nfwrite($stream, 'Bu yaddaşda saxlanılır.');\nrewind($stream);\n$content = fread($stream, 1024);\necho 'Məzmun: ' . $content;\nfclose($stream);\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fopen('php://memory', 'r+')` yaddaşda axın açır.\n- `fwrite()` məlumat yazır, `rewind()` kursoru başa qaytarır.\n- `fread()` məlumatı oxuyur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Fayl Axınları ilə İş"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fayl axınları PHP-də fayllarla işləmək üçün ən çox istifadə olunan mexanizmdir. `fopen()` ilə açılan fayl axınları oxuma (`r`), yazma (`w`) və ya əlavə etmə (`a`) rejimlərində işləyir.\nNümunə (yazma və oxuma):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Fayl axını ilə yazma və oxuma\n$file = fopen('output.txt', 'w');\nfwrite($file, 'Bu bir test mətnidir.');\nfclose($file);\n\n$file = fopen('output.txt', 'r');\n$content = fread($file, filesize('output.txt'));\necho 'Fayl məzmunu: ' . $content;\nfclose($file);\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fopen('output.txt', 'w')` faylı yazma rejimində açır.\n- `fwrite()` mətn yazır.\n- `fopen('output.txt', 'r')` faylı oxuma rejimində açır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Xüsusi Axın Sarıcısı Yaratma"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də `stream_wrapper_register` ilə xüsusi axın sarıcıları yaradıla bilər. Bu, öz protokolunuzu təyin etməyə imkan verir.\nNümunə (sadə xüsusi sarıcı):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Xüsusi axın sarıcısı\nclass CustomStream {\n  private $position;\n  private $data;\n\n  public function stream_open($path, $mode, $options, &$opened_path) {\n    $this->data = 'Xüsusi məlumat';\n    $this->position = 0;\n    return true;\n  }\n\n  public function stream_read($count) {\n    $result = substr($this->data, $this->position, $count);\n    $this->position += strlen($result);\n    return $result;\n  }\n\n  public function stream_eof() {\n    return $this->position >= strlen($this->data);\n  }\n}\n\nstream_wrapper_register('custom', 'CustomStream');\n\n$stream = fopen('custom://data', 'r');\n$content = fread($stream, 1024);\necho 'Xüsusi axın məzmunu: ' . $content;\nfclose($stream);\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `CustomStream` sinfi xüsusi axın sarıcısı təyin edir.\n- `stream_wrapper_register` ilə `custom://` protokolu qeydiyyata alınır.\n- `fopen('custom://data', 'r')` xüsusi axını açır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Axınlarla işləyərkən təhlükəsizlik vacibdir:\n- Şəbəkə axınlarında (`http://`, `ftp://`) etibarlı mənbələrdən istifadə edin.\n- Fayl axınlarında icazələri yoxlayın (`is_readable()`, `is_writable()`).\n- Xüsusi sarıcılarda istifadəçi girişini təmizləyin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Təhlükəsiz fayl axını\n$file = 'output.txt';\nif (is_writable($file)) {\n  $stream = fopen($file, 'w');\n  fwrite($stream, 'Təhlükəsiz yazma');\n  fclose($stream);\n  echo 'Fayl uğurla yazıldı!';\n} else {\n  echo 'Fayl yazmaq üçün əlçatan deyil.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `is_writable()` faylın yazılabiləcəyini yoxlayır.\n- Yalnız icazə varsa yazma əməliyyatı icra olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: HTTP Axını ilə API Sorğusu"
+      },
+      {
+        "type": "paragraph",
+        "text": "HTTP axını ilə sadə bir API sorğusu edək.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// HTTP axını ilə API sorğusu\n$context = stream_context_create([\n  'http' => [\n    'method' => 'GET',\n    'header' => 'User-Agent: PHP'\n  ]\n]);\n\n$content = file_get_contents('https://jsonplaceholder.typicode.com/posts/1', false, $context);\nif ($content !== false) {\n  $data = json_decode($content, true);\n  echo 'API cavabı: ' . $data['title'];\n} else {\n  echo 'API sorğusu uğursuz oldu.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `stream_context_create` ilə HTTP sorğusu üçün kontekst yaradılır.\n- `file_get_contents` ilə API-dən məlumat alınır.\n- `json_decode` JSON cavabını massivə çevirir.\n- Qeyd: İnternet bağlantısı tələb olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\n// Xəta idarə olunmadan\n$content = file_get_contents('non_existent_file.txt'); // Warning: Failed to open stream\n\n// Düzgün yol\ntry {\n  if (!file_exists('non_existent_file.txt')) {\n    throw new Exception('Fayl tapılmadı!');\n  }\n  $content = file_get_contents('non_existent_file.txt');\n  echo 'Məzmun: ' . $content;\n} catch (Exception $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk nümunədə xəta idarə olunmur və PHP standart xəta mesajı göstərir.\n- Düzgün yolda `try-catch` ilə xəta idarə olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Həmişə axınları bağlayın (`fclose()`). Şəbəkə axınlarında kontekst parametrlərindən istifadə edin. Təhlükəsizlik üçün icazələri yoxlayın. PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/book.stream.php) faydalanın.\n- **Alternativlər**: Şəbəkə sorğuları üçün `cURL` və ya `GuzzleHttp` istifadə edilə bilər. Çərçivələr (Laravel, Symfony) axınlarla işi sadələşdirir.\n- Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün fayl axını\ntry {\n  $file = fopen('test.txt', 'w');\n  if ($file === false) {\n    throw new Exception('Fayl açıla bilmədi!');\n  }\n  fwrite($file, 'Test məlumatı');\n  fclose($file);\n  echo 'Fayl uğurla yazıldı!';\n} catch (Exception $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Streams and Stream Wrappers",
+    "icon": "FiActivity",
+    "language": "php",
+    "description": "Stream API, wrappers, and file streams in PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Streams and Stream Wrappers in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In PHP, streams are an abstract mechanism for sequentially reading or writing data from various sources (files, networks, memory, etc.). Stream wrappers are protocols that manage these streams (e.g., `file://`, `http://`, `ftp://`). Streams simplify working with file systems, network resources, or custom data sources. This JSON file explains streams, types of stream wrappers, working with file streams, creating custom stream wrappers, security aspects, and practical examples in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP. Ensure you are using PHP 8.1 or a newer version."
+      },
+      {
+        "type": "heading",
+        "text": "Stream Basics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Streams in PHP can be thought of as a flow of data, such as reading from a file or sending a network request. PHP uses the following functions for streams:\n- `fopen()`: Opens a stream.\n- `fread()`: Reads data from a stream.\n- `fwrite()`: Writes data to a stream.\n- `fclose()`: Closes a stream.\nStreams work with various protocols (wrappers): `file://`, `http://`, `php://`, etc.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Simple file stream\n$file = fopen('test.txt', 'r');\nif ($file) {\n  $content = fread($file, filesize('test.txt'));\n  echo 'File content: ' . $content;\n  fclose($file);\n} else {\n  echo 'Could not open file.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `fopen('test.txt', 'r')` opens the file in read mode.\n- `fread()` reads the file’s content.\n- `fclose()` closes the stream.\n- Note: Ensure the `test.txt` file exists.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Stream Wrappers"
+      },
+      {
+        "type": "paragraph",
+        "text": "Stream wrappers define the protocol used by a stream. Built-in PHP wrappers include:\n- `file://`: Access to the local file system.\n- `http://`/`https://`: Access to web resources.\n- `ftp://`: Access to FTP servers.\n- `php://`: PHP-specific streams (e.g., `php://stdin`, `php://stdout`, `php://memory`).\nExample (HTTP stream):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// HTTP stream\n$content = file_get_contents('https://example.com');\nif ($content !== false) {\n  echo 'Web page content: ' . substr($content, 0, 100) . '...';\n} else {\n  echo 'Could not access web page.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `file_get_contents('https://example.com')` reads a web page using an HTTP stream.\n- The first 100 characters are displayed.\n- Note: Requires an internet connection.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "PHP:// Streams"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP’s `php://` wrappers are used for special purposes:\n- `php://stdin`: Standard input stream.\n- `php://stdout`: Standard output stream.\n- `php://memory`: Temporary stream in memory.\n- `php://temp`: Temporary stream in a file.\nExample (`php://memory`):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// php://memory stream\n$stream = fopen('php://memory', 'r+');\nfwrite($stream, 'This is stored in memory.');\nrewind($stream);\n$content = fread($stream, 1024);\necho 'Content: ' . $content;\nfclose($stream);\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `fopen('php://memory', 'r+')` opens a stream in memory.\n- `fwrite()` writes data, `rewind()` resets the cursor.\n- `fread()` reads the data.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Working with File Streams"
+      },
+      {
+        "type": "paragraph",
+        "text": "File streams are the most common use of streams in PHP. Streams opened with `fopen()` can operate in read (`r`), write (`w`), or append (`a`) modes.\nExample (writing and reading):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// File stream writing and reading\n$file = fopen('output.txt', 'w');\nfwrite($file, 'This is a test text.');\nfclose($file);\n\n$file = fopen('output.txt', 'r');\n$content = fread($file, filesize('output.txt'));\necho 'File content: ' . $content;\nfclose($file);\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `fopen('output.txt', 'w')` opens the file in write mode.\n- `fwrite()` writes text.\n- `fopen('output.txt', 'r')` opens the file in read mode.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Creating a Custom Stream Wrapper"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP allows creating custom stream wrappers using `stream_wrapper_register` to define custom protocols.\nExample (simple custom wrapper):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Custom stream wrapper\nclass CustomStream {\n  private $position;\n  private $data;\n\n  public function stream_open($path, $mode, $options, &$opened_path) {\n    $this->data = 'Custom data';\n    $this->position = 0;\n    return true;\n  }\n\n  public function stream_read($count) {\n    $result = substr($this->data, $this->position, $count);\n    $this->position += strlen($result);\n    return $result;\n  }\n\n  public function stream_eof() {\n    return $this->position >= strlen($this->data);\n  }\n}\n\nstream_wrapper_register('custom', 'CustomStream');\n\n$stream = fopen('custom://data', 'r');\n$content = fread($stream, 1024);\necho 'Custom stream content: ' . $content;\nfclose($stream);\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `CustomStream` class defines a custom stream wrapper.\n- `stream_wrapper_register` registers the `custom://` protocol.\n- `fopen('custom://data', 'r')` opens the custom stream.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Security is critical when working with streams:\n- Use trusted sources for network streams (`http://`, `ftp://`).\n- Check permissions for file streams (`is_readable()`, `is_writable()`).\n- Sanitize user input in custom wrappers.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Secure file stream\n$file = 'output.txt';\nif (is_writable($file)) {\n  $stream = fopen($file, 'w');\n  fwrite($stream, 'Secure write');\n  fclose($stream);\n  echo 'File written successfully!';\n} else {\n  echo 'File is not writable.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `is_writable()` checks if the file is writable.\n- Writing occurs only if permissions allow.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: API Request with HTTP Stream"
+      },
+      {
+        "type": "paragraph",
+        "text": "Let’s make a simple API request using an HTTP stream.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// API request with HTTP stream\n$context = stream_context_create([\n  'http' => [\n    'method' => 'GET',\n    'header' => 'User-Agent: PHP'\n  ]\n]);\n\n$content = file_get_contents('https://jsonplaceholder.typicode.com/posts/1', false, $context);\nif ($content !== false) {\n  $data = json_decode($content, true);\n  echo 'API response: ' . $data['title'];\n} else {\n  echo 'API request failed.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `stream_context_create` creates a context for the HTTP request.\n- `file_get_contents` fetches data from an API.\n- `json_decode` converts the JSON response to an array.\n- Note: Requires an internet connection.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\n// No error handling\n$content = file_get_contents('non_existent_file.txt'); // Warning: Failed to open stream\n\n// Correct approach\ntry {\n  if (!file_exists('non_existent_file.txt')) {\n    throw new Exception('File not found!');\n  }\n  $content = file_get_contents('non_existent_file.txt');\n  echo 'Content: ' . $content;\n} catch (Exception $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first example lacks error handling, causing a PHP warning.\n- The correct approach uses `try-catch` to handle the error.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Always close streams (`fclose()`). Use context parameters for network streams. Check permissions for security. Refer to PHP’s official stream documentation (https://www.php.net/manual/en/book.stream.php).\n- **Alternatives**: Use `cURL` or `GuzzleHttp` for network requests. Frameworks (Laravel, Symfony) simplify stream operations.\n- You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself file stream\ntry {\n  $file = fopen('test.txt', 'w');\n  if ($file === false) {\n    throw new Exception('Could not open file!');\n  }\n  fwrite($file, 'Test data');\n  fclose($file);\n  echo 'File written successfully!';\n} catch (Exception $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Потоки и обертки потоков",
+    "icon": "FiActivity",
+    "language": "php",
+    "description": "API потоков, обертки и файловые потоки в PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое потоки и обертки потоков в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В PHP потоки (streams) — это абстрактный механизм для последовательного чтения или записи данных из различных источников (файлы, сеть, память и т.д.). Обертки потоков (stream wrappers) — это протоколы, управляющие этими потоками (например, `file://`, `http://`, `ftp://`). Потоки упрощают работу с файловыми системами, сетевыми ресурсами или пользовательскими источниками данных. Этот JSON-файл подробно объясняет потоки, типы оберток потоков, работу с файловыми потоками, создание пользовательских оберток, аспекты безопасности и практические примеры. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP. Убедитесь, что вы используете PHP 8.1 или новее."
+      },
+      {
+        "type": "heading",
+        "text": "Основы потоков"
+      },
+      {
+        "type": "paragraph",
+        "text": "Потоки в PHP можно рассматривать как поток данных, например, чтение из файла или отправка сетевого запроса. PHP использует следующие функции для работы с потоками:\n- `fopen()`: Открывает поток.\n- `fread()`: Читает данные из потока.\n- `fwrite()`: Записывает данные в поток.\n- `fclose()`: Закрывает поток.\nПотоки работают с различными протоколами (обертками): `file://`, `http://`, `php://` и т.д.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Простой файловый поток\n$file = fopen('test.txt', 'r');\nif ($file) {\n  $content = fread($file, filesize('test.txt'));\n  echo 'Содержимое файла: ' . $content;\n  fclose($file);\n} else {\n  echo 'Не удалось открыть файл.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `fopen('test.txt', 'r')` открывает файл в режиме чтения.\n- `fread()` читает содержимое файла.\n- `fclose()` закрывает поток.\n- Примечание: Убедитесь, что файл `test.txt` существует.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Обертки потоков"
+      },
+      {
+        "type": "paragraph",
+        "text": "Обертки потоков определяют протокол, используемый потоком. Встроенные обертки PHP включают:\n- `file://`: Доступ к локальной файловой системе.\n- `http://`/`https://`: Доступ к веб-ресурсам.\n- `ftp://`: Доступ к FTP-серверам.\n- `php://`: Специфичные для PHP потоки (например, `php://stdin`, `php://stdout`, `php://memory`).\nПример (HTTP-поток):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// HTTP-поток\n$content = file_get_contents('https://example.com');\nif ($content !== false) {\n  echo 'Содержимое веб-страницы: ' . substr($content, 0, 100) . '...';\n} else {\n  echo 'Не удалось получить доступ к веб-странице.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `file_get_contents('https://example.com')` читает веб-страницу через HTTP-поток.\n- Отображаются первые 100 символов.\n- Примечание: Требуется интернет-соединение.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Потоки php://"
+      },
+      {
+        "type": "paragraph",
+        "text": "Обертки `php://` в PHP используются для специальных целей:\n- `php://stdin`: Поток стандартного ввода.\n- `php://stdout`: Поток стандартного вывода.\n- `php://memory`: Временный поток в памяти.\n- `php://temp`: Временный поток в файле.\nПример (`php://memory`):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Поток php://memory\n$stream = fopen('php://memory', 'r+');\nfwrite($stream, 'Это хранится в памяти.');\nrewind($stream);\n$content = fread($stream, 1024);\necho 'Содержимое: ' . $content;\nfclose($stream);\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `fopen('php://memory', 'r+')` открывает поток в памяти.\n- `fwrite()` записывает данные, `rewind()` сбрасывает курсор.\n- `fread()` читает данные.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Работа с файловыми потоками"
+      },
+      {
+        "type": "paragraph",
+        "text": "Файловые потоки — наиболее распространенный способ использования потоков в PHP. Потоки, открытые с помощью `fopen()`, могут работать в режимах чтения (`r`), записи (`w`) или добавления (`a`).\nПример (запись и чтение):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Запись и чтение файлового потока\n$file = fopen('output.txt', 'w');\nfwrite($file, 'Это тестовый текст.');\nfclose($file);\n\n$file = fopen('output.txt', 'r');\n$content = fread($file, filesize('output.txt'));\necho 'Содержимое файла: ' . $content;\nfclose($file);\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `fopen('output.txt', 'w')` открывает файл в режиме записи.\n- `fwrite()` записывает текст.\n- `fopen('output.txt', 'r')` открывает файл в режиме чтения.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Создание пользовательской обертки потока"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP позволяет создавать пользовательские обертки потоков с помощью `stream_wrapper_register` для определения собственных протоколов.\nПример (простая пользовательская обертка):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пользовательская обертка потока\nclass CustomStream {\n  private $position;\n  private $data;\n\n  public function stream_open($path, $mode, $options, &$opened_path) {\n    $this->data = 'Пользовательские данные';\n    $this->position = 0;\n    return true;\n  }\n\n  public function stream_read($count) {\n    $result = substr($this->data, $this->position, $count);\n    $this->position += strlen($result);\n    return $result;\n  }\n\n  public function stream_eof() {\n    return $this->position >= strlen($this->data);\n  }\n}\n\nstream_wrapper_register('custom', 'CustomStream');\n\n$stream = fopen('custom://data', 'r');\n$content = fread($stream, 1024);\necho 'Содержимое пользовательского потока: ' . $content;\nfclose($stream);\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `CustomStream` определяет пользовательскую обертку потока.\n- `stream_wrapper_register` регистрирует протокол `custom://`.\n- `fopen('custom://data', 'r')` открывает пользовательский поток.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Безопасность важна при работе с потоками:\n- Используйте надежные источники для сетевых потоков (`http://`, `ftp://`).\n- Проверяйте права доступа для файловых потоков (`is_readable()`, `is_writable()`).\n- Очищайте пользовательский ввод в пользовательских обертках.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Безопасный файловый поток\n$file = 'output.txt';\nif (is_writable($file)) {\n  $stream = fopen($file, 'w');\n  fwrite($stream, 'Безопасная запись');\n  fclose($stream);\n  echo 'Файл успешно записан!';\n} else {\n  echo 'Файл недоступен для записи.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `is_writable()` проверяет, доступен ли файл для записи.\n- Запись выполняется только при наличии прав.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Запрос к API с использованием HTTP-потока"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сделаем простой запрос к API с использованием HTTP-потока.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Запрос к API с использованием HTTP-потока\n$context = stream_context_create([\n  'http' => [\n    'method' => 'GET',\n    'header' => 'User-Agent: PHP'\n  ]\n]);\n\n$content = file_get_contents('https://jsonplaceholder.typicode.com/posts/1', false, $context);\nif ($content !== false) {\n  $data = json_decode($content, true);\n  echo 'Ответ API: ' . $data['title'];\n} else {\n  echo 'Запрос к API не удался.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `stream_context_create` создает контекст для HTTP-запроса.\n- `file_get_contents` получает данные из API.\n- `json_decode` преобразует JSON-ответ в массив.\n- Примечание: Требуется интернет-соединение.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\n// Без обработки ошибок\n$content = file_get_contents('non_existent_file.txt'); // Warning: Failed to open stream\n\n// Правильный подход\ntry {\n  if (!file_exists('non_existent_file.txt')) {\n    throw new Exception('Файл не найден!');\n  }\n  $content = file_get_contents('non_existent_file.txt');\n  echo 'Содержимое: ' . $content;\n} catch (Exception $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый пример не обрабатывает ошибку, вызывая предупреждение PHP.\n- Правильный подход использует `try-catch` для обработки ошибки.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Всегда закрывайте потоки (`fclose()`). Используйте параметры контекста для сетевых потоков. Проверяйте права доступа для безопасности. Обратитесь к официальной документации PHP по потокам (https://www.php.net/manual/en/book.stream.php).\n- **Альтернативы**: Используйте `cURL` или `GuzzleHttp` для сетевых запросов. Фреймворки (Laravel, Symfony) упрощают работу с потоками.\n- Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Попробуйте сами файловый поток\ntry {\n  $file = fopen('test.txt', 'w');\n  if ($file === false) {\n    throw new Exception('Не удалось открыть файл!');\n  }\n  fwrite($file, 'Тестовые данные');\n  fclose($file);\n  echo 'Файл успешно записан!';\n} catch (Exception $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n?>"
+      }
+    ]
+  }
+}

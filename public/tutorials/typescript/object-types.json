@@ -1,0 +1,621 @@
+{
+  "id": "object-types",
+  "az": {
+    "title": "Obyekt Tipləri",
+    "icon": "FiBox",
+    "language": "typescript",
+    "description": "Obyekt strukturlarını təyin etmək.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Obyekt Tipləri Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də obyekt tipləri obyektlərin strukturunu və onların xüsusiyyətlərinin tiplərini təyin etmək üçün istifadə olunur. Obyekt tipləri obyektin hansı xüsusiyyətlərə (məsələn, `name`, `age`) malik olduğunu və bu xüsusiyyətlərin hansı tiplərdə (məsələn, `string`, `number`) olduğunu dəqiqləşdirir. Bu, TypeScript-in statik tip sistemindən faydalanaraq kodun təhlükəsizliyini və oxunaqlılığını artırır. JavaScript-də obyektlər dinamikdir və istənilən xüsusiyyət əlavə edilə bilər, bu da runtime səhvlərinə səbəb ola bilər. TypeScript-də isə obyekt tipləri bu cür səhvləri kompilyasiya zamanı aşkarlayır. Obyekt tipləri interfeyslər (`interface`), tip təyinatları (`type`), anonim tiplər və ya indeks imza tipləri ilə təyin edilə bilər. Bu JSON faylda obyekt tiplərinin tərifi, istifadə məqsədləri, JavaScript ilə fərqləri, sintaksisi, readonly xüsusiyyətlər, opsional xüsusiyyətlər, indeks imza tipləri, iç-içə obyekt tipləri, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Obyekt Tiplərinin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Obyekt tipləri TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Struktur təyini**: Obyektin hansı xüsusiyyətlərə malik olduğunu və onların tiplərini dəqiqləşdirir.\n- **Tip təhlükəsizliyi**: Yanlış tipdə dəyərlərin təyinatını kompilyasiya zamanı qadağan edir.\n- **Oxunaqlılıq**: Kodun nə etdiyi və hansı məlumatları saxladığı aydın olur.\n- **Alət dəstəyi**: Kod redaktorları (məsələn, VS Code) tiplərə əsasən avtomatik tamamlamalar təklif edir.\nJavaScript-də obyektlərə istənilən xüsusiyyət əlavə etmək olar, bu da səhvlərə yol aça bilər. TypeScript bu problemi statik tiplərlə həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Obyekt Tiplərinin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Obyekt tipləri TypeScript-də bir neçə yolla təyin edilə bilər:\n- **Interfeyslər (`interface`)**: Yenidən istifadə edilə bilən obyekt strukturları üçün.\n- **Tip təyinatları (`type`)**: Daha çevik, lakin interfeyslərə bənzər.\n- **Anonim tiplər**: Bir dəfəlik istifadə üçün.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Obyekt tiplərinin sintaksisi\ninterface User {\n  name: string;\n  age: number;\n}\n\ntype Point = {\n  x: number;\n  y: number;\n};\n\nlet user: User = { name: 'Ali', age: 25 };\nlet point: Point = { x: 10, y: 20 };\nlet anon: { id: number; title: string } = { id: 1, title: 'Test' };\n\nconsole.log(user); // { name: 'Ali', age: 25 }\nconsole.log(point); // { x: 10, y: 20 }\nconsole.log(anon); // { id: 1, title: 'Test' }\n// user.name = 42; // Xəta: number string-ə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `interface User` və `type Point` obyekt strukturunu təyin edir.\n- Anonim tip birbaşa dəyişənə təyin edilir.\n- Yanlış tip təyinatı kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Xüsusiyyətlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Readonly` xüsusiyyətlər obyektin xüsusiyyətlərinin dəyişdirilməsini qadağan edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly xüsusiyyətlər\ninterface Product {\n  readonly id: number;\n  name: string;\n}\n\nlet product: Product = { id: 1, name: 'Telefon' };\nconsole.log(product); // { id: 1, name: 'Telefon' }\n// product.id = 2; // Xəta: readonly xüsusiyyət dəyişdirilə bilməz\nproduct.name = 'Laptop'; // OK\nconsole.log(product); // { id: 1, name: 'Laptop' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `readonly id` xüsusiyyətinin dəyişdirilməsi qadağandır.\n- `name` dəyişdirilə bilər.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Opsional Xüsusiyyətlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Opsional xüsusiyyətlər `?` işarəsi ilə təyin edilir və obyektə daxil olmaya bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Opsional xüsusiyyətlər\ninterface Car {\n  brand: string;\n  model?: string;\n}\n\nlet car1: Car = { brand: 'Toyota' };\nlet car2: Car = { brand: 'Honda', model: 'Civic' };\n\nconsole.log(car1); // { brand: 'Toyota' }\nconsole.log(car2); // { brand: 'Honda', model: 'Civic' }\n// car1.brand = undefined; // Xəta: brand tələb olunur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `model?` opsional xüsusiyyətdir və olmaya bilər.\n- `brand` tələb olunan xüsusiyyətdir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "İndeks İmza Tipləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeks imza tipləri (`[key: string]: T`) dinamik açarlara malik obyektləri təyin edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// İndeks imza tipləri\ninterface Dictionary {\n  [key: string]: number;\n}\n\nlet scores: Dictionary = { math: 90, science: 85 };\nconsole.log(scores); // { math: 90, science: 85 }\nscores['history'] = 95;\nconsole.log(scores); // { math: 90, science: 85, history: 95 }\n// scores['art'] = 'A'; // Xəta: string number-ə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `[key: string]: number` istənilən string açarla number dəyər təyin edir.\n- Yanlış tipdə dəyər kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "İç-içə Obyekt Tipləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "İç-içə obyekt tipləri kompleks məlumat strukturları üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// İç-içə obyekt tipləri\ninterface Address {\n  city: string;\n  zip: number;\n}\n\ninterface Person {\n  name: string;\n  address: Address;\n}\n\nlet person: Person = {\n  name: 'Vəli',\n  address: { city: 'Bakı', zip: 1000 }\n};\n\nconsole.log(person); // { name: 'Vəli', address: { city: 'Bakı', zip: 1000 } }\n// person.address.city = 42; // Xəta: number string-ə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Address` və `Person` interfeysləri iç-içə strukturu təyin edir.\n- Yanlış tip təyinatı kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Obyekt vs Tuple"
+      },
+      {
+        "type": "paragraph",
+        "text": "Obyektlər və tuple-lar oxşar məlumat strukturları təmin edə bilər, lakin fərqli istifadə halları var:\n- **Obyekt**: Adlandırılmış xüsusiyyətlər üçün (məsələn, istifadəçi məlumatları).\n- **Tuple**: Sıralı, sabit uzunluqlu məlumatlar üçün (məsələn, koordinatlar).\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Obyekt vs tuple\nlet object: { name: string; age: number } = { name: 'Ali', age: 25 };\nlet tuple: [string, number] = ['Ali', 25];\n\nconsole.log(object.name); // Ali\nconsole.log(tuple[0]); // Ali\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Obyekt adlandırılmış xüsusiyyətlərlə işləyir.\n- Tuple indekslərlə işləyir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Obyekt Tipləri ilə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Obyekt tipləri real layihələrdə müxtəlif ssenarilərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Praktik nümunə\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nfunction displayProduct(product: Product): void {\n  console.log(`Məhsul: ${product.name}, Qiymət: ${product.price}`);\n}\n\nlet product: Product = { id: 1, name: 'Telefon', price: 500 };\ndisplayProduct(product);\n// Çıxış: Məhsul: Telefon, Qiymət: 500\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Product` interfeysi obyekt strukturunu təyin edir.\n- Funksiya obyektin xüsusiyyətlərini göstərir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Obyekt tipləri kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Yanlış tip təyinatlarından çəkinin.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\ninterface User {\n  name: string;\n  age: number;\n}\n\nlet user: User = { name: 'Vəli', age: 30 };\nif (typeof user.name === 'string') {\n  console.log(user.name.toUpperCase()); // VƏLİ\n}\n// user.age = 'otuz'; // Xəta: string number-ə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Obyekt xüsusiyyətləri yoxlanılır və təhlükəsiz şəkildə istifadə edilir.\n- Yanlış tip təyinatı kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet unsafe: any = { name: 'Ali', age: 25 };\nunsafe.age = 'yirmi beş'; // Təhlükəsiz deyil, runtime səhvi ola bilər\nconsole.log(unsafe); // { name: 'Ali', age: 'yirmi beş' }\n\n// Düzgün yol\ninterface User {\n  name: string;\n  age: number;\n}\nlet safe: User = { name: 'Ali', age: 25 };\nconsole.log(safe); // { name: 'Ali', age: 25 }\n// safe.age = 'yirmi beş'; // Xəta: string number-ə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime xətalarına səbəb ola bilər.\n- `User` interfeysi təhlükəsizliyi təmin edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Obyekt tipləri real layihələrdə geniş istifadə olunur:\n- **İstifadəçi məlumatları**: Ad, yaş, ünvan kimi strukturlaşdırılmış məlumatlar.\n- **Məhsul siyahıları**: Məhsul ID, adı, qiyməti.\n- **Konfiqurasiya obyektləri**: Tətbiq parametrləri.\n- **API cavabları**: Serverdən gələn strukturlaşdırılmış məlumatlar.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nfunction filterExpensiveProducts(products: Product[], minPrice: number): Product[] {\n  return products.filter(product => product.price > minPrice);\n}\n\nlet products: Product[] = [\n  { id: 1, name: 'Telefon', price: 500 },\n  { id: 2, name: 'Laptop', price: 1000 },\n  { id: 3, name: 'Planşet', price: 300 },\n];\n\nlet expensive: Product[] = filterExpensiveProducts(products, 500);\nconsole.log(expensive); // [{ id: 2, name: 'Laptop', price: 1000 }]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Product` interfeysi məhsul strukturunu təyin edir.\n- `filter` metodu qiymətə görə süzür.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Dəqiq tiplərdən istifadə edin. `any` əvəzinə konkret tiplər seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Obyekt tipləri əvəzinə tuple və ya massivlər istifadə edilə bilər, lakin obyektlər adlandırılmış xüsusiyyətlər üçün daha uyğundur.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün obyekt tipləri nümunəsi\ninterface Order {\n  id: number;\n  product: string;\n  quantity: number;\n}\n\nlet order: Order = { id: 1, product: 'Telefon', quantity: 2 };\n\nfunction displayOrder(order: Order): void {\n  console.log(`Sifariş ID: ${order.id}, Məhsul: ${order.product}, Say: ${order.quantity}`);\n}\n\ndisplayOrder(order);\n// Çıxış: Sifariş ID: 1, Məhsul: Telefon, Say: 2\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Object Types",
+    "icon": "FiBox",
+    "language": "typescript",
+    "description": "Defining object structures.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Object Types?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Object types in TypeScript are used to define the structure of objects and the types of their properties. They specify which properties an object has (e.g., `name`, `age`) and their respective types (e.g., `string`, `number`). This leverages TypeScript’s static type system to enhance code safety and readability. In JavaScript, objects are dynamic, allowing any property to be added, which can lead to runtime errors. TypeScript’s object types catch such errors at compile time. Object types can be defined using interfaces (`interface`), type aliases (`type`), anonymous types, or index signatures. This JSON file explains object types’ definition, purposes, differences from JavaScript, syntax, readonly properties, optional properties, index signatures, nested object types, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Object Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Object types in TypeScript serve the following purposes:\n- **Structure definition**: Specify the properties and their types an object should have.\n- **Type safety**: Prevent incorrect type assignments at compile time.\n- **Readability**: Clearly indicate the structure and purpose of the data.\n- **Tooling support**: Code editors (e.g., VS Code) provide autocompletion based on types.\nIn JavaScript, objects can have any properties added dynamically, which may cause errors. TypeScript solves this with static types."
+      },
+      {
+        "type": "heading",
+        "text": "Object Type Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "Object types in TypeScript can be defined in several ways:\n- **Interfaces (`interface`)**: For reusable object structures.\n- **Type aliases (`type`)**: More flexible, similar to interfaces.\n- **Anonymous types**: For one-time use.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Object type syntax\ninterface User {\n  name: string;\n  age: number;\n}\n\ntype Point = {\n  x: number;\n  y: number;\n};\n\nlet user: User = { name: 'Alice', age: 25 };\nlet point: Point = { x: 10, y: 20 };\nlet anon: { id: number; title: string } = { id: 1, title: 'Test' };\n\nconsole.log(user); // { name: 'Alice', age: 25 }\nconsole.log(point); // { x: 10, y: 20 }\nconsole.log(anon); // { id: 1, title: 'Test' }\n// user.name = 42; // Error: number cannot be assigned to string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `interface User` and `type Point` define object structures.\n- Anonymous types are assigned directly to variables.\n- Incorrect type assignments trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly properties prevent modification of an object’s properties.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly properties\ninterface Product {\n  readonly id: number;\n  name: string;\n}\n\nlet product: Product = { id: 1, name: 'Phone' };\nconsole.log(product); // { id: 1, name: 'Phone' }\n// product.id = 2; // Error: cannot modify readonly property\nproduct.name = 'Laptop'; // OK\nconsole.log(product); // { id: 1, name: 'Laptop' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `readonly id` prevents modification of the `id` property.\n- `name` can be modified.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Optional Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional properties, marked with `?`, may or may not be included in an object.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Optional properties\ninterface Car {\n  brand: string;\n  model?: string;\n}\n\nlet car1: Car = { brand: 'Toyota' };\nlet car2: Car = { brand: 'Honda', model: 'Civic' };\n\nconsole.log(car1); // { brand: 'Toyota' }\nconsole.log(car2); // { brand: 'Honda', model: 'Civic' }\n// car1.brand = undefined; // Error: brand is required\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `model?` is an optional property and can be omitted.\n- `brand` is a required property.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Index Signatures"
+      },
+      {
+        "type": "paragraph",
+        "text": "Index signatures (`[key: string]: T`) define objects with dynamic keys.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Index signatures\ninterface Dictionary {\n  [key: string]: number;\n}\n\nlet scores: Dictionary = { math: 90, science: 85 };\nconsole.log(scores); // { math: 90, science: 85 }\nscores['history'] = 95;\nconsole.log(scores); // { math: 90, science: 85, history: 95 }\n// scores['art'] = 'A'; // Error: string cannot be assigned to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `[key: string]: number` allows any string key with a number value.\n- Incorrect type assignments trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Nested Object Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Nested object types are used for complex data structures.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Nested object types\ninterface Address {\n  city: string;\n  zip: number;\n}\n\ninterface Person {\n  name: string;\n  address: Address;\n}\n\nlet person: Person = {\n  name: 'Bob',\n  address: { city: 'Baku', zip: 1000 }\n};\n\nconsole.log(person); // { name: 'Bob', address: { city: 'Baku', zip: 1000 } }\n// person.address.city = 42; // Error: number cannot be assigned to string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Address` and `Person` interfaces define a nested structure.\n- Incorrect type assignments trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Object vs Tuple"
+      },
+      {
+        "type": "paragraph",
+        "text": "Objects and tuples can serve similar purposes but have different use cases:\n- **Object**: For named properties (e.g., user data).\n- **Tuple**: For ordered, fixed-length data (e.g., coordinates).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Object vs tuple\nlet object: { name: string; age: number } = { name: 'Alice', age: 25 };\nlet tuple: [string, number] = ['Alice', 25];\n\nconsole.log(object.name); // Alice\nconsole.log(tuple[0]); // Alice\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Objects use named properties.\n- Tuples use indices.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Working with Object Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Object types are used in various scenarios in real projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Practical example\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nfunction displayProduct(product: Product): void {\n  console.log(`Product: ${product.name}, Price: ${product.price}`);\n}\n\nlet product: Product = { id: 1, name: 'Phone', price: 500 };\ndisplayProduct(product);\n// Output: Product: Phone, Price: 500\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Product` interface defines the object structure.\n- The function displays object properties.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Object types enhance code safety, but caution is needed:\n- Avoid incorrect type assignments.\n- Avoid `any` as it reduces type safety.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\ninterface User {\n  name: string;\n  age: number;\n}\n\nlet user: User = { name: 'Bob', age: 30 };\nif (typeof user.name === 'string') {\n  console.log(user.name.toUpperCase()); // BOB\n}\n// user.age = 'thirty'; // Error: string cannot be assigned to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Object properties are checked for safe usage.\n- Incorrect type assignments trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet unsafe: any = { name: 'Alice', age: 25 };\nunsafe.age = 'twenty-five'; // Unsafe, may cause runtime errors\nconsole.log(unsafe); // { name: 'Alice', age: 'twenty-five' }\n\n// Correct approach\ninterface User {\n  name: string;\n  age: number;\n}\nlet safe: User = { name: 'Alice', age: 25 };\nconsole.log(safe); // { name: 'Alice', age: 25 }\n// safe.age = 'twenty-five'; // Error: string cannot be assigned to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and can cause runtime errors.\n- `User` interface ensures type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Object types are widely used in real projects:\n- **User data**: Name, age, address, etc.\n- **Product lists**: Product ID, name, price.\n- **Configuration objects**: Application settings.\n- **API responses**: Structured data from servers.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nfunction filterExpensiveProducts(products: Product[], minPrice: number): Product[] {\n  return products.filter(product => product.price > minPrice);\n}\n\nlet products: Product[] = [\n  { id: 1, name: 'Phone', price: 500 },\n  { id: 2, name: 'Laptop', price: 1000 },\n  { id: 3, name: 'Tablet', price: 300 },\n];\n\nlet expensive: Product[] = filterExpensiveProducts(products, 500);\nconsole.log(expensive); // [{ id: 2, name: 'Laptop', price: 1000 }]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Product` interface defines a product structure.\n- `filter` method filters by price.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use precise types. Avoid `any` and prefer specific types. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Tuples or arrays can be used instead of objects, but objects are better for named properties.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself object types example\ninterface Order {\n  id: number;\n  product: string;\n  quantity: number;\n}\n\nlet order: Order = { id: 1, product: 'Phone', quantity: 2 };\n\nfunction displayOrder(order: Order): void {\n  console.log(`Order ID: ${order.id}, Product: ${order.product}, Quantity: ${order.quantity}`);\n}\n\ndisplayOrder(order);\n// Output: Order ID: 1, Product: Phone, Quantity: 2\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Типы объектов",
+    "icon": "FiBox",
+    "language": "typescript",
+    "description": "Определение структур объектов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое типы объектов?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы объектов в TypeScript используются для определения структуры объектов и типов их свойств. Они указывают, какие свойства должен иметь объект (например, `name`, `age`) и их соответствующие типы (например, `string`, `number`). Это использует преимущества статической системы типов TypeScript для повышения безопасности и читаемости кода. В JavaScript объекты динамичны, что позволяет добавлять любые свойства, что может привести к ошибкам во время выполнения. Типы объектов в TypeScript выявляют такие ошибки на этапе компиляции. Типы объектов могут быть определены с помощью интерфейсов (`interface`), псевдонимов типов (`type`), анонимных типов или индексных сигнатур. Этот JSON-файл подробно объясняет определение типов объектов, их назначение, отличия от JavaScript, синтаксис, свойства только для чтения, необязательные свойства, индексные сигнатуры, вложенные типы объектов, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение типов объектов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы объектов в TypeScript используются для следующих целей:\n- **Определение структуры**: Указывают, какие свойства должен иметь объект и их типы.\n- **Безопасность типов**: Запрещают неправильное присвоение типов на этапе компиляции.\n- **Читаемость**: Указывают структуру и назначение данных.\n- **Поддержка инструментов**: Редакторы кода (например, VS Code) предоставляют автодополнение на основе типов.\nВ JavaScript к объектам можно динамически добавлять любые свойства, что может привести к ошибкам. TypeScript решает эту проблему с помощью статических типов."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис типов объектов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы объектов в TypeScript можно определить несколькими способами:\n- **Интерфейсы (`interface`)**: Для многоразовых структур объектов.\n- **Псевдонимы типов (`type`)**: Более гибкие, схожи с интерфейсами.\n- **Анонимные типы**: Для одноразового использования.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Синтаксис типов объектов\ninterface User {\n  name: string;\n  age: number;\n}\n\ntype Point = {\n  x: number;\n  y: number;\n};\n\nlet user: User = { name: 'Алиса', age: 25 };\nlet point: Point = { x: 10, y: 20 };\nlet anon: { id: number; title: string } = { id: 1, title: 'Тест' };\n\nconsole.log(user); // { name: 'Алиса', age: 25 }\nconsole.log(point); // { x: 10, y: 20 }\nconsole.log(anon); // { id: 1, title: 'Тест' }\n// user.name = 42; // Ошибка: number не может быть присвоен string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `interface User` и `type Point` определяют структуру объектов.\n- Анонимные типы присваиваются напрямую переменным.\n- Неправильное присвоение типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Свойства только для чтения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Свойства только для чтения предотвращают изменение свойств объекта.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Свойства только для чтения\ninterface Product {\n  readonly id: number;\n  name: string;\n}\n\nlet product: Product = { id: 1, name: 'Телефон' };\nconsole.log(product); // { id: 1, name: 'Телефон' }\n// product.id = 2; // Ошибка: нельзя изменить свойство только для чтения\nproduct.name = 'Ноутбук'; // OK\nconsole.log(product); // { id: 1, name: 'Ноутбук' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `readonly id` запрещает изменение свойства `id`.\n- `name` можно изменить.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Необязательные свойства"
+      },
+      {
+        "type": "paragraph",
+        "text": "Необязательные свойства, обозначенные знаком `?`, могут отсутствовать в объекте.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Необязательные свойства\ninterface Car {\n  brand: string;\n  model?: string;\n}\n\nlet car1: Car = { brand: 'Toyota' };\nlet car2: Car = { brand: 'Honda', model: 'Civic' };\n\nconsole.log(car1); // { brand: 'Toyota' }\nconsole.log(car2); // { brand: 'Honda', model: 'Civic' }\n// car1.brand = undefined; // Ошибка: brand обязателен\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `model?` — необязательное свойство и может отсутствовать.\n- `brand` — обязательное свойство.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Индексные сигнатуры"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексные сигнатуры (`[key: string]: T`) определяют объекты с динамическими ключами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Индексные сигнатуры\ninterface Dictionary {\n  [key: string]: number;\n}\n\nlet scores: Dictionary = { math: 90, science: 85 };\nconsole.log(scores); // { math: 90, science: 85 }\nscores['history'] = 95;\nconsole.log(scores); // { math: 90, science: 85, history: 95 }\n// scores['art'] = 'A'; // Ошибка: string не может быть присвоен number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `[key: string]: number` позволяет использовать любой строковый ключ с числовым значением.\n- Неправильное присвоение типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Вложенные типы объектов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Вложенные типы объектов используются для сложных структур данных.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Вложенные типы объектов\ninterface Address {\n  city: string;\n  zip: number;\n}\n\ninterface Person {\n  name: string;\n  address: Address;\n}\n\nlet person: Person = {\n  name: 'Боб',\n  address: { city: 'Баку', zip: 1000 }\n};\n\nconsole.log(person); // { name: 'Боб', address: { city: 'Баку', zip: 1000 } }\n// person.address.city = 42; // Ошибка: number не может быть присвоен string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейсы `Address` и `Person` определяют вложенную структуру.\n- Неправильное присвоение типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Объект vs Кортеж"
+      },
+      {
+        "type": "paragraph",
+        "text": "Объекты и кортежи могут выполнять схожие функции, но имеют разные случаи использования:\n- **Объект**: Для именованных свойств (например, данные пользователя).\n- **Кортеж**: Для упорядоченных данных фиксированной длины (например, координаты).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Объект vs кортеж\nlet object: { name: string; age: number } = { name: 'Алиса', age: 25 };\nlet tuple: [string, number] = ['Алиса', 25];\n\nconsole.log(object.name); // Алиса\nconsole.log(tuple[0]); // Алиса\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Объекты используют именованные свойства.\n- Кортежи используют индексы.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Работа с типами объектов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы объектов используются в различных сценариях в реальных проектах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Практический пример\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nfunction displayProduct(product: Product): void {\n  console.log(`Продукт: ${product.name}, Цена: ${product.price}`);\n}\n\nlet product: Product = { id: 1, name: 'Телефон', price: 500 };\ndisplayProduct(product);\n// Вывод: Продукт: Телефон, Цена: 500\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Product` определяет структуру объекта.\n- Функция отображает свойства объекта.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы объектов повышают безопасность кода, но требуется осторожность:\n- Избегайте неправильных присвоений типов.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\ninterface User {\n  name: string;\n  age: number;\n}\n\nlet user: User = { name: 'Боб', age: 30 };\nif (typeof user.name === 'string') {\n  console.log(user.name.toUpperCase()); // БОБ\n}\n// user.age = 'тридцать'; // Ошибка: string не может быть присвоен number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Свойства объекта проверяются для безопасного использования.\n- Неправильное присвоение типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet unsafe: any = { name: 'Алиса', age: 25 };\nunsafe.age = 'двадцать пять'; // Небезопасно, может вызвать ошибки во время выполнения\nconsole.log(unsafe); // { name: 'Алиса', age: 'двадцать пять' }\n\n// Правильный подход\ninterface User {\n  name: string;\n  age: number;\n}\nlet safe: User = { name: 'Алиса', age: 25 };\nconsole.log(safe); // { name: 'Алиса', age: 25 }\n// safe.age = 'двадцать пять'; // Ошибка: string не может быть присвоен number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Интерфейс `User` обеспечивает безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы объектов широко используются в реальных проектах:\n- **Данные пользователей**: Имя, возраст, адрес и т.д.\n- **Списки продуктов**: ID продукта, название, цена.\n- **Объекты конфигурации**: Настройки приложения.\n- **Ответы API**: Структурированные данные с серверов.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nfunction filterExpensiveProducts(products: Product[], minPrice: number): Product[] {\n  return products.filter(product => product.price > minPrice);\n}\n\nlet products: Product[] = [\n  { id: 1, name: 'Телефон', price: 500 },\n  { id: 2, name: 'Ноутбук', price: 1000 },\n  { id: 3, name: 'Планшет', price: 300 },\n];\n\nlet expensive: Product[] = filterExpensiveProducts(products, 500);\nconsole.log(expensive); // [{ id: 2, name: 'Ноутбук', price: 1000 }]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Product` определяет структуру продукта.\n- Метод `filter` фильтрует по цене.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте точные типы. Избегайте `any` и предпочитайте конкретные типы. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо типов объектов можно использовать кортежи или массивы, но объекты лучше подходят для именованных свойств.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример типов объектов для самостоятельного тестирования\ninterface Order {\n  id: number;\n  product: string;\n  quantity: number;\n}\n\nlet order: Order = { id: 1, product: 'Телефон', quantity: 2 };\n\nfunction displayOrder(order: Order): void {\n  console.log(`ID заказа: ${order.id}, Продукт: ${order.product}, Количество: ${order.quantity}`);\n}\n\ndisplayOrder(order);\n// Вывод: ID заказа: 1, Продукт: Телефон, Количество: 2\n"
+      }
+    ]
+  }
+}

@@ -5,6 +5,7 @@ import LanguagesSection from "../languagesSection/LanguagesSection";
 import MainPageTryEditor from "../mainpageTryEditor/MainPageTryEditor";
 import { useI18n } from "@/contexts/I18nContext";
 
+
 export default function MainPageContent() {
   const { lang } = useI18n();
 

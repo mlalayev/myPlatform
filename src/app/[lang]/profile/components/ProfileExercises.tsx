@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   FiSearch,
   FiFilter,
@@ -19,6 +19,7 @@ import {
   FiDatabase,
   FiGitBranch,
   FiCpu,
+  FiRefreshCw,
 } from "react-icons/fi";
 import { useI18n } from "@/contexts/I18nContext";
 import exercisesStyles from "../ProfileExercises.module.css";
@@ -52,7 +53,70 @@ export default function ProfileExercises({
   userStats,
   loading,
 }: ProfileExercisesProps) {
-  if (loading) {
+  const [exerciseData, setExerciseData] = useState<any>(null);
+  const [exerciseLoading, setExerciseLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+
+  // Fetch exercise data from backend
+  useEffect(() => {
+    const fetchExerciseData = async () => {
+      try {
+        setExerciseLoading(true);
+        const response = await fetch("/api/user/exercises");
+        if (response.ok) {
+          const data = await response.json();
+          setExerciseData(data);
+        } else {
+          console.error("Failed to fetch exercise data:", response.status);
+          // Set default data if API fails
+          setExerciseData({
+            exerciseCategories: [],
+            exercises: [],
+            performanceStats: {
+              totalSolved: 0,
+              totalExercises: 0,
+              successRate: 0,
+              easySolved: 0,
+              easyTotal: 0,
+              mediumSolved: 0,
+              mediumTotal: 0,
+              hardSolved: 0,
+              hardTotal: 0
+            },
+            userActivity: [],
+            recentExercises: []
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching exercise data:", error);
+        // Set default data on error
+        setExerciseData({
+          exerciseCategories: [],
+          exercises: [],
+          performanceStats: {
+            totalSolved: 0,
+            totalExercises: 0,
+            successRate: 0,
+            easySolved: 0,
+            easyTotal: 0,
+            mediumSolved: 0,
+            mediumTotal: 0,
+            hardSolved: 0,
+            hardTotal: 0
+          },
+          userActivity: [],
+          recentExercises: []
+        });
+      } finally {
+        setExerciseLoading(false);
+      }
+    };
+
+    fetchExerciseData();
+  }, []);
+
+  if (loading || exerciseLoading) {
     return (
       <div className={exercisesStyles.exercisesContainer}>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
@@ -73,163 +137,16 @@ export default function ProfileExercises({
     );
   }
 
-  // Exercise categories with problem counts
-  const exerciseCategories = [
-    {
-      id: "arrays",
-      name: "Arrays & Lists",
-      icon: <FiLayers />,
-      solved: 12,
-      total: 25,
-      progress: 48,
-      className: "arrays"
-    },
-    {
-      id: "algorithms",
-      name: "Algorithms",
-      icon: <FiCpu />,
-      solved: 8,
-      total: 30,
-      progress: 27,
-      className: "algorithms"
-    },
-    {
-      id: "strings",
-      name: "String Manipulation",
-      icon: <FiCode />,
-      solved: 15,
-      total: 20,
-      progress: 75,
-      className: "strings"
-    },
-    {
-      id: "graphs",
-      name: "Graph Theory",
-      icon: <FiGitBranch />,
-      solved: 5,
-      total: 18,
-      progress: 28,
-      className: "graphs"
-    },
-    {
-      id: "dynamic",
-      name: "Dynamic Programming",
-      icon: <FiZap />,
-      solved: 3,
-      total: 15,
-      progress: 20,
-      className: "dynamic"
-    }
-  ];
-
-  // Sample exercises with detailed information
-  const sampleExercises = [
-    {
-      id: 1,
-      title: "Two Sum Problem",
-      description: "Find two numbers in an array that add up to a specific target.",
-      category: "Arrays & Lists",
-      categoryClass: "arrays",
-      difficulty: "easy",
-      status: "solved",
-      timeComplexity: "O(n)",
-      spaceComplexity: "O(n)",
-      acceptanceRate: 87,
-      submissions: [
-        { status: "accepted", time: "2 hours ago", runtime: "68ms" },
-        { status: "wrong", time: "2 hours ago", runtime: "-" },
-      ],
-      lastAttempt: "2 hours ago",
-      averageTime: "15 min"
-    },
-    {
-      id: 2,
-      title: "Binary Search Implementation",
-      description: "Implement binary search algorithm to find element in sorted array.",
-      category: "Algorithms",
-      categoryClass: "algorithms",
-      difficulty: "medium",
-      status: "attempted",
-      timeComplexity: "O(log n)",
-      spaceComplexity: "O(1)",
-      acceptanceRate: 72,
-      submissions: [
-        { status: "timeout", time: "1 day ago", runtime: "-" },
-        { status: "wrong", time: "1 day ago", runtime: "-" },
-      ],
-      lastAttempt: "1 day ago",
-      averageTime: "25 min"
-    },
-    {
-      id: 3,
-      title: "Longest Palindromic Substring",
-      description: "Find the longest palindromic substring in a given string.",
-      category: "String Manipulation",
-      categoryClass: "strings",
-      difficulty: "medium",
-      status: "solved",
-      timeComplexity: "O(n²)",
-      spaceComplexity: "O(1)",
-      acceptanceRate: 65,
-      submissions: [
-        { status: "accepted", time: "3 days ago", runtime: "124ms" },
-        { status: "accepted", time: "3 days ago", runtime: "156ms" },
-        { status: "wrong", time: "3 days ago", runtime: "-" },
-      ],
-      lastAttempt: "3 days ago",
-      averageTime: "45 min"
-    },
-    {
-      id: 4,
-      title: "Graph Traversal DFS",
-      description: "Implement depth-first search traversal for graph data structure.",
-      category: "Graph Theory",
-      categoryClass: "graphs",
-      difficulty: "hard",
-      status: "new",
-      timeComplexity: "O(V + E)",
-      spaceComplexity: "O(V)",
-      acceptanceRate: 58,
-      submissions: [],
-      lastAttempt: null,
-      averageTime: "60 min"
-    },
-    {
-      id: 5,
-      title: "Fibonacci Dynamic Programming",
-      description: "Solve Fibonacci sequence using dynamic programming approach.",
-      category: "Dynamic Programming",
-      categoryClass: "dynamic",
-      difficulty: "easy",
-      status: "solved",
-      timeComplexity: "O(n)",
-      spaceComplexity: "O(n)",
-      acceptanceRate: 89,
-      submissions: [
-        { status: "accepted", time: "1 week ago", runtime: "42ms" },
-      ],
-      lastAttempt: "1 week ago",
-      averageTime: "20 min"
-    },
-    {
-      id: 6,
-      title: "Merge K Sorted Lists",
-      description: "Merge k sorted linked lists and return it as one sorted list.",
-      category: "Arrays & Lists",
-      categoryClass: "arrays",
-      difficulty: "hard",
-      status: "attempted",
-      timeComplexity: "O(n log k)",
-      spaceComplexity: "O(1)",
-      acceptanceRate: 43,
-      submissions: [
-        { status: "wrong", time: "2 weeks ago", runtime: "-" },
-        { status: "timeout", time: "2 weeks ago", runtime: "-" },
-      ],
-      lastAttempt: "2 weeks ago",
-      averageTime: "75 min"
-    }
-  ];
+  // Filter exercises based on search and status
+  const filteredExercises = exerciseData?.exercises?.filter((exercise: any) => {
+    const matchesSearch = exercise.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         exercise.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         exercise.category.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = filterStatus === "all" || exercise.status === filterStatus;
+    
+    return matchesSearch && matchesStatus;
+  }) || [];
 
   const getDifficultyDots = (difficulty: string) => {
     const levels: { [key: string]: number } = { easy: 1, medium: 2, hard: 3 };
@@ -295,15 +212,17 @@ export default function ProfileExercises({
     }
   };
 
-  // Calculate performance stats
-  const totalSolved = exerciseCategories.reduce((acc, cat) => acc + cat.solved, 0);
-  const totalExercises = exerciseCategories.reduce((acc, cat) => acc + cat.total, 0);
-  const easySolved = sampleExercises.filter(ex => ex.difficulty === 'easy' && ex.status === 'solved').length;
-  const mediumSolved = sampleExercises.filter(ex => ex.difficulty === 'medium' && ex.status === 'solved').length;
-  const hardSolved = sampleExercises.filter(ex => ex.difficulty === 'hard' && ex.status === 'solved').length;
-  const easyTotal = sampleExercises.filter(ex => ex.difficulty === 'easy').length;
-  const mediumTotal = sampleExercises.filter(ex => ex.difficulty === 'medium').length;
-  const hardTotal = sampleExercises.filter(ex => ex.difficulty === 'hard').length;
+  const performanceStats = exerciseData?.performanceStats || {
+    totalSolved: 0,
+    totalExercises: 0,
+    successRate: 0,
+    easySolved: 0,
+    easyTotal: 0,
+    mediumSolved: 0,
+    mediumTotal: 0,
+    hardSolved: 0,
+    hardTotal: 0
+  };
 
   return (
     <div className={exercisesStyles.exercisesContainer}>
@@ -331,32 +250,7 @@ export default function ProfileExercises({
             </div>
           </div>
           <div className={exercisesStyles.heroRight}>
-            <div className={exercisesStyles.exerciseStats}>
-              <div className={exercisesStyles.statItem}>
-                <span className={exercisesStyles.statNumber}>
-                  {totalSolved}
-                </span>
-                <span className={exercisesStyles.statLabel}>Solved</span>
-              </div>
-              <div className={exercisesStyles.statItem}>
-                <span className={exercisesStyles.statNumber}>
-                  {Math.round((totalSolved / totalExercises) * 100)}%
-                </span>
-                <span className={exercisesStyles.statLabel}>Success Rate</span>
-              </div>
-              <div className={exercisesStyles.statItem}>
-                <span className={exercisesStyles.statNumber}>
-                  {formatStudyTime((userStats?.studyTimeHours || 0) * 3600)}
-                </span>
-                <span className={exercisesStyles.statLabel}>Code Time</span>
-              </div>
-              <div className={exercisesStyles.statItem}>
-                <span className={exercisesStyles.statNumber}>
-                  {sampleExercises.filter(ex => ex.lastAttempt && ex.lastAttempt.includes('hour')).length}
-                </span>
-                <span className={exercisesStyles.statLabel}>Recent</span>
-              </div>
-            </div>
+            {/* exerciseStats div removed */}
           </div>
         </div>
       </div>
@@ -369,39 +263,39 @@ export default function ProfileExercises({
         <div className={exercisesStyles.performanceGrid}>
           <div className={`${exercisesStyles.performanceCard} ${exercisesStyles.easy}`}>
             <div className={`${exercisesStyles.performanceNumber} ${exercisesStyles.easy}`}>
-              {easySolved}/{easyTotal}
+              {performanceStats.easySolved}/{performanceStats.easyTotal}
             </div>
             <div className={exercisesStyles.performanceLabel}>Easy Problems</div>
             <div className={exercisesStyles.performanceProgress}>
               <div 
                 className={`${exercisesStyles.performanceProgressFill} ${exercisesStyles.easy}`}
-                style={{ width: `${(easySolved / easyTotal) * 100}%` }}
+                style={{ width: `${performanceStats.easyTotal > 0 ? (performanceStats.easySolved / performanceStats.easyTotal) * 100 : 0}%` }}
               ></div>
             </div>
           </div>
           
           <div className={`${exercisesStyles.performanceCard} ${exercisesStyles.medium}`}>
             <div className={`${exercisesStyles.performanceNumber} ${exercisesStyles.medium}`}>
-              {mediumSolved}/{mediumTotal}
+              {performanceStats.mediumSolved}/{performanceStats.mediumTotal}
             </div>
             <div className={exercisesStyles.performanceLabel}>Medium Problems</div>
             <div className={exercisesStyles.performanceProgress}>
               <div 
                 className={`${exercisesStyles.performanceProgressFill} ${exercisesStyles.medium}`}
-                style={{ width: `${(mediumSolved / mediumTotal) * 100}%` }}
+                style={{ width: `${performanceStats.mediumTotal > 0 ? (performanceStats.mediumSolved / performanceStats.mediumTotal) * 100 : 0}%` }}
               ></div>
             </div>
           </div>
           
           <div className={`${exercisesStyles.performanceCard} ${exercisesStyles.hard}`}>
             <div className={`${exercisesStyles.performanceNumber} ${exercisesStyles.hard}`}>
-              {hardSolved}/{hardTotal}
+              {performanceStats.hardSolved}/{performanceStats.hardTotal}
             </div>
             <div className={exercisesStyles.performanceLabel}>Hard Problems</div>
             <div className={exercisesStyles.performanceProgress}>
               <div 
                 className={`${exercisesStyles.performanceProgressFill} ${exercisesStyles.hard}`}
-                style={{ width: `${(hardSolved / hardTotal) * 100}%` }}
+                style={{ width: `${performanceStats.hardTotal > 0 ? (performanceStats.hardSolved / performanceStats.hardTotal) * 100 : 0}%` }}
               ></div>
             </div>
           </div>
@@ -416,16 +310,36 @@ export default function ProfileExercises({
             type="text"
             placeholder="Search exercises..."
             className={exercisesStyles.searchInput}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         
         <div className={exercisesStyles.filterTabs}>
-          <button className={`${exercisesStyles.filterTab} ${exercisesStyles.active}`}>
+          <button 
+            className={`${exercisesStyles.filterTab} ${filterStatus === 'all' ? exercisesStyles.active : ''}`}
+            onClick={() => setFilterStatus('all')}
+          >
             All
           </button>
-          <button className={exercisesStyles.filterTab}>Solved</button>
-          <button className={exercisesStyles.filterTab}>Attempted</button>
-          <button className={exercisesStyles.filterTab}>New</button>
+          <button 
+            className={`${exercisesStyles.filterTab} ${filterStatus === 'solved' ? exercisesStyles.active : ''}`}
+            onClick={() => setFilterStatus('solved')}
+          >
+            Solved
+          </button>
+          <button 
+            className={`${exercisesStyles.filterTab} ${filterStatus === 'attempted' ? exercisesStyles.active : ''}`}
+            onClick={() => setFilterStatus('attempted')}
+          >
+            Attempted
+          </button>
+          <button 
+            className={`${exercisesStyles.filterTab} ${filterStatus === 'new' ? exercisesStyles.active : ''}`}
+            onClick={() => setFilterStatus('new')}
+          >
+            New
+          </button>
         </div>
 
         <div className={exercisesStyles.sortDropdown}>
@@ -438,159 +352,146 @@ export default function ProfileExercises({
       </div>
 
       {/* Categories Overview */}
-      <div className={exercisesStyles.categoriesSection}>
-        <div className={exercisesStyles.categoriesHeader}>
-          <h3 className={exercisesStyles.categoriesTitle}>Problem Categories</h3>
+      {exerciseData?.exerciseCategories && exerciseData.exerciseCategories.length > 0 && (
+        <div className={exercisesStyles.categoriesSection}>
+          <div className={exercisesStyles.categoriesHeader}>
+            <h3 className={exercisesStyles.categoriesTitle}>Problem Categories</h3>
+          </div>
+          <div className={exercisesStyles.categoriesGrid}>
+            {exerciseData.exerciseCategories.map((category: any) => (
+              <div 
+                key={category.id} 
+                className={`${exercisesStyles.categoryCard} ${exercisesStyles[category.className]}`}
+              >
+                <div className={exercisesStyles.categoryIcon}>
+                  {category.icon === 'FiLayers' && <FiLayers />}
+                  {category.icon === 'FiCpu' && <FiCpu />}
+                  {category.icon === 'FiCode' && <FiCode />}
+                  {category.icon === 'FiGitBranch' && <FiGitBranch />}
+                  {category.icon === 'FiZap' && <FiZap />}
+                </div>
+                <h4 className={exercisesStyles.categoryName}>{category.name}</h4>
+                <p className={exercisesStyles.categoryProgress}>
+                  {category.solved} of {category.total} problems solved
+                </p>
+                <div className={exercisesStyles.categoryProgressBar}>
+                  <div 
+                    className={`${exercisesStyles.categoryProgressFill} ${exercisesStyles[category.className]}`}
+                    style={{ width: `${category.progress}%` }}
+                  ></div>
+                </div>
+                <div className={exercisesStyles.categoryStats}>
+                  <span>{category.progress}% Complete</span>
+                  <span>{category.total - category.solved} remaining</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className={exercisesStyles.categoriesGrid}>
-          {exerciseCategories.map((category) => (
-            <div 
-              key={category.id} 
-              className={`${exercisesStyles.categoryCard} ${exercisesStyles[category.className]}`}
-            >
-              <div className={exercisesStyles.categoryIcon}>
-                {category.icon}
-              </div>
-              <h4 className={exercisesStyles.categoryName}>{category.name}</h4>
-              <p className={exercisesStyles.categoryProgress}>
-                {category.solved} of {category.total} problems solved
-              </p>
-              <div className={exercisesStyles.categoryProgressBar}>
-                <div 
-                  className={`${exercisesStyles.categoryProgressFill} ${exercisesStyles[category.className]}`}
-                  style={{ width: `${category.progress}%` }}
-                ></div>
-              </div>
-              <div className={exercisesStyles.categoryStats}>
-                <span>{category.progress}% Complete</span>
-                <span>{category.total - category.solved} remaining</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
 
-      {/* Exercises Grid */}
+      {/* Exercises Grid - 2x Layout */}
       <div className={exercisesStyles.exercisesGrid}>
-        {sampleExercises.map((exercise) => (
-          <div 
-            key={exercise.id} 
-            className={`${exercisesStyles.exerciseCard} ${exercisesStyles[exercise.status]}`}
-          >
-            <div className={`${exercisesStyles.exerciseHeader} ${exercisesStyles[exercise.difficulty]}`}>
-              <div className={exercisesStyles.exerciseMeta}>
-                <div className={exercisesStyles.exerciseInfo}>
-                  <div className={exercisesStyles.exerciseCategory}>
+        {filteredExercises.length > 0 ? (
+          filteredExercises.map((exercise: any) => (
+            <div 
+              key={exercise.id} 
+              className={`${exercisesStyles.exerciseCard} ${exercisesStyles[exercise.status]}`}
+            >
+              {/* Card Header */}
+              <div className={`${exercisesStyles.cardHeader} ${exercisesStyles[exercise.categoryClass]}`}>
+                <div className={exercisesStyles.cardHeaderLeft}>
+                  <div className={exercisesStyles.categoryBadge}>
                     {exercise.category}
                   </div>
-                  <h3 className={exercisesStyles.exerciseTitle}>
-                    {exercise.title}
-                  </h3>
-                  <p className={exercisesStyles.exerciseDescription}>
-                    {exercise.description}
-                  </p>
-                </div>
-                <div className={`${exercisesStyles.exerciseStatus} ${exercisesStyles[exercise.status]}`}>
-                  {getStatusIcon(exercise.status)}
-                  {exercise.status === 'solved' ? 'Solved' : 
-                   exercise.status === 'attempted' ? 'Attempted' : 'New'}
-                </div>
-              </div>
-            </div>
-
-            <div className={exercisesStyles.exerciseContent}>
-              <div className={exercisesStyles.exerciseMetrics}>
-                <div className={exercisesStyles.metricsGrid}>
-                  <div className={exercisesStyles.metricItem}>
-                    <FiClock className={exercisesStyles.metricIcon} />
-                    <span className={exercisesStyles.metricValue}>
-                      Time: {exercise.timeComplexity}
-                    </span>
-                  </div>
-                  <div className={exercisesStyles.metricItem}>
-                    <FiDatabase className={exercisesStyles.metricIcon} />
-                    <span className={exercisesStyles.metricValue}>
-                      Space: {exercise.spaceComplexity}
-                    </span>
-                  </div>
-                  <div className={exercisesStyles.metricItem}>
-                    <FiTarget className={exercisesStyles.metricIcon} />
-                    <span className={exercisesStyles.metricValue}>
-                      Acceptance: {exercise.acceptanceRate}%
-                    </span>
-                  </div>
-                  <div className={exercisesStyles.metricItem}>
-                    <FiTrendingUp className={exercisesStyles.metricIcon} />
-                    <span className={exercisesStyles.metricValue}>
-                      Avg: {exercise.averageTime}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className={exercisesStyles.difficultyLevel}>
-                  <span>Difficulty:</span>
-                  <div className={exercisesStyles.difficultyDots}>
-                    {getDifficultyDots(exercise.difficulty)}
-                  </div>
-                  <span style={{ 
-                    color: exercise.difficulty === 'easy' ? '#48bb78' : 
-                           exercise.difficulty === 'medium' ? '#ed8936' : '#e53e3e',
-                    fontWeight: 600,
-                    textTransform: 'capitalize'
-                  }}>
+                  <div className={exercisesStyles.difficultyBadge}>
                     {exercise.difficulty}
-                  </span>
+                  </div>
                 </div>
+
               </div>
 
-              {exercise.submissions.length > 0 && (
-                <div className={exercisesStyles.submissionHistory}>
-                  <div className={exercisesStyles.submissionLabel}>
-                    Recent Submissions
-                  </div>
-                  <div className={exercisesStyles.submissionsList}>
-                    {exercise.submissions.slice(0, 3).map((submission, index) => (
-                      <div 
-                        key={index} 
-                        className={`${exercisesStyles.submissionItem} ${exercisesStyles[submission.status]}`}
-                      >
-                        <div className={exercisesStyles.submissionInfo}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            {getSubmissionStatusIcon(submission.status)}
-                            <span className={`${exercisesStyles.submissionStatus} ${exercisesStyles[submission.status]}`}>
-                              {submission.status === 'accepted' ? 'Accepted' :
-                               submission.status === 'wrong' ? 'Wrong Answer' : 'Time Limit'}
-                            </span>
+              {/* Card Content */}
+              <div className={exercisesStyles.cardContent}>
+                <h3 className={exercisesStyles.exerciseTitle}>
+                  {exercise.title}
+                </h3>
+                <p className={exercisesStyles.exerciseDescription}>
+                  {exercise.description}
+                </p>
+
+                {/* Submission History */}
+                {exercise.submissions && exercise.submissions.length > 0 && (
+                  <div className={exercisesStyles.submissionSection}>
+                    <div className={exercisesStyles.submissionTitle}>
+                      Son cəhdlər
+                    </div>
+                    <div className={exercisesStyles.submissionList}>
+                      {exercise.submissions.slice(0, 2).map((submission: any, index: number) => (
+                        <div 
+                          key={index} 
+                          className={`${exercisesStyles.submissionItem} ${exercisesStyles[submission.status]}`}
+                        >
+                          <div className={exercisesStyles.submissionStatus}>
+                            {submission.status === 'accepted' ? '✅' : '❌'}
+                            <span>{submission.status === 'accepted' ? 'Uğurlu' : 'Uğursuz'}</span>
                           </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                            <span className={exercisesStyles.submissionTime}>
-                              {submission.time}
-                            </span>
-                            {submission.runtime && submission.runtime !== '-' && (
-                              <span style={{ fontSize: '0.7rem', color: '#a0aec0' }}>
-                                {submission.runtime}
-                              </span>
-                            )}
+                          <div className={exercisesStyles.submissionTime}>
+                            {submission.time}
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-
-              <div className={exercisesStyles.exerciseActions}>
-                {getActionButton(exercise)}
-                {exercise.status === 'solved' && (
-                  <button className={`${exercisesStyles.actionButton} ${exercisesStyles.viewSolutionButton}`}>
-                    <FiEye />
-                    Solution
-                  </button>
                 )}
+
+                {/* Action Button */}
+                <div className={exercisesStyles.actionSection}>
+                  {exercise.status === 'new' ? (
+                    <button className={`${exercisesStyles.actionButton} ${exercisesStyles.solveButton}`}>
+                      <FiCode />
+                      Həll Et
+                    </button>
+                  ) : exercise.status === 'attempted' ? (
+                    <button className={`${exercisesStyles.actionButton} ${exercisesStyles.retryButton}`}>
+                      <FiRefreshCw />
+                      Yenidən Cəhd Et
+                    </button>
+                  ) : (
+                    <button className={`${exercisesStyles.actionButton} ${exercisesStyles.reviewButton}`}>
+                      <FiEye />
+                      Yenidən Bax
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
+          ))
+        ) : exerciseData?.hasExercises ? (
+          <div className={exercisesStyles.emptyState}>
+            <FiCode size={48} style={{ opacity: 0.3, marginBottom: '16px' }} />
+            <h3>Tapşırıq tapılmadı</h3>
+            <p>Axtarış və ya filter kriteriyalarınızı dəyişdirin</p>
           </div>
-        ))}
+        ) : (
+          <div className={exercisesStyles.emptyState}>
+            <div className={exercisesStyles.emptyStateIcon}>
+              <FiCode size={64} />
+            </div>
+            <h3>Hələ heç bir tapşırıq həll etməmisiniz</h3>
+            <p>İlk tapşırığınızı həll etməyə başlayın və burada görünəcək!</p>
+            <div className={exercisesStyles.emptyStateActions}>
+              <button className={`${exercisesStyles.actionButton} ${exercisesStyles.solveButton}`}>
+                <FiCode />
+                İlk Tapşırığı Həll Et
+              </button>
+              <button className={`${exercisesStyles.actionButton} ${exercisesStyles.viewSolutionButton}`}>
+                <FiTarget />
+                Tapşırıqları Gör
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

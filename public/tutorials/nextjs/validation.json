@@ -1,0 +1,300 @@
+{
+    "id": "validation",
+    "az": {
+      "title": "Məlumat Doğrulama",
+      "icon": "FiCheckCircle",
+      "language": "javascript",
+      "description": "Zod/Yup ilə giriş doğrulaması",
+      "content": [
+        {
+          "type": "heading",
+          "text": "// Məlumat Doğrulama Nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "React/Next.js-də **məlumat doğrulaması** (validation) istifadəçi girişlərini (forma məlumatları) yoxlamaq üçün istifadə olunur. Bu, e-poçt formatı, parol uzunluğu kimi qaydaları tətbiq edir və xətaları göstərir. Ən populyar kitabxanalar Zod (TypeScript dostu) və Yup (klassik). Bu dərsdə Zod və Yup ilə forma doğrulaması və sadə nümunələri öyrənəcəksiniz. Kod nümunələri sadədir və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// Zod ilə Doğrulama"
+        },
+        {
+          "type": "paragraph",
+          "text": "Zod TypeScript üçün schema-based validation kitabxanasıdır.\nNümunə:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import { z } from 'zod';\n\nconst userSchema = z.object({\n  name: z.string().min(3, 'Ad ən az 3 simvol olmalıdır'),\n  email: z.string().email('Düzgün e-poçt daxil edin'),\n  age: z.number().min(18, 'Yaş 18-dən böyük olmalıdır')\n});\n\nfunction validateUser(data) {\n  const result = userSchema.safeParse(data);\n  if (!result.success) {\n    return result.error.errors.map(e => e.message);\n  }\n  return 'Uğurlu!';\n}\n\n// Test\nconst errors = validateUser({ name: 'A', email: 'yanlis', age: 15 });\nconsole.log(errors);\n\nconsole.log('Zod ilə doğrulama yaradıldı');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- `z.object` ilə schema yaradılır.\n- `safeParse` ilə xətasız yoxlama.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// Yup ilə Doğrulama"
+        },
+        {
+          "type": "paragraph",
+          "text": "Yup klassik və güclü validation kitabxanasıdır.\nNümunə:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import * as Yup from 'yup';\n\nconst userSchema = Yup.object().shape({\n  name: Yup.string().min(3, 'Ad ən az 3 simvol').required('Ad tələb olunur'),\n  email: Yup.string().email('Düzgün e-poçt').required('E-poçt tələb olunur'),\n  password: Yup.string().min(6, 'Parol ən az 6 simvol').required()\n});\n\nasync function validateUser(data) {\n  try {\n    await userSchema.validate(data, { abortEarly: false });\n    return 'Uğurlu!';\n  } catch (error) {\n    return error.errors;\n  }\n}\n\nconsole.log('Yup ilə doğrulama yaradıldı');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- `Yup.object().shape` ilə schema.\n- `validate` ilə yoxlama.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// React Hook Form ilə Zod (Tövsiyə)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Forma üçün ən yaxşı kombinasiya.\nNümunə:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import { useForm } from 'react-hook-form';\nimport { z } from 'zod';\nimport { zodResolver } from '@hookform/resolvers/zod';\n\nconst schema = z.object({\n  email: z.string().email()\n});\n\nfunction LoginForm() {\n  const { register, handleSubmit, formState: { errors } } = useForm({\n    resolver: zodResolver(schema)\n  });\n\n  return (\n    <form onSubmit={handleSubmit(data => console.log(data))}>\n      <input {...register('email')} />\n      {errors.email && <p>{errors.email.message}</p>}\n      <button type=\"submit\">Göndər</button>\n    </form>\n  );\n}\n\nconsole.log('React Hook Form + Zod yaradıldı');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- `zodResolver` ilə Zod schema forma ilə birləşdirilir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// Zod vs Yup Müqayisəsi"
+        },
+        {
+          "type": "paragraph",
+          "text": "Müqayisə:\n- **Zod**: TypeScript dostu, runtime type inference.\n- **Yup**: Klassik, daha çox metod.\n- Yeni layihələrdə Zod tövsiyə olunur."
+        },
+        {
+          "type": "heading",
+          "text": "// Üstünlükləri və Təhlükəsizlik"
+        },
+        {
+          "type": "paragraph",
+          "text": "Üstünlükləri:\n- İstifadəçi təcrübəsi yaxşılaşır.\n- Serverə yanlış məlumat göndərilmir.\n- Təhlükəsizlik artır."
+        },
+        {
+          "type": "heading",
+          "text": "// Tövsiyələr və Resurslar"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Tövsiyələr**: Zod + React Hook Form istifadə edin.\n- **Resurslar**: Zod docs (https://zod.dev), Yup docs (https://github.com/jquense/yup).\nAşağıda nümunə kodu sınaqdan keçirə bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// Sınaq Üçün Nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "import { z } from 'zod';\n\nconst schema = z.object({\n  email: z.string().email('Düzgün e-poçt daxil edin')\n});\n\nconst result = schema.safeParse({ email: 'yanlis' });\nconsole.log(result.success ? 'Uğurlu' : result.error.errors[0].message);\n\nconsole.log('Sadə Zod doğrulama');\n"
+        }
+      ]
+    },
+    "en": {
+      "title": "Data Validation",
+      "icon": "FiCheckCircle",
+      "language": "javascript",
+      "description": "Input validation with Zod/Yup",
+      "content": [
+        {
+          "type": "heading",
+          "text": "// What is Data Validation?"
+        },
+        {
+          "type": "paragraph",
+          "text": "In React/Next.js, **data validation** checks user inputs (form data). Ensures rules like email format, password length, shows errors. Popular libraries Zod (TypeScript-friendly) and Yup (classic). This lesson covers form validation with Zod and Yup, simple examples. Code examples are simple and you can test them in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// Validation with Zod"
+        },
+        {
+          "type": "paragraph",
+          "text": "Zod is schema-based validation for TypeScript.\nExample:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import { z } from 'zod';\n\nconst userSchema = z.object({\n  name: z.string().min(3, 'Name at least 3 characters'),\n  email: z.string().email('Valid email required'),\n  age: z.number().min(18, 'Age must be 18+')\n});\n\nfunction validateUser(data) {\n  const result = userSchema.safeParse(data);\n  if (!result.success) {\n    return result.error.errors.map(e => e.message);\n  }\n  return 'Success!';\n}\n\n// Test\nconst errors = validateUser({ name: 'A', email: 'wrong', age: 15 });\nconsole.log(errors);\n\nconsole.log('Validation with Zod created');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- `z.object` creates schema.\n- `safeParse` safe validation.\nYou can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// Validation with Yup"
+        },
+        {
+          "type": "paragraph",
+          "text": "Yup is classic powerful validation.\nExample:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import * as Yup from 'yup';\n\nconst userSchema = Yup.object().shape({\n  name: Yup.string().min(3, 'Name at least 3 chars').required('Name required'),\n  email: Yup.string().email('Valid email').required('Email required'),\n  password: Yup.string().min(6, 'Password at least 6 chars').required()\n});\n\nasync function validateUser(data) {\n  try {\n    await userSchema.validate(data, { abortEarly: false });\n    return 'Success!';\n  } catch (error) {\n    return error.errors;\n  }\n}\n\nconsole.log('Validation with Yup created');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- `Yup.object().shape` schema.\n- `validate` checks.\nYou can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// React Hook Form with Zod (Recommended)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Best combo for forms.\nExample:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import { useForm } from 'react-hook-form';\nimport { z } from 'zod';\nimport { zodResolver } from '@hookform/resolvers/zod';\n\nconst schema = z.object({\n  email: z.string().email()\n});\n\nfunction LoginForm() {\n  const { register, handleSubmit, formState: { errors } } = useForm({\n    resolver: zodResolver(schema)\n  });\n\n  return (\n    <form onSubmit={handleSubmit(data => console.log(data))}>\n      <input {...register('email')} />\n      {errors.email && <p>{errors.email.message}</p>}\n      <button type=\"submit\">Submit</button>\n    </form>\n  );\n}\n\nconsole.log('React Hook Form + Zod created');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- `zodResolver` integrates Zod schema with form.\nYou can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// Zod vs Yup Comparison"
+        },
+        {
+          "type": "paragraph",
+          "text": "Comparison:\n- **Zod**: TypeScript friendly, runtime type inference.\n- **Yup**: Classic, more methods.\n- Zod recommended for new projects."
+        },
+        {
+          "type": "heading",
+          "text": "// Advantages and Security"
+        },
+        {
+          "type": "paragraph",
+          "text": "Advantages:\n- Better user experience.\n- Prevents wrong data to server.\n- Increases security."
+        },
+        {
+          "type": "heading",
+          "text": "// Recommendations and Resources"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Recommendations**: Use Zod + React Hook Form.\n- **Resources**: Zod docs (https://zod.dev), Yup docs (https://github.com/jquense/yup).\nYou can test the example code below in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// Try It Yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "import { z } from 'zod';\n\nconst schema = z.object({\n  email: z.string().email('Valid email required')\n});\n\nconst result = schema.safeParse({ email: 'wrong' });\nconsole.log(result.success ? 'Success' : result.error.errors[0].message);\n\nconsole.log('Simple Zod validation');\n"
+        }
+      ]
+    },
+    "ru": {
+      "title": "Валидация данных",
+      "icon": "FiCheckCircle",
+      "language": "javascript",
+      "description": "Валидация ввода с Zod/Yup",
+      "content": [
+        {
+          "type": "heading",
+          "text": "// Что такое валидация данных?"
+        },
+        {
+          "type": "paragraph",
+          "text": "В React/Next.js **валидация данных** проверяет ввод пользователя (данные формы). Обеспечивает правила вроде формата email, длины пароля, показывает ошибки. Популярные библиотеки Zod (TypeScript-friendly) и Yup (классика). В этом уроке вы узнаете валидацию форм с Zod и Yup, простые примеры. Примеры кода просты и вы можете протестировать их в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// Валидация с Zod"
+        },
+        {
+          "type": "paragraph",
+          "text": "Zod — schema-based валидация для TypeScript.\nПример:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import { z } from 'zod';\n\nconst userSchema = z.object({\n  name: z.string().min(3, 'Имя минимум 3 символа'),\n  email: z.string().email('Валидный email'),\n  age: z.number().min(18, 'Возраст 18+')\n});\n\nfunction validateUser(data) {\n  const result = userSchema.safeParse(data);\n  if (!result.success) {\n    return result.error.errors.map(e => e.message);\n  }\n  return 'Успех!';\n}\n\n// Тест\nconst errors = validateUser({ name: 'A', email: 'wrong', age: 15 });\nconsole.log(errors);\n\nconsole.log('Валидация с Zod создана');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- `z.object` создает схему.\n- `safeParse` безопасная проверка.\nВы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// Валидация с Yup"
+        },
+        {
+          "type": "paragraph",
+          "text": "Yup — классическая мощная валидация.\nПример:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import * as Yup from 'yup';\n\nconst userSchema = Yup.object().shape({\n  name: Yup.string().min(3, 'Имя минимум 3 символа').required('Имя обязательно'),\n  email: Yup.string().email('Валидный email').required('Email обязателен'),\n  password: Yup.string().min(6, 'Пароль минимум 6 символов').required()\n});\n\nasync function validateUser(data) {\n  try {\n    await userSchema.validate(data, { abortEarly: false });\n    return 'Успех!';\n  } catch (error) {\n    return error.errors;\n  }\n}\n\nconsole.log('Валидация с Yup создана');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- `Yup.object().shape` схема.\n- `validate` проверка.\nВы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// React Hook Form с Zod (Рекомендуется)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Лучшая комбинация для форм.\nПример:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import { useForm } from 'react-hook-form';\nimport { z } from 'zod';\nimport { zodResolver } from '@hookform/resolvers/zod';\n\nconst schema = z.object({\n  email: z.string().email()\n});\n\nfunction LoginForm() {\n  const { register, handleSubmit, formState: { errors } } = useForm({\n    resolver: zodResolver(schema)\n  });\n\n  return (\n    <form onSubmit={handleSubmit(data => console.log(data))}>\n      <input {...register('email')} />\n      {errors.email && <p>{errors.email.message}</p>}\n      <button type=\"submit\">Отправить</button>\n    </form>\n  );\n}\n\nconsole.log('React Hook Form + Zod создана');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- `zodResolver` интегрирует Zod схему с формой.\nВы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// Сравнение Zod и Yup"
+        },
+        {
+          "type": "paragraph",
+          "text": "Сравнение:\n- **Zod**: TypeScript-дружелюбный, runtime type inference.\n- **Yup**: Классический, больше методов.\n- Для новых проектов рекомендуется Zod."
+        },
+        {
+          "type": "heading",
+          "text": "// Преимущества и безопасность"
+        },
+        {
+          "type": "paragraph",
+          "text": "Преимущества:\n- Лучший UX.\n- Предотвращает неверные данные на сервер.\n- Повышает безопасность."
+        },
+        {
+          "type": "heading",
+          "text": "// Рекомендации и ресурсы"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Рекомендации**: Используйте Zod + React Hook Form.\n- **Ресурсы**: Zod docs (https://zod.dev), Yup docs (https://github.com/jquense/yup).\nВы можете протестировать пример кода ниже в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// Попробуйте сами"
+        },
+        {
+          "type": "editor",
+          "initialCode": "import { z } from 'zod';\n\nconst schema = z.object({\n  email: z.string().email('Валидный email обязателен')\n});\n\nconst result = schema.safeParse({ email: 'wrong' });\nconsole.log(result.success ? 'Успех' : result.error.errors[0].message);\n\nconsole.log('Простая валидация Zod');\n"
+        }
+      ]
+    }
+  }

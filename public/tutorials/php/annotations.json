@@ -1,0 +1,444 @@
+{
+  "id": "annotations",
+  "az": {
+    "title": "Annotations və Reflection",
+    "icon": "FiEye",
+    "language": "php",
+    "description": "Xüsusi annotation-lar, reflection və meta-proqramlaşdırma.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də Annotations və Reflection Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Annotations (şərhlər) PHP kodunda siniflərə, metodlara və ya xassələrə əlavə metadata əlavə etmək üçün istifadə olunan xüsusi şərh sintaksisidir. Reflection isə kodun öz strukturu haqqında məlumat əldə etməyə imkan verən PHP-nin daxili mexanizmidir. Meta-proqramlaşdırma bu alətlərdən istifadə edərək kodun dinamik şəkildə idarə olunmasını təmin edir. Bu JSON faylda annotations və reflection-un tərifi, PHP-də istifadəsi, xüsusi annotation-ların yaradılması, praktik nümunələr, təhlükəsizlik aspektləri və səhvlərdən qaçınma yolları çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz. PHP 8.1 və ya daha yeni versiyadan istifadə etdiyinizə əmin olun. Annotation-lar üçün `doctrine/annotations` kimi kitabxanalar Composer ilə quraşdırıla bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Annotations Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Annotations kodda əlavə məlumat saxlamaq üçün istifadə olunur. PHP-də annotations adətən `/** @Annotation */` formatında yazılır və xarici kitabxanalar (məsələn, `doctrine/annotations`) ilə işlənir. Məsələn, bir metodun icazə tələb etdiyini göstərmək üçün annotation istifadə edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Sadə annotation nümunəsi\nclass UserController {\n  /**\n   * @Route(\"/user\", methods={\"GET\"})\n   */\n  public function getUser() {\n    return 'User data';\n  }\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `@Route` annotation-u metodun `/user` URL-ə cavab verdiyini və yalnız GET sorğularını qəbul etdiyini göstərir.\n- Annotation-lar kodun işləməsinə birbaşa təsir etmir, ancaq reflection ilə oxunaraq dinamik davranış yaradır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Reflection Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Reflection PHP-də kodun strukturu (siniflər, metodlar, xassələr) haqqında məlumat əldə etmək üçün istifadə olunan daxili API-dir. `ReflectionClass`, `ReflectionMethod` və s. siniflər vasitəsilə kodun dinamik təhlili aparılır.\nNümunə (sinifin metodlarını əldə etmək):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Reflection ilə sinif təhlili\nclass TestClass {\n  public function sayHello() {\n    return 'Hello, World!';\n  }\n}\n\n$reflection = new ReflectionClass('TestClass');\n$methods = $reflection->getMethods();\nforeach ($methods as $method) {\n  echo 'Metod: ' . $method->getName() . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ReflectionClass` sinfin strukturunu təhlil edir.\n- `getMethods()` sinifdəki bütün metodların siyahısını qaytarır.\n- Nəticədə `sayHello` metodu çap olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Xüsusi Annotation-ların Yaradılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xüsusi annotation-lar yaratmaq üçün `doctrine/annotations` kimi kitabxanalardan istifadə edilir.\nQuraşdırma: `composer require doctrine/annotations`\nNümunə (xüsusi annotation ilə metodun yoxlanılması):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Xüsusi annotation nümunəsi\nrequire 'vendor/autoload.php';\n\nuse Doctrine\\Common\\Annotations\\AnnotationReader;\nuse Doctrine\\Common\\Annotations\\AnnotationRegistry;\n\n// Annotation sinfi\nclass AuthRequired {\n  public $role;\n}\n\n// Test sinfi\nclass UserController {\n  /**\n   * @AuthRequired(role=\"admin\")\n   */\n  public function getUserData() {\n    return 'Admin data';\n  }\n}\n\n// Annotation-u oxumaq\nAnnotationRegistry::registerLoader('class_exists');\n$reader = new AnnotationReader();\n$reflection = new ReflectionMethod('UserController', 'getUserData');\n$annotation = $reader->getMethodAnnotation($reflection, AuthRequired::class);\n\nif ($annotation) {\n  echo 'Tələb olunan rol: ' . $annotation->role . \"\\n\";\n} else {\n  echo 'Annotation tapılmadı!' . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `AuthRequired` xüsusi annotation sinfidir.\n- `@AuthRequired(role=\"admin\")` metodu admin rolu tələb etdiyini göstərir.\n- `AnnotationReader` ilə annotation oxunur.\n- Qeyd: `doctrine/annotations` quraşdırılmalıdır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Reflection ilə Dinamik Metod Çağırışı"
+      },
+      {
+        "type": "paragraph",
+        "text": "Reflection ilə metodları dinamik şəkildə çağırmaq mümkündür.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Dinamik metod çağırışı\nclass DynamicClass {\n  public function greet($name) {\n    return 'Hello, ' . $name . '!';\n  }\n}\n\n$reflection = new ReflectionClass('DynamicClass');\n$method = $reflection->getMethod('greet');\n$instance = $reflection->newInstance();\n$result = $method->invoke($instance, 'World');\necho $result . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `getMethod()` ilə `greet` metodu əldə edilir.\n- `newInstance()` sinifin nümunəsini yaradır.\n- `invoke()` metodu çağırır və nəticəni çap edir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Annotations və reflection istifadə edərkən təhlükəsizlik vacibdir:\n- Annotation-larda istifadəçi girişini birbaşa emal etməyin.\n- Reflection ilə dinamik metod çağırışlarında icazəsiz metodların çağırılmasının qarşısını alın.\n- Həssas məlumatları annotation-larda saxlamayın.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Təhlükəsiz dinamik metod çağırışı\nclass SafeClass {\n  public function safeMethod() {\n    return 'Təhlükəsiz metod!';\n  }\n}\n\n$methodName = 'safeMethod';\n$reflection = new ReflectionClass('SafeClass');\nif ($reflection->hasMethod($methodName) && $reflection->getMethod($methodName)->isPublic()) {\n  $method = $reflection->getMethod($methodName);\n  $instance = $reflection->newInstance();\n  $result = $method->invoke($instance);\n  echo $result . \"\\n\";\n} else {\n  echo 'Metod tapılmadı və ya icazəsizdir!' . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `hasMethod()` və `isPublic()` ilə metodun mövcudluğu və ictimai olması yoxlanılır.\n- Təhlükəsiz çağırış təmin edilir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Annotation ilə Doğrulama"
+      },
+      {
+        "type": "paragraph",
+        "text": "Xüsusi annotation ilə metodun parametrlərini doğrulayaq.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Annotation ilə doğrulama\nrequire 'vendor/autoload.php';\n\nuse Doctrine\\Common\\Annotations\\AnnotationReader;\nuse Doctrine\\Common\\Annotations\\AnnotationRegistry;\n\nclass Validate {\n  public $minLength;\n}\n\nclass UserService {\n  /**\n   * @Validate(minLength=5)\n   */\n  public function setUsername($username) {\n    return 'Username: ' . $username;\n  }\n}\n\nAnnotationRegistry::registerLoader('class_exists');\n$reader = new AnnotationReader();\n$reflection = new ReflectionMethod('UserService', 'setUsername');\n$annotation = $reader->getMethodAnnotation($reflection, Validate::class);\n\n$username = 'test';\nif ($annotation && strlen($username) < $annotation->minLength) {\n  echo 'Xəta: Username çox qısadır!' . \"\\n\";\n} else {\n  $instance = new UserService();\n  echo $instance->setUsername($username) . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `@Validate` annotation-u username-in minimum uzunluğunu yoxlayır.\n- Reflection ilə annotation oxunur və doğrulama aparılır.\n- Qeyd: `doctrine/annotations` quraşdırılmalıdır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\nclass UnsafeClass {\n  private function secretMethod() {\n    return 'Gizli məlumat!';\n  }\n}\n\n// Səhv: Qorunan metodu çağırmağa cəhd\n$reflection = new ReflectionClass('UnsafeClass');\n$method = $reflection->getMethod('secretMethod');\n$instance = $reflection->newInstance();\n\ntry {\n  $result = $method->invoke($instance); // Fatal error\n} catch (ReflectionException $e) {\n  echo 'Xəta: ' . $e->getMessage() . \"\\n\";\n}\n\n// Düzgün yol: Təhlükəsizlik yoxlaması\nif ($reflection->hasMethod('secretMethod') && $reflection->getMethod('secretMethod')->isPublic()) {\n  $result = $method->invoke($instance);\n  echo $result . \"\\n\";\n} else {\n  echo 'Metod ictimai deyil!' . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk nümunədə qorunan metodu çağırmağa cəhd edilir (xəta).\n- Düzgün yolda metodun ictimai olması yoxlanılır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Annotation-lar üçün `doctrine/annotations` istifadə edin. Reflection ilə dinamik çağırışlarda təhlükəsizlik yoxlamaları aparın. PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/book.reflection.php) faydalanın.\n- **Alternativlər**: Annotation əvəzinə atributlar (PHP 8.0+) istifadə edilə bilər. Dinamik davranış üçün çərçivələr (Laravel, Symfony) istifadə oluna bilər.\n- Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün reflection nümunəsi\nclass TestClass {\n  public function sayHello() {\n    return 'Hello, World!';\n  }\n}\n\n$reflection = new ReflectionClass('TestClass');\n$method = $reflection->getMethod('sayHello');\n$instance = $reflection->newInstance();\n$result = $method->invoke($instance);\necho $result . \"\\n\";\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Annotations and Reflection",
+    "icon": "FiEye",
+    "language": "php",
+    "description": "Custom annotations, reflection, and meta-programming.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Annotations and Reflection in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Annotations are special comments in PHP code that add metadata to classes, methods, or properties. Reflection is PHP’s built-in mechanism to inspect and manipulate code structure at runtime. Meta-programming uses these tools to dynamically control code behavior. This JSON file explains annotations and reflection, their usage in PHP, creating custom annotations, practical examples, security aspects, and ways to avoid errors in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP. Ensure you are using PHP 8.1 or a newer version. Annotations may require libraries like `doctrine/annotations`, installed via Composer."
+      },
+      {
+        "type": "heading",
+        "text": "What are Annotations?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Annotations are used to add metadata to code, typically in the `/** @Annotation */` format, processed by libraries like `doctrine/annotations`. For example, an annotation can indicate that a method requires authorization.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Simple annotation example\nclass UserController {\n  /**\n   * @Route(\"/user\", methods={\"GET\"})\n   */\n  public function getUser() {\n    return 'User data';\n  }\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `@Route` indicates the method responds to the `/user` URL and accepts GET requests.\n- Annotations don’t directly affect code but are read via reflection for dynamic behavior.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "What is Reflection?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Reflection is PHP’s built-in API for inspecting code structure (classes, methods, properties) at runtime using classes like `ReflectionClass` and `ReflectionMethod`.\nExample (getting class methods):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Reflection for class analysis\nclass TestClass {\n  public function sayHello() {\n    return 'Hello, World!';\n  }\n}\n\n$reflection = new ReflectionClass('TestClass');\n$methods = $reflection->getMethods();\nforeach ($methods as $method) {\n  echo 'Method: ' . $method->getName() . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ReflectionClass` analyzes the class structure.\n- `getMethods()` returns a list of all methods.\n- The result prints the `sayHello` method.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Creating Custom Annotations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Custom annotations are created using libraries like `doctrine/annotations`.\nInstallation: `composer require doctrine/annotations`\nExample (checking a method with a custom annotation):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Custom annotation example\nrequire 'vendor/autoload.php';\n\nuse Doctrine\\Common\\Annotations\\AnnotationReader;\nuse Doctrine\\Common\\Annotations\\AnnotationRegistry;\n\n// Annotation class\nclass AuthRequired {\n  public $role;\n}\n\n// Test class\nclass UserController {\n  /**\n   * @AuthRequired(role=\"admin\")\n   */\n  public function getUserData() {\n    return 'Admin data';\n  }\n}\n\n// Reading the annotation\nAnnotationRegistry::registerLoader('class_exists');\n$reader = new AnnotationReader();\n$reflection = new ReflectionMethod('UserController', 'getUserData');\n$annotation = $reader->getMethodAnnotation($reflection, AuthRequired::class);\n\nif ($annotation) {\n  echo 'Required role: ' . $annotation->role . \"\\n\";\n} else {\n  echo 'Annotation not found!' . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `AuthRequired` is a custom annotation class.\n- `@AuthRequired(role=\"admin\")` indicates the method requires an admin role.\n- `AnnotationReader` reads the annotation.\n- Note: Requires `doctrine/annotations`.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Dynamic Method Invocation with Reflection"
+      },
+      {
+        "type": "paragraph",
+        "text": "Reflection allows dynamic method invocation.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Dynamic method invocation\nclass DynamicClass {\n  public function greet($name) {\n    return 'Hello, ' . $name . '!';\n  }\n}\n\n$reflection = new ReflectionClass('DynamicClass');\n$method = $reflection->getMethod('greet');\n$instance = $reflection->newInstance();\n$result = $method->invoke($instance, 'World');\necho $result . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `getMethod()` retrieves the `greet` method.\n- `newInstance()` creates a class instance.\n- `invoke()` calls the method and prints the result.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Security is critical when using annotations and reflection:\n- Avoid processing user input directly in annotations.\n- Prevent unauthorized method invocation in reflection.\n- Do not store sensitive data in annotations.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Secure dynamic method invocation\nclass SafeClass {\n  public function safeMethod() {\n    return 'Safe method!';\n  }\n}\n\n$methodName = 'safeMethod';\n$reflection = new ReflectionClass('SafeClass');\nif ($reflection->hasMethod($methodName) && $reflection->getMethod($methodName)->isPublic()) {\n  $method = $reflection->getMethod($methodName);\n  $instance = $reflection->newInstance();\n  $result = $method->invoke($instance);\n  echo $result . \"\\n\";\n} else {\n  echo 'Method not found or not public!' . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `hasMethod()` and `isPublic()` ensure the method exists and is public.\n- Secure invocation is enforced.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Validation with Annotation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Validate method parameters using a custom annotation.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Validation with annotation\nrequire 'vendor/autoload.php';\n\nuse Doctrine\\Common\\Annotations\\AnnotationReader;\nuse Doctrine\\Common\\Annotations\\AnnotationRegistry;\n\nclass Validate {\n  public $minLength;\n}\n\nclass UserService {\n  /**\n   * @Validate(minLength=5)\n   */\n  public function setUsername($username) {\n    return 'Username: ' . $username;\n  }\n}\n\nAnnotationRegistry::registerLoader('class_exists');\n$reader = new AnnotationReader();\n$reflection = new ReflectionMethod('UserService', 'setUsername');\n$annotation = $reader->getMethodAnnotation($reflection, Validate::class);\n\n$username = 'test';\nif ($annotation && strlen($username) < $annotation->minLength) {\n  echo 'Error: Username too short!' . \"\\n\";\n} else {\n  $instance = new UserService();\n  echo $instance->setUsername($username) . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `@Validate` checks the minimum length of the username.\n- Reflection reads the annotation and performs validation.\n- Note: Requires `doctrine/annotations`.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\nclass UnsafeClass {\n  private function secretMethod() {\n    return 'Secret data!';\n  }\n}\n\n// Error: Attempt to call protected method\n$reflection = new ReflectionClass('UnsafeClass');\n$method = $reflection->getMethod('secretMethod');\n$instance = $reflection->newInstance();\n\ntry {\n  $result = $method->invoke($instance); // Fatal error\n} catch (ReflectionException $e) {\n  echo 'Error: ' . $e->getMessage() . \"\\n\";\n}\n\n// Correct approach: Security check\nif ($reflection->hasMethod('secretMethod') && $reflection->getMethod('secretMethod')->isPublic()) {\n  $result = $method->invoke($instance);\n  echo $result . \"\\n\";\n} else {\n  echo 'Method is not public!' . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first example attempts to call a protected method (error).\n- The correct approach checks if the method is public.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use `doctrine/annotations` for annotations. Perform security checks in reflection for dynamic calls. Refer to PHP’s official documentation (https://www.php.net/manual/en/book.reflection.php).\n- **Alternatives**: Use attributes (PHP 8.0+) instead of annotations. Frameworks like Laravel or Symfony simplify dynamic behavior.\n- You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself reflection example\nclass TestClass {\n  public function sayHello() {\n    return 'Hello, World!';\n  }\n}\n\n$reflection = new ReflectionClass('TestClass');\n$method = $reflection->getMethod('sayHello');\n$instance = $reflection->newInstance();\n$result = $method->invoke($instance);\necho $result . \"\\n\";\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Аннотации и рефлексия",
+    "icon": "FiEye",
+    "language": "php",
+    "description": "Пользовательские аннотации, рефлексия и мета-программирование.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое аннотации и рефлексия в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Аннотации — это специальные комментарии в коде PHP, которые добавляют метаданные к классам, методам или свойствам. Рефлексия — это встроенный механизм PHP для получения информации о структуре кода во время выполнения. Мета-программирование использует эти инструменты для динамического управления поведением кода. Этот JSON-файл подробно объясняет аннотации и рефлексию, их использование в PHP, создание пользовательских аннотаций, практические примеры, аспекты безопасности и способы избежания ошибок. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP. Убедитесь, что вы используете PHP 8.1 или новее. Для аннотаций могут потребоваться библиотеки, такие как `doctrine/annotations`, устанавливаемые через Composer."
+      },
+      {
+        "type": "heading",
+        "text": "Что такое аннотации?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Аннотации используются для добавления метаданных к коду, обычно в формате `/** @Annotation */`, и обрабатываются библиотеками, такими как `doctrine/annotations`. Например, аннотация может указывать, что метод требует авторизации.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример аннотации\nclass UserController {\n  /**\n   * @Route(\"/user\", methods={\"GET\"})\n   */\n  public function getUser() {\n    return 'Данные пользователя';\n  }\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `@Route` указывает, что метод отвечает на URL `/user` и принимает запросы GET.\n- Аннотации не влияют на код напрямую, но используются через рефлексию для динамического поведения.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Что такое рефлексия?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Рефлексия — это встроенный API PHP для анализа структуры кода (классы, методы, свойства) во время выполнения с использованием классов, таких как `ReflectionClass` и `ReflectionMethod`.\nПример (получение методов класса):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Рефлексия для анализа класса\nclass TestClass {\n  public function sayHello() {\n    return 'Привет, мир!';\n  }\n}\n\n$reflection = new ReflectionClass('TestClass');\n$methods = $reflection->getMethods();\nforeach ($methods as $method) {\n  echo 'Метод: ' . $method->getName() . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ReflectionClass` анализирует структуру класса.\n- `getMethods()` возвращает список всех методов.\n- В результате выводится метод `sayHello`.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Создание пользовательских аннотаций"
+      },
+      {
+        "type": "paragraph",
+        "text": "Пользовательские аннотации создаются с использованием библиотек, таких как `doctrine/annotations`.\nУстановка: `composer require doctrine/annotations`\nПример (проверка метода с пользовательской аннотацией):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример пользовательской аннотации\nrequire 'vendor/autoload.php';\n\nuse Doctrine\\Common\\Annotations\\AnnotationReader;\nuse Doctrine\\Common\\Annotations\\AnnotationRegistry;\n\n// Класс аннотации\nclass AuthRequired {\n  public $role;\n}\n\n// Тестовый класс\nclass UserController {\n  /**\n   * @AuthRequired(role=\"admin\")\n   */\n  public function getUserData() {\n    return 'Данные админа';\n  }\n}\n\n// Чтение аннотации\nAnnotationRegistry::registerLoader('class_exists');\n$reader = new AnnotationReader();\n$reflection = new ReflectionMethod('UserController', 'getUserData');\n$annotation = $reader->getMethodAnnotation($reflection, AuthRequired::class);\n\nif ($annotation) {\n  echo 'Требуемая роль: ' . $annotation->role . \"\\n\";\n} else {\n  echo 'Аннотация не найдена!' . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `AuthRequired` — пользовательский класс аннотации.\n- `@AuthRequired(role=\"admin\")` указывает, что метод требует роль админа.\n- `AnnotationReader` читает аннотацию.\n- Примечание: Требуется `doctrine/annotations`.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Динамический вызов методов с рефлексией"
+      },
+      {
+        "type": "paragraph",
+        "text": "Рефлексия позволяет динамически вызывать методы.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Динамический вызов метода\nclass DynamicClass {\n  public function greet($name) {\n    return 'Привет, ' . $name . '!';\n  }\n}\n\n$reflection = new ReflectionClass('DynamicClass');\n$method = $reflection->getMethod('greet');\n$instance = $reflection->newInstance();\n$result = $method->invoke($instance, 'Мир');\n echo $result . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `getMethod()` получает метод `greet`.\n- `newInstance()` создает экземпляр класса.\n- `invoke()` вызывает метод и выводит результат.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Безопасность важна при использовании аннотаций и рефлексии:\n- Не обрабатывайте пользовательский ввод напрямую в аннотациях.\n- Предотвращайте вызов неавторизованных методов через рефлексию.\n- Не храните конфиденциальные данные в аннотациях.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Безопасный динамический вызов метода\nclass SafeClass {\n  public function safeMethod() {\n    return 'Безопасный метод!';\n  }\n}\n\n$methodName = 'safeMethod';\n$reflection = new ReflectionClass('SafeClass');\nif ($reflection->hasMethod($methodName) && $reflection->getMethod($methodName)->isPublic()) {\n  $method = $reflection->getMethod($methodName);\n  $instance = $reflection->newInstance();\n  $result = $method->invoke($instance);\n  echo $result . \"\\n\";\n} else {\n  echo 'Метод не найден или не публичный!' . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `hasMethod()` и `isPublic()` проверяют наличие метода и его публичность.\n- Обеспечивается безопасный вызов.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Валидация с аннотацией"
+      },
+      {
+        "type": "paragraph",
+        "text": "Проверим параметры метода с помощью пользовательской аннотации.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Валидация с аннотацией\nrequire 'vendor/autoload.php';\n\nuse Doctrine\\Common\\Annotations\\AnnotationReader;\nuse Doctrine\\Common\\Annotations\\AnnotationRegistry;\n\nclass Validate {\n  public $minLength;\n}\n\nclass UserService {\n  /**\n   * @Validate(minLength=5)\n   */\n  public function setUsername($username) {\n    return 'Имя пользователя: ' . $username;\n  }\n}\n\nAnnotationRegistry::registerLoader('class_exists');\n$reader = new AnnotationReader();\n$reflection = new ReflectionMethod('UserService', 'setUsername');\n$annotation = $reader->getMethodAnnotation($reflection, Validate::class);\n\n$username = 'test';\nif ($annotation && strlen($username) < $annotation->minLength) {\n  echo 'Ошибка: Имя пользователя слишком короткое!' . \"\\n\";\n} else {\n  $instance = new UserService();\n  echo $instance->setUsername($username) . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `@Validate` проверяет минимальную длину имени пользователя.\n- Рефлексия читает аннотацию и выполняет валидацию.\n- Примечание: Требуется `doctrine/annotations`.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\nclass UnsafeClass {\n  private function secretMethod() {\n    return 'Секретные данные!';\n  }\n}\n\n// Ошибка: Попытка вызвать защищенный метод\n$reflection = new ReflectionClass('UnsafeClass');\n$method = $reflection->getMethod('secretMethod');\n$instance = $reflection->newInstance();\n\ntry {\n  $result = $method->invoke($instance); // Fatal error\n} catch (ReflectionException $e) {\n  echo 'Ошибка: ' . $e->getMessage() . \"\\n\";\n}\n\n// Правильный подход: Проверка безопасности\nif ($reflection->hasMethod('secretMethod') && $reflection->getMethod('secretMethod')->isPublic()) {\n  $result = $method->invoke($instance);\n  echo $result . \"\\n\";\n} else {\n  echo 'Метод не публичный!' . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый пример пытается вызвать защищенный метод (ошибка).\n- Правильный подход проверяет, является ли метод публичным.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте `doctrine/annotations` для аннотаций. Проводите проверки безопасности при динамических вызовах через рефлексию. Обратитесь к официальной документации PHP (https://www.php.net/manual/en/book.reflection.php).\n- **Альтернативы**: Вместо аннотаций используйте атрибуты (PHP 8.0+). Фреймворки, такие как Laravel или Symfony, упрощают динамическое поведение.\n- Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Пример рефлексии для самостоятельного тестирования\nclass TestClass {\n  public function sayHello() {\n    return 'Привет, мир!';\n  }\n}\n\n$reflection = new ReflectionClass('TestClass');\n$method = $reflection->getMethod('sayHello');\n$instance = $reflection->newInstance();\n$result = $method->invoke($instance);\necho $result . \"\\n\";\n?>"
+      }
+    ]
+  }
+}

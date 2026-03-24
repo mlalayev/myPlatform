@@ -1,0 +1,462 @@
+{
+  "id": "ajax",
+  "az": {
+    "title": "AJAX: Asinxron Sorğular",
+    "icon": "FiGlobe",
+    "language": "javascript",
+    "description": "JavaScript-də AJAX ilə asinxron sorğuların idarə edilməsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "AJAX Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "AJAX (Asynchronous JavaScript and XML) veb səhifələrə serverlə asinxron şəkildə məlumat göndərmək və almaq imkanı verir, səhifəni yenidən yükləmədən məzmunu dəyişdirməyə imkan tanıyır. Məsələn, bir düyməyə klik edərək serverdən məlumat almaq və səhifədə göstərmək mümkündür. AJAX `XMLHttpRequest` və ya müasir `fetch` API ilə işləyir. Bu JSON faylda AJAX-ın necə işlədiyi, nümunələri, üstünlükləri və çətinlikləri sadə şəkildə izah olunacaq. Aşağıda kodları sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "XMLHttpRequest ilə AJAX"
+      },
+      {
+        "type": "paragraph",
+        "text": "`XMLHttpRequest` AJAX sorğuları yaratmaq üçün klassik bir üsuldur.\nSintaksis:\n```javascript\nconst xhr = new XMLHttpRequest();\nxhr.open(method, url, async);\nxhr.send();\n```\n- `method`: HTTP metodu (`GET`, `POST` və s.).\n- `url`: Sorğunun göndərildiyi ünvan.\n- `async`: Sorğunun asinxron olub-olmaması (adətən `true`)."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// XMLHttpRequest nümunəsi\nconst xhr = new XMLHttpRequest();\nxhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\nxhr.onload = function() {\n  if (xhr.status === 200) {\n    const data = JSON.parse(xhr.responseText);\n    console.log('Məlumat:', data);\n  } else {\n    console.log('Xəta:', xhr.status);\n  }\n};\nxhr.send();"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `XMLHttpRequest` ilə `GET` sorğusu göndərilir.\n- Cavab uğurlu olarsa (status 200), JSON məlumatı konsola yazılır.\n- Aşağıda bu kodu sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "fetch API ilə AJAX"
+      },
+      {
+        "type": "paragraph",
+        "text": "`fetch` müasir və daha sadə bir AJAX üsuludur, Promise-lərə əsaslanır.\nSintaksis:\n```javascript\nfetch(url, options)\n  .then(response => response.json())\n  .then(data => console.log(data))\n  .catch(error => console.log('Xəta:', error));\n```\n- `url`: Sorğunun göndərildiyi ünvan.\n- `options`: HTTP metodu, başlıqlar və s. (isteğe bağlı).\nQeyd: `fetch` daha oxunaqlı və çevikdir."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// fetch nümunəsi\nfetch('https://jsonplaceholder.typicode.com/posts/1')\n  .then(response => {\n    if (!response.ok) throw new Error('Xəta: ' + response.status);\n    return response.json();\n  })\n  .then(data => console.log('Məlumat:', data))\n  .catch(error => console.log('Xəta:', error));"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fetch` ilə `GET` sorğusu göndərilir.\n- Cavab JSON-a çevrilir və konsola yazılır.\n- Xəta olarsa, xəta mesajı göstərilir.\n- Aşağıda bu kodu sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "AJAX ilə Hadisə İdarəetmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "AJAX istifadəçi hərəkətlərinə cavab olaraq serverdən məlumat almaq üçün istifadə edilə bilər."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Hadisə ilə fetch nümunəsi\nconst button = document.querySelector('#myButton');\nbutton.addEventListener('click', () => {\n  fetch('https://jsonplaceholder.typicode.com/posts/1')\n    .then(response => response.json())\n    .then(data => {\n      const container = document.querySelector('#myContainer');\n      container.innerText = data.title;\n      console.log('Məlumat yükləndi:', data);\n    })\n    .catch(error => console.log('Xəta:', error));\n});"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Düyməyə klik edildikdə `fetch` ilə məlumat alınır.\n- Alınan məlumat səhifədə göstərilir.\n- Aşağıda bu kodu sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "AJAX-ın Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "AJAX aşağıdakı üstünlüklərə malikdir:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nAsinxronluq: Səhifəni yenidən yükləmədən məlumat yükləyir."
+          },
+          {
+            "description": "\nİstifadəçi təcrübəsi: Daha sürətli və interaktiv səhifələr yaradır."
+          },
+          {
+            "description": "\nÇeviklik: `fetch` və `XMLHttpRequest` fərqli ehtiyaclara uyğundur."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "AJAX ilə işləyərkən bəzi çətinliklər ola bilər:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nXəta idarəetmə: Server xətaları və ya şəbəkə problemləri nəzərə alınmalıdır."
+          },
+          {
+            "description": "\nTəhlükəsizlik: İstifadəçi məlumatları ilə işləyərkən təhlükəsizlik tədbirləri vacibdir."
+          },
+          {
+            "description": "\nMürəkkəblik: `XMLHttpRequest` sintaksisi yeni başlayanlar üçün çətin ola bilər."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Server cavabını yoxlamadan məlumatı emal etmək xətalara səbəb ola bilər. İstifadəçi məlumatları ilə işləyərkən XSS və ya digər təhlükəsizlik riskləri ola bilər.\n- **Tövsiyələr**: Server cavabını (status kodu) yoxlayın. İstifadəçi məlumatlarını təmizləyin (sanitize). `fetch` API-dan istifadəni üstün tutun, çünki daha müasir və oxunaqlıdır. Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) sənədlərindən istifadə edin. Aşağıda kodları sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Səhvə yol açan nümunə\nfetch('https://nonexistent.api/data')\n  .then(response => response.json())\n  .then(data => console.log(data)) // Xəta: Şəbəkə xətası və ya yanlış URL\n\n// Düzgün yol\nfetch('https://jsonplaceholder.typicode.com/posts/1')\n  .then(response => {\n    if (!response.ok) throw new Error('Xəta: ' + response.status);\n    return response.json();\n  })\n  .then(data => console.log('Məlumat:', data))\n  .catch(error => console.log('Xəta:', error));"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Mövcud olmayan URL-ə sorğu göndərildikdə xəta baş verir.\n- Düzgün yolda cavab yoxlanılır və xəta idarə olunur.\n- Aşağıda bu kodu sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "HTML ilə AJAX Testi"
+      },
+      {
+        "type": "code",
+        "language": "html",
+        "code": "<!DOCTYPE html>\n<html>\n<head>\n  <title>AJAX Testi</title>\n</head>\n<body>\n  <div id='myContainer'>Məlumat buraya yüklənəcək</div>\n  <button id='myButton'>Məlumatı yüklə</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      fetch('https://jsonplaceholder.typicode.com/posts/1')\n        .then(response => {\n          if (!response.ok) throw new Error('Xəta: ' + response.status);\n          return response.json();\n        })\n        .then(data => {\n          container.innerText = data.title;\n          console.log('Məlumat:', data);\n        })\n        .catch(error => {\n          container.innerText = 'Xəta baş verdi';\n          console.log('Xəta:', error);\n        });\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu HTML və JavaScript kodunu bir `.html` faylına kopyalayıb brauzerdə sınaqdan keçirə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<!DOCTYPE html>\n<html>\n<head>\n  <title>AJAX Testi</title>\n</head>\n<body>\n  <div id='myContainer'>Məlumat buraya yüklənəcək</div>\n  <button id='myButton'>Məlumatı yüklə</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      if (container) {\n        fetch('https://jsonplaceholder.typicode.com/posts/1')\n          .then(response => {\n            if (!response.ok) throw new Error('Xəta: ' + response.status);\n            return response.json();\n          })\n          .then(data => {\n            container.innerText = data.title;\n            console.log('Məlumat:', data);\n          })\n          .catch(error => {\n            container.innerText = 'Xəta baş verdi';\n            console.log('Xəta:', error);\n          });\n      } else {\n        console.log('Element tapılmadı');\n      }\n    });\n  </script>\n</body>\n</html>"
+      }
+    ]
+  },
+  "en": {
+    "title": "AJAX: Asynchronous Requests",
+    "icon": "FiGlobe",
+    "language": "javascript",
+    "description": "Managing asynchronous requests in JavaScript using AJAX.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is AJAX?"
+      },
+      {
+        "type": "paragraph",
+        "text": "AJAX (Asynchronous JavaScript and XML) allows web pages to send and receive data from a server asynchronously, updating content without reloading the page. For example, clicking a button can fetch data and display it on the page. AJAX works with `XMLHttpRequest` or the modern `fetch` API. This JSON file explains how AJAX works, its examples, advantages, and challenges in a simple way. You can test the code below in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "AJAX with XMLHttpRequest"
+      },
+      {
+        "type": "paragraph",
+        "text": "`XMLHttpRequest` is a classic method for creating AJAX requests.\nSyntax:\n```javascript\nconst xhr = new XMLHttpRequest();\nxhr.open(method, url, async);\nxhr.send();\n```\n- `method`: HTTP method (`GET`, `POST`, etc.).\n- `url`: The request destination.\n- `async`: Whether the request is asynchronous (usually `true`)."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// XMLHttpRequest example\nconst xhr = new XMLHttpRequest();\nxhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\nxhr.onload = function() {\n  if (xhr.status === 200) {\n    const data = JSON.parse(xhr.responseText);\n    console.log('Data:', data);\n  } else {\n    console.log('Error:', xhr.status);\n  }\n};\nxhr.send();"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `XMLHttpRequest` sends a `GET` request.\n- If the response is successful (status 200), the JSON data is logged to the console.\n- You can test this code in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "AJAX with fetch API"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `fetch` API is a modern, simpler way to make AJAX requests, based on Promises.\nSyntax:\n```javascript\nfetch(url, options)\n  .then(response => response.json())\n  .then(data => console.log(data))\n  .catch(error => console.log('Error:', error));\n```\n- `url`: The request destination.\n- `options`: HTTP method, headers, etc. (optional).\nNote: `fetch` is more readable and flexible."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// fetch example\nfetch('https://jsonplaceholder.typicode.com/posts/1')\n  .then(response => {\n    if (!response.ok) throw new Error('Error: ' + response.status);\n    return response.json();\n  })\n  .then(data => console.log('Data:', data))\n  .catch(error => console.log('Error:', error));"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `fetch` sends a `GET` request.\n- The response is converted to JSON and logged.\n- Errors are caught and displayed.\n- You can test this code in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "AJAX with Event Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "AJAX can fetch data in response to user actions."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Event-driven fetch example\nconst button = document.querySelector('#myButton');\nbutton.addEventListener('click', () => {\n  fetch('https://jsonplaceholder.typicode.com/posts/1')\n    .then(response => response.json())\n    .then(data => {\n      const container = document.querySelector('#myContainer');\n      container.innerText = data.title;\n      console.log('Data loaded:', data);\n    })\n    .catch(error => console.log('Error:', error));\n});"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Clicking the button triggers a `fetch` request.\n- The fetched data is displayed on the page.\n- You can test this code in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of AJAX"
+      },
+      {
+        "type": "paragraph",
+        "text": "AJAX offers the following advantages:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nAsynchronous: Loads data without reloading the page."
+          },
+          {
+            "description": "\nUser Experience: Creates faster, more interactive pages."
+          },
+          {
+            "description": "\nFlexibility: `fetch` and `XMLHttpRequest` suit different needs."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Working with AJAX can present challenges:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nError Handling: Server errors or network issues must be handled."
+          },
+          {
+            "description": "\nSecurity: User inputs require security measures."
+          },
+          {
+            "description": "\nComplexity: `XMLHttpRequest` syntax can be tricky for beginners."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Processing server responses without checking can cause errors. Handling user inputs can lead to XSS or other security risks.\n- **Recommendations**: Check the server response (status code). Sanitize user inputs. Prefer the `fetch` API for its modern, readable syntax. Refer to Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) for guidance. You can test the code below in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Error-prone example\nfetch('https://nonexistent.api/data')\n  .then(response => response.json())\n  .then(data => console.log(data)) // Error: Network error or invalid URL\n\n// Correct approach\nfetch('https://jsonplaceholder.typicode.com/posts/1')\n  .then(response => {\n    if (!response.ok) throw new Error('Error: ' + response.status);\n    return response.json();\n  })\n  .then(data => console.log('Data:', data))\n  .catch(error => console.log('Error:', error));"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Sending a request to a nonexistent URL causes an error.\n- The correct approach checks the response and handles errors.\n- You can test this code in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "Testing AJAX with HTML"
+      },
+      {
+        "type": "code",
+        "language": "html",
+        "code": "<!DOCTYPE html>\n<html>\n<head>\n  <title>AJAX Test</title>\n</head>\n<body>\n  <div id='myContainer'>Data will be loaded here</div>\n  <button id='myButton'>Load Data</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      fetch('https://jsonplaceholder.typicode.com/posts/1')\n        .then(response => {\n          if (!response.ok) throw new Error('Error: ' + response.status);\n          return response.json();\n        })\n        .then(data => {\n          container.innerText = data.title;\n          console.log('Data:', data);\n        })\n        .catch(error => {\n          container.innerText = 'An error occurred';\n          console.log('Error:', error);\n        });\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "type": "paragraph",
+        "text": "You can copy this HTML and JavaScript code into a `.html` file and test it in a browser."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<!DOCTYPE html>\n<html>\n<head>\n  <title>AJAX Test</title>\n</head>\n<body>\n  <div id='myContainer'>Data will be loaded here</div>\n  <button id='myButton'>Load Data</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      if (container) {\n        fetch('https://jsonplaceholder.typicode.com/posts/1')\n          .then(response => {\n            if (!response.ok) throw new Error('Error: ' + response.status);\n            return response.json();\n          })\n          .then(data => {\n            container.innerText = data.title;\n            console.log('Data:', data);\n          })\n          .catch(error => {\n            container.innerText = 'An error occurred';\n            console.log('Error:', error);\n          });\n      } else {\n        console.log('Element not found');\n      }\n    });\n  </script>\n</body>\n</html>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "AJAX: Асинхронные запросы",
+    "icon": "FiGlobe",
+    "language": "javascript",
+    "description": "Управление асинхронными запросами в JavaScript с использованием AJAX.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое AJAX?"
+      },
+      {
+        "type": "paragraph",
+        "text": "AJAX (Asynchronous JavaScript and XML) позволяет веб-страницам отправлять и получать данные с сервера асинхронно, обновляя содержимое без перезагрузки страницы. Например, нажатие на кнопку может загрузить данные и отобразить их на странице. AJAX работает с `XMLHttpRequest` или современным API `fetch`. Этот JSON-файл объясняет, как работает AJAX, приводит примеры, преимущества и сложности простым языком. Вы можете протестировать код ниже в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "AJAX с XMLHttpRequest"
+      },
+      {
+        "type": "paragraph",
+        "text": "`XMLHttpRequest` — это классический способ создания AJAX-запросов.\nСинтаксис:\n```javascript\nconst xhr = new XMLHttpRequest();\nxhr.open(method, url, async);\nxhr.send();\n```\n- `method`: HTTP-метод (`GET`, `POST` и т.д.).\n- `url`: Адрес, на который отправляется запрос.\n- `async`: Асинхронный ли запрос (обычно `true`)."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример XMLHttpRequest\nconst xhr = new XMLHttpRequest();\nxhr.open('GET', 'https://jsonplaceholder.typicode.com/posts/1', true);\nxhr.onload = function() {\n  if (xhr.status === 200) {\n    const data = JSON.parse(xhr.responseText);\n    console.log('Данные:', data);\n  } else {\n    console.log('Ошибка:', xhr.status);\n  }\n};\nxhr.send();"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `XMLHttpRequest` отправляет запрос `GET`.\n- Если ответ успешен (status 200), данные JSON выводятся в консоль.\n- Вы можете протестировать этот код в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "AJAX с fetch API"
+      },
+      {
+        "type": "paragraph",
+        "text": "API `fetch` — это современный и более простой способ создания AJAX-запросов, основанный на промисах.\nСинтаксис:\n```javascript\nfetch(url, options)\n  .then(response => response.json())\n  .then(data => console.log(data))\n  .catch(error => console.log('Ошибка:', error));\n```\n- `url`: Адрес запроса.\n- `options`: HTTP-метод, заголовки и т.д. (опционально).\nПримечание: `fetch` более читаем и гибок."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример fetch\nfetch('https://jsonplaceholder.typicode.com/posts/1')\n  .then(response => {\n    if (!response.ok) throw new Error('Ошибка: ' + response.status);\n    return response.json();\n  })\n  .then(data => console.log('Данные:', data))\n  .catch(error => console.log('Ошибка:', error));"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `fetch` отправляет запрос `GET`.\n- Ответ преобразуется в JSON и выводится в консоль.\n- Ошибки обрабатываются и отображаются.\n- Вы можете протестировать этот код в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "AJAX с обработкой событий"
+      },
+      {
+        "type": "paragraph",
+        "text": "AJAX может загружать данные в ответ на действия пользователя."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример fetch с событием\nconst button = document.querySelector('#myButton');\nbutton.addEventListener('click', () => {\n  fetch('https://jsonplaceholder.typicode.com/posts/1')\n    .then(response => response.json())\n    .then(data => {\n      const container = document.querySelector('#myContainer');\n      container.innerText = data.title;\n      console.log('Данные загружены:', data);\n    })\n    .catch(error => console.log('Ошибка:', error));\n});"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Нажатие на кнопку запускает запрос `fetch`.\n- Полученные данные отображаются на странице.\n- Вы можете протестировать этот код в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества AJAX"
+      },
+      {
+        "type": "paragraph",
+        "text": "AJAX имеет следующие преимущества:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nАсинхронность: Загружает данные без перезагрузки страницы."
+          },
+          {
+            "description": "\nПользовательский опыт: Создает более быстрые и интерактивные страницы."
+          },
+          {
+            "description": "\nГибкость: `fetch` и `XMLHttpRequest` подходят для разных задач."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Работа с AJAX может представлять сложности:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nОбработка ошибок: Необходимо учитывать ошибки сервера или сети."
+          },
+          {
+            "description": "\nБезопасность: Работа с пользовательскими данными требует мер безопасности."
+          },
+          {
+            "description": "\nСложность: Синтаксис `XMLHttpRequest` может быть сложным для новичков."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Обработка ответов сервера без проверки может привести к ошибкам. Работа с пользовательскими данными может вызвать XSS или другие риски безопасности.\n- **Рекомендации**: Проверяйте статус ответа сервера. Очищайте пользовательские данные. Предпочитайте API `fetch` за его современный и читаемый синтаксис. Обратитесь к документации Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API). Вы можете протестировать код ниже в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример с ошибкой\nfetch('https://nonexistent.api/data')\n  .then(response => response.json())\n  .then(data => console.log(data)) // Ошибка: Сетевая ошибка или неверный URL\n\n// Правильный подход\nfetch('https://jsonplaceholder.typicode.com/posts/1')\n  .then(response => {\n    if (!response.ok) throw new Error('Ошибка: ' + response.status);\n    return response.json();\n  })\n  .then(data => console.log('Данные:', data))\n  .catch(error => console.log('Ошибка:', error));"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Отправка запроса на несуществующий URL вызывает ошибку.\n- Правильный подход проверяет ответ и обрабатывает ошибки.\n- Вы можете протестировать этот код в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Тестирование AJAX с HTML"
+      },
+      {
+        "type": "code",
+        "language": "html",
+        "code": "<!DOCTYPE html>\n<html>\n<head>\n  <title>Тест AJAX</title>\n</head>\n<body>\n  <div id='myContainer'>Данные будут загружены сюда</div>\n  <button id='myButton'>Загрузить данные</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      fetch('https://jsonplaceholder.typicode.com/posts/1')\n        .then(response => {\n          if (!response.ok) throw new Error('Ошибка: ' + response.status);\n          return response.json();\n        })\n        .then(data => {\n          container.innerText = data.title;\n          console.log('Данные:', data);\n        })\n        .catch(error => {\n          container.innerText = 'Произошла ошибка';\n          console.log('Ошибка:', error);\n        });\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Вы можете скопировать этот HTML и JavaScript код в файл `.html` и протестировать его в браузере."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<!DOCTYPE html>\n<html>\n<head>\n  <title>Тест AJAX</title>\n</head>\n<body>\n  <div id='myContainer'>Данные будут загружены сюда</div>\n  <button id='myButton'>Загрузить данные</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      if (container) {\n        fetch('https://jsonplaceholder.typicode.com/posts/1')\n          .then(response => {\n            if (!response.ok) throw new Error('Ошибка: ' + response.status);\n            return response.json();\n          })\n          .then(data => {\n            container.innerText = data.title;\n            console.log('Данные:', data);\n          })\n          .catch(error => {\n            container.innerText = 'Произошла ошибка';\n            console.log('Ошибка:', error);\n          });\n      } else {\n        console.log('Элемент не найден');\n      }\n    });\n  </script>\n</body>\n</html>"
+      }
+    ]
+  }
+}

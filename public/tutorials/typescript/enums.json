@@ -1,0 +1,621 @@
+{
+  "id": "enums",
+  "az": {
+    "title": "Enumlar",
+    "icon": "FiHash",
+    "language": "typescript",
+    "description": "Sabit dəyərlər toplusu.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Enumlar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də enumlar (enumerations) sabit dəyərlər toplusunu təyin etmək üçün istifadə olunan xüsusi bir tipdir. Enumlar kodunuzda mənalı adlarla sabit dəyərləri ifadə etməyə imkan verir, bu da kodu daha oxunaqlı və idarə edilə bilən edir. Məsələn, bir tətbiqdə həftənin günlərini və ya istifadəçi rollarını təyin etmək üçün enumlardan istifadə edə bilərsiniz. Enumlar adətən `number` və ya `string` dəyərləri ilə işləyir. JavaScript-də enumlar yoxdur, ona görə də sabit dəyərləri təyin etmək üçün adətən adi obyektlər və ya sabitlər istifadə olunur, bu da tip təhlükəsizliyini təmin etmir. TypeScript-də enumlar kompilyasiya zamanı tip təhlükəsizliyini təmin edir və səhvləri azaltmağa kömək edir. Bu JSON faylda enumların tərifi, istifadə məqsədləri, JavaScript ilə fərqləri, tip aliasları ilə fərqləri, sintaksisi, number və string əsaslı enumlar, const enumlar, heterojen enumlar, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Enumların Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enumlar TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Sabit dəyərlər**: Məhdud sayda sabit dəyərləri təyin etmək.\n- **Tip təhlükəsizliyi**: Dəyərlərin yalnız müəyyən edilmiş dəyərlərdən ibarət olmasını təmin etmək.\n- **Oxunaqlılıq**: Kodun məqsədini və strukturunu aydın ifadə etmək.\n- **Real dünya ssenariləri**: Statuslar, rollar, kateqoriyalar və ya konfiqurasiya seçimləri kimi sabit dəyərlər üçün istifadə.\n- **Səhvlərin qarşısını almaq**: Yanlış dəyərlərin istifadəsini kompilyasiya zamanı aşkar etmək.\nJavaScript-də sabit dəyərlər üçün adətən obyektlər və ya simvolik sabitlər istifadə olunur, lakin bu, tip təhlükəsizliyini təmin etmir və səhvlərə yol aça bilər. TypeScript-də enumlar bu problemi həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Enumların Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enumlar `enum` açar sözü ilə təyin edilir və adətən `number` və ya `string` dəyərləri ilə işləyir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Sadə enum nümunəsi\nenum Direction {\n  Up,\n  Down,\n  Left,\n  Right\n}\n\nlet move: Direction = Direction.Up;\nconsole.log(move); // 0\nconsole.log(Direction[0]); // Up\nmove = Direction.Down;\nconsole.log(move); // 1\n// move = 5; // Xəta: 5 Direction tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Direction` enumu hər bir üzvünə avtomatik `number` dəyərləri (0-dan başlayaraq) təyin edir.\n- `Up` 0, `Down` 1, `Left` 2, `Right` 3 dəyərlərini alır.\n- Yanlış dəyər təyin etmək kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Number və String Əsaslı Enumlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enumlar `number` və ya `string` dəyərləri ilə təyin edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Number və string əsaslı enumlar\nenum Status {\n  Active = 1,\n  Inactive = 2,\n  Pending = 3\n}\n\nenum Role {\n  Admin = 'ADMIN',\n  User = 'USER',\n  Guest = 'GUEST'\n}\n\nlet userStatus: Status = Status.Active;\nlet userRole: Role = Role.User;\n\nconsole.log(userStatus); // 1\nconsole.log(Status[userStatus]); // Active\nconsole.log(userRole); // USER\n// userStatus = 5; // Xəta: 5 Status tipinə uyğun deyil\n// userRole = 'SUPERUSER'; // Xəta: SUPERUSER Role tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Status` enumu xüsusi `number` dəyərləri ilə təyin edilib.\n- `Role` enumu `string` dəyərləri ilə təyin edilib.\n- Yanlış dəyər təyin etmək kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Enumlar ilə Tip Aliaslarının Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enumlar və tip aliasları sabit dəyərləri təyin etmək üçün istifadə oluna bilər, lakin fərqlər var:\n- **Enumlar**: Sabit dəyərlər toplusunu təyin etmək üçün xüsusi sintaksis təqdim edir və kompilyasiya zamanı JavaScript koduna çevrilir.\n- **Tip aliasları**: Union tipləri ilə sabit dəyərləri təyin edə bilər, lakin enumlar kimi strukturlaşdırılmış deyil və JavaScript koduna çevrilmir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Enumlar ilə tip aliaslarının müqayisəsi\nenum Color {\n  Red = 'RED',\n  Blue = 'BLUE',\n  Green = 'GREEN'\n}\n\ntype ColorAlias = 'RED' | 'BLUE' | 'GREEN';\n\nlet enumColor: Color = Color.Red;\nlet aliasColor: ColorAlias = 'RED';\n\nconsole.log(enumColor); // RED\nconsole.log(aliasColor); // RED\n// enumColor = 'YELLOW'; // Xəta: YELLOW Color tipinə uyğun deyil\n// aliasColor = 'YELLOW'; // Xəta: YELLOW ColorAlias tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Color` enumu string dəyərləri ilə sabit dəyərləri təyin edir.\n- `ColorAlias` tip aliası union tipi ilə eyni dəyərləri təyin edir.\n- Hər ikisi tip təhlükəsizliyini təmin edir, lakin enumlar daha strukturlaşdırılmışdır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Const Enumlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enumlar kompilyasiya zamanı tamamilə silinir və JavaScript kodunda yer tutmur, bu da performansı artırır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Const enum nümunəsi\nconst enum Size {\n  Small = 'S',\n  Medium = 'M',\n  Large = 'L'\n}\n\nlet shirtSize: Size = Size.Medium;\nconsole.log(shirtSize); // M\n// console.log(Size[shirtSize]); // Xəta: const enumlar tərs axtarışa icazə vermir\n// shirtSize = 'XL'; // Xəta: XL Size tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Size` const enumu string dəyərləri ilə təyin edilib.\n- Kompilyasiya zamanı enum dəyərləri birbaşa kodda əvəzlənir.\n- Const enumlar tərs axtarış (reverse mapping) dəstəkləmir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Heterojen Enumlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enumlar həm `number`, həm də `string` dəyərlərini birləşdirə bilər, lakin bu nadir hallarda istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Heterojen enumlar\nenum Mixed {\n  Code = 1,\n  Name = 'TEST',\n  Active = 2\n}\n\nlet value1: Mixed = Mixed.Code;\nlet value2: Mixed = Mixed.Name;\n\nconsole.log(value1); // 1\nconsole.log(value2); // TEST\n// value1 = 'TEST'; // Xəta: TEST Mixed tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Mixed` enumu həm number, həm də string dəyərləri ehtiva edir.\n- Heterojen enumlar oxunaqlılığı azalda bilər, ona görə diqqətli istifadə edilməlidir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiyalarda Enumlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enumlar funksiya parametrlərində və ya qaytarma tiplərində istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Funksiyalarda enumlar\nenum Status {\n  Success = 'SUCCESS',\n  Error = 'ERROR',\n  Loading = 'LOADING'\n}\n\nfunction getStatusMessage(status: Status): string {\n  return `Current status: ${status}`;\n}\n\nlet status: Status = Status.Success;\nconsole.log(getStatusMessage(status)); // Current status: SUCCESS\nstatus = Status.Error;\nconsole.log(getStatusMessage(status)); // Current status: ERROR\n// status = 'UNKNOWN'; // Xəta: UNKNOWN Status tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Status` enumu string dəyərləri ilə təyin edilib.\n- `getStatusMessage` funksiyası yalnız enum dəyərlərini qəbul edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Enumlar ilə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enumlar real layihələrdə müxtəlif ssenarilərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Praktik nümunə\nenum OrderStatus {\n  Pending = 'PENDING',\n  Shipped = 'SHIPPED',\n  Delivered = 'DELIVERED'\n}\n\nfunction displayOrderStatus(status: OrderStatus): string {\n  return `Order is ${status}`;\n}\n\nlet order: OrderStatus = OrderStatus.Pending;\nconsole.log(displayOrderStatus(order)); // Order is PENDING\norder = OrderStatus.Shipped;\nconsole.log(displayOrderStatus(order)); // Order is SHIPPED\n// order = 'CANCELLED'; // Xəta: CANCELLED OrderStatus tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `OrderStatus` enumu sifariş vəziyyətlərini təyin edir.\n- `displayOrderStatus` funksiyası yalnız enum dəyərlərini qəbul edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enumlar kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Enum dəyərlərini dəqiq təyin edin.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\nenum Role {\n  Admin = 'ADMIN',\n  User = 'USER'\n}\n\nfunction getRoleDescription(role: Role): string {\n  return `Role: ${role}`;\n}\n\nlet userRole: Role = Role.Admin;\nconsole.log(getRoleDescription(userRole)); // Role: ADMIN\n// userRole = 'GUEST'; // Xəta: GUEST Role tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Role` enumu yalnız müəyyən edilmiş dəyərləri qəbul edir.\n- Yanlış dəyər təyin etmək kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet unsafe: any = 'ADMIN';\nconsole.log(unsafe); // ADMIN, lakin tip təhlükəsizliyi yoxdur\nunsafe = 'GUEST'; // Keçərlidir, lakin təhlükəsiz deyil\n\n// Düzgün yol\nenum Role {\n  Admin = 'ADMIN',\n  User = 'USER'\n}\n\nlet safeRole: Role = Role.Admin;\nconsole.log(safeRole); // ADMIN\n// safeRole = 'GUEST'; // Xəta: GUEST Role tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime səhvlərinə səbəb ola bilər.\n- Enumlar ilə tip təhlükəsizliyi təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enumlar real layihələrdə geniş istifadə olunur:\n- **Statuslar**: Sifariş vəziyyətləri, API cavab statusları.\n- **Rollər**: İstifadəçi rolları (Admin, User, Guest).\n- **Kateqoriyalar**: Məhsul kateqoriyaları və ya seçimlər.\n- **Konfiqurasiya dəyərləri**: Sabit konfiqurasiya parametrləri.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\nenum UserStatus {\n  Active = 'ACTIVE',\n  Inactive = 'INACTIVE',\n  Suspended = 'SUSPENDED'\n}\n\nfunction displayUserStatus(status: UserStatus): string {\n  return `User status: ${status}`;\n}\n\nlet user: UserStatus = UserStatus.Active;\nconsole.log(displayUserStatus(user)); // User status: ACTIVE\nuser = UserStatus.Inactive;\nconsole.log(displayUserStatus(user)); // User status: INACTIVE\n// user = 'DELETED'; // Xəta: DELETED UserStatus tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `UserStatus` enumu istifadəçi vəziyyətlərini təyin edir.\n- `displayUserStatus` funksiyası yalnız enum dəyərlərini qəbul edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Enumları sabit dəyərlər toplusu və tip təhlükəsizliyi üçün istifadə edin. `any` əvəzinə dəqiq tipləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Const enumları performansı artırmaq üçün istifadə edin. Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Enumlar əvəzinə union tipləri ilə tip aliasları istifadə edilə bilər, lakin enumlar daha oxunaqlı və strukturlaşdırılmışdır.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün enum nümunəsi\nenum Direction {\n  Up = 'UP',\n  Down = 'DOWN',\n  Left = 'LEFT',\n  Right = 'RIGHT'\n}\n\nconst move: Direction = Direction.Up;\nconsole.log(move); // UP\n// move = 'FORWARD'; // Xəta: FORWARD Direction tipinə uyğun deyil\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Enums",
+    "icon": "FiHash",
+    "language": "typescript",
+    "description": "A set of constant values.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Enums?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, enums (enumerations) are a special type used to define a set of constant values. Enums allow you to represent a group of related values with meaningful names, making the code more readable and maintainable. For example, you can use enums to define days of the week or user roles in an application. Enums typically work with `number` or `string` values. JavaScript does not have enums, so constant values are usually defined using plain objects or constants, which do not provide type safety and can lead to errors. TypeScript enums ensure compile-time type safety and help reduce errors. This JSON file explains the definition, purposes, differences from JavaScript, differences from type aliases, syntax, number and string-based enums, const enums, heterogeneous enums, type safety, and real-world usage scenarios of enums in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Enums"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enums in TypeScript serve the following purposes:\n- **Constant values**: Define a limited set of constant values.\n- **Type safety**: Ensure values are restricted to the defined set.\n- **Readability**: Clearly express the intent and structure of the code.\n- **Real-world scenarios**: Used for statuses, roles, categories, or configuration options.\n- **Error prevention**: Detect invalid values at compile time.\nIn JavaScript, constant values are often defined using objects or constants, which lack type safety and can lead to runtime errors. TypeScript enums address this issue."
+      },
+      {
+        "type": "heading",
+        "text": "Syntax of Enums"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enums are defined using the `enum` keyword and typically work with `number` or `string` values.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Simple enum example\nenum Direction {\n  Up,\n  Down,\n  Left,\n  Right\n}\n\nlet move: Direction = Direction.Up;\nconsole.log(move); // 0\nconsole.log(Direction[0]); // Up\nmove = Direction.Down;\nconsole.log(move); // 1\n// move = 5; // Error: 5 is not assignable to Direction\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Direction` enum automatically assigns `number` values starting from 0.\n- `Up` is 0, `Down` is 1, `Left` is 2, and `Right` is 3.\n- Assigning an invalid value triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Number and String-Based Enums"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enums can be defined with `number` or `string` values.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Number and string-based enums\nenum Status {\n  Active = 1,\n  Inactive = 2,\n  Pending = 3\n}\n\nenum Role {\n  Admin = 'ADMIN',\n  User = 'USER',\n  Guest = 'GUEST'\n}\n\nlet userStatus: Status = Status.Active;\nlet userRole: Role = Role.User;\n\nconsole.log(userStatus); // 1\nconsole.log(Status[userStatus]); // Active\nconsole.log(userRole); // USER\n// userStatus = 5; // Error: 5 is not assignable to Status\n// userRole = 'SUPERUSER'; // Error: SUPERUSER is not assignable to Role\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Status` enum uses custom `number` values.\n- The `Role` enum uses `string` values.\n- Assigning an invalid value triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Enums vs. Type Aliases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enums and type aliases can both define constant values, but they differ:\n- **Enums**: Provide a structured syntax for defining constant values and compile to JavaScript code.\n- **Type aliases**: Use union types to define constant values but do not compile to JavaScript code.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Enums vs. type aliases\nenum Color {\n  Red = 'RED',\n  Blue = 'BLUE',\n  Green = 'GREEN'\n}\n\ntype ColorAlias = 'RED' | 'BLUE' | 'GREEN';\n\nlet enumColor: Color = Color.Red;\nlet aliasColor: ColorAlias = 'RED';\n\nconsole.log(enumColor); // RED\nconsole.log(aliasColor); // RED\n// enumColor = 'YELLOW'; // Error: YELLOW is not assignable to Color\n// aliasColor = 'YELLOW'; // Error: YELLOW is not assignable to ColorAlias\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Color` enum defines string values.\n- The `ColorAlias` type alias defines the same values using a union type.\n- Both provide type safety, but enums are more structured.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Const Enums"
+      },
+      {
+        "type": "paragraph",
+        "text": "Const enums are removed entirely during compilation, reducing the generated JavaScript code size and improving performance.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Const enum example\nconst enum Size {\n  Small = 'S',\n  Medium = 'M',\n  Large = 'L'\n}\n\nlet shirtSize: Size = Size.Medium;\nconsole.log(shirtSize); // M\n// console.log(Size[shirtSize]); // Error: const enums do not support reverse mapping\n// shirtSize = 'XL'; // Error: XL is not assignable to Size\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Size` const enum defines string values.\n- Enum values are inlined during compilation.\n- Const enums do not support reverse mapping.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Heterogeneous Enums"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enums can combine `number` and `string` values, though this is rarely used.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Heterogeneous enums\nenum Mixed {\n  Code = 1,\n  Name = 'TEST',\n  Active = 2\n}\n\nlet value1: Mixed = Mixed.Code;\nlet value2: Mixed = Mixed.Name;\n\nconsole.log(value1); // 1\nconsole.log(value2); // TEST\n// value1 = 'TEST'; // Error: TEST is not assignable to Mixed\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Mixed` enum contains both number and string values.\n- Heterogeneous enums can reduce readability, so use them cautiously.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Enums in Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enums can be used in function parameters or return types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Enums in functions\nenum Status {\n  Success = 'SUCCESS',\n  Error = 'ERROR',\n  Loading = 'LOADING'\n}\n\nfunction getStatusMessage(status: Status): string {\n  return `Current status: ${status}`;\n}\n\nlet status: Status = Status.Success;\nconsole.log(getStatusMessage(status)); // Current status: SUCCESS\nstatus = Status.Error;\nconsole.log(getStatusMessage(status)); // Current status: ERROR\n// status = 'UNKNOWN'; // Error: UNKNOWN is not assignable to Status\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Status` enum defines string values.\n- The `getStatusMessage` function only accepts enum values.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Working with Enums"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enums are used in various scenarios in real projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Practical example\nenum OrderStatus {\n  Pending = 'PENDING',\n  Shipped = 'SHIPPED',\n  Delivered = 'DELIVERED'\n}\n\nfunction displayOrderStatus(status: OrderStatus): string {\n  return `Order is ${status}`;\n}\n\nlet order: OrderStatus = OrderStatus.Pending;\nconsole.log(displayOrderStatus(order)); // Order is PENDING\norder = OrderStatus.Shipped;\nconsole.log(displayOrderStatus(order)); // Order is SHIPPED\n// order = 'CANCELLED'; // Error: CANCELLED is not assignable to OrderStatus\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `OrderStatus` enum defines order statuses.\n- The `displayOrderStatus` function only accepts enum values.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enums enhance code safety, but caution is needed:\n- Define enum values precisely.\n- Avoid `any` as it reduces type safety.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\nenum Role {\n  Admin = 'ADMIN',\n  User = 'USER'\n}\n\nfunction getRoleDescription(role: Role): string {\n  return `Role: ${role}`;\n}\n\nlet userRole: Role = Role.Admin;\nconsole.log(getRoleDescription(userRole)); // Role: ADMIN\n// userRole = 'GUEST'; // Error: GUEST is not assignable to Role\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Role` enum only accepts defined values.\n- Assigning an invalid value triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet unsafe: any = 'ADMIN';\nconsole.log(unsafe); // ADMIN, but no type safety\nunsafe = 'GUEST'; // Valid, but unsafe\n\n// Correct approach\nenum Role {\n  Admin = 'ADMIN',\n  User = 'USER'\n}\n\nlet safeRole: Role = Role.Admin;\nconsole.log(safeRole); // ADMIN\n// safeRole = 'GUEST'; // Error: GUEST is not assignable to Role\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and may cause runtime errors.\n- Enums ensure type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Enums are widely used in real projects:\n- **Statuses**: Order statuses, API response statuses.\n- **Roles**: User roles (Admin, User, Guest).\n- **Categories**: Product categories or options.\n- **Configuration values**: Constant configuration parameters.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\nenum UserStatus {\n  Active = 'ACTIVE',\n  Inactive = 'INACTIVE',\n  Suspended = 'SUSPENDED'\n}\n\nfunction displayUserStatus(status: UserStatus): string {\n  return `User status: ${status}`;\n}\n\nlet user: UserStatus = UserStatus.Active;\nconsole.log(displayUserStatus(user)); // User status: ACTIVE\nuser = UserStatus.Inactive;\nconsole.log(displayUserStatus(user)); // User status: INACTIVE\n// user = 'DELETED'; // Error: DELETED is not assignable to UserStatus\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `UserStatus` enum defines user statuses.\n- The `displayUserStatus` function only accepts enum values.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use enums for sets of constant values and type safety. Prefer precise types over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Use const enums to improve performance. Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Instead of enums, union types with type aliases can be used, but enums are more readable and structured.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself enum example\nenum Direction {\n  Up = 'UP',\n  Down = 'DOWN',\n  Left = 'LEFT',\n  Right = 'RIGHT'\n}\n\nconst move: Direction = Direction.Up;\nconsole.log(move); // UP\n// move = 'FORWARD'; // Error: FORWARD is not assignable to Direction\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Перечисления (Enums)",
+    "icon": "FiHash",
+    "language": "typescript",
+    "description": "Набор постоянных значений.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое перечисления (enums)?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript перечисления (enums, от англ. enumerations) — это специальный тип, используемый для определения набора постоянных значений. Перечисления позволяют представлять группу связанных значений с понятными именами, делая код более читаемым и поддерживаемым. Например, вы можете использовать перечисления для определения дней недели или ролей пользователей в приложении. Перечисления обычно работают с числовыми (`number`) или строковыми (`string`) значениями. В JavaScript перечисления отсутствуют, поэтому для задания постоянных значений обычно используются обычные объекты или константы, что не обеспечивает безопасность типов и может привести к ошибкам. Перечисления в TypeScript обеспечивают безопасность типов на этапе компиляции и помогают уменьшить ошибки. Этот JSON-файл подробно объясняет определение, назначение, отличия от JavaScript, отличия от псевдонимов типов, синтаксис, числовые и строковые перечисления, константные перечисления, гетерогенные перечисления, безопасность типов и сценарии использования перечислений в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение перечислений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Перечисления в TypeScript используются для следующих целей:\n- **Постоянные значения**: Определение ограниченного набора постоянных значений.\n- **Безопасность типов**: Обеспечение того, что значения ограничены заданным набором.\n- **Читаемость**: Четкое выражение назначения и структуры кода.\n- **Реальные сценарии**: Использование для статусов, ролей, категорий или параметров конфигурации.\n- **Предотвращение ошибок**: Обнаружение недопустимых значений на этапе компиляции.\nВ JavaScript для постоянных значений обычно используются объекты или константы, которые не обеспечивают безопасность типов и могут привести к ошибкам во время выполнения. Перечисления в TypeScript решают эту проблему."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис перечислений"
+      },
+      {
+        "type": "paragraph",
+        "text": "Перечисления определяются с помощью ключевого слова `enum` и обычно работают с числовыми (`number`) или строковыми (`string`) значениями.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример простого перечисления\nenum Direction {\n  Up,\n  Down,\n  Left,\n  Right\n}\n\nlet move: Direction = Direction.Up;\nconsole.log(move); // 0\nconsole.log(Direction[0]); // Up\nmove = Direction.Down;\nconsole.log(move); // 1\n// move = 5; // Ошибка: 5 не соответствует типу Direction\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Перечисление `Direction` автоматически присваивает числовые значения, начиная с 0.\n- `Up` — это 0, `Down` — 1, `Left` — 2, `Right` — 3.\n- Присвоение недопустимого значения вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Числовые и строковые перечисления"
+      },
+      {
+        "type": "paragraph",
+        "text": "Перечисления могут быть определены с числовыми (`number`) или строковыми (`string`) значениями.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Числовые и строковые перечисления\nenum Status {\n  Active = 1,\n  Inactive = 2,\n  Pending = 3\n}\n\nenum Role {\n  Admin = 'ADMIN',\n  User = 'USER',\n  Guest = 'GUEST'\n}\n\nlet userStatus: Status = Status.Active;\nlet userRole: Role = Role.User;\n\nconsole.log(userStatus); // 1\nconsole.log(Status[userStatus]); // Active\nconsole.log(userRole); // USER\n// userStatus = 5; // Ошибка: 5 не соответствует типу Status\n// userRole = 'SUPERUSER'; // Ошибка: SUPERUSER не соответствует типу Role\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Перечисление `Status` использует пользовательские числовые значения.\n- Перечисление `Role` использует строковые значения.\n- Присвоение недопустимого значения вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Перечисления против псевдонимов типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Перечисления и псевдонимы типов могут использоваться для определения постоянных значений, но между ними есть различия:\n- **Перечисления**: Предоставляют структурированный синтаксис для определения постоянных значений и компилируются в JavaScript-код.\n- **Псевдонимы типов**: Используют объединения типов для задания постоянных значений, но не компилируются в JavaScript-код.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Перечисления против псевдонимов типов\nenum Color {\n  Red = 'RED',\n  Blue = 'BLUE',\n  Green = 'GREEN'\n}\n\ntype ColorAlias = 'RED' | 'BLUE' | 'GREEN';\n\nlet enumColor: Color = Color.Red;\nlet aliasColor: ColorAlias = 'RED';\n\nconsole.log(enumColor); // RED\nconsole.log(aliasColor); // RED\n// enumColor = 'YELLOW'; // Ошибка: YELLOW не соответствует типу Color\n// aliasColor = 'YELLOW'; // Ошибка: YELLOW не соответствует типу ColorAlias\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Перечисление `Color` определяет строковые значения.\n- Псевдоним типа `ColorAlias` определяет те же значения с помощью объединения типов.\n- Оба подхода обеспечивают безопасность типов, но перечисления более структурированы.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Константные перечисления"
+      },
+      {
+        "type": "paragraph",
+        "text": "Константные перечисления полностью удаляются во время компиляции, уменьшая размер сгенерированного JavaScript-кода и повышая производительность.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример константного перечисления\nconst enum Size {\n  Small = 'S',\n  Medium = 'M',\n  Large = 'L'\n}\n\nlet shirtSize: Size = Size.Medium;\nconsole.log(shirtSize); // M\n// console.log(Size[shirtSize]); // Ошибка: константные перечисления не поддерживают обратное сопоставление\n// shirtSize = 'XL'; // Ошибка: XL не соответствует типу Size\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Константное перечисление `Size` определяет строковые значения.\n- Значения перечисления встраиваются в код во время компиляции.\n- Константные перечисления не поддерживают обратное сопоставление.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Гетерогенные перечисления"
+      },
+      {
+        "type": "paragraph",
+        "text": "Перечисления могут комбинировать числовые (`number`) и строковые (`string`) значения, хотя это используется редко.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Гетерогенные перечисления\nenum Mixed {\n  Code = 1,\n  Name = 'TEST',\n  Active = 2\n}\n\nlet value1: Mixed = Mixed.Code;\nlet value2: Mixed = Mixed.Name;\n\nconsole.log(value1); // 1\nconsole.log(value2); // TEST\n// value1 = 'TEST'; // Ошибка: TEST не соответствует типу Mixed\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Перечисление `Mixed` содержит как числовые, так и строковые значения.\n- Гетерогенные перечисления могут снижать читаемость, поэтому используйте их с осторожностью.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Перечисления в функциях"
+      },
+      {
+        "type": "paragraph",
+        "text": "Перечисления могут использоваться в параметрах или возвращаемых типах функций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Перечисления в функциях\nenum Status {\n  Success = 'SUCCESS',\n  Error = 'ERROR',\n  Loading = 'LOADING'\n}\n\nfunction getStatusMessage(status: Status): string {\n  return `Current status: ${status}`;\n}\n\nlet status: Status = Status.Success;\nconsole.log(getStatusMessage(status)); // Current status: SUCCESS\nstatus = Status.Error;\nconsole.log(getStatusMessage(status)); // Current status: ERROR\n// status = 'UNKNOWN'; // Ошибка: UNKNOWN не соответствует типу Status\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Перечисление `Status` определяет строковые значения.\n- Функция `getStatusMessage` принимает только значения перечисления.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Работа с перечислениями"
+      },
+      {
+        "type": "paragraph",
+        "text": "Перечисления используются в различных сценариях в реальных проектах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Практический пример\nenum OrderStatus {\n  Pending = 'PENDING',\n  Shipped = 'SHIPPED',\n  Delivered = 'DELIVERED'\n}\n\nfunction displayOrderStatus(status: OrderStatus): string {\n  return `Order is ${status}`;\n}\n\nlet order: OrderStatus = OrderStatus.Pending;\nconsole.log(displayOrderStatus(order)); // Order is PENDING\norder = OrderStatus.Shipped;\nconsole.log(displayOrderStatus(order)); // Order is SHIPPED\n// order = 'CANCELLED'; // Ошибка: CANCELLED не соответствует типу OrderStatus\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Перечисление `OrderStatus` определяет статусы заказа.\n- Функция `displayOrderStatus` принимает только значения перечисления.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Перечисления повышают безопасность кода, но требуется осторожность:\n- Точно определяйте значения перечислений.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\nenum Role {\n  Admin = 'ADMIN',\n  User = 'USER'\n}\n\nfunction getRoleDescription(role: Role): string {\n  return `Role: ${role}`;\n}\n\nlet userRole: Role = Role.Admin;\nconsole.log(getRoleDescription(userRole)); // Role: ADMIN\n// userRole = 'GUEST'; // Ошибка: GUEST не соответствует типу Role\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Перечисление `Role` принимает только определенные значения.\n- Присвоение недопустимого значения вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet unsafe: any = 'ADMIN';\nconsole.log(unsafe); // ADMIN, но без безопасности типов\nunsafe = 'GUEST'; // Валидно, но небезопасно\n\n// Правильный подход\nenum Role {\n  Admin = 'ADMIN',\n  User = 'USER'\n}\n\nlet safeRole: Role = Role.Admin;\nconsole.log(safeRole); // ADMIN\n// safeRole = 'GUEST'; // Ошибка: GUEST не соответствует типу Role\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Перечисления обеспечивают безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Перечисления широко используются в реальных проектах:\n- **Статусы**: Статусы заказов, статусы ответов API.\n- **Роли**: Роли пользователей (Admin, User, Guest).\n- **Категории**: Категории продуктов или опции.\n- **Значения конфигурации**: Постоянные параметры конфигурации.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\nenum UserStatus {\n  Active = 'ACTIVE',\n  Inactive = 'INACTIVE',\n  Suspended = 'SUSPENDED'\n}\n\nfunction displayUserStatus(status: UserStatus): string {\n  return `User status: ${status}`;\n}\n\nlet user: UserStatus = UserStatus.Active;\nconsole.log(displayUserStatus(user)); // User status: ACTIVE\nuser = UserStatus.Inactive;\nconsole.log(displayUserStatus(user)); // User status: INACTIVE\n// user = 'DELETED'; // Ошибка: DELETED не соответствует типу UserStatus\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Перечисление `UserStatus` определяет статусы пользователей.\n- Функция `displayUserStatus` принимает только значения перечисления.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте перечисления для наборов постоянных значений и обеспечения безопасности типов. Предпочитайте точные типы вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Используйте константные перечисления для повышения производительности. Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо перечислений можно использовать объединения типов с псевдонимами типов, но перечисления более читаемы и структурированы.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример перечисления для самостоятельного тестирования\nenum Direction {\n  Up = 'UP',\n  Down = 'DOWN',\n  Left = 'LEFT',\n  Right = 'RIGHT'\n}\n\nconst move: Direction = Direction.Up;\nconsole.log(move); // UP\n// move = 'FORWARD'; // Ошибка: FORWARD не соответствует типу Direction\n"
+      }
+    ]
+  }
+}

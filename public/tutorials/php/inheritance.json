@@ -1,0 +1,432 @@
+{
+  "id": "inheritance",
+  "az": {
+    "title": "İrsiilik (Inheritance)",
+    "icon": "FiCornerDownRight",
+    "language": "php",
+    "description": "PHP-də siniflər arasında irsi əlaqə haqqında məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də İrsiilik Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "İrsiilik (inheritance) PHP-də obyekt yönümlü proqramlaşdırmanın (OOP) əsas prinsiplərindən biridir. Bu mexanizm bir sinfin (törəmə sinif və ya child class) başqa bir sinfin (əsas sinif və ya parent class) xüsusiyyətlərini (properties) və metodlarını miras almasına imkan verir. İrsiilik kodun təkrar istifadəsini asanlaşdırır, siniflər arasında iyerarxik əlaqələr qurur və kodun daha mütəşəkkil olmasını təmin edir. Məsələn, 'Heyvan' sinfi ümumi xüsusiyyətləri təyin edə bilər, 'İt' sinfi isə bu xüsusiyyətləri miras alaraq özünəməxsus xüsusiyyətlər əlavə edə bilər. İrsiilik `extends` açar sözü ilə təyin olunur. Bu JSON faylda irsiiliyin sintaksisi, istifadə ssenariləri, metodların yenidən təyini, giriş modifikatorlarının rolu, praktik nümunələr və səhvlərdən qaçınma yolları çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "İrsiiliyin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "İrsiilik `extends` açar sözü ilə təyin olunur. Törəmə sinif əsas sinfin xüsusiyyətlərini və metodlarını miras alır. Sintaksis:\n```php\nclass EsasSinif {\n  // Xüsusiyyətlər və metodlar\n}\n\nclass ToremSinif extends EsasSinif {\n  // Əlavə xüsusiyyətlər və metodlar\n}\n```\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Sadə irsiilik nümunəsi\nclass Animal {\n  public $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n  }\n\n  public function makeSound() {\n    return 'Səs çıxarır!';\n  }\n}\n\nclass Dog extends Animal {\n  public function makeSound() {\n    return $this->name . ': Hav-hav!';\n  }\n}\n\n$dog = new Dog('Boncuk');\necho $dog->name; // Çıxış: Boncuk\necho $dog->makeSound(); // Çıxış: Boncuk: Hav-hav!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Animal` əsas sinifdir və `$name` xüsusiyyətini və `makeSound` metodunu təyin edir.\n- `Dog` sinfi `Animal` sinfindən miras alır (`extends`) və `makeSound` metodunu yenidən təyin edir (override).\n- `$dog = new Dog('Boncuk')` obyekti `Animal` sinfinin xüsusiyyətlərini və metodlarını miras alır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Metodların Yenidən Təyini (Override)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Törəmə sinif əsas sinfin metodunu yenidən təyin edərək (override) özünəməxsus davranış əlavə edə bilər. Bunun üçün eyni adlı metod təyin olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Metod yenidən təyini nümunəsi\nclass Vehicle {\n  public function move() {\n    return 'Nəqliyyat vasitəsi hərəkət edir!';\n  }\n}\n\nclass Car extends Vehicle {\n  public function move() {\n    return 'Avtomobil sürətlə hərəkət edir!';\n  }\n}\n\n$car = new Car();\necho $car->move(); // Çıxış: Avtomobil sürətlə hərəkət edir!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Vehicle` sinfi ümumi `move` metodunu təyin edir.\n- `Car` sinfi `move` metodunu yenidən təyin edərək öz davranışını əlavə edir.\n- `$car->move()` törəmə sinfin metodunu çağırır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "parent Açar Sözü"
+      },
+      {
+        "type": "paragraph",
+        "text": "Törəmə sinifdə `parent` açar sözü ilə əsas sinfin metodlarına və ya konstruktoruna müraciət etmək mümkündür. Bu, xüsusilə konstruktorlarda və metod yenidən təyinində faydalıdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// parent açar sözü nümunəsi\nclass Person {\n  public $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n    echo 'Person konstruktoru çağırıldı\\n';\n  }\n\n  public function introduce() {\n    return 'Salam, mən ' . $this->name;\n  }\n}\n\nclass Employee extends Person {\n  public $job;\n\n  public function __construct($name, $job) {\n    parent::__construct($name);\n    $this->job = $job;\n    echo 'Employee konstruktoru çağırıldı\\n';\n  }\n\n  public function introduce() {\n    return parent::introduce() . ', işim: ' . $this->job;\n  }\n}\n\n$employee = new Employee('Vəli', 'Proqramçı');\necho $employee->introduce();\n// Çıxış:\n// Person konstruktoru çağırıldı\n// Employee konstruktoru çağırıldı\n// Salam, mən Vəli, işim: Proqramçı\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Person` sinfi `$name` xüsusiyyətini və `introduce` metodunu təyin edir.\n- `Employee` sinfi `parent::__construct` ilə əsas sinfin konstruktorunu çağırır.\n- `introduce` metodu əsas sinfin metodunu `parent::introduce` ilə çağıraraq əlavə məlumat əlavə edir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Giriş Modifikatorlarının Rolu"
+      },
+      {
+        "type": "paragraph",
+        "text": "Giriş modifikatorları (`public`, `private`, `protected`) irsiilikdə mühüm rol oynayır:\n- `public`: Hər yerdən əlçatandır, törəmə siniflər tərəfindən miras alınır.\n- `protected`: Yalnız sinif daxilində və törəmə siniflərdə əlçatandır.\n- `private`: Yalnız sinif daxilində əlçatandır, törəmə siniflərə miras qalmır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Giriş modifikatorları nümunəsi\nclass BankAccount {\n  public $accountNumber;\n  protected $balance = 1000;\n  private $pin = '1234';\n\n  public function getBalance() {\n    return 'Balans: ' . $this->balance;\n  }\n}\n\nclass SavingsAccount extends BankAccount {\n  public function deposit($amount) {\n    $this->balance += $amount;\n    return 'Yeni balans: ' . $this->balance;\n  }\n\n  public function tryAccessPin() {\n    // return $this->pin; // Səhv: private xüsusiyyətə müraciət mümkün deyil\n    return 'Pinə müraciət mümkün deyil!';\n  }\n}\n\n$account = new SavingsAccount();\n$account->accountNumber = '56789';\necho $account->accountNumber; // Çıxış: 56789\necho $account->getBalance(); // Çıxış: Balans: 1000\necho $account->deposit(500); // Çıxış: Yeni balans: 1500\necho $account->tryAccessPin(); // Çıxış: Pinə müraciət mümkün deyil!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `accountNumber` public olduğu üçün hər yerdən əlçatandır.\n- `balance` protected olduğu üçün yalnız sinif daxilində və törəmə sinifdə (`SavingsAccount`) əlçatandır.\n- `pin` private olduğu üçün törəmə sinifə miras qalmır və ona müraciət səhvə səbəb olur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Çoxsəviyyəli İrsiilik"
+      },
+      {
+        "type": "paragraph",
+        "text": "Çoxsəviyyəli irsiilikdə bir sinif başqa bir sinifdən, o da öz növbəsində başqa bir sinifdən miras ala bilər. Bu, iyerarxik strukturların qurulmasında faydalıdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Çoxsəviyyəli irsiilik nümunəsi\nclass Vehicle {\n  protected $type;\n\n  public function __construct($type) {\n    $this->type = $type;\n  }\n\n  public function getType() {\n    return 'Növ: ' . $this->type;\n  }\n}\n\nclass Car extends Vehicle {\n  protected $brand;\n\n  public function __construct($type, $brand) {\n    parent::__construct($type);\n    $this->brand = $brand;\n  }\n\n  public function getBrand() {\n    return 'Brend: ' . $this->brand;\n  }\n}\n\nclass ElectricCar extends Car {\n  private $battery;\n\n  public function __construct($type, $brand, $battery) {\n    parent::__construct($type, $brand);\n    $this->battery = $battery;\n  }\n\n  public function getInfo() {\n    return $this->getType() . ', ' . $this->getBrand() . ', Batareya: ' . $this->battery;\n  }\n}\n\n$tesla = new ElectricCar('Elektrik', 'Tesla', '100 kWh');\necho $tesla->getInfo(); // Çıxış: Növ: Elektrik, Brend: Tesla, Batareya: 100 kWh\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Vehicle`, `Car` və `ElectricCar` sinifləri çoxsəviyyəli irsiilik zənciri yaradır.\n- Hər sinif öz konstruktoruna malikdir və `parent::__construct` ilə əsas sinfin konstruktorunu çağırır.\n- `getInfo` metodu bütün səviyyələrdən məlumatları birləşdirir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Private xüsusiyyətlərə törəmə sinifdən müraciət etmək səhvə səbəb olur. `parent::__construct` çağırılmaması əsas sinfin ilkinləşməsini atlaya bilər. Çox mürəkkəb irsiilik zəncirləri kodu çətinləşdirir.\n- **Tövsiyələr**: `protected` modifikatorundan istifadə edərək törəmə siniflərə giriş imkanı verin. `parent` açar sözünü düzgün istifadə edin. İrsiilik strukturunu sadə saxlayın. PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/) faydalanın. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\nclass Base {\n  private $data = 'Gizli məlumat';\n}\n\nclass Derived extends Base {\n  public function getData() {\n    // return $this->data; // Səhv: private xüsusiyyətə müraciət mümkün deyil\n    return 'Məlumat əlçatan deyil!';\n  }\n}\n\n$derived = new Derived();\necho $derived->getData(); // Çıxış: Məlumat əlçatan deyil!\n\n// Düzgün yol\nclass BaseCorrect {\n  protected $data = 'Qorunan məlumat';\n}\n\nclass DerivedCorrect extends BaseCorrect {\n  public function getData() {\n    return $this->data;\n  }\n}\n\n$derivedCorrect = new DerivedCorrect();\necho $derivedCorrect->getData(); // Çıxış: Qorunan məlumat\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk nümunədə `private` xüsusiyyətə törəmə sinifdən müraciət səhvə səbəb olur.\n- Düzgün yolda `protected` xüsusiyyət istifadə olunur ki, törəmə sinifə miras qalsın.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Tələbə İdarəetmə Sistemi"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Tələbə idarəetmə sistemi\nclass Person {\n  protected $name;\n  protected $age;\n\n  public function __construct($name, $age) {\n    $this->name = $name;\n    $this->age = $age;\n  }\n\n  public function getInfo() {\n    return 'Ad: ' . $this->name . ', Yaş: ' . $this->age;\n  }\n}\n\nclass Student extends Person {\n  private $grades = [];\n\n  public function __construct($name, $age) {\n    parent::__construct($name, $age);\n  }\n\n  public function addGrade($subject, $grade) {\n    if ($grade >= 0 && $grade <= 100) {\n      $this->grades[$subject] = $grade;\n    } else {\n      echo 'Qiymət 0-100 aralığında olmalıdır!';\n    }\n  }\n\n  public function getAverageGrade() {\n    if (count($this->grades) == 0) return 0;\n    return array_sum($this->grades) / count($this->grades);\n  }\n\n  public function getInfo() {\n    return parent::getInfo() . ', Orta qiymət: ' . $this->getAverageGrade();\n  }\n}\n\n$student = new Student('Aysel', 20);\n$student->addGrade('Riyaziyyat', 90);\n$student->addGrade('Fizika', 85);\necho $student->getInfo(); // Çıxış: Ad: Aysel, Yaş: 20, Orta qiymət: 87.5\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Person` sinfi ümumi xüsusiyyətləri (`name`, `age`) təyin edir.\n- `Student` sinfi `Person` sinfindən miras alır və `grades` xüsusiyyətini əlavə edir.\n- `getInfo` metodu əsas sinfin metodunu `parent::getInfo` ilə çağıraraq əlavə məlumat əlavə edir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün irsiilik\nclass Book {\n  protected $title;\n\n  public function __construct($title) {\n    $this->title = $title;\n  }\n\n  public function getTitle() {\n    return 'Başlıq: ' . $this->title;\n  }\n}\n\nclass EBook extends Book {\n  private $format;\n\n  public function __construct($title, $format) {\n    parent::__construct($title);\n    $this->format = $format;\n  }\n\n  public function getInfo() {\n    return parent::getTitle() . ', Format: ' . $this->format;\n  }\n}\n\n$ebook = new EBook('1984', 'PDF');\necho $ebook->getInfo(); // Çıxış: Başlıq: 1984, Format: PDF\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Inheritance",
+    "icon": "FiCornerDownRight",
+    "language": "php",
+    "description": "Information about inheritance between classes in PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Inheritance in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inheritance is a fundamental principle of object-oriented programming (OOP) in PHP. It allows a class (child class) to inherit properties and methods from another class (parent class). Inheritance promotes code reuse, establishes hierarchical relationships between classes, and makes code more organized. For example, an 'Animal' class can define general properties, and a 'Dog' class can inherit them while adding its own specific features. Inheritance is defined using the `extends` keyword. This JSON file explains inheritance syntax, use cases, method overriding, the role of access modifiers, practical examples, and how to avoid common mistakes in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Inheritance Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "Inheritance is defined using the `extends` keyword. The child class inherits the parent class’s properties and methods. Syntax:\n```php\nclass ParentClass {\n  // Properties and methods\n}\n\nclass ChildClass extends ParentClass {\n  // Additional properties and methods\n}\n```\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Simple inheritance example\nclass Animal {\n  public $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n  }\n\n  public function makeSound() {\n    return 'Makes a sound!';\n  }\n}\n\nclass Dog extends Animal {\n  public function makeSound() {\n    return $this->name . ': Woof-woof!';\n  }\n}\n\n$dog = new Dog('Buddy');\necho $dog->name; // Output: Buddy\necho $dog->makeSound(); // Output: Buddy: Woof-woof!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Animal` class defines the `$name` property and `makeSound` method.\n- The `Dog` class inherits from `Animal` using `extends` and overrides the `makeSound` method.\n- `$dog = new Dog('Buddy')` inherits properties and methods from `Animal`.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Method Overriding"
+      },
+      {
+        "type": "paragraph",
+        "text": "A child class can override a parent class’s method to provide its own implementation by defining a method with the same name.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Method overriding example\nclass Vehicle {\n  public function move() {\n    return 'The vehicle is moving!';\n  }\n}\n\nclass Car extends Vehicle {\n  public function move() {\n    return 'The car is moving fast!';\n  }\n}\n\n$car = new Car();\necho $car->move(); // Output: The car is moving fast!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Vehicle` class defines a generic `move` method.\n- The `Car` class overrides `move` with its own implementation.\n- `$car->move()` calls the overridden method.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "The parent Keyword"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `parent` keyword allows a child class to access the parent class’s methods or constructor, useful in constructors and method overriding.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// parent keyword example\nclass Person {\n  public $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n    echo 'Person constructor called\\n';\n  }\n\n  public function introduce() {\n    return 'Hello, I am ' . $this->name;\n  }\n}\n\nclass Employee extends Person {\n  public $job;\n\n  public function __construct($name, $job) {\n    parent::__construct($name);\n    $this->job = $job;\n    echo 'Employee constructor called\\n';\n  }\n\n  public function introduce() {\n    return parent::introduce() . ', my job is: ' . $this->job;\n  }\n}\n\n$employee = new Employee('Vali', 'Programmer');\necho $employee->introduce();\n// Output:\n// Person constructor called\n// Employee constructor called\n// Hello, I am Vali, my job is: Programmer\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Person` class defines the `$name` property and `introduce` method.\n- The `Employee` class calls the parent’s constructor with `parent::__construct`.\n- The `introduce` method uses `parent::introduce` to extend the parent’s implementation.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Role of Access Modifiers"
+      },
+      {
+        "type": "paragraph",
+        "text": "Access modifiers (`public`, `private`, `protected`) play a key role in inheritance:\n- `public`: Accessible everywhere, inherited by child classes.\n- `protected`: Accessible within the class and child classes.\n- `private`: Accessible only within the class, not inherited.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Access modifiers example\nclass BankAccount {\n  public $accountNumber;\n  protected $balance = 1000;\n  private $pin = '1234';\n\n  public function getBalance() {\n    return 'Balance: ' . $this->balance;\n  }\n}\n\nclass SavingsAccount extends BankAccount {\n  public function deposit($amount) {\n    $this->balance += $amount;\n    return 'New balance: ' . $this->balance;\n  }\n\n  public function tryAccessPin() {\n    // return $this->pin; // Error: Cannot access private property\n    return 'Cannot access pin!';\n  }\n}\n\n$account = new SavingsAccount();\n$account->accountNumber = '56789';\necho $account->accountNumber; // Output: 56789\necho $account->getBalance(); // Output: Balance: 1000\necho $account->deposit(500); // Output: New balance: 1500\necho $account->tryAccessPin(); // Output: Cannot access pin!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `accountNumber` is public and accessible everywhere.\n- `balance` is protected, accessible in the class and child class (`SavingsAccount`).\n- `pin` is private and not inherited, causing an error if accessed.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Multi-Level Inheritance"
+      },
+      {
+        "type": "paragraph",
+        "text": "Multi-level inheritance involves a class inheriting from another class, which itself inherits from another, creating a hierarchy.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Multi-level inheritance example\nclass Vehicle {\n  protected $type;\n\n  public function __construct($type) {\n    $this->type = $type;\n  }\n\n  public function getType() {\n    return 'Type: ' . $this->type;\n  }\n}\n\nclass Car extends Vehicle {\n  protected $brand;\n\n  public function __construct($type, $brand) {\n    parent::__construct($type);\n    $this->brand = $brand;\n  }\n\n  public function getBrand() {\n    return 'Brand: ' . $this->brand;\n  }\n}\n\nclass ElectricCar extends Car {\n  private $battery;\n\n  public function __construct($type, $brand, $battery) {\n    parent::__construct($type, $brand);\n    $this->battery = $battery;\n  }\n\n  public function getInfo() {\n    return $this->getType() . ', ' . $this->getBrand() . ', Battery: ' . $this->battery;\n  }\n}\n\n$tesla = new ElectricCar('Electric', 'Tesla', '100 kWh');\necho $tesla->getInfo(); // Output: Type: Electric, Brand: Tesla, Battery: 100 kWh\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Vehicle`, `Car`, and `ElectricCar` form a multi-level inheritance chain.\n- Each class has its constructor, calling the parent’s with `parent::__construct`.\n- `getInfo` combines information from all levels.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Accessing private properties from a child class causes errors. Not calling `parent::__construct` skips parent initialization. Complex inheritance chains make code hard to maintain.\n- **Recommendations**: Use `protected` modifiers to allow child class access. Use the `parent` keyword correctly. Keep inheritance structures simple. Refer to PHP’s official documentation (https://www.php.net/manual/en/). You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\nclass Base {\n  private $data = 'Secret data';\n}\n\nclass Derived extends Base {\n  public function getData() {\n    // return $this->data; // Error: Cannot access private property\n    return 'Data is not accessible!';\n  }\n}\n\n$derived = new Derived();\necho $derived->getData(); // Output: Data is not accessible!\n\n// Correct approach\nclass BaseCorrect {\n  protected $data = 'Protected data';\n}\n\nclass DerivedCorrect extends BaseCorrect {\n  public function getData() {\n    return $this->data;\n  }\n}\n\n$derivedCorrect = new DerivedCorrect();\necho $derivedCorrect->getData(); // Output: Protected data\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first example tries to access a private property, causing an error.\n- The correct approach uses `protected` to allow inheritance.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Student Management System"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Student management system\nclass Person {\n  protected $name;\n  protected $age;\n\n  public function __construct($name, $age) {\n    $this->name = $name;\n    $this->age = $age;\n  }\n\n  public function getInfo() {\n    return 'Name: ' . $this->name . ', Age: ' . $this->age;\n  }\n}\n\nclass Student extends Person {\n  private $grades = [];\n\n  public function __construct($name, $age) {\n    parent::__construct($name, $age);\n  }\n\n  public function addGrade($subject, $grade) {\n    if ($grade >= 0 && $grade <= 100) {\n      $this->grades[$subject] = $grade;\n    } else {\n      echo 'Grade must be between 0 and 100!';\n    }\n  }\n\n  public function getAverageGrade() {\n    if (count($this->grades) == 0) return 0;\n    return array_sum($this->grades) / count($this->grades);\n  }\n\n  public function getInfo() {\n    return parent::getInfo() . ', Average Grade: ' . $this->getAverageGrade();\n  }\n}\n\n$student = new Student('Aysel', 20);\n$student->addGrade('Math', 90);\n$student->addGrade('Physics', 85);\necho $student->getInfo(); // Output: Name: Aysel, Age: 20, Average Grade: 87.5\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Person` class defines generic properties (`name`, `age`).\n- The `Student` class inherits from `Person` and adds `grades`.\n- `getInfo` extends the parent’s method using `parent::getInfo`.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself inheritance\nclass Book {\n  protected $title;\n\n  public function __construct($title) {\n    $this->title = $title;\n  }\n\n  public function getTitle() {\n    return 'Title: ' . $this->title;\n  }\n}\n\nclass EBook extends Book {\n  private $format;\n\n  public function __construct($title, $format) {\n    parent::__construct($title);\n    $this->format = $format;\n  }\n\n  public function getInfo() {\n    return parent::getTitle() . ', Format: ' . $this->format;\n  }\n}\n\n$ebook = new EBook('1984', 'PDF');\necho $ebook->getInfo(); // Output: Title: 1984, Format: PDF\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Наследование",
+    "icon": "FiCornerDownRight",
+    "language": "php",
+    "description": "Информация о наследовании между классами в PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое наследование в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Наследование — это фундаментальный принцип объектно-ориентированного программирования (ООП) в PHP. Оно позволяет дочернему классу унаследовать свойства и методы родительского класса. Наследование способствует повторному использованию кода, устанавливает иерархические связи между классами и делает код более организованным. Например, класс 'Животное' может определять общие свойства, а класс 'Собака' может унаследовать их, добавляя свои уникальные особенности. Наследование определяется с помощью ключевого слова `extends`. Этот JSON-файл подробно объясняет синтаксис наследования, случаи использования, переопределение методов, роль модификаторов доступа, практические примеры и способы избежания ошибок. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис наследования"
+      },
+      {
+        "type": "paragraph",
+        "text": "Наследование определяется с помощью ключевого слова `extends`. Дочерний класс наследует свойства и методы родительского класса. Синтаксис:\n```php\nclass ParentClass {\n  // Свойства и методы\n}\n\nclass ChildClass extends ParentClass {\n  // Дополнительные свойства и методы\n}\n```\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример простого наследования\nclass Animal {\n  public $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n  }\n\n  public function makeSound() {\n    return 'Издает звук!';\n  }\n}\n\nclass Dog extends Animal {\n  public function makeSound() {\n    return $this->name . ': Гав-гав!';\n  }\n}\n\n$dog = new Dog('Бублик');\necho $dog->name; // Вывод: Бублик\necho $dog->makeSound(); // Вывод: Бублик: Гав-гав!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Animal` определяет свойство `$name` и метод `makeSound`.\n- Класс `Dog` наследует от `Animal` с помощью `extends` и переопределяет метод `makeSound`.\n- `$dog = new Dog('Бублик')` наследует свойства и методы от `Animal`.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Переопределение методов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дочерний класс может переопределить метод родительского класса, задав метод с тем же именем для реализации своего поведения.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример переопределения метода\nclass Vehicle {\n  public function move() {\n    return 'Транспортное средство движется!';\n  }\n}\n\nclass Car extends Vehicle {\n  public function move() {\n    return 'Машина движется быстро!';\n  }\n}\n\n$car = new Car();\necho $car->move(); // Вывод: Машина движется быстро!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Vehicle` определяет общий метод `move`.\n- Класс `Car` переопределяет `move` своей реализацией.\n- `$car->move()` вызывает переопределенный метод.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Ключевое слово parent"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ключевое слово `parent` позволяет дочернему классу обращаться к методам или конструктору родительского класса, что полезно в конструкторах и при переопределении методов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример ключевого слова parent\nclass Person {\n  public $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n    echo 'Конструктор Person вызван\\n';\n  }\n\n  public function introduce() {\n    return 'Привет, я ' . $this->name;\n  }\n}\n\nclass Employee extends Person {\n  public $job;\n\n  public function __construct($name, $job) {\n    parent::__construct($name);\n    $this->job = $job;\n    echo 'Конструктор Employee вызван\\n';\n  }\n\n  public function introduce() {\n    return parent::introduce() . ', моя работа: ' . $this->job;\n  }\n}\n\n$employee = new Employee('Вали', 'Программист');\necho $employee->introduce();\n// Вывод:\n// Конструктор Person вызван\n// Конструктор Employee вызван\n// Привет, я Вали, моя работа: Программист\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Person` определяет свойство `$name` и метод `introduce`.\n- Класс `Employee` вызывает конструктор родителя с помощью `parent::__construct`.\n- Метод `introduce` использует `parent::introduce` для расширения родительской реализации.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Роль модификаторов доступа"
+      },
+      {
+        "type": "paragraph",
+        "text": "Модификаторы доступа (`public`, `private`, `protected`) играют ключевую роль в наследовании:\n- `public`: Доступно везде, наследуется дочерними классами.\n- `protected`: Доступно внутри класса и дочерних классов.\n- `private`: Доступно только внутри класса, не наследуется.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример модификаторов доступа\nclass BankAccount {\n  public $accountNumber;\n  protected $balance = 1000;\n  private $pin = '1234';\n\n  public function getBalance() {\n    return 'Баланс: ' . $this->balance;\n  }\n}\n\nclass SavingsAccount extends BankAccount {\n  public function deposit($amount) {\n    $this->balance += $amount;\n    return 'Новый баланс: ' . $this->balance;\n  }\n\n  public function tryAccessPin() {\n    // return $this->pin; // Ошибка: Нельзя получить доступ к private свойству\n    return 'Нельзя получить доступ к пину!';\n  }\n}\n\n$account = new SavingsAccount();\n$account->accountNumber = '56789';\necho $account->accountNumber; // Вывод: 56789\necho $account->getBalance(); // Вывод: Баланс: 1000\necho $account->deposit(500); // Вывод: Новый баланс: 1500\necho $account->tryAccessPin(); // Вывод: Нельзя получить доступ к пину!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `accountNumber` — public, доступно везде.\n- `balance` — protected, доступно в классе и дочернем классе (`SavingsAccount`).\n- `pin` — private, не наследуется и вызывает ошибку при попытке доступа.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Многоуровневое наследование"
+      },
+      {
+        "type": "paragraph",
+        "text": "Многоуровневое наследование позволяет классу наследовать от другого класса, который, в свою очередь, наследует от другого, создавая иерархию.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример многоуровневого наследования\nclass Vehicle {\n  protected $type;\n\n  public function __construct($type) {\n    $this->type = $type;\n  }\n\n  public function getType() {\n    return 'Тип: ' . $this->type;\n  }\n}\n\nclass Car extends Vehicle {\n  protected $brand;\n\n  public function __construct($type, $brand) {\n    parent::__construct($type);\n    $this->brand = $brand;\n  }\n\n  public function getBrand() {\n    return 'Бренд: ' . $this->brand;\n  }\n}\n\nclass ElectricCar extends Car {\n  private $battery;\n\n  public function __construct($type, $brand, $battery) {\n    parent::__construct($type, $brand);\n    $this->battery = $battery;\n  }\n\n  public function getInfo() {\n    return $this->getType() . ', ' . $this->getBrand() . ', Батарея: ' . $this->battery;\n  }\n}\n\n$tesla = new ElectricCar('Электрический', 'Tesla', '100 кВтч');\necho $tesla->getInfo(); // Вывод: Тип: Электрический, Бренд: Tesla, Батарея: 100 кВтч\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Классы `Vehicle`, `Car` и `ElectricCar` образуют цепочку многоуровневого наследования.\n- Каждый класс имеет свой конструктор, вызывающий родительский с помощью `parent::__construct`.\n- `getInfo` объединяет информацию со всех уровней.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Доступ к private свойствам из дочернего класса вызывает ошибки. Пропуск вызова `parent::__construct` может нарушить инициализацию родительского класса. Сложные цепочки наследования усложняют поддержку кода.\n- **Рекомендации**: Используйте модификатор `protected` для доступа дочерних классов. Корректно используйте ключевое слово `parent`. Держите структуру наследования простой. Обратитесь к официальной документации PHP (https://www.php.net/manual/en/). Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\nclass Base {\n  private $data = 'Секретные данные';\n}\n\nclass Derived extends Base {\n  public function getData() {\n    // return $this->data; // Ошибка: Нельзя получить доступ к private свойству\n    return 'Данные недоступны!';\n  }\n}\n\n$derived = new Derived();\necho $derived->getData(); // Вывод: Данные недоступны!\n\n// Правильный подход\nclass BaseCorrect {\n  protected $data = 'Защищенные данные';\n}\n\nclass DerivedCorrect extends BaseCorrect {\n  public function getData() {\n    return $this->data;\n  }\n}\n\n$derivedCorrect = new DerivedCorrect();\necho $derivedCorrect->getData(); // Вывод: Защищенные данные\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый пример пытается получить доступ к private свойству, что вызывает ошибку.\n- Правильный подход использует `protected` для наследования.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Система управления студентами"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Система управления студентами\nclass Person {\n  protected $name;\n  protected $age;\n\n  public function __construct($name, $age) {\n    $this->name = $name;\n    $this->age = $age;\n  }\n\n  public function getInfo() {\n    return 'Имя: ' . $this->name . ', Возраст: ' . $this->age;\n  }\n}\n\nclass Student extends Person {\n  private $grades = [];\n\n  public function __construct($name, $age) {\n    parent::__construct($name, $age);\n  }\n\n  public function addGrade($subject, $grade) {\n    if ($grade >= 0 && $grade <= 100) {\n      $this->grades[$subject] = $grade;\n    } else {\n      echo 'Оценка должна быть от 0 до 100!';\n    }\n  }\n\n  public function getAverageGrade() {\n    if (count($this->grades) == 0) return 0;\n    return array_sum($this->grades) / count($this->grades);\n  }\n\n  public function getInfo() {\n    return parent::getInfo() . ', Средняя оценка: ' . $this->getAverageGrade();\n  }\n}\n\n$student = new Student('Айсель', 20);\n$student->addGrade('Математика', 90);\n$student->addGrade('Физика', 85);\necho $student->getInfo(); // Вывод: Имя: Айсель, Возраст: 20, Средняя оценка: 87.5\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Person` определяет общие свойства (`name`, `age`).\n- Класс `Student` наследует от `Person` и добавляет `grades`.\n- `getInfo` расширяет метод родителя с помощью `parent::getInfo`.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Попробуйте сами наследование\nclass Book {\n  protected $title;\n\n  public function __construct($title) {\n    $this->title = $title;\n  }\n\n  public function getTitle() {\n    return 'Название: ' . $this->title;\n  }\n}\n\nclass EBook extends Book {\n  private $format;\n\n  public function __construct($title, $format) {\n    parent::__construct($title);\n    $this->format = $format;\n  }\n\n  public function getInfo() {\n    return parent::getTitle() . ', Формат: ' . $this->format;\n  }\n}\n\n$ebook = new EBook('1984', 'PDF');\necho $ebook->getInfo(); // Вывод: Название: 1984, Формат: PDF\n?>"
+      }
+    ]
+  }
+}

@@ -1,0 +1,462 @@
+{
+  "id": "api",
+  "az": {
+    "title": "API-lərlə İşləmək",
+    "icon": "FiGlobe",
+    "language": "javascript",
+    "description": "JavaScript-də API-lərlə asinxron sorğuların idarə edilməsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "API Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "API (Application Programming Interface) bir proqramın digər proqram və ya xidmətlərlə əlaqə qurmasını təmin edən bir vasitədir. Məsələn, hava proqnozu veb səhifəsində serverdən cari hava məlumatlarını almaq üçün API istifadə olunur. JavaScript-də API-lərlə işləmək üçün adətən `fetch` API və ya `XMLHttpRequest` istifadə edilir. Bu JSON faylda `fetch` API ilə necə işlədiyi, nümunələri, üstünlükləri və çətinlikləri sadə şəkildə izah olunacaq. Aşağıda kodları sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "fetch API ilə API Sorğuları"
+      },
+      {
+        "type": "paragraph",
+        "text": "`fetch` API JavaScript-də API-lərdən məlumat almaq üçün müasir və sadə bir üsuldur. Promise-lərə əsaslanır və asinxron sorğuları idarə edir.\nSintaksis:\n```javascript\nfetch(url, options)\n  .then(response => response.json())\n  .then(data => console.log(data))\n  .catch(error => console.log('Xəta:', error));\n```\n- `url`: API-nin ünvanı.\n- `options`: HTTP metodu, başlıqlar və s. (isteğe bağlı).\nQeyd: `fetch` JSON, XML və ya digər formatlarda məlumat ala bilər."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// fetch ilə sadə GET sorğusu\nfetch('https://jsonplaceholder.typicode.com/posts/1')\n  .then(response => {\n    if (!response.ok) throw new Error('Xəta: ' + response.status);\n    return response.json();\n  })\n  .then(data => console.log('Məlumat:', data))\n  .catch(error => console.log('Xəta:', error));"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `fetch` ilə `GET` sorğusu göndərilir.\n- Cavab uğurlu olarsa (status 200), JSON məlumatı konsola yazılır.\n- Xəta olarsa, xəta mesajı göstərilir.\n- Aşağıda bu kodu sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "fetch ilə POST Sorğusu"
+      },
+      {
+        "type": "paragraph",
+        "text": "`fetch` ilə məlumat göndərmək üçün `POST` sorğusu istifadə edilə bilər. Bu zaman `headers` və `body` parametrləri təyin edilir."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// fetch ilə POST sorğusu\nfetch('https://jsonplaceholder.typicode.com/posts', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json'\n  },\n  body: JSON.stringify({ title: 'Yeni başlıq', body: 'Məzmun', userId: 1 })\n})\n  .then(response => {\n    if (!response.ok) throw new Error('Xəta: ' + response.status);\n    return response.json();\n  })\n  .then(data => console.log('Cavab:', data))\n  .catch(error => console.log('Xəta:', error));"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `POST` sorğusu ilə serverə JSON məlumatı göndərilir.\n- Uğurlu cavab (status 201) alındıqda cavab konsola yazılır.\n- Aşağıda bu kodu sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "API ilə Hadisə İdarəetmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "API sorğuları istifadəçi hərəkətlərinə cavab olaraq məlumat almaq üçün istifadə edilə bilər."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Hadisə ilə fetch nümunəsi\nconst button = document.querySelector('#myButton');\nbutton.addEventListener('click', () => {\n  fetch('https://jsonplaceholder.typicode.com/posts/1')\n    .then(response => {\n      if (!response.ok) throw new Error('Xəta: ' + response.status);\n      return response.json();\n    })\n    .then(data => {\n      const container = document.querySelector('#myContainer');\n      container.innerText = data.title;\n      console.log('Məlumat yükləndi:', data);\n    })\n    .catch(error => console.log('Xəta:', error));\n});"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Düyməyə klik edildikdə `fetch` ilə məlumat alınır.\n- Alınan məlumat səhifədə göstərilir.\n- Aşağıda bu kodu sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "API-lərin Üstünlükləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "API-lərlə işləmək aşağıdakı üstünlüklərə malikdir:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nDinamiklik: Səhifəni yenidən yükləmədən məlumat yenilənir."
+          },
+          {
+            "description": "\nİstifadəçi təcrübəsi: İnteraktiv və sürətli veb səhifələr yaradır."
+          },
+          {
+            "description": "\nÇeviklik: Müxtəlif xidmətlərdən məlumat almaq mümkündür."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Çətinliklər"
+      },
+      {
+        "type": "paragraph",
+        "text": "API-lərlə işləyərkən bəzi çətinliklər ola bilər:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nXəta idarəetmə: Server xətaları və ya şəbəkə problemləri nəzərə alınmalıdır."
+          },
+          {
+            "description": "\nTəhlükəsizlik: İstifadəçi məlumatları ilə işləyərkən təhlükəsizlik tədbirləri vacibdir."
+          },
+          {
+            "description": "\nAPI məhdudiyyətləri: Bəzi API-lər sorğu limitləri və ya autentifikasiya tələb edir."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Server cavabını yoxlamadan məlumatı emal etmək xətalara səbəb ola bilər. İstifadəçi məlumatları ilə işləyərkən XSS və ya digər təhlükəsizlik riskləri ola bilər.\n- **Tövsiyələr**: Server cavabını (status kodu) yoxlayın. İstifadəçi məlumatlarını təmizləyin (sanitize). API sənədlərini oxuyun və sorğu limitlərinə diqqət edin. Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) sənədlərindən istifadə edin. Aşağıda kodları sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Səhvə yol açan nümunə\nfetch('https://nonexistent.api/data')\n  .then(response => response.json())\n  .then(data => console.log(data)) // Xəta: Şəbəkə xətası və ya yanlış URL\n\n// Düzgün yol\nfetch('https://jsonplaceholder.typicode.com/posts/1')\n  .then(response => {\n    if (!response.ok) throw new Error('Xəta: ' + response.status);\n    return response.json();\n  })\n  .then(data => console.log('Məlumat:', data))\n  .catch(error => console.log('Xəta:', error));"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Mövcud olmayan URL-ə sorğu göndərildikdə xəta baş verir.\n- Düzgün yolda cavab yoxlanılır və xəta idarə olunur.\n- Aşağıda bu kodu sadə bir HTML səhifəsində yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "HTML ilə API Testi"
+      },
+      {
+        "type": "code",
+        "language": "html",
+        "code": "<!DOCTYPE html>\n<html>\n<head>\n  <title>API Testi</title>\n</head>\n<body>\n  <div id='myContainer'>Məlumat buraya yüklənəcək</div>\n  <button id='myButton'>Məlumatı yüklə</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      fetch('https://jsonplaceholder.typicode.com/posts/1')\n        .then(response => {\n          if (!response.ok) throw new Error('Xəta: ' + response.status);\n          return response.json();\n        })\n        .then(data => {\n          container.innerText = data.title;\n          console.log('Məlumat:', data);\n        })\n        .catch(error => {\n          container.innerText = 'Xəta baş verdi';\n          console.log('Xəta:', error);\n        });\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu HTML və JavaScript kodunu bir `.html` faylına kopyalayıb brauzerdə sınaqdan keçirə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<!DOCTYPE html>\n<html>\n<head>\n  <title>API Testi</title>\n</head>\n<body>\n  <div id='myContainer'>Məlumat buraya yüklənəcək</div>\n  <button id='myButton'>Məlumatı yüklə</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      if (container) {\n        fetch('https://jsonplaceholder.typicode.com/posts/1')\n          .then(response => {\n            if (!response.ok) throw new Error('Xəta: ' + response.status);\n            return response.json();\n          })\n          .then(data => {\n            container.innerText = data.title;\n            console.log('Məlumat:', data);\n          })\n          .catch(error => {\n            container.innerText = 'Xəta baş verdi';\n            console.log('Xəta:', error);\n          });\n      } else {\n        console.log('Element tapılmadı');\n      }\n    });\n  </script>\n</body>\n</html>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Working with APIs",
+    "icon": "FiGlobe",
+    "language": "javascript",
+    "description": "Managing asynchronous API requests in JavaScript.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is an API?"
+      },
+      {
+        "type": "paragraph",
+        "text": "An API (Application Programming Interface) is a tool that allows one program to communicate with another program or service. For example, a weather app uses an API to fetch current weather data from a server. In JavaScript, APIs are typically accessed using the `fetch` API or `XMLHttpRequest`. This JSON file explains how to work with APIs using `fetch`, with examples, advantages, and challenges in a simple way. You can test the code below in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "API Requests with fetch"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `fetch` API is a modern, simple way to make API requests in JavaScript, based on Promises for handling asynchronous requests.\nSyntax:\n```javascript\nfetch(url, options)\n  .then(response => response.json())\n  .then(data => console.log(data))\n  .catch(error => console.log('Error:', error));\n```\n- `url`: The API endpoint.\n- `options`: HTTP method, headers, etc. (optional).\nNote: `fetch` can handle JSON, XML, or other data formats."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Simple GET request with fetch\nfetch('https://jsonplaceholder.typicode.com/posts/1')\n  .then(response => {\n    if (!response.ok) throw new Error('Error: ' + response.status);\n    return response.json();\n  })\n  .then(data => console.log('Data:', data))\n  .catch(error => console.log('Error:', error));"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `fetch` sends a `GET` request.\n- If the response is successful (status 200), the JSON data is logged to the console.\n- Errors are caught and displayed.\n- You can test this code in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "POST Request with fetch"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `fetch` API can send data to an API using a `POST` request, with `headers` and `body` parameters specified."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// POST request with fetch\nfetch('https://jsonplaceholder.typicode.com/posts', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json'\n  },\n  body: JSON.stringify({ title: 'New title', body: 'Content', userId: 1 })\n})\n  .then(response => {\n    if (!response.ok) throw new Error('Error: ' + response.status);\n    return response.json();\n  })\n  .then(data => console.log('Response:', data))\n  .catch(error => console.log('Error:', error));"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- A `POST` request sends JSON data to the server.\n- A successful response (status 201) is logged to the console.\n- You can test this code in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "API with Event Handling"
+      },
+      {
+        "type": "paragraph",
+        "text": "API requests can be triggered by user actions to fetch and display data."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Event-driven fetch example\nconst button = document.querySelector('#myButton');\nbutton.addEventListener('click', () => {\n  fetch('https://jsonplaceholder.typicode.com/posts/1')\n    .then(response => {\n      if (!response.ok) throw new Error('Error: ' + response.status);\n      return response.json();\n    })\n    .then(data => {\n      const container = document.querySelector('#myContainer');\n      container.innerText = data.title;\n      console.log('Data loaded:', data);\n    })\n    .catch(error => console.log('Error:', error));\n});"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Clicking the button triggers a `fetch` request.\n- The fetched data is displayed on the page.\n- You can test this code in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "Advantages of APIs"
+      },
+      {
+        "type": "paragraph",
+        "text": "Working with APIs offers the following advantages:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nDynamic Updates: Refreshes data without reloading the page."
+          },
+          {
+            "description": "\nUser Experience: Creates interactive and fast web pages."
+          },
+          {
+            "description": "\nFlexibility: Allows fetching data from various services."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Challenges"
+      },
+      {
+        "type": "paragraph",
+        "text": "Working with APIs can present challenges:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nError Handling: Server errors or network issues must be handled."
+          },
+          {
+            "description": "\nSecurity: User inputs require security measures."
+          },
+          {
+            "description": "\nAPI Limitations: Some APIs have request limits or require authentication."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Processing server responses without checking can cause errors. Handling user inputs can lead to XSS or other security risks.\n- **Recommendations**: Check the server response (status code). Sanitize user inputs. Read API documentation and respect request limits. Refer to Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) for guidance. You can test the code below in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Error-prone example\nfetch('https://nonexistent.api/data')\n  .then(response => response.json())\n  .then(data => console.log(data)) // Error: Network error or invalid URL\n\n// Correct approach\nfetch('https://jsonplaceholder.typicode.com/posts/1')\n  .then(response => {\n    if (!response.ok) throw new Error('Error: ' + response.status);\n    return response.json();\n  })\n  .then(data => console.log('Data:', data))\n  .catch(error => console.log('Error:', error));"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Sending a request to a nonexistent URL causes an error.\n- The correct approach checks the response and handles errors.\n- You can test this code in a simple HTML file."
+      },
+      {
+        "type": "heading",
+        "text": "Testing APIs with HTML"
+      },
+      {
+        "type": "code",
+        "language": "html",
+        "code": "<!DOCTYPE html>\n<html>\n<head>\n  <title>API Test</title>\n</head>\n<body>\n  <div id='myContainer'>Data will be loaded here</div>\n  <button id='myButton'>Load Data</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      fetch('https://jsonplaceholder.typicode.com/posts/1')\n        .then(response => {\n          if (!response.ok) throw new Error('Error: ' + response.status);\n          return response.json();\n        })\n        .then(data => {\n          container.innerText = data.title;\n          console.log('Data:', data);\n        })\n        .catch(error => {\n          container.innerText = 'An error occurred';\n          console.log('Error:', error);\n        });\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "type": "paragraph",
+        "text": "You can copy this HTML and JavaScript code into a `.html` file and test it in a browser."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<!DOCTYPE html>\n<html>\n<head>\n  <title>API Test</title>\n</head>\n<body>\n  <div id='myContainer'>Data will be loaded here</div>\n  <button id='myButton'>Load Data</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      if (container) {\n        fetch('https://jsonplaceholder.typicode.com/posts/1')\n          .then(response => {\n            if (!response.ok) throw new Error('Error: ' + response.status);\n            return response.json();\n          })\n          .then(data => {\n            container.innerText = data.title;\n            console.log('Data:', data);\n          })\n          .then(data => {\n            container.innerText = data.title;\n            console.log('Data:', data);\n          })\n          .catch(error => {\n            container.innerText = 'An error occurred';\n            console.log('Error:', error);\n          });\n      } else {\n        console.log('Element not found');\n      }\n    });\n  </script>\n</body>\n</html>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Работа с API",
+    "icon": "FiGlobe",
+    "language": "javascript",
+    "description": "Управление асинхронными запросами к API в JavaScript.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое API?"
+      },
+      {
+        "type": "paragraph",
+        "text": "API (Application Programming Interface) — это инструмент, позволяющий одной программе взаимодействовать с другой программой или сервисом. Например, приложение погоды использует API для получения текущих данных о погоде с сервера. В JavaScript для работы с API обычно используется `fetch` или `XMLHttpRequest`. Этот JSON-файл объясняет, как работать с API с помощью `fetch`, с примерами, преимуществами и сложностями простым языком. Вы можете протестировать код ниже в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Запросы к API с помощью fetch"
+      },
+      {
+        "type": "paragraph",
+        "text": "API `fetch` — это современный и простой способ отправки запросов к API в JavaScript, основанный на промисах для управления асинхронными запросами.\nСинтаксис:\n```javascript\nfetch(url, options)\n  .then(response => response.json())\n  .then(data => console.log(data))\n  .catch(error => console.log('Ошибка:', error));\n```\n- `url`: Адрес API.\n- `options`: HTTP-метод, заголовки и т.д. (опционально).\nПримечание: `fetch` может работать с JSON, XML и другими форматами данных."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Простой GET-запрос с fetch\nfetch('https://jsonplaceholder.typicode.com/posts/1')\n  .then(response => {\n    if (!response.ok) throw new Error('Ошибка: ' + response.status);\n    return response.json();\n  })\n  .then(data => console.log('Данные:', data))\n  .catch(error => console.log('Ошибка:', error));"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `fetch` отправляет `GET`-запрос.\n- Если ответ успешен (status 200), данные JSON выводятся в консоль.\n- Ошибки обрабатываются и отображаются.\n- Вы можете протестировать этот код в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "POST-запрос с fetch"
+      },
+      {
+        "type": "paragraph",
+        "text": "API `fetch` может отправлять данные в API с помощью `POST`-запроса, с указанием параметров `headers` и `body`."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// POST-запрос с fetch\nfetch('https://jsonplaceholder.typicode.com/posts', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json'\n  },\n  body: JSON.stringify({ title: 'Новый заголовок', body: 'Содержимое', userId: 1 })\n})\n  .then(response => {\n    if (!response.ok) throw new Error('Ошибка: ' + response.status);\n    return response.json();\n  })\n  .then(data => console.log('Ответ:', data))\n  .catch(error => console.log('Ошибка:', error));"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `POST`-запрос отправляет JSON-данные на сервер.\n- Успешный ответ (status 201) выводится в консоль.\n- Вы можете протестировать этот код в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "API с обработкой событий"
+      },
+      {
+        "type": "paragraph",
+        "text": "Запросы к API могут запускаться в ответ на действия пользователя для получения и отображения данных."
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример fetch с событием\nconst button = document.querySelector('#myButton');\nbutton.addEventListener('click', () => {\n  fetch('https://jsonplaceholder.typicode.com/posts/1')\n    .then(response => {\n      if (!response.ok) throw new Error('Ошибка: ' + response.status);\n      return response.json();\n    })\n    .then(data => {\n      const container = document.querySelector('#myContainer');\n      container.innerText = data.title;\n      console.log('Данные загружены:', data);\n    })\n    .catch(error => console.log('Ошибка:', error));\n});"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Нажатие на кнопку запускает запрос `fetch`.\n- Полученные данные отображаются на странице.\n- Вы можете протестировать этот код в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Преимущества API"
+      },
+      {
+        "type": "paragraph",
+        "text": "Работа с API имеет следующие преимущества:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nДинамичность: Обновляет данные без перезагрузки страницы."
+          },
+          {
+            "description": "\nПользовательский опыт: Создает интерактивные и быстрые веб-страницы."
+          },
+          {
+            "description": "\nГибкость: Позволяет получать данные из различных сервисов."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Сложности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Работа с API может представлять сложности:"
+      },
+      {
+        "type": "list",
+        "items": [
+          {
+            "description": "\nОбработка ошибок: Необходимо учитывать ошибки сервера или сети."
+          },
+          {
+            "description": "\nБезопасность: Работа с пользовательскими данными требует мер безопасности."
+          },
+          {
+            "description": "\nОграничения API: Некоторые API имеют лимиты запросов или требуют аутентификации."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Обработка ответов сервера без проверки может привести к ошибкам. Работа с пользовательскими данными может вызвать XSS или другие риски безопасности.\n- **Рекомендации**: Проверяйте статус ответа сервера. Очищайте пользовательские данные. Читайте документацию API и соблюдайте лимиты запросов. Обратитесь к документации Mozilla Developer Network (https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API). Вы можете протестировать код ниже в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Пример с ошибкой\nfetch('https://nonexistent.api/data')\n  .then(response => response.json())\n  .then(data => console.log(data)) // Ошибка: Сетевая ошибка или неверный URL\n\n// Правильный подход\nfetch('https://jsonplaceholder.typicode.com/posts/1')\n  .then(response => {\n    if (!response.ok) throw new Error('Ошибка: ' + response.status);\n    return response.json();\n  })\n  .then(data => console.log('Данные:', data))\n  .catch(error => console.log('Ошибка:', error));"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Отправка запроса на несуществующий URL вызывает ошибку.\n- Правильный подход проверяет ответ и обрабатывает ошибки.\n- Вы можете протестировать этот код в простом HTML-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Тестирование API с HTML"
+      },
+      {
+        "type": "code",
+        "language": "html",
+        "code": "<!DOCTYPE html>\n<html>\n<head>\n  <title>Тест API</title>\n</head>\n<body>\n  <div id='myContainer'>Данные будут загружены сюда</div>\n  <button id='myButton'>Загрузить данные</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      fetch('https://jsonplaceholder.typicode.com/posts/1')\n        .then(response => {\n          if (!response.ok) throw new Error('Ошибка: ' + response.status);\n          return response.json();\n        })\n        .then(data => {\n          container.innerText = data.title;\n          console.log('Данные:', data);\n        })\n        .catch(error => {\n          container.innerText = 'Произошла ошибка';\n          console.log('Ошибка:', error);\n        });\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Вы можете скопировать этот HTML и JavaScript код в файл `.html` и протестировать его в браузере."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<!DOCTYPE html>\n<html>\n<head>\n  <title>Тест API</title>\n</head>\n<body>\n  <div id='myContainer'>Данные будут загружены сюда</div>\n  <button id='myButton'>Загрузить данные</button>\n  <script>\n    const button = document.querySelector('#myButton');\n    const container = document.querySelector('#myContainer');\n\n    button.addEventListener('click', () => {\n      if (container) {\n        fetch('https://jsonplaceholder.typicode.com/posts/1')\n          .then(response => {\n            if (!response.ok) throw new Error('Ошибка: ' + response.status);\n            return response.json();\n          })\n          .then(data => {\n            container.innerText = data.title;\n            console.log('Данные:', data);\n          })\n          .catch(error => {\n            container.innerText = 'Произошла ошибка';\n            console.log('Ошибка:', error);\n          });\n      } else {\n        console.log('Элемент не найден');\n      }\n    });\n  </script>\n</body>\n</html>"
+      }
+    ]
+  }
+}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "../../auth/authOptions";
 import { prisma } from "@/lib/prisma";
 
+// OPTIMIZED: Add caching to reduce repeated API calls
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Get solved exercises data separately
+    // Get solved exercises data
     let solvedExercises = 0;
     let solvedExercisesData: any[] = [];
     try {
@@ -73,100 +74,41 @@ export async function GET(request: NextRequest) {
       solvedExercisesData = [];
     }
 
-    // Get total lessons count - use fixed values to prevent fluctuations
+    // Get total lessons count
     let totalLessons = 0;
     try {
       totalLessons = await prisma.tutorial.count({
         where: { published: true }
       });
       
-      // If no tutorials in database, use fixed estimates
       if (totalLessons === 0) {
-        // Fixed total lessons count based on available content
-        const fixedLanguageTotals: any = {
-          'c': 25,
-          'java': 30,
-          'c++': 25,
-          'c%2B%2B': 25,
-          'algorithms': 20,
-          'javascript': 35,
-          'python': 30,
-          'csharp': 30,
-          'data-structures': 25,
-          'typescript': 25,
-          'php': 20,
-          'go': 20,
-          'rust': 20,
-          'swift': 20,
-          'kotlin': 20,
-          'ruby': 20,
-          'r': 15,
-          'sql': 15,
-          'dart': 15,
-          'haskell': 15,
-          'scala': 15,
-          'bash': 15,
-          'matlab': 15
-        };
-        
-        // Calculate total based on all available languages (not just visited ones)
-        totalLessons = Object.values(fixedLanguageTotals).reduce((sum: number, count: any) => sum + count, 0);
-        
-        // If still 0, use a reasonable default
-        if (totalLessons === 0) {
-          totalLessons = 400; // reasonable default for all available content
-        }
+        totalLessons = 400; // reasonable default
       }
     } catch (error: any) {
       console.log("Tutorial table not available, using fixed estimate:", error.message);
-      totalLessons = 400; // fixed fallback value
+      totalLessons = 400;
     }
 
     // Get completed lessons count
     let completedLessons = 0;
     try {
-      console.log('Raw visitedLessons data:', {
-        type: typeof user.visitedLessons,
-        value: user.visitedLessons,
-        isArray: Array.isArray(user.visitedLessons),
-        isObject: typeof user.visitedLessons === 'object' && user.visitedLessons !== null
-      });
-      
       if (user.visitedLessons) {
         if (Array.isArray(user.visitedLessons)) {
-          // If it's an array, count directly
           completedLessons = user.visitedLessons.length;
-          console.log('VisitedLessons is array, count:', completedLessons);
         } else if (typeof user.visitedLessons === 'object') {
-          // If it's an object, count lessons in each language
           const visitedData = user.visitedLessons as any;
-          console.log('VisitedLessons is object:', visitedData);
-          
-          // Count all lessons across all languages
           Object.keys(visitedData).forEach(language => {
             const lessons = visitedData[language];
             if (Array.isArray(lessons)) {
               completedLessons += lessons.length;
-              console.log(`Language ${language}: ${lessons.length} lessons`);
             }
           });
-          
-          console.log('Total completed lessons:', completedLessons);
         }
-      } else {
-        console.log('No visitedLessons data found');
       }
     } catch (error: any) {
       console.log("Error parsing visitedLessons:", error.message);
       completedLessons = 0;
     }
-
-    console.log('Lessons data:', {
-      totalLessons,
-      completedLessons,
-      completionRate: totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0,
-      visitedLessons: user.visitedLessons
-    });
 
     // Get total exercises count
     let totalExercises = 0;
@@ -176,98 +118,268 @@ export async function GET(request: NextRequest) {
       });
     } catch (error: any) {
       console.log("Exercise table not available, using fallback:", error.message);
-      totalExercises = 300; // Fallback value
+      totalExercises = 300;
     }
 
     // Calculate completion percentage
     const completionRate = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
-    // Calculate completed languages (100% completed)
+    // Get activity tracking data
+    let recentActivities: any[] = [];
+    let sessionStats = { _sum: { duration: 0 } };
+    let todayActivity = null;
+    let loginStreak = 0;
+    let longestStreak = 0;
+    let weeklyStats = { 
+      _sum: { 
+        lessonsViewed: 0, 
+        exercisesSolved: 0, 
+        studyTime: 0, 
+        pointsEarned: 0 
+      } 
+    };
+
+    try {
+      // Get recent activities
+      recentActivities = await prisma.userActivity.findMany({
+        where: { userId: user.id },
+        orderBy: { timestamp: 'desc' },
+        take: 100,
+        select: {
+          id: true,
+          type: true,
+          description: true,
+          timestamp: true,
+          metadata: true
+        }
+      });
+
+      // Get session statistics
+      const sessionResult = await prisma.userSession.aggregate({
+        where: { 
+          userId: user.id,
+          duration: { not: null }
+        },
+        _sum: {
+          duration: true
+        }
+      });
+      
+      sessionStats = { _sum: { duration: sessionResult._sum.duration || 0 } };
+
+      // Get today's activity
+      const now = new Date();
+      const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+      const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
+      const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
+
+      todayActivity = await prisma.dailyActivity.findUnique({
+        where: {
+          userId_date: {
+            userId: user.id,
+            date: today
+          }
+        }
+      });
+
+      // OPTIMIZED: Calculate login streak with batch query instead of loop
+      const last30Days = new Date(today);
+      last30Days.setDate(today.getDate() - 30);
+      
+      const recentDailyActivities = await prisma.dailyActivity.findMany({
+        where: {
+          userId: user.id,
+          date: { gte: last30Days, lte: today }
+        },
+        orderBy: { date: 'desc' }
+      });
+      
+      // Calculate streak from most recent days
+      for (const dayActivity of recentDailyActivities) {
+        const dayDate = new Date(dayActivity.date);
+        const expectedDate = new Date(today);
+        expectedDate.setDate(today.getDate() - loginStreak);
+        expectedDate.setHours(0, 0, 0, 0);
+        
+        const dayDateStr = dayDate.toISOString().split('T')[0];
+        const expectedDateStr = expectedDate.toISOString().split('T')[0];
+        
+        if (dayDateStr === expectedDateStr && 
+            (dayActivity.studyTime > 0 || dayActivity.exercisesSolved > 0 || dayActivity.lessonsViewed > 0)) {
+          loginStreak++;
+        } else if (loginStreak > 0) {
+          break;
+        }
+      }
+
+      // Get weekly stats
+      const weekNow = new Date();
+      const weekAzerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+      const weekAzerbaijanTime = new Date(weekNow.getTime() + weekAzerbaijanOffset);
+      const weekToday = new Date(weekAzerbaijanTime.getFullYear(), weekAzerbaijanTime.getMonth(), weekAzerbaijanTime.getDate());
+      
+      const weekAgo = new Date(weekToday);
+      weekAgo.setDate(weekToday.getDate() - 7);
+
+      const weeklyLessonViews = await prisma.userActivity.count({
+        where: {
+          userId: user.id,
+          type: 'LESSON_VIEW',
+          timestamp: { gte: weekAgo }
+        }
+      });
+
+      const weeklyResult = await prisma.dailyActivity.aggregate({
+        where: {
+          userId: user.id,
+          date: { gte: weekAgo }
+        },
+        _sum: {
+          exercisesSolved: true,
+          studyTime: true,
+          pointsEarned: true
+        }
+      });
+
+      weeklyStats = { 
+        _sum: { 
+          lessonsViewed: weeklyLessonViews,
+          exercisesSolved: weeklyResult._sum.exercisesSolved || 0, 
+          studyTime: weeklyResult._sum.studyTime || 0, 
+          pointsEarned: weeklyResult._sum.pointsEarned || 0 
+        } 
+      };
+
+      // OPTIMIZED: Use existing data for longest streak
+      longestStreak = Math.max(loginStreak, recentDailyActivities.filter(d => 
+        d.lessonsViewed > 0 || d.exercisesSolved > 0 || d.quizzesTaken > 0
+      ).length);
+
+    } catch (error: any) {
+      console.log("Activity tracking tables not available:", error.message);
+      recentActivities = [];
+      sessionStats = { _sum: { duration: 0 } };
+      weeklyStats = { _sum: { lessonsViewed: 0, exercisesSolved: 0, studyTime: 0, pointsEarned: 0 } };
+      loginStreak = 0;
+      longestStreak = 0;
+    }
+
+    // Calculate completed languages and language progress
     let completedLanguages = 0;
     let completedLanguagesList: string[] = [];
+    let languageProgress: any = {};
     
     try {
       if (user.visitedLessons && typeof user.visitedLessons === 'object') {
         const visitedData = user.visitedLessons as any;
         
-        // Fixed lesson counts for each language
-        const languageLessonCounts: any = {
-          'c': 25,
-          'java': 30,
-          'c++': 25,
-          'c%2B%2B': 25,
-          'cpp': 25,
-          'algorithms': 20,
-          'javascript': 35,
-          'python': 30,
-          'csharp': 30,
-          'data-structures': 25,
-          'typescript': 25,
-          'php': 20,
-          'go': 20,
-          'rust': 20,
-          'swift': 20,
-          'kotlin': 20,
-          'ruby': 20,
-          'r': 15,
-          'sql': 15,
-          'dart': 15,
-          'haskell': 15,
-          'scala': 15,
-          'bash': 15,
-          'matlab': 15
-        };
-
-        // Helper function to format language names
         const formatLanguageName = (language: string): string => {
           const languageMap: any = {
-            'c': 'C',
-            'java': 'Java',
-            'c++': 'C++',
-            'c%2B%2B': 'C++',
-            'cpp': 'C++',
-            'algorithms': 'Algorithms',
-            'javascript': 'JavaScript',
-            'python': 'Python',
-            'csharp': 'C#',
-            'data-structures': 'Data Structures',
-            'typescript': 'TypeScript',
-            'php': 'PHP',
-            'go': 'Go',
-            'rust': 'Rust',
-            'swift': 'Swift',
-            'kotlin': 'Kotlin',
-            'ruby': 'Ruby',
-            'r': 'R',
-            'sql': 'SQL',
-            'dart': 'Dart',
-            'haskell': 'Haskell',
-            'scala': 'Scala',
-            'bash': 'Bash',
-            'matlab': 'MATLAB'
+            'c': 'C', 'java': 'Java', 'c++': 'C++', 'c%2B%2B': 'C++', 'cpp': 'C++',
+            'algorithms': 'Algorithms', 'javascript': 'JavaScript', 'python': 'Python',
+            'csharp': 'C#', 'data-structures': 'Data Structures', 'typescript': 'TypeScript',
+            'php': 'PHP', 'go': 'Go', 'rust': 'Rust', 'swift': 'Swift', 'kotlin': 'Kotlin',
+            'ruby': 'Ruby', 'r': 'R', 'sql': 'SQL', 'dart': 'Dart', 'haskell': 'Haskell',
+            'scala': 'Scala', 'bash': 'Bash', 'matlab': 'MATLAB'
           };
-          
           return languageMap[language] || language;
         };
 
-        // Check each language for 100% completion
-        Object.keys(visitedData).forEach(language => {
-          const lessons = visitedData[language];
-          const totalForLanguage = languageLessonCounts[language] || 0;
-          
-          if (Array.isArray(lessons) && lessons.length >= totalForLanguage && totalForLanguage > 0) {
-            completedLanguages++;
-            completedLanguagesList.push(formatLanguageName(language));
+        const formatDateAsText = (dateString: string): string => {
+          try {
+            const date = new Date(dateString);
+            // Don't add timezone offset since we want to use the actual date
+            const day = date.getDate();
+            const month = date.getMonth();
+            
+            const monthNames = [
+              'yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun',
+              'iyul', 'avqust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'
+            ];
+            
+            return `${day} ${monthNames[month]}`;
+          } catch (error) {
+            return 'Never';
           }
-        });
+        };
+
+        // OPTIMIZED: Use static counts instead of making internal API calls
+        const getTopicCount = (language: string): number => {
+          const topicCounts: any = {
+            'c': 38, 'java': 35, 'c++': 34, 'c%2B%2B': 34, 'cpp': 34,
+            'algorithms': 25, 'javascript': 43, 'python': 32, 'csharp': 42,
+            'data-structures': 27, 'typescript': 40, 'php': 33, 'go': 20,
+            'rust': 20, 'swift': 20, 'kotlin': 20, 'ruby': 20, 'r': 15,
+            'sql': 15, 'dart': 15, 'haskell': 15, 'scala': 15, 'bash': 15, 
+            'matlab': 15, 'react': 8, 'angular': 1, 'vue': 1, 'svelte': 1, 'nextjs': 1
+          };
+          
+          return topicCounts[language] || 20; // Default to 20 if not found
+        };
+
+        for (const language of Object.keys(visitedData)) {
+          const lessons = visitedData[language];
+          
+          if (Array.isArray(lessons)) {
+            const completedLessons = lessons.length;
+            const totalForLanguage = getTopicCount(language);
+            const progress = totalForLanguage > 0 ? Math.round((completedLessons / totalForLanguage) * 100) : 0;
+            
+            let lastStudied = null;
+            let lastStudiedFormatted = 'Never';
+            let lastViewedTopic = null;
+            let lastViewedTopicId = null;
+            
+            if (lessons.length > 0) {
+              // Use current date without timezone offset
+              const now = new Date();
+              lastStudied = now.toISOString();
+              lastStudiedFormatted = formatDateAsText(lastStudied);
+              
+              // Get the last viewed topic
+              const lastLesson = lessons[lessons.length - 1];
+              if (lastLesson) {
+                lastViewedTopic = lastLesson;
+                lastViewedTopicId = lastLesson;
+              }
+            }
+            
+            languageProgress[language] = {
+              displayName: formatLanguageName(language),
+              lessons: completedLessons,
+              totalLessons: totalForLanguage,
+              progress: progress,
+              lastStudied: lastStudied,
+              lastStudiedFormatted: lastStudiedFormatted,
+              lastViewedTopic: lastViewedTopic,
+              lastViewedTopicId: lastViewedTopicId,
+              // Add lesson details for the lessons tab
+              lessonDetails: {
+                completed: completedLessons,
+                total: totalForLanguage,
+                progress: progress,
+                lastTopic: lastViewedTopic,
+                lastTopicId: lastViewedTopicId,
+                language: language,
+                displayName: formatLanguageName(language)
+              }
+            };
+            
+            if (completedLessons >= totalForLanguage && totalForLanguage > 0) {
+              completedLanguages++;
+              completedLanguagesList.push(formatLanguageName(language));
+            }
+          }
+        }
       }
     } catch (error: any) {
       console.log("Error calculating completed languages:", error.message);
       completedLanguages = 0;
       completedLanguagesList = [];
+      languageProgress = {};
     }
 
-    // Get achievements from database
+    // Get achievements
     let achievements: any[] = [];
     try {
       achievements = await prisma.achievement.findMany({
@@ -287,150 +399,12 @@ export async function GET(request: NextRequest) {
       achievements = [];
     }
 
-    // Get activity tracking data
-    let recentActivities: any[] = [];
-    let sessionStats = { _sum: { duration: 0 } };
-    let todayActivity = null;
-    let loginStreak = 0;
-    let weeklyStats = { 
-      _sum: { 
-        lessonsViewed: 0, 
-        exercisesSolved: 0, 
-        studyTime: 0, 
-        pointsEarned: 0 
-      } 
-    };
-
-    try {
-      // Get recent activities
-      recentActivities = await prisma.userActivity.findMany({
-        where: { userId: user.id },
-        orderBy: { timestamp: 'desc' },
-        take: 10,
-        select: {
-          id: true,
-          type: true,
-          description: true,
-          timestamp: true,
-          metadata: true
-        }
-      });
-
-      console.log('Raw recent activities:', recentActivities.map(a => ({
-        id: a.id,
-        type: a.type,
-        description: a.description,
-        metadata: a.metadata
-      })));
-
-      console.log('Recent activities data:', {
-        count: recentActivities.length,
-        activities: recentActivities.map(a => ({ 
-          id: a.id, 
-          type: a.type, 
-          description: a.description, 
-          timestamp: a.timestamp 
-        }))
-      });
-
-      // Get session statistics
-      const sessionResult = await prisma.userSession.aggregate({
-        where: { 
-          userId: user.id,
-          duration: { not: null }
-        },
-        _sum: {
-          duration: true
-        }
-      });
-      
-      sessionStats = { _sum: { duration: sessionResult._sum.duration || 0 } };
-      
-      console.log('Study time data:', {
-        totalDuration: sessionResult._sum.duration,
-        studyTimeHours: Math.floor((sessionResult._sum.duration || 0) / 3600),
-        sessions: await prisma.userSession.count({ where: { userId: user.id } })
-      });
-
-      // Get today's activity
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      todayActivity = await prisma.dailyActivity.findUnique({
-        where: {
-          userId_date: {
-            userId: user.id,
-            date: today
-          }
-        }
-      });
-
-      // Calculate login streak using study time instead of login count
-      let checkDate = new Date(today);
-      while (true) {
-        const dayActivity = await prisma.dailyActivity.findUnique({
-          where: {
-            userId_date: {
-              userId: user.id,
-              date: checkDate
-            }
-          }
-        });
-        
-        if (dayActivity && (dayActivity.studyTime > 0 || dayActivity.exercisesSolved > 0 || dayActivity.lessonsViewed > 0)) {
-          loginStreak++;
-          checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-          break;
-        }
-      }
-
-      // Get weekly stats - use UserActivity for accurate lesson counting
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-
-      // Count actual lesson views from UserActivity table
-      const weeklyLessonViews = await prisma.userActivity.count({
-        where: {
-          userId: user.id,
-          type: 'LESSON_VIEW',
-          timestamp: { gte: weekAgo }
-        }
-      });
-
-      // Get other stats from dailyActivity
-      const weeklyResult = await prisma.dailyActivity.aggregate({
-        where: {
-          userId: user.id,
-          date: { gte: weekAgo }
-        },
-        _sum: {
-          exercisesSolved: true,
-          studyTime: true,
-          pointsEarned: true
-        }
-      });
-
-      weeklyStats = { 
-        _sum: { 
-          lessonsViewed: weeklyLessonViews, // Use accurate count from UserActivity
-          exercisesSolved: weeklyResult._sum.exercisesSolved || 0, 
-          studyTime: weeklyResult._sum.studyTime || 0, 
-          pointsEarned: weeklyResult._sum.pointsEarned || 0 
-        } 
-      };
-
-    } catch (error: any) {
-      console.log("Activity tracking tables not available:", error.message);
-    }
-    
-    // Calculate study time from session data with better formatting
+    // Calculate study time formatting
     const totalSeconds = sessionStats._sum.duration || 0;
     const studyTimeHours = Math.floor(totalSeconds / 3600);
     const studyTimeMinutes = Math.floor((totalSeconds % 3600) / 60);
     const studyTimeSeconds = totalSeconds % 60;
     
-    // Format study time as "1s 15dəq" or "2s 30dəq 45san" etc.
     let formattedStudyTime = '';
     if (studyTimeHours > 0) {
       formattedStudyTime += `${studyTimeHours}s `;
@@ -442,33 +416,27 @@ export async function GET(request: NextRequest) {
       formattedStudyTime += `${studyTimeSeconds}san`;
     }
     
-    // If no time, show "0dəq"
     if (!formattedStudyTime.trim()) {
       formattedStudyTime = '0dəq';
     }
     
-    // Also keep the old format for backward compatibility
     const studyTimeHoursSimple = Math.floor(totalSeconds / 3600);
     
-    // Get user rank based on points and activity
+    // Calculate user rank
     let rank = "Beginner";
     const totalPoints = user.dailyLoginPoints || 0;
     if (totalPoints >= 5000) rank = "Expert";
     else if (totalPoints >= 2000) rank = "Advanced";
     else if (totalPoints >= 500) rank = "Intermediate";
     
-    // Calculate today's coins based on today's activity
     const todayCoins = todayActivity?.pointsEarned || 0;
-    
-    // Calculate learning streak (consecutive days with activity)
     const learningStreak = loginStreak;
 
-    // Calculate achievements data - use same logic as frontend
+    // Calculate achievements data
     let totalAchievements = 0;
     let unlockedAchievements = 0;
     
     try {
-      // Calculate user stats for achievement conditions
       let completedLessons = 0;
       let completedLanguages = 0;
       
@@ -490,68 +458,42 @@ export async function GET(request: NextRequest) {
       const solvedExercises = (user.solvedExercises || []).length;
       const savedLessonsCount = (user.savedLessons || []).length;
       
-      // Define achievement definitions (same as frontend)
       const achievementDefinitions = [
-        // Learning achievements
         { id: "first_lesson", name: "First Steps", unlocked: completedLessons > 0 },
         { id: "lesson_explorer", name: "Knowledge Seeker", unlocked: completedLessons >= 10 },
         { id: "lesson_master", name: "Learning Legend", unlocked: completedLessons >= 50 },
         { id: "language_master", name: "Polyglot", unlocked: completedLanguages >= 5 },
         { id: "completionist", name: "Completionist", unlocked: completedLessons >= 100 },
-        
-        // Coding achievements
         { id: "first_solve", name: "Problem Solver", unlocked: solvedExercises > 0 },
         { id: "coding_ninja", name: "Code Ninja", unlocked: solvedExercises >= 25 },
         { id: "algorithm_master", name: "Algorithm Master", unlocked: solvedExercises >= 100 },
-        { id: "speed_demon", name: "Speed Demon", unlocked: false }, // Would need weekly tracking
-        { id: "perfect_score", name: "Perfect Score", unlocked: false }, // Would need separate tracking
-        
-        // Consistency achievements - now using calculated values
+        { id: "speed_demon", name: "Speed Demon", unlocked: false },
+        { id: "perfect_score", name: "Perfect Score", unlocked: false },
         { id: "daily_learner", name: "Daily Learner", unlocked: loginStreak >= 3 },
         { id: "week_warrior", name: "Week Warrior", unlocked: loginStreak >= 7 },
         { id: "month_master", name: "Month Master", unlocked: loginStreak >= 30 },
         { id: "study_hours", name: "Study Enthusiast", unlocked: studyTimeHours >= 10 },
         { id: "dedicated_learner", name: "Dedicated Learner", unlocked: studyTimeHours >= 50 },
-        
-        // Social achievements
-        { id: "early_bird", name: "Early Bird", unlocked: true }, // Always true for existing users
+        { id: "early_bird", name: "Early Bird", unlocked: true },
         { id: "bookmark_collector", name: "Bookmark Collector", unlocked: savedLessonsCount >= 20 },
-        { id: "helpful_member", name: "Helpful Member", unlocked: false }, // Future feature
-        { id: "feedback_provider", name: "Feedback Provider", unlocked: false }, // Future feature
-        { id: "community_ambassador", name: "Community Ambassador", unlocked: false }, // Future feature
-        
-        // Special achievements
-        { id: "night_owl", name: "Night Owl", unlocked: false }, // Would need time tracking
-        { id: "weekend_warrior", name: "Weekend Warrior", unlocked: false }, // Would need date tracking
-        { id: "multitasker", name: "Multitasker", unlocked: false }, // Would need daily tracking
-        { id: "persistent", name: "Persistent", unlocked: false }, // Would need attempt tracking
+        { id: "helpful_member", name: "Helpful Member", unlocked: false },
+        { id: "feedback_provider", name: "Feedback Provider", unlocked: false },
+        { id: "community_ambassador", name: "Community Ambassador", unlocked: false },
+        { id: "night_owl", name: "Night Owl", unlocked: false },
+        { id: "weekend_warrior", name: "Weekend Warrior", unlocked: false },
+        { id: "multitasker", name: "Multitasker", unlocked: false },
+        { id: "persistent", name: "Persistent", unlocked: false },
       ];
       
       totalAchievements = achievementDefinitions.length;
       unlockedAchievements = achievementDefinitions.filter(ach => ach.unlocked).length;
-      
-      console.log('Achievements data:', {
-        totalAchievements,
-        unlockedAchievements,
-        completedLessons,
-        completedLanguages,
-        solvedExercises,
-        savedLessonsCount,
-        loginStreak,
-        studyTimeHours,
-        totalSeconds: sessionStats._sum.duration || 0
-      });
-      
-      // Log which achievements are unlocked
-      const unlockedAchievementList = achievementDefinitions.filter(ach => ach.unlocked);
-      console.log('Unlocked achievements:', unlockedAchievementList.map(ach => `${ach.name} (${ach.id})`));
     } catch (error: any) {
       console.log("Achievements calculation error:", error.message);
-      totalAchievements = 24; // Fallback to total number of achievements
+      totalAchievements = 24;
       unlockedAchievements = 0;
     }
 
-    // Format recent activities for frontend
+    // Format recent activities
     let formattedActivities = [];
     
     if (recentActivities.length > 0) {
@@ -561,7 +503,7 @@ export async function GET(request: NextRequest) {
           text: activity.description,
           time: formatTimeAgo(activity.timestamp),
           metadata: activity.metadata,
-          language: activity.metadata?.language || null, // Add language info for icons
+          language: activity.metadata?.language || null,
           id: activity.id
         }))
         .filter((activity, index, array) => {
@@ -570,14 +512,13 @@ export async function GET(request: NextRequest) {
         })
         .slice(0, 10);
     } else {
-      // Show default activities if no real activities exist
       formattedActivities = [
-          {
-            type: "login",
-            text: "Welcome to the platform!",
-            time: "Just now",
-            metadata: {},
-            language: null
+        {
+          type: "login",
+          text: "Welcome to the platform!",
+          time: "Just now",
+          metadata: {},
+          language: null
         },
         {
           type: "lesson_view",
@@ -585,9 +526,12 @@ export async function GET(request: NextRequest) {
           time: "Just now",
           metadata: {},
           language: null
-          }
-        ];
+        }
+      ];
     }
+
+    // Get streak data
+    const streakData = await getStreakData(user.id);
 
     const userStats = {
       // User info
@@ -606,7 +550,8 @@ export async function GET(request: NextRequest) {
       // Coin system
       dailyLoginPoints: user.dailyLoginPoints || 0,
       todayCoins,
-      loginStreak, // This is the calculated streak from daily activity
+      loginStreak,
+      longestStreak,
       
       // Learning stats
       totalLessons,
@@ -617,20 +562,21 @@ export async function GET(request: NextRequest) {
       completionRate,
       completedLanguages,
       completedLanguagesList,
-      studyTimeHours: studyTimeHoursSimple, // Keep old format for compatibility
-      formattedStudyTime, // New formatted time
+      languageProgress,
+      studyTimeHours: studyTimeHoursSimple,
+      formattedStudyTime,
       rank,
       
       // Achievements
       totalAchievements,
       unlockedAchievements,
       learningStreak,
-      achievements, // Include the full achievements data
+      achievements,
       
-      // Real activities from tracking system
+      // Activities
       recentActivities: formattedActivities,
       
-      // Progress trends from real data
+      // Progress trends
       weeklyProgress: {
         lessonsThisWeek: weeklyStats._sum.lessonsViewed || 0,
         exercisesThisWeek: weeklyStats._sum.exercisesSolved || 0,
@@ -642,30 +588,19 @@ export async function GET(request: NextRequest) {
       // Calendar data
       calendarData: {
         activeDays: learningStreak,
-        thisWeekStudyTime: weeklyStats._sum.studyTime || 0, // Keep in seconds for proper formatting
-        thisWeekStudyTimeFormatted: formatStudyTime(weeklyStats._sum.studyTime || 0), // Pre-formatted
-        dailyActivities: await getDailyActivities(user.id, 7) // Last 7 days
-      }
+        thisWeekStudyTime: weeklyStats._sum.studyTime || 0,
+        thisWeekStudyTimeFormatted: formatStudyTime(weeklyStats._sum.studyTime || 0),
+        dailyActivities: await getDailyActivities(user.id, 7)
+      },
+
+      // Streak data
+      streakData
     };
 
-    console.log('Profile API response:', {
-      totalLessons,
-      completedLessons,
-      completionRate,
-      solvedExercises,
-      totalExercises,
-      totalAchievements,
-      unlockedAchievements,
-      studyTimeHours,
-      weeklyProgress: {
-        lessonsThisWeek: weeklyStats._sum.lessonsViewed || 0,
-        exercisesThisWeek: weeklyStats._sum.exercisesSolved || 0,
-        studyTimeThisWeek: Math.floor((weeklyStats._sum.studyTime || 0) / 3600),
-        pointsThisWeek: weeklyStats._sum.pointsEarned || 0,
-      }
-    });
-
-    return NextResponse.json(userStats);
+    // Add caching headers for better performance (5 seconds cache)
+    const response = NextResponse.json(userStats);
+    response.headers.set('Cache-Control', 'private, max-age=5, stale-while-revalidate=10');
+    return response;
     
   } catch (error: any) {
     console.error("Error fetching user profile:", error);
@@ -716,53 +651,55 @@ function formatStudyTime(totalSeconds: number): string {
   return parts.join(' ');
 }
 
-// Helper function to get daily activities for calendar
+// OPTIMIZED: Get daily activities with batch query instead of loop
 async function getDailyActivities(userId: number, days: number) {
   try {
-    const activities = [];
-    
-    // Azərbaycan vaxtı ilə bugünkü gün
     const now = new Date();
-    const azerbaijanTime = new Date(now.getTime() + (4 * 60 * 60 * 1000)); // UTC+4
+    const azerbaijanOffset = 4 * 60 * 60 * 1000;
+    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
     const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
+    
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - (days - 1));
+    startDate.setHours(0, 0, 0, 0);
+    
+    // Batch fetch all daily activities
+    const dailyActivities = await prisma.dailyActivity.findMany({
+      where: {
+        userId,
+        date: { gte: startDate, lte: today }
+      }
+    });
+    
+    // Batch count lesson views for the period
+    const lessonViews = await prisma.userActivity.groupBy({
+      by: ['timestamp'],
+      where: {
+        userId,
+        type: 'LESSON_VIEW',
+        timestamp: { gte: startDate }
+      },
+      _count: true
+    });
+    
+    const activities = [];
     
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date(today);
-      date.setDate(date.getDate() - i);
+      date.setDate(today.getDate() - i);
       date.setHours(0, 0, 0, 0);
       
-      const dayActivity = await prisma.dailyActivity.findUnique({
-        where: {
-          userId_date: {
-            userId,
-            date
-          }
-        }
-      });
+      const dayActivity = dailyActivities.find(da => 
+        new Date(da.date).getTime() === date.getTime()
+      );
       
-      // Count actual lesson views from UserActivity for this day
-      const nextDay = new Date(date);
-      nextDay.setDate(nextDay.getDate() + 1);
-      
-      const lessonViewsCount = await prisma.userActivity.count({
-        where: {
-          userId,
-          type: 'LESSON_VIEW',
-          timestamp: {
-            gte: date,
-            lt: nextDay
-          }
-        }
-      });
-      
-      // Azərbaycan vaxtı ilə tarix formatı
       const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
       
       activities.push({
         date: dateStr,
-        hasActivity: dayActivity ? (dayActivity.studyTime > 0 || lessonViewsCount > 0 || dayActivity.exercisesSolved > 0) : (lessonViewsCount > 0),
+        hasActivity: dayActivity ? (dayActivity.studyTime > 0 || dayActivity.lessonsViewed > 0 || dayActivity.exercisesSolved > 0) : false,
         studyTime: dayActivity?.studyTime || 0,
-        lessonsViewed: lessonViewsCount, // Use accurate count from UserActivity
+        lessonsViewed: dayActivity?.lessonsViewed || 0,
         exercisesSolved: dayActivity?.exercisesSolved || 0,
         pointsEarned: dayActivity?.pointsEarned || 0
       });
@@ -771,24 +708,79 @@ async function getDailyActivities(userId: number, days: number) {
     return activities;
   } catch (error: any) {
     console.log("Error getting daily activities:", error.message);
-    // Return mock data if table doesn't exist
+    return Array.from({ length: days }, (_, i) => ({
+      date: new Date().toISOString().split('T')[0],
+      hasActivity: false,
+      studyTime: 0,
+      lessonsViewed: 0,
+      exercisesSolved: 0,
+      pointsEarned: 0
+    }));
+  }
+}
+
+// OPTIMIZED: Get streak data with minimal logging
+async function getStreakData(userId: number) {
+  try {
     const now = new Date();
-    const azerbaijanTime = new Date(now.getTime() + (4 * 60 * 60 * 1000));
+    const azerbaijanOffset = 4 * 60 * 60 * 1000;
+    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
     const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
     
-    return Array.from({ length: days }, (_, i) => {
-      const date = new Date(today);
-      date.setDate(date.getDate() - (days - 1 - i));
-      const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-      
-      return {
-        date: dateStr,
-      hasActivity: Math.random() > 0.3,
-      studyTime: Math.floor(Math.random() * 3600),
-      lessonsViewed: Math.floor(Math.random() * 3),
-      exercisesSolved: Math.floor(Math.random() * 2),
-      pointsEarned: Math.floor(Math.random() * 50)
-      };
+    const oneYearAgo = new Date(today);
+    oneYearAgo.setDate(today.getDate() - 364);
+    oneYearAgo.setHours(0, 0, 0, 0);
+
+    const dailyActivities = await prisma.dailyActivity.findMany({
+      where: {
+        userId,
+        date: { gte: oneYearAgo }
+      },
+      orderBy: { date: 'asc' }
     });
+
+    const streakDays = [];
+    
+    for (let i = 0; i < 365; i++) {
+      const currentDate = new Date(oneYearAgo);
+      currentDate.setDate(oneYearAgo.getDate() + i);
+      currentDate.setHours(0, 0, 0, 0);
+      
+      const dayActivity = dailyActivities.find((activity: any) => {
+        const activityDate = new Date(activity.date);
+        activityDate.setHours(0, 0, 0, 0);
+        return activityDate.getTime() === currentDate.getTime();
+      });
+      
+      const isActive = dayActivity && (dayActivity.lessonsViewed > 0 || dayActivity.exercisesSolved > 0 || dayActivity.quizzesTaken > 0);
+      
+      let activityLevel = 0;
+      if (dayActivity) {
+        const totalActivity = (dayActivity.lessonsViewed || 0) + (dayActivity.exercisesSolved || 0) + (dayActivity.quizzesTaken || 0);
+        if (totalActivity >= 10) activityLevel = 4;
+        else if (totalActivity >= 7) activityLevel = 3;
+        else if (totalActivity >= 4) activityLevel = 2;
+        else if (totalActivity >= 1) activityLevel = 1;
+      }
+      
+      streakDays.push({ 
+        date: currentDate.toISOString(), 
+        day: currentDate.getDate(),
+        month: currentDate.getMonth() + 1,
+        year: currentDate.getFullYear(),
+        dayOfWeek: currentDate.getDay(),
+        isActive, 
+        isToday: i === 364,
+        activityLevel,
+        lessonsViewed: dayActivity?.lessonsViewed || 0,
+        exercisesSolved: dayActivity?.exercisesSolved || 0,
+        quizzesTaken: dayActivity?.quizzesTaken || 0
+      });
+    }
+
+    return streakDays;
+  } catch (error) {
+    console.error("Error getting streak data:", error);
+    return [];
   }
 } 

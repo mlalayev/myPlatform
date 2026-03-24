@@ -114,19 +114,12 @@ const authConfig: NextAuthConfig = {
             user.id = String(newUser.id);
           } else {
             // Update existing user's Google info
-            const today = new Date();
-            const lastLogin = existingUser.lastLoginDate ? new Date(existingUser.lastLoginDate) : null;
-            const isNewDay = !lastLogin ||
-              today.getFullYear() !== lastLogin.getFullYear() ||
-              today.getMonth() !== lastLogin.getMonth() ||
-              today.getDate() !== lastLogin.getDate();
-
             await prisma.user.update({
               where: { id: existingUser.id },
               data: {
                 avatarUrl: user.image || existingUser.avatarUrl,
                 lastLoginDate: new Date(),
-                dailyLoginPoints: isNewDay ? (existingUser.dailyLoginPoints || 0) + 1 : existingUser.dailyLoginPoints,
+                // Note: Daily login points are now handled by the popup system, not here
               },
             });
 

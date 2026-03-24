@@ -1,0 +1,546 @@
+{
+  "id": "asyncio",
+  "az": {
+    "title": "Asinxron Proqramlaşdırma (asyncio)",
+    "icon": "FiClock",
+    "language": "python",
+    "description": "Async/await, hadisə dövrləri və korutinlər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Asinxron Proqramlaşdırma Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asinxron proqramlaşdırma Python-da `asyncio` modulu ilə I/O əməliyyatlarını (məsələn, şəbəkə sorğuları, fayl oxunması) gözləmədən effektiv idarə etmək üçün istifadə olunur. Bu, proqramın bir əməliyyatın tamamlanmasını gözləmədən digər tapşırıqları yerinə yetirməsinə imkan verir. Bu JSON faylda `async/await` sintaksisi, hadisə dövrləri (event loops), korutinlər, tapşırıqlar, `asyncio` ilə sinxron proqramlaşdırma arasındakı fərqlər, TypeScript/JavaScript-dəki asinxron mexanizmlərlə müqayisə, səhvlərdən qaçınma yolları, yaddaş istifadəsi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Kod nümunələri istifadəçi girişi tələb etmir, UTF-8 uyğundur, Pyodide ilə uyğundur və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# async/await Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "`async` və `await` açar sözləri asinxron funksiyaları və onların icrasını idarə etmək üçün istifadə olunur:\n- `async def`: Funksiyanı korutin kimi təyin edir.\n- `await`: Korutinin tamamlanmasını gözləyir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def say_hello():\n    print('Salam')\n    await asyncio.sleep(1)\n    print('Dünya')\n\nasync def main():\n    await say_hello()\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `say_hello` korutindir, 1 saniyə gözləyir.\n- `await` ilə korutinin tamamlanması gözlənilir.\n- Pyodide uyğunluğu üçün `platform.system()` yoxlanılır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Hadisə Dövrü (Event Loop)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Hadisə dövrü `asyncio`-nun əsasını təşkil edir. O, asinxron tapşırıqları idarə edir və onların icrasını planlaşdırır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def task1():\n    print('Tapşırıq 1 başlayır')\n    await asyncio.sleep(1)\n    print('Tapşırıq 1 bitdi')\n\nasync def task2():\n    print('Tapşırıq 2 başlayır')\n    await asyncio.sleep(0.5)\n    print('Tapşırıq 2 bitdi')\n\nasync def main():\n    await asyncio.gather(task1(), task2())\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `asyncio.gather` iki korutini paralel icra edir.\n- Hadisə dövrü tapşırıqları planlaşdırır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Korutinlər və Tapşırıqlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Korutinlər `async def` ilə təyin edilir, tapşırıqlar isə `asyncio.create_task` ilə yaradılır:\n- **Korutin**: Asinxron funksiyadır.\n- **Tapşırıq**: Korutinin hadisə dövründə icrasını planlaşdırır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def my_coroutine():\n    print('Korutin işləyir')\n    await asyncio.sleep(1)\n    print('Korutin bitdi')\n\nasync def main():\n    task = asyncio.create_task(my_coroutine())\n    await task\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `my_coroutine` korutindir.\n- `asyncio.create_task` korutini tapşırıq kimi planlaşdırır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Asinxron və Sinxron Proqramlaşdırma Müqayisəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asinxron və sinxron proqramlaşdırma fərqlidir:\n- **Asinxron**: Tapşırıqlar gözləmədən paralel icra olunur.\n- **Sinxron**: Tapşırıqlar ardıcıl icra olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\n# Sinxron\n def sync_task():\n    print('Sinxron tapşırıq başlayır')\n    import time; time.sleep(1)\n    print('Sinxron tapşırıq bitdi')\n\n# Asinxron\nasync def async_task():\n    print('Asinxron tapşırıq başlayır')\n    await asyncio.sleep(1)\n    print('Asinxron tapşırıq bitdi')\n\nasync def main():\n    await async_task()\n    sync_task()\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Sinxron tapşırıq proqramı bloklayır.\n- Asinxron tapşırıq isə hadisə dövründə icra olunur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Python ilə TypeScript və JavaScript-in Müqayisəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da `asyncio` TypeScript/JavaScript-dəki `Promise` və `async/await` mexanizmlərinə oxşardır:\n- **Python**: `asyncio` hadisə dövrü ilə işləyir.\n- **JavaScript**: Tək saplı hadisə dövrü istifadə edir.\nNümunə (Python vs JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def fetch_data():\n    await asyncio.sleep(1)\n    return 'Məlumat alındı'\n\nasync def main():\n    result = await fetch_data()\n    print(result)\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "async function fetchData() {\n    await new Promise(resolve => setTimeout(resolve, 1000));\n    return 'Məlumat alındı';\n}\n\nasync function main() {\n    const result = await fetchData();\n    console.log(result);\n}\n\nmain();\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Python-da `asyncio.sleep` JavaScript-dəki `setTimeout`-a bənzəyir.\n- Hər iki dil `async/await` sintaksisindən istifadə edir.\nAşağıda bu kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Səhvlərdən Qaçınma Yolları"
+      },
+      {
+        "type": "paragraph",
+        "text": "`asyncio` ilə işləyərkən səhvlərdən qaçınmaq üçün:\n- **Düzgün hadisə dövrü**: `asyncio.run` və ya `ensure_future` istifadə edin.\n- **Await istifadəsi**: Korutinləri `await` ilə çağırın.\n- **Resurs idarəetməsi**: Tapşırıqları ləğv edin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def safe_task():\n    try:\n        print('Tapşırıq başlayır')\n        await asyncio.sleep(1)\n        print('Tapşırıq bitdi')\n    except asyncio.CancelledError:\n        print('Tapşırıq ləğv edildi')\n\nasync def main():\n    task = asyncio.create_task(safe_task())\n    await asyncio.sleep(0.5)\n    task.cancel()\n    try:\n        await task\n    except asyncio.CancelledError:\n        print('Tapşırıq ləğvi təsdiqləndi')\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `try-except` ilə ləğv xətaları tutulur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Yaddaş İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "`asyncio` yaddaş istifadəsini optimallaşdırır, çünki tapşırıqlar eyni sapda icra olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def memory_task():\n    print('Yaddaş tapşırığı')\n    await asyncio.sleep(1)\n\nasync def main():\n    tasks = [asyncio.create_task(memory_task()) for _ in range(3)]\n    await asyncio.wait(tasks)\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Çoxsaylı tapşırıqlar eyni hadisə dövründə icra olunur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "`asyncio` real layihələrdə aşağıdakı ssenarilərdə istifadə olunur:\n- **Veb sorğuları**: Çoxsaylı API sorğularını paralel idarə etmək.\n- **Verilənlər bazası əməliyyatları**: Asinxron sorğular.\n- **Real vaxt sistemləri**: Çoxsaylı tapşırıqları idarə etmək.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def process_data(data):\n    await asyncio.sleep(1)\n    return f'İşlənmiş: {data}'\n\nasync def main():\n    data_list = ['məlumat1', 'məlumat2', 'məlumat3']\n    results = await asyncio.gather(*(process_data(data) for data in data_list))\n    print(results)\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `asyncio.gather` çoxsaylı korutinləri paralel icra edir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "`asyncio` ilə bağlı qabaqcıl mövzular:\n- **Paralelizm**: `asyncio` ilə çoxsaplılıq əvəzinə hadisə dövrü istifadəsi.\n- **Kuyruklar**: `asyncio.Queue` ilə tapşırıqların idarəsi.\nBu mövzular haqqında ətraflı məlumat üçün Python sənədlərinə (https://docs.python.org) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "# Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: `await` düzgün istifadə edin, tapşırıqları ləğv etməyi unutmayın, rəsmi sənədlərdən (https://docs.python.org) faydalanın.\n- **Alternativlər**: Sadə problemlər üçün sinxron proqramlaşdırmadan istifadə edin.\nAşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import asyncio\n\nasync def example():\n    print('Asinxron nümunə')\n    await asyncio.sleep(1)\n    print('Nümunə bitdi')\n\nasync def main():\n    await example()\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Async Programming (asyncio)",
+    "icon": "FiClock",
+    "language": "python",
+    "description": "Async/await, event loops, and coroutines.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# What is Async Programming?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Async programming in Python, using the `asyncio` module, allows efficient handling of I/O-bound operations (e.g., network requests, file reading) without blocking the program. This JSON file explains `async/await` syntax, event loops, coroutines, tasks, differences between async and sync programming, comparison with TypeScript/JavaScript async mechanisms, error avoidance strategies, memory usage, and real-world usage scenarios in detail. Code examples do not require user input, are UTF-8 compatible, Pyodide-compliant, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# async/await Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `async` and `await` keywords are used to define and manage asynchronous functions:\n- `async def`: Defines a coroutine.\n- `await`: Waits for a coroutine to complete.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def say_hello():\n    print('Hello')\n    await asyncio.sleep(1)\n    print('World')\n\nasync def main():\n    await say_hello()\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `say_hello` is a coroutine that waits for 1 second.\n- `await` ensures the coroutine completes.\n- `platform.system()` checks for Pyodide compatibility.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Event Loop"
+      },
+      {
+        "type": "paragraph",
+        "text": "The event loop is the core of `asyncio`, managing and scheduling asynchronous tasks.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def task1():\n    print('Task 1 starts')\n    await asyncio.sleep(1)\n    print('Task 1 ends')\n\nasync def task2():\n    print('Task 2 starts')\n    await asyncio.sleep(0.5)\n    print('Task 2 ends')\n\nasync def main():\n    await asyncio.gather(task1(), task2())\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `asyncio.gather` runs two coroutines concurrently.\n- The event loop schedules the tasks.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Coroutines and Tasks"
+      },
+      {
+        "type": "paragraph",
+        "text": "Coroutines are defined with `async def`, and tasks are created with `asyncio.create_task`:\n- **Coroutine**: An asynchronous function.\n- **Task**: Schedules a coroutine for execution in the event loop.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def my_coroutine():\n    print('Coroutine running')\n    await asyncio.sleep(1)\n    print('Coroutine finished')\n\nasync def main():\n    task = asyncio.create_task(my_coroutine())\n    await task\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `my_coroutine` is a coroutine.\n- `asyncio.create_task` schedules it as a task.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Async vs. Sync Programming"
+      },
+      {
+        "type": "paragraph",
+        "text": "Async and sync programming differ:\n- **Async**: Tasks run concurrently without blocking.\n- **Sync**: Tasks run sequentially.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\n# Sync\ndef sync_task():\n    print('Sync task starts')\n    import time; time.sleep(1)\n    print('Sync task ends')\n\n# Async\nasync def async_task():\n    print('Async task starts')\n    await asyncio.sleep(1)\n    print('Async task ends')\n\nasync def main():\n    await async_task()\n    sync_task()\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The sync task blocks the program.\n- The async task runs in the event loop.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Python vs. TypeScript and JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python’s `asyncio` is similar to TypeScript/JavaScript’s `Promise` and `async/await`:\n- **Python**: Uses `asyncio` with an event loop.\n- **JavaScript**: Uses a single-threaded event loop.\nExample (Python vs. JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def fetch_data():\n    await asyncio.sleep(1)\n    return 'Data fetched'\n\nasync def main():\n    result = await fetch_data()\n    print(result)\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "async function fetchData() {\n    await new Promise(resolve => setTimeout(resolve, 1000));\n    return 'Data fetched';\n}\n\nasync function main() {\n    const result = await fetchData();\n    console.log(result);\n}\n\nmain();\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Python’s `asyncio.sleep` is similar to JavaScript’s `setTimeout`.\n- Both languages use `async/await` syntax.\nYou can test these codes in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Avoiding Errors"
+      },
+      {
+        "type": "paragraph",
+        "text": "To avoid errors with `asyncio`:\n- **Proper event loop**: Use `asyncio.run` or `ensure_future`.\n- **Await usage**: Always `await` coroutines.\n- **Resource management**: Cancel tasks when needed.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def safe_task():\n    try:\n        print('Task starts')\n        await asyncio.sleep(1)\n        print('Task ends')\n    except asyncio.CancelledError:\n        print('Task cancelled')\n\nasync def main():\n    task = asyncio.create_task(safe_task())\n    await asyncio.sleep(0.5)\n    task.cancel()\n    try:\n        await task\n    except asyncio.CancelledError:\n        print('Task cancellation confirmed')\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `try-except` handles cancellation errors.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Memory Usage"
+      },
+      {
+        "type": "paragraph",
+        "text": "`asyncio` optimizes memory usage by running tasks in a single thread.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def memory_task():\n    print('Memory task')\n    await asyncio.sleep(1)\n\nasync def main():\n    tasks = [asyncio.create_task(memory_task()) for _ in range(3)]\n    await asyncio.wait(tasks)\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Multiple tasks run in the same event loop.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "`asyncio` is used in real-world projects for:\n- **Web requests**: Handling multiple API calls concurrently.\n- **Database operations**: Asynchronous queries.\n- **Real-time systems**: Managing multiple tasks.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def process_data(data):\n    await asyncio.sleep(1)\n    return f'Processed: {data}'\n\nasync def main():\n    data_list = ['data1', 'data2', 'data3']\n    results = await asyncio.gather(*(process_data(data) for data in data_list))\n    print(results)\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `asyncio.gather` runs multiple coroutines concurrently.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advanced topics related to `asyncio`:\n- **Parallelism**: `asyncio` uses an event loop instead of multithreading.\n- **Queues**: Managing tasks with `asyncio.Queue`.\nFor more details, refer to the Python documentation (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use `await` correctly, cancel tasks when needed, refer to the official documentation (https://docs.python.org).\n- **Alternatives**: Use synchronous programming for simple tasks.\nYou can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import asyncio\n\nasync def example():\n    print('Async example')\n    await asyncio.sleep(1)\n    print('Example finished')\n\nasync def main():\n    await example()\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Асинхронное программирование (asyncio)",
+    "icon": "FiClock",
+    "language": "python",
+    "description": "Async/await, цикл событий и корутины.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Что такое асинхронное программирование?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Асинхронное программирование в Python с использованием модуля `asyncio` позволяет эффективно обрабатывать операции ввода-вывода (например, сетевые запросы, чтение файлов) без блокировки программы. Этот JSON-файл подробно объясняет синтаксис `async/await`, цикл событий, корутины, задачи, различия между асинхронным и синхронным программированием, сравнение с асинхронными механизмами TypeScript/JavaScript, способы избежания ошибок, использование памяти и сценарии использования в реальных проектах. Примеры кода не требуют ввода пользователя, совместимы с UTF-8, соответствуют Pyodide, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Синтаксис async/await"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ключевые слова `async` и `await` используются для определения и управления асинхронными функциями:\n- `async def`: Определяет корутину.\n- `await`: Ожидает завершения корутины.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def say_hello():\n    print('Привет')\n    await asyncio.sleep(1)\n    print('Мир')\n\nasync def main():\n    await say_hello()\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `say_hello` — это корутина, которая ожидает 1 секунду.\n- `await` обеспечивает завершение корутины.\n- `platform.system()` проверяет совместимость с Pyodide.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Цикл событий"
+      },
+      {
+        "type": "paragraph",
+        "text": "Цикл событий — это основа `asyncio`, которая управляет и планирует асинхронные задачи.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def task1():\n    print('Задача 1 начинается')\n    await asyncio.sleep(1)\n    print('Задача 1 завершена')\n\nasync def task2():\n    print('Задача 2 начинается')\n    await asyncio.sleep(0.5)\n    print('Задача 2 завершена')\n\nasync def main():\n    await asyncio.gather(task1(), task2())\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `asyncio.gather` выполняет две корутины параллельно.\n- Цикл событий планирует задачи.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Корутины и задачи"
+      },
+      {
+        "type": "paragraph",
+        "text": "Корутины определяются с помощью `async def`, а задачи создаются с помощью `asyncio.create_task`:\n- **Корутина**: Асинхронная функция.\n- **Задача**: Планирует выполнение корутины в цикле событий.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def my_coroutine():\n    print('Корутина работает')\n    await asyncio.sleep(1)\n    print('Корутина завершена')\n\nasync def main():\n    task = asyncio.create_task(my_coroutine())\n    await task\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `my_coroutine` — это корутина.\n- `asyncio.create_task` планирует её как задачу.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Асинхронное против синхронного программирования"
+      },
+      {
+        "type": "paragraph",
+        "text": "Асинхронное и синхронное программирование различаются:\n- **Асинхронное**: Задачи выполняются параллельно без блокировки.\n- **Синхронное**: Задачи выполняются последовательно.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\n# Синхронное\ndef sync_task():\n    print('Синхронная задача начинается')\n    import time; time.sleep(1)\n    print('Синхронная задача завершена')\n\n# Асинхронное\nasync def async_task():\n    print('Асинхронная задача начинается')\n    await asyncio.sleep(1)\n    print('Асинхронная задача завершена')\n\nasync def main():\n    await async_task()\n    sync_task()\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Синхронная задача блокирует программу.\n- Асинхронная задача выполняется в цикле событий.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Python против TypeScript и JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "`asyncio` в Python похож на механизмы `Promise` и `async/await` в TypeScript/JavaScript:\n- **Python**: Использует `asyncio` с циклом событий.\n- **JavaScript**: Использует однопоточный цикл событий.\nПример (Python против JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def fetch_data():\n    await asyncio.sleep(1)\n    return 'Данные получены'\n\nasync def main():\n    result = await fetch_data()\n    print(result)\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "async function fetchData() {\n    await new Promise(resolve => setTimeout(resolve, 1000));\n    return 'Данные получены';\n}\n\nasync function main() {\n    const result = await fetchData();\n    console.log(result);\n}\n\nmain();\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `asyncio.sleep` в Python аналогичен `setTimeout` в JavaScript.\n- Оба языка используют синтаксис `async/await`.\nВы можете протестировать эти коды в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Избежание ошибок"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы избежать ошибок при работе с `asyncio`:\n- **Правильный цикл событий**: Используйте `asyncio.run` или `ensure_future`.\n- **Использование await**: Всегда используйте `await` для корутин.\n- **Управление ресурсами**: Отменяйте задачи при необходимости.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def safe_task():\n    try:\n        print('Задача начинается')\n        await asyncio.sleep(1)\n        print('Задача завершена')\n    except asyncio.CancelledError:\n        print('Задача отменена')\n\nasync def main():\n    task = asyncio.create_task(safe_task())\n    await asyncio.sleep(0.5)\n    task.cancel()\n    try:\n        await task\n    except asyncio.CancelledError:\n        print('Отмена задачи подтверждена')\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `try-except` обрабатывает ошибки отмены.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Использование памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "`asyncio` оптимизирует использование памяти, так как задачи выполняются в одном потоке.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def memory_task():\n    print('Задача памяти')\n    await asyncio.sleep(1)\n\nasync def main():\n    tasks = [asyncio.create_task(memory_task()) for _ in range(3)]\n    await asyncio.wait(tasks)\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Несколько задач выполняются в одном цикле событий.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "`asyncio` используется в реальных проектах для:\n- **Веб-запросы**: Параллельная обработка множества API-запросов.\n- **Операции с базами данных**: Асинхронные запросы.\n- **Системы реального времени**: Управление множеством задач.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "import asyncio\n\nasync def process_data(data):\n    await asyncio.sleep(1)\n    return f'Обработано: {data}'\n\nasync def main():\n    data_list = ['данные1', 'данные2', 'данные3']\n    results = await asyncio.gather(*(process_data(data) for data in data_list))\n    print(results)\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `asyncio.gather` выполняет несколько корутин параллельно.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Продвинутые темы, связанные с `asyncio`:\n- **Параллелизм**: `asyncio` использует цикл событий вместо многопоточности.\n- **Очереди**: Управление задачами с помощью `asyncio.Queue`.\nДля получения дополнительной информации обратитесь к документации Python (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Правильно используйте `await`, отменяйте задачи при необходимости, обращайтесь к официальной документации (https://docs.python.org).\n- **Альтернативы**: Используйте синхронное программирование для простых задач.\nВы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import asyncio\n\nasync def example():\n    print('Асинхронный пример')\n    await asyncio.sleep(1)\n    print('Пример завершен')\n\nasync def main():\n    await example()\n\nif platform.system() == 'Emscripten':\n    asyncio.ensure_future(main())\nelse:\n    asyncio.run(main())\n"
+      }
+    ]
+  }
+}

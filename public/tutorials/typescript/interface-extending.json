@@ -1,0 +1,570 @@
+{
+  "id": "interface-extending",
+  "az": {
+    "title": "Interfeys Genişləndirmə",
+    "icon": "FiBox",
+    "language": "typescript",
+    "description": "Interfeysləri bir-birindən miras almaq.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Interfeys Genişləndirmə Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də interfeys genişləndirmə (`extends` açar sözü ilə) bir interfeysin başqa bir və ya bir neçə interfeysdən xüsusiyyətləri miras almasına imkan verir. Bu, mövcud obyekt strukturlarını təkrar yazmadan yeni strukturlar yaratmağa kömək edir. Məsələn, bir `Person` interfeysi `name` və `age` xüsusiyyətlərinə malikdirsə, `Employee` interfeysi `Person`-dan miras alaraq əlavə xüsusiyyətlər (məsələn, `employeeId`) əlavə edə bilər. JavaScript-də belə strukturlaşdırılmış miras mexanizmi yoxdur, bu da kodun təkrarlanmasına və ya səhvlərə səbəb ola bilər. TypeScript-də interfeys genişləndirmə kompilyasiya zamanı səhvləri aşkarlayaraq kodun təhlükəsizliyini artırır. Bu JSON faylda interfeys genişləndirməsinin tərifi, istifadə məqsədləri, JavaScript ilə fərqləri, tip aliasları ilə fərqləri, sintaksisi, çoxlu miras alma, funksiyalarda və obyektlərdə istifadəsi, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Interfeys Genişləndirmənin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeys genişləndirmə TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Təkrar istifadə**: Mövcud interfeyslərdən xüsusiyyətləri miras alaraq kod təkrarını azaltmaq.\n- **Struktur genişləndirmə**: Obyekt strukturuna yeni xüsusiyyətlər əlavə etmək.\n- **Tip təhlükəsizliyi**: Miras alınan və əlavə xüsusiyyətlərin düzgün təyin olunduğunu yoxlamaq.\n- **Oxunaqlılıq**: Kodun məqsədini və strukturunu daha aydın ifadə etmək.\n- **Modulyarlıq**: Böyük layihələrdə strukturları mütəşəkkil şəkildə təşkil etmək.\nJavaScript-də obyektlər dinamik olduğundan, miras alma yalnız prototiplər vasitəsilə mümkündür və tip təhlükəsizliyi təmin edilmir. Interfeys genişləndirmə bu problemi həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Interfeys Genişləndirmənin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeys genişləndirmə `extends` açar sözü ilə təyin edilir. Bir interfeys bir və ya bir neçə interfeysdən miras ala bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Interfeys genişləndirmə sintaksisi\ninterface Point {\n  x: number;\n  y: number;\n}\n\ninterface ThreeDPoint extends Point {\n  z: number;\n}\n\nlet point: ThreeDPoint = {\n  x: 10,\n  y: 20,\n  z: 30\n};\n\nconsole.log(point); // { x: 10, y: 20, z: 30 }\n// let invalid: ThreeDPoint = { x: 5, z: 15 }; // Xəta: y xüsusiyyəti yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ThreeDPoint` interfeysi `Point` interfeysindən `x` və `y` xüsusiyyətlərini miras alır və `z` xüsusiyyətini əlavə edir.\n- `point` obyektinin hər üç xüsusiyyəti olmalıdır.\n- Yanlış struktur kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Interfeys Genişləndirmə ilə Tip Aliaslarının Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeys genişləndirmə və tip aliasları oxşar görünsə də, fərqləri var:\n- **Interfeys genişləndirmə**: `extends` ilə yalnız interfeyslərdən miras alır və əsasən obyekt tipləri üçün istifadə olunur.\n- **Tip aliasları**: `&` (intersection) ilə tipləri birləşdirir və primitiv tiplər, union tipləri də daxil olmaqla daha çevikdir.\n- **Birləşmə**: Interfeyslər tip aliasları ilə birgə istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Interfeys genişləndirmə vs Tip aliasları\ntype Id = number | string;\n\ninterface User {\n  name: string;\n}\n\ninterface NamedUser extends User {\n  id: Id;\n}\n\nlet user: NamedUser = {\n  id: 1,\n  name: 'Ali'\n};\n\nconsole.log(user); // { id: 1, name: 'Ali' }\n// let invalid: NamedUser = { name: 'Vəli' }; // Xəta: id xüsusiyyəti yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Id` tip aliası `number` və ya `string` ola bilər.\n- `NamedUser` interfeysi `User` interfeysindən miras alır və `id` xüsusiyyətini əlavə edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Çoxlu Miras Alma"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də bir interfeys birdən çox interfeysdən miras ala bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Çoxlu miras alma\ninterface Contact {\n  email: string;\n}\n\ninterface Profile {\n  username: string;\n}\n\ninterface User extends Contact, Profile {\n  id: number;\n}\n\nlet user: User = {\n  id: 1,\n  email: 'ali@example.com',\n  username: 'ali123'\n};\n\nconsole.log(user); // { id: 1, email: 'ali@example.com', username: 'ali123' }\n// let invalid: User = { id: 2, email: 'veli@example.com' }; // Xəta: username yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `User` interfeysi `Contact` və `Profile` interfeyslərindən miras alır.\n- `user` obyektinin hər üç xüsusiyyəti olmalıdır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Opsiyonel və Read-Only Xüsusiyyətlərlə Genişləndirmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Genişləndirilən interfeyslərdə opsiyonel (`?`) və read-only (`readonly`) xüsusiyyətlər də istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Opsiyonel və read-only xüsusiyyətlərlə genişləndirmə\ninterface Person {\n  name: string;\n  age?: number;\n}\n\ninterface Employee extends Person {\n  readonly employeeId: number;\n}\n\nlet employee: Employee = {\n  name: 'Ali',\n  employeeId: 101\n};\n\nconsole.log(employee); // { name: 'Ali', employeeId: 101 }\nemployee.name = 'Vəli';\n// employee.employeeId = 102; // Xəta: employeeId yalnız oxuna biləndir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Employee` interfeysi `Person`-dan miras alır.\n- `age` opsiyonel, `employeeId` isə yalnız oxuna biləndir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiyalarda Interfeys Genişləndirmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Genişləndirilmiş interfeyslər funksiya parametrlərində və qaytarma dəyərlərində istifadə edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Funksiyalarda interfeys genişləndirmə\ninterface User {\n  name: string;\n}\n\ninterface Admin extends User {\n  role: 'admin';\n}\n\nfunction printAdmin(admin: Admin): string {\n  return `${admin.name} is ${admin.role}`;\n}\n\nlet admin: Admin = { name: 'Ali', role: 'admin' };\nconsole.log(printAdmin(admin)); // Ali is admin\n// let invalid: Admin = { name: 'Vəli' }; // Xəta: role yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Admin` interfeysi `User`-dan miras alır.\n- `printAdmin` funksiyası `Admin` interfeysindən istifadə edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Interfeys Genişləndirmə ilə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeys genişləndirmə real layihələrdə müxtəlif ssenarilərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Praktik nümunə\ninterface Product {\n  id: number;\n  name: string;\n}\n\ninterface DiscountedProduct extends Product {\n  discount: number;\n}\n\nfunction calculateFinalPrice(product: DiscountedProduct): number {\n  return product.price * product.discount;\n}\n\nlet product: DiscountedProduct = {\n  id: 1,\n  name: 'Phone',\n  price: 1000,\n  discount: 0.9\n};\n\nconsole.log(calculateFinalPrice(product)); // 900\n// let invalid: DiscountedProduct = { id: 2, name: 'Laptop', discount: 0.8 }; // Xəta: price yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `DiscountedProduct` interfeysi `Product`-dan miras alır.\n- `calculateFinalPrice` funksiyası `DiscountedProduct` interfeysindən istifadə edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeys genişləndirmə kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Bütün miras alınan və əlavə xüsusiyyətlərin düzgün təyin olunduğuna əmin olun.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\ninterface Person {\n  name: string;\n}\n\ninterface Manager extends Person {\n  department: string;\n}\n\nfunction getManagerInfo(manager: Manager): string {\n  return `${manager.name} manages ${manager.department}`;\n}\n\nlet manager: Manager = { name: 'Ali', department: 'IT' };\nconsole.log(getManagerInfo(manager)); // Ali manages IT\n// let invalid: Manager = { name: 'Vəli' }; // Xəta: department yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Manager` interfeysi `Person`-dan miras alır.\n- Yanlış struktur kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet unsafe: any = { name: 'Ali', role: 'admin' };\nconsole.log(unsafe.name, unsafe.role); // Ali, admin, lakin tip təhlükəsizliyi yoxdur\nunsafe = { name: 'Vəli' };\nconsole.log(unsafe.name, unsafe.role); // Vəli, undefined, runtime xətası ola bilər\n\n// Düzgün yol\ninterface User {\n  name: string;\n}\n\ninterface Admin extends User {\n  role: string;\n}\nlet admin: Admin = { name: 'Ali', role: 'admin' };\nconsole.log(admin.name, admin.role); // Ali, admin\n// let invalid: Admin = { name: 'Vəli' }; // Xəta: role yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime xətalarına səbəb ola bilər.\n- Interfeys genişləndirmə ilə tip təhlükəsizliyi təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interfeys genişləndirmə real layihələrdə geniş istifadə olunur:\n- **API cavabları**: Mürəkkəb məlumat strukturlarını təyin etmək.\n- **Kompleks obyektlər**: Mövcud strukturlardan yeni strukturlar yaratmaq.\n- **Komponent props**: UI komponentlərinin props strukturlarını genişləndirmək.\n- **Modulyarlıq**: Böyük layihələrdə strukturları mütəşəkkil saxlamaq.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\ninterface DiscountedProduct extends Product {\n  discount: number;\n}\n\nfunction calculateFinalPrice(product: DiscountedProduct): number {\n  return product.price * product.discount;\n}\n\nlet product: DiscountedProduct = {\n  id: 1,\n  name: 'Phone',\n  price: 1000,\n  discount: 0.9\n};\n\nconsole.log(calculateFinalPrice(product)); // 900\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `DiscountedProduct` interfeysi `Product`-dan miras alır.\n- `calculateFinalPrice` funksiyası `DiscountedProduct` interfeysindən istifadə edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Interfeys genişləndirməni obyekt tipləri və strukturları üçün istifadə edin. `any` əvəzinə dəqiq tipləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Interfeys genişləndirmə əvəzinə tip aliasları ilə intersection (`&`) istifadə edilə bilər, lakin interfeyslər miras alma üçün daha uyğundur.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün interfeys genişləndirmə nümunəsi\ninterface User {\n  name: string;\n}\n\ninterface Admin extends User {\n  role: 'admin' | 'superadmin';\n}\n\nconst admin: Admin = { name: 'Məmməd', role: 'admin' };\nconsole.log(admin.name, admin.role); // Məmməd, admin\n// const invalid: Admin = { name: 'Vəli' }; // Xəta: role yoxdur\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Interface Extending",
+    "icon": "FiBox",
+    "language": "typescript",
+    "description": "Inheriting interfaces from one another.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Is Interface Extending?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, interface extending (using the `extends` keyword) allows one interface to inherit properties from one or more other interfaces. This enables creating new object structures without rewriting existing ones. For example, if a `Person` interface has `name` and `age` properties, an `Employee` interface can extend `Person` to add additional properties like `employeeId`. In JavaScript, there is no such structured inheritance mechanism, which can lead to code duplication or errors. TypeScript’s interface extending catches errors at compile time, improving code safety. This JSON file explains interface extending’s definition, purposes, differences from JavaScript, differences from type aliases, syntax, multiple inheritance, use in functions and objects, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Interface Extending"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interface extending in TypeScript serves the following purposes:\n- **Reusability**: Inherit properties from existing interfaces to reduce code duplication.\n- **Structure extension**: Add new properties to existing object structures.\n- **Type safety**: Ensure inherited and added properties are correctly defined.\n- **Readability**: Clearly express the code’s intent and structure.\n- **Modularity**: Organize structures in large projects efficiently.\nIn JavaScript, objects are dynamic, and inheritance is only possible through prototypes, with no type safety. Interface extending addresses this issue."
+      },
+      {
+        "type": "heading",
+        "text": "Interface Extending Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interface extending is defined using the `extends` keyword. An interface can inherit from one or more interfaces.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Interface extending syntax\ninterface Point {\n  x: number;\n  y: number;\n}\n\ninterface ThreeDPoint extends Point {\n  z: number;\n}\n\nlet point: ThreeDPoint = {\n  x: 10,\n  y: 20,\n  z: 30\n};\n\nconsole.log(point); // { x: 10, y: 20, z: 30 }\n// let invalid: ThreeDPoint = { x: 5, z: 15 }; // Error: property 'y' is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ThreeDPoint` interface inherits `x` and `y` properties from `Point` and adds `z`.\n- `point` object must have all three properties.\n- Incorrect structure triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Interface Extending vs. Type Aliases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interface extending and type aliases may seem similar but have differences:\n- **Interface extending**: Uses `extends` to inherit from interfaces, primarily for object types.\n- **Type aliases**: Use `&` (intersection) to combine types and are more flexible, supporting primitives and union types.\n- **Interoperability**: Interfaces can be used with type aliases.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Interface extending vs. Type aliases\ntype Id = number | string;\n\ninterface User {\n  name: string;\n}\n\ninterface NamedUser extends User {\n  id: Id;\n}\n\nlet user: NamedUser = {\n  id: 1,\n  name: 'Alice'\n};\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n// let invalid: NamedUser = { name: 'Bob' }; // Error: property 'id' is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Id` type alias can be a `number` or `string`.\n- `NamedUser` interface extends `User` and adds the `id` property.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Multiple Inheritance"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, an interface can inherit from multiple interfaces.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Multiple inheritance\ninterface Contact {\n  email: string;\n}\n\ninterface Profile {\n  username: string;\n}\n\ninterface User extends Contact, Profile {\n  id: number;\n}\n\nlet user: User = {\n  id: 1,\n  email: 'alice@example.com',\n  username: 'alice123'\n};\n\nconsole.log(user); // { id: 1, email: 'alice@example.com', username: 'alice123' }\n// let invalid: User = { id: 2, email: 'bob@example.com' }; // Error: username is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `User` interface inherits from `Contact` and `Profile`.\n- `user` object must have all three properties.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Extending with Optional and Read-Only Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Extended interfaces can include optional (`?`) and read-only (`readonly`) properties.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Extending with optional and read-only properties\ninterface Person {\n  name: string;\n  age?: number;\n}\n\ninterface Employee extends Person {\n  readonly employeeId: number;\n}\n\nlet employee: Employee = {\n  name: 'Alice',\n  employeeId: 101\n};\n\nconsole.log(employee); // { name: 'Alice', employeeId: 101 }\nemployee.name = 'Bob';\n// employee.employeeId = 102; // Error: employeeId is read-only\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Employee` interface inherits from `Person`.\n- `age` is optional, and `employeeId` is read-only.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Interface Extending in Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Extended interfaces can be used in function parameters and return values.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Interface extending in functions\ninterface User {\n  name: string;\n}\n\ninterface Admin extends User {\n  role: 'admin';\n}\n\nfunction printAdmin(admin: Admin): string {\n  return `${admin.name} is ${admin.role}`;\n}\n\nlet admin: Admin = { name: 'Alice', role: 'admin' };\nconsole.log(printAdmin(admin)); // Alice is admin\n// let invalid: Admin = { name: 'Bob' }; // Error: role is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Admin` interface inherits from `User`.\n- `printAdmin` function uses the `Admin` interface.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Working with Interface Extending"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interface extending is used in various scenarios in real projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Practical example\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\ninterface DiscountedProduct extends Product {\n  discount: number;\n}\n\nfunction calculateFinalPrice(product: DiscountedProduct): number {\n  return product.price * product.discount;\n}\n\nlet product: DiscountedProduct = {\n  id: 1,\n  name: 'Phone',\n  price: 1000,\n  discount: 0.9\n};\n\nconsole.log(calculateFinalPrice(product)); // 900\n// let invalid: DiscountedProduct = { id: 2, name: 'Laptop', discount: 0.8 }; // Error: price is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `DiscountedProduct` interface inherits from `Product`.\n- `calculateFinalPrice` function uses the `DiscountedProduct` interface.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interface extending enhances code safety, but caution is needed:\n- Ensure all inherited and added properties are correctly defined.\n- Avoid `any` as it reduces type safety.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\ninterface Person {\n  name: string;\n}\n\ninterface Manager extends Person {\n  department: string;\n}\n\nfunction getManagerInfo(manager: Manager): string {\n  return `${manager.name} manages ${manager.department}`;\n}\n\nlet manager: Manager = { name: 'Alice', department: 'IT' };\nconsole.log(getManagerInfo(manager)); // Alice manages IT\n// let invalid: Manager = { name: 'Bob' }; // Error: department is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Manager` interface inherits from `Person`.\n- Incorrect structure triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet unsafe: any = { name: 'Alice', role: 'admin' };\nconsole.log(unsafe.name, unsafe.role); // Alice, admin, but no type safety\nunsafe = { name: 'Bob' };\nconsole.log(unsafe.name, unsafe.role); // Bob, undefined, may cause runtime errors\n\n// Correct approach\ninterface User {\n  name: string;\n}\n\ninterface Admin extends User {\n  role: string;\n}\nlet admin: Admin = { name: 'Alice', role: 'admin' };\nconsole.log(admin.name, admin.role); // Alice, admin\n// let invalid: Admin = { name: 'Bob' }; // Error: role is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and may cause runtime errors.\n- Interface extending ensures type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Interface extending is widely used in real projects:\n- **API responses**: Defining complex data structures.\n- **Complex objects**: Creating new structures from existing ones.\n- **Component props**: Extending props structures for UI components.\n- **Modularity**: Keeping structures organized in large projects.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\ninterface DiscountedProduct extends Product {\n  discount: number;\n}\n\nfunction calculateFinalPrice(product: DiscountedProduct): number {\n  return product.price * product.discount;\n}\n\nlet product: DiscountedProduct = {\n  id: 1,\n  name: 'Phone',\n  price: 1000,\n  discount: 0.9\n};\n\nconsole.log(calculateFinalPrice(product)); // 900\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `DiscountedProduct` interface inherits from `Product`.\n- `calculateFinalPrice` function uses the `DiscountedProduct` interface.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use interface extending for object types and structures. Prefer precise types over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Type aliases with intersection (`&`) can be used instead of interface extending, but interfaces are better suited for inheritance.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself interface extending example\ninterface User {\n  name: string;\n}\n\ninterface Admin extends User {\n  role: 'admin' | 'superadmin';\n}\n\nconst admin: Admin = { name: 'John', role: 'admin' };\nconsole.log(admin.name, admin.role); // John, admin\n// const invalid: Admin = { name: 'Bob' }; // Error: role is missing\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Расширение интерфейсов",
+    "icon": "FiBox",
+    "language": "typescript",
+    "description": "Наследование интерфейсов друг от друга.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое расширение интерфейсов?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript расширение интерфейсов (с использованием ключевого слова `extends`) позволяет одному интерфейсу наследовать свойства от одного или нескольких других интерфейсов. Это позволяет создавать новые структуры объектов без переписывания существующих. Например, если интерфейс `Person` имеет свойства `name` и `age`, интерфейс `Employee` может наследовать от `Person` и добавлять дополнительные свойства, такие как `employeeId`. В JavaScript нет такого структурированного механизма наследования, что может привести к дублированию кода или ошибкам. Расширение интерфейсов в TypeScript обнаруживает ошибки на этапе компиляции, повышая безопасность кода. Этот JSON-файл подробно объясняет определение расширения интерфейсов, его назначение, отличия от JavaScript, отличия от псевдонимов типов, синтаксис, множественное наследование, использование в функциях и объектах, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение расширения интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Расширение интерфейсов в TypeScript используется для следующих целей:\n- **Повторное использование**: Наследование свойств от существующих интерфейсов для уменьшения дублирования кода.\n- **Расширение структуры**: Добавление новых свойств к существующим структурам объектов.\n- **Безопасность типов**: Проверка корректности определения унаследованных и добавленных свойств.\n- **Читаемость**: Четкое выражение назначения и структуры кода.\n- **Модульность**: Организация структур в крупных проектах.\nВ JavaScript объекты динамические, и наследование возможно только через прототипы без гарантии безопасности типов. Расширение интерфейсов решает эту проблему."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис расширения интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Расширение интерфейсов определяется с помощью ключевого слова `extends`. Интерфейс может наследовать от одного или нескольких интерфейсов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Синтаксис расширения интерфейсов\ninterface Point {\n  x: number;\n  y: number;\n}\n\ninterface ThreeDPoint extends Point {\n  z: number;\n}\n\nlet point: ThreeDPoint = {\n  x: 10,\n  y: 20,\n  z: 30\n};\n\nconsole.log(point); // { x: 10, y: 20, z: 30 }\n// let invalid: ThreeDPoint = { x: 5, z: 15 }; // Ошибка: отсутствует свойство 'y'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `ThreeDPoint` наследует свойства `x` и `y` от `Point` и добавляет `z`.\n- Объект `point` должен иметь все три свойства.\n- Неправильная структура вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Расширение интерфейсов против псевдонимов типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Расширение интерфейсов и псевдонимы типов могут казаться похожими, но между ними есть различия:\n- **Расширение интерфейсов**: Использует `extends` для наследования от интерфейсов, в основном для объектных типов.\n- **Псевдонимы типов**: Используют `&` (пересечение) для объединения типов и более гибкие, поддерживают примитивы и типы объединения.\n- **Взаимодействие**: Интерфейсы могут использоваться с псевдонимами типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Расширение интерфейсов против псевдонимов типов\ntype Id = number | string;\n\ninterface User {\n  name: string;\n}\n\ninterface NamedUser extends User {\n  id: Id;\n}\n\nlet user: NamedUser = {\n  id: 1,\n  name: 'Алиса'\n};\n\nconsole.log(user); // { id: 1, name: 'Алиса' }\n// let invalid: NamedUser = { name: 'Боб' }; // Ошибка: отсутствует свойство 'id'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдоним типа `Id` может быть `number` или `string`.\n- Интерфейс `NamedUser` наследует от `User` и добавляет свойство `id`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Множественное наследование"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript интерфейс может наследовать от нескольких интерфейсов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Множественное наследование\ninterface Contact {\n  email: string;\n}\n\ninterface Profile {\n  username: string;\n}\n\ninterface User extends Contact, Profile {\n  id: number;\n}\n\nlet user: User = {\n  id: 1,\n  email: 'alice@example.com',\n  username: 'alice123'\n};\n\nconsole.log(user); // { id: 1, email: 'alice@example.com', username: 'alice123' }\n// let invalid: User = { id: 2, email: 'bob@example.com' }; // Ошибка: отсутствует username\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `User` наследует от `Contact` и `Profile`.\n- Объект `user` должен иметь все три свойства.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Расширение с необязательными и свойствами только для чтения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Расширенные интерфейсы могут включать необязательные (`?`) и свойства только для чтения (`readonly`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Расширение с необязательными и свойствами только для чтения\ninterface Person {\n  name: string;\n  age?: number;\n}\n\ninterface Employee extends Person {\n  readonly employeeId: number;\n}\n\nlet employee: Employee = {\n  name: 'Алиса',\n  employeeId: 101\n};\n\nconsole.log(employee); // { name: 'Алиса', employeeId: 101 }\nemployee.name = 'Боб';\n// employee.employeeId = 102; // Ошибка: employeeId только для чтения\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Employee` наследует от `Person`.\n- `age` необязательное, а `employeeId` только для чтения.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Расширение интерфейсов в функциях"
+      },
+      {
+        "type": "paragraph",
+        "text": "Расширенные интерфейсы могут использоваться в параметрах и возвращаемых значениях функций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Расширение интерфейсов в функциях\ninterface User {\n  name: string;\n}\n\ninterface Admin extends User {\n  role: 'admin';\n}\n\nfunction printAdmin(admin: Admin): string {\n  return `${admin.name} является ${admin.role}`;\n}\n\nlet admin: Admin = { name: 'Алиса', role: 'admin' };\nconsole.log(printAdmin(admin)); // Алиса является admin\n// let invalid: Admin = { name: 'Боб' }; // Ошибка: отсутствует role\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Admin` наследует от `User`.\n- Функция `printAdmin` использует интерфейс `Admin`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Работа с расширением интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Расширение интерфейсов используется в различных сценариях в реальных проектах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Практический пример\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\ninterface DiscountedProduct extends Product {\n  discount: number;\n}\n\nfunction calculateFinalPrice(product: DiscountedProduct): number {\n  return product.price * product.discount;\n}\n\nlet product: DiscountedProduct = {\n  id: 1,\n  name: 'Телефон',\n  price: 1000,\n  discount: 0.9\n};\n\nconsole.log(calculateFinalPrice(product)); // 900\n// let invalid: DiscountedProduct = { id: 2, name: 'Ноутбук', discount: 0.8 }; // Ошибка: отсутствует price\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `DiscountedProduct` наследует от `Product`.\n- Функция `calculateFinalPrice` использует интерфейс `DiscountedProduct`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Расширение интерфейсов повышает безопасность кода, но требуется осторожность:\n- Убедитесь, что все унаследованные и добавленные свойства корректно определены.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\ninterface Person {\n  name: string;\n}\n\ninterface Manager extends Person {\n  department: string;\n}\n\nfunction getManagerInfo(manager: Manager): string {\n  return `${manager.name} управляет ${manager.department}`;\n}\n\nlet manager: Manager = { name: 'Алиса', department: 'IT' };\nconsole.log(getManagerInfo(manager)); // Алиса управляет IT\n// let invalid: Manager = { name: 'Боб' }; // Ошибка: отсутствует department\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Manager` наследует от `Person`.\n- Неправильная структура вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet unsafe: any = { name: 'Алиса', role: 'admin' };\nconsole.log(unsafe.name, unsafe.role); // Алиса, admin, но без безопасности типов\nunsafe = { name: 'Боб' };\nconsole.log(unsafe.name, unsafe.role); // Боб, undefined, может вызвать ошибки во время выполнения\n\n// Правильный подход\ninterface User {\n  name: string;\n}\n\ninterface Admin extends User {\n  role: string;\n}\nlet admin: Admin = { name: 'Алиса', role: 'admin' };\nconsole.log(admin.name, admin.role); // Алиса, admin\n// let invalid: Admin = { name: 'Боб' }; // Ошибка: отсутствует role\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Расширение интерфейсов обеспечивает безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Расширение интерфейсов широко используется в реальных проектах:\n- **Ответы API**: Определение сложных структур данных.\n- **Сложные объекты**: Создание новых структур на основе существующих.\n- **Props компонентов**: Расширение структур props для UI-компонентов.\n- **Модульность**: Организация структур в крупных проектах.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\ninterface DiscountedProduct extends Product {\n  discount: number;\n}\n\nfunction calculateFinalPrice(product: DiscountedProduct): number {\n  return product.price * product.discount;\n}\n\nlet product: DiscountedProduct = {\n  id: 1,\n  name: 'Телефон',\n  price: 1000,\n  discount: 0.9\n};\n\nconsole.log(calculateFinalPrice(product)); // 900\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `DiscountedProduct` наследует от `Product`.\n- Функция `calculateFinalPrice` использует интерфейс `DiscountedProduct`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте расширение интерфейсов для объектных типов и структур. Предпочитайте точные типы вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо расширения интерфейсов можно использовать псевдонимы типов с пересечением (`&`), но интерфейсы лучше подходят для наследования.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример расширения интерфейсов для самостоятельного тестирования\ninterface User {\n  name: string;\n}\n\ninterface Admin extends User {\n  role: 'admin' | 'superadmin';\n}\n\nconst admin: Admin = { name: 'Джон', role: 'admin' };\nconsole.log(admin.name, admin.role); // Джон, admin\n// const invalid: Admin = { name: 'Боб' }; // Ошибка: отсутствует role\n"
+      }
+    ]
+  }
+}

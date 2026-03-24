@@ -1,0 +1,621 @@
+{
+  "id": "type-aliases",
+  "az": {
+    "title": "Tip Aliasları",
+    "icon": "FiType",
+    "language": "typescript",
+    "description": "Mürəkkəb tipləri yenidən adlandırmaq.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Tip Aliasları Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də tip aliasları (`type` açar sözü ilə) mövcud tipləri və ya mürəkkəb tip strukturlarını sadələşdirmək üçün yenidən adlandırmağa imkan verir. Tip aliasları ilə primitiv tiplər, union tipləri, intersection tipləri, obyekt tipləri və ya funksiya tipləri kimi strukturları təyin edə bilərsiniz. Bu, kodun oxunaqlılığını artırır və təkrar istifadəni asanlaşdırır. Məsələn, bir neçə xüsusiyyəti olan mürəkkəb bir obyekt tipini təyin etmək əvəzinə, onu bir tip aliası ilə sadə bir ada bağlaya bilərsiniz. JavaScript-də tiplər dinamikdir və belə strukturlaşdırılmış adlandırma yoxdur, bu da runtime səhvlərinə səbəb ola bilər. TypeScript-də tip aliasları kompilyasiya zamanı səhvləri aşkarlayaraq kodun təhlükəsizliyini artırır. Bu JSON faylda tip aliaslarının tərifi, istifadə məqsədləri, JavaScript ilə fərqləri, interfeyslərdən fərqləri, sintaksisi, union və intersection tipləri ilə istifadəsi, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Aliaslarının Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip aliasları TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Sadələşdirmə**: Mürəkkəb tipləri qısa və oxunaqlı adlarla təyin etmək.\n- **Təkrar istifadə**: Eyni tipi birdən çox yerdə istifadə etmək.\n- **Tip təhlükəsizliyi**: Dəyişənlərin düzgün tiplərlə işləməsini təmin etmək.\n- **Oxunaqlılıq**: Kodun məqsədini daha aydın ifadə etmək.\n- **Alət dəstəyi**: Kod redaktorları tiplərə əsasən avtomatik tamamlamalar təklif edir.\nJavaScript-də tiplər dinamik olduğundan, mürəkkəb strukturları adlandırmaq və ya təhlükəsizliyi təmin etmək mümkün deyil. Tip aliasları bu problemi həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Aliaslarının Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip aliasları `type` açar sözü ilə təyin edilir. İstənilən primitiv tip, obyekt tipi, union tipi və ya intersection tipi alias kimi təyin oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Tip aliaslarının sintaksisi\ntype Point = {\n  x: number;\n  y: number;\n};\n\nlet point: Point = {\n  x: 10,\n  y: 20\n};\n\nconsole.log(point); // { x: 10, y: 20 }\n// let invalid: Point = { x: 5 }; // Xəta: y xüsusiyyəti yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Point` tip aliası obyektin `x` və `y` xüsusiyyətlərini təyin edir.\n- `point` obyektinin hər iki xüsusiyyəti olmalıdır.\n- Yanlış struktur kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tip Aliasları ilə Interfeyslərin Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip aliasları və interfeyslər oxşar görünsə də, fərqləri var:\n- **Tip aliasları**: Primitiv tiplər, union tipləri və intersection tipləri kimi geniş strukturları təyin edə bilər.\n- **Interfeyslər**: Əsasən obyekt tipləri üçün istifadə olunur və miras alma (`extends`) dəstəkləyir.\n- **Birgə istifadə**: Tip aliasları ilə interfeyslər birlikdə istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Tip aliasları vs Interfeyslər\ntype Id = number | string;\n\ninterface User {\n  name: string;\n}\n\ntype NamedUser = User & { id: Id };\n\nlet user: NamedUser = {\n  id: 1,\n  name: 'Ali'\n};\n\nconsole.log(user); // { id: 1, name: 'Ali' }\n// let invalid: NamedUser = { name: 'Vəli' }; // Xəta: id xüsusiyyəti yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Id` tip aliası `number` və ya `string` ola bilər.\n- `NamedUser` tipi `User` interfeysi ilə `id` xüsusiyyətini birləşdirir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Union Tipləri ilə Tip Aliasları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip aliasları union tipləri ilə birlikdə istifadə edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Union tipləri ilə tip aliasları\ntype Status = 'active' | 'inactive' | 'pending';\n\nlet currentStatus: Status = 'active';\nconsole.log(currentStatus); // active\ncurrentStatus = 'pending';\nconsole.log(currentStatus); // pending\n// currentStatus = 'failed'; // Xəta: 'failed' Status tipinə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Status` tip aliası literal tipləri birləşdirir.\n- Yanlış dəyər kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Intersection Tipləri ilə Tip Aliasları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip aliasları intersection tipləri ilə də istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Intersection tipləri ilə tip aliasları\ntype Contact = {\n  email: string;\n};\n\ntype Profile = {\n  username: string;\n};\n\ntype User = Contact & Profile;\n\nlet user: User = {\n  email: 'ali@example.com',\n  username: 'ali123'\n};\n\nconsole.log(user); // { email: 'ali@example.com', username: 'ali123' }\n// let invalid: User = { email: 'veli@example.com' }; // Xəta: username yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `User` tip aliası `Contact` və `Profile` tiplərini birləşdirir.\n- `user` obyektinin hər iki xüsusiyyəti olmalıdır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiyalarda Tip Aliasları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip aliasları funksiya parametrlərində və qaytarma dəyərlərində istifadə edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Funksiyalarda tip aliasları\ntype User = {\n  id: number;\n  name: string;\n};\n\nfunction printUser(user: User): string {\n  return `ID: ${user.id}, Name: ${user.name}`;\n}\n\nlet user: User = { id: 1, name: 'Ali' };\nconsole.log(printUser(user)); // ID: 1, Name: Ali\n// let invalid: User = { id: 2 }; // Xəta: name yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `User` tip aliası obyekt strukturunu təyin edir.\n- `printUser` funksiyası `User` tipini istifadə edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Obyektlərdə Tip Aliasları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip aliasları obyekt tiplərini sadələşdirmək üçün çox istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Obyektlərdə tip aliasları\ntype Product = {\n  id: number;\n  name: string;\n  price: number;\n};\n\nlet product: Product = {\n  id: 1,\n  name: 'Laptop',\n  price: 1000\n};\n\nconsole.log(product); // { id: 1, name: 'Laptop', price: 1000 }\n// let invalid: Product = { id: 2, name: 'Phone' }; // Xəta: price yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Product` tip aliası obyekt strukturunu təyin edir.\n- `product` obyektinin bütün xüsusiyyətləri olmalıdır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Tip Aliasları ilə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip aliasları real layihələrdə müxtəlif ssenarilərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Praktik nümunə\ntype Order = {\n  id: number;\n  status: 'pending' | 'shipped' | 'delivered';\n};\n\nfunction getOrderInfo(order: Order): string {\n  return `Order ${order.id} is ${order.status}`;\n}\n\nlet order: Order = { id: 1, status: 'pending' };\nconsole.log(getOrderInfo(order)); // Order 1 is pending\norder.status = 'delivered';\nconsole.log(getOrderInfo(order)); // Order 1 is delivered\n// order.status = 'cancelled'; // Xəta: 'cancelled' status tipinə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Order` tip aliası obyekt strukturunu və literal tipləri təyin edir.\n- `getOrderInfo` funksiyası `Order` tipini istifadə edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip aliasları kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Bütün tələb olunan xüsusiyyətlərin düzgün təyin olunduğuna əmin olun.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\ntype Admin = {\n  name: string;\n  role: 'admin';\n};\n\nfunction getAdminInfo(admin: Admin): string {\n  return `${admin.name} is ${admin.role}`;\n}\n\nlet admin: Admin = { name: 'Ali', role: 'admin' };\nconsole.log(getAdminInfo(admin)); // Ali is admin\n// let invalid: Admin = { name: 'Vəli' }; // Xəta: role yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Admin` tip aliası obyekt strukturunu təyin edir.\n- Yanlış struktur kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet unsafe: any = { name: 'Ali', role: 'admin' };\nconsole.log(unsafe.name, unsafe.role); // Ali, admin, lakin tip təhlükəsizliyi yoxdur\nunsafe = { name: 'Vəli' };\nconsole.log(unsafe.name, unsafe.role); // Vəli, undefined, runtime xətası ola bilər\n\n// Düzgün yol\ntype User = {\n  name: string;\n  role: string;\n};\nlet user: User = { name: 'Ali', role: 'admin' };\nconsole.log(user.name, user.role); // Ali, admin\n// let invalid: User = { name: 'Vəli' }; // Xəta: role yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime xətalarına səbəb ola bilər.\n- Tip aliası ilə tip təhlükəsizliyi təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tip aliasları real layihələrdə geniş istifadə olunur:\n- **API cavabları**: Mürəkkəb məlumat strukturlarını sadələşdirmək.\n- **Kompleks obyektlər**: Çoxsaylı xüsusiyyətləri olan obyektləri təyin etmək.\n- **Funksiya tipləri**: Funksiya parametrləri və qaytarma dəyərlərini təyin etmək.\n- **Utility tipləri**: Yenidən istifadə edilə bilən tiplər yaratmaq.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ntype Product = {\n  id: number;\n  name: string;\n  price: number;\n};\n\ntype DiscountedProduct = Product & { discount: number };\n\nfunction calculateFinalPrice(product: DiscountedProduct): number {\n  return product.price * product.discount;\n}\n\nlet product: DiscountedProduct = {\n  id: 1,\n  name: 'Phone',\n  price: 1000,\n  discount: 0.9\n};\n\nconsole.log(calculateFinalPrice(product)); // 900\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Product` və `DiscountedProduct` tip aliasları mürəkkəb strukturları təyin edir.\n- `calculateFinalPrice` funksiyası `DiscountedProduct` tipini istifadə edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Mürəkkəb tiplər üçün tip aliaslarından istifadə edin. `any` əvəzinə dəqiq tipləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Tip aliasları əvəzinə interfeyslər və ya `any` istifadə edilə bilər, lakin tip aliasları daha çevik və oxunaqlıdır.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün tip aliasları nümunəsi\ntype User = {\n  name: string;\n  role: 'admin' | 'user';\n};\n\nconst user: User = { name: 'Məmməd', role: 'admin' };\nconsole.log(user.name, user.role); // Məmməd, admin\n// const invalid: User = { name: 'Vəli' }; // Xəta: role yoxdur\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Type Aliases",
+    "icon": "FiType",
+    "language": "typescript",
+    "description": "Renaming complex types.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Type Aliases?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type aliases in TypeScript (defined with the `type` keyword) allow you to rename existing types or complex type structures to simplify their usage. Type aliases can define primitive types, union types, intersection types, object types, or function types. They improve code readability and enable reuse. For example, instead of repeatedly defining a complex object type, you can assign it a simple name using a type alias. In JavaScript, types are dynamic, and such structured naming is unavailable, which can lead to runtime errors. TypeScript’s type aliases catch errors at compile time, enhancing code safety. This JSON file explains type aliases’ definition, purposes, differences from JavaScript, differences from interfaces, syntax, use with union and intersection types, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Type Aliases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type aliases in TypeScript serve the following purposes:\n- **Simplification**: Define complex types with short, readable names.\n- **Reusability**: Reuse the same type in multiple places.\n- **Type safety**: Ensure variables adhere to the correct types.\n- **Readability**: Make the code’s intent clearer.\n- **Tooling support**: Code editors provide autocompletion based on types.\nIn JavaScript, dynamic typing makes it impossible to name or ensure complex structures, leading to potential errors. Type aliases address this issue."
+      },
+      {
+        "type": "heading",
+        "text": "Type Alias Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type aliases are defined using the `type` keyword. Any primitive type, object type, union type, or intersection type can be aliased.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type alias syntax\ntype Point = {\n  x: number;\n  y: number;\n};\n\nlet point: Point = {\n  x: 10,\n  y: 20\n};\n\nconsole.log(point); // { x: 10, y: 20 }\n// let invalid: Point = { x: 5 }; // Error: property 'y' is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Point` type alias defines an object with `x` and `y` properties.\n- `point` object must have both properties.\n- Incorrect structure triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Aliases vs. Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type aliases and interfaces may seem similar but have differences:\n- **Type aliases**: Can define primitive types, union types, and intersection types, in addition to object types.\n- **Interfaces**: Primarily used for object types and support inheritance (`extends`).\n- **Interoperability**: Type aliases and interfaces can be used together.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type aliases vs. Interfaces\ntype Id = number | string;\n\ninterface User {\n  name: string;\n}\n\ntype NamedUser = User & { id: Id };\n\nlet user: NamedUser = {\n  id: 1,\n  name: 'Alice'\n};\n\nconsole.log(user); // { id: 1, name: 'Alice' }\n// let invalid: NamedUser = { name: 'Bob' }; // Error: property 'id' is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Id` type alias can be a `number` or `string`.\n- `NamedUser` combines the `User` interface with the `id` property.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Aliases with Union Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type aliases can be used with union types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type aliases with union types\ntype Status = 'active' | 'inactive' | 'pending';\n\nlet currentStatus: Status = 'active';\nconsole.log(currentStatus); // active\ncurrentStatus = 'pending';\nconsole.log(currentStatus); // pending\n// currentStatus = 'failed'; // Error: 'failed' cannot be assigned to Status\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Status` type alias combines literal types.\n- Assigning an incorrect value triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Aliases with Intersection Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type aliases can also be used with intersection types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type aliases with intersection types\ntype Contact = {\n  email: string;\n};\n\ntype Profile = {\n  username: string;\n};\n\ntype User = Contact & Profile;\n\nlet user: User = {\n  email: 'alice@example.com',\n  username: 'alice123'\n};\n\nconsole.log(user); // { email: 'alice@example.com', username: 'alice123' }\n// let invalid: User = { email: 'bob@example.com' }; // Error: username is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `User` type alias combines `Contact` and `Profile` types.\n- `user` object must have both properties.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Aliases in Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type aliases can be used in function parameters and return values.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type aliases in functions\ntype User = {\n  id: number;\n  name: string;\n};\n\nfunction printUser(user: User): string {\n  return `ID: ${user.id}, Name: ${user.name}`;\n}\n\nlet user: User = { id: 1, name: 'Alice' };\nconsole.log(printUser(user)); // ID: 1, Name: Alice\n// let invalid: User = { id: 2 }; // Error: name is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `User` type alias defines an object structure.\n- `printUser` function uses the `User` type.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Aliases in Objects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type aliases are commonly used to simplify object types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type aliases in objects\ntype Product = {\n  id: number;\n  name: string;\n  price: number;\n};\n\nlet product: Product = {\n  id: 1,\n  name: 'Laptop',\n  price: 1000\n};\n\nconsole.log(product); // { id: 1, name: 'Laptop', price: 1000 }\n// let invalid: Product = { id: 2, name: 'Phone' }; // Error: price is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Product` type alias defines an object structure.\n- `product` object must have all properties.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Working with Type Aliases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type aliases are used in various scenarios in real projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Practical example\ntype Order = {\n  id: number;\n  status: 'pending' | 'shipped' | 'delivered';\n};\n\nfunction getOrderInfo(order: Order): string {\n  return `Order ${order.id} is ${order.status}`;\n}\n\nlet order: Order = { id: 1, status: 'pending' };\nconsole.log(getOrderInfo(order)); // Order 1 is pending\norder.status = 'delivered';\nconsole.log(getOrderInfo(order)); // Order 1 is delivered\n// order.status = 'cancelled'; // Error: 'cancelled' cannot be assigned to status\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Order` type alias defines an object structure and literal types.\n- `getOrderInfo` function uses the `Order` type.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type aliases enhance code safety, but caution is needed:\n- Ensure all required properties are correctly defined.\n- Avoid `any` as it reduces type safety.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\ntype Admin = {\n  name: string;\n  role: 'admin';\n};\n\nfunction getAdminInfo(admin: Admin): string {\n  return `${admin.name} is ${admin.role}`;\n}\n\nlet admin: Admin = { name: 'Alice', role: 'admin' };\nconsole.log(getAdminInfo(admin)); // Alice is admin\n// let invalid: Admin = { name: 'Bob' }; // Error: role is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Admin` type alias defines an object structure.\n- Incorrect structure triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet unsafe: any = { name: 'Alice', role: 'admin' };\nconsole.log(unsafe.name, unsafe.role); // Alice, admin, but no type safety\nunsafe = { name: 'Bob' };\nconsole.log(unsafe.name, unsafe.role); // Bob, undefined, may cause runtime errors\n\n// Correct approach\ntype User = {\n  name: string;\n  role: string;\n};\nlet user: User = { name: 'Alice', role: 'admin' };\nconsole.log(user.name, user.role); // Alice, admin\n// let invalid: User = { name: 'Bob' }; // Error: role is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and may cause runtime errors.\n- Type alias ensures type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Type aliases are widely used in real projects:\n- **API responses**: Simplifying complex data structures.\n- **Complex objects**: Defining objects with multiple properties.\n- **Function types**: Defining function parameters and return values.\n- **Utility types**: Creating reusable types.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ntype Product = {\n  id: number;\n  name: string;\n  price: number;\n};\n\ntype DiscountedProduct = Product & { discount: number };\n\nfunction calculateFinalPrice(product: DiscountedProduct): number {\n  return product.price * product.discount;\n}\n\nlet product: DiscountedProduct = {\n  id: 1,\n  name: 'Phone',\n  price: 1000,\n  discount: 0.9\n};\n\nconsole.log(calculateFinalPrice(product)); // 900\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Product` and `DiscountedProduct` type aliases define complex structures.\n- `calculateFinalPrice` function uses the `DiscountedProduct` type.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use type aliases for complex types. Prefer precise types over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Interfaces or `any` can be used instead of type aliases, but type aliases are more flexible and readable.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself type aliases example\ntype User = {\n  name: string;\n  role: 'admin' | 'user';\n};\n\nconst user: User = { name: 'John', role: 'admin' };\nconsole.log(user.name, user.role); // John, admin\n// const invalid: User = { name: 'Bob' }; // Error: role is missing\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Псевдонимы типов",
+    "icon": "FiType",
+    "language": "typescript",
+    "description": "Переименование сложных типов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое псевдонимы типов?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Псевдонимы типов в TypeScript (определяемые с помощью ключевого слова `type`) позволяют переименовывать существующие типы или сложные структуры типов для упрощения их использования. Псевдонимы типов могут определять примитивные типы, типы объединения, типы пересечения, объектные типы или функциональные типы. Они улучшают читаемость кода и упрощают повторное использование. Например, вместо многократного определения сложного типа объекта вы можете присвоить ему простое имя с помощью псевдонима типа. В JavaScript типы динамические, и структурированное именование недоступно, что может привести к ошибкам во время выполнения. Псевдонимы типов TypeScript обнаруживают ошибки на этапе компиляции, повышая безопасность кода. Этот JSON-файл подробно объясняет определение псевдонимов типов, их назначение, отличия от JavaScript, отличия от интерфейсов, синтаксис, использование с типами объединения и пересечения, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение псевдонимов типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Псевдонимы типов в TypeScript используются для следующих целей:\n- **Упрощение**: Определение сложных типов с короткими и читаемыми именами.\n- **Повторное использование**: Использование одного и того же типа в нескольких местах.\n- **Безопасность типов**: Обеспечение соответствия переменных правильным типам.\n- **Читаемость**: Упрощение понимания назначения кода.\n- **Поддержка инструментов**: Редакторы кода предоставляют автодополнение на основе типов.\nВ JavaScript динамическая типизация делает невозможным именование или обеспечение сложных структур, что может привести к ошибкам. Псевдонимы типов решают эту проблему."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис псевдонимов типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Псевдонимы типов определяются с помощью ключевого слова `type`. Любой примитивный тип, объектный тип, тип объединения или пересечения может быть псевдонимом.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Синтаксис псевдонимов типов\ntype Point = {\n  x: number;\n  y: number;\n};\n\nlet point: Point = {\n  x: 10,\n  y: 20\n};\n\nconsole.log(point); // { x: 10, y: 20 }\n// let invalid: Point = { x: 5 }; // Ошибка: отсутствует свойство 'y'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдоним типа `Point` определяет объект с свойствами `x` и `y`.\n- Объект `point` должен иметь оба свойства.\n- Неправильная структура вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Псевдонимы типов против интерфейсов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Псевдонимы типов и интерфейсы могут казаться похожими, но между ними есть различия:\n- **Псевдонимы типов**: Могут определять примитивные типы, типы объединения и пересечения, а также объектные типы.\n- **Интерфейсы**: В основном используются для объектных типов и поддерживают наследование (`extends`).\n- **Взаимодействие**: Псевдонимы типов и интерфейсы могут использоваться вместе.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Псевдонимы типов против интерфейсов\ntype Id = number | string;\n\ninterface User {\n  name: string;\n}\n\ntype NamedUser = User & { id: Id };\n\nlet user: NamedUser = {\n  id: 1,\n  name: 'Алиса'\n};\n\nconsole.log(user); // { id: 1, name: 'Алиса' }\n// let invalid: NamedUser = { name: 'Боб' }; // Ошибка: отсутствует свойство 'id'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдоним типа `Id` может быть `number` или `string`.\n- `NamedUser` объединяет интерфейс `User` со свойством `id`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Псевдонимы типов с типами объединения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Псевдонимы типов могут использоваться с типами объединения.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Псевдонимы типов с типами объединения\ntype Status = 'active' | 'inactive' | 'pending';\n\nlet currentStatus: Status = 'active';\nconsole.log(currentStatus); // active\ncurrentStatus = 'pending';\nconsole.log(currentStatus); // pending\n// currentStatus = 'failed'; // Ошибка: 'failed' не может быть присвоен Status\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдоним типа `Status` объединяет литеральные типы.\n- Присвоение некорректного значения вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Псевдонимы типов с типами пересечения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Псевдонимы типов также могут использоваться с типами пересечения.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Псевдонимы типов с типами пересечения\ntype Contact = {\n  email: string;\n};\n\ntype Profile = {\n  username: string;\n};\n\ntype User = Contact & Profile;\n\nlet user: User = {\n  email: 'alice@example.com',\n  username: 'alice123'\n};\n\nconsole.log(user); // { email: 'alice@example.com', username: 'alice123' }\n// let invalid: User = { email: 'bob@example.com' }; // Ошибка: отсутствует username\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдоним типа `User` объединяет типы `Contact` и `Profile`.\n- Объект `user` должен иметь оба свойства.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Псевдонимы типов в функциях"
+      },
+      {
+        "type": "paragraph",
+        "text": "Псевдонимы типов могут использоваться в параметрах и возвращаемых значениях функций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Псевдонимы типов в функциях\ntype User = {\n  id: number;\n  name: string;\n};\n\nfunction printUser(user: User): string {\n  return `ID: ${user.id}, Имя: ${user.name}`;\n}\n\nlet user: User = { id: 1, name: 'Алиса' };\nconsole.log(printUser(user)); // ID: 1, Имя: Алиса\n// let invalid: User = { id: 2 }; // Ошибка: отсутствует name\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдоним типа `User` определяет структуру объекта.\n- Функция `printUser` использует тип `User`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Псевдонимы типов в объектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Псевдонимы типов часто используются для упрощения объектных типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Псевдонимы типов в объектах\ntype Product = {\n  id: number;\n  name: string;\n  price: number;\n};\n\nlet product: Product = {\n  id: 1,\n  name: 'Ноутбук',\n  price: 1000\n};\n\nconsole.log(product); // { id: 1, name: 'Ноутбук', price: 1000 }\n// let invalid: Product = { id: 2, name: 'Телефон' }; // Ошибка: отсутствует price\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдоним типа `Product` определяет структуру объекта.\n- Объект `product` должен иметь все свойства.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Работа с псевдонимами типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Псевдонимы типов используются в различных сценариях в реальных проектах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Практический пример\ntype Order = {\n  id: number;\n  status: 'pending' | 'shipped' | 'delivered';\n};\n\nfunction getOrderInfo(order: Order): string {\n  return `Заказ ${order.id} имеет статус ${order.status}`;\n}\n\nlet order: Order = { id: 1, status: 'pending' };\nconsole.log(getOrderInfo(order)); // Заказ 1 имеет статус pending\norder.status = 'delivered';\nconsole.log(getOrderInfo(order)); // Заказ 1 имеет статус delivered\n// order.status = 'cancelled'; // Ошибка: 'cancelled' не может быть присвоен status\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдоним типа `Order` определяет структуру объекта и литеральные типы.\n- Функция `getOrderInfo` использует тип `Order`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Псевдонимы типов повышают безопасность кода, но требуется осторожность:\n- Убедитесь, что все требуемые свойства корректно определены.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\ntype Admin = {\n  name: string;\n  role: 'admin';\n};\n\nfunction getAdminInfo(admin: Admin): string {\n  return `${admin.name} является ${admin.role}`;\n}\n\nlet admin: Admin = { name: 'Алиса', role: 'admin' };\nconsole.log(getAdminInfo(admin)); // Алиса является admin\n// let invalid: Admin = { name: 'Боб' }; // Ошибка: отсутствует role\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдоним типа `Admin` определяет структуру объекта.\n- Неправильная структура вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet unsafe: any = { name: 'Алиса', role: 'admin' };\nconsole.log(unsafe.name, unsafe.role); // Алиса, admin, но без безопасности типов\nunsafe = { name: 'Боб' };\nconsole.log(unsafe.name, unsafe.role); // Боб, undefined, может вызвать ошибки во время выполнения\n\n// Правильный подход\ntype User = {\n  name: string;\n  role: string;\n};\nlet user: User = { name: 'Алиса', role: 'admin' };\nconsole.log(user.name, user.role); // Алиса, admin\n// let invalid: User = { name: 'Боб' }; // Ошибка: отсутствует role\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Псевдоним типа обеспечивает безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Псевдонимы типов широко используются в реальных проектах:\n- **Ответы API**: Упрощение сложных структур данных.\n- **Сложные объекты**: Определение объектов с множеством свойств.\n- **Типы функций**: Определение параметров и возвращаемых значений функций.\n- **Утилитарные типы**: Создание многоразовых типов.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ntype Product = {\n  id: number;\n  name: string;\n  price: number;\n};\n\ntype DiscountedProduct = Product & { discount: number };\n\nfunction calculateFinalPrice(product: DiscountedProduct): number {\n  return product.price * product.discount;\n}\n\nlet product: DiscountedProduct = {\n  id: 1,\n  name: 'Телефон',\n  price: 1000,\n  discount: 0.9\n};\n\nconsole.log(calculateFinalPrice(product)); // 900\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдонимы типов `Product` и `DiscountedProduct` определяют сложные структуры.\n- Функция `calculateFinalPrice` использует тип `DiscountedProduct`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте псевдонимы типов для сложных типов. Предпочитайте точные типы вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо псевдонимов типов можно использовать интерфейсы или `any`, но псевдонимы типов более гибкие и читаемые.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример псевдонимов типов для самостоятельного тестирования\ntype User = {\n  name: string;\n  role: 'admin' | 'user';\n};\n\nconst user: User = { name: 'Джон', role: 'admin' };\nconsole.log(user.name, user.role); // Джон, admin\n// const invalid: User = { name: 'Боб' }; // Ошибка: отсутствует role\n"
+      }
+    ]
+  }
+}

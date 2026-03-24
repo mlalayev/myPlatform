@@ -76,11 +76,11 @@ export async function GET(request: NextRequest) {
         hasPrev: page > 1
       },
       filters: {
-        difficulties: difficultyCounts.map(d => ({
+        difficulties: difficultyCounts.map((d: any) => ({
           difficulty: d.difficulty,
           count: d._count.difficulty
         })),
-        categories: categoryCounts.map(c => ({
+        categories: categoryCounts.map((c: any) => ({
           category: c.category,
           count: c._count.category
         }))
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching exercises:", error);
     return NextResponse.json(
-      { error: "Internal server error", details: error.message },
+      { error: "Internal server error", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

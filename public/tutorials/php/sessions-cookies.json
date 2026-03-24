@@ -1,0 +1,393 @@
+{
+  "id": "sessions-cookies",
+  "az": {
+    "title": "Sessiyalar və Kukilər",
+    "icon": "FiDatabase",
+    "language": "php",
+    "description": "Sessiya və kuki idarəetməsi.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də Sessiyalar və Kukilər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də sessiyalar və kukilər veb tətbiqlərdə istifadəçi məlumatlarını saxlamaq və idarə etmək üçün istifadə olunur. Sessiyalar server tərəfində istifadəçi məlumatlarını müvəqqəti saxlamaq üçün, kukilər isə istifadəçinin brauzerində məlumat saxlamaq üçün nəzərdə tutulub. Məsələn, bir istifadəçi sayta daxil olduqda, sessiyalar onun giriş məlumatlarını saxlayır, kukilər isə istifadəçi seçimlərini (məsələn, dil seçimi) uzun müddət yadda saxlaya bilər. Bu JSON faylda sessiyaların və kukilərin necə işlədiyi, sintaksisi, təhlükəsizlik aspektləri, praktik nümunələr və səhvlərdən qaçınma yolları çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz. PHP 8.1 və ya daha yeni versiyadan istifadə etdiyinizə əmin olun."
+      },
+      {
+        "type": "heading",
+        "text": "Sessiyalar: Əsaslar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sessiyalar istifadəçi məlumatlarını serverdə saxlamaq üçün istifadə olunur. Hər istifadəçiyə unikal sessiya ID-si verilir və bu ID brauzerdə kuki kimi saxlanılır. Sessiya məlumatları adətən serverdə müvəqqəti fayllarda saxlanılır.\nƏsas funksiyalar:\n- `session_start()`: Sessiyanı başlatır.\n- `$_SESSION`: Sessiya dəyişənlərini saxlamaq və əldə etmək üçün istifadə olunur.\n- `session_destroy()`: Sessiyanı bitirir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Sessiya nümunəsi\nsession_start();\n\n$_SESSION['username'] = 'Ali';\n$_SESSION['last_visit'] = date('Y-m-d H:i:s');\n\necho 'İstifadəçi: ' . $_SESSION['username'] . '\\n';\necho 'Son giriş: ' . $_SESSION['last_visit'] . '\\n';\n\n// Sessiyanı bitirmək\n// session_destroy();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `session_start()` sessiyanı başlatır.\n- `$_SESSION` massivi istifadəçi məlumatlarını saxlayır.\n- Məlumatlar serverdə saxlanılır və brauzer bağlanana qədər (və ya sessiya bitənə qədər) mövcuddur.\n- `session_destroy()` sessiyanı bitirir (şərhə alınmışdır, aktivləşdirmək üçün şərhi silin).\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Kukilər: Əsaslar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Kukilər istifadəçinin brauzerində məlumat saxlamaq üçün istifadə olunur. Onlar adətən istifadəçi seçimlərini və ya giriş məlumatlarını uzun müddət yadda saxlamaq üçün istifadə edilir.\nƏsas funksiyalar:\n- `setcookie()`: Kuki təyin edir.\n- `$_COOKIE`: Kuki məlumatlarını əldə etmək üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Kuki nümunəsi\nsetcookie('theme', 'dark', time() + 3600); // 1 saatlıq kuki\n\nif (isset($_COOKIE['theme'])) {\n  echo 'Seçilmiş tema: ' . $_COOKIE['theme'];\n} else {\n  echo 'Tema təyin edilməyib.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `setcookie()` brauzerdə kuki yaradır, `time() + 3600` kuki-nin 1 saat müddətinə saxlanmasını təmin edir.\n- `$_COOKIE` massivi kuki dəyərlərini əldə edir.\n- `isset()` ilə kuki-nin mövcudluğu yoxlanılır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sessiyalar və Kukilər Arasındakı Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sessiyalar və kukilər fərqli məqsədlər üçün istifadə olunur:\n- Sessiyalar serverdə saxlanılır və müvəqqəti məlumatlar üçün uyğundur.\n- Kukilər istifadəçinin brauzerində saxlanılır və uzunmüddətli məlumatlar üçün istifadə olunur.\n- Sessiyalar təhlükəsizdir, çünki məlumatlar serverdə saxlanılır.\n- Kukilər istifadəçi tərəfində saxlandığı üçün təhlükəsizlik üçün əlavə tədbirlər tələb edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Sessiya və kuki kombinasiyası\nsession_start();\n\n$_SESSION['user_id'] = 123;\nsetcookie('last_page', 'home', time() + 3600);\n\necho 'Sessiya: İstifadəçi ID = ' . $_SESSION['user_id'] . '\\n';\nif (isset($_COOKIE['last_page'])) {\n  echo 'Kuki: Son səhifə = ' . $_COOKIE['last_page'];\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Sessiya ilə istifadəçi ID-si serverdə saxlanılır.\n- Kuki ilə son ziyarət edilən səhifə brauzerdə saxlanılır.\n- Hər iki mexanizm birgə istifadə edilə bilər.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sessiyalar və kukilərlə işləyərkən təhlükəsizlik vacibdir:\n- Sessiyalar üçün `session_start()` hər səhifədə çağırılmalıdır.\n- Kukilər üçün `HttpOnly` və `Secure` parametrləri istifadə edin.\n- Həssas məlumatları kukilərdə saxlamayın.\n- Sessiya oğurluğunun qarşısını almaq üçün `session_regenerate_id()` istifadə edin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Təhlükəsiz sessiya və kuki nümunəsi\nsession_start();\n\n// Sessiya ID-ni yenilə\nsession_regenerate_id(true);\n\n$_SESSION['user'] = 'Ali';\n\n// Təhlükəsiz kuki\nsetcookie('preference', 'light', time() + 3600, '/', '', true, true);\n\necho 'Sessiya istifadəçisi: ' . $_SESSION['user'] . '\\n';\nif (isset($_COOKIE['preference'])) {\n  echo 'Seçilmiş tərcih: ' . $_COOKIE['preference'];\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `session_regenerate_id(true)` sessiya ID-sini yeniləyir.\n- `setcookie` ilə `Secure` və `HttpOnly` parametrləri təhlükəsizliyi artırır.\n- `Secure` kuki-nin yalnız HTTPS üzərində göndərilməsini təmin edir.\n- `HttpOnly` kuki-nin JavaScript ilə əldə edilməsinin qarşısını alır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: İstifadəçi Giriş Sistemi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sessiyalar və kukilər istifadəçi giriş sistemlərində geniş istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// İstifadəçi giriş sistemi\nsession_start();\n\n// Simulyasiya edilmiş giriş\n$_SESSION['logged_in'] = true;\n$_SESSION['username'] = 'Ali';\nsetcookie('last_login', date('Y-m-d H:i:s'), time() + 3600);\n\nif ($_SESSION['logged_in']) {\n  echo 'Xoş gəldiniz, ' . $_SESSION['username'] . '!\\n';\n  if (isset($_COOKIE['last_login'])) {\n    echo 'Son giriş: ' . $_COOKIE['last_login'];\n  }\n} else {\n  echo 'Zəhmət olmasa daxil olun.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Sessiya ilə istifadəçi giriş statusu və adı saxlanılır.\n- Kuki ilə son giriş vaxtı brauzerdə saxlanılır.\n- Giriş statusu yoxlanılaraq müvafiq mesaj göstərilir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\n// session_start() çağırılmayıb\n$_SESSION['test'] = 'Səhv'; // Xəta: Sessiya başlamayıb\n\necho 'Sessiya dəyəri: ' . $_SESSION['test'];\n\n// Düzgün yol\nsession_start();\n$_SESSION['test'] = 'Düzgün';\necho 'Sessiya dəyəri: ' . $_SESSION['test'];\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk nümunədə `session_start()` çağırılmadığı üçün xəta yaranır.\n- Düzgün yolda `session_start()` əvvəlcə çağırılır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Həmişə `session_start()` çağırın. Kukilərdə `Secure` və `HttpOnly` istifadə edin. Həssas məlumatları şifrələyin. PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/) faydalanın.\n- **Alternativlər**: Sessiyalar əvəzinə verilənlər bazası (MySQL, SQLite) istifadə edilə bilər. Kukilər əvəzinə localStorage və ya sessionStorage istifadə edilə bilər (JavaScript ilə).\n- Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün sessiyalar və kukilər\nsession_start();\n\n$_SESSION['test'] = 'Sessiya testi';\nsetcookie('test_cookie', 'Kuki testi', time() + 3600);\n\necho 'Sessiya: ' . $_SESSION['test'] . '\\n';\nif (isset($_COOKIE['test_cookie'])) {\n  echo 'Kuki: ' . $_COOKIE['test_cookie'];\n}\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Sessions and Cookies",
+    "icon": "FiDatabase",
+    "language": "php",
+    "description": "Session and cookie management in PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Sessions and Cookies in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sessions and cookies in PHP are used to store and manage user data in web applications. Sessions store data on the server temporarily, while cookies store data in the user’s browser. For example, sessions can store login information during a user’s visit, and cookies can save user preferences (e.g., language settings) for a longer period. This JSON file explains how sessions and cookies work, their syntax, security aspects, practical examples, and how to avoid common mistakes in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP. Ensure you are using PHP 8.1 or a newer version."
+      },
+      {
+        "type": "heading",
+        "text": "Sessions: Basics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sessions store user data on the server. Each user is assigned a unique session ID, stored as a cookie in the browser. Session data is typically stored in temporary files on the server.\nKey functions:\n- `session_start()`: Starts a session.\n- `$_SESSION`: Stores and retrieves session variables.\n- `session_destroy()`: Ends a session.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Session example\nsession_start();\n\n$_SESSION['username'] = 'Alice';\n$_SESSION['last_visit'] = date('Y-m-d H:i:s');\n\necho 'User: ' . $_SESSION['username'] . '\\n';\necho 'Last visit: ' . $_SESSION['last_visit'] . '\\n';\n\n// End session\n// session_destroy();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `session_start()` initiates the session.\n- `$_SESSION` array stores user data.\n- Data is stored on the server and available until the browser closes or the session ends.\n- `session_destroy()` terminates the session (commented out; uncomment to activate).\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Cookies: Basics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Cookies store data in the user’s browser, typically for user preferences or login data over a longer period.\nKey functions:\n- `setcookie()`: Sets a cookie.\n- `$_COOKIE`: Retrieves cookie data.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Cookie example\nsetcookie('theme', 'dark', time() + 3600); // 1-hour cookie\n\nif (isset($_COOKIE['theme'])) {\n  echo 'Selected theme: ' . $_COOKIE['theme'];\n} else {\n  echo 'Theme not set.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `setcookie()` creates a cookie in the browser, with `time() + 3600` setting a 1-hour expiration.\n- `$_COOKIE` retrieves cookie values.\n- `isset()` checks if the cookie exists.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Differences Between Sessions and Cookies"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sessions and cookies serve different purposes:\n- Sessions are stored on the server and are suitable for temporary data.\n- Cookies are stored in the browser and used for long-term data.\n- Sessions are more secure as data is stored on the server.\n- Cookies require additional security measures since they are stored client-side.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Session and cookie combination\nsession_start();\n\n$_SESSION['user_id'] = 123;\nsetcookie('last_page', 'home', time() + 3600);\n\necho 'Session: User ID = ' . $_SESSION['user_id'] . '\\n';\nif (isset($_COOKIE['last_page'])) {\n  echo 'Cookie: Last page = ' . $_COOKIE['last_page'];\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Session stores the user ID on the server.\n- Cookie stores the last visited page in the browser.\n- Both mechanisms can be used together.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Security is critical when working with sessions and cookies:\n- Call `session_start()` on every page.\n- Use `HttpOnly` and `Secure` parameters for cookies.\n- Avoid storing sensitive data in cookies.\n- Use `session_regenerate_id()` to prevent session hijacking.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Secure session and cookie example\nsession_start();\n\n// Regenerate session ID\nsession_regenerate_id(true);\n\n$_SESSION['user'] = 'Alice';\n\n// Secure cookie\nsetcookie('preference', 'light', time() + 3600, '/', '', true, true);\n\necho 'Session user: ' . $_SESSION['user'] . '\\n';\nif (isset($_COOKIE['preference'])) {\n  echo 'Selected preference: ' . $_COOKIE['preference'];\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `session_regenerate_id(true)` regenerates the session ID.\n- `setcookie` with `Secure` and `HttpOnly` enhances security.\n- `Secure` ensures the cookie is sent only over HTTPS.\n- `HttpOnly` prevents JavaScript access to the cookie.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: User Login System"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sessions and cookies are widely used in user login systems.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// User login system\nsession_start();\n\n// Simulated login\n$_SESSION['logged_in'] = true;\n$_SESSION['username'] = 'Alice';\nsetcookie('last_login', date('Y-m-d H:i:s'), time() + 3600);\n\nif ($_SESSION['logged_in']) {\n  echo 'Welcome, ' . $_SESSION['username'] . '!\\n';\n  if (isset($_COOKIE['last_login'])) {\n    echo 'Last login: ' . $_COOKIE['last_login'];\n  }\n} else {\n  echo 'Please log in.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Session stores the login status and username.\n- Cookie stores the last login time in the browser.\n- Login status is checked to display appropriate messages.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\n// session_start() not called\n$_SESSION['test'] = 'Error'; // Error: Session not started\n\necho 'Session value: ' . $_SESSION['test'];\n\n// Correct approach\nsession_start();\n$_SESSION['test'] = 'Correct';\necho 'Session value: ' . $_SESSION['test'];\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first example fails because `session_start()` is not called.\n- The correct approach calls `session_start()` first.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Always call `session_start()`. Use `Secure` and `HttpOnly` for cookies. Encrypt sensitive data. Refer to PHP’s official documentation (https://www.php.net/manual/en/).\n- **Alternatives**: Use databases (MySQL, SQLite) instead of sessions. Use localStorage or sessionStorage (with JavaScript) instead of cookies.\n- You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself sessions and cookies\nsession_start();\n\n$_SESSION['test'] = 'Session test';\nsetcookie('test_cookie', 'Cookie test', time() + 3600);\n\necho 'Session: ' . $_SESSION['test'] . '\\n';\nif (isset($_COOKIE['test_cookie'])) {\n  echo 'Cookie: ' . $_COOKIE['test_cookie'];\n}\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Сессии и куки",
+    "icon": "FiDatabase",
+    "language": "php",
+    "description": "Управление сессиями и куки в PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое сессии и куки в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сессии и куки в PHP используются для хранения и управления данными пользователей в веб-приложениях. Сессии сохраняют данные на сервере временно, а куки — в браузере пользователя. Например, сессии могут хранить информацию о входе пользователя, а куки — предпочтения пользователя (например, выбор языка) на длительный срок. Этот JSON-файл подробно объясняет, как работают сессии и куки, их синтаксис, аспекты безопасности, практические примеры и способы избежания ошибок. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP. Убедитесь, что вы используете PHP 8.1 или новее."
+      },
+      {
+        "type": "heading",
+        "text": "Сессии: Основы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сессии хранят данные пользователя на сервере. Каждому пользователю присваивается уникальный идентификатор сессии, который сохраняется в браузере как куки. Данные сессии обычно хранятся во временных файлах на сервере.\nОсновные функции:\n- `session_start()`: Запускает сессию.\n- `$_SESSION`: Хранит и извлекает переменные сессии.\n- `session_destroy()`: Завершает сессию.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример сессии\nsession_start();\n\n$_SESSION['username'] = 'Алиса';\n$_SESSION['last_visit'] = date('Y-m-d H:i:s');\n\necho 'Пользователь: ' . $_SESSION['username'] . '\\n';\necho 'Последний визит: ' . $_SESSION['last_visit'] . '\\n';\n\n// Завершение сессии\n// session_destroy();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `session_start()` запускает сессию.\n- Массив `$_SESSION` сохраняет данные пользователя.\n- Данные хранятся на сервере и доступны до закрытия браузера или окончания сессии.\n- `session_destroy()` завершает сессию (закомментировано; раскомментируйте для активации).\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Куки: Основы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Куки сохраняют данные в браузере пользователя, обычно для хранения предпочтений или данных входа на длительный срок.\nОсновные функции:\n- `setcookie()`: Устанавливает куки.\n- `$_COOKIE`: Извлекает данные куки.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример куки\nsetcookie('theme', 'dark', time() + 3600); // Куки на 1 час\n\nif (isset($_COOKIE['theme'])) {\n  echo 'Выбранная тема: ' . $_COOKIE['theme'];\n} else {\n  echo 'Тема не установлена.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `setcookie()` создает куки в браузере, с `time() + 3600` для установки срока действия 1 час.\n- `$_COOKIE` извлекает значения куки.\n- `isset()` проверяет наличие куки.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Различия между сессиями и куки"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сессии и куки имеют разные цели:\n- Сессии хранятся на сервере и подходят для временных данных.\n- Куки хранятся в браузере и используются для долгосрочных данных.\n- Сессии более безопасны, так как данные хранятся на сервере.\n- Куки требуют дополнительных мер безопасности, так как хранятся на стороне клиента.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Комбинация сессий и куки\nsession_start();\n\n$_SESSION['user_id'] = 123;\nsetcookie('last_page', 'home', time() + 3600);\n\necho 'Сессия: ID пользователя = ' . $_SESSION['user_id'] . '\\n';\nif (isset($_COOKIE['last_page'])) {\n  echo 'Куки: Последняя страница = ' . $_COOKIE['last_page'];\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Сессия сохраняет ID пользователя на сервере.\n- Куки сохраняет последнюю посещенную страницу в браузере.\n- Оба механизма могут использоваться вместе.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Безопасность важна при работе с сессиями и куки:\n- Вызывайте `session_start()` на каждой странице.\n- Используйте параметры `HttpOnly` и `Secure` для куки.\n- Избегайте хранения конфиденциальных данных в куки.\n- Используйте `session_regenerate_id()` для предотвращения угона сессии.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример безопасной сессии и куки\nsession_start();\n\n// Регенерация ID сессии\nsession_regenerate_id(true);\n\n$_SESSION['user'] = 'Алиса';\n\n// Безопасная куки\nsetcookie('preference', 'light', time() + 3600, '/', '', true, true);\n\necho 'Пользователь сессии: ' . $_SESSION['user'] . '\\n';\nif (isset($_COOKIE['preference'])) {\n  echo 'Выбранное предпочтение: ' . $_COOKIE['preference'];\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `session_regenerate_id(true)` обновляет ID сессии.\n- `setcookie` с параметрами `Secure` и `HttpOnly` повышает безопасность.\n- `Secure` гарантирует отправку куки только через HTTPS.\n- `HttpOnly` предотвращает доступ к куки через JavaScript.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Система входа пользователя"
+      },
+      {
+        "type": "paragraph",
+        "text": "Сессии и куки широко используются в системах входа пользователей.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Система входа пользователя\nsession_start();\n\n// Симуляция входа\n$_SESSION['logged_in'] = true;\n$_SESSION['username'] = 'Алиса';\nsetcookie('last_login', date('Y-m-d H:i:s'), time() + 3600);\n\nif ($_SESSION['logged_in']) {\n  echo 'Добро пожаловать, ' . $_SESSION['username'] . '!\\n';\n  if (isset($_COOKIE['last_login'])) {\n    echo 'Последний вход: ' . $_COOKIE['last_login'];\n  }\n} else {\n  echo 'Пожалуйста, войдите.';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Сессия сохраняет статус входа и имя пользователя.\n- Куки сохраняет время последнего входа в браузере.\n- Проверяется статус входа для отображения соответствующих сообщений.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\n// session_start() не вызван\n$_SESSION['test'] = 'Ошибка'; // Ошибка: Сессия не начата\n\necho 'Значение сессии: ' . $_SESSION['test'];\n\n// Правильный подход\nsession_start();\n$_SESSION['test'] = 'Корректно';\necho 'Значение сессии: ' . $_SESSION['test'];\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый пример вызывает ошибку, так как `session_start()` не вызван.\n- Правильный подход сначала вызывает `session_start()`.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Всегда вызывайте `session_start()`. Используйте `Secure` и `HttpOnly` для куки. Шифруйте конфиденциальные данные. Обратитесь к официальной документации PHP (https://www.php.net/manual/en/).\n- **Альтернативы**: Вместо сессий можно использовать базы данных (MySQL, SQLite). Вместо куки можно использовать localStorage или sessionStorage (с JavaScript).\n- Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Попробуйте сами сессии и куки\nsession_start();\n\n$_SESSION['test'] = 'Тест сессии';\nsetcookie('test_cookie', 'Тест куки', time() + 3600);\n\necho 'Сессия: ' . $_SESSION['test'] . '\\n';\nif (isset($_COOKIE['test_cookie'])) {\n  echo 'Куки: ' . $_COOKIE['test_cookie'];\n}\n?>"
+      }
+    ]
+  }
+}

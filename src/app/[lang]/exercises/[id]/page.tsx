@@ -24,6 +24,7 @@ import {
 import { useI18n } from "@/contexts/I18nContext";
 import { useAppContext } from "@/contexts/AppContext";
 import { useSession } from "next-auth/react";
+import FavoriteButton from "../../../../components/FavoriteButton";
 // Remove Babel import since it's causing issues
 // import Babel from "@babel/standalone";
 
@@ -313,7 +314,7 @@ export default function ExerciseDetailPage({
     if (exercise) {
       refreshLatestSubmission();
     }
-  }, [exercise]); // Only run when exercise changes, not after every submission
+  }, [exercise, refreshLatestSubmission]);
 
   // Load status from localStorage on mount
   useEffect(() => {
@@ -343,6 +344,7 @@ export default function ExerciseDetailPage({
           }
         );
       }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exercise, id, session]);
 
   // Autosave code to localStorage on every change
@@ -484,24 +486,6 @@ export default function ExerciseDetailPage({
     let failedCase = null;
     const failedCasesArr: FailedCase[] = [];
     
-    // Log exercise submission activity (optional)
-    if (exercise) {
-      try {
-        logActivity(
-          'EXERCISE_SUBMIT',
-          `Submitted solution for exercise: ${exercise.title}`,
-          {
-            exerciseId: id,
-            exerciseTitle: exercise.title,
-            language: language,
-            codeLength: userCode.length
-          }
-        );
-      } catch (error) {
-        console.warn('Activity logging failed:', error);
-      }
-    }
-    
     if (!isSafeCode(userCode)) {
       setFeedback("Kod təhlükəli əmrlər ehtiva edir!");
       setFeedbackType("error");
@@ -556,7 +540,7 @@ export default function ExerciseDetailPage({
             return;
           }
 
-          let argsStr = Array.isArray(args) 
+          const argsStr = Array.isArray(args) 
             ? args.map(a => typeof a === "string" ? `"${a}"` : JSON.stringify(a)).join(", ")
             : JSON.stringify(args);
           
@@ -1164,25 +1148,6 @@ export default function ExerciseDetailPage({
         console.warn('Failed to mark exercise as solved:', error);
       }
     }
-    
-    // Log successful exercise completion (optional)
-    if (exercise) {
-      try {
-        logActivity(
-          'EXERCISE_SOLVE',
-          `Successfully solved exercise: ${exercise.title}`,
-          {
-            exerciseId: id,
-            exerciseTitle: exercise.title,
-            language: language,
-            testCasesPassed: exercise.content.testCases.length,
-            attempts: 1 // Could track this if needed
-          }
-        );
-      } catch (error) {
-        console.warn('Activity logging failed:', error);
-      }
-    }
   };
 
   const visibleCases = exercise ? exercise.content.testCases.filter((tc) => !tc.hidden) : [];
@@ -1265,7 +1230,6 @@ export default function ExerciseDetailPage({
       // Use default template for this language
       setUserCode(languageSamples[language as keyof typeof languageSamples]);
     }
-    // eslint-disable-next-line
   }, [language, exercise]);
 
   // Close dropdown on outside click
@@ -1344,6 +1308,13 @@ export default function ExerciseDetailPage({
                 ))}
               </div>
             </div>
+            <FavoriteButton
+              type="EXERCISE"
+              itemId={exercise.id.toString()}
+              title={exercise.title}
+              description={exercise.description}
+              category={exercise.category}
+            />
           </div>
         </div>
       </section>

@@ -1,0 +1,351 @@
+{
+  "id": "use-effect",
+  "az": {
+    "title": "useEffect və useLayoutEffect",
+    "icon": "FiActivity",
+    "language": "javascript",
+    "description": "Yan təsirlər, asılılıqlar və layoutdan əvvəl təsirlər",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// useEffect Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "React-də **useEffect** hook-u komponentdə \"yan təsirləri\" (side effects) idarə etmək üçün istifadə olunur. Yan təsirlər dedikdə API sorğuları, DOM dəyişiklikləri, abunəliklər (subscriptions) və ya timer-lər kimi React renderindən kənar əməliyyatlar nəzərdə tutulur. useEffect komponent render olunduqdan sonra işləyir və asılılıqlar (dependencies) massivi ilə nə vaxt işləyəcəyi müəyyənləşdirilir. Bu dərsdə useEffect və useLayoutEffect hook-larının nə olduğunu, necə işlədiyini və sadə nümunələri öyrənəcəksiniz. Kod nümunələri sadədir, istifadəçi girişi tələb etmir və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useEffect-in Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "useEffect iki parametr qəbul edir:\n- **Callback funksiyası**: Yan təsiri icra edən funksiya.\n- **Asılılıq massivi** (optional): Callback-in nə vaxt işləyəcəyini müəyyənləşdirir.\nAsılılıq massivi boş olduqda (`[]`) effekt yalnız bir dəfə (komponent yüklənəndə) işləyir. Massivdə dəyişənlər olduqda hər dəyişiklikdə yenidən işləyir."
+      },
+      {
+        "type": "heading",
+        "text": "// useEffect ilə Timer (Saniyə Sayğacı)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ən çox istifadə olunan nümunələrdən biri – timer.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useEffect } from 'react';\n\nfunction Timer() {\n  const [seconds, setSeconds] = useState(0);\n\n  useEffect(() => {\n    const interval = setInterval(() => {\n      setSeconds(prev => prev + 1);\n    }, 1000);\n\n    return () => clearInterval(interval); // Cleanup\n  }, []); // Boş massiv – yalnız bir dəfə işləyir\n\n  return <p>Saniyə: {seconds}</p>;\n}\n\nconsole.log('useEffect ilə saniyə sayğacı yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `useEffect` komponent yüklənəndə interval yaradır.\n- `return` funksiyası komponent silinəndə intervalı təmizləyir (memory leak qarşısını alır).\n- Boş massiv (`[]`) effekti yalnız bir dəfə işə salır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Asılılıq Massivi ilə useEffect"
+      },
+      {
+        "type": "paragraph",
+        "text": "Asılılıq massivi effekti nə vaxt yenidən işə salacağını müəyyənləşdirir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useEffect } from 'react';\n\nfunction UserProfile() {\n  const [userId, setUserId] = useState(1);\n\n  useEffect(() => {\n    console.log(`User ${userId} üçün məlumat yüklənir`);\n  }, [userId]); // userId dəyişəndə effekt yenidən işləyir\n\n  return (\n    <div>\n      <p>İstifadəçi ID: {userId}</p>\n      <button onClick={() => setUserId(userId + 1)}>Növbəti istifadəçi</button>\n    </div>\n  );\n}\n\nconsole.log('Asılılıq massivi ilə useEffect yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `userId` dəyişəndə effekt yenidən işləyir.\n- Asılılıq massivində `userId` olduğu üçün yalnız bu dəyişəndə effekt yenilənir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useLayoutEffect"
+      },
+      {
+        "type": "paragraph",
+        "text": "`useLayoutEffect` useEffect ilə eynidir, lakin DOM-a dəyişikliklər tətbiq olunmazdan əvvəl işləyir. Bu, layout ölçüləri ilə bağlı əməliyyatlar üçün istifadə olunur (məsələn, animasiya, ölçülərin dəyişdirilməsi).\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useLayoutEffect } from 'react';\n\nfunction LayoutExample() {\n  const [width, setWidth] = useState(0);\n\n  useLayoutEffect(() => {\n    const element = document.getElementById('box');\n    if (element) {\n      setWidth(element.offsetWidth);\n    }\n  }, []);\n\n  return (\n    <div>\n      <div id=\"box\" style={{ width: '200px', height: '100px', background: 'lightblue' }}>\n        Bu qutu\n      </div>\n      <p>Qutu eni: {width}px</p>\n    </div>\n  );\n}\n\nconsole.log('useLayoutEffect ilə komponent yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `useLayoutEffect` DOM ölçüsünü renderdən əvvəl ölçür.\n- `useEffect` ilə müqayisədə flicker (yanıb-sönmə) olmadan işləyir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// useEffect və useLayoutEffect Arasındakı Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fərqlər:\n- **useEffect**: Renderdən sonra işləyir (browser paint etdikdən sonra).\n- **useLayoutEffect**: Renderdən sonra, lakin browser paint etməzdən əvvəl işləyir.\n- **İstifadə yeri**: useEffect əksər yan təsirlər üçün uyğundur. useLayoutEffect yalnız layout ölçüləri və ya animasiya üçün lazımdır."
+      },
+      {
+        "type": "heading",
+        "text": "// Cleanup Funksiyası"
+      },
+      {
+        "type": "paragraph",
+        "text": "useEffect-in return etdiyi funksiya komponent silinəndə (unmount) və ya effekt yenilənəndə çağırılır. Bu, memory leak-lərin qarşısını alır.\nNümunə (timer cleanup):"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useEffect } from 'react';\n\nfunction Timer() {\n  const [seconds, setSeconds] = useState(0);\n\n  useEffect(() => {\n    const interval = setInterval(() => {\n      setSeconds(s => s + 1);\n    }, 1000);\n\n    return () => {\n      clearInterval(interval);\n      console.log('Timer təmizləndi');\n    };\n  }, []);\n\n  return <p>Saniyə: {seconds}</p>;\n}\n\nconsole.log('Cleanup ilə useEffect yaradıldı');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `return () => clearInterval(interval)` komponent silinəndə intervalı təmizləyir.\n- Bu, memory leak-lərin qarşısını alır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Tövsiyələr və Resurslar"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: useEffect ilə başlayın, cleanup funksiyasını unutmayın, asılılıq massivini düzgün təyin edin.\n- **Resurslar**: Rəsmi React sənədləri (https://react.dev/reference/react/useEffect), useEffect haqqında dərslər.\nAşağıda nümunə kodu sınaqdan keçirə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "// Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useState, useEffect } from 'react';\n\nfunction App() {\n  const [count, setCount] = useState(0);\n\n  useEffect(() => {\n    console.log('useEffect işlədi');\n  }, [count]);\n\n  return (\n    <div>\n      <p>Say: {count}</p>\n      <button onClick={() => setCount(count + 1)}>Artır</button>\n    </div>\n  );\n}\n\nconsole.log('Sadə useEffect komponenti');\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "useEffect and useLayoutEffect",
+    "icon": "FiActivity",
+    "language": "javascript",
+    "description": "Side effects, dependencies, and effects before paint",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// What is useEffect?"
+      },
+      {
+        "type": "paragraph",
+        "text": "The **useEffect** hook in React is used to handle \"side effects\" (operations outside of rendering), such as API calls, subscriptions, or timers. It runs after the component renders and can be controlled with a dependency array. This lesson covers useEffect and useLayoutEffect, how they work, their differences, and simple examples. Code examples are simple, require no user input, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Syntax of useEffect"
+      },
+      {
+        "type": "paragraph",
+        "text": "useEffect takes two parameters:\n- **Callback function**: The function that performs the side effect.\n- **Dependency array** (optional): Determines when the callback runs.\nAn empty array (`[]`) runs the effect only once (on mount). An array with variables runs the effect when those variables change."
+      },
+      {
+        "type": "heading",
+        "text": "// useEffect with Timer (Seconds Counter)"
+      },
+      {
+        "type": "paragraph",
+        "text": "One of the most common examples is a timer.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useEffect } from 'react';\n\nfunction Timer() {\n  const [seconds, setSeconds] = useState(0);\n\n  useEffect(() => {\n    const interval = setInterval(() => {\n      setSeconds(prev => prev + 1);\n    }, 1000);\n\n    return () => clearInterval(interval); // Cleanup\n  }, []); // Empty array – runs only once\n\n  return <p>Seconds: {seconds}</p>;\n}\n\nconsole.log('Timer component with useEffect created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `useEffect` creates an interval when the component mounts.\n- The `return` function cleans up the interval when the component unmounts.\n- Empty dependency array (`[]`) runs the effect only once.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// useEffect with Dependency Array"
+      },
+      {
+        "type": "paragraph",
+        "text": "The dependency array controls when the effect re-runs.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useEffect } from 'react';\n\nfunction UserProfile() {\n  const [userId, setUserId] = useState(1);\n\n  useEffect(() => {\n    console.log(`Loading data for user ${userId}`);\n  }, [userId]); // Runs when userId changes\n\n  return (\n    <div>\n      <p>User ID: {userId}</p>\n      <button onClick={() => setUserId(userId + 1)}>Next user</button>\n    </div>\n  );\n}\n\nconsole.log('useEffect with dependency array created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The effect re-runs whenever `userId` changes.\n- The dependency array includes `userId`, so only that change triggers the effect.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// useLayoutEffect"
+      },
+      {
+        "type": "paragraph",
+        "text": "`useLayoutEffect` works like useEffect but runs synchronously after DOM mutations but before the browser paints. Use it for layout measurements or animations to avoid flickering.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useLayoutEffect } from 'react';\n\nfunction LayoutExample() {\n  const [width, setWidth] = useState(0);\n\n  useLayoutEffect(() => {\n    const element = document.getElementById('box');\n    if (element) {\n      setWidth(element.offsetWidth);\n    }\n  }, []);\n\n  return (\n    <div>\n      <div id=\"box\" style={{ width: '200px', height: '100px', background: 'lightblue' }}>\n        This box\n      </div>\n      <p>Box width: {width}px</p>\n    </div>\n  );\n}\n\nconsole.log('useLayoutEffect component created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `useLayoutEffect` measures the DOM size before the browser paints.\n- This avoids flickering compared to useEffect.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Differences Between useEffect and useLayoutEffect"
+      },
+      {
+        "type": "paragraph",
+        "text": "Differences:\n- **useEffect**: Runs after render (after browser paint).\n- **useLayoutEffect**: Runs after render but before browser paint.\n- **Use case**: useEffect for most side effects. useLayoutEffect only for layout measurements or animations."
+      },
+      {
+        "type": "heading",
+        "text": "// Cleanup Function"
+      },
+      {
+        "type": "paragraph",
+        "text": "The function returned from useEffect runs when the component unmounts or when the effect re-runs. This prevents memory leaks.\nExample (timer cleanup):"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useEffect } from 'react';\n\nfunction Timer() {\n  const [seconds, setSeconds] = useState(0);\n\n  useEffect(() => {\n    const interval = setInterval(() => {\n      setSeconds(s => s + 1);\n    }, 1000);\n\n    return () => {\n      clearInterval(interval);\n      console.log('Timer cleaned up');\n    };\n  }, []);\n\n  return <p>Seconds: {seconds}</p>;\n}\n\nconsole.log('useEffect with cleanup created');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `return` function cleans up the interval when the component unmounts.\n- This prevents memory leaks.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Recommendations and Resources"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Start with useEffect, always include cleanup functions, and specify dependencies correctly.\n- **Resources**: Official React documentation (https://react.dev/reference/react/useEffect), useEffect tutorials.\nYou can test the example code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "// Try It Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useState, useEffect } from 'react';\n\nfunction App() {\n  const [count, setCount] = useState(0);\n\n  useEffect(() => {\n    console.log('useEffect ran');\n  }, [count]);\n\n  return (\n    <div>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount(count + 1)}>Increment</button>\n    </div>\n  );\n}\n\nconsole.log('Simple useEffect component');\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "useEffect и useLayoutEffect",
+    "icon": "FiActivity",
+    "language": "javascript",
+    "description": "Побочные эффекты, зависимости и эффекты до отрисовки",
+    "content": [
+      {
+        "type": "heading",
+        "text": "// Что такое useEffect?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Хук **useEffect** в React используется для управления \"побочными эффектами\" (операциями вне рендера), такими как запросы API, подписки или таймеры. Он выполняется после рендера компонента и контролируется массивом зависимостей. В этом уроке вы узнаете, как работают useEffect и useLayoutEffect, их различия и простые примеры. Примеры кода просты, не требуют ввода пользователя, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Синтаксис useEffect"
+      },
+      {
+        "type": "paragraph",
+        "text": "useEffect принимает два параметра:\n- **Функция-колбэк**: Выполняет побочный эффект.\n- **Массив зависимостей** (необязательный): Определяет, когда запускать колбэк.\nПустой массив (`[]`) запускает эффект только один раз (при монтировании). Массив с переменными запускает эффект при их изменении."
+      },
+      {
+        "type": "heading",
+        "text": "// useEffect с таймером (счетчик секунд)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Один из самых распространенных примеров — таймер.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useEffect } from 'react';\n\nfunction Timer() {\n  const [seconds, setSeconds] = useState(0);\n\n  useEffect(() => {\n    const interval = setInterval(() => {\n      setSeconds(prev => prev + 1);\n    }, 1000);\n\n    return () => clearInterval(interval); // Очистка\n  }, []); // Пустой массив — запускается только один раз\n\n  return <p>Секунд: {seconds}</p>;\n}\n\nconsole.log('Компонент с useEffect (таймер) создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `useEffect` создает интервал при монтировании компонента.\n- Функция `return` очищает интервал при размонтировании.\n- Пустой массив зависимостей (`[]`) запускает эффект только один раз.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// useEffect с массивом зависимостей"
+      },
+      {
+        "type": "paragraph",
+        "text": "Массив зависимостей контролирует, когда эффект повторно запускается.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useEffect } from 'react';\n\nfunction UserProfile() {\n  const [userId, setUserId] = useState(1);\n\n  useEffect(() => {\n    console.log(`Загрузка данных для пользователя ${userId}`);\n  }, [userId]); // Эффект запускается при изменении userId\n\n  return (\n    <div>\n      <p>ID пользователя: {userId}</p>\n      <button onClick={() => setUserId(userId + 1)}>Следующий пользователь</button>\n    </div>\n  );\n}\n\nconsole.log('useEffect с массивом зависимостей создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Эффект перезапускается при каждом изменении `userId`.\n- Массив зависимостей включает `userId`, поэтому только его изменение вызывает эффект.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// useLayoutEffect"
+      },
+      {
+        "type": "paragraph",
+        "text": "`useLayoutEffect` работает как useEffect, но выполняется синхронно после мутаций DOM, но до отрисовки браузером. Используйте его для измерения layout или анимаций, чтобы избежать мерцания.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useLayoutEffect } from 'react';\n\nfunction LayoutExample() {\n  const [width, setWidth] = useState(0);\n\n  useLayoutEffect(() => {\n    const element = document.getElementById('box');\n    if (element) {\n      setWidth(element.offsetWidth);\n    }\n  }, []);\n\n  return (\n    <div>\n      <div id=\"box\" style={{ width: '200px', height: '100px', background: 'lightblue' }}>\n        Этот блок\n      </div>\n      <p>Ширина блока: {width}px</p>\n    </div>\n  );\n}\n\nconsole.log('Компонент с useLayoutEffect создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `useLayoutEffect` измеряет размер DOM до отрисовки браузером.\n- Это предотвращает мерцание по сравнению с useEffect.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Различия между useEffect и useLayoutEffect"
+      },
+      {
+        "type": "paragraph",
+        "text": "Различия:\n- **useEffect**: Выполняется после рендера (после отрисовки браузером).\n- **useLayoutEffect**: Выполняется после рендера, но до отрисовки браузером.\n- **Применение**: useEffect для большинства побочных эффектов. useLayoutEffect только для измерений layout или анимаций."
+      },
+      {
+        "type": "heading",
+        "text": "// Функция очистки"
+      },
+      {
+        "type": "paragraph",
+        "text": "Функция, возвращаемая из useEffect, выполняется при размонтировании компонента или при повторном запуске эффекта. Это предотвращает утечки памяти.\nПример (очистка таймера):"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "import React, { useState, useEffect } from 'react';\n\nfunction Timer() {\n  const [seconds, setSeconds] = useState(0);\n\n  useEffect(() => {\n    const interval = setInterval(() => {\n      setSeconds(s => s + 1);\n    }, 1000);\n\n    return () => {\n      clearInterval(interval);\n      console.log('Таймер очищен');\n    };\n  }, []);\n\n  return <p>Секунд: {seconds}</p>;\n}\n\nconsole.log('useEffect с очисткой создан');\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `return` очищает интервал при размонтировании компонента.\n- Это предотвращает утечки памяти.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Рекомендации и ресурсы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Начните с useEffect, всегда добавляйте функцию очистки, правильно указывайте зависимости.\n- **Ресурсы**: Официальная документация React (https://react.dev/reference/react/useEffect), уроки по useEffect.\nВы можете протестировать пример кода ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "// Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "import React, { useState, useEffect } from 'react';\n\nfunction App() {\n  const [count, setCount] = useState(0);\n\n  useEffect(() => {\n    console.log('useEffect запустился');\n  }, [count]);\n\n  return (\n    <div>\n      <p>Счет: {count}</p>\n      <button onClick={() => setCount(count + 1)}>Увеличить</button>\n    </div>\n  );\n}\n\nconsole.log('Простой компонент с useEffect');\n"
+      }
+    ]
+  }
+}

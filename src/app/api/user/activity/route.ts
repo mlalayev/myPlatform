@@ -2,86 +2,269 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "../../auth/authOptions";
 import { prisma } from "@/lib/prisma";
 
-// Log user activity
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
+
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { type, description, metadata } = body;
-
-    if (!type || !description) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
-
-    // Get user
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { id: true }
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Try to log activity - use try/catch for new tables
-    try {
-      // Log activity
-      const activity = await prisma.userActivity.create({
-        data: {
-          userId: user.id,
-          type,
-          description,
-          metadata: metadata || {}
-        }
-      });
+    const body = await request.json();
+    const { type, description, metadata } = body;
 
-      // Update daily activity stats
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+    // Update or create daily activity record
+    const now = new Date();
+    const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
+    const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
+    today.setHours(0, 0, 0, 0);
 
-      // Update activity stats (no login tracking)
-      await prisma.dailyActivity.upsert({
-        where: {
-          userId_date: {
-            userId: user.id,
-            date: today
-          }
-        },
-        update: {
-          lessonsViewed: type === 'LESSON_VIEW' ? { increment: 1 } : undefined,
-          quizzesTaken: type === 'QUIZ_SUBMIT' ? { increment: 1 } : undefined,
-          exercisesSolved: type === 'EXERCISE_SOLVE' ? { increment: 1 } : undefined,
-          pointsEarned: metadata?.points ? { increment: metadata.points } : undefined,
-        },
-        create: {
+    let dailyActivity = await prisma.dailyActivity.findUnique({
+      where: {
+        userId_date: {
           userId: user.id,
           date: today,
-          loginCount: 0,
+        },
+      },
+    });
+
+    if (!dailyActivity) {
+      dailyActivity = await prisma.dailyActivity.create({
+        data: {
+          userId: user.id,
+          date: today,
+          loginCount: type === 'LOGIN' ? 1 : 0,
+          studyTime: 0,
           lessonsViewed: type === 'LESSON_VIEW' ? 1 : 0,
           quizzesTaken: type === 'QUIZ_SUBMIT' ? 1 : 0,
           exercisesSolved: type === 'EXERCISE_SOLVE' ? 1 : 0,
-          pointsEarned: metadata?.points || 0,
-        }
+          pointsEarned: 0,
+        },
       });
+    } else {
+      // Update existing daily activity
+      const updateData: any = {};
+      
+      if (type === 'LOGIN') {
+        updateData.loginCount = dailyActivity.loginCount + 1;
+      }
+      if (type === 'LESSON_VIEW') {
+        updateData.lessonsViewed = dailyActivity.lessonsViewed + 1; // Always increment lesson views
+      }
+      if (type === 'QUIZ_SUBMIT') {
+        updateData.quizzesTaken = dailyActivity.quizzesTaken + 1;
+      }
+      if (type === 'EXERCISE_SOLVE') {
+        updateData.exercisesSolved = dailyActivity.exercisesSolved + 1;
+      }
 
-      return NextResponse.json({ success: true, activity });
-    } catch (activityError) {
-      console.log("Activity tracking not available yet:", activityError.message);
-      // Return success anyway, just log that tracking is not available
-      return NextResponse.json({ success: true, message: "Activity logged locally" });
+      if (Object.keys(updateData).length > 0) {
+        await prisma.dailyActivity.update({
+          where: { id: dailyActivity.id },
+          data: updateData,
+        });
+      }
     }
 
-  } catch (error) {
+    // Handle daily login bonus coin increment idempotently per day
+    if (type === 'DAILY_LOGIN_BONUS') {
+      // Check if bonus already granted today (in AZ time)
+      const startOfToday = new Date(today);
+      const endOfToday = new Date(today);
+      endOfToday.setDate(endOfToday.getDate() + 1);
+
+      const existingBonus = await prisma.userActivity.findFirst({
+        where: {
+          userId: user.id,
+          type: 'DAILY_LOGIN_BONUS',
+          timestamp: {
+            gte: startOfToday,
+            lt: endOfToday,
+          },
+        },
+      });
+
+      if (!existingBonus) {
+        const pointsToAdd = (metadata && typeof metadata.points === 'number') ? metadata.points : 1;
+
+        // Increment user's coins
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            dailyLoginPoints: {
+              increment: pointsToAdd,
+            },
+            lastLoginDate: new Date(),
+          },
+        });
+
+        // Increment DailyActivity.pointsEarned
+        await prisma.dailyActivity.update({
+          where: { id: dailyActivity.id },
+          data: {
+            pointsEarned: dailyActivity.pointsEarned + pointsToAdd,
+          },
+        });
+
+        // Create activity record after successful award
+        await prisma.userActivity.create({
+          data: {
+            userId: user.id,
+            type,
+            description,
+            metadata,
+          },
+        });
+
+        return NextResponse.json({ success: true, coinsAdded: pointsToAdd });
+      } else {
+        return NextResponse.json({ success: true, message: 'Bonus already granted today' });
+      }
+    }
+
+    // For all other activity types: log activity after dailyActivity bookkeeping
+    await prisma.userActivity.create({
+      data: {
+        userId: user.id,
+        type,
+        description,
+        metadata,
+      },
+    });
+
+    // Update lesson progress tracking
+    await updateLessonProgress(user.id, type, metadata);
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
     console.error("Error logging activity:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to log activity", details: error.message },
+      { status: 500 }
+    );
   }
 }
 
-// Get recent activities
+// Function to update lesson progress tracking
+async function updateLessonProgress(userId: number, activityType: string, metadata: any) {
+  try {
+    const now = new Date();
+    const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
+    const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
+    today.setHours(0, 0, 0, 0);
+
+    // Get user's current visited lessons
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { visitedLessons: true }
+    });
+
+    if (!user?.visitedLessons || typeof user.visitedLessons !== 'object') {
+      return;
+    }
+
+    const visitedData = user.visitedLessons;
+    let totalVisitedLessons = 0;
+    
+    Object.keys(visitedData).forEach(language => {
+      const lessons = (visitedData as any)[language];
+      if (Array.isArray(lessons)) {
+        totalVisitedLessons += lessons.length;
+      }
+    });
+
+    // Get today's progress record
+    let todayProgress = await prisma.userLessonProgress.findUnique({
+      where: {
+        userId_date: {
+          userId,
+          date: today,
+        },
+      },
+    });
+
+    if (!todayProgress) {
+      // Create today's record
+      todayProgress = await prisma.userLessonProgress.create({
+        data: {
+          userId,
+          date: today,
+          totalLessonsCompleted: totalVisitedLessons,
+          lessonsCompletedToday: 0,
+          exercisesCompletedToday: 0,
+          studyTimeToday: 0,
+        },
+      });
+    }
+
+    // Calculate new lessons completed today
+    const previousTotal = todayProgress.totalLessonsCompleted;
+    const newLessonsToday = totalVisitedLessons - previousTotal;
+
+    // Update today's record
+    const updateData: any = {};
+    
+    if (newLessonsToday > 0) {
+      updateData.lessonsCompletedToday = todayProgress.lessonsCompletedToday + newLessonsToday;
+      updateData.totalLessonsCompleted = totalVisitedLessons;
+    }
+
+    if (activityType === 'EXERCISE_SOLVE') {
+      updateData.exercisesCompletedToday = todayProgress.exercisesCompletedToday + 1;
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      await prisma.userLessonProgress.update({
+        where: { id: todayProgress.id },
+        data: updateData,
+      });
+    }
+
+    // Ensure we have records for the last 7 days
+    for (let i = 1; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      date.setHours(0, 0, 0, 0);
+
+      const existingRecord = await prisma.userLessonProgress.findUnique({
+        where: {
+          userId_date: {
+            userId,
+            date: date,
+          },
+        },
+      });
+
+      if (!existingRecord) {
+        // Create empty record for historical days
+        await prisma.userLessonProgress.create({
+          data: {
+            userId,
+            date: date,
+            totalLessonsCompleted: totalVisitedLessons,
+            lessonsCompletedToday: 0,
+            exercisesCompletedToday: 0,
+            studyTimeToday: 0,
+          },
+        });
+      }
+    }
+
+  } catch (error) {
+    console.error("Error updating lesson progress:", error);
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
@@ -89,71 +272,141 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const url = new URL(request.url);
-    const limit = parseInt(url.searchParams.get('limit') || '10');
-
-    // Get user
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true }
+      where: { email: session.user.email }
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Try to get activities - use try/catch for new tables
-    try {
-      // Get recent activities
-      const activities = await prisma.userActivity.findMany({
-        where: { userId: user.id },
-        orderBy: { timestamp: 'desc' },
-        take: limit,
-        select: {
-          id: true,
-          type: true,
-          description: true,
-          metadata: true,
-          timestamp: true
-        }
+    // Check if this is a test request
+    const { searchParams } = new URL(request.url);
+    const test = searchParams.get('test');
+    
+    if (test === 'lesson_views') {
+      // Create some test lesson view activities
+      const today = new Date();
+      const activities = [];
+      
+      for (let i = 0; i < 5; i++) {
+        const activity = await prisma.userActivity.create({
+          data: {
+            userId: user.id,
+            type: 'LESSON_VIEW',
+            description: `Test lesson view ${i + 1}`,
+            metadata: {
+              path: `/az/tutorials/javascript/test-${i + 1}`,
+              timestamp: new Date(today.getTime() - i * 60000).toISOString() // 1 minute apart
+            },
+          },
+        });
+        activities.push(activity);
+      }
+      
+      // Update daily activity
+      let dailyActivity = await prisma.dailyActivity.findUnique({
+        where: {
+          userId_date: {
+            userId: user.id,
+            date: today,
+          },
+        },
       });
 
-      // Format activities for frontend
-      const formattedActivities = activities.map(activity => ({
-        id: activity.id,
-        type: activity.type.toLowerCase(),
-        text: activity.description,
-        time: formatTimeAgo(activity.timestamp),
-        metadata: activity.metadata,
-        timestamp: activity.timestamp,
-        language: activity.metadata?.language || null // Add language info for icons
-      }));
-
-      return NextResponse.json({ activities: formattedActivities });
-    } catch (activityError) {
-      console.log("Activity tracking not available yet:", activityError.message);
-      // Return empty activities when tracking is not available
-      return NextResponse.json({ activities: [] });
+      if (!dailyActivity) {
+        dailyActivity = await prisma.dailyActivity.create({
+          data: {
+            userId: user.id,
+            date: today,
+            loginCount: 0,
+            studyTime: 0,
+            lessonsViewed: 5,
+            quizzesTaken: 0,
+            exercisesSolved: 0,
+            pointsEarned: 0,
+          },
+        });
+      } else {
+        await prisma.dailyActivity.update({
+          where: { id: dailyActivity.id },
+          data: {
+            lessonsViewed: dailyActivity.lessonsViewed + 5
+          },
+        });
+      }
+      
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Created 5 test lesson views',
+        activities: activities.length
+      });
     }
 
-  } catch (error) {
-    console.error("Error fetching activities:", error);
+    // Get recent activities
+    const activities = await prisma.userActivity.findMany({
+      where: { userId: user.id },
+      orderBy: { timestamp: 'desc' },
+      take: 100
+    });
+
+    // Get daily activities for the last 28 days for streak calculation
+    const now = new Date();
+    const azerbaijanOffset = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+    const azerbaijanTime = new Date(now.getTime() + azerbaijanOffset);
+    const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
+    today.setHours(0, 0, 0, 0);
+    
+    const twentyEightDaysAgo = new Date(today);
+    twentyEightDaysAgo.setDate(today.getDate() - 28);
+    twentyEightDaysAgo.setHours(0, 0, 0, 0);
+
+    const dailyActivities = await prisma.dailyActivity.findMany({
+      where: {
+        userId: user.id,
+        date: { gte: twentyEightDaysAgo }
+      },
+      orderBy: { date: 'asc' }
+    });
+
+    // Calculate streak data
+    
+    const streakDays = Array.from({ length: 28 }, (_, i) => {
+      const date = new Date(today);
+      date.setDate(date.getDate() - (27 - i));
+      date.setHours(0, 0, 0, 0);
+      
+      const dayActivity = dailyActivities.find((activity: any) => {
+        const activityDate = new Date(activity.date);
+        activityDate.setHours(0, 0, 0, 0);
+        return activityDate.getTime() === date.getTime();
+      });
+      
+      const isActive = dayActivity && (dayActivity.lessonsViewed > 0 || dayActivity.exercisesSolved > 0 || dayActivity.quizzesTaken > 0);
+      const isToday = i === 27;
+      
+      return { 
+        date, 
+        isActive, 
+        isToday,
+        lessonsViewed: dayActivity?.lessonsViewed || 0,
+        exercisesSolved: dayActivity?.exercisesSolved || 0,
+        quizzesTaken: dayActivity?.quizzesTaken || 0
+      };
+    });
+
+    return NextResponse.json({ 
+      activities: activities.map((activity: any) => ({
+        id: activity.id,
+        type: activity.type,
+        description: activity.description,
+        timestamp: activity.timestamp,
+        metadata: activity.metadata
+      })),
+      streakDays
+    });
+  } catch (error: any) {
+    console.error("Activity fetch error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-}
-
-// Helper function to format time ago
-function formatTimeAgo(date: Date): string {
-  const now = new Date();
-  const diffInMs = now.getTime() - date.getTime();
-  const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-
-  if (diffInMinutes < 1) return 'Just now';
-  if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
-  if (diffInHours < 24) return `${diffInHours} hours ago`;
-  if (diffInDays < 7) return `${diffInDays} days ago`;
-  
-  return date.toLocaleDateString();
 } 

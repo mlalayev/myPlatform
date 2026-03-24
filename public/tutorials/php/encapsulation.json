@@ -1,0 +1,381 @@
+{
+  "id": "encapsulation",
+  "az": {
+    "title": "İnkapsulyasiya",
+    "icon": "FiShield",
+    "language": "php",
+    "description": "PHP-də məlumatların gizlədilməsi və qorunması haqqında məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də İnkapsulyasiya Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnkapsulyasiya obyekt yönümlü proqramlaşdırmanın (OOP) əsas prinsiplərindən biridir və sinif daxilindəki məlumatların (xüsusiyyətlərin) gizlədilməsini və onların xarici müdaxilələrdən qorunmasını təmin edir. Bu, sinfin daxili təfərrüatlarını (məsələn, xüsusiyyətləri) gizli saxlayaraq yalnız müəyyən metodlar (getter və setter) vasitəsilə onlara girişə icazə verir. İnkapsulyasiya kodun təhlükəsizliyini artırır, səhvləri azaldır və sinfin daxili işləmə mexanizmini xarici kodlardan ayırır. PHP-də inkapsulyasiya giriş modifikatorları (`public`, `private`, `protected`) ilə həyata keçirilir. Bu JSON faylda inkapsulyasiyanın sintaksisi, istifadə ssenariləri, getter və setter metodları, xüsusiyyətlərin qorunması, praktik nümunələr və səhvlərdən qaçınma yolları çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "İnkapsulyasiyanın Sintaksisi və Giriş Modifikatorları"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnkapsulyasiya sinif xüsusiyyətlərinin və metodlarının girişini məhdudlaşdırmaq üçün giriş modifikatorlarından istifadə edir:\n- `public`: Xüsusiyyət və ya metod hər yerdən əlçatandır.\n- `private`: Xüsusiyyət və ya metod yalnız sinif daxilində əlçatandır.\n- `protected`: Xüsusiyyət və ya metod sinif daxilində və törəmə siniflərdə əlçatandır.\nİnkapsulyasiyanın əsasını `private` və ya `protected` xüsusiyyətlər təşkil edir, çünki onlar xarici girişi məhdudlaşdırır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Sadə inkapsulyasiya nümunəsi\nclass User {\n  private $name;\n  private $age;\n\n  public function __construct($name, $age) {\n    $this->name = $name;\n    $this->age = $age;\n  }\n\n  public function getName() {\n    return $this->name;\n  }\n\n  public function getAge() {\n    return $this->age;\n  }\n}\n\n$user = new User('Aysel', 20);\necho $user->getName(); // Çıxış: Aysel\necho $user->getAge(); // Çıxış: 20\n// echo $user->name; // Səhv: private xüsusiyyətə birbaşa giriş mümkün deyil\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `$name` və `$age` private xüsusiyyətlərdir və birbaşa xaricdən əlçatan deyil.\n- `getName` və `getAge` metodları (getter) private xüsusiyyətlərə girişi təmin edir.\n- `$user->name` kimi birbaşa giriş cəhdi səhvə səbəb olur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Getter və Setter Metodları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Getter və setter metodları inkapsulyasiyanın əsas alətləridir. Getter xüsusiyyətin dəyərini əldə etmək, setter isə dəyəri təyin etmək üçün istifadə olunur. Bu metodlar məlumatların doğruluğunu yoxlamağa və qorumağa imkan verir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Getter və setter ilə inkapsulyasiya nümunəsi\nclass BankAccount {\n  private $balance = 0;\n\n  public function getBalance() {\n    return 'Balans: ' . $this->balance . ' AZN';\n  }\n\n  public function setBalance($amount) {\n    if ($amount >= 0) {\n      $this->balance = $amount;\n    } else {\n      echo 'Balans mənfi ola bilməz!';\n    }\n  }\n}\n\n$account = new BankAccount();\n$account->setBalance(100);\necho $account->getBalance(); // Çıxış: Balans: 100 AZN\n$account->setBalance(-50); // Çıxış: Balans mənfi ola bilməz!\n// echo $account->balance; // Səhv: private xüsusiyyətə birbaşa giriş mümkün deyil\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `$balance` private xüsusiyyətdir və birbaşa dəyişdirilə bilməz.\n- `setBalance` metodu balansın mənfi olmamasını yoxlayır.\n- `getBalance` metodu balansın dəyərini təhlükəsiz şəkildə qaytarır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "protected Modifikatoru və İrsiilik"
+      },
+      {
+        "type": "paragraph",
+        "text": "`protected` modifikatoru inkapsulyasiyanı dəstəkləyir, çünki xüsusiyyətlərə və ya metodlara yalnız sinif daxilində və törəmə siniflərdə giriş icazəsi verir. Bu, irsiiliklə birləşərək məlumatların qorunmasını təmin edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// protected modifikatoru ilə inkapsulyasiya\nclass Person {\n  protected $name;\n  protected $age;\n\n  public function __construct($name, $age) {\n    $this->name = $name;\n    $this->age = $age;\n  }\n\n  protected function getInfo() {\n    return 'Ad: ' . $this->name . ', Yaş: ' . $this->age;\n  }\n}\n\nclass Employee extends Person {\n  private $salary;\n\n  public function __construct($name, $age, $salary) {\n    parent::__construct($name, $age);\n    $this->salary = $salary;\n  }\n\n  public function showDetails() {\n    return $this->getInfo() . ', Maaş: ' . $this->salary . ' AZN';\n  }\n}\n\n$employee = new Employee('Vəli', 30, 2000);\necho $employee->showDetails(); // Çıxış: Ad: Vəli, Yaş: 30, Maaş: 2000 AZN\n// echo $employee->name; // Səhv: protected xüsusiyyətə birbaşa giriş mümkün deyil\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `$name` və `$age` protected xüsusiyyətlərdir, yalnız sinif daxilində və törəmə sinifdə (`Employee`) əlçatandır.\n- `getInfo` protected metoddur və yalnız `Employee` sinfi tərəfindən istifadə edilə bilər.\n- `$employee->name` kimi birbaşa giriş səhvə səbəb olur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "İnkapsulyasiyanın Praktik İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "İnkapsulyasiya real dünya tətbiqlərində məlumatların təhlükəsizliyini təmin etmək üçün istifadə olunur. Məsələn, bir tələbə idarəetmə sistemində tələbənin qiymətləri yalnız müəyyən şərtlər altında dəyişdirilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Tələbə idarəetmə sistemi\nclass Student {\n  private $name;\n  private $grades = [];\n\n  public function __construct($name) {\n    $this->name = $name;\n  }\n\n  public function addGrade($subject, $grade) {\n    if ($grade >= 0 && $grade <= 100) {\n      $this->grades[$subject] = $grade;\n    } else {\n      echo 'Qiymət 0-100 aralığında olmalıdır!';\n    }\n  }\n\n  public function getAverageGrade() {\n    if (count($this->grades) == 0) {\n      return 0;\n    }\n    return array_sum($this->grades) / count($this->grades);\n  }\n\n  public function getDetails() {\n    return 'Tələbə: ' . $this->name . ', Orta qiymət: ' . $this->getAverageGrade();\n  }\n}\n\n$student = new Student('Aysel');\n$student->addGrade('Riyaziyyat', 90);\n$student->addGrade('Fizika', 85);\necho $student->getDetails(); // Çıxış: Tələbə: Aysel, Orta qiymət: 87.5\n// $student->grades['Riyaziyyat'] = 150; // Səhv: private xüsusiyyətə birbaşa giriş mümkün deyil\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `$name` və `$grades` private xüsusiyyətlərdir və birbaşa dəyişdirilə bilməz.\n- `addGrade` metodu qiymətlərin doğruluğunu yoxlayır.\n- `getDetails` metodu tələbənin məlumatlarını təhlükəsiz şəkildə qaytarır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Private və ya protected xüsusiyyətlərə birbaşa giriş cəhdi səhvə səbəb olur. Getter və setter metodlarının olmaması məlumatların təhlükəsizliyini zəiflədə bilər. Çox mürəkkəb inkapsulyasiya strukturları kodu çətinləşdirə bilər.\n- **Tövsiyələr**: Xüsusiyyətləri `private` və ya `protected` olaraq təyin edin. Getter və setter metodlarından istifadə edərək məlumatlara nəzarətli giriş təmin edin. Kodun sadəliyini qoruyun. PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/) faydalanın. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\nclass Product {\n  private $price = 100;\n}\n\n$product = new Product();\n// echo $product->price; // Səhv: private xüsusiyyətə birbaşa giriş mümkün deyil\n\n// Düzgün yol\nclass ProductCorrect {\n  private $price = 100;\n\n  public function getPrice() {\n    return 'Qiymət: ' . $this->price . ' AZN';\n  }\n\n  public function setPrice($price) {\n    if ($price > 0) {\n      $this->price = $price;\n    } else {\n      echo 'Qiymət müsbət olmalıdır!';\n    }\n  }\n}\n\n$product = new ProductCorrect();\necho $product->getPrice(); // Çıxış: Qiymət: 100 AZN\n$product->setPrice(150);\necho $product->getPrice(); // Çıxış: Qiymət: 150 AZN\n$product->setPrice(-50); // Çıxış: Qiymət müsbət olmalıdır!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk nümunədə `$price` private xüsusiyyətinə birbaşa giriş cəhdi səhvə səbəb olur.\n- Düzgün yolda `getPrice` və `setPrice` metodları ilə təhlükəsiz giriş təmin olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Mağaza Məhsul İdarəetmə Sistemi"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Mağaza məhsul idarəetmə sistemi\nclass Product {\n  private $name;\n  private $price;\n  private $stock;\n\n  public function __construct($name, $price, $stock) {\n    $this->name = $name;\n    $this->setPrice($price);\n    $this->setStock($stock);\n  }\n\n  public function getName() {\n    return $this->name;\n  }\n\n  public function getPrice() {\n    return 'Qiymət: ' . $this->price . ' AZN';\n  }\n\n  public function setPrice($price) {\n    if ($price > 0) {\n      $this->price = $price;\n    } else {\n      echo 'Qiymət müsbət olmalıdır!';\n    }\n  }\n\n  public function getStock() {\n    return 'Stok: ' . $this->stock . ' ədəd';\n  }\n\n  public function setStock($stock) {\n    if ($stock >= 0) {\n      $this->stock = $stock;\n    } else {\n      echo 'Stok mənfi ola bilməz!';\n    }\n  }\n\n  public function sell($quantity) {\n    if ($quantity <= $this->stock) {\n      $this->stock -= $quantity;\n      return $quantity . ' ədəd ' . $this->name . ' satıldı. Yeni stok: ' . $this->stock;\n    } else {\n      return 'Kifayət qədər stok yoxdur!';\n    }\n  }\n}\n\n$product = new Product('Telefon', 1000, 10);\necho $product->getName(); // Çıxış: Telefon\necho $product->getPrice(); // Çıxış: Qiymət: 1000 AZN\necho $product->getStock(); // Çıxış: Stok: 10 ədəd\necho $product->sell(3); // Çıxış: 3 ədəd Telefon satıldı. Yeni stok: 7\n$product->setPrice(-200); // Çıxış: Qiymət müsbət olmalıdır!\necho $product->sell(10); // Çıxış: Kifayət qədər stok yoxdur!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `$name`, `$price` və `$stock` private xüsusiyyətlərdir və birbaşa dəyişdirilə bilməz.\n- `setPrice` və `setStock` metodları dəyərlərin doğruluğunu yoxlayır.\n- `sell` metodu stok sayını idarə edir və təhlükəsiz əməliyyat təmin edir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün inkapsulyasiya\nclass Car {\n  private $model;\n  private $speed;\n\n  public function __construct($model, $speed) {\n    $this->model = $model;\n    $this->setSpeed($speed);\n  }\n\n  public function getModel() {\n    return 'Model: ' . $this->model;\n  }\n\n  public function getSpeed() {\n    return 'Sürət: ' . $this->speed . ' km/saat';\n  }\n\n  public function setSpeed($speed) {\n    if ($speed >= 0) {\n      $this->speed = $speed;\n    } else {\n      echo 'Sürət mənfi ola bilməz!';\n    }\n  }\n}\n\n$car = new Car('BMW', 120);\necho $car->getModel(); // Çıxış: Model: BMW\necho $car->getSpeed(); // Çıxış: Sürət: 120 km/saat\n$car->setSpeed(-10); // Çıxış: Sürət mənfi ola bilməz!\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Encapsulation",
+    "icon": "FiShield",
+    "language": "php",
+    "description": "Information about data hiding and protection in PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Encapsulation in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Encapsulation is a fundamental principle of object-oriented programming (OOP) that involves hiding and protecting a class’s data (properties) from external interference. It keeps a class’s internal details private, allowing access only through specific methods (getters and setters). Encapsulation enhances code security, reduces errors, and separates a class’s internal workings from external code. In PHP, encapsulation is achieved using access modifiers (`public`, `private`, `protected`). This JSON file explains encapsulation’s syntax, use cases, getter and setter methods, property protection, practical examples, and how to avoid common mistakes in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Encapsulation Syntax and Access Modifiers"
+      },
+      {
+        "type": "paragraph",
+        "text": "Encapsulation restricts access to class properties and methods using access modifiers:\n- `public`: The property or method is accessible from anywhere.\n- `private`: The property or method is accessible only within the class.\n- `protected`: The property or method is accessible within the class and its child classes.\nThe core of encapsulation lies in using `private` or `protected` to limit external access.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Simple encapsulation example\nclass User {\n  private $name;\n  private $age;\n\n  public function __construct($name, $age) {\n    $this->name = $name;\n    $this->age = $age;\n  }\n\n  public function getName() {\n    return $this->name;\n  }\n\n  public function getAge() {\n    return $this->age;\n  }\n}\n\n$user = new User('Aysel', 20);\necho $user->getName(); // Output: Aysel\necho $user->getAge(); // Output: 20\n// echo $user->name; // Error: Cannot access private property\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `$name` and `$age` are private properties, inaccessible directly from outside.\n- `getName` and `getAge` methods (getters) provide safe access to private properties.\n- Attempting direct access like `$user->name` causes an error.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Getter and Setter Methods"
+      },
+      {
+        "type": "paragraph",
+        "text": "Getter and setter methods are key tools in encapsulation. Getters retrieve property values, while setters modify them, allowing data validation and protection.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Encapsulation with getter and setter example\nclass BankAccount {\n  private $balance = 0;\n\n  public function getBalance() {\n    return 'Balance: ' . $this->balance . ' USD';\n  }\n\n  public function setBalance($amount) {\n    if ($amount >= 0) {\n      $this->balance = $amount;\n    } else {\n      echo 'Balance cannot be negative!';\n    }\n  }\n}\n\n$account = new BankAccount();\n$account->setBalance(100);\necho $account->getBalance(); // Output: Balance: 100 USD\n$account->setBalance(-50); // Output: Balance cannot be negative!\n// echo $account->balance; // Error: Cannot access private property\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `$balance` is a private property and cannot be modified directly.\n- `setBalance` validates that the balance is non-negative.\n- `getBalance` safely returns the balance value.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "protected Modifier and Inheritance"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `protected` modifier supports encapsulation by allowing access to properties or methods only within the class and its child classes, combining protection with inheritance.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Encapsulation with protected modifier\nclass Person {\n  protected $name;\n  protected $age;\n\n  public function __construct($name, $age) {\n    $this->name = $name;\n    $this->age = $age;\n  }\n\n  protected function getInfo() {\n    return 'Name: ' . $this->name . ', Age: ' . $this->age;\n  }\n}\n\nclass Employee extends Person {\n  private $salary;\n\n  public function __construct($name, $age, $salary) {\n    parent::__construct($name, $age);\n    $this->salary = $salary;\n  }\n\n  public function showDetails() {\n    return $this->getInfo() . ', Salary: ' . $this->salary . ' USD';\n  }\n}\n\n$employee = new Employee('Vali', 30, 2000);\necho $employee->showDetails(); // Output: Name: Vali, Age: 30, Salary: 2000 USD\n// echo $employee->name; // Error: Cannot access protected property\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `$name` and `$age` are protected properties, accessible only within the class and `Employee`.\n- `getInfo` is a protected method, usable only by `Employee`.\n- Direct access like `$employee->name` causes an error.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Use of Encapsulation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Encapsulation is used in real-world applications to secure data. For example, in a student management system, grades can only be modified under specific conditions.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Student management system\nclass Student {\n  private $name;\n  private $grades = [];\n\n  public function __construct($name) {\n    $this->name = $name;\n  }\n\n  public function addGrade($subject, $grade) {\n    if ($grade >= 0 && $grade <= 100) {\n      $this->grades[$subject] = $grade;\n    } else {\n      echo 'Grade must be between 0 and 100!';\n    }\n  }\n\n  public function getAverageGrade() {\n    if (count($this->grades) == 0) {\n      return 0;\n    }\n    return array_sum($this->grades) / count($this->grades);\n  }\n\n  public function getDetails() {\n    return 'Student: ' . $this->name . ', Average Grade: ' . $this->getAverageGrade();\n  }\n}\n\n$student = new Student('Aysel');\n$student->addGrade('Math', 90);\n$student->addGrade('Physics', 85);\necho $student->getDetails(); // Output: Student: Aysel, Average Grade: 87.5\n// $student->grades['Math'] = 150; // Error: Cannot access private property\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `$name` and `$grades` are private and cannot be modified directly.\n- `addGrade` validates grade values.\n- `getDetails` safely returns student information.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Attempting direct access to private or protected properties causes errors. Lack of getters and setters can weaken data security. Overly complex encapsulation structures can make code harder to maintain.\n- **Recommendations**: Use `private` or `protected` for properties. Provide controlled access via getter and setter methods. Keep code simple. Refer to PHP’s official documentation (https://www.php.net/manual/en/). You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\nclass Product {\n  private $price = 100;\n}\n\n$product = new Product();\n// echo $product->price; // Error: Cannot access private property\n\n// Correct approach\nclass ProductCorrect {\n  private $price = 100;\n\n  public function getPrice() {\n    return 'Price: ' . $this->price . ' USD';\n  }\n\n  public function setPrice($price) {\n    if ($price > 0) {\n      $this->price = $price;\n    } else {\n      echo 'Price must be positive!';\n    }\n  }\n}\n\n$product = new ProductCorrect();\necho $product->getPrice(); // Output: Price: 100 USD\n$product->setPrice(150);\necho $product->getPrice(); // Output: Price: 150 USD\n$product->setPrice(-50); // Output: Price must be positive!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first example attempts direct access to a private `$price`, causing an error.\n- The correct approach uses `getPrice` and `setPrice` for safe access.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Store Product Management System"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Store product management system\nclass Product {\n  private $name;\n  private $price;\n  private $stock;\n\n  public function __construct($name, $price, $stock) {\n    $this->name = $name;\n    $this->setPrice($price);\n    $this->setStock($stock);\n  }\n\n  public function getName() {\n    return $this->name;\n  }\n\n  public function getPrice() {\n    return 'Price: ' . $this->price . ' USD';\n  }\n\n  public function setPrice($price) {\n    if ($price > 0) {\n      $this->price = $price;\n    } else {\n      echo 'Price must be positive!';\n    }\n  }\n\n  public function getStock() {\n    return 'Stock: ' . $this->stock . ' units';\n  }\n\n  public function setStock($stock) {\n    if ($stock >= 0) {\n      $this->stock = $stock;\n    } else {\n      echo 'Stock cannot be negative!';\n    }\n  }\n\n  public function sell($quantity) {\n    if ($quantity <= $this->stock) {\n      $this->stock -= $quantity;\n      return $quantity . ' units of ' . $this->name . ' sold. New stock: ' . $this->stock;\n    } else {\n      return 'Not enough stock!';\n    }\n  }\n}\n\n$product = new Product('Phone', 1000, 10);\necho $product->getName(); // Output: Phone\necho $product->getPrice(); // Output: Price: 1000 USD\necho $product->getStock(); // Output: Stock: 10 units\necho $product->sell(3); // Output: 3 units of Phone sold. New stock: 7\necho $product->setPrice(-200); // Output: Price must be positive!\necho $product->sell(10); // Output: Not enough stock!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `$name`, `$price`, and `$stock` are private and cannot be modified directly.\n- `setPrice` and `setStock` validate values.\n- `sell` manages stock levels securely.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself encapsulation\nclass Car {\n  private $model;\n  private $speed;\n\n  public function __construct($model, $speed) {\n    $this->model = $model;\n    $this->setSpeed($speed);\n  }\n\n  public function getModel() {\n    return 'Model: ' . $this->model;\n  }\n\n  public function getSpeed() {\n    return 'Speed: ' . $this->speed . ' km/h';\n  }\n\n  public function setSpeed($speed) {\n    if ($speed >= 0) {\n      $this->speed = $speed;\n    } else {\n      echo 'Speed cannot be negative!';\n    }\n  }\n}\n\n$car = new Car('BMW', 120);\necho $car->getModel(); // Output: Model: BMW\necho $car->getSpeed(); // Output: Speed: 120 km/h\n$car->setSpeed(-10); // Output: Speed cannot be negative!\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Инкапсуляция",
+    "icon": "FiShield",
+    "language": "php",
+    "description": "Информация о сокрытии и защите данных в PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое инкапсуляция в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Инкапсуляция — это один из основных принципов объектно-ориентированного программирования (ООП), который заключается в сокрытии и защите данных (свойств) класса от внешнего вмешательства. Она скрывает внутренние детали класса, предоставляя доступ только через определенные методы (геттеры и сеттеры). Инкапсуляция повышает безопасность кода, уменьшает ошибки и отделяет внутреннюю работу класса от внешнего кода. В PHP инкапсуляция достигается с помощью модификаторов доступа (`public`, `private`, `protected`). Этот JSON-файл подробно объясняет синтаксис инкапсуляции, случаи использования, методы геттеров и сеттеров, защиту свойств, практические примеры и способы избежания ошибок. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис инкапсуляции и модификаторы доступа"
+      },
+      {
+        "type": "paragraph",
+        "text": "Инкапсуляция ограничивает доступ к свойствам и методам класса с помощью модификаторов доступа:\n- `public`: Свойство или метод доступны отовсюду.\n- `private`: Свойство или метод доступны только внутри класса.\n- `protected`: Свойство или метод доступны внутри класса и в дочерних классах.\nОснову инкапсуляции составляют `private` и `protected`, так как они ограничивают внешний доступ.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример простой инкапсуляции\nclass User {\n  private $name;\n  private $age;\n\n  public function __construct($name, $age) {\n    $this->name = $name;\n    $this->age = $age;\n  }\n\n  public function getName() {\n    return $this->name;\n  }\n\n  public function getAge() {\n    return $this->age;\n  }\n}\n\n$user = new User('Айсель', 20);\necho $user->getName(); // Вывод: Айсель\necho $user->getAge(); // Вывод: 20\n// echo $user->name; // Ошибка: Нельзя получить доступ к private свойству\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `$name` и `$age` — private свойства, недоступные напрямую извне.\n- Методы `getName` и `getAge` (геттеры) обеспечивают безопасный доступ к private свойствам.\n- Прямая попытка доступа, например `$user->name`, вызывает ошибку.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Методы геттеров и сеттеров"
+      },
+      {
+        "type": "paragraph",
+        "text": "Геттеры и сеттеры — ключевые инструменты инкапсуляции. Геттеры возвращают значения свойств, а сеттеры их изменяют, позволяя проверять данные и обеспечивать защиту.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример инкапсуляции с геттерами и сеттерами\nclass BankAccount {\n  private $balance = 0;\n\n  public function getBalance() {\n    return 'Баланс: ' . $this->balance . ' USD';\n  }\n\n  public function setBalance($amount) {\n    if ($amount >= 0) {\n      $this->balance = $amount;\n    } else {\n      echo 'Баланс не может быть отрицательным!';\n    }\n  }\n}\n\n$account = new BankAccount();\n$account->setBalance(100);\necho $account->getBalance(); // Вывод: Баланс: 100 USD\n$account->setBalance(-50); // Вывод: Баланс не может быть отрицательным!\n// echo $account->balance; // Ошибка: Нельзя получить доступ к private свойству\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `$balance` — private свойство, которое нельзя изменить напрямую.\n- `setBalance` проверяет, что баланс неотрицательный.\n- `getBalance` безопасно возвращает значение баланса.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Модификатор protected и наследование"
+      },
+      {
+        "type": "paragraph",
+        "text": "Модификатор `protected` поддерживает инкапсуляцию, разрешая доступ к свойствам или методам только внутри класса и его дочерних классов, сочетая защиту с наследованием.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Инкапсуляция с модификатором protected\nclass Person {\n  protected $name;\n  protected $age;\n\n  public function __construct($name, $age) {\n    $this->name = $name;\n    $this->age = $age;\n  }\n\n  protected function getInfo() {\n    return 'Имя: ' . $this->name . ', Возраст: ' . $this->age;\n  }\n}\n\nclass Employee extends Person {\n  private $salary;\n\n  public function __construct($name, $age, $salary) {\n    parent::__construct($name, $age);\n    $this->salary = $salary;\n  }\n\n  public function showDetails() {\n    return $this->getInfo() . ', Зарплата: ' . $this->salary . ' USD';\n  }\n}\n\n$employee = new Employee('Вали', 30, 2000);\necho $employee->showDetails(); // Вывод: Имя: Вали, Возраст: 30, Зарплата: 2000 USD\n// echo $employee->name; // Ошибка: Нельзя получить доступ к protected свойству\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `$name` и `$age` — protected свойства, доступные только внутри класса и в `Employee`.\n- `getInfo` — protected метод, используемый только `Employee`.\n- Прямая попытка доступа, например `$employee->name`, вызывает ошибку.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практическое использование инкапсуляции"
+      },
+      {
+        "type": "paragraph",
+        "text": "Инкапсуляция используется в реальных приложениях для обеспечения безопасности данных. Например, в системе управления студентами оценки можно изменять только при определенных условиях.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Система управления студентами\nclass Student {\n  private $name;\n  private $grades = [];\n\n  public function __construct($name) {\n    $this->name = $name;\n  }\n\n  public function addGrade($subject, $grade) {\n    if ($grade >= 0 && $grade <= 100) {\n      $this->grades[$subject] = $grade;\n    } else {\n      echo 'Оценка должна быть от 0 до 100!';\n    }\n  }\n\n  public function getAverageGrade() {\n    if (count($this->grades) == 0) {\n      return 0;\n    }\n    return array_sum($this->grades) / count($this->grades);\n  }\n\n  public function getDetails() {\n    return 'Студент: ' . $this->name . ', Средняя оценка: ' . $this->getAverageGrade();\n  }\n}\n\n$student = new Student('Айсель');\n$student->addGrade('Математика', 90);\n$student->addGrade('Физика', 85);\necho $student->getDetails(); // Вывод: Студент: Айсель, Средняя оценка: 87.5\n// $student->grades['Математика'] = 150; // Ошибка: Нельзя получить доступ к private свойству\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `$name` и `$grades` — private свойства, которые нельзя изменить напрямую.\n- `addGrade` проверяет валидность оценок.\n- `getDetails` безопасно возвращает информацию о студенте.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Попытка прямого доступа к private или protected свойствам вызывает ошибки. Отсутствие геттеров и сеттеров может ослабить безопасность данных. Слишком сложные структуры инкапсуляции усложняют поддержку кода.\n- **Рекомендации**: Используйте `private` или `protected` для свойств. Обеспечьте контролируемый доступ через методы геттеров и сеттеров. Сохраняйте простоту кода. Обратитесь к официальной документации PHP (https://www.php.net/manual/en/). Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\nclass Product {\n  private $price = 100;\n}\n\n$product = new Product();\n// echo $product->price; // Ошибка: Нельзя получить доступ к private свойству\n\n// Правильный подход\nclass ProductCorrect {\n  private $price = 100;\n\n  public function getPrice() {\n    return 'Цена: ' . $this->price . ' USD';\n  }\n\n  public function setPrice($price) {\n    if ($price > 0) {\n      $this->price = $price;\n    } else {\n      echo 'Цена должна быть положительной!';\n    }\n  }\n}\n\n$product = new ProductCorrect();\necho $product->getPrice(); // Вывод: Цена: 100 USD\n$product->setPrice(150);\necho $product->getPrice(); // Вывод: Цена: 150 USD\n$product->setPrice(-50); // Вывод: Цена должна быть положительной!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый пример пытается напрямую получить доступ к private `$price`, что вызывает ошибку.\n- Правильный подход использует `getPrice` и `setPrice` для безопасного доступа.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Система управления товарами магазина"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Система управления товарами магазина\nclass Product {\n  private $name;\n  private $price;\n  private $stock;\n\n  public function __construct($name, $price, $stock) {\n    $this->name = $name;\n    $this->setPrice($price);\n    $this->setStock($stock);\n  }\n\n  public function getName() {\n    return $this->name;\n  }\n\n  public function getPrice() {\n    return 'Цена: ' . $this->price . ' USD';\n  }\n\n  public function setPrice($price) {\n    if ($price > 0) {\n      $this->price = $price;\n    } else {\n      echo 'Цена должна быть положительной!';\n    }\n  }\n\n  public function getStock() {\n    return 'Запас: ' . $this->stock . ' единиц';\n  }\n\n  public function setStock($stock) {\n    if ($stock >= 0) {\n      $this->stock = $stock;\n    } else {\n      echo 'Запас не может быть отрицательным!';\n    }\n  }\n\n  public function sell($quantity) {\n    if ($quantity <= $this->stock) {\n      $this->stock -= $quantity;\n      return $quantity . ' единиц ' . $this->name . ' продано. Новый запас: ' . $this->stock;\n    } else {\n      return 'Недостаточно запаса!';\n    }\n  }\n}\n\n$product = new Product('Телефон', 1000, 10);\necho $product->getName(); // Вывод: Телефон\necho $product->getPrice(); // Вывод: Цена: 1000 USD\necho $product->getStock(); // Вывод: Запас: 10 единиц\necho $product->sell(3); // Вывод: 3 единиц Телефон продано. Новый запас: 7\necho $product->setPrice(-200); // Вывод: Цена должна быть положительной!\necho $product->sell(10); // Вывод: Недостаточно запаса!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `$name`, `$price` и `$stock` — private свойства, которые нельзя изменить напрямую.\n- `setPrice` и `setStock` проверяют валидность значений.\n- `sell` безопасно управляет количеством запаса.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Попробуйте сами инкапсуляцию\nclass Car {\n  private $model;\n  private $speed;\n\n  public function __construct($model, $speed) {\n    $this->model = $model;\n    $this->setSpeed($speed);\n  }\n\n  public function getModel() {\n    return 'Модель: ' . $this->model;\n  }\n\n  public function getSpeed() {\n    return 'Скорость: ' . $this->speed . ' км/ч';\n  }\n\n  public function setSpeed($speed) {\n    if ($speed >= 0) {\n      $this->speed = $speed;\n    } else {\n      echo 'Скорость не может быть отрицательной!';\n    }\n  }\n}\n\n$car = new Car('BMW', 120);\necho $car->getModel(); // Вывод: Модель: BMW\necho $car->getSpeed(); // Вывод: Скорость: 120 км/ч\n$car->setSpeed(-10); // Вывод: Скорость не может быть отрицательной!\n?>"
+      }
+    ]
+  }
+}

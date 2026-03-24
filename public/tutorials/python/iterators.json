@@ -1,0 +1,495 @@
+{
+  "id": "iterators",
+  "az": {
+    "title": "Iteratorlar",
+    "icon": "FiRepeat",
+    "language": "python",
+    "description": "Iterator obyektləri və next funksiyası.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Iteratorlar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da iteratorlar, verilənlər toplusundakı elementləri bir-bir keçmək üçün istifadə olunan obyektlərdir. Iteratorlar `iter()` funksiyası ilə yaradılır və `next()` funksiyası ilə dəyərləri tək-tək qaytarır. Bu, böyük verilənlər toplusunu effektiv idarə etməyə imkan verir. Bu JSON faylda iteratorların əsasları, `iter()` və `next()` funksiyaları, öz iterator obyektlərinin yaradılması, `for` və `while` dövrləri ilə istifadə, generatorlarla müqayisə, TypeScript/JavaScript-dəki iteratorlarla müqayisə, səhvlərdən qaçınma yolları və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Kod nümunələri istifadəçi girişi tələb etmir, UTF-8 uyğundur və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# iter() və next() Funksiyaları"
+      },
+      {
+        "type": "paragraph",
+        "text": "`iter()` funksiyası bir obyekti iteratora çevirir, `next()` isə iteratorun növbəti dəyərini qaytarır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# iter() və next() nümunəsi\nmy_list = [1, 2, 3]\niterator = iter(my_list)\nprint(next(iterator))\nprint(next(iterator))\nprint(next(iterator))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `iter(my_list)` siyahını iteratora çevirir.\n- `next(iterator)` hər çağırışda növbəti dəyəri qaytarır.\n- Iterator bitdikdə `StopIteration` xətası yaranır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Öz Iterator Obyektinin Yaradılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "Öz iteratorunuzu yaratmaq üçün `__iter__` və `__next__` metodlarını təyin edən sinif yazılır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Öz iterator sinfi\nclass MyIterator:\n    def __init__(self, max_num):\n        self.max_num = max_num\n        self.current = 0\n\n    def __iter__(self):\n        return self\n\n    def __next__(self):\n        if self.current < self.max_num:\n            result = self.current\n            self.current += 1\n            return result\n        raise StopIteration\n\niterator = MyIterator(3)\nprint(next(iterator))\nprint(next(iterator))\nprint(next(iterator))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `MyIterator` sinfi max_num qədər rəqəmləri qaytarır.\n- `__iter__` iteratoru qaytarır, `__next__` isə növbəti dəyəri.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# for və while Dövrləri ilə Iteratorlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Iteratorlar `for` və `while` dövrləri ilə asanlıqla istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# for və while ilə iteratorlar\nmy_list = ['a', 'b', 'c']\niterator = iter(my_list)\n\n# for dövrü\nprint('for dövrü ilə:')\nfor item in my_list:\n    print(item)\n\n# while dövrü\nprint('while dövrü ilə:')\niterator = iter(my_list)  # Yenidən iterator yarat\nwhile True:\n    try:\n        print(next(iterator))\n    except StopIteration:\n        break\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `for` dövrü iteratoru avtomatik idarə edir.\n- `while` dövrü `next()` ilə dəyərləri alır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Iteratorlar və Generatorlar Arasındakı Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Iteratorlar və generatorlar oxşar görünsə də, fərqlər var:\n- **Iteratorlar**: `__iter__` və `__next__` metodları ilə təyin olunur.\n- **Generatorlar**: `yield` ilə dəyərləri istehsal edir, daha sadədir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Iterator və generator müqayisəsi\n# Iterator\nclass MyIterator:\n    def __init__(self, max_num):\n        self.max_num = max_num\n        self.current = 0\n\n    def __iter__(self):\n        return self\n\n    def __next__(self):\n        if self.current < self.max_num:\n            result = self.current\n            self.current += 1\n            return result\n        raise StopIteration\n\n# Generator\ndef my_generator(max_num):\n    for i in range(max_num):\n        yield i\n\niterator = MyIterator(3)\nfor num in iterator:\n    print(f'Iterator: {num}')\n\ngen = my_generator(3)\nfor num in gen:\n    print(f'Generator: {num}')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Iterator sinif ilə, generator isə `yield` ilə yaradılır.\n- Generator daha qısa və sadədir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Python ilə TypeScript və JavaScript-in Müqayisəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da iteratorlar TypeScript/JavaScript-dəki iteratorlara oxşardır:\n- **Sintaksis**: Hər iki dildə `iter()` və `next()` oxşar işləyir.\n- **Fərqlər**: JavaScript-də iteratorlar ES6 ilə gəlib, `{value, done}` qaytarır.\nNümunə (Python vs JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Python kodu\nmy_list = [1, 2, 3]\niterator = iter(my_list)\nprint(next(iterator))\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// JavaScript kodu\nconst myArray = [1, 2, 3];\nconst iterator = myArray[Symbol.iterator]();\nconsole.log(iterator.next().value);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Python-da `iter()` və `next()` sadədir.\n- JavaScript-də `Symbol.iterator` və `.next().value` istifadə olunur.\nAşağıda bu kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Səhvlərdən Qaçınma Yolları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Iteratorlarla işləyərkən səhvlərdən qaçınmaq üçün:\n- **StopIteration**: `next()` çağırışlarında xətaları tutun.\n- **Iteratorun təkrar istifadəsi**: Iteratorlar bir dəfə istifadə olunur, təkrar üçün yeni iterator yaradın.\n- **Sadəlik**: Mürəkkəb iterator siniflərindən çəkinin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Səhvlərdən qaçınma\nmy_list = [1, 2, 3]\niterator = iter(my_list)\ntry:\n    print(next(iterator))\n    print(next(iterator))\n    print(next(iterator))\n    print(next(iterator))  # StopIteration\nexcept StopIteration:\n    print('Iterator bitdi!')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `try-except` ilə `StopIteration` xətası tutulur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Iteratorlar real layihələrdə aşağıdakı ssenarilərdə istifadə olunur:\n- **Verilənlərin ardıcıl emalı**: Böyük verilənlər toplusunu sətir-sətir oxuma.\n- **Xüsusi iterasiya**: Öz iterasiya qaydalarını təyin etmə.\n- **Striminq**: Real vaxt rejimində məlumat emalı.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Layihədə istifadə\nclass RangeIterator:\n    def __init__(self, start, end):\n        self.current = start\n        self.end = end\n\n    def __iter__(self):\n        return self\n\n    def __next__(self):\n        if self.current < self.end:\n            result = self.current\n            self.current += 1\n            return result\n        raise StopIteration\n\nrange_iter = RangeIterator(1, 4)\nfor num in range_iter:\n    print(num)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `RangeIterator` xüsusi diapazon iteratoru yaradır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Iteratorlarla bağlı qabaqcıl mövzular:\n- **Xüsusi iteratorlar**: `__iter__` və `__next__` ilə mürəkkəb iterasiya.\n- **İterasiya protokolu**: Python-un daxili iterasiya mexanizmləri.\nBu mövzular haqqında ətraflı məlumat üçün Python sənədlərinə (https://docs.python.org) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "# Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Sadə iteratorlar istifadə edin, `try-except` ilə xətaları idarə edin, rəsmi sənədlərdən (https://docs.python.org) faydalanın.\n- **Alternativlər**: Sadə iterasiyalar üçün generatorlar istifadə edin.\nAşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# Sınaq üçün Python nümunəsi\nmy_list = [1, 2, 3]\niterator = iter(my_list)\nprint(next(iterator))\nprint(next(iterator))\nprint(next(iterator))\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Iterators",
+    "icon": "FiRepeat",
+    "language": "python",
+    "description": "Iterator objects and the next function.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# What are Iterators?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In Python, iterators are objects used to traverse elements in a dataset one by one. Iterators are created with the `iter()` function and values are retrieved using the `next()` function. This enables efficient handling of large datasets. This JSON file explains iterator basics, `iter()` and `next()` functions, creating custom iterator objects, usage with `for` and `while` loops, comparison with generators, comparison with TypeScript/JavaScript iterators, error avoidance strategies, and real-world usage scenarios in detail. Code examples do not require user input, are UTF-8 compatible, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# iter() and next() Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `iter()` function converts an object into an iterator, and `next()` retrieves the next value from the iterator.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# iter() and next() example\nmy_list = [1, 2, 3]\niterator = iter(my_list)\nprint(next(iterator))\nprint(next(iterator))\nprint(next(iterator))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `iter(my_list)` converts the list to an iterator.\n- `next(iterator)` retrieves the next value each time.\n- A `StopIteration` exception is raised when the iterator is exhausted.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Creating a Custom Iterator Object"
+      },
+      {
+        "type": "paragraph",
+        "text": "To create a custom iterator, define a class with `__iter__` and `__next__` methods.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Custom iterator class\nclass MyIterator:\n    def __init__(self, max_num):\n        self.max_num = max_num\n        self.current = 0\n\n    def __iter__(self):\n        return self\n\n    def __next__(self):\n        if self.current < self.max_num:\n            result = self.current\n            self.current += 1\n            return result\n        raise StopIteration\n\niterator = MyIterator(3)\nprint(next(iterator))\nprint(next(iterator))\nprint(next(iterator))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `MyIterator` yields numbers up to `max_num`.\n- `__iter__` returns the iterator, and `__next__` provides the next value.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Iterators with for and while Loops"
+      },
+      {
+        "type": "paragraph",
+        "text": "Iterators can be easily used with `for` and `while` loops.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Iterators with for and while loops\nmy_list = ['a', 'b', 'c']\niterator = iter(my_list)\n\n# for loop\nprint('With for loop:')\nfor item in my_list:\n    print(item)\n\n# while loop\nprint('With while loop:')\niterator = iter(my_list)  # Recreate iterator\nwhile True:\n    try:\n        print(next(iterator))\n    except StopIteration:\n        break\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `for` loop automatically handles the iterator.\n- `while` loop uses `next()` to retrieve values.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Iterators vs. Generators"
+      },
+      {
+        "type": "paragraph",
+        "text": "Iterators and generators may seem similar but have differences:\n- **Iterators**: Defined with `__iter__` and `__next__` methods.\n- **Generators**: Use `yield` to produce values, simpler to implement.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Iterator vs. generator comparison\n# Iterator\nclass MyIterator:\n    def __init__(self, max_num):\n        self.max_num = max_num\n        self.current = 0\n\n    def __iter__(self):\n        return self\n\n    def __next__(self):\n        if self.current < self.max_num:\n            result = self.current\n            self.current += 1\n            return result\n        raise StopIteration\n\n# Generator\ndef my_generator(max_num):\n    for i in range(max_num):\n        yield i\n\niterator = MyIterator(3)\nfor num in iterator:\n    print(f'Iterator: {num}')\n\ngen = my_generator(3)\nfor num in gen:\n    print(f'Generator: {num}')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Iterator is created with a class, generator with `yield`.\n- Generators are shorter and simpler.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Python vs. TypeScript and JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python iterators are similar to TypeScript/JavaScript iterators:\n- **Syntax**: Both use `iter()` and `next()` or equivalent.\n- **Differences**: JavaScript iterators (ES6) return `{value, done}` objects.\nExample (Python vs. JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Python code\nmy_list = [1, 2, 3]\niterator = iter(my_list)\nprint(next(iterator))\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// JavaScript code\nconst myArray = [1, 2, 3];\nconst iterator = myArray[Symbol.iterator]();\nconsole.log(iterator.next().value);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Python’s `iter()` and `next()` are straightforward.\n- JavaScript uses `Symbol.iterator` and `.next().value`.\nYou can test these codes in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Avoiding Errors"
+      },
+      {
+        "type": "paragraph",
+        "text": "To avoid errors with iterators:\n- **StopIteration**: Handle `next()` calls with try-except.\n- **Iterator reuse**: Iterators are single-use; recreate for reuse.\n- **Simplicity**: Avoid overly complex iterator classes.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Avoiding errors\nmy_list = [1, 2, 3]\niterator = iter(my_list)\ntry:\n    print(next(iterator))\n    print(next(iterator))\n    print(next(iterator))\n    print(next(iterator))  # StopIteration\nexcept StopIteration:\n    print('Iterator exhausted!')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `try-except` catches `StopIteration`.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Iterators are used in real-world projects for:\n- **Sequential processing**: Reading large datasets line by line.\n- **Custom iteration**: Defining custom iteration rules.\n- **Streaming**: Processing data in real-time.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Project usage\nclass RangeIterator:\n    def __init__(self, start, end):\n        self.current = start\n        self.end = end\n\n    def __iter__(self):\n        return self\n\n    def __next__(self):\n        if self.current < self.end:\n            result = self.current\n            self.current += 1\n            return result\n        raise StopIteration\n\nrange_iter = RangeIterator(1, 4)\nfor num in range_iter:\n    print(num)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `RangeIterator` creates a custom range iterator.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advanced topics related to iterators:\n- **Custom iterators**: Complex iteration with `__iter__` and `__next__`.\n- **Iteration protocol**: Python’s internal iteration mechanisms.\nFor more details, refer to the Python documentation (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use simple iterators, handle errors with try-except, refer to the official documentation (https://docs.python.org).\n- **Alternatives**: Use generators for simple iterations.\nYou can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# Try it yourself Python example\nmy_list = [1, 2, 3]\niterator = iter(my_list)\nprint(next(iterator))\nprint(next(iterator))\nprint(next(iterator))\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Итераторы",
+    "icon": "FiRepeat",
+    "language": "python",
+    "description": "Итераторные объекты и функция next.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Что такое итераторы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В Python итераторы — это объекты, используемые для последовательного обхода элементов в наборе данных. Итераторы создаются с помощью функции `iter()`, а значения извлекаются с помощью функции `next()`. Это позволяет эффективно обрабатывать большие наборы данных. Этот JSON-файл подробно объясняет основы итераторов, функции `iter()` и `next()`, создание собственных итераторных объектов, использование с циклами `for` и `while`, сравнение с генераторами, сравнение с итераторами в TypeScript/JavaScript, способы избежания ошибок и сценарии использования в реальных проектах. Примеры кода не требуют ввода пользователя, совместимы с UTF-8, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Функции iter() и next()"
+      },
+      {
+        "type": "paragraph",
+        "text": "Функция `iter()` преобразует объект в итератор, а `next()` возвращает следующее значение итератора.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Пример iter() и next()\nmy_list = [1, 2, 3]\niterator = iter(my_list)\nprint(next(iterator))\nprint(next(iterator))\nprint(next(iterator))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `iter(my_list)` преобразует список в итератор.\n- `next(iterator)` возвращает следующее значение при каждом вызове.\n- При исчерпании итератора возникает исключение `StopIteration`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Создание собственного итераторного объекта"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для создания собственного итератора необходимо определить класс с методами `__iter__` и `__next__`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Собственный итераторный класс\nclass MyIterator:\n    def __init__(self, max_num):\n        self.max_num = max_num\n        self.current = 0\n\n    def __iter__(self):\n        return self\n\n    def __next__(self):\n        if self.current < self.max_num:\n            result = self.current\n            self.current += 1\n            return result\n        raise StopIteration\n\niterator = MyIterator(3)\nprint(next(iterator))\nprint(next(iterator))\nprint(next(iterator))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `MyIterator` возвращает числа до `max_num`.\n- `__iter__` возвращает итератор, а `__next__` — следующее значение.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Итераторы с циклами for и while"
+      },
+      {
+        "type": "paragraph",
+        "text": "Итераторы легко используются с циклами `for` и `while`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Итераторы с циклами for и while\nmy_list = ['a', 'b', 'c']\niterator = iter(my_list)\n\n# Цикл for\nprint('С циклом for:')\nfor item in my_list:\n    print(item)\n\n# Цикл while\nprint('С циклом while:')\niterator = iter(my_list)  # Повторное создание итератора\nwhile True:\n    try:\n        print(next(iterator))\n    except StopIteration:\n        break\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Цикл `for` автоматически управляет итератором.\n- Цикл `while` использует `next()` для получения значений.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Итераторы против генераторов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Итераторы и генераторы кажутся похожими, но имеют различия:\n- **Итераторы**: Определяются с помощью методов `__iter__` и `__next__`.\n- **Генераторы**: Используют `yield` для создания значений, более просты в реализации.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Сравнение итератора и генератора\n# Итератор\nclass MyIterator:\n    def __init__(self, max_num):\n        self.max_num = max_num\n        self.current = 0\n\n    def __iter__(self):\n        return self\n\n    def __next__(self):\n        if self.current < self.max_num:\n            result = self.current\n            self.current += 1\n            return result\n        raise StopIteration\n\n# Генератор\ndef my_generator(max_num):\n    for i in range(max_num):\n        yield i\n\niterator = MyIterator(3)\nfor num in iterator:\n    print(f'Iterator: {num}')\n\ngen = my_generator(3)\nfor num in gen:\n    print(f'Generator: {num}')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Итератор создается с помощью класса, генератор — с помощью `yield`.\n- Генераторы короче и проще.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Python против TypeScript и JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Итераторы в Python схожи с итераторами в TypeScript/JavaScript:\n- **Синтаксис**: Оба используют `iter()` и `next()` или их эквиваленты.\n- **Различия**: Итераторы в JavaScript (ES6) возвращают объект `{value, done}`.\nПример (Python против JavaScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Код Python\nmy_list = [1, 2, 3]\niterator = iter(my_list)\nprint(next(iterator))\n"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "code": "// Код JavaScript\nconst myArray = [1, 2, 3];\nconst iterator = myArray[Symbol.iterator]();\nconsole.log(iterator.next().value);\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- В Python `iter()` и `next()` просты в использовании.\n- В JavaScript используется `Symbol.iterator` и `.next().value`.\nВы можете протестировать эти коды в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Избежание ошибок"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы избежать ошибок с итераторами:\n- **StopIteration**: Обрабатывайте вызовы `next()` с помощью try-except.\n- **Повторное использование итератора**: Итераторы одноразовые, создавайте новый итератор для повторного использования.\n- **Простота**: Избегайте слишком сложных итераторных классов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Избежание ошибок\nmy_list = [1, 2, 3]\niterator = iter(my_list)\ntry:\n    print(next(iterator))\n    print(next(iterator))\n    print(next(iterator))\n    print(next(iterator))  # StopIteration\nexcept StopIteration:\n    print('Итератор исчерпан!')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `try-except` перехватывает `StopIteration`.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Итераторы используются в реальных проектах для:\n- **Последовательная обработка**: Чтение больших наборов данных построчно.\n- **Пользовательская итерация**: Определение собственных правил итерации.\n- **Потоковая обработка**: Обработка данных в реальном времени.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "# Использование в проекте\nclass RangeIterator:\n    def __init__(self, start, end):\n        self.current = start\n        self.end = end\n\n    def __iter__(self):\n        return self\n\n    def __next__(self):\n        if self.current < self.end:\n            result = self.current\n            self.current += 1\n            return result\n        raise StopIteration\n\nrange_iter = RangeIterator(1, 4)\nfor num in range_iter:\n    print(num)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `RangeIterator` создает пользовательский итератор диапазона.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Продвинутые темы, связанные с итераторами:\n- **Пользовательские итераторы**: Сложная итерация с `__iter__` и `__next__`.\n- **Протокол итерации**: Внутренние механизмы итерации в Python.\nДля получения дополнительной информации обратитесь к документации Python (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте простые итераторы, обрабатывайте ошибки с помощью try-except, обращайтесь к официальной документации (https://docs.python.org).\n- **Альтернативы**: Используйте генераторы для простых итераций.\nВы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "# Пример Python для самостоятельного тестирования\nmy_list = [1, 2, 3]\niterator = iter(my_list)\nprint(next(iterator))\nprint(next(iterator))\nprint(next(iterator))\n"
+      }
+    ]
+  }
+}

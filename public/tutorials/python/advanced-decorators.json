@@ -1,0 +1,597 @@
+{
+  "id": "advanced-decorators",
+  "az": {
+    "title": "Qabaqcıl Dekoratorlar",
+    "icon": "FiStar",
+    "language": "python",
+    "description": "Sinif dekoratorları, dekorator fabrikləri və functools modulu.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Dekoratorlar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dekoratorlar Python-da funksiyaların və ya siniflərin davranışını dəyişdirmək üçün istifadə olunan güclü bir mexanizmdir. Onlar funksiyanı və ya sinfi 'sarma' (wrap) edərək əlavə funksionallıq əlavə edir. Bu JSON faylda sinif dekoratorları, dekorator fabrikləri, `functools` modulunun imkanları (`wraps`, `lru_cache`), dekoratorların işləmə mexanizmi, TypeScript/JavaScript-dəki dekoratorlarla müqayisə, səhvlərdən qaçınma yolları, yaddaş istifadəsi və real layihələrdə istifadə ssenariləri (loglama, kəşləmə, autentifikasiya) detallı şəkildə izah olunacaq. Kod nümunələri istifadəçi girişi tələb etmir, UTF-8 uyğundur və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Sadə Dekoratorlar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dekorator funksiyanı sarmalayaraq onun davranışını dəyişdirir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def simple_decorator(func):\n    def wrapper():\n        print('Funksiya çağırılır')\n        func()\n        print('Funksiya bitdi')\n    return wrapper\n\n@simple_decorator\ndef say_hello():\n    print('Salam, Dünya!')\n\nsay_hello()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `simple_decorator` funksiyanı sarmalayır.\n- `@simple_decorator` say_hello funksiyasına dekorator tətbiq edir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Sinif Dekoratorları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sinif dekoratorları siniflərin davranışını dəyişdirmək üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def class_decorator(cls):\n    cls.new_attribute = 'Əlavə atribut'\n    return cls\n\n@class_decorator\nclass MyClass:\n    def __init__(self):\n        self.value = 42\n\nobj = MyClass()\nprint(obj.new_attribute)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `class_decorator` sinfə yeni atribut əlavə edir.\n- `@class_decorator` MyClass sinfinə tətbiq olunur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Dekorator Fabrikləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dekorator fabrikləri parametrləri qəbul edən dekoratorlar yaradır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def repeat(n):\n    def decorator(func):\n        def wrapper(*args, **kwargs):\n            for _ in range(n):\n                func(*args, **kwargs)\n        return wrapper\n    return decorator\n\n@repeat(3)\ndef say_hello(name):\n    print(f'Salam, {name}!')\n\nsay_hello('Dünya')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `repeat` dekorator fabriki funksiyanı n dəfə təkrarlayır.\n- `@repeat(3)` say_hello funksiyasını 3 dəfə çağırır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# functools Modulu"
+      },
+      {
+        "type": "paragraph",
+        "text": "`functools` modulu dekoratorlar üçün faydalı alətlər təmin edir, məsələn, `wraps` və `lru_cache`.\nNümunə (`wraps`):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from functools import wraps\n\ndef my_decorator(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        print('Funksiya çağırılır')\n        result = func(*args, **kwargs)\n        print('Funksiya bitdi')\n        return result\n    return wrapper\n\n@my_decorator\ndef greet(name):\n    return f'Salam, {name}!'\n\nprint(greet('Dünya'))\nprint(greet.__name__)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `@wraps(func)` orijinal funksiyanın metadata-sını qoruyur.\n- `greet.__name__` orijinal funksiya adını göstərir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# lru_cache ilə Kəşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "`functools.lru_cache` təkrarlanan hesablamaları kəşləyərək performansı artırır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from functools import lru_cache\n\n@lru_cache(maxsize=128)\ndef fibonacci(n):\n    if n < 2:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)\n\nprint(fibonacci(10))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `lru_cache` Fibonacci hesablamalarını kəşləyir.\n- `maxsize=128` 128 nəticəni saxlayır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Python ilə TypeScript və JavaScript-in Müqayisəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python-da dekoratorlar TypeScript/JavaScript-dəki dekoratorlara bənzəyir, lakin fərqlər var:\n- **Python**: Funksiyalar və siniflər üçün dekoratorlar.\n- **TypeScript/JavaScript**: Əsasən siniflər və onların üzvləri üçün dekoratorlar (ECMAScript eksperimental xüsusiyyəti).\nNümunə (Python vs TypeScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def log(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        print(f'Çağırılır: {func.__name__}')\n        return func(*args, **kwargs)\n    return wrapper\n\n@log\ndef add(a, b):\n    return a + b\n\nprint(add(3, 5))\n"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "function log(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n    const originalMethod = descriptor.value;\n    descriptor.value = function (...args: any[]) {\n        console.log(`Calling ${propertyKey}`);\n        return originalMethod.apply(this, args);\n    };\n}\n\nclass Calculator {\n    @log\n    add(a: number, b: number): number {\n        return a + b;\n    }\n}\n\nconst calc = new Calculator();\nconsole.log(calc.add(3, 5));\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Python-da dekorator funksiyanı sarmalayır.\n- TypeScript-də dekorator sinif metoduna tətbiq olunur.\nAşağıda bu kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Səhvlərdən Qaçınma Yolları"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dekoratorlarla işləyərkən səhvlərdən qaçınmaq üçün:\n- **`@wraps` istifadəsi**: Funksiya metadata-sını qoruyun.\n- **Sadəlik**: Mürəkkəb dekoratorlardan çəkinin.\n- **Debugging**: Loglama ilə səhvləri izləyin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from functools import wraps\n\ndef safe_decorator(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        try:\n            print('Funksiya icra olunur')\n            return func(*args, **kwargs)\n        except Exception as e:\n            print(f'Xəta: {e}')\n            return None\n    return wrapper\n\n@safe_decorator\ndef divide(a, b):\n    return a / b\n\nprint(divide(10, 2))\nprint(divide(10, 0))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `try-except` xətaları tutur.\n- `@wraps` funksiya metadata-sını qoruyur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Yaddaş İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dekoratorlar yaddaşı effektiv istifadə edir, lakin `lru_cache` kimi mexanizmlər yaddaş istehlakını artıra bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from functools import lru_cache\n\n@lru_cache(maxsize=2)\ndef heavy_computation(x):\n    print(f'Hesablama: {x}')\n    return x * x\n\nprint(heavy_computation(2))\nprint(heavy_computation(2))\nprint(heavy_computation(3))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `lru_cache` təkrar hesablamaları kəşləyir.\n- `maxsize=2` yalnız iki nəticəni saxlayır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dekoratorlar real layihələrdə aşağıdakı ssenarilərdə istifadə olunur:\n- **Loglama**: Funksiya çağırışlarını qeyd etmək.\n- **Kəşləmə**: Hesablamaları sürətləndirmək.\n- **Autentifikasiya**: İcazə yoxlamaları.\nNümunə (loglama):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from functools import wraps\n\ndef log_execution(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        print(f'{func.__name__} çağırıldı, arqumentlər: {args}, {kwargs}')\n        result = func(*args, **kwargs)\n        print(f'{func.__name__} nəticəsi: {result}')\n        return result\n    return wrapper\n\n@log_execution\ndef multiply(a, b):\n    return a * b\n\nprint(multiply(4, 5))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `log_execution` funksiya çağırışını və nəticəsini qeyd edir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dekoratorlarla bağlı qabaqcıl mövzular:\n- **Çoxsaplılıq**: Dekoratorların çoxsaplı proqramlarda istifadəsi.\n- **Dinamik dekoratorlar**: Çalışma zamanı dekorator yaratma.\nBu mövzular haqqında ətraflı məlumat üçün Python sənədlərinə (https://docs.python.org) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "# Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: `@wraps` istifadə edin, sadə dekoratorlar yazın, rəsmi sənədlərdən (https://docs.python.org) faydalanın.\n- **Alternativlər**: Sadə tapşırıqlar üçün dekorator əvəzinə adi funksiyalar istifadə edin.\nAşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "# Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "from functools import wraps\n\ndef my_decorator(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        print('Funksiya başlayır')\n        result = func(*args, **kwargs)\n        print('Funksiya bitdi')\n        return result\n    return wrapper\n\n@my_decorator\ndef example():\n    print('Nümunə funksiya')\n\nexample()\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Advanced Decorators",
+    "icon": "FiStar",
+    "language": "python",
+    "description": "Class decorators, decorator factories, and functools.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# What are Decorators?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Decorators in Python are a powerful mechanism to modify the behavior of functions or classes. They 'wrap' a function or class to add extra functionality. This JSON file explains class decorators, decorator factories, the `functools` module (`wraps`, `lru_cache`), how decorators work, comparison with TypeScript/JavaScript decorators, error avoidance, memory usage, and real-world use cases (logging, caching, authentication) in detail. Code examples do not require user input, are UTF-8 compatible, and you can test them in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Simple Decorators"
+      },
+      {
+        "type": "paragraph",
+        "text": "A decorator wraps a function to modify its behavior.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def simple_decorator(func):\n    def wrapper():\n        print('Function is called')\n        func()\n        print('Function finished')\n    return wrapper\n\n@simple_decorator\ndef say_hello():\n    print('Hello, World!')\n\nsay_hello()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `simple_decorator` wraps the function.\n- `@simple_decorator` applies the decorator to say_hello.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Class Decorators"
+      },
+      {
+        "type": "paragraph",
+        "text": "Class decorators modify the behavior of classes.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def class_decorator(cls):\n    cls.new_attribute = 'Extra attribute'\n    return cls\n\n@class_decorator\nclass MyClass:\n    def __init__(self):\n        self.value = 42\n\nobj = MyClass()\nprint(obj.new_attribute)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `class_decorator` adds a new attribute to the class.\n- `@class_decorator` is applied to MyClass.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Decorator Factories"
+      },
+      {
+        "type": "paragraph",
+        "text": "Decorator factories create decorators that accept parameters.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def repeat(n):\n    def decorator(func):\n        def wrapper(*args, **kwargs):\n            for _ in range(n):\n                func(*args, **kwargs)\n        return wrapper\n    return decorator\n\n@repeat(3)\ndef say_hello(name):\n    print(f'Hello, {name}!')\n\nsay_hello('World')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `repeat` is a decorator factory that repeats a function n times.\n- `@repeat(3)` calls say_hello three times.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# functools Module"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `functools` module provides tools for decorators, such as `wraps` and `lru_cache`.\nExample (`wraps`):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from functools import wraps\n\ndef my_decorator(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        print('Function is called')\n        result = func(*args, **kwargs)\n        print('Function finished')\n        return result\n    return wrapper\n\n@my_decorator\ndef greet(name):\n    return f'Hello, {name}!'\n\nprint(greet('World'))\nprint(greet.__name__)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `@wraps(func)` preserves the original function’s metadata.\n- `greet.__name__` shows the original function name.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Caching with lru_cache"
+      },
+      {
+        "type": "paragraph",
+        "text": "`functools.lru_cache` caches results to improve performance.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from functools import lru_cache\n\n@lru_cache(maxsize=128)\ndef fibonacci(n):\n    if n < 2:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)\n\nprint(fibonacci(10))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `lru_cache` caches Fibonacci calculations.\n- `maxsize=128` stores up to 128 results.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Python vs. TypeScript and JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Python decorators are similar to TypeScript/JavaScript decorators, but differences exist:\n- **Python**: Decorators for functions and classes.\n- **TypeScript/JavaScript**: Mainly for classes and their members (experimental ECMAScript feature).\nExample (Python vs. TypeScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def log(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        print(f'Calling: {func.__name__}')\n        return func(*args, **kwargs)\n    return wrapper\n\n@log\ndef add(a, b):\n    return a + b\n\nprint(add(3, 5))\n"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "function log(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n    const originalMethod = descriptor.value;\n    descriptor.value = function (...args: any[]) {\n        console.log(`Calling ${propertyKey}`);\n        return originalMethod.apply(this, args);\n    };\n}\n\nclass Calculator {\n    @log\n    add(a: number, b: number): number {\n        return a + b;\n    }\n}\n\nconst calc = new Calculator();\nconsole.log(calc.add(3, 5));\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Python’s decorator wraps a function.\n- TypeScript’s decorator is applied to a class method.\nYou can test these codes in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Avoiding Errors"
+      },
+      {
+        "type": "paragraph",
+        "text": "To avoid errors with decorators:\n- **Use `@wraps`**: Preserve function metadata.\n- **Simplicity**: Avoid overly complex decorators.\n- **Debugging**: Use logging to track errors.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from functools import wraps\n\ndef safe_decorator(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        try:\n            print('Function executing')\n            return func(*args, **kwargs)\n        except Exception as e:\n            print(f'Error: {e}')\n            return None\n    return wrapper\n\n@safe_decorator\ndef divide(a, b):\n    return a / b\n\nprint(divide(10, 2))\nprint(divide(10, 0))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `try-except` catches errors.\n- `@wraps` preserves function metadata.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Memory Usage"
+      },
+      {
+        "type": "paragraph",
+        "text": "Decorators use memory efficiently, but mechanisms like `lru_cache` may increase memory usage.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from functools import lru_cache\n\n@lru_cache(maxsize=2)\ndef heavy_computation(x):\n    print(f'Computing: {x}')\n    return x * x\n\nprint(heavy_computation(2))\nprint(heavy_computation(2))\nprint(heavy_computation(3))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `lru_cache` caches repeated computations.\n- `maxsize=2` stores only two results.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Real-World Use Cases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Decorators are used in real-world projects for:\n- **Logging**: Tracking function calls.\n- **Caching**: Speeding up computations.\n- **Authentication**: Checking permissions.\nExample (logging):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from functools import wraps\n\ndef log_execution(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        print(f'{func.__name__} called with args: {args}, kwargs: {kwargs}')\n        result = func(*args, **kwargs)\n        print(f'{func.__name__} result: {result}')\n        return result\n    return wrapper\n\n@log_execution\ndef multiply(a, b):\n    return a * b\n\nprint(multiply(4, 5))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `log_execution` logs function calls and results.\nYou can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Advanced topics related to decorators:\n- **Multithreading**: Using decorators in multithreaded programs.\n- **Dynamic decorators**: Creating decorators at runtime.\nFor more details, refer to the Python documentation (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use `@wraps`, write simple decorators, refer to the official documentation (https://docs.python.org).\n- **Alternatives**: Use regular functions for simple tasks instead of decorators.\nYou can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "# Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "from functools import wraps\n\ndef my_decorator(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        print('Function starts')\n        result = func(*args, **kwargs)\n        print('Function finished')\n        return result\n    return wrapper\n\n@my_decorator\ndef example():\n    print('Example function')\n\nexample()\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Продвинутые декораторы",
+    "icon": "FiStar",
+    "language": "python",
+    "description": "Классовые декораторы, фабрики декораторов и модуль functools.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "# Что такое декораторы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы в Python — это мощный механизм для изменения поведения функций или классов. Они 'оборачивают' функцию или класс, добавляя дополнительную функциональность. Этот JSON-файл подробно объясняет классовые декораторы, фабрики декораторов, возможности модуля `functools` (`wraps`, `lru_cache`), как работают декораторы, сравнение с декораторами в TypeScript/JavaScript, способы избежания ошибок, использование памяти и сценарии использования в реальных проектах (логирование, кэширование, аутентификация). Примеры кода не требуют ввода пользователя, совместимы с UTF-8, и вы можете протестировать их в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Простые декораторы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декоратор оборачивает функцию для изменения ее поведения.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def simple_decorator(func):\n    def wrapper():\n        print('Функция вызывается')\n        func()\n        print('Функция завершена')\n    return wrapper\n\n@simple_decorator\ndef say_hello():\n    print('Привет, мир!')\n\nsay_hello()\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `simple_decorator` оборачивает функцию.\n- `@simple_decorator` применяет декоратор к say_hello.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Классовые декораторы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Классовые декораторы изменяют поведение классов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def class_decorator(cls):\n    cls.new_attribute = 'Дополнительный атрибут'\n    return cls\n\n@class_decorator\nclass MyClass:\n    def __init__(self):\n        self.value = 42\n\nobj = MyClass()\nprint(obj.new_attribute)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `class_decorator` добавляет новый атрибут к классу.\n- `@class_decorator` применяется к MyClass.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Фабрики декораторов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Фабрики декораторов создают декораторы, принимающие параметры.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def repeat(n):\n    def decorator(func):\n        def wrapper(*args, **kwargs):\n            for _ in range(n):\n                func(*args, **kwargs)\n        return wrapper\n    return decorator\n\n@repeat(3)\ndef say_hello(name):\n    print(f'Привет, {name}!')\n\nsay_hello('Мир')\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `repeat` — это фабрика декораторов, которая повторяет функцию n раз.\n- `@repeat(3)` вызывает say_hello три раза.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Модуль functools"
+      },
+      {
+        "type": "paragraph",
+        "text": "Модуль `functools` предоставляет инструменты для декораторов, такие как `wraps` и `lru_cache`.\nПример (`wraps`):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from functools import wraps\n\ndef my_decorator(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        print('Функция вызывается')\n        result = func(*args, **kwargs)\n        print('Функция завершена')\n        return result\n    return wrapper\n\n@my_decorator\ndef greet(name):\n    return f'Привет, {name}!'\n\nprint(greet('Мир'))\nprint(greet.__name__)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `@wraps(func)` сохраняет метаданные исходной функции.\n- `greet.__name__` показывает имя исходной функции.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Кэширование с помощью lru_cache"
+      },
+      {
+        "type": "paragraph",
+        "text": "`functools.lru_cache` кэширует результаты для повышения производительности.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from functools import lru_cache\n\n@lru_cache(maxsize=128)\ndef fibonacci(n):\n    if n < 2:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)\n\nprint(fibonacci(10))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `lru_cache` кэширует вычисления Фибоначчи.\n- `maxsize=128` хранит до 128 результатов.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Python против TypeScript и JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы в Python похожи на декораторы в TypeScript/JavaScript, но есть различия:\n- **Python**: Декораторы для функций и классов.\n- **TypeScript/JavaScript**: В основном для классов и их членов (экспериментальная функция ECMAScript).\nПример (Python против TypeScript):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "def log(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        print(f'Calling: {func.__name__}')\n        return func(*args, **kwargs)\n    return wrapper\n\n@log\ndef add(a, b):\n    return a + b\n\nprint(add(3, 5))\n"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "function log(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n    const originalMethod = descriptor.value;\n    descriptor.value = function (...args: any[]) {\n        console.log(`Calling ${propertyKey}`);\n        return originalMethod.apply(this, args);\n    };\n}\n\nclass Calculator {\n    @log\n    add(a: number, b: number): number {\n        return a + b;\n    }\n}\n\nconst calc = new Calculator();\nconsole.log(calc.add(3, 5));\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Декоратор Python оборачивает функцию.\n- Декоратор TypeScript применяется к методу класса.\nВы можете протестировать эти коды в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Избежание ошибок"
+      },
+      {
+        "type": "paragraph",
+        "text": "Чтобы избежать ошибок при работе с декораторами:\n- **Используйте `@wraps`**: Сохраняйте метаданные функции.\n- **Простота**: Избегайте слишком сложных декораторов.\n- **Отладка**: Используйте логирование для отслеживания ошибок.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from functools import wraps\n\ndef safe_decorator(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        try:\n            print('Функция выполняется')\n            return func(*args, **kwargs)\n        except Exception as e:\n            print(f'Ошибка: {e}')\n            return None\n    return wrapper\n\n@safe_decorator\ndef divide(a, b):\n    return a / b\n\nprint(divide(10, 2))\nprint(divide(10, 0))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `try-except` перехватывает ошибки.\n- `@wraps` сохраняет метаданные функции.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Использование памяти"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы эффективно используют память, но механизмы вроде `lru_cache` могут увеличить потребление памяти.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from functools import lru_cache\n\n@lru_cache(maxsize=2)\ndef heavy_computation(x):\n    print(f'Вычисление: {x}')\n    return x * x\n\nprint(heavy_computation(2))\nprint(heavy_computation(2))\nprint(heavy_computation(3))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `lru_cache` кэширует повторяющиеся вычисления.\n- `maxsize=2` хранит только два результата.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Декораторы используются в реальных проектах для:\n- **Логирование**: Отслеживание вызовов функций.\n- **Кэширование**: Ускорение вычислений.\n- **Аутентификация**: Проверка разрешений.\nПример (логирование):"
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from functools import wraps\n\ndef log_execution(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        print(f'{func.__name__} вызвана с аргументами: {args}, {kwargs}')\n        result = func(*args, **kwargs)\n        print(f'{func.__name__} результат: {result}')\n        return result\n    return wrapper\n\n@log_execution\ndef multiply(a, b):\n    return a * b\n\nprint(multiply(4, 5))\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `log_execution` логирует вызовы и результаты функции.\nВы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Продвинутые темы, связанные с декораторами:\n- **Многопоточность**: Использование декораторов в многопоточных программах.\n- **Динамические декораторы**: Создание декораторов во время выполнения.\nДля получения дополнительной информации обратитесь к документации Python (https://docs.python.org)."
+      },
+      {
+        "type": "heading",
+        "text": "# Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте `@wraps`, пишите простые декораторы, обращайтесь к официальной документации (https://docs.python.org).\n- **Альтернативы**: Используйте обычные функции для простых задач вместо декораторов.\nВы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "# Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "from functools import wraps\n\ndef my_decorator(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        print('Функция начинается')\n        result = func(*args, **kwargs)\n        print('Функция завершена')\n        return result\n    return wrapper\n\n@my_decorator\ndef example():\n    print('Пример функции')\n\nexample()\n"
+      }
+    ]
+  }
+}

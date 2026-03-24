@@ -1,0 +1,621 @@
+{
+  "id": "array-types",
+  "az": {
+    "title": "Array Tipləri",
+    "icon": "FiList",
+    "language": "typescript",
+    "description": "number[], string[], Array<number> və s.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Array Tipləri Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də array tipləri eyni tipdə olan bir sıra dəyərləri saxlamaq üçün istifadə olunur. Array tipləri dəyişənlərin yalnız müəyyən tipli elementlərdən ibarət olduğunu təmin edir. TypeScript JavaScript-in üzərində qurulmuş bir dil olduğundan, JavaScript-in dinamik massivlərini statik tiplərlə idarə edir. Bu, kodun yazılma mərhələsində səhvləri aşkarlamağa imkan verir və kodun təhlükəsizliyini artırır. Array tipləri iki sintaksisdə təyin edilə bilər: `T[]` (məsələn, `number[]`) və ya `Array<T>` (məsələn, `Array<number>`). Bu JSON faylda array tiplərinin tərifi, istifadə məqsədləri, JavaScript ilə fərqləri, sintaksis variantları, çoxölçülü massivlər, readonly massivlər, massiv metodları, union tipləri ilə massivlər, tuple tipləri, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir TypeScript faylında yoxlaya bilərsiniz. Bunun üçün Node.js mühitində `tsc` kompilyatorundan və ya TypeScript Playground (https://www.typescriptlang.org/play) kimi onlayn redaktordan istifadə edə bilərsiniz. TypeScript 5.0 və ya daha yeni versiyadan istifadə etməyiniz tövsiyə olunur."
+      },
+      {
+        "type": "heading",
+        "text": "Array Tiplərinin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Array tipləri TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Tip təhlükəsizliyi**: Yalnız müəyyən tipli elementlərin massivə əlavə edilməsini təmin edir.\n- **Səhvlərin qarşısını almaq**: Yanlış tipdə elementlər kompilyasiya zamanı xəta verir.\n- **Kodun oxunaqlılığı**: Massivin hansı tipli elementlərdən ibarət olduğu aydın olur.\n- **Alət dəstəyi**: Kod redaktorları (məsələn, VS Code) tiplərə əsasən avtomatik tamamlamalar təklif edir.\nJavaScript-də massivlər dinamikdir və istənilən tipdə element saxlaya bilər, bu da runtime səhvlərinə səbəb ola bilər. TypeScript bu problemi statik tiplərlə həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Array Tiplərinin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də massiv tipləri iki şəkildə təyin edilir:\n- **T[]**: Sadə və daha çox istifadə olunan sintaksis (məsələn, `number[]`, `string[]`).\n- **Array<T>**: Generik sintaksis, eyni məqsədi daşıyır (məsələn, `Array<number>`, `Array<string>`).\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Array tiplərinin sintaksisi\nlet numbers: number[] = [1, 2, 3];\nlet names: Array<string> = ['Ali', 'Vəli', 'Ayşə'];\n\nconsole.log(numbers); // [1, 2, 3]\nconsole.log(names); // ['Ali', 'Vəli', 'Ayşə']\n// numbers.push('dörd'); // Xəta: string number[]-ə əlavə edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `number[]` və `Array<string>` sintaksisləri eyni funksiyanı yerinə yetirir.\n- Yanlış tipdə element əlavə etmək kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Çoxölçülü Massivlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Çoxölçülü massivlər massiv daxilində massivləri təmsil edir (məsələn, matrislər).\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Çoxölçülü massivlər\nlet matrix: number[][] = [[1, 2], [3, 4], [5, 6]];\n\nconsole.log(matrix); // [[1, 2], [3, 4], [5, 6]]\nconsole.log(matrix[0][1]); // 2\n// matrix.push(['yedi']); // Xəta: string[] number[][]-ə əlavə edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `number[][]` ikiölçülü massivi təyin edir.\n- Yanlış tipdə element əlavə etmək kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Massivlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "`Readonly` massivlər dəyişdirilə bilməz (immutable) massivlərdir. Elementlərə yalnız oxumaq üçün icazə verilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly massivlər\nlet readOnlyNumbers: readonly number[] = [1, 2, 3];\n\nconsole.log(readOnlyNumbers); // [1, 2, 3]\n// readOnlyNumbers.push(4); // Xəta: readonly massivə əlavə etmək olmur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `readonly` açar sözü massivin dəyişdirilməsini qadağan edir.\n- Dəyişdirmə cəhdi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Massiv Metodları"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript massiv metodlarını dəstəkləyir (`push`, `pop`, `map`, `filter` və s.), lakin tiplərə uyğun istifadə tələb olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Massiv metodları\nlet scores: number[] = [10, 20, 30];\n\nscores.push(40);\nconsole.log(scores); // [10, 20, 30, 40]\n\nlet doubled: number[] = scores.map(score => score * 2);\nconsole.log(doubled); // [20, 40, 60, 80]\n\nlet highScores: number[] = scores.filter(score => score > 20);\nconsole.log(highScores); // [30, 40]\n// scores.push('elli'); // Xəta: string number[]-ə əlavə edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `push`, `map` və `filter` metodları tiplərə uyğun istifadə olunur.\n- Yanlış tipdə element əlavə etmək kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Union Tipləri ilə Massivlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union tipləri ilə massivlər bir neçə fərqli tipdə element saxlaya bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Union tipləri ilə massivlər\nlet mixed: (string | number)[] = ['apple', 5, 'banana', 10];\n\nconsole.log(mixed); // ['apple', 5, 'banana', 10]\n// mixed.push(true); // Xəta: boolean union tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `(string | number)[]` massivin həm `string`, həm də `number` elementləri saxlaya biləcəyini göstərir.\n- Yanlış tipdə element kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tuple Tipləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple tipləri sabit uzunluqlu və hər elementi üçün müəyyən tipləri olan massivlərdir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Tuple tipləri\nlet person: [string, number] = ['Ali', 25];\n\nconsole.log(person); // ['Ali', 25]\n// person = ['Vəli', 30, true]; // Xəta: tuple yalnız iki element qəbul edir\n// person[0] = 42; // Xəta: number string-ə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `[string, number]` tuple tipi iki elementli massivi təyin edir.\n- Yanlış uzunluq və ya tip kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Array Tipləri ilə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Array tipləri real layihələrdə müxtəlif ssenarilərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Praktik nümunə\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nlet products: Product[] = [\n  { id: 1, name: 'Telefon', price: 500 },\n  { id: 2, name: 'Laptop', price: 1000 },\n];\n\nfunction displayProducts(products: Product[]): void {\n  products.forEach(product => {\n    console.log(`Məhsul: ${product.name}, Qiymət: ${product.price}`);\n  });\n}\n\ndisplayProducts(products);\n// Çıxış:\n// Məhsul: Telefon, Qiymət: 500\n// Məhsul: Laptop, Qiymət: 1000\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Product[]` tipi obyektlərdən ibarət massivi təyin edir.\n- `forEach` metodu ilə massiv elementləri işlənilir.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Array tipləri kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Yanlış tipdə elementlərdən çəkinin.\n- `any[]` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\nlet values: (string | number)[] = ['test', 42];\n\nif (typeof values[0] === 'string') {\n  console.log(values[0].toUpperCase()); // TEST\n}\n// values.push(true); // Xəta: boolean union tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Union tipi ilə massiv elementləri yoxlanılır.\n- Yanlış tipdə element əlavə etmək kompilyasiya xətası yaradır.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet unsafe: any[] = ['Hello', 42];\nunsafe.push(true); // Təhlükəsiz deyil, runtime səhvi ola bilər\nconsole.log(unsafe); // ['Hello', 42, true]\n\n// Düzgün yol\nlet safe: string[] = ['Hello'];\nconsole.log(safe); // ['Hello']\n// safe.push(42); // Xəta: number string[]-ə əlavə edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any[]` tipi təhlükəsiz deyil və runtime xətalarına səbəb ola bilər.\n- `string[]` tipi təhlükəsizliyi təmin edir.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Array tipləri real layihələrdə geniş istifadə olunur:\n- **String massivləri**: İstifadəçi adları, kateqoriyalar, etiketlər.\n- **Number massivləri**: Qiymətlər, reytinqlər, sayğaclar.\n- **Obyekt massivləri**: Məhsullar, istifadəçilər, sifarişlər.\n- **Tuple tipləri**: Sabit strukturlu məlumatlar (məsələn, koordinatlar).\n- **Readonly massivlər**: Dəyişməz məlumat siyahıları.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\nfunction filterExpensiveProducts(products: Product[], minPrice: number): Product[] {\n  return products.filter(product => product.price > minPrice);\n}\n\nlet products: Product[] = [\n  { id: 1, name: 'Telefon', price: 500 },\n  { id: 2, name: 'Laptop', price: 1000 },\n  { id: 3, name: 'Planşet', price: 300 },\n];\n\nlet expensive: Product[] = filterExpensiveProducts(products, 500);\nconsole.log(expensive); // [{ id: 2, name: 'Laptop', price: 1000 }]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Product[]` tipi məhsul siyahısını təyin edir.\n- `filter` metodu qiyməti filtr edir.\n- Aşağıda bu kodu sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Dəqiq tiplərdən istifadə edin. `any[]` əvəzinə konkret tiplər seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Kiçik layihələrdə təmiz JavaScript istifadə edilə bilər, lakin TypeScript tövsiyə olunur.\n- Aşağıda kodları sadə bir TypeScript faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün array tipləri nümunəsi\ninterface Order {\n  id: number;\n  product: string;\n  quantity: number;\n}\n\nlet orders: Order[] = [\n  { id: 1, product: 'Telefon', quantity: 2 },\n  { id: 2, product: 'Laptop', quantity: 1 },\n];\n\nfunction displayOrders(orders: Order[]): void {\n  orders.forEach(order => {\n    console.log(`Sifariş ID: ${order.id}, Məhsul: ${order.product}, Say: ${order.quantity}`);\n  });\n}\n\ndisplayOrders(orders);\n// Çıxış:\n// Sifariş ID: 1, Məhsul: Telefon, Say: 2\n// Sifariş ID: 2, Məhsul: Laptop, Say: 1\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Array Types",
+    "icon": "FiList",
+    "language": "typescript",
+    "description": "number[], string[], Array<number>, etc.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Array Types?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Array types in TypeScript are used to store a sequence of values of the same type. They ensure that arrays contain only elements of a specified type. TypeScript, built on top of JavaScript, manages JavaScript’s dynamic arrays with static types, enabling error detection during compilation and enhancing code safety. Array types can be defined in two syntaxes: `T[]` (e.g., `number[]`) or `Array<T>` (e.g., `Array<number>`). This JSON file explains the definition of array types, their purposes, differences from JavaScript, syntax variants, multidimensional arrays, readonly arrays, array methods, arrays with union types, tuple types, type safety, and real-world usage scenarios in detail. You can test the code below in a simple TypeScript file using a Node.js environment with the `tsc` compiler or an online editor like TypeScript Playground (https://www.typescriptlang.org/play). Using TypeScript 5.0 or a newer version is recommended."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Array Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Array types in TypeScript serve the following purposes:\n- **Type safety**: Ensure only specified types are added to the array.\n- **Error prevention**: Incorrect types trigger compilation errors.\n- **Code readability**: Clearly indicate the type of elements in the array.\n- **Tooling support**: Code editors (e.g., VS Code) provide autocompletion based on types.\nIn JavaScript, arrays are dynamic and can hold any type, which may lead to runtime errors. TypeScript solves this with static types."
+      },
+      {
+        "type": "heading",
+        "text": "Array Type Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript arrays can be defined in two ways:\n- **T[]**: Simple and commonly used syntax (e.g., `number[]`, `string[]`).\n- **Array<T>**: Generic syntax, serving the same purpose (e.g., `Array<number>`, `Array<string>`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Array type syntax\nlet numbers: number[] = [1, 2, 3];\nlet names: Array<string> = ['Alice', 'Bob', 'Eve'];\n\nconsole.log(numbers); // [1, 2, 3]\nconsole.log(names); // ['Alice', 'Bob', 'Eve']\n// numbers.push('four'); // Error: string cannot be added to number[]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `number[]` and `Array<string>` syntaxes serve the same purpose.\n- Adding an incorrect type triggers a compilation error.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Multidimensional Arrays"
+      },
+      {
+        "type": "paragraph",
+        "text": "Multidimensional arrays represent arrays within arrays (e.g., matrices).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Multidimensional arrays\nlet matrix: number[][] = [[1, 2], [3, 4], [5, 6]];\n\nconsole.log(matrix); // [[1, 2], [3, 4], [5, 6]]\nconsole.log(matrix[0][1]); // 2\n// matrix.push(['seven']); // Error: string[] cannot be added to number[][]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `number[][]` defines a two-dimensional array.\n- Adding an incorrect type triggers a compilation error.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Arrays"
+      },
+      {
+        "type": "paragraph",
+        "text": "Readonly arrays are immutable arrays, allowing only reading of elements.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly arrays\nlet readOnlyNumbers: readonly number[] = [1, 2, 3];\n\nconsole.log(readOnlyNumbers); // [1, 2, 3]\n// readOnlyNumbers.push(4); // Error: cannot push to readonly array\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `readonly` keyword prevents array modifications.\n- Modification attempts trigger a compilation error.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Array Methods"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript supports array methods (`push`, `pop`, `map`, `filter`, etc.), but they must be used with correct types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Array methods\nlet scores: number[] = [10, 20, 30];\n\nscores.push(40);\nconsole.log(scores); // [10, 20, 30, 40]\n\nlet doubled: number[] = scores.map(score => score * 2);\nconsole.log(doubled); // [20, 40, 60, 80]\n\nlet highScores: number[] = scores.filter(score => score > 20);\nconsole.log(highScores); // [30, 40]\n// scores.push('fifty'); // Error: string cannot be added to number[]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `push`, `map`, and `filter` methods are used with correct types.\n- Adding an incorrect type triggers a compilation error.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Arrays with Union Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Arrays with union types can hold elements of multiple types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Arrays with union types\nlet mixed: (string | number)[] = ['apple', 5, 'banana', 10];\n\nconsole.log(mixed); // ['apple', 5, 'banana', 10]\n// mixed.push(true); // Error: boolean is not part of union type\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `(string | number)[]` allows both `string` and `number` elements.\n- Adding an incorrect type triggers a compilation error.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Tuple Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Tuple types define arrays with a fixed length and specific types for each element.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Tuple types\nlet person: [string, number] = ['Alice', 25];\n\nconsole.log(person); // ['Alice', 25]\n// person = ['Bob', 30, true]; // Error: tuple expects only two elements\n// person[0] = 42; // Error: number cannot be assigned to string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `[string, number]` defines a tuple with two elements.\n- Incorrect length or type triggers a compilation error.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Working with Array Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Array types are used in various scenarios in real projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Practical example\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nlet products: Product[] = [\n  { id: 1, name: 'Phone', price: 500 },\n  { id: 2, name: 'Laptop', price: 1000 },\n];\n\nfunction displayProducts(products: Product[]): void {\n  products.forEach(product => {\n    console.log(`Product: ${product.name}, Price: ${product.price}`);\n  });\n}\n\ndisplayProducts(products);\n// Output:\n// Product: Phone, Price: 500\n// Product: Laptop, Price: 1000\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Product[]` defines an array of objects.\n- `forEach` processes array elements.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Array types enhance code safety, but caution is needed:\n- Avoid incorrect type assignments.\n- Avoid `any[]` as it reduces type safety.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\nlet values: (string | number)[] = ['test', 42];\n\nif (typeof values[0] === 'string') {\n  console.log(values[0].toUpperCase()); // TEST\n}\n// values.push(true); // Error: boolean is not part of union type\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Union type array elements are checked.\n- Adding an incorrect type triggers a compilation error.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet unsafe: any[] = ['Hello', 42];\nunsafe.push(true); // Unsafe, may cause runtime errors\nconsole.log(unsafe); // ['Hello', 42, true]\n\n// Correct approach\nlet safe: string[] = ['Hello'];\nconsole.log(safe); // ['Hello']\n// safe.push(42); // Error: number cannot be added to string[]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any[]` is unsafe and can cause runtime errors.\n- `string[]` ensures type safety.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Array types are widely used in real projects:\n- **String arrays**: Usernames, categories, tags.\n- **Number arrays**: Prices, ratings, counters.\n- **Object arrays**: Products, users, orders.\n- **Tuple types**: Fixed-structure data (e.g., coordinates).\n- **Readonly arrays**: Immutable data lists.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\nfunction filterExpensiveProducts(products: Product[], minPrice: number): Product[] {\n  return products.filter(product => product.price > minPrice);\n}\n\nlet products: Product[] = [\n  { id: 1, name: 'Phone', price: 500 },\n  { id: 2, name: 'Laptop', price: 1000 },\n  { id: 3, name: 'Tablet', price: 300 },\n];\n\nlet expensive: Product[] = filterExpensiveProducts(products, 500);\nconsole.log(expensive); // [{ id: 2, name: 'Laptop', price: 1000 }]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Product[]` defines a product list.\n- `filter` method filters by price.\n- You can test this code in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use precise types. Avoid `any[]` and prefer specific types. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: For small projects, plain JavaScript can be used, but TypeScript is recommended.\n- You can test the code below in a simple TypeScript file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself array types example\ninterface Order {\n  id: number;\n  product: string;\n  quantity: number;\n}\n\nlet orders: Order[] = [\n  { id: 1, product: 'Phone', quantity: 2 },\n  { id: 2, product: 'Laptop', quantity: 1 },\n];\n\nfunction displayOrders(orders: Order[]): void {\n  orders.forEach(order => {\n    console.log(`Order ID: ${order.id}, Product: ${order.product}, Quantity: ${order.quantity}`);\n  });\n}\n\ndisplayOrders(orders);\n// Output:\n// Order ID: 1, Product: Phone, Quantity: 2\n// Order ID: 2, Product: Laptop, Quantity: 1\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Типы массивов",
+    "icon": "FiList",
+    "language": "typescript",
+    "description": "number[], string[], Array<number> и т.д.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое типы массивов?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы массивов в TypeScript используются для хранения последовательности значений одного типа. Они гарантируют, что массив содержит только элементы указанного типа. TypeScript, построенный на основе JavaScript, управляет динамическими массивами JavaScript с помощью статических типов, что позволяет выявлять ошибки на этапе компиляции и повышать безопасность кода. Типы массивов могут быть определены двумя синтаксисами: `T[]` (например, `number[]`) или `Array<T>` (например, `Array<number>`). Этот JSON-файл подробно объясняет определение типов массивов, их назначение, отличия от JavaScript, варианты синтаксиса, многомерные массивы, массивы только для чтения, методы массивов, массивы с объединением типов, типы кортежей, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в простом файле TypeScript, используя среду Node.js с компилятором `tsc` или онлайн-редактор, такой как TypeScript Playground (https://www.typescriptlang.org/play). Рекомендуется использовать TypeScript 5.0 или новее."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение типов массивов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы массивов в TypeScript используются для следующих целей:\n- **Безопасность типов**: Гарантируют добавление в массив только элементов указанного типа.\n- **Предотвращение ошибок**: Неправильные типы вызывают ошибки компиляции.\n- **Читаемость кода**: Указывают, какие типы элементов содержит массив.\n- **Поддержка инструментов**: Редакторы кода (например, VS Code) предоставляют автодополнение на основе типов.\nВ JavaScript массивы динамичны и могут содержать элементы любого типа, что может привести к ошибкам во время выполнения. TypeScript решает эту проблему с помощью статических типов."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис типов массивов"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript массивы определяются двумя способами:\n- **T[]**: Простой и наиболее используемый синтаксис (например, `number[]`, `string[]`).\n- **Array<T>**: Обобщённый синтаксис, выполняющий ту же функцию (например, `Array<number>`, `Array<string>`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Синтаксис типов массивов\nlet numbers: number[] = [1, 2, 3];\nlet names: Array<string> = ['Алиса', 'Боб', 'Ева'];\n\nconsole.log(numbers); // [1, 2, 3]\nconsole.log(names); // ['Алиса', 'Боб', 'Ева']\n// numbers.push('четыре'); // Ошибка: string не может быть добавлен в number[]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Синтаксисы `number[]` и `Array<string>` выполняют одну и ту же функцию.\n- Добавление неправильного типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Многомерные массивы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Многомерные массивы представляют массивы внутри массивов (например, матрицы).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Многомерные массивы\nlet matrix: number[][] = [[1, 2], [3, 4], [5, 6]];\n\nconsole.log(matrix); // [[1, 2], [3, 4], [5, 6]]\nconsole.log(matrix[0][1]); // 2\n// matrix.push(['семь']); // Ошибка: string[] не может быть добавлен в number[][]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `number[][]` определяет двумерный массив.\n- Добавление неправильного типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Массивы только для чтения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Массивы только для чтения являются неизменяемыми (immutable) массивами, позволяющими только чтение элементов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Массивы только для чтения\nlet readOnlyNumbers: readonly number[] = [1, 2, 3];\n\nconsole.log(readOnlyNumbers); // [1, 2, 3]\n// readOnlyNumbers.push(4); // Ошибка: нельзя добавить в массив только для чтения\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ключевое слово `readonly` запрещает изменение массива.\n- Попытки изменения вызывают ошибку компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Методы массивов"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript поддерживает методы массивов (`push`, `pop`, `map`, `filter` и т.д.), но они должны использоваться с правильными типами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Методы массивов\nlet scores: number[] = [10, 20, 30];\n\nscores.push(40);\nconsole.log(scores); // [10, 20, 30, 40]\n\nlet doubled: number[] = scores.map(score => score * 2);\nconsole.log(doubled); // [20, 40, 60, 80]\n\nlet highScores: number[] = scores.filter(score => score > 20);\nconsole.log(highScores); // [30, 40]\n// scores.push('пятьдесят'); // Ошибка: string не может быть добавлен в number[]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Методы `push`, `map` и `filter` используются с правильными типами.\n- Добавление неправильного типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Массивы с объединением типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Массивы с объединением типов могут содержать элементы нескольких типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Массивы с объединением типов\nlet mixed: (string | number)[] = ['яблоко', 5, 'банан', 10];\n\nconsole.log(mixed); // ['яблоко', 5, 'банан', 10]\n// mixed.push(true); // Ошибка: boolean не входит в объединение типов\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `(string | number)[]` позволяет массиву содержать как `string`, так и `number` элементы.\n- Добавление неправильного типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Типы кортежей"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы кортежей определяют массивы с фиксированной длиной и определёнными типами для каждого элемента.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Типы кортежей\nlet person: [string, number] = ['Алиса', 25];\n\nconsole.log(person); // ['Алиса', 25]\n// person = ['Боб', 30, true]; // Ошибка: кортеж ожидает только два элемента\n// person[0] = 42; // Ошибка: number не может быть присвоен string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `[string, number]` определяет кортеж с двумя элементами.\n- Неправильная длина или тип вызывает ошибку компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Работа с типами массивов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы массивов используются в различных сценариях в реальных проектах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Практический пример\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nlet products: Product[] = [\n  { id: 1, name: 'Телефон', price: 500 },\n  { id: 2, name: 'Ноутбук', price: 1000 },\n];\n\nfunction displayProducts(products: Product[]): void {\n  products.forEach(product => {\n    console.log(`Продукт: ${product.name}, Цена: ${product.price}`);\n  });\n}\n\ndisplayProducts(products);\n// Вывод:\n// Продукт: Телефон, Цена: 500\n// Продукт: Ноутбук, Цена: 1000\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Product[]` определяет массив объектов.\n- `forEach` обрабатывает элементы массива.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы массивов повышают безопасность кода, но требуется осторожность:\n- Избегайте неправильных присвоений типов.\n- Избегайте `any[]`, так как это снижает безопасность типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\nlet values: (string | number)[] = ['тест', 42];\n\nif (typeof values[0] === 'string') {\n  console.log(values[0].toUpperCase()); // ТЕСТ\n}\n// values.push(true); // Ошибка: boolean не входит в объединение типов\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Элементы массива с объединением типов проверяются.\n- Добавление неправильного типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet unsafe: any[] = ['Привет', 42];\nunsafe.push(true); // Небезопасно, может вызвать ошибки во время выполнения\nconsole.log(unsafe); // ['Привет', 42, true]\n\n// Правильный подход\nlet safe: string[] = ['Привет'];\nconsole.log(safe); // ['Привет']\n// safe.push(42); // Ошибка: number не может быть добавлен в string[]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any[]` небезопасен и может вызвать ошибки во время выполнения.\n- `string[]` обеспечивает безопасность типов.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы массивов широко используются в реальных проектах:\n- **Строковые массивы**: Имена пользователей, категории, теги.\n- **Числовые массивы**: Цены, рейтинги, счётчики.\n- **Массивы объектов**: Продукты, пользователи, заказы.\n- **Типы кортежей**: Данные с фиксированной структурой (например, координаты).\n- **Массивы только для чтения**: Неизменяемые списки данных.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\nfunction filterExpensiveProducts(products: Product[], minPrice: number): Product[] {\n  return products.filter(product => product.price > minPrice);\n}\n\nlet products: Product[] = [\n  { id: 1, name: 'Телефон', price: 500 },\n  { id: 2, name: 'Ноутбук', price: 1000 },\n  { id: 3, name: 'Планшет', price: 300 },\n];\n\nlet expensive: Product[] = filterExpensiveProducts(products, 500);\nconsole.log(expensive); // [{ id: 2, name: 'Ноутбук', price: 1000 }]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Product[]` определяет список продуктов.\n- Метод `filter` фильтрует по цене.\n- Вы можете протестировать этот код в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте точные типы. Избегайте `any[]` и предпочитайте конкретные типы. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Для небольших проектов можно использовать чистый JavaScript, но TypeScript рекомендуется.\n- Вы можете протестировать код ниже в простом файле TypeScript."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример типов массивов для самостоятельного тестирования\ninterface Order {\n  id: number;\n  product: string;\n  quantity: number;\n}\n\nlet orders: Order[] = [\n  { id: 1, product: 'Телефон', quantity: 2 },\n  { id: 2, product: 'Ноутбук', quantity: 1 },\n];\n\nfunction displayOrders(orders: Order[]): void {\n  orders.forEach(order => {\n    console.log(`ID заказа: ${order.id}, Продукт: ${order.product}, Количество: ${order.quantity}`);\n  });\n}\n\ndisplayOrders(orders);\n// Вывод:\n// ID заказа: 1, Продукт: Телефон, Количество: 2\n// ID заказа: 2, Продукт: Ноутбук, Количество: 1\n"
+      }
+    ]
+  }
+}

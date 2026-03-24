@@ -1,0 +1,597 @@
+{
+  "id": "database",
+  "az": {
+    "title": "Verilənlər Bazası (MySQL)",
+    "icon": "FiDatabase",
+    "language": "php",
+    "description": "MySQL verilənlər bazası ilə iş.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də MySQL Verilənlər Bazası ilə İş Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də MySQL verilənlər bazası ilə iş veb tətbiqlərdə məlumatları saxlamaq, əldə etmək, yeniləmək və silmək üçün istifadə olunur. MySQL populyar bir açıq mənbəli verilənlər bazası idarəetmə sistemidir və PHP ilə birlikdə istifadəçi məlumatları, məhsul siyahıları və ya bloq yazıları kimi məlumatları idarə etmək üçün idealdır. PHP-də MySQL ilə işləmək üçün adətən `mysqli` və ya `PDO` (PHP Data Objects) kimi interfeyslər istifadə olunur. Bu JSON faylda MySQL-ə qoşulma, cədvəllərlə iş, CRUD əməliyyatları, təhlükəsizlik (SQL inyeksiyasından qorunma), praktik nümunələr və səhvlərdən qaçınma yolları çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz. XAMPP-da MySQL serverinin aktiv olduğundan və PHP 8.1 və ya daha yeni versiyadan istifadə etdiyinizə əmin olun."
+      },
+      {
+        "type": "heading",
+        "text": "MySQL-ə Qoşulma"
+      },
+      {
+        "type": "paragraph",
+        "text": "MySQL verilənlər bazasına qoşulmaq üçün `mysqli` və ya `PDO` istifadə olunur. `mysqli` daha sadədir, `PDO` isə daha çevikdir və müxtəlif verilənlər bazaları ilə işləyə bilir. Qoşulma üçün server adı, istifadəçi adı, parol və verilənlər bazası adı tələb olunur.\nNümunə (`mysqli` ilə):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// MySQL-ə qoşulma (mysqli)\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\n$conn = new mysqli($servername, $username, $password, $database);\n\nif ($conn->connect_error) {\n  die('Qoşulma xətası: ' . $conn->connect_error);\n}\n\necho 'MySQL-ə uğurla qoşuldunuz!';\n\n$conn->close();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `mysqli` ilə MySQL-ə qoşulma yaradılır.\n- `$servername`, `$username`, `$password`, `$database` dəyişənləri qoşulma məlumatlarını təyin edir.\n- `connect_error` ilə qoşulma xətaları yoxlanılır.\n- `close()` bağlantını bağlayır.\n- Qeyd: XAMPP-da standart olaraq istifadəçi adı `root` və parol boşdur. `test_db` adlı verilənlər bazasının mövcud olduğundan əmin olun.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "PDO ilə Qoşulma"
+      },
+      {
+        "type": "paragraph",
+        "text": "PDO daha təhlükəsiz və çevikdir, çünki hazırlanmış sorğular (prepared statements) və müxtəlif verilənlər bazaları ilə işləməyi dəstəkləyir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// PDO ilə qoşulma\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n  echo 'PDO ilə MySQL-ə uğurla qoşuldunuz!';\n} catch (PDOException $e) {\n  echo 'Qoşulma xətası: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `PDO` ilə MySQL-ə qoşulma yaradılır.\n- `try-catch` ilə xətalar idarə olunur.\n- `setAttribute` ilə xəta rejimi aktivləşdirilir.\n- `$conn = null` bağlantını bağlayır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Cədvəl Yaratma"
+      },
+      {
+        "type": "paragraph",
+        "text": "MySQL-də cədvəl yaratmaq üçün SQL `CREATE TABLE` sorğusundan istifadə olunur.\nNümunə (`mysqli` ilə):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Cədvəl yaratma\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\n$conn = new mysqli($servername, $username, $password, $database);\n\nif ($conn->connect_error) {\n  die('Qoşulma xətası: ' . $conn->connect_error);\n}\n\n$sql = 'CREATE TABLE users (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(100),\n  email VARCHAR(100),\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n)';\n\nif ($conn->query($sql) === TRUE) {\n  echo 'Cədvəl uğurla yaradıldı!';\n} else {\n  echo 'Xəta: ' . $conn->error;\n}\n\n$conn->close();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `users` cədvəli yaradılır.\n- `id` avtomatik artan əsas açardır.\n- `name` və `email` sətir tiplidir, `created_at` isə vaxt damğasıdır.\n- `query()` ilə SQL sorğusu icra olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "CRUD Əməliyyatları: Create (Yaratma)"
+      },
+      {
+        "type": "paragraph",
+        "text": "CRUD (Create, Read, Update, Delete) əməliyyatları verilənlər bazası ilə işin əsasını təşkil edir. İlk olaraq məlumat əlavə etmək (Create) öyrənək.\nNümunə (`PDO` ilə hazırlanmış sorğu):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Məlumat əlavə etmə\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n\n  $sql = 'INSERT INTO users (name, email) VALUES (:name, :email)';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['name' => 'Ali', 'email' => 'ali@example.com']);\n\n  echo 'Məlumat uğurla əlavə olundu!';\n} catch (PDOException $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `prepare` və `execute` ilə hazırlanmış sorğu istifadə olunur.\n- `:name` və `:email` parametr olaraq təyin edilir.\n- Bu, SQL inyeksiyasından qoruyur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "CRUD Əməliyyatları: Read (Oxuma)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Məlumatları oxumaq üçün SQL `SELECT` sorğusundan istifadə olunur.\nNümunə (`mysqli` ilə):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Məlumat oxuma\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\n$conn = new mysqli($servername, $username, $password, $database);\n\nif ($conn->connect_error) {\n  die('Qoşulma xətası: ' . $conn->connect_error);\n}\n\n$sql = 'SELECT id, name, email, created_at FROM users';\n$result = $conn->query($sql);\n\nif ($result->num_rows > 0) {\n  while ($row = $result->fetch_assoc()) {\n    echo 'ID: ' . $row['id'] . ', Ad: ' . $row['name'] . ', Email: ' . $row['email'] . ', Yaradılıb: ' . $row['created_at'] . '\\n';\n  }\n} else {\n  echo 'Məlumat yoxdur.';\n}\n\n$conn->close();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `SELECT` sorğusu ilə bütün istifadəçilər oxunur.\n- `fetch_assoc()` nəticələri assosiativ massiv kimi qaytarır.\n- `num_rows` ilə nəticələrin sayı yoxlanılır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "CRUD Əməliyyatları: Update (Yeniləmə)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Məlumatları yeniləmək üçün SQL `UPDATE` sorğusundan istifadə olunur.\nNümunə (`PDO` ilə):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Məlumat yeniləmə\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n\n  $sql = 'UPDATE users SET email = :email WHERE id = :id';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['email' => 'new_email@example.com', 'id' => 1]);\n\n  echo 'Məlumat uğurla yeniləndi!';\n} catch (PDOException $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `UPDATE` sorğusu ilə ID-si 1 olan istifadəçinin email-i yenilənir.\n- Hazırlanmış sorğu təhlükəsizliyi artırır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "CRUD Əməliyyatları: Delete (Silmə)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Məlumatları silmək üçün SQL `DELETE` sorğusundan istifadə olunur.\nNümunə (`mysqli` ilə):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Məlumat silmə\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\n$conn = new mysqli($servername, $username, $password, $database);\n\nif ($conn->connect_error) {\n  die('Qoşulma xətası: ' . $conn->connect_error);\n}\n\n$sql = 'DELETE FROM users WHERE id = 1';\nif ($conn->query($sql) === TRUE) {\n  echo 'Məlumat uğurla silindi!';\n} else {\n  echo 'Xəta: ' . $conn->error;\n}\n\n$conn->close();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `DELETE` sorğusu ilə ID-si 1 olan istifadəçi silinir.\n- `query()` ilə sorğu icra olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik: SQL İnyeksiyasından Qorunma"
+      },
+      {
+        "type": "paragraph",
+        "text": "SQL inyeksiyası təhlükəli hücumdur və istifadəçi məlumatlarının birbaşa sorğuya əlavə edilməsi ilə baş verə bilər. Bunu qarşısını almaq üçün hazırlanmış sorğular (`prepared statements`) istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// SQL inyeksiyasından qorunma\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n\n  $sql = 'SELECT * FROM users WHERE email = :email';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['email' => 'ali@example.com']);\n\n  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);\n  foreach ($result as $row) {\n    echo 'Ad: ' . $row['name'] . ', Email: ' . $row['email'] . '\\n';\n  }\n} catch (PDOException $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Hazırlanmış sorğu ilə SQL inyeksiyası qarşısı alınır.\n- `fetchAll(PDO::FETCH_ASSOC)` nəticələri assosiativ massiv kimi qaytarır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: İstifadəçi İdarəetmə Sistemi"
+      },
+      {
+        "type": "paragraph",
+        "text": "MySQL və PHP ilə sadə bir istifadəçi idarəetmə sistemi yaradaq.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// İstifadəçi idarəetmə sistemi\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n\n  // Yeni istifadəçi əlavə et\n  $sql = 'INSERT INTO users (name, email) VALUES (:name, :email)';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['name' => 'Vəli', 'email' => 'veli@example.com']);\n\n  // Bütün istifadəçiləri oxu\n  $sql = 'SELECT id, name, email FROM users';\n  $stmt = $conn->query($sql);\n  $users = $stmt->fetchAll(PDO::FETCH_ASSOC);\n\n  foreach ($users as $user) {\n    echo 'ID: ' . $user['id'] . ', Ad: ' . $user['name'] . ', Email: ' . $user['email'] . '\\n';\n  }\n} catch (PDOException $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Yeni istifadəçi əlavə edilir.\n- Bütün istifadəçilər oxunur və göstərilir.\n- PDO ilə təhlükəsizlik təmin edilir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\n$conn = new mysqli($servername, $username, $password, $database);\n\n// Təhlükəli sorğu (SQL inyeksiyasına açıq)\n$email = \"ali@example.com'; DROP TABLE users; --\";\n$sql = \"SELECT * FROM users WHERE email = '$email'\";\n$result = $conn->query($sql);\n\necho 'Nəticələr: ' . $result->num_rows;\n\n$conn->close();\n\n// Düzgün yol (hazırlanmış sorğu)\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $sql = 'SELECT * FROM users WHERE email = :email';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['email' => 'ali@example.com']);\n  echo 'Nəticələr: ' . $stmt->rowCount();\n} catch (PDOException $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk nümunədə birbaşa daxil edilmiş istifadəçi məlumatı SQL inyeksiyasına səbəb ola bilər.\n- Düzgün yolda hazırlanmış sorğu ilə təhlükəsizlik təmin edilir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Həmişə hazırlanmış sorğular istifadə edin. Verilənlər bazası bağlantısını bağlayın (`close()` və ya `$conn = null`). Xətaları idarə etmək üçün `try-catch` istifadə edin. PHP və MySQL-in rəsmi sənədlərindən (https://www.php.net/manual/en/, https://dev.mysql.com/doc/) faydalanın.\n- **Alternativlər**: MySQL əvəzinə SQLite, PostgreSQL və ya MongoDB istifadə edilə bilər. ORM alətləri (məsələn, Laravel Eloquent, Doctrine) SQL sorğularını sadələşdirir.\n- Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün MySQL ilə iş\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n\n  $sql = 'INSERT INTO users (name, email) VALUES (:name, :email)';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['name' => 'Test', 'email' => 'test@example.com']);\n\n  echo 'Məlumat əlavə olundu!';\n} catch (PDOException $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Database (MySQL)",
+    "icon": "FiDatabase",
+    "language": "php",
+    "description": "Working with MySQL databases in PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Working with MySQL Databases in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Working with MySQL databases in PHP involves storing, retrieving, updating, and deleting data in web applications. MySQL is a popular open-source database management system, ideal for managing user data, product lists, or blog posts. PHP typically uses `mysqli` or `PDO` (PHP Data Objects) to interact with MySQL. This JSON file explains connecting to MySQL, working with tables, CRUD operations, security (SQL injection prevention), practical examples, and error handling in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP. Ensure the MySQL server is running in XAMPP and you are using PHP 8.1 or a newer version."
+      },
+      {
+        "type": "heading",
+        "text": "Connecting to MySQL"
+      },
+      {
+        "type": "paragraph",
+        "text": "To connect to a MySQL database, use `mysqli` or `PDO`. `mysqli` is simpler, while `PDO` is more flexible and supports multiple databases. You need the server name, username, password, and database name to connect.\nExample (`mysqli`):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Connecting to MySQL (mysqli)\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\n$conn = new mysqli($servername, $username, $password, $database);\n\nif ($conn->connect_error) {\n  die('Connection error: ' . $conn->connect_error);\n}\n\necho 'Successfully connected to MySQL!';\n\n$conn->close();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `mysqli` establishes a connection to MySQL.\n- `$servername`, `$username`, `$password`, `$database` define connection details.\n- `connect_error` checks for connection errors.\n- `close()` closes the connection.\n- Note: In XAMPP, the default username is `root` with an empty password. Ensure the `test_db` database exists.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Connecting with PDO"
+      },
+      {
+        "type": "paragraph",
+        "text": "PDO is more secure and flexible, supporting prepared statements and multiple databases.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Connecting with PDO\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n  echo 'Successfully connected to MySQL with PDO!';\n} catch (PDOException $e) {\n  echo 'Connection error: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `PDO` establishes a connection to MySQL.\n- `try-catch` handles errors.\n- `setAttribute` enables error mode.\n- `$conn = null` closes the connection.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Creating a Table"
+      },
+      {
+        "type": "paragraph",
+        "text": "To create a table in MySQL, use the SQL `CREATE TABLE` query.\nExample (`mysqli`):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Creating a table\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\n$conn = new mysqli($servername, $username, $password, $database);\n\nif ($conn->connect_error) {\n  die('Connection error: ' . $conn->connect_error);\n}\n\n$sql = 'CREATE TABLE users (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(100),\n  email VARCHAR(100),\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n)';\n\nif ($conn->query($sql) === TRUE) {\n  echo 'Table created successfully!';\n} else {\n  echo 'Error: ' . $conn->error;\n}\n\n$conn->close();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `users` table is created.\n- `id` is an auto-incrementing primary key.\n- `name` and `email` are string types, `created_at` is a timestamp.\n- `query()` executes the SQL query.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "CRUD Operations: Create (Insert)"
+      },
+      {
+        "type": "paragraph",
+        "text": "CRUD (Create, Read, Update, Delete) operations are the foundation of database interactions. First, let’s learn to insert data (Create).\nExample (`PDO` with prepared statement):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Inserting data\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n\n  $sql = 'INSERT INTO users (name, email) VALUES (:name, :email)';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['name' => 'Alice', 'email' => 'alice@example.com']);\n\n  echo 'Data inserted successfully!';\n} catch (PDOException $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `prepare` and `execute` use a prepared statement.\n- `:name` and `:email` are parameters.\n- This prevents SQL injection.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "CRUD Operations: Read (Select)"
+      },
+      {
+        "type": "paragraph",
+        "text": "To read data, use the SQL `SELECT` query.\nExample (`mysqli`):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Reading data\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\n$conn = new mysqli($servername, $username, $password, $database);\n\nif ($conn->connect_error) {\n  die('Connection error: ' . $conn->connect_error);\n}\n\n$sql = 'SELECT id, name, email, created_at FROM users';\n$result = $conn->query($sql);\n\nif ($result->num_rows > 0) {\n  while ($row = $result->fetch_assoc()) {\n    echo 'ID: ' . $row['id'] . ', Name: ' . $row['name'] . ', Email: ' . $row['email'] . ', Created: ' . $row['created_at'] . '\\n';\n  }\n} else {\n  echo 'No data found.';\n}\n\n$conn->close();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `SELECT` retrieves all users.\n- `fetch_assoc()` returns results as an associative array.\n- `num_rows` checks the number of results.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "CRUD Operations: Update"
+      },
+      {
+        "type": "paragraph",
+        "text": "To update data, use the SQL `UPDATE` query.\nExample (`PDO`):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Updating data\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n\n  $sql = 'UPDATE users SET email = :email WHERE id = :id';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['email' => 'new_email@example.com', 'id' => 1]);\n\n  echo 'Data updated successfully!';\n} catch (PDOException $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `UPDATE` updates the email for the user with ID 1.\n- Prepared statements ensure security.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "CRUD Operations: Delete"
+      },
+      {
+        "type": "paragraph",
+        "text": "To delete data, use the SQL `DELETE` query.\nExample (`mysqli`):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Deleting data\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\n$conn = new mysqli($servername, $username, $password, $database);\n\nif ($conn->connect_error) {\n  die('Connection error: ' . $conn->connect_error);\n}\n\n$sql = 'DELETE FROM users WHERE id = 1';\nif ($conn->query($sql) === TRUE) {\n  echo 'Data deleted successfully!';\n} else {\n  echo 'Error: ' . $conn->error;\n}\n\n$conn->close();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `DELETE` removes the user with ID 1.\n- `query()` executes the SQL query.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Security: Preventing SQL Injection"
+      },
+      {
+        "type": "paragraph",
+        "text": "SQL injection is a dangerous attack that can occur when user input is directly included in queries. Prepared statements prevent this.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Preventing SQL injection\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n\n  $sql = 'SELECT * FROM users WHERE email = :email';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['email' => 'alice@example.com']);\n\n  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);\n  foreach ($result as $row) {\n    echo 'Name: ' . $row['name'] . ', Email: ' . $row['email'] . '\\n';\n  }\n} catch (PDOException $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Prepared statements prevent SQL injection.\n- `fetchAll(PDO::FETCH_ASSOC)` returns results as an associative array.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: User Management System"
+      },
+      {
+        "type": "paragraph",
+        "text": "Let’s create a simple user management system with MySQL and PHP.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// User management system\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n\n  // Insert new user\n  $sql = 'INSERT INTO users (name, email) VALUES (:name, :email)';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['name' => 'Bob', 'email' => 'bob@example.com']);\n\n  // Read all users\n  $sql = 'SELECT id, name, email FROM users';\n  $stmt = $conn->query($sql);\n  $users = $stmt->fetchAll(PDO::FETCH_ASSOC);\n\n  foreach ($users as $user) {\n    echo 'ID: ' . $user['id'] . ', Name: ' . $user['name'] . ', Email: ' . $user['email'] . '\\n';\n  }\n} catch (PDOException $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- A new user is inserted.\n- All users are retrieved and displayed.\n- PDO ensures security.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\n$conn = new mysqli($servername, $username, $password, $database);\n\n// Vulnerable query (SQL injection risk)\n$email = \"alice@example.com'; DROP TABLE users; --\";\n$sql = \"SELECT * FROM users WHERE email = '$email'\";\n$result = $conn->query($sql);\n\necho 'Results: ' . $result->num_rows;\n\n$conn->close();\n\n// Correct approach (prepared statement)\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $sql = 'SELECT * FROM users WHERE email = :email';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['email' => 'alice@example.com']);\n  echo 'Results: ' . $stmt->rowCount();\n} catch (PDOException $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first example is vulnerable to SQL injection due to direct user input.\n- The correct approach uses a prepared statement for security.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Always use prepared statements. Close database connections (`close()` or `$conn = null`). Use `try-catch` for error handling. Refer to PHP and MySQL documentation (https://www.php.net/manual/en/, https://dev.mysql.com/doc/).\n- **Alternatives**: Use SQLite, PostgreSQL, or MongoDB instead of MySQL. ORM tools (e.g., Laravel Eloquent, Doctrine) simplify SQL queries.\n- You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself MySQL\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n\n  $sql = 'INSERT INTO users (name, email) VALUES (:name, :email)';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['name' => 'Test', 'email' => 'test@example.com']);\n\n  echo 'Data inserted!';\n} catch (PDOException $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "База данных (MySQL)",
+    "icon": "FiDatabase",
+    "language": "php",
+    "description": "Работа с базами данных MySQL в PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое работа с базами данных MySQL в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Работа с базами данных MySQL в PHP включает хранение, извлечение, обновление и удаление данных в веб-приложениях. MySQL — популярная система управления базами данных с открытым исходным кодом, идеально подходящая для управления данными пользователей, списками продуктов или постами в блоге. В PHP для работы с MySQL обычно используются интерфейсы `mysqli` или `PDO` (PHP Data Objects). Этот JSON-файл подробно объясняет подключение к MySQL, работу с таблицами, операции CRUD, безопасность (предотвращение SQL-инъекций), практические примеры и обработку ошибок. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP. Убедитесь, что сервер MySQL работает в XAMPP, и вы используете PHP 8.1 или новее."
+      },
+      {
+        "type": "heading",
+        "text": "Подключение к MySQL"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для подключения к базе данных MySQL используются `mysqli` или `PDO`. `mysqli` проще, а `PDO` более гибкий и поддерживает несколько баз данных. Для подключения нужны имя сервера, имя пользователя, пароль и имя базы данных.\nПример (`mysqli`):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Подключение к MySQL (mysqli)\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\n$conn = new mysqli($servername, $username, $password, $database);\n\nif ($conn->connect_error) {\n  die('Ошибка подключения: ' . $conn->connect_error);\n}\n\necho 'Успешно подключено к MySQL!';\n\n$conn->close();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `mysqli` устанавливает соединение с MySQL.\n- `$servername`, `$username`, `$password`, `$database` определяют параметры подключения.\n- `connect_error` проверяет ошибки подключения.\n- `close()` закрывает соединение.\n- Примечание: В XAMPP по умолчанию имя пользователя — `root`, пароль пустой. Убедитесь, что база данных `test_db` существует.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Подключение с PDO"
+      },
+      {
+        "type": "paragraph",
+        "text": "PDO более безопасен и гибок, поддерживает подготовленные запросы и работу с разными базами данных.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Подключение с PDO\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n  echo 'Успешно подключено к MySQL с PDO!';\n} catch (PDOException $e) {\n  echo 'Ошибка подключения: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `PDO` устанавливает соединение с MySQL.\n- `try-catch` обрабатывает ошибки.\n- `setAttribute` включает режим обработки ошибок.\n- `$conn = null` закрывает соединение.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Создание таблицы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для создания таблицы в MySQL используется SQL-запрос `CREATE TABLE`.\nПример (`mysqli`):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Создание таблицы\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\n$conn = new mysqli($servername, $username, $password, $database);\n\nif ($conn->connect_error) {\n  die('Ошибка подключения: ' . $conn->connect_error);\n}\n\n$sql = 'CREATE TABLE users (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(100),\n  email VARCHAR(100),\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n)';\n\nif ($conn->query($sql) === TRUE) {\n  echo 'Таблица успешно создана!';\n} else {\n  echo 'Ошибка: ' . $conn->error;\n}\n\n$conn->close();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Создается таблица `users`.\n- `id` — автоинкрементный первичный ключ.\n- `name` и `email` — строковые типы, `created_at` — временная метка.\n- `query()` выполняет SQL-запрос.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Операции CRUD: Create (Добавление)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Операции CRUD (Create, Read, Update, Delete) — основа работы с базами данных. Сначала разберем добавление данных (Create).\nПример (`PDO` с подготовленным запросом):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Добавление данных\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n\n  $sql = 'INSERT INTO users (name, email) VALUES (:name, :email)';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['name' => 'Алиса', 'email' => 'alice@example.com']);\n\n  echo 'Данные успешно добавлены!';\n} catch (PDOException $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `prepare` и `execute` используют подготовленный запрос.\n- `:name` и `:email` — параметры.\n- Это предотвращает SQL-инъекции.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Операции CRUD: Read (Чтение)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для чтения данных используется SQL-запрос `SELECT`.\nПример (`mysqli`):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Чтение данных\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\n$conn = new mysqli($servername, $username, $password, $database);\n\nif ($conn->connect_error) {\n  die('Ошибка подключения: ' . $conn->connect_error);\n}\n\n$sql = 'SELECT id, name, email, created_at FROM users';\n$result = $conn->query($sql);\n\nif ($result->num_rows > 0) {\n  while ($row = $result->fetch_assoc()) {\n    echo 'ID: ' . $row['id'] . ', Имя: ' . $row['name'] . ', Email: ' . $row['email'] . ', Создано: ' . $row['created_at'] . '\\n';\n  }\n} else {\n  echo 'Данные не найдены.';\n}\n\n$conn->close();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `SELECT` извлекает всех пользователей.\n- `fetch_assoc()` возвращает результаты в виде ассоциативного массива.\n- `num_rows` проверяет количество результатов.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Операции CRUD: Update (Обновление)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для обновления данных используется SQL-запрос `UPDATE`.\nПример (`PDO`):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Обновление данных\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n\n  $sql = 'UPDATE users SET email = :email WHERE id = :id';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['email' => 'new_email@example.com', 'id' => 1]);\n\n  echo 'Данные успешно обновлены!';\n} catch (PDOException $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `UPDATE` обновляет email для пользователя с ID 1.\n- Подготовленные запросы обеспечивают безопасность.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Операции CRUD: Delete (Удаление)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для удаления данных используется SQL-запрос `DELETE`.\nПример (`mysqli`):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Удаление данных\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\n$conn = new mysqli($servername, $username, $password, $database);\n\nif ($conn->connect_error) {\n  die('Ошибка подключения: ' . $conn->connect_error);\n}\n\n$sql = 'DELETE FROM users WHERE id = 1';\nif ($conn->query($sql) === TRUE) {\n  echo 'Данные успешно удалены!';\n} else {\n  echo 'Ошибка: ' . $conn->error;\n}\n\n$conn->close();\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `DELETE` удаляет пользователя с ID 1.\n- `query()` выполняет SQL-запрос.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Безопасность: Предотвращение SQL-инъекций"
+      },
+      {
+        "type": "paragraph",
+        "text": "SQL-инъекции — опасная атака, которая может произойти при прямом включении пользовательских данных в запросы. Подготовленные запросы предотвращают это.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Предотвращение SQL-инъекций\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n\n  $sql = 'SELECT * FROM users WHERE email = :email';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['email' => 'alice@example.com']);\n\n  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);\n  foreach ($result as $row) {\n    echo 'Имя: ' . $row['name'] . ', Email: ' . $row['email'] . '\\n';\n  }\n} catch (PDOException $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Подготовленные запросы предотвращают SQL-инъекции.\n- `fetchAll(PDO::FETCH_ASSOC)` возвращает результаты в виде ассоциативного массива.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Система управления пользователями"
+      },
+      {
+        "type": "paragraph",
+        "text": "Создадим простую систему управления пользователями с MySQL и PHP.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Система управления пользователями\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n\n  // Добавление нового пользователя\n  $sql = 'INSERT INTO users (name, email) VALUES (:name, :email)';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['name' => 'Боб', 'email' => 'bob@example.com']);\n\n  // Чтение всех пользователей\n  $sql = 'SELECT id, name, email FROM users';\n  $stmt = $conn->query($sql);\n  $users = $stmt->fetchAll(PDO::FETCH_ASSOC);\n\n  foreach ($users as $user) {\n    echo 'ID: ' . $user['id'] . ', Имя: ' . $user['name'] . ', Email: ' . $user['email'] . '\\n';\n  }\n} catch (PDOException $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Добавляется новый пользователь.\n- Извлекаются и отображаются все пользователи.\n- PDO обеспечивает безопасность.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\n$conn = new mysqli($servername, $username, $password, $database);\n\n// Уязвимый запрос (риск SQL-инъекции)\n$email = \"alice@example.com'; DROP TABLE users; --\";\n$sql = \"SELECT * FROM users WHERE email = '$email'\";\n$result = $conn->query($sql);\n\necho 'Результаты: ' . $result->num_rows;\n\n$conn->close();\n\n// Правильный подход (подготовленный запрос)\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $sql = 'SELECT * FROM users WHERE email = :email';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['email' => 'alice@example.com']);\n  echo 'Результаты: ' . $stmt->rowCount();\n} catch (PDOException $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый пример уязвим для SQL-инъекции из-за прямого включения пользовательских данных.\n- Правильный подход использует подготовленный запрос для безопасности.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Всегда используйте подготовленные запросы. Закрывайте соединения с базой данных (`close()` или `$conn = null`). Используйте `try-catch` для обработки ошибок. Обратитесь к документации PHP и MySQL (https://www.php.net/manual/en/, https://dev.mysql.com/doc/).\n- **Альтернативы**: Вместо MySQL можно использовать SQLite, PostgreSQL или MongoDB. Инструменты ORM (например, Laravel Eloquent, Doctrine) упрощают SQL-запросы.\n- Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Попробуйте сами MySQL\n$servername = 'localhost';\n$username = 'root';\n$password = '';\n$database = 'test_db';\n\ntry {\n  $conn = new PDO(\"mysql:host=$servername;dbname=$database\", $username, $password);\n  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n\n  $sql = 'INSERT INTO users (name, email) VALUES (:name, :email)';\n  $stmt = $conn->prepare($sql);\n  $stmt->execute(['name' => 'Тест', 'email' => 'test@example.com']);\n\n  echo 'Данные добавлены!';\n} catch (PDOException $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n\n$conn = null;\n?>"
+      }
+    ]
+  }
+}

@@ -1,0 +1,432 @@
+{
+  "id": "exceptions",
+  "az": {
+    "title": "İstisnalar və Xətalar",
+    "icon": "FiAlertCircle",
+    "language": "php",
+    "description": "PHP-də try-catch və xəta idarəetmə haqqında məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də İstisnalar və Xətalar Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "İstisnalar və xətalar proqramın işləməsi zamanı yaranan gözlənilməz vəziyyətləri idarə etmək üçün istifadə olunur. Xətalar (errors) proqramın səhv işləməsinə səbəb olan problemlərdir (məsələn, faylın olmaması və ya dəyişənin təyin edilməməsi). İstisnalar (exceptions) isə xətaların daha nəzarətli şəkildə idarə olunması üçün obyekt yönümlü proqramlaşdırmada (OOP) istifadə olunan mexanizmdir. PHP-də istisnalar `try-catch` blokları ilə tutulur və idarə edilir. Bu mexanizm proqramın dayanıb səhv verməsinin qarşısını alır və istifadəçiyə daha mənalı mesajlar göstərməyə imkan verir. Bu JSON faylda istisnaların və xətaların sintaksisi, `try-catch` bloklarının istifadəsi, xüsusi istisnaların yaradılması, praktik nümunələr və səhvlərdən qaçınma yolları çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Try-Catch Bloklarının Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "`try-catch` bloku istisnaları tutmaq və idarə etmək üçün istifadə olunur. `try` bloku sınaqdan keçiriləcək kodu ehtiva edir, `catch` bloku isə istisna yaranarsa hansı hərəkətin görüləcəyini müəyyənləşdirir. Əlavə olaraq `finally` bloku istisna yaranmasından asılı olmayaraq icra olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Əsas try-catch nümunəsi\ntry {\n  $number = 10;\n  if ($number < 20) {\n    throw new Exception('Rəqəm 20-dən kiçikdir!');\n  }\n  echo 'Rəqəm uyğundur!';\n} catch (Exception $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n// Çıxış: Xəta: Rəqəm 20-dən kiçikdir!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `try` bloku `$number` dəyərinin 20-dən kiçik olub-olmadığını yoxlayır.\n- Əgər şərt ödənirsə, `Exception` sinfi ilə istisna atılır.\n- `catch` bloku istisnanın mesajını tutur və ekrana yazdırır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Finally Bloku"
+      },
+      {
+        "type": "paragraph",
+        "text": "`finally` bloku istisna yaranmasından asılı olmayaraq icra olunur. Bu, resursların təmizlənməsi (məsələn, faylın bağlanması) üçün faydalıdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Try-catch-finally nümunəsi\ntry {\n  $value = 0;\n  if ($value == 0) {\n    throw new Exception('Dəyər sıfır ola bilməz!');\n  }\n  echo 'Dəyər sıfır deyil!';\n} catch (Exception $e) {\n  echo 'Xəta: ' . $e->getMessage();\n} finally {\n  echo 'Bu həmişə icra olunur!';\n}\n// Çıxış: Xəta: Dəyər sıfır ola bilməz! Bu həmişə icra olunur!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `try` bloku `$value` dəyərinin sıfır olduğunu yoxlayır və istisna atır.\n- `catch` bloku istisnanın mesajını tutur.\n- `finally` bloku hər halda icra olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Xüsusi İstisnaların Yaradılması"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də xüsusi istisna sinifləri yaradıla bilər ki, bu da xətaların daha dəqiq idarə olunmasını təmin edir. Xüsusi istisnalar `Exception` sinfindən miras alınaraq yaradılır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Xüsusi istisna sinfi\nclass InvalidAgeException extends Exception {}\n\nclass Person {\n  private $age;\n\n  public function setAge($age) {\n    if ($age < 0 || $age > 120) {\n      throw new InvalidAgeException('Yaş 0-120 aralığında olmalıdır!');\n    }\n    $this->age = $age;\n  }\n}\n\ntry {\n  $person = new Person();\n  $person->setAge(150);\n} catch (InvalidAgeException $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n// Çıxış: Xəta: Yaş 0-120 aralığında olmalıdır!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `InvalidAgeException` xüsusi istisna sinfidir.\n- `Person` sinfi yaşın doğruluğunu yoxlayır və səhv dəyərdə xüsusi istisna atır.\n- `catch` bloku xüsusi istisnanı tutur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Birden Çox Catch Bloku"
+      },
+      {
+        "type": "paragraph",
+        "text": "Fərqli istisna növlərini idarə etmək üçün birdən çox `catch` bloku istifadə edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Birden çox catch bloku\nclass InvalidInputException extends Exception {}\nclass DivideByZeroException extends Exception {}\n\ntry {\n  $input = -1;\n  $divisor = 0;\n  if ($input < 0) {\n    throw new InvalidInputException('Daxil edilən dəyər mənfi ola bilməz!');\n  }\n  if ($divisor == 0) {\n    throw new DivideByZeroException('Sıfıra bölmək olmaz!');\n  }\n  echo $input / $divisor;\n} catch (InvalidInputException $e) {\n  echo 'Xəta: ' . $e->getMessage();\n} catch (DivideByZeroException $e) {\n  echo 'Xəta: ' . $e->getMessage();\n} catch (Exception $e) {\n  echo 'Ümumi xəta: ' . $e->getMessage();\n}\n// Çıxış: Xəta: Daxil edilən dəyər mənfi ola bilməz!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Fərqli istisna növləri (`InvalidInputException`, `DivideByZeroException`) üçün ayrı-ayrı `catch` blokları istifadə olunur.\n- Ümumi `Exception` sinfi digər istisnaları tutmaq üçün əlavə olunub.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik İstifadə: Fayl Əməliyyatları"
+      },
+      {
+        "type": "paragraph",
+        "text": "İstisnalar fayl əməliyyatlarında tez-tez istifadə olunur, çünki faylın olmaması və ya icazə problemi kimi səhvlər tez-tez baş verə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Fayl əməliyyatlarında istisnalar\ntry {\n  $fileName = 'non_existent_file.txt';\n  if (!file_exists($fileName)) {\n    throw new Exception('Fayl tapılmadı: ' . $fileName);\n  }\n  $content = file_get_contents($fileName);\n  echo 'Fayl məzmunu: ' . $content;\n} catch (Exception $e) {\n  echo 'Xəta: ' . $e->getMessage();\n} finally {\n  echo 'Fayl əməliyyatı başa çatdı!';\n}\n// Çıxış: Xəta: Fayl tapılmadı: non_existent_file.txt Fayl əməliyyatı başa çatdı!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `try` bloku faylın mövcudluğunu yoxlayır və istisna atır.\n- `catch` bloku faylın tapılmaması ilə bağlı xətanı tutur.\n- `finally` bloku əməliyyatın tamamlandığını bildirir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Bütün istisnaları ümumi `Exception` sinfi ilə tutmaq xətanın dəqiq səbəbini gizlədə bilər. `try` bloku çox böyük olarsa, hansı kodun xəta verdiyini tapmaq çətinləşər. `finally` blokunun yanlış istifadəsi resursların düzgün təmizlənməməsinə səbəb ola bilər.\n- **Tövsiyələr**: Xüsusi istisna sinifləri yaradın. `try` bloklarını kiçik və spesifik saxlayın. `finally` blokunda resursları təmizləyin. PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/) faydalanın. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\ntry {\n  $number = 10 / 0; // Bölünmə sıfıra\n} catch (Exception $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n// Çıxış: Heç bir nəticə yoxdur, çünki bu xəta istisna deyil, fatal xətadır\n\n// Düzgün yol\ntry {\n  $divisor = 0;\n  if ($divisor == 0) {\n    throw new Exception('Sıfıra bölmək olmaz!');\n  }\n  $result = 10 / $divisor;\n  echo 'Nəticə: ' . $result;\n} catch (Exception $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n// Çıxış: Xəta: Sıfıra bölmək olmaz!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk nümunədə sıfıra bölünmə fatal xətaya səbəb olur və `catch` bloku tərəfindən tutulmur.\n- Düzgün yolda sıfıra bölünmə istisna kimi idarə olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: İstifadəçi Qeydiyyatı"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// İstifadəçi qeydiyyatı sistemi\nclass InvalidEmailException extends Exception {}\nclass InvalidPasswordException extends Exception {}\n\nclass User {\n  private $email;\n  private $password;\n\n  public function register($email, $password) {\n    try {\n      if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {\n        throw new InvalidEmailException('Düzgün e-poçt ünvanı daxil edin!');\n      }\n      if (strlen($password) < 6) {\n        throw new InvalidPasswordException('Şifrə 6 simvoldan qısa ola bilməz!');\n      }\n      $this->email = $email;\n      $this->password = $password;\n      return 'Qeydiyyat uğurla tamamlandı!';\n    } catch (InvalidEmailException $e) {\n      return 'Xəta: ' . $e->getMessage();\n    } catch (InvalidPasswordException $e) {\n      return 'Xəta: ' . $e->getMessage();\n    }\n  }\n}\n\n$user = new User();\necho $user->register('invalid-email', '123'); // Çıxış: Xəta: Düzgün e-poçt ünvanı daxil edin!\necho $user->register('user@example.com', '123'); // Çıxış: Xəta: Şifrə 6 simvoldan qısa ola bilməz!\necho $user->register('user@example.com', 'secure123'); // Çıxış: Qeydiyyat uğurla tamamlandı!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `InvalidEmailException` və `InvalidPasswordException` xüsusi istisna sinifləridir.\n- `User` sinfi e-poçt və şifrənin doğruluğunu yoxlayır və səhv olduqda istisna atır.\n- `try-catch` blokları xətaları tutur və istifadəçiyə mənalı mesajlar qaytarır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün istisnalar\nclass InvalidScoreException extends Exception {}\n\nclass Student {\n  private $score;\n\n  public function setScore($score) {\n    if ($score < 0 || $score > 100) {\n      throw new InvalidScoreException('Qiymət 0-100 aralığında olmalıdır!');\n    }\n    $this->score = $score;\n  }\n\n  public function getScore() {\n    return 'Qiymət: ' . $this->score;\n  }\n}\n\ntry {\n  $student = new Student();\n  $student->setScore(150);\n  echo $student->getScore();\n} catch (InvalidScoreException $e) {\n  echo 'Xəta: ' . $e->getMessage();\n}\n// Çıxış: Xəta: Qiymət 0-100 aralığında olmalıdır!\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Exceptions and Errors",
+    "icon": "FiAlertCircle",
+    "language": "php",
+    "description": "Information about try-catch and error handling in PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Exceptions and Errors in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Exceptions and errors are mechanisms to handle unexpected situations during program execution. Errors are problems that cause a program to fail (e.g., a missing file or undefined variable). Exceptions are an object-oriented way to manage errors more controllably. In PHP, exceptions are handled using `try-catch` blocks, which prevent the program from crashing and allow meaningful error messages to be displayed. This JSON file explains the syntax of exceptions and errors, the use of `try-catch` blocks, creating custom exceptions, practical examples, and how to avoid common mistakes in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Try-Catch Block Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `try-catch` block is used to catch and handle exceptions. The `try` block contains the code to test, and the `catch` block defines what to do if an exception occurs. Additionally, a `finally` block executes regardless of whether an exception is thrown.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Basic try-catch example\ntry {\n  $number = 10;\n  if ($number < 20) {\n    throw new Exception('Number is less than 20!');\n  }\n  echo 'Number is valid!';\n} catch (Exception $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n// Output: Error: Number is less than 20!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `try` block checks if `$number` is less than 20.\n- If true, an `Exception` is thrown.\n- The `catch` block catches the exception and displays its message.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Finally Block"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `finally` block executes regardless of whether an exception is thrown, useful for cleaning up resources (e.g., closing a file).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Try-catch-finally example\ntry {\n  $value = 0;\n  if ($value == 0) {\n    throw new Exception('Value cannot be zero!');\n  }\n  echo 'Value is not zero!';\n} catch (Exception $e) {\n  echo 'Error: ' . $e->getMessage();\n} finally {\n  echo 'This always executes!';\n}\n// Output: Error: Value cannot be zero! This always executes!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `try` block checks if `$value` is zero and throws an exception.\n- The `catch` block catches the exception’s message.\n- The `finally` block always executes.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Creating Custom Exceptions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Custom exception classes can be created in PHP to handle errors more precisely. Custom exceptions extend the `Exception` class.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Custom exception class\nclass InvalidAgeException extends Exception {}\n\nclass Person {\n  private $age;\n\n  public function setAge($age) {\n    if ($age < 0 || $age > 120) {\n      throw new InvalidAgeException('Age must be between 0 and 120!');\n    }\n    $this->age = $age;\n  }\n}\n\ntry {\n  $person = new Person();\n  $person->setAge(150);\n} catch (InvalidAgeException $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n// Output: Error: Age must be between 0 and 120!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `InvalidAgeException` is a custom exception class.\n- The `Person` class validates age and throws a custom exception if invalid.\n- The `catch` block handles the custom exception.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Multiple Catch Blocks"
+      },
+      {
+        "type": "paragraph",
+        "text": "Multiple `catch` blocks can be used to handle different types of exceptions.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Multiple catch blocks\nclass InvalidInputException extends Exception {}\nclass DivideByZeroException extends Exception {}\n\ntry {\n  $input = -1;\n  $divisor = 0;\n  if ($input < 0) {\n    throw new InvalidInputException('Input cannot be negative!');\n  }\n  if ($divisor == 0) {\n    throw new DivideByZeroException('Cannot divide by zero!');\n  }\n  echo $input / $divisor;\n} catch (InvalidInputException $e) {\n  echo 'Error: ' . $e->getMessage();\n} catch (DivideByZeroException $e) {\n  echo 'Error: ' . $e->getMessage();\n} catch (Exception $e) {\n  echo 'General error: ' . $e->getMessage();\n}\n// Output: Error: Input cannot be negative!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Different exception types (`InvalidInputException`, `DivideByZeroException`) are handled by separate `catch` blocks.\n- A general `Exception` class catches other exceptions.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Use: File Operations"
+      },
+      {
+        "type": "paragraph",
+        "text": "Exceptions are commonly used in file operations, as errors like missing files or permission issues are frequent.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Exceptions in file operations\ntry {\n  $fileName = 'non_existent_file.txt';\n  if (!file_exists($fileName)) {\n    throw new Exception('File not found: ' . $fileName);\n  }\n  $content = file_get_contents($fileName);\n  echo 'File content: ' . $content;\n} catch (Exception $e) {\n  echo 'Error: ' . $e->getMessage();\n} finally {\n  echo 'File operation completed!';\n}\n// Output: Error: File not found: non_existent_file.txt File operation completed!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `try` block checks if the file exists and throws an exception if not.\n- The `catch` block handles the file-not-found error.\n- The `finally` block indicates the operation’s completion.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Catching all exceptions with the generic `Exception` class can obscure the specific cause of an error. Large `try` blocks make it hard to pinpoint error sources. Misusing `finally` can lead to improper resource cleanup.\n- **Recommendations**: Create specific exception classes. Keep `try` blocks small and specific. Use `finally` for resource cleanup. Refer to PHP’s official documentation (https://www.php.net/manual/en/). You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\ntry {\n  $number = 10 / 0; // Division by zero\n} catch (Exception $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n// Output: No output, as this is a fatal error, not an exception\n\n// Correct approach\ntry {\n  $divisor = 0;\n  if ($divisor == 0) {\n    throw new Exception('Cannot divide by zero!');\n  }\n  $result = 10 / $divisor;\n  echo 'Result: ' . $result;\n} catch (Exception $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n// Output: Error: Cannot divide by zero!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first example causes a fatal error (division by zero) not caught by `catch`.\n- The correct approach throws an exception for division by zero.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: User Registration"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// User registration system\nclass InvalidEmailException extends Exception {}\nclass InvalidPasswordException extends Exception {}\n\nclass User {\n  private $email;\n  private $password;\n\n  public function register($email, $password) {\n    try {\n      if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {\n        throw new InvalidEmailException('Enter a valid email address!');\n      }\n      if (strlen($password) < 6) {\n        throw new InvalidPasswordException('Password must be at least 6 characters!');\n      }\n      $this->email = $email;\n      $this->password = $password;\n      return 'Registration successful!';\n    } catch (InvalidEmailException $e) {\n      return 'Error: ' . $e->getMessage();\n    } catch (InvalidPasswordException $e) {\n      return 'Error: ' . $e->getMessage();\n    }\n  }\n}\n\n$user = new User();\necho $user->register('invalid-email', '123'); // Output: Error: Enter a valid email address!\necho $user->register('user@example.com', '123'); // Output: Error: Password must be at least 6 characters!\necho $user->register('user@example.com', 'secure123'); // Output: Registration successful!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `InvalidEmailException` and `InvalidPasswordException` are custom exception classes.\n- The `User` class validates email and password, throwing exceptions if invalid.\n- `try-catch` blocks handle errors and return meaningful messages.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself exceptions\nclass InvalidScoreException extends Exception {}\n\nclass Student {\n  private $score;\n\n  public function setScore($score) {\n    if ($score < 0 || $score > 100) {\n      throw new InvalidScoreException('Score must be between 0 and 100!');\n    }\n    $this->score = $score;\n  }\n\n  public function getScore() {\n    return 'Score: ' . $this->score;\n  }\n}\n\ntry {\n  $student = new Student();\n  $student->setScore(150);\n  echo $student->getScore();\n} catch (InvalidScoreException $e) {\n  echo 'Error: ' . $e->getMessage();\n}\n// Output: Error: Score must be between 0 and 100!\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Исключения и Ошибки",
+    "icon": "FiAlertCircle",
+    "language": "php",
+    "description": "Информация о try-catch и обработке ошибок в PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое исключения и ошибки в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Исключения и ошибки — это механизмы для обработки неожиданных ситуаций во время выполнения программы. Ошибки — это проблемы, которые приводят к сбою программы (например, отсутствие файла или неопределенная переменная). Исключения — это объектно-ориентированный способ управления ошибками с большей контролируемостью. В PHP исключения обрабатываются с помощью блоков `try-catch`, которые предотвращают аварийное завершение программы и позволяют отображать понятные сообщения об ошибках. Этот JSON-файл подробно объясняет синтаксис исключений и ошибок, использование блоков `try-catch`, создание пользовательских исключений, практические примеры и способы избежания ошибок. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис блоков Try-Catch"
+      },
+      {
+        "type": "paragraph",
+        "text": "Блок `try-catch` используется для перехвата и обработки исключений. Блок `try` содержит код для тестирования, а блок `catch` определяет, что делать, если возникнет исключение. Дополнительно блок `finally` выполняется независимо от того, было ли выброшено исключение.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример try-catch\ntry {\n  $number = 10;\n  if ($number < 20) {\n    throw new Exception('Число меньше 20!');\n  }\n  echo 'Число корректно!';\n} catch (Exception $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n// Вывод: Ошибка: Число меньше 20!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Блок `try` проверяет, меньше ли `$number` 20.\n- Если да, выбрасывается исключение `Exception`.\n- Блок `catch` перехватывает исключение и выводит его сообщение.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Блок Finally"
+      },
+      {
+        "type": "paragraph",
+        "text": "Блок `finally` выполняется независимо от того, было ли выброшено исключение, и полезен для очистки ресурсов (например, закрытия файла).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример try-catch-finally\ntry {\n  $value = 0;\n  if ($value == 0) {\n    throw new Exception('Значение не может быть нулевым!');\n  }\n  echo 'Значение не нуль!';\n} catch (Exception $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n} finally {\n  echo 'Это всегда выполняется!';\n}\n// Вывод: Ошибка: Значение не может быть нулевым! Это всегда выполняется!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Блок `try` проверяет, равно ли `$value` нулю, и выбрасывает исключение.\n- Блок `catch` перехватывает сообщение исключения.\n- Блок `finally` всегда выполняется.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Создание пользовательских исключений"
+      },
+      {
+        "type": "paragraph",
+        "text": "В PHP можно создавать пользовательские классы исключений для более точной обработки ошибок. Пользовательские исключения наследуются от класса `Exception`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пользовательский класс исключений\nclass InvalidAgeException extends Exception {}\n\nclass Person {\n  private $age;\n\n  public function setAge($age) {\n    if ($age < 0 || $age > 120) {\n      throw new InvalidAgeException('Возраст должен быть от 0 до 120!');\n    }\n    $this->age = $age;\n  }\n}\n\ntry {\n  $person = new Person();\n  $person->setAge(150);\n} catch (InvalidAgeException $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n// Вывод: Ошибка: Возраст должен быть от 0 до 120!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `InvalidAgeException` — пользовательский класс исключений.\n- Класс `Person` проверяет валидность возраста и выбрасывает пользовательское исключение, если возраст неверный.\n- Блок `catch` обрабатывает пользовательское исключение.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Несколько блоков Catch"
+      },
+      {
+        "type": "paragraph",
+        "text": "Для обработки разных типов исключений можно использовать несколько блоков `catch`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Несколько блоков catch\nclass InvalidInputException extends Exception {}\nclass DivideByZeroException extends Exception {}\n\ntry {\n  $input = -1;\n  $divisor = 0;\n  if ($input < 0) {\n    throw new InvalidInputException('Ввод не может быть отрицательным!');\n  }\n  if ($divisor == 0) {\n    throw new DivideByZeroException('Деление на ноль невозможно!');\n  }\n  echo $input / $divisor;\n} catch (InvalidInputException $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n} catch (DivideByZeroException $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n} catch (Exception $e) {\n  echo 'Общая ошибка: ' . $e->getMessage();\n}\n// Вывод: Ошибка: Ввод не может быть отрицательным!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Разные типы исключений (`InvalidInputException`, `DivideByZeroException`) обрабатываются отдельными блоками `catch`.\n- Общий класс `Exception` перехватывает остальные исключения.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практическое использование: Операции с файлами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Исключения часто используются при операциях с файлами, так как ошибки, такие как отсутствие файла или проблемы с доступом, встречаются часто.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Исключения в операциях с файлами\ntry {\n  $fileName = 'non_existent_file.txt';\n  if (!file_exists($fileName)) {\n    throw new Exception('Файл не найден: ' . $fileName);\n  }\n  $content = file_get_contents($fileName);\n  echo 'Содержимое файла: ' . $content;\n} catch (Exception $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n} finally {\n  echo 'Операция с файлом завершена!';\n}\n// Вывод: Ошибка: Файл не найден: non_existent_file.txt Операция с файлом завершена!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Блок `try` проверяет существование файла и выбрасывает исключение, если файл не найден.\n- Блок `catch` обрабатывает ошибку отсутствия файла.\n- Блок `finally` указывает на завершение операции.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Перехват всех исключений с помощью общего класса `Exception` может скрыть конкретную причину ошибки. Слишком большие блоки `try` затрудняют определение источника ошибки. Неправильное использование `finally` может привести к некорректной очистке ресурсов.\n- **Рекомендации**: Создавайте пользовательские классы исключений. Делайте блоки `try` небольшими и специфичными. Используйте `finally` для очистки ресурсов. Обратитесь к официальной документации PHP (https://www.php.net/manual/en/). Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\ntry {\n  $number = 10 / 0; // Деление на ноль\n} catch (Exception $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n// Вывод: Нет вывода, так как это фатальная ошибка, а не исключение\n\n// Правильный подход\ntry {\n  $divisor = 0;\n  if ($divisor == 0) {\n    throw new Exception('Деление на ноль невозможно!');\n  }\n  $result = 10 / $divisor;\n  echo 'Результат: ' . $result;\n} catch (Exception $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n// Вывод: Ошибка: Деление на ноль невозможно!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый пример вызывает фатальную ошибку (деление на ноль), которая не перехватывается блоком `catch`.\n- Правильный подход выбрасывает исключение для деления на ноль.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Регистрация пользователя"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Система регистрации пользователя\nclass InvalidEmailException extends Exception {}\nclass InvalidPasswordException extends Exception {}\n\nclass User {\n  private $email;\n  private $password;\n\n  public function register($email, $password) {\n    try {\n      if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {\n        throw new InvalidEmailException('Введите корректный адрес электронной почты!');\n      }\n      if (strlen($password) < 6) {\n        throw new InvalidPasswordException('Пароль должен содержать не менее 6 символов!');\n      }\n      $this->email = $email;\n      $this->password = $password;\n      return 'Регистрация успешна!';\n    } catch (InvalidEmailException $e) {\n      return 'Ошибка: ' . $e->getMessage();\n    } catch (InvalidPasswordException $e) {\n      return 'Ошибка: ' . $e->getMessage();\n    }\n  }\n}\n\n$user = new User();\necho $user->register('invalid-email', '123'); // Вывод: Ошибка: Введите корректный адрес электронной почты!\necho $user->register('user@example.com', '123'); // Вывод: Ошибка: Пароль должен содержать не менее 6 символов!\necho $user->register('user@example.com', 'secure123'); // Вывод: Регистрация успешна!\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `InvalidEmailException` и `InvalidPasswordException` — пользовательские классы исключений.\n- Класс `User` проверяет валидность электронной почты и пароля, выбрасывая исключения при ошибке.\n- Блоки `try-catch` обрабатывают ошибки и возвращают понятные сообщения.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Попробуйте сами исключения\nclass InvalidScoreException extends Exception {}\n\nclass Student {\n  private $score;\n\n  public function setScore($score) {\n    if ($score < 0 || $score > 100) {\n      throw new InvalidScoreException('Оценка должна быть от 0 до 100!');\n    }\n    $this->score = $score;\n  }\n\n  public function getScore() {\n    return 'Оценка: ' . $this->score;\n  }\n}\n\ntry {\n  $student = new Student();\n  $student->setScore(150);\n  echo $student->getScore();\n} catch (InvalidScoreException $e) {\n  echo 'Ошибка: ' . $e->getMessage();\n}\n// Вывод: Ошибка: Оценка должна быть от 0 до 100!\n?>"
+      }
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   FiAward,
   FiGift,
@@ -23,6 +23,8 @@ import {
 } from "react-icons/fi";
 import achievementStyles from "../ProfileAchievements.module.css";
 import { useI18n } from "../../../../contexts/I18nContext";
+import { useAchievement } from "../../../../contexts/AchievementContext";
+
 
 interface ProfileAchievementsProps {
   userStats: any;
@@ -36,52 +38,14 @@ export default function ProfileAchievements({
   onAchievementClaimed,
 }: ProfileAchievementsProps) {
   const { t } = useI18n();
+  const { showAchievementPopup } = useAchievement();
   const [claimingAchievement, setClaimingAchievement] = useState<string | null>(null);
   const [claimedAchievements, setClaimedAchievements] = useState<Set<string>>(new Set());
   const [dbAchievements, setDbAchievements] = useState<any[]>([]);
   const [syncingAchievements, setSyncingAchievements] = useState(false);
 
-  // Function to sync achievements with database
-  const syncAchievements = async () => {
-    if (syncingAchievements) return;
-    
-    setSyncingAchievements(true);
-    
-    try {
-      const response = await fetch("/api/user/sync-achievements", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        console.log("Achievements synced:", data.message);
-        // Refresh achievements after sync
-        fetchAchievements();
-        
-        // Show success message if achievements were created or updated
-        if (data.createdAchievements.length > 0 || data.updatedAchievements.length > 0) {
-          console.log(`Created: ${data.createdAchievements.length}, Updated: ${data.updatedAchievements.length}`);
-        }
-      } else {
-        console.error("Failed to sync achievements:", data.error, data.details);
-        // Don't show error to user if it's just that no achievements are unlocked yet
-        if (data.error !== "Internal server error") {
-          alert(`Failed to sync achievements: ${data.error}`);
-        }
-      }
-    } catch (error) {
-      console.error("Error syncing achievements:", error);
-    } finally {
-      setSyncingAchievements(false);
-    }
-  };
-
   // Function to fetch achievements from database
-  const fetchAchievements = async () => {
+  const fetchAchievements = useCallback(async () => {
     try {
       const response = await fetch("/api/user/profile");
       if (response.ok) {
@@ -102,7 +66,63 @@ export default function ProfileAchievements({
     } catch (error) {
       console.error("Error fetching achievements:", error);
     }
-  };
+  }, []);
+
+  // Function to sync achievements with database
+  const syncAchievements = useCallback(async () => {
+    if (syncingAchievements) return;
+    
+    setSyncingAchievements(true);
+    
+    try {
+      const response = await fetch("/api/user/sync-achievements", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log("Achievements synced:", data.message);
+        // Refresh achievements after sync
+        fetchAchievements();
+        
+        // Show popup for newly created achievements
+        if (data.newAchievementsForPopup && data.newAchievementsForPopup.length > 0) {
+          console.log(`New achievements for popup:`, data.newAchievementsForPopup);
+          
+          // Show popup for the first new achievement
+          const firstAchievement = data.newAchievementsForPopup[0];
+          showAchievementPopup(firstAchievement);
+          
+          // If there are multiple achievements, show them with a delay
+          if (data.newAchievementsForPopup.length > 1) {
+            setTimeout(() => {
+              const secondAchievement = data.newAchievementsForPopup[1];
+              showAchievementPopup(secondAchievement);
+            }, 6000); // Show second achievement after 6 seconds
+          }
+        }
+        
+        // Show success message if achievements were created or updated
+        if (data.createdAchievements.length > 0 || data.updatedAchievements.length > 0) {
+          console.log(`Created: ${data.createdAchievements.length}, Updated: ${data.updatedAchievements.length}`);
+        }
+      } else {
+        console.error("Failed to sync achievements:", data.error, data.details);
+        // Don't show error to user if it's just that no achievements are unlocked yet
+        if (data.error !== "Internal server error") {
+          alert(`Failed to sync achievements: ${data.error}`);
+        }
+      }
+    } catch (error) {
+      console.error("Error syncing achievements:", error);
+    } finally {
+      setSyncingAchievements(false);
+    }
+  }, [syncingAchievements, fetchAchievements, showAchievementPopup]);
 
   // Function to claim achievement rewards
   const claimAchievementReward = async (achievementName: string, coins: number) => {
@@ -155,7 +175,7 @@ export default function ProfileAchievements({
     if (!loading && userStats) {
       syncAchievements();
     }
-  }, [loading, userStats]);
+  }, [loading, userStats, syncAchievements]);
 
   // Achievement data structure with new achievements
   const achievementCategories = [
@@ -492,20 +512,29 @@ export default function ProfileAchievements({
           <div className={achievementStyles.achievementsSummary}>
             <div className={achievementStyles.achievementsCount}>
               <div className={achievementStyles.countHeader}>
-                <FiAward className={achievementStyles.trophyIcon} />
-                <span className={achievementStyles.countText}>
-                  {unlockedAchievements} / {totalAchievements}
-                </span>
+                <div className={achievementStyles.trophyContainer}>
+                  <FiAward className={achievementStyles.trophyIcon} />
+                  <div className={achievementStyles.trophyGlow}></div>
+                </div>
+                <div className={achievementStyles.countInfo}>
+                  <span className={achievementStyles.countText}>
+                    {unlockedAchievements} / {totalAchievements}
+                  </span>
+                  <span className={achievementStyles.countLabel}>
+                    Nailiyyətlər Açıldı
+                  </span>
+                </div>
               </div>
-              <span className={achievementStyles.countLabel}>
-                Achievements Unlocked
-              </span>
             </div>
             <div className={achievementStyles.achievementsProgress}>
-              <span className={achievementStyles.progressText}>
-                {Math.round((unlockedAchievements / totalAchievements) * 100)}
-                % Complete
-              </span>
+              <div className={achievementStyles.progressInfo}>
+                <span className={achievementStyles.progressText}>
+                  {Math.round((unlockedAchievements / totalAchievements) * 100)}%
+                </span>
+                <span className={achievementStyles.progressLabel}>
+                  Tamamlanıb
+                </span>
+              </div>
               <div className={achievementStyles.progressBarContainer}>
                 <div
                   className={achievementStyles.progressBarFill}
@@ -515,21 +544,8 @@ export default function ProfileAchievements({
                     }%`,
                   }}
                 ></div>
+                <div className={achievementStyles.progressBarGlow}></div>
               </div>
-            </div>
-            <div className={achievementStyles.syncSection}>
-              <button
-                className={achievementStyles.syncButton}
-                onClick={syncAchievements}
-                disabled={syncingAchievements}
-              >
-                {syncingAchievements ? (
-                  <FiClock className={achievementStyles.syncIcon} />
-                ) : (
-                  <FiAward className={achievementStyles.syncIcon} />
-                )}
-                {syncingAchievements ? "Syncing..." : "Sync Achievements"}
-              </button>
             </div>
           </div>
           <div className={achievementStyles.rarityStats}>
@@ -537,7 +553,7 @@ export default function ProfileAchievements({
               <span
                 className={`${achievementStyles.rarityDot} ${achievementStyles.bronze}`}
               ></span>
-              <span>
+              <span className={achievementStyles.rarityText}>
                 Bronze:{" "}
                 {achievementCategories.reduce(
                   (acc, cat) =>
@@ -553,7 +569,7 @@ export default function ProfileAchievements({
               <span
                 className={`${achievementStyles.rarityDot} ${achievementStyles.silver}`}
               ></span>
-              <span>
+              <span className={achievementStyles.rarityText}>
                 Silver:{" "}
                 {achievementCategories.reduce(
                   (acc, cat) =>
@@ -569,7 +585,7 @@ export default function ProfileAchievements({
               <span
                 className={`${achievementStyles.rarityDot} ${achievementStyles.gold}`}
               ></span>
-              <span>
+              <span className={achievementStyles.rarityText}>
                 Gold:{" "}
                 {achievementCategories.reduce(
                   (acc, cat) =>
@@ -585,7 +601,7 @@ export default function ProfileAchievements({
               <span
                 className={`${achievementStyles.rarityDot} ${achievementStyles.legendary}`}
               ></span>
-              <span>
+              <span className={achievementStyles.rarityText}>
                 Legendary:{" "}
                 {achievementCategories.reduce(
                   (acc, cat) =>
@@ -601,7 +617,7 @@ export default function ProfileAchievements({
               <span
                 className={`${achievementStyles.rarityDot} ${achievementStyles.platinum}`}
               ></span>
-              <span>
+              <span className={achievementStyles.rarityText}>
                 Platinum:{" "}
                 {achievementCategories.reduce(
                   (acc, cat) =>
@@ -755,6 +771,8 @@ export default function ProfileAchievements({
           </div>
         ))}
       </div>
+      
+
     </div>
   );
 } 

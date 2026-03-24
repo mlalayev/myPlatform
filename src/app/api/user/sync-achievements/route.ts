@@ -75,111 +75,102 @@ export async function POST(request: NextRequest) {
 
     // Define achievement definitions
     const achievementDefinitions = [
-      // Learning achievements
       {
-        id: "first_lesson",
-        type: "LEARNING",
-        name: "First Steps",
-        description: "Complete your first lesson",
-        icon: "book",
-        rarity: "BRONZE",
+        type: 'LEARNING',
+        name: 'First Steps',
+        description: 'Complete your first lesson',
+        icon: '🎓',
+        rarity: 'BRONZE',
         points: 50,
-        condition: () => completedLessons > 0
+        condition: () => completedLessons >= 1
       },
       {
-        id: "lesson_explorer",
-        type: "LEARNING",
-        name: "Knowledge Seeker",
-        description: "Complete 10 lessons",
-        icon: "book",
-        rarity: "BRONZE",
-        points: 200,
+        type: 'LEARNING',
+        name: 'Knowledge Seeker',
+        description: 'Complete 10 lessons',
+        icon: '📚',
+        rarity: 'SILVER',
+        points: 100,
         condition: () => completedLessons >= 10
       },
       {
-        id: "lesson_master",
-        type: "LEARNING",
-        name: "Learning Legend",
-        description: "Complete 50 lessons",
-        icon: "book",
-        rarity: "GOLD",
-        points: 1000,
+        type: 'LEARNING',
+        name: 'Learning Legend',
+        description: 'Complete 50 lessons',
+        icon: '🏆',
+        rarity: 'GOLD',
+        points: 500,
         condition: () => completedLessons >= 50
       },
       {
-        id: "language_master",
-        type: "LEARNING",
-        name: "Polyglot",
-        description: "Complete lessons in 5 different programming languages",
-        icon: "globe",
-        rarity: "SILVER",
-        points: 500,
+        type: 'LEARNING',
+        name: 'Polyglot',
+        description: 'Study 5 different programming languages',
+        icon: '🌍',
+        rarity: 'PLATINUM',
+        points: 300,
         condition: () => completedLanguages >= 5
       },
       {
-        id: "completionist",
-        type: "LEARNING",
-        name: "Completionist",
-        description: "Complete 100 lessons",
-        icon: "target",
-        rarity: "LEGENDARY",
-        points: 2500,
+        type: 'LEARNING',
+        name: 'Completionist',
+        description: 'Complete 100 lessons',
+        icon: '💎',
+        rarity: 'LEGENDARY',
+        points: 1000,
         condition: () => completedLessons >= 100
       },
-
-      // Coding achievements
       {
-        id: "first_solve",
-        type: "CODING",
-        name: "Problem Solver",
-        description: "Solve your first exercise",
-        icon: "code",
-        rarity: "BRONZE",
+        type: 'CODING',
+        name: 'Problem Solver',
+        description: 'Solve your first exercise',
+        icon: '💻',
+        rarity: 'BRONZE',
         points: 75,
-        condition: () => solvedExercises > 0
+        condition: () => solvedExercises >= 1
       },
       {
-        id: "coding_ninja",
-        type: "CODING",
-        name: "Code Ninja",
-        description: "Solve 25 exercises",
-        icon: "code",
-        rarity: "SILVER",
-        points: 500,
+        type: 'CODING',
+        name: 'Code Ninja',
+        description: 'Solve 25 exercises',
+        icon: '⚡',
+        rarity: 'SILVER',
+        points: 200,
         condition: () => solvedExercises >= 25
       },
       {
-        id: "algorithm_master",
-        type: "CODING",
-        name: "Algorithm Master",
-        description: "Solve 100 exercises",
-        icon: "code",
-        rarity: "LEGENDARY",
-        points: 2500,
+        type: 'CODING',
+        name: 'Algorithm Master',
+        description: 'Solve 100 exercises',
+        icon: '🧠',
+        rarity: 'GOLD',
+        points: 1000,
         condition: () => solvedExercises >= 100
       },
-
-      // Social achievements
       {
-        id: "early_bird",
-        type: "SOCIAL",
-        name: "Early Bird",
-        description: "Join during beta testing",
-        icon: "heart",
-        rarity: "PLATINUM",
-        points: 500,
-        condition: () => {
-          // Always true for existing users - they joined during beta
-          return true;
-        }
+        type: 'STREAK',
+        name: 'Early Bird',
+        description: 'Login for the first time',
+        icon: '🌅',
+        rarity: 'BRONZE',
+        points: 25,
+        condition: () => true // Always true for testing
       },
       {
-        id: "bookmark_collector",
-        type: "SOCIAL",
-        name: "Bookmark Collector",
-        description: "Save 20 lessons to favorites",
-        icon: "bookmark",
-        rarity: "BRONZE",
+        type: 'TEST',
+        name: 'Test Achievement',
+        description: 'This is a test achievement to verify popup works',
+        icon: '🧪',
+        rarity: 'GOLD',
+        points: 100,
+        condition: () => true // Always true for testing
+      },
+      {
+        type: 'STREAK',
+        name: 'Bookmark Collector',
+        description: 'Save 20 lessons to favorites',
+        icon: 'bookmark',
+        rarity: 'BRONZE',
         points: 150,
         condition: () => savedLessonsCount >= 20
       }
@@ -245,10 +236,27 @@ export async function POST(request: NextRequest) {
 
     console.log("Sync completed successfully");
 
+    // Prepare achievement data for popup (newly created and updated ones)
+    const newAchievementsForPopup = [
+      ...createdAchievements.map(achievement => ({
+        name: achievement.name,
+        description: achievement.description,
+        rarity: achievement.rarity.toLowerCase() as 'bronze' | 'silver' | 'gold' | 'platinum',
+        coins: achievement.points
+      })),
+      ...updatedAchievements.map(achievement => ({
+        name: achievement.name,
+        description: achievement.description,
+        rarity: achievement.rarity.toLowerCase() as 'bronze' | 'silver' | 'gold' | 'platinum',
+        coins: achievement.points
+      }))
+    ];
+
     return NextResponse.json({
       success: true,
       createdAchievements,
       updatedAchievements,
+      newAchievementsForPopup, // For triggering popups
       message: `Synced ${createdAchievements.length} new achievements and updated ${updatedAchievements.length} existing ones`
     });
 

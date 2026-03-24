@@ -1,0 +1,621 @@
+{
+  "id": "union-types",
+  "az": {
+    "title": "Union Tiplər",
+    "icon": "FiLink2",
+    "language": "typescript",
+    "description": "Bir neçə tipdən birini qəbul edən dəyişənlər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Union Tiplər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də union tiplər bir dəyişənin birdən çox tipdən birini qəbul edə biləcəyini təyin etmək üçün istifadə olunur. Union tiplər `|` (və ya) operatoru ilə yazılır və dəyişənin hansısa mümkün tiplərdən birində olmasını təmin edir. Məsələn, bir dəyişən həm `string`, həm də `number` tipində ola bilər. Bu, TypeScript-in statik tip sistemi sayəsində kodun çevikliyini artırır, eyni zamanda tip təhlükəsizliyini qoruyur. JavaScript-də tiplər dinamikdir və dəyişənlər istənilən dəyəri qəbul edə bilər, bu da runtime səhvlərinə səbəb ola bilər. TypeScript-də union tiplər bu cür səhvləri kompilyasiya zamanı aşkarlayır. Union tiplər sadə tiplərdə, literal tiplərdə, obyektlərdə, funksiyalarda və discriminated unions kimi strukturlarda istifadə edilə bilər. Bu JSON faylda union tiplərinin tərifi, istifadə məqsədləri, JavaScript ilə fərqləri, sintaksisi, type narrowing, discriminated unions, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Union Tiplərinin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union tipləri TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Çeviklik**: Dəyişənin birdən çox tipdən birini qəbul etməsinə imkan verir.\n- **Tip təhlükəsizliyi**: Yalnız təyin edilmiş tiplərdən birinə uyğun dəyərləri qəbul edir.\n- **Oxunaqlılıq**: Kodun hansı tiplərlə işləyə biləcəyini açıq şəkildə göstərir.\n- **Alət dəstəyi**: Kod redaktorları tiplərə əsasən avtomatik tamamlamalar təklif edir.\nJavaScript-də dəyişənlərə istənilən tipdə dəyər təyin etmək olar, bu da səhvlərə yol aça bilər. TypeScript-də union tiplər bu problemi məhdudlaşdırılmış çevikliklə həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Union Tiplərinin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union tipləri `|` operatoru ilə təyin edilir. Dəyişən, funksiya parametri və ya qaytarma dəyəri bir neçə tipdən biri ola bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Union tiplərinin sintaksisi\nlet value: string | number;\nvalue = 'Hello';\nconsole.log(value); // Hello\nvalue = 42;\nconsole.log(value); // 42\n// value = true; // Xəta: boolean string | number tipinə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `value` dəyişəni `string` və ya `number` tipində ola bilər.\n- Yanlış tip (məsələn, `boolean`) təyinatı kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Literal Tiplərlə Union Tiplər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union tiplər literal dəyərlərlə (məsələn, müəyyən string və ya number dəyərləri) də istifadə edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Literal tiplərlə union tiplər\ntype Status = 'active' | 'inactive' | 'pending';\nlet userStatus: Status;\nuserStatus = 'active';\nconsole.log(userStatus); // active\nuserStatus = 'pending';\nconsole.log(userStatus); // pending\n// userStatus = 'deleted'; // Xəta: 'deleted' Status tipinə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Status` tipi yalnız `active`, `inactive` və ya `pending` dəyərlərini qəbul edir.\n- Başqa dəyər təyinatı kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Obyektlərlə Union Tiplər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union tiplər obyekt tipləri ilə də istifadə edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Obyektlərlə union tiplər\ninterface Car {\n  type: 'car';\n  brand: string;\n}\n\ninterface Bike {\n  type: 'bike';\n  hasGears: boolean;\n}\n\ntype Vehicle = Car | Bike;\n\nlet vehicle: Vehicle;\nvehicle = { type: 'car', brand: 'Toyota' };\nconsole.log(vehicle); // { type: 'car', brand: 'Toyota' }\nvehicle = { type: 'bike', hasGears: true };\nconsole.log(vehicle); // { type: 'bike', hasGears: true }\n// vehicle = { type: 'car', hasGears: true }; // Xəta: uyğun tip yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Vehicle` tipi `Car` və ya `Bike` ola bilər.\n- Yanlış xüsusiyyət təyinatı kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiyalarda Union Tiplər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union tiplər funksiya parametrlərində və qaytarma dəyərlərində istifadə edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Funksiyalarda union tiplər\nfunction processInput(input: string | number): string {\n  if (typeof input === 'string') {\n    return input.toUpperCase();\n  }\n  return `Number: ${input}`;\n}\n\nconsole.log(processInput('hello')); // HELLO\nconsole.log(processInput(42)); // Number: 42\n// console.log(processInput(true)); // Xəta: boolean string | number tipinə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `processInput` funksiyası `string` və ya `number` qəbul edir.\n- `typeof` yoxlaması ilə tipə uyğun emal edilir.\n- Yanlış tip kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Type Narrowing (Tip Daraltma)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union tiplərlə işləyərkən TypeScript-in tip daraltma mexanizmləri (məsələn, `typeof`, `instanceof`, `in`) istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type narrowing\nfunction describeValue(value: string | number | boolean): string {\n  if (typeof value === 'string') {\n    return `String: ${value}`;\n  } else if (typeof value === 'number') {\n    return `Number: ${value}`;\n  }\n  return `Boolean: ${value}`;\n}\n\nconsole.log(describeValue('test')); // String: test\nconsole.log(describeValue(123)); // Number: 123\nconsole.log(describeValue(true)); // Boolean: true\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `typeof` yoxlaması ilə `value` dəyişəninin tipi daraldılır.\n- Hər tipə uyğun emal edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Discriminated Unions (Ayırıcı Unionlar)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Discriminated unions union tiplərdə ortaq bir xüsusiyyət (adətən `type` və ya `kind`) vasitəsilə tipləri ayırmaq üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Discriminated unions\ninterface ErrorResponse {\n  type: 'error';\n  message: string;\n}\n\ninterface SuccessResponse {\n  type: 'success';\n  data: string;\n}\n\ntype Response = ErrorResponse | SuccessResponse;\n\nfunction handleResponse(response: Response): string {\n  switch (response.type) {\n    case 'success':\n      return `Success: ${response.data}`;\n    case 'error':\n      return `Error: ${response.message}`;\n  }\n}\n\nlet success: Response = { type: 'success', data: 'Completed' };\nlet error: Response = { type: 'error', message: 'Failed' };\n\nconsole.log(handleResponse(success)); // Success: Completed\nconsole.log(handleResponse(error)); // Error: Failed\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `type` xüsusiyyəti ilə `Response` tipi ayırılır.\n- `switch` ilə tipə uyğun emal edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Union Tipləri ilə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union tipləri real layihələrdə müxtəlif ssenarilərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Praktik nümunə\ntype ID = string | number;\n\ninterface User {\n  id: ID;\n  name: string;\n}\n\nfunction getUserInfo(user: User): string {\n  return `ID: ${user.id}, Name: ${user.name}`;\n}\n\nlet user1: User = { id: 1, name: 'Ali' };\nlet user2: User = { id: 'abc123', name: 'Vəli' };\n\nconsole.log(getUserInfo(user1)); // ID: 1, Name: Ali\nconsole.log(getUserInfo(user2)); // ID: abc123, Name: Vəli\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ID` tipi `string` və ya `number` ola bilər.\n- `User` interfeysi `ID` tipindən istifadə edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union tipləri kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Tip daraltma olmadan union tiplərin xüsusiyyətlərinə birbaşa daxil olmaq xətalara səbəb ola bilər.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\nfunction safeProcess(value: string | number): string {\n  if (typeof value === 'string') {\n    return value.toUpperCase();\n  }\n  return value.toString();\n}\n\nconsole.log(safeProcess('test')); // TEST\nconsole.log(safeProcess(123)); // 123\n// console.log(safeProcess(true)); // Xəta: boolean string | number tipinə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `typeof` yoxlaması ilə tip təhlükəsizliyi təmin edilir.\n- Yanlış tip kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet unsafe: any = 'test';\nconsole.log(unsafe.toUpperCase()); // TEST\nunsafe = 123;\nconsole.log(unsafe.toUpperCase()); // Runtime xətası: toUpperCase number-də yoxdur\n\n// Düzgün yol\nlet safe: string | number = 'test';\nif (typeof safe === 'string') {\n  console.log(safe.toUpperCase()); // TEST\n}\nsafe = 123;\nif (typeof safe === 'string') {\n  console.log(safe.toUpperCase()); // Çalışmayacaq, xəta yoxdur\n} else {\n  console.log(safe); // 123\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime xətalarına səbəb ola bilər.\n- Union tipi və tip daraltma təhlükəsizliyi təmin edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union tipləri real layihələrdə geniş istifadə olunur:\n- **API cavabları**: Serverdən gələn müxtəlif tipli məlumatlar.\n- **İstifadəçi girişləri**: String və ya number kimi dəyərlər.\n- **Status idarəetməsi**: Məhdud sayda status dəyərləri.\n- **Konfiqurasiya parametrləri**: Fərqli tipli ayarlar.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface TextMessage {\n  type: 'text';\n  content: string;\n}\n\ninterface ImageMessage {\n  type: 'image';\n  url: string;\n}\n\ntype Message = TextMessage | ImageMessage;\n\nfunction displayMessage(message: Message): string {\n  switch (message.type) {\n    case 'text':\n      return `Text: ${message.content}`;\n    case 'image':\n      return `Image: ${message.url}`;\n  }\n}\n\nlet textMsg: Message = { type: 'text', content: 'Hello!' };\nlet imageMsg: Message = { type: 'image', url: 'image.jpg' };\n\nconsole.log(displayMessage(textMsg)); // Text: Hello!\nconsole.log(displayMessage(imageMsg)); // Image: image.jpg\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Message` tipi discriminated union ilə təyin edilir.\n- `switch` ilə mesaj tipi emal edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Dəqiq tiplərdən istifadə edin. `any` əvəzinə union tipləri seçin. Tip daraltma mexanizmlərindən faydalanın. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Union tipləri əvəzinə `any` və ya JavaScript dinamik tipləri istifadə edilə bilər, lakin union tiplər təhlükəsizlik və oxunaqlılıq baxımından üstündür.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün union tipləri nümunəsi\ntype Result = 'success' | 'error';\n\nfunction checkResult(result: Result): string {\n  if (result === 'success') {\n    return 'Operation completed!';\n  }\n  return 'Operation failed!';\n}\n\nconsole.log(checkResult('success')); // Operation completed!\nconsole.log(checkResult('error')); // Operation failed!\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Union Types",
+    "icon": "FiLink2",
+    "language": "typescript",
+    "description": "Variables that can accept one of several types.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Union Types?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union types in TypeScript allow a variable to accept one of multiple types, defined using the `|` (or) operator. This ensures that the variable can only hold a value of one of the specified types. For example, a variable can be either a `string` or a `number`. Union types enhance code flexibility while maintaining type safety through TypeScript’s static type system. In JavaScript, variables can hold any value due to dynamic typing, which can lead to runtime errors. TypeScript’s union types catch such errors at compile time. Union types can be used with simple types, literal types, objects, functions, and discriminated unions. This JSON file explains union types’ definition, purposes, differences from JavaScript, syntax, type narrowing, discriminated unions, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Union Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union types in TypeScript serve the following purposes:\n- **Flexibility**: Allow a variable to accept one of multiple types.\n- **Type safety**: Restrict values to only the specified types.\n- **Readability**: Clearly indicate which types a variable can hold.\n- **Tooling support**: Code editors provide autocompletion based on types.\nIn JavaScript, variables can hold any type, which may cause errors. TypeScript’s union types address this with controlled flexibility."
+      },
+      {
+        "type": "heading",
+        "text": "Union Type Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union types are defined using the `|` operator. Variables, function parameters, or return values can be one of several types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Union type syntax\nlet value: string | number;\nvalue = 'Hello';\nconsole.log(value); // Hello\nvalue = 42;\nconsole.log(value); // 42\n// value = true; // Error: boolean cannot be assigned to string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `value` can be either a `string` or a `number`.\n- Assigning an incorrect type (e.g., `boolean`) triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Union Types with Literal Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union types can be used with literal values (e.g., specific string or number values).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Union types with literal types\ntype Status = 'active' | 'inactive' | 'pending';\nlet userStatus: Status;\nuserStatus = 'active';\nconsole.log(userStatus); // active\nuserStatus = 'pending';\nconsole.log(userStatus); // pending\n// userStatus = 'deleted'; // Error: 'deleted' cannot be assigned to Status\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Status` type only accepts `active`, `inactive`, or `pending`.\n- Assigning another value triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Union Types with Objects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union types can be used with object types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Union types with objects\ninterface Car {\n  type: 'car';\n  brand: string;\n}\n\ninterface Bike {\n  type: 'bike';\n  hasGears: boolean;\n}\n\ntype Vehicle = Car | Bike;\n\nlet vehicle: Vehicle;\nvehicle = { type: 'car', brand: 'Toyota' };\nconsole.log(vehicle); // { type: 'car', brand: 'Toyota' }\nvehicle = { type: 'bike', hasGears: true };\nconsole.log(vehicle); // { type: 'bike', hasGears: true }\n// vehicle = { type: 'car', hasGears: true }; // Error: no matching type\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Vehicle` can be either a `Car` or a `Bike`.\n- Assigning incorrect properties triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Union Types in Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union types can be used in function parameters and return values.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Union types in functions\nfunction processInput(input: string | number): string {\n  if (typeof input === 'string') {\n    return input.toUpperCase();\n  }\n  return `Number: ${input}`;\n}\n\nconsole.log(processInput('hello')); // HELLO\nconsole.log(processInput(42)); // Number: 42\n// console.log(processInput(true)); // Error: boolean cannot be assigned to string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `processInput` accepts either a `string` or a `number`.\n- `typeof` check handles the type appropriately.\n- Incorrect types trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Type Narrowing"
+      },
+      {
+        "type": "paragraph",
+        "text": "When working with union types, TypeScript’s type narrowing mechanisms (e.g., `typeof`, `instanceof`, `in`) are used to refine types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Type narrowing\nfunction describeValue(value: string | number | boolean): string {\n  if (typeof value === 'string') {\n    return `String: ${value}`;\n  } else if (typeof value === 'number') {\n    return `Number: ${value}`;\n  }\n  return `Boolean: ${value}`;\n}\n\nconsole.log(describeValue('test')); // String: test\nconsole.log(describeValue(123)); // Number: 123\nconsole.log(describeValue(true)); // Boolean: true\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `typeof` check narrows the type of `value`.\n- Each type is handled appropriately.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Discriminated Unions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Discriminated unions use a common property (often `type` or `kind`) to distinguish between types in a union.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Discriminated unions\ninterface ErrorResponse {\n  type: 'error';\n  message: string;\n}\n\ninterface SuccessResponse {\n  type: 'success';\n  data: string;\n}\n\ntype Response = ErrorResponse | SuccessResponse;\n\nfunction handleResponse(response: Response): string {\n  switch (response.type) {\n    case 'success':\n      return `Success: ${response.data}`;\n    case 'error':\n      return `Error: ${response.message}`;\n  }\n}\n\nlet success: Response = { type: 'success', data: 'Completed' };\nlet error: Response = { type: 'error', message: 'Failed' };\n\nconsole.log(handleResponse(success)); // Success: Completed\nconsole.log(handleResponse(error)); // Error: Failed\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `type` property distinguishes the `Response` type.\n- `switch` handles each type appropriately.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Working with Union Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union types are used in various scenarios in real projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Practical example\ntype ID = string | number;\n\ninterface User {\n  id: ID;\n  name: string;\n}\n\nfunction getUserInfo(user: User): string {\n  return `ID: ${user.id}, Name: ${user.name}`;\n}\n\nlet user1: User = { id: 1, name: 'Alice' };\nlet user2: User = { id: 'abc123', name: 'Bob' };\n\nconsole.log(getUserInfo(user1)); // ID: 1, Name: Alice\nconsole.log(getUserInfo(user2)); // ID: abc123, Name: Bob\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ID` type can be either a `string` or a `number`.\n- `User` interface uses the `ID` type.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union types enhance code safety, but caution is needed:\n- Accessing properties of union types without type narrowing can cause errors.\n- Avoid `any` as it reduces type safety.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\nfunction safeProcess(value: string | number): string {\n  if (typeof value === 'string') {\n    return value.toUpperCase();\n  }\n  return value.toString();\n}\n\nconsole.log(safeProcess('test')); // TEST\nconsole.log(safeProcess(123)); // 123\n// console.log(safeProcess(true)); // Error: boolean cannot be assigned to string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `typeof` check ensures type safety.\n- Incorrect types trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet unsafe: any = 'test';\nconsole.log(unsafe.toUpperCase()); // TEST\nunsafe = 123;\nconsole.log(unsafe.toUpperCase()); // Runtime error: toUpperCase is not a function\n\n// Correct approach\nlet safe: string | number = 'test';\nif (typeof safe === 'string') {\n  console.log(safe.toUpperCase()); // TEST\n}\nsafe = 123;\nif (typeof safe === 'string') {\n  console.log(safe.toUpperCase()); // Skipped, no error\n} else {\n  console.log(safe); // 123\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and can cause runtime errors.\n- Union type with type narrowing ensures safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Union types are widely used in real projects:\n- **API responses**: Handling different types of data from servers.\n- **User inputs**: Accepting strings or numbers.\n- **Status management**: Limited set of status values.\n- **Configuration parameters**: Different types of settings.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface TextMessage {\n  type: 'text';\n  content: string;\n}\n\ninterface ImageMessage {\n  type: 'image';\n  url: string;\n}\n\ntype Message = TextMessage | ImageMessage;\n\nfunction displayMessage(message: Message): string {\n  switch (message.type) {\n    case 'text':\n      return `Text: ${message.content}`;\n    case 'image':\n      return `Image: ${message.url}`;\n  }\n}\n\nlet textMsg: Message = { type: 'text', content: 'Hello!' };\nlet imageMsg: Message = { type: 'image', url: 'image.jpg' };\n\nconsole.log(displayMessage(textMsg)); // Text: Hello!\nconsole.log(displayMessage(imageMsg)); // Image: image.jpg\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Message` type is a discriminated union.\n- `switch` processes the message type.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use precise types. Prefer union types over `any`. Leverage type narrowing mechanisms. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Instead of union types, `any` or JavaScript’s dynamic typing can be used, but union types offer better safety and readability.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself union types example\ntype Result = 'success' | 'error';\n\nfunction checkResult(result: Result): string {\n  if (result === 'success') {\n    return 'Operation completed!';\n  }\n  return 'Operation failed!';\n}\n\nconsole.log(checkResult('success')); // Operation completed!\nconsole.log(checkResult('error')); // Operation failed!\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Типы объединения",
+    "icon": "FiLink2",
+    "language": "typescript",
+    "description": "Переменные, которые могут принимать один из нескольких типов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое типы объединения?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы объединения в TypeScript позволяют переменной принимать один из нескольких типов, определяемых с помощью оператора `|` (или). Это гарантирует, что переменная может содержать значение только одного из указанных типов. Например, переменная может быть либо `string`, либо `number`. Типы объединения повышают гибкость кода, сохраняя безопасность типов благодаря статической системе типов TypeScript. В JavaScript переменные могут содержать любые значения из-за динамической типизации, что может привести к ошибкам во время выполнения. Типы объединения TypeScript обнаруживают такие ошибки на этапе компиляции. Типы объединения могут использоваться с простыми типами, литеральными типами, объектами, функциями и дискриминированными объединениями. Этот JSON-файл подробно объясняет определение типов объединения, их назначение, отличия от JavaScript, синтаксис, сужение типов, дискриминированные объединения, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение типов объединения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы объединения в TypeScript используются для следующих целей:\n- **Гибкость**: Позволяют переменной принимать один из нескольких типов.\n- **Безопасность типов**: Ограничивают значения только указанными типами.\n- **Читаемость**: Четко указывают, какие типы может содержать переменная.\n- **Поддержка инструментов**: Редакторы кода предоставляют автодополнение на основе типов.\nВ JavaScript переменные могут содержать любой тип, что может вызвать ошибки. Типы объединения TypeScript решают эту проблему с контролируемой гибкостью."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис типов объединения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы объединения определяются с помощью оператора `|`. Переменные, параметры функций или возвращаемые значения могут быть одного из нескольких типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Синтаксис типов объединения\nlet value: string | number;\nvalue = 'Привет';\nconsole.log(value); // Привет\nvalue = 42;\nconsole.log(value); // 42\n// value = true; // Ошибка: boolean не может быть присвоен string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `value` может быть либо `string`, либо `number`.\n- Присвоение неправильного типа (например, `boolean`) вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Типы объединения с литеральными типами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы объединения могут использоваться с литеральными значениями (например, конкретными строками или числами).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Типы объединения с литеральными типами\ntype Status = 'active' | 'inactive' | 'pending';\nlet userStatus: Status;\nuserStatus = 'active';\nconsole.log(userStatus); // active\nuserStatus = 'pending';\nconsole.log(userStatus); // pending\n// userStatus = 'deleted'; // Ошибка: 'deleted' не может быть присвоен Status\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `Status` принимает только `active`, `inactive` или `pending`.\n- Присвоение другого значения вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Типы объединения с объектами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы объединения могут использоваться с объектными типами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Типы объединения с объектами\ninterface Car {\n  type: 'car';\n  brand: string;\n}\n\ninterface Bike {\n  type: 'bike';\n  hasGears: boolean;\n}\n\ntype Vehicle = Car | Bike;\n\nlet vehicle: Vehicle;\nvehicle = { type: 'car', brand: 'Toyota' };\nconsole.log(vehicle); // { type: 'car', brand: 'Toyota' }\nvehicle = { type: 'bike', hasGears: true };\nconsole.log(vehicle); // { type: 'bike', hasGears: true }\n// vehicle = { type: 'car', hasGears: true }; // Ошибка: нет подходящего типа\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Vehicle` может быть либо `Car`, либо `Bike`.\n- Присвоение неправильных свойств вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Типы объединения в функциях"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы объединения могут использоваться в параметрах и возвращаемых значениях функций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Типы объединения в функциях\nfunction processInput(input: string | number): string {\n  if (typeof input === 'string') {\n    return input.toUpperCase();\n  }\n  return `Число: ${input}`;\n}\n\nconsole.log(processInput('привет')); // ПРИВЕТ\nconsole.log(processInput(42)); // Число: 42\n// console.log(processInput(true)); // Ошибка: boolean не может быть присвоен string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `processInput` принимает либо `string`, либо `number`.\n- Проверка `typeof` обрабатывает тип соответствующим образом.\n- Неправильные типы вызывают ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сужение типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "При работе с типами объединения используются механизмы сужения типов TypeScript (например, `typeof`, `instanceof`, `in`) для уточнения типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Сужение типов\nfunction describeValue(value: string | number | boolean): string {\n  if (typeof value === 'string') {\n    return `Строка: ${value}`;\n  } else if (typeof value === 'number') {\n    return `Число: ${value}`;\n  }\n  return `Булево: ${value}`;\n}\n\nconsole.log(describeValue('тест')); // Строка: тест\nconsole.log(describeValue(123)); // Число: 123\nconsole.log(describeValue(true)); // Булево: true\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Проверка `typeof` сужает тип `value`.\n- Каждый тип обрабатывается соответствующим образом.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Дискриминированные объединения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дискриминированные объединения используют общее свойство (обычно `type` или `kind`) для различения типов в объединении.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Дискриминированные объединения\ninterface ErrorResponse {\n  type: 'error';\n  message: string;\n}\n\ninterface SuccessResponse {\n  type: 'success';\n  data: string;\n}\n\ntype Response = ErrorResponse | SuccessResponse;\n\nfunction handleResponse(response: Response): string {\n  switch (response.type) {\n    case 'success':\n      return `Успех: ${response.data}`;\n    case 'error':\n      return `Ошибка: ${response.message}`;\n  }\n}\n\nlet success: Response = { type: 'success', data: 'Завершено' };\nlet error: Response = { type: 'error', message: 'Не удалось' };\n\nconsole.log(handleResponse(success)); // Успех: Завершено\nconsole.log(handleResponse(error)); // Ошибка: Не удалось\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Свойство `type` различает тип `Response`.\n- `switch` обрабатывает каждый тип соответствующим образом.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Работа с типами объединения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы объединения используются в различных сценариях в реальных проектах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Практический пример\ntype ID = string | number;\n\ninterface User {\n  id: ID;\n  name: string;\n}\n\nfunction getUserInfo(user: User): string {\n  return `ID: ${user.id}, Имя: ${user.name}`;\n}\n\nlet user1: User = { id: 1, name: 'Алиса' };\nlet user2: User = { id: 'abc123', name: 'Боб' };\n\nconsole.log(getUserInfo(user1)); // ID: 1, Имя: Алиса\nconsole.log(getUserInfo(user2)); // ID: abc123, Имя: Боб\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `ID` может быть либо `string`, либо `number`.\n- Интерфейс `User` использует тип `ID`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы объединения повышают безопасность кода, но требуется осторожность:\n- Доступ к свойствам типов объединения без сужения типов может вызвать ошибки.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\nfunction safeProcess(value: string | number): string {\n  if (typeof value === 'string') {\n    return value.toUpperCase();\n  }\n  return value.toString();\n}\n\nconsole.log(safeProcess('тест')); // ТЕСТ\nconsole.log(safeProcess(123)); // 123\n// console.log(safeProcess(true)); // Ошибка: boolean не может быть присвоен string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Проверка `typeof` обеспечивает безопасность типов.\n- Неправильные типы вызывают ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet unsafe: any = 'тест';\nconsole.log(unsafe.toUpperCase()); // ТЕСТ\nunsafe = 123;\nconsole.log(unsafe.toUpperCase()); // Ошибка времени выполнения: toUpperCase не является функцией\n\n// Правильный подход\nlet safe: string | number = 'тест';\nif (typeof safe === 'string') {\n  console.log(safe.toUpperCase()); // ТЕСТ\n}\nsafe = 123;\nif (typeof safe === 'string') {\n  console.log(safe.toUpperCase()); // Пропущено, без ошибки\n} else {\n  console.log(safe); // 123\n}\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Тип объединения с сужением типов обеспечивает безопасность.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы объединения широко используются в реальных проектах:\n- **Ответы API**: Обработка различных типов данных с серверов.\n- **Ввод пользователей**: Принятие строк или чисел.\n- **Управление статусами**: Ограниченный набор значений статусов.\n- **Параметры конфигурации**: Различные типы настроек.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface TextMessage {\n  type: 'text';\n  content: string;\n}\n\ninterface ImageMessage {\n  type: 'image';\n  url: string;\n}\n\ntype Message = TextMessage | ImageMessage;\n\nfunction displayMessage(message: Message): string {\n  switch (message.type) {\n    case 'text':\n      return `Текст: ${message.content}`;\n    case 'image':\n      return `Изображение: ${message.url}`;\n  }\n}\n\nlet textMsg: Message = { type: 'text', content: 'Привет!' };\nlet imageMsg: Message = { type: 'image', url: 'image.jpg' };\n\nconsole.log(displayMessage(textMsg)); // Текст: Привет!\nconsole.log(displayMessage(imageMsg)); // Изображение: image.jpg\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `Message` является дискриминированным объединением.\n- `switch` обрабатывает тип сообщения.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте точные типы. Предпочитайте типы объединения вместо `any`. Используйте механизмы сужения типов. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо типов объединения можно использовать `any` или динамическую типизацию JavaScript, но типы объединения обеспечивают лучшую безопасность и читаемость.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример типов объединения для самостоятельного тестирования\ntype Result = 'success' | 'error';\n\nfunction checkResult(result: Result): string {\n  if (result === 'success') {\n    return 'Операция завершена!';\n  }\n  return 'Операция не удалась!';\n}\n\nconsole.log(checkResult('success')); // Операция завершена!\nconsole.log(checkResult('error')); // Операция не удалась!\n"
+      }
+    ]
+  }
+}

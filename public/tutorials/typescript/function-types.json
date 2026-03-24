@@ -1,0 +1,570 @@
+{
+  "id": "function-types",
+  "az": {
+    "title": "Funksiya Tipləri",
+    "icon": "FiCode",
+    "language": "typescript",
+    "description": "Funksiya parametrləri və qaytarma tipləri.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Funksiya Tipləri Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də funksiya tipləri funksiyaların parametrlərinin və qaytarma dəyərlərinin tiplərini təyin etmək üçün istifadə olunur. Bu, funksiyanın necə istifadə olunacağını və hansı məlumatları qəbul edib/qaytardığını dəqiqləşdirir. TypeScript-in statik tip sistemi sayəsində funksiyaların yanlış istifadəsi kompilyasiya zamanı aşkarlanır, bu da JavaScript-dəki dinamik funksiyalardan fərqlənir. JavaScript-də funksiyalar istənilən tipdə parametr qəbul edə və qaytara bilər, bu da runtime səhvlərinə səbəb ola bilər. TypeScript-də isə funksiya tipləri bu səhvləri önləyir. Funksiya tipləri birbaşa funksiyalarda, interfeyslərdə, tip təyinatlarında və ya anonim funksiyalarda istifadə edilə bilər. Bu JSON faylda funksiya tiplərinin tərifi, istifadə məqsədləri, JavaScript ilə fərqləri, sintaksisi, opsional və default parametrlər, rest parametrləri, funksiya overloading-i, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiya Tiplərinin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Funksiya tipləri TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Dəqiq təyin**: Funksiyanın qəbul etdiyi parametrlərin və qaytardığı dəyərlərin tiplərini təyin edir.\n- **Tip təhlükəsizliyi**: Yanlış tipdə parametr və ya qaytarma dəyəri kompilyasiya xətası yaradır.\n- **Oxunaqlılıq**: Kodun nə etdiyi və hansı məlumatlarla işlədiyi aydın olur.\n- **Alət dəstəyi**: Kod redaktorları tiplərə əsasən avtomatik tamamlamalar təklif edir.\nJavaScript-də funksiyalar dinamikdir və tip yoxlaması olmadan işləyir, bu da səhvlərə yol aça bilər. TypeScript bu problemi statik tiplərlə həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiya Tiplərinin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Funksiya tipləri TypeScript-də bir neçə yolla təyin edilə bilər:\n- **Birbaşa funksiyalarda**: Parametrlər və qaytarma tipi funksiya tərifində göstərilir.\n- **Tip təyinatları (`type`)**: Funksiya tipləri ayrıca təyin edilə bilər.\n- **Interfeyslərdə**: Funksiyalar interfeys daxilində təyin edilə bilər.\n- **Anonim funksiyalar**: Birbaşa dəyişənlərdə və ya ifadələrdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Funksiya tiplərinin sintaksisi\nfunction add(a: number, b: number): number {\n  return a + b;\n}\n\ntype MathOperation = (x: number, y: number) => number;\n\ninterface Calculator {\n  subtract: (x: number, y: number) => number;\n}\n\nlet multiply: MathOperation = (x, y) => x * y;\nlet calc: Calculator = { subtract: (x, y) => x - y };\n\nconsole.log(add(5, 3)); // 8\nconsole.log(multiply(5, 3)); // 15\nconsole.log(calc.subtract(5, 3)); // 2\n// add('5', '3'); // Xəta: string number-ə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `add` funksiyası number parametri qəbul edir və number qaytarır.\n- `MathOperation` tipi funksiya strukturunu təyin edir.\n- `Calculator` interfeysi funksiya xüsusiyyətini təyin edir.\n- Yanlış tip təyinatı kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Opsional və Default Parametrlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Funksiyalarda opsional parametrlər `?` işarəsi ilə, default parametrlər isə `=` ilə təyin edilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Opsional və default parametrlər\nfunction greet(name: string, greeting?: string, prefix: string = 'Hello'): string {\n  return `${prefix}, ${greeting ?? 'welcome'} ${name}!`;\n}\n\nconsole.log(greet('Ali')); // Hello, welcome Ali!\nconsole.log(greet('Vəli', 'salam')); // Hello, salam Vəli!\nconsole.log(greet('Ayşə', 'salam', 'Hi')); // Hi, salam Ayşə!\n// greet(42); // Xəta: number string-ə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `greeting?` opsional parametrdir və olmaya bilər.\n- `prefix` default dəyəri `Hello` olan parametrdir.\n- Yanlış tip kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Rest Parametrləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Rest parametrləri (`...`) istənilən sayda parametri qəbul etmək üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Rest parametrləri\nfunction sum(...numbers: number[]): number {\n  return numbers.reduce((total, num) => total + num, 0);\n}\n\nconsole.log(sum(1, 2, 3)); // 6\nconsole.log(sum(10)); // 10\nconsole.log(sum()); // 0\n// sum('1', '2'); // Xəta: string number-ə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `...numbers: number[]` istənilən sayda number parametri qəbul edir.\n- Yanlış tip kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiya Overloading-i"
+      },
+      {
+        "type": "paragraph",
+        "text": "Funksiya overloading-i eyni funksiyanın fərqli parametr və qaytarma tipləri ilə çoxsaylı tərifini təmin edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Funksiya overloading-i\nfunction combine(a: string, b: string): string;\nfunction combine(a: number, b: number): number;\nfunction combine(a: string | number, b: string | number): string | number {\n  if (typeof a === 'string' && typeof b === 'string') {\n    return a + b;\n  }\n  if (typeof a === 'number' && typeof b === 'number') {\n    return a + b;\n  }\n  throw new Error('Uyğun olmayan tiplər');\n}\n\nconsole.log(combine('Hello', 'World')); // HelloWorld\nconsole.log(combine(5, 3)); // 8\n// combine('Hello', 3); // Xəta: uyğun overloading yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `combine` funksiyası iki fərqli tip kombinasiyasını dəstəkləyir.\n- Yanlış tip kombinasiyası kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Anonim Funksiyalar və Funksiya İfadələri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Anonim funksiyalar və funksiya ifadələri birbaşa dəyişənlərdə və ya callback-lərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Anonim funksiyalar\nlet divide: (a: number, b: number) => number = function (a, b) {\n  return a / b;\n};\n\nconsole.log(divide(10, 2)); // 5\n// divide('10', '2'); // Xəta: string number-ə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `divide` anonim funksiya kimi təyin edilir.\n- Yanlış tip kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Funksiya Tipləri ilə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Funksiya tipləri real layihələrdə müxtəlif ssenarilərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Praktik nümunə\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\ntype ProductFilter = (products: Product[], minPrice: number) => Product[];\n\nconst filterExpensive: ProductFilter = (products, minPrice) => {\n  return products.filter(product => product.price > minPrice);\n};\n\nlet products: Product[] = [\n  { id: 1, name: 'Telefon', price: 500 },\n  { id: 2, name: 'Laptop', price: 1000 },\n  { id: 3, name: 'Planşet', price: 300 },\n];\n\nconsole.log(filterExpensive(products, 500)); // [{ id: 2, name: 'Laptop', price: 1000 }]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ProductFilter` tipi funksiyanın strukturunu təyin edir.\n- `filterExpensive` funksiyası qiymətə görə süzür.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Funksiya tipləri kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Yanlış tip təyinatlarından çəkinin.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\nfunction safeAdd(a: number, b: number): number {\n  return a + b;\n}\n\nconsole.log(safeAdd(5, 3)); // 8\n// safeAdd('5', '3'); // Xəta: string number-ə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `safeAdd` funksiyası tiplərə uyğun işləyir.\n- Yanlış tip təyinatı kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet unsafe: any = (a, b) => a + b;\nconsole.log(unsafe('Hello', 42)); // Hello42 (təhlükəsiz deyil, runtime səhvi ola bilər)\n\n// Düzgün yol\nlet safe: (a: number, b: number) => number = (a, b) => a + b;\nconsole.log(safe(5, 3)); // 8\n// safe('5', '3'); // Xəta: string number-ə təyin edilə bilməz\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime xətalarına səbəb ola bilər.\n- Funksiya tipi təhlükəsizliyi təmin edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Funksiya tipləri real layihələrdə geniş istifadə olunur:\n- **Məlumat emalı**: Məlumatları süzmək, çevirmək və ya hesablamaq.\n- **Callback funksiyaları**: Hadisə işləyiciləri və ya asinxron əməliyyatlar.\n- **API çağırışları**: Serverlərdən gələn məlumatların tipli emalı.\n- **Utility funksiyaları**: Yenidən istifadə edilə bilən funksiyalar.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface User {\n  id: number;\n  name: string;\n}\n\ntype UserFormatter = (user: User) => string;\n\nconst formatUser: UserFormatter = (user) => {\n  return `ID: ${user.id}, Name: ${user.name}`;\n};\n\nlet user: User = { id: 1, name: 'Ali' };\nconsole.log(formatUser(user)); // ID: 1, Name: Ali\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `UserFormatter` tipi funksiyanın strukturunu təyin edir.\n- `formatUser` istifadəçi məlumatlarını formatlayır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Dəqiq tiplərdən istifadə edin. `any` əvəzinə konkret tiplər seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Funksiya tipləri əvəzinə JavaScript funksiyaları istifadə edilə bilər, lakin TypeScript tipləri təhlükəsizlik və oxunaqlılıq baxımından üstündür.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün funksiya tipləri nümunəsi\ntype Greeter = (name: string, greeting?: string) => string;\n\nconst greet: Greeter = (name, greeting = 'Hello') => {\n  return `${greeting}, ${name}!`;\n};\n\nconsole.log(greet('Məmməd')); // Hello, Məmməd!\nconsole.log(greet('Ayşə', 'Salam')); // Salam, Ayşə!\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Function Types",
+    "icon": "FiCode",
+    "language": "typescript",
+    "description": "Function parameters and return types.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Function Types?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Function types in TypeScript are used to define the types of a function’s parameters and return value. They specify how a function should be used and what data it accepts or returns. Thanks to TypeScript’s static type system, incorrect function usage is caught at compile time, unlike JavaScript’s dynamic functions, which can lead to runtime errors. In JavaScript, functions can accept and return any type, potentially causing errors. TypeScript’s function types prevent such issues. Function types can be used in direct function definitions, interfaces, type aliases, or anonymous functions. This JSON file explains function types’ definition, purposes, differences from JavaScript, syntax, optional and default parameters, rest parameters, function overloading, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Function Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Function types in TypeScript serve the following purposes:\n- **Precise definition**: Define the types of parameters and return values.\n- **Type safety**: Incorrect parameter or return types trigger compilation errors.\n- **Readability**: Clearly indicate the function’s purpose and data.\n- **Tooling support**: Code editors provide autocompletion based on types.\nIn JavaScript, functions are dynamic and lack type checking, which can lead to errors. TypeScript solves this with static types."
+      },
+      {
+        "type": "heading",
+        "text": "Function Type Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "Function types in TypeScript can be defined in several ways:\n- **Direct functions**: Parameters and return types are specified in the function definition.\n- **Type aliases (`type`)**: Function types can be defined separately.\n- **Interfaces**: Functions can be defined within interfaces.\n- **Anonymous functions**: Used directly in variables or expressions.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Function type syntax\nfunction add(a: number, b: number): number {\n  return a + b;\n}\n\ntype MathOperation = (x: number, y: number) => number;\n\ninterface Calculator {\n  subtract: (x: number, y: number) => number;\n}\n\nlet multiply: MathOperation = (x, y) => x * y;\nlet calc: Calculator = { subtract: (x, y) => x - y };\n\nconsole.log(add(5, 3)); // 8\nconsole.log(multiply(5, 3)); // 15\nconsole.log(calc.subtract(5, 3)); // 2\n// add('5', '3'); // Error: string cannot be assigned to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `add` function accepts number parameters and returns a number.\n- `MathOperation` type defines a function structure.\n- `Calculator` interface defines a function property.\n- Incorrect type assignments trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Optional and Default Parameters"
+      },
+      {
+        "type": "paragraph",
+        "text": "Functions can have optional parameters (marked with `?`) and default parameters (marked with `=`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Optional and default parameters\nfunction greet(name: string, greeting?: string, prefix: string = 'Hello'): string {\n  return `${prefix}, ${greeting ?? 'welcome'} ${name}!`;\n}\n\nconsole.log(greet('Alice')); // Hello, welcome Alice!\nconsole.log(greet('Bob', 'hi')); // Hello, hi Bob!\nconsole.log(greet('Eve', 'hi', 'Hey')); // Hey, hi Eve!\n// greet(42); // Error: number cannot be assigned to string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `greeting?` is an optional parameter and can be omitted.\n- `prefix` has a default value of `Hello`.\n- Incorrect types trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Rest Parameters"
+      },
+      {
+        "type": "paragraph",
+        "text": "Rest parameters (`...`) allow a function to accept any number of parameters.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Rest parameters\nfunction sum(...numbers: number[]): number {\n  return numbers.reduce((total, num) => total + num, 0);\n}\n\nconsole.log(sum(1, 2, 3)); // 6\nconsole.log(sum(10)); // 10\nconsole.log(sum()); // 0\n// sum('1', '2'); // Error: string cannot be assigned to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `...numbers: number[]` accepts any number of number parameters.\n- Incorrect types trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Function Overloading"
+      },
+      {
+        "type": "paragraph",
+        "text": "Function overloading allows multiple type definitions for the same function.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Function overloading\nfunction combine(a: string, b: string): string;\nfunction combine(a: number, b: number): number;\nfunction combine(a: string | number, b: string | number): string | number {\n  if (typeof a === 'string' && typeof b === 'string') {\n    return a + b;\n  }\n  if (typeof a === 'number' && typeof b === 'number') {\n    return a + b;\n  }\n  throw new Error('Incompatible types');\n}\n\nconsole.log(combine('Hello', 'World')); // HelloWorld\nconsole.log(combine(5, 3)); // 8\n// combine('Hello', 3); // Error: no matching overload\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `combine` supports two different type combinations.\n- Incorrect type combinations trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Anonymous Functions and Function Expressions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Anonymous functions and function expressions are used directly in variables or callbacks.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Anonymous functions\nlet divide: (a: number, b: number) => number = function (a, b) {\n  return a / b;\n};\n\nconsole.log(divide(10, 2)); // 5\n// divide('10', '2'); // Error: string cannot be assigned to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `divide` is defined as an anonymous function.\n- Incorrect types trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Working with Function Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Function types are used in various scenarios in real projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Practical example\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\ntype ProductFilter = (products: Product[], minPrice: number) => Product[];\n\nconst filterExpensive: ProductFilter = (products, minPrice) => {\n  return products.filter(product => product.price > minPrice);\n};\n\nlet products: Product[] = [\n  { id: 1, name: 'Phone', price: 500 },\n  { id: 2, name: 'Laptop', price: 1000 },\n  { id: 3, name: 'Tablet', price: 300 },\n];\n\nconsole.log(filterExpensive(products, 500)); // [{ id: 2, name: 'Laptop', price: 1000 }]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ProductFilter` type defines the function structure.\n- `filterExpensive` filters products by price.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Function types enhance code safety, but caution is needed:\n- Avoid incorrect type assignments.\n- Avoid `any` as it reduces type safety.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\nfunction safeAdd(a: number, b: number): number {\n  return a + b;\n}\n\nconsole.log(safeAdd(5, 3)); // 8\n// safeAdd('5', '3'); // Error: string cannot be assigned to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `safeAdd` function works with correct types.\n- Incorrect type assignments trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet unsafe: any = (a, b) => a + b;\nconsole.log(unsafe('Hello', 42)); // Hello42 (unsafe, may cause runtime errors)\n\n// Correct approach\nlet safe: (a: number, b: number) => number = (a, b) => a + b;\nconsole.log(safe(5, 3)); // 8\n// safe('5', '3'); // Error: string cannot be assigned to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and can cause runtime errors.\n- Function type ensures type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Function types are widely used in real projects:\n- **Data processing**: Filtering, transforming, or calculating data.\n- **Callback functions**: Event handlers or asynchronous operations.\n- **API calls**: Processing typed data from servers.\n- **Utility functions**: Reusable functions.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface User {\n  id: number;\n  name: string;\n}\n\ntype UserFormatter = (user: User) => string;\n\nconst formatUser: UserFormatter = (user) => {\n  return `ID: ${user.id}, Name: ${user.name}`;\n};\n\nlet user: User = { id: 1, name: 'Alice' };\nconsole.log(formatUser(user)); // ID: 1, Name: Alice\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `UserFormatter` type defines the function structure.\n- `formatUser` formats user data.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use precise types. Avoid `any` and prefer specific types. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: JavaScript functions can be used instead of function types, but TypeScript types offer better safety and readability.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself function types example\ntype Greeter = (name: string, greeting?: string) => string;\n\nconst greet: Greeter = (name, greeting = 'Hello') => {\n  return `${greeting}, ${name}!`;\n};\n\nconsole.log(greet('John')); // Hello, John!\nconsole.log(greet('Eve', 'Hi')); // Hi, Eve!\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Типы функций",
+    "icon": "FiCode",
+    "language": "typescript",
+    "description": "Параметры функций и возвращаемые типы.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое типы функций?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы функций в TypeScript используются для определения типов параметров и возвращаемого значения функции. Они указывают, как функция должна использоваться и какие данные она принимает или возвращает. Благодаря статической системе типов TypeScript, неправильное использование функции обнаруживается на этапе компиляции, в отличие от динамических функций JavaScript, которые могут привести к ошибкам во время выполнения. В JavaScript функции могут принимать и возвращать любые типы, что потенциально вызывает ошибки. Типы функций TypeScript предотвращают такие проблемы. Типы функций могут использоваться в прямых определениях функций, интерфейсах, псевдонимах типов или анонимных функциях. Этот JSON-файл подробно объясняет определение типов функций, их назначение, отличия от JavaScript, синтаксис, необязательные и значения по умолчанию параметры, rest-параметры, перегрузку функций, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение типов функций"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы функций в TypeScript используются для следующих целей:\n- **Точное определение**: Определяют типы параметров и возвращаемых значений.\n- **Безопасность типов**: Неправильные типы параметров или возвращаемых значений вызывают ошибки компиляции.\n- **Читаемость**: Указывают назначение функции и данные, с которыми она работает.\n- **Поддержка инструментов**: Редакторы кода предоставляют автодополнение на основе типов.\nВ JavaScript функции динамичны и не имеют проверки типов, что может привести к ошибкам. TypeScript решает эту проблему с помощью статических типов."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис типов функций"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы функций в TypeScript можно определить несколькими способами:\n- **Прямые функции**: Параметры и возвращаемый тип указываются в определении функции.\n- **Псевдонимы типов (`type`)**: Типы функций могут быть определены отдельно.\n- **Интерфейсы**: Функции могут быть определены внутри интерфейсов.\n- **Анонимные функции**: Используются непосредственно в переменных или выражениях.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Синтаксис типов функций\nfunction add(a: number, b: number): number {\n  return a + b;\n}\n\ntype MathOperation = (x: number, y: number) => number;\n\ninterface Calculator {\n  subtract: (x: number, y: number) => number;\n}\n\nlet multiply: MathOperation = (x, y) => x * y;\nlet calc: Calculator = { subtract: (x, y) => x - y };\n\nconsole.log(add(5, 3)); // 8\nconsole.log(multiply(5, 3)); // 15\nconsole.log(calc.subtract(5, 3)); // 2\n// add('5', '3'); // Ошибка: string не может быть присвоен number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `add` принимает параметры типа number и возвращает number.\n- Тип `MathOperation` определяет структуру функции.\n- Интерфейс `Calculator` определяет свойство функции.\n- Неправильное присвоение типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Необязательные и параметры по умолчанию"
+      },
+      {
+        "type": "paragraph",
+        "text": "Функции могут иметь необязательные параметры (обозначенные `?`) и параметры по умолчанию (обозначенные `=`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Необязательные и параметры по умолчанию\nfunction greet(name: string, greeting?: string, prefix: string = 'Hello'): string {\n  return `${prefix}, ${greeting ?? 'welcome'} ${name}!`;\n}\n\nconsole.log(greet('Алиса')); // Hello, welcome Алиса!\nconsole.log(greet('Боб', 'привет')); // Hello, привет Боб!\nconsole.log(greet('Ева', 'привет', 'Хей')); // Хей, привет Ева!\n// greet(42); // Ошибка: number не может быть присвоен string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `greeting?` — необязательный параметр и может быть опущен.\n- `prefix` имеет значение по умолчанию `Hello`.\n- Неправильные типы вызывают ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Rest-параметры"
+      },
+      {
+        "type": "paragraph",
+        "text": "Rest-параметры (`...`) позволяют функции принимать произвольное количество параметров.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Rest-параметры\nfunction sum(...numbers: number[]): number {\n  return numbers.reduce((total, num) => total + num, 0);\n}\n\nconsole.log(sum(1, 2, 3)); // 6\nconsole.log(sum(10)); // 10\nconsole.log(sum()); // 0\n// sum('1', '2'); // Ошибка: string не может быть присвоен number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `...numbers: number[]` принимает произвольное количество параметров типа number.\n- Неправильные типы вызывают ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Перегрузка функций"
+      },
+      {
+        "type": "paragraph",
+        "text": "Перегрузка функций позволяет определять несколько сигнатур для одной и той же функции.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Перегрузка функций\nfunction combine(a: string, b: string): string;\nfunction combine(a: number, b: number): number;\nfunction combine(a: string | number, b: string | number): string | number {\n  if (typeof a === 'string' && typeof b === 'string') {\n    return a + b;\n  }\n  if (typeof a === 'number' && typeof b === 'number') {\n    return a + b;\n  }\n  throw new Error('Несовместимые типы');\n}\n\nconsole.log(combine('Привет', 'Мир')); // ПриветМир\nconsole.log(combine(5, 3)); // 8\n// combine('Привет', 3); // Ошибка: нет подходящей перегрузки\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `combine` поддерживает две разные комбинации типов.\n- Неправильные комбинации типов вызывают ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Анонимные функции и функциональные выражения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Анонимные функции и функциональные выражения используются непосредственно в переменных или callback-функциях.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Анонимные функции\nlet divide: (a: number, b: number) => number = function (a, b) {\n  return a / b;\n};\n\nconsole.log(divide(10, 2)); // 5\n// divide('10', '2'); // Ошибка: string не может быть присвоен number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `divide` определена как анонимная функция.\n- Неправильные типы вызывают ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Работа с типами функций"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы функций используются в различных сценариях в реальных проектах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Практический пример\ninterface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\ntype ProductFilter = (products: Product[], minPrice: number) => Product[];\n\nconst filterExpensive: ProductFilter = (products, minPrice) => {\n  return products.filter(product => product.price > minPrice);\n};\n\nlet products: Product[] = [\n  { id: 1, name: 'Телефон', price: 500 },\n  { id: 2, name: 'Ноутбук', price: 1000 },\n  { id: 3, name: 'Планшет', price: 300 },\n];\n\nconsole.log(filterExpensive(products, 500)); // [{ id: 2, name: 'Ноутбук', price: 1000 }]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `ProductFilter` определяет структуру функции.\n- `filterExpensive` фильтрует продукты по цене.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы функций повышают безопасность кода, но требуется осторожность:\n- Избегайте неправильных присвоений типов.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\nfunction safeAdd(a: number, b: number): number {\n  return a + b;\n}\n\nconsole.log(safeAdd(5, 3)); // 8\n// safeAdd('5', '3'); // Ошибка: string не может быть присвоен number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `safeAdd` работает с правильными типами.\n- Неправильное присвоение типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet unsafe: any = (a, b) => a + b;\nconsole.log(unsafe('Привет', 42)); // Привет42 (небезопасно, может вызвать ошибки во время выполнения)\n\n// Правильный подход\nlet safe: (a: number, b: number) => number = (a, b) => a + b;\nconsole.log(safe(5, 3)); // 8\n// safe('5', '3'); // Ошибка: string не может быть присвоен number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Тип функции обеспечивает безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Типы функций широко используются в реальных проектах:\n- **Обработка данных**: Фильтрация, преобразование или вычисление данных.\n- **Callback-функции**: Обработчики событий или асинхронные операции.\n- **Вызовы API**: Обработка типизированных данных с серверов.\n- **Утилитарные функции**: Многоразовые функции.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface User {\n  id: number;\n  name: string;\n}\n\ntype UserFormatter = (user: User) => string;\n\nconst formatUser: UserFormatter = (user) => {\n  return `ID: ${user.id}, Имя: ${user.name}`;\n};\n\nlet user: User = { id: 1, name: 'Алиса' };\nconsole.log(formatUser(user)); // ID: 1, Имя: Алиса\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `UserFormatter` определяет структуру функции.\n- `formatUser` форматирует данные пользователя.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте точные типы. Избегайте `any` и предпочитайте конкретные типы. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо типов функций можно использовать функции JavaScript, но типы TypeScript обеспечивают лучшую безопасность и читаемость.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример типов функций для самостоятельного тестирования\ntype Greeter = (name: string, greeting?: string) => string;\n\nconst greet: Greeter = (name, greeting = 'Привет') => {\n  return `${greeting}, ${name}!`;\n};\n\nconsole.log(greet('Джон')); // Привет, Джон!\nconsole.log(greet('Ева', 'Хей')); // Хей, Ева!\n"
+      }
+    ]
+  }
+}

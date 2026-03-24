@@ -23,26 +23,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Get Azərbaycan vaxtı ilə bugünkü gün
+    // OPTIMIZED: Get Azərbaycan vaxtı ilə bugünkü gün (removed debug logging)
     const now = new Date();
-    const azerbaijanTime = new Date(now.getTime() + (4 * 60 * 60 * 1000)); // UTC+4
+    const azerbaijanTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Baku"}));
     const today = new Date(azerbaijanTime.getFullYear(), azerbaijanTime.getMonth(), azerbaijanTime.getDate());
     
-    // Son 7 günü hesabla (bugünkü gün də daxil olmaqla)
     const endDate = new Date(today);
     const startDate = new Date(today);
-    startDate.setDate(startDate.getDate() - 6); // 7 gün əvvəl
-
-    console.log('Calendar date range:', {
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      today: today.toISOString(),
-      azerbaijanTime: azerbaijanTime.toISOString()
-    });
+    startDate.setDate(startDate.getDate() - 6);
 
     // Initialize variables for calendar data
-    let dailyActivities = [];
-    let detailedActivities = [];
+    let dailyActivities: any[] = [];
+    let detailedActivities: any[] = [];
 
     // Try to get activity tracking data - use try/catch for new tables
     try {
@@ -89,7 +81,7 @@ export async function GET(request: NextRequest) {
         detailedActivities = [];
       }
     } catch (activityError) {
-      console.log("Activity tracking not available yet:", activityError.message);
+      console.log("Activity tracking not available yet:", activityError instanceof Error ? activityError.message : 'Unknown error');
       // Use empty arrays when activity tracking tables are not available
       dailyActivities = [];
       detailedActivities = [];
@@ -103,13 +95,13 @@ export async function GET(request: NextRequest) {
       // Azərbaycan vaxtı ilə tarix formatı
       const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
       
-      const dayActivity = dailyActivities.find(activity => {
+      const dayActivity = dailyActivities.find((activity: any) => {
         const activityDate = new Date(activity.date);
         const activityDateStr = `${activityDate.getFullYear()}-${String(activityDate.getMonth() + 1).padStart(2, '0')}-${String(activityDate.getDate()).padStart(2, '0')}`;
         return activityDateStr === dateStr;
       });
 
-      const dayActivities = detailedActivities.filter(activity => {
+      const dayActivities = detailedActivities.filter((activity: any) => {
         const activityDate = new Date(activity.timestamp);
         const activityDateStr = `${activityDate.getFullYear()}-${String(activityDate.getMonth() + 1).padStart(2, '0')}-${String(activityDate.getDate()).padStart(2, '0')}`;
         return activityDateStr === dateStr;
@@ -125,7 +117,7 @@ export async function GET(request: NextRequest) {
         quizzesTaken: dayActivity?.quizzesTaken || 0,
         exercisesSolved: dayActivity?.exercisesSolved || 0,
         pointsEarned: dayActivity?.pointsEarned || 0,
-        activities: dayActivities.map(activity => ({
+        activities: dayActivities.map((activity: any) => ({
           type: activity.type.toLowerCase(),
           description: activity.description,
           time: activity.timestamp.toLocaleTimeString('en-US', { 
@@ -141,7 +133,7 @@ export async function GET(request: NextRequest) {
 
     // Get weekly summary (last 7 days)
     const weeklyStats = dailyActivities.reduce(
-      (acc, day) => ({
+      (acc: any, day: any) => ({
         totalLoginDays: acc.totalLoginDays + (day.loginCount > 0 ? 1 : 0),
         totalStudyTimeHours: acc.totalStudyTimeHours + Math.floor(day.studyTime / 3600),
         totalLessonsViewed: acc.totalLessonsViewed + day.lessonsViewed,
@@ -161,11 +153,11 @@ export async function GET(request: NextRequest) {
 
     // Calculate current streak using Azərbaycan vaxtı
     let currentStreak = 0;
-    let checkDate = new Date(today);
+    const checkDate = new Date(today);
     
     while (checkDate >= startDate && dailyActivities.length > 0) {
       const dateStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(checkDate.getDate()).padStart(2, '0')}`;
-      const dayActivity = dailyActivities.find(activity => {
+      const dayActivity = dailyActivities.find((activity: any) => {
         const activityDate = new Date(activity.date);
         const activityDateStr = `${activityDate.getFullYear()}-${String(activityDate.getMonth() + 1).padStart(2, '0')}-${String(activityDate.getDate()).padStart(2, '0')}`;
         return activityDateStr === dateStr;
@@ -179,15 +171,18 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    // OPTIMIZED: Add caching headers (30 seconds cache)
+    const response = NextResponse.json({
       year,
       month,
       calendarData,
-      weeklyStats: {
+      monthlyStats: {
         ...weeklyStats,
         currentStreak
       }
     });
+    response.headers.set('Cache-Control', 'private, max-age=30, stale-while-revalidate=60');
+    return response;
 
   } catch (error) {
     console.error("Error fetching calendar data:", error);

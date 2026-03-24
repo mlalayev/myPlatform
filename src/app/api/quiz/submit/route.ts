@@ -38,5 +38,24 @@ export async function POST(req: Request) {
   // Debug log after creating submission
   console.log('Created submission:', submission);
 
+  // Log activity for exercise submission
+  try {
+    await prisma.userActivity.create({
+      data: {
+        userId: user.id,
+        type: score > 0 ? "EXERCISE_SOLVE" : "EXERCISE_SUBMIT",
+        description: `Submitted solution for exercise ${quizId}`,
+        metadata: { 
+          exerciseId: quizId,
+          score: score,
+          hasFailedCases: answers.failedCases && answers.failedCases.length > 0
+        }
+      }
+    });
+    console.log('Activity logged successfully');
+  } catch (activityError) {
+    console.error('Failed to log activity:', activityError);
+  }
+
   return NextResponse.json({ success: true, submission });
 } 

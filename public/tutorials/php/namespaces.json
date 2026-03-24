@@ -1,0 +1,381 @@
+{
+  "id": "namespaces",
+  "az": {
+    "title": "Ad Məkanları",
+    "icon": "FiFolder",
+    "language": "php",
+    "description": "PHP-də ad məkanları və avtomatik yükləmə haqqında məlumat.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də Ad Məkanları Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ad məkanları (namespaces) PHP-də sinifləri, funksiyaları və konstantaları mütəşəkkil şəkildə qruplaşdırmaq üçün istifadə olunur. Onlar böyük layihələrdə eyni adlı sinif və ya funksiyaların toqquşmasının (conflict) qarşısını alır. Ad məkanları kodun oxunaqlığını və təkrar istifadəsini artırır. Məsələn, iki fərqli kitabxana eyni adlı sinifə malik ola bilər, amma ad məkanları sayəsində bu siniflər bir-birindən ayrıla bilər. Avtomatik yükləmə (autoloading) isə siniflərin istifadə edilməzdən əvvəl avtomatik olaraq yüklənməsini təmin edir, bu da `require` və ya `include` ilə əl ilə fayl yükləmə ehtiyacını aradan qaldırır. Bu JSON faylda ad məkanlarının sintaksisi, istifadə ssenariləri, avtomatik yükləmə mexanizmləri, praktik nümunələr və səhvlərdən qaçınma yolları çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Ad Məkanlarının Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ad məkanları `namespace` açar sözü ilə təyin edilir və faylın əvvəlində yerləşdirilir. Ad məkanları iyerarxik ola bilər, alt məkanlar `\\` ilə ayrılır. Siniflərə, funksiyalara və konstantalara ad məkanı daxilində istinad etmək üçün tam yol (fully qualified name) və ya `use` açar sözü istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Ad məkanı nümunəsi\nnamespace App\\Models;\n\nclass User {\n  public function getInfo() {\n    return 'Bu bir istifadəçi modelidir.';\n  }\n}\n\nnamespace App\\Controllers;\n\nclass UserController {\n  public function show() {\n    $user = new \\App\\Models\\User();\n    return $user->getInfo();\n  }\n}\n\n$controller = new UserController();\necho $controller->show(); // Çıxış: Bu bir istifadəçi modelidir.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `App\\Models` və `App\\Controllers` ad məkanları təyin edilib.\n- `User` sinfi `App\\Models` ad məkanında, `UserController` sinfi isə `App\\Controllers` ad məkanındadır.\n- `\\App\\Models\\User` tam yolu ilə sinfə istinad edilir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Use Açar Sözü"
+      },
+      {
+        "type": "paragraph",
+        "text": "`use` açar sözü ad məkanlarından sinifləri, funksiyaları və ya konstantaları idxal etmək üçün istifadə olunur. Bu, uzun ad məkanı yollarını qısaltmağa imkan verir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Use açar sözü ilə idxal\nnamespace App\\Controllers;\n\nuse App\\Models\\User;\n\nclass UserController {\n  public function show() {\n    $user = new User();\n    return $user->getInfo();\n  }\n}\n\nnamespace App\\Models;\n\nclass User {\n  public function getInfo() {\n    return 'Bu bir istifadəçi modelidir.';\n  }\n}\n\n$controller = new \\App\\Controllers\\UserController();\necho $controller->show(); // Çıxış: Bu bir istifadəçi modelidir.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `use App\\Models\\User;` ilə `User` sinfi idxal edilir.\n- `UserController` sinfi artıq tam yolu yazmadan `User` sinfinə müraciət edə bilir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Avtomatik Yükləmə (Autoloading)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Avtomatik yükləmə siniflərin istifadə edilməzdən əvvəl avtomatik yüklənməsini təmin edir. PHP-də bu, `spl_autoload_register` funksiyası ilə həyata keçirilir. Bu mexanizm `require` və ya `include` ilə əl ilə fayl yükləmə ehtiyacını aradan qaldırır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Avtomatik yükləmə nümunəsi\nspl_autoload_register(function ($className) {\n  $file = str_replace('\\\\', '/', $className) . '.php';\n  if (file_exists($file)) {\n    require $file;\n  }\n});\n\n// App/Models/User.php faylında:\n// namespace App\\Models;\n// class User {\n//   public function getInfo() {\n//     return 'Bu bir istifadəçi modelidir.';\n//   }\n// }\n\n// App/Controllers/UserController.php faylında:\n// namespace App\\Controllers;\n// use App\\Models\\User;\n// class UserController {\n//   public function show() {\n//     $user = new User();\n//     return $user->getInfo();\n//   }\n// }\n\n$controller = new App\\Controllers\\UserController();\necho $controller->show(); // Çıxış: Bu bir istifadəçi modelidir.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `spl_autoload_register` ad məkanına əsasən faylı avtomatik yükləyir.\n- `App\\Models\\User` və `App\\Controllers\\UserController` sinifləri müvafiq fayllardan yüklənir.\n- Qeyd: Bu nümunəni sınaqdan keçirmək üçün `App/Models/User.php` və `App/Controllers/UserController.php` fayllarını müvafiq qovluqlarda yaratmalısınız.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Ad Məkanları və Avtomatik Yükləmənin Praktik İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ad məkanları və avtomatik yükləmə böyük layihələrdə kodun strukturlaşdırılmasını asanlaşdırır. Məsələn, bir e-ticarət sistemində məhsullar və sifarişlər ayrı ad məkanlarında yerləşə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// E-ticarət sistemi nümunəsi\nspl_autoload_register(function ($className) {\n  $file = str_replace('\\\\', '/', $className) . '.php';\n  if (file_exists($file)) {\n    require $file;\n  }\n});\n\n// Shop/Products/Product.php faylında:\n// namespace Shop\\Products;\n// class Product {\n//   private $name;\n//   public function __construct($name) {\n//     $this->name = $name;\n//   }\n//   public function getName() {\n//     return $this->name;\n//   }\n// }\n\n// Shop/Orders/Order.php faylında:\n// namespace Shop\\Orders;\n// use Shop\\Products\\Product;\n// class Order {\n//   private $product;\n//   public function __construct(Product $product) {\n//     $this->product = $product;\n//   }\n//   public function getDetails() {\n//     return 'Sifariş: ' . $this->product->getName();\n//   }\n// }\n\n$product = new Shop\\Products\\Product('Smartfon');\n$order = new Shop\\Orders\\Order($product);\necho $order->getDetails(); // Çıxış: Sifariş: Smartfon\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Shop\\Products` və `Shop\\Orders` ad məkanları məhsul və sifariş siniflərini qruplaşdırır.\n- Avtomatik yükləmə faylları dinamik şəkildə yükləyir.\n- Qeyd: Bu nümunəni sınaqdan keçirmək üçün `Shop/Products/Product.php` və `Shop/Orders/Order.php` fayllarını müvafiq qovluqlarda yaratmalısınız.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükələr və Tövsiyələr"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Təhlükələr**: Ad məkanlarının yanlış təyin edilməsi və ya fayl yollarının səhv olması avtomatik yükləmə səhvlərinə səbəb ola bilər. Eyni ad məkanında eyni adlı siniflər toqquşmalara yol aça bilər. Çox mürəkkəb ad məkanı strukturları kodu çətinləşdirə bilər.\n- **Tövsiyələr**: Ad məkanlarını məntiqli və sadə saxlayın. Avtomatik yükləmə üçün standart PSR-4 strukturundan istifadə edin. Composer kimi alətlərdən faydalanın (https://getcomposer.org/). PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/) faydalanın. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\nnamespace App;\n\nclass User {\n  public function getInfo() {\n    return 'Bu istifadəçi modelidir.';\n  }\n}\n\n// Səhv: Yanlış ad məkanı istifadəsi\n$user = new \\WrongNamespace\\User(); // Fatal error: Class not found\n\n// Düzgün yol\n$user = new \\App\\User();\necho $user->getInfo(); // Çıxış: Bu istifadəçi modelidir.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Yanlış ad məkanı (`WrongNamespace`) istifadəsi sinfin tapılmamasına səbəb olur.\n- Düzgün ad məkanı (`App`) ilə sinf uğurla çağırılır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Kitabxana İdarəetmə Sistemi"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Kitabxana idarəetmə sistemi\nspl_autoload_register(function ($className) {\n  $file = str_replace('\\\\', '/', $className) . '.php';\n  if (file_exists($file)) {\n    require $file;\n  }\n});\n\n// Library/Books/Book.php faylında:\n// namespace Library\\Books;\n// class Book {\n//   private $title;\n//   public function __construct($title) {\n//     $this->title = $title;\n//   }\n//   public function getTitle() {\n//     return $this->title;\n//   }\n// }\n\n// Library/Members/Member.php faylında:\n// namespace Library\\Members;\n// use Library\\Books\\Book;\n// class Member {\n//   private $name;\n//   private $book;\n//   public function __construct($name, Book $book) {\n//     $this->name = $name;\n//     $this->book = $book;\n//   }\n//   public function getInfo() {\n//     return $this->name . ' oxuyur: ' . $this->book->getTitle();\n//   }\n// }\n\n$book = new Library\\Books\\Book('PHP Əsasları');\n$member = new Library\\Members\\Member('Ali', $book);\necho $member->getInfo(); // Çıxış: Ali oxuyur: PHP Əsasları\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Library\\Books` və `Library\\Members` ad məkanları kitab və üzv siniflərini qruplaşdırır.\n- Avtomatik yükləmə faylları dinamik şəkildə yükləyir.\n- Qeyd: Bu nümunəni sınaqdan keçirmək üçün `Library/Books/Book.php` və `Library/Members/Member.php` fayllarını müvafiq qovluqlarda yaratmalısınız.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün ad məkanları\nnamespace App\\Models;\n\nclass Product {\n  private $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n  }\n\n  public function getName() {\n    return $this->name;\n  }\n}\n\nnamespace App\\Controllers;\n\nuse App\\Models\\Product;\n\nclass ProductController {\n  public function show() {\n    $product = new Product('Laptop');\n    return 'Məhsul: ' . $product->getName();\n  }\n}\n\n$controller = new ProductController();\necho $controller->show(); // Çıxış: Məhsul: Laptop\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Namespaces",
+    "icon": "FiFolder",
+    "language": "php",
+    "description": "Information about namespaces and autoloading in PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What are Namespaces in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Namespaces in PHP are used to organize classes, functions, and constants, preventing naming conflicts in large projects. They group related code and allow the same name to be used for different classes or functions in different namespaces. For example, two libraries can have classes with the same name but different namespaces. Autoloading enables classes to be loaded automatically when needed, eliminating the need for manual `require` or `include` statements. This JSON file explains the syntax of namespaces, their use cases, autoloading mechanisms, practical examples, and how to avoid common mistakes in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Namespace Syntax"
+      },
+      {
+        "type": "paragraph",
+        "text": "Namespaces are defined using the `namespace` keyword at the beginning of a file. They can be hierarchical, with sub-namespaces separated by `\\`. Classes, functions, or constants are referenced using their fully qualified name or imported with the `use` keyword.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Namespace example\nnamespace App\\Models;\n\nclass User {\n  public function getInfo() {\n    return 'This is a user model.';\n  }\n}\n\nnamespace App\\Controllers;\n\nclass UserController {\n  public function show() {\n    $user = new \\App\\Models\\User();\n    return $user->getInfo();\n  }\n}\n\n$controller = new UserController();\necho $controller->show(); // Output: This is a user model.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `App\\Models` and `App\\Controllers` are defined namespaces.\n- The `User` class is in `App\\Models`, and `UserController` is in `App\\Controllers`.\n- `\\App\\Models\\User` uses the fully qualified name to reference the class.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Use Keyword"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `use` keyword imports classes, functions, or constants from a namespace, shortening long namespace paths.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Importing with use keyword\nnamespace App\\Controllers;\n\nuse App\\Models\\User;\n\nclass UserController {\n  public function show() {\n    $user = new User();\n    return $user->getInfo();\n  }\n}\n\nnamespace App\\Models;\n\nclass User {\n  public function getInfo() {\n    return 'This is a user model.';\n  }\n}\n\n$controller = new \\App\\Controllers\\UserController();\necho $controller->show(); // Output: This is a user model.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `use App\\Models\\User;` imports the `User` class.\n- `UserController` can reference `User` without the full namespace path.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Autoloading"
+      },
+      {
+        "type": "paragraph",
+        "text": "Autoloading automatically loads classes when they are needed, eliminating manual `require` or `include` statements. In PHP, this is achieved using `spl_autoload_register`.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Autoloading example\nspl_autoload_register(function ($className) {\n  $file = str_replace('\\\\', '/', $className) . '.php';\n  if (file_exists($file)) {\n    require $file;\n  }\n});\n\n// App/Models/User.php file:\n// namespace App\\Models;\n// class User {\n//   public function getInfo() {\n//     return 'This is a user model.';\n//   }\n// }\n\n// App/Controllers/UserController.php file:\n// namespace App\\Controllers;\n// use App\\Models\\User;\n// class UserController {\n//   public function show() {\n//     $user = new User();\n//     return $user->getInfo();\n//   }\n// }\n\n$controller = new App\\Controllers\\UserController();\necho $controller->show(); // Output: This is a user model.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `spl_autoload_register` loads files based on the namespace.\n- `App\\Models\\User` and `App\\Controllers\\UserController` are loaded from their respective files.\n- Note: To test this example, create `App/Models/User.php` and `App/Controllers/UserController.php` files in the appropriate directories.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Use of Namespaces and Autoloading"
+      },
+      {
+        "type": "paragraph",
+        "text": "Namespaces and autoloading simplify code organization in large projects. For example, in an e-commerce system, products and orders can be grouped in separate namespaces.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// E-commerce system example\nspl_autoload_register(function ($className) {\n  $file = str_replace('\\\\', '/', $className) . '.php';\n  if (file_exists($file)) {\n    require $file;\n  }\n});\n\n// Shop/Products/Product.php file:\n// namespace Shop\\Products;\n// class Product {\n//   private $name;\n//   public function __construct($name) {\n//     $this->name = $name;\n//   }\n//   public function getName() {\n//     return $this->name;\n//   }\n// }\n\n// Shop/Orders/Order.php file:\n// namespace Shop\\Orders;\n// use Shop\\Products\\Product;\n// class Order {\n//   private $product;\n//   public function __construct(Product $product) {\n//     $this->product = $product;\n//   }\n//   public function getDetails() {\n//     return 'Order: ' . $this->product->getName();\n//   }\n// }\n\n$product = new Shop\\Products\\Product('Smartphone');\n$order = new Shop\\Orders\\Order($product);\necho $order->getDetails(); // Output: Order: Smartphone\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Shop\\Products` and `Shop\\Orders` namespaces organize product and order classes.\n- Autoloading dynamically loads the files.\n- Note: To test this example, create `Shop/Products/Product.php` and `Shop/Orders/Order.php` files in the appropriate directories.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Dangers and Recommendations"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Dangers**: Incorrect namespace definitions or file paths can cause autoloading errors. Using the same class name in the same namespace can lead to conflicts. Overly complex namespace structures can make code harder to maintain.\n- **Recommendations**: Keep namespaces logical and simple. Use the PSR-4 standard for autoloading. Consider tools like Composer (https://getcomposer.org/). Refer to PHP’s official documentation (https://www.php.net/manual/en/). You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\nnamespace App;\n\nclass User {\n  public function getInfo() {\n    return 'This is a user model.';\n  }\n}\n\n// Error: Incorrect namespace usage\n$user = new \\WrongNamespace\\User(); // Fatal error: Class not found\n\n// Correct approach\n$user = new \\App\\User();\necho $user->getInfo(); // Output: This is a user model.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Using an incorrect namespace (`WrongNamespace`) causes a class not found error.\n- The correct namespace (`App`) successfully references the class.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Library Management System"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Library management system\nspl_autoload_register(function ($className) {\n  $file = str_replace('\\\\', '/', $className) . '.php';\n  if (file_exists($file)) {\n    require $file;\n  }\n});\n\n// Library/Books/Book.php file:\n// namespace Library\\Books;\n// class Book {\n//   private $title;\n//   public function __construct($title) {\n//     $this->title = $title;\n//   }\n//   public function getTitle() {\n//     return $this->title;\n//   }\n// }\n\n// Library/Members/Member.php file:\n// namespace Library\\Members;\n// use Library\\Books\\Book;\n// class Member {\n//   private $name;\n//   private $book;\n//   public function __construct($name, Book $book) {\n//     $this->name = $name;\n//     $this->book = $book;\n//   }\n//   public function getInfo() {\n//     return $this->name . ' is reading: ' . $this->book->getTitle();\n//   }\n// }\n\n$book = new Library\\Books\\Book('PHP Basics');\n$member = new Library\\Members\\Member('Alice', $book);\necho $member->getInfo(); // Output: Alice is reading: PHP Basics\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Library\\Books` and `Library\\Members` namespaces organize book and member classes.\n- Autoloading dynamically loads the files.\n- Note: To test this example, create `Library/Books/Book.php` and `Library/Members/Member.php` files in the appropriate directories.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself namespaces\nnamespace App\\Models;\n\nclass Product {\n  private $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n  }\n\n  public function getName() {\n    return $this->name;\n  }\n}\n\nnamespace App\\Controllers;\n\nuse App\\Models\\Product;\n\nclass ProductController {\n  public function show() {\n    $product = new Product('Laptop');\n    return 'Product: ' . $product->getName();\n  }\n}\n\n$controller = new ProductController();\necho $controller->show(); // Output: Product: Laptop\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Пространства имен",
+    "icon": "FiFolder",
+    "language": "php",
+    "description": "Информация о пространствах имен и автозагрузке в PHP.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое пространства имен в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Пространства имен (namespaces) в PHP используются для организации классов, функций и констант, предотвращая конфликты имен в больших проектах. Они группируют связанный код и позволяют использовать одинаковые имена для разных классов или функций в разных пространствах имен. Например, две библиотеки могут иметь классы с одинаковыми именами, но в разных пространствах имен. Автозагрузка (autoloading) позволяет автоматически загружать классы при их использовании, устраняя необходимость в ручных операторах `require` или `include`. Этот JSON-файл подробно объясняет синтаксис пространств имен, их использование, механизмы автозагрузки, практические примеры и способы избежания ошибок. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис пространств имен"
+      },
+      {
+        "type": "paragraph",
+        "text": "Пространства имен определяются с помощью ключевого слова `namespace` в начале файла. Они могут быть иерархическими, с подпространствами, разделенными `\\`. Классы, функции или константы ссылаются по их полному имени (fully qualified name) или импортируются с помощью ключевого слова `use`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример пространства имен\nnamespace App\\Models;\n\nclass User {\n  public function getInfo() {\n    return 'Это модель пользователя.';\n  }\n}\n\nnamespace App\\Controllers;\n\nclass UserController {\n  public function show() {\n    $user = new \\App\\Models\\User();\n    return $user->getInfo();\n  }\n}\n\n$controller = new UserController();\necho $controller->show(); // Вывод: Это модель пользователя.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Определены пространства имен `App\\Models` и `App\\Controllers`.\n- Класс `User` находится в `App\\Models`, а `UserController` — в `App\\Controllers`.\n- `\\App\\Models\\User` использует полное имя для ссылки на класс.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Ключевое слово Use"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ключевое слово `use` импортирует классы, функции или константы из пространства имен, сокращая длинные пути.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Импорт с помощью use\nnamespace App\\Controllers;\n\nuse App\\Models\\User;\n\nclass UserController {\n  public function show() {\n    $user = new User();\n    return $user->getInfo();\n  }\n}\n\nnamespace App\\Models;\n\nclass User {\n  public function getInfo() {\n    return 'Это модель пользователя.';\n  }\n}\n\n$controller = new \\App\\Controllers\\UserController();\necho $controller->show(); // Вывод: Это модель пользователя.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `use App\\Models\\User;` импортирует класс `User`.\n- `UserController` может ссылаться на `User` без полного пути.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Автозагрузка"
+      },
+      {
+        "type": "paragraph",
+        "text": "Автозагрузка автоматически загружает классы при их использовании, устраняя необходимость в ручных `require` или `include`. В PHP это достигается с помощью `spl_autoload_register`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример автозагрузки\nspl_autoload_register(function ($className) {\n  $file = str_replace('\\\\', '/', $className) . '.php';\n  if (file_exists($file)) {\n    require $file;\n  }\n});\n\n// App/Models/User.php file:\n// namespace App\\Models;\n// class User {\n//   public function getInfo() {\n//     return 'Это модель пользователя.';\n//   }\n// }\n\n// App/Controllers/UserController.php file:\n// namespace App\\Controllers;\n// use App\\Models\\User;\n// class UserController {\n//   public function show() {\n//     $user = new User();\n//     return $user->getInfo();\n//   }\n// }\n\n$controller = new App\\Controllers\\UserController();\necho $controller->show(); // Вывод: Это модель пользователя.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `spl_autoload_register` загружает файлы на основе пространства имен.\n- Классы `App\\Models\\User` и `App\\Controllers\\UserController` загружаются из соответствующих файлов.\n- Примечание: Для тестирования создайте файлы `App/Models/User.php` и `App/Controllers/UserController.php` в соответствующих директориях.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практическое использование пространств имен и автозагрузки"
+      },
+      {
+        "type": "paragraph",
+        "text": "Пространства имен и автозагрузка упрощают организацию кода в больших проектах. Например, в системе электронной коммерции продукты и заказы могут быть сгруппированы в разных пространствах имен.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример системы электронной коммерции\nspl_autoload_register(function ($className) {\n  $file = str_replace('\\\\', '/', $className) . '.php';\n  if (file_exists($file)) {\n    require $file;\n  }\n});\n\n// Shop/Products/Product.php file:\n// namespace Shop\\Products;\n// class Product {\n//   private $name;\n//   public function __construct($name) {\n//     $this->name = $name;\n//   }\n//   public function getName() {\n//     return $this->name;\n//   }\n// }\n\n// Shop/Orders/Order.php file:\n// namespace Shop\\Orders;\n// use Shop\\Products\\Product;\n// class Order {\n//   private $product;\n//   public function __construct(Product $product) {\n//     $this->product = $product;\n//   }\n//   public function getDetails() {\n//     return 'Заказ: ' . $this->product->getName();\n//   }\n// }\n\n$product = new Shop\\Products\\Product('Смартфон');\n$order = new Shop\\Orders\\Order($product);\necho $order->getDetails(); // Вывод: Заказ: Смартфон\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Пространства имен `Shop\\Products` и `Shop\\Orders` группируют классы продуктов и заказов.\n- Автозагрузка динамически загружает файлы.\n- Примечание: Для тестирования создайте файлы `Shop/Products/Product.php` и `Shop/Orders/Order.php` в соответствующих директориях.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Опасности и рекомендации"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Опасности**: Неправильное определение пространств имен или путей к файлам может вызвать ошибки автозагрузки. Использование одинаковых имен классов в одном пространстве имен может привести к конфликтам. Слишком сложные структуры пространств имен усложняют поддержку кода.\n- **Рекомендации**: Делайте пространства имен логичными и простыми. Используйте стандарт PSR-4 для автозагрузки. Рассмотрите использование инструментов, таких как Composer (https://getcomposer.org/). Обратитесь к официальной документации PHP (https://www.php.net/manual/en/). Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\nnamespace App;\n\nclass User {\n  public function getInfo() {\n    return 'Это модель пользователя.';\n  }\n}\n\n// Ошибка: Неправильное пространство имен\n$user = new \\WrongNamespace\\User(); // Fatal error: Class not found\n\n// Правильный подход\n$user = new \\App\\User();\necho $user->getInfo(); // Вывод: Это модель пользователя.\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Использование неправильного пространства имен (`WrongNamespace`) вызывает ошибку \"класс не найден\".\n- Правильное пространство имен (`App`) успешно ссылается на класс.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Система управления библиотекой"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Система управления библиотекой\nspl_autoload_register(function ($className) {\n  $file = str_replace('\\\\', '/', $className) . '.php';\n  if (file_exists($file)) {\n    require $file;\n  }\n});\n\n// Library/Books/Book.php file:\n// namespace Library\\Books;\n// class Book {\n//   private $title;\n//   public function __construct($title) {\n//     $this->title = $title;\n//   }\n//   public function getTitle() {\n//     return $this->title;\n//   }\n// }\n\n// Library/Members/Member.php file:\n// namespace Library\\Members;\n// use Library\\Books\\Book;\n// class Member {\n//   private $name;\n//   private $book;\n//   public function __construct($name, Book $book) {\n//     $this->name = $name;\n//     $this->book = $book;\n//   }\n//   public function getInfo() {\n//     return $this->name . ' читает: ' . $this->book->getTitle();\n//   }\n// }\n\n$book = new Library\\Books\\Book('Основы PHP');\n$member = new Library\\Members\\Member('Алиса', $book);\necho $member->getInfo(); // Вывод: Алиса читает: Основы PHP\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Пространства имен `Library\\Books` и `Library\\Members` группируют классы книг и участников.\n- Автозагрузка динамически загружает файлы.\n- Примечание: Для тестирования создайте файлы `Library/Books/Book.php` и `Library/Members/Member.php` в соответствующих директориях.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Попробуйте сами пространства имен\nnamespace App\\Models;\n\nclass Product {\n  private $name;\n\n  public function __construct($name) {\n    $this->name = $name;\n  }\n\n  public function getName() {\n    return $this->name;\n  }\n}\n\nnamespace App\\Controllers;\n\nuse App\\Models\\Product;\n\nclass ProductController {\n  public function show() {\n    $product = new Product('Laptop');\n    return 'Продукт: ' . $product->getName();\n  }\n}\n\n$controller = new ProductController();\necho $controller->show(); // Вывод: Продукт: Laptop\n?>"
+      }
+    ]
+  }
+}

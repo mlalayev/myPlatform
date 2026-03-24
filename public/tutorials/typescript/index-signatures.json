@@ -1,0 +1,621 @@
+{
+  "id": "index-signatures",
+  "az": {
+    "title": "İndeks İmzaları",
+    "icon": "FiHash",
+    "language": "typescript",
+    "description": "Dinamik xüsusiyyət adları ilə obyektlər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "İndeks İmzaları Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də indeks imzaları (index signatures) obyektlərdə dinamik xüsusiyyət adlarını təyin etmək üçün istifadə olunur. Bu mexanizm, obyektin hansı xüsusiyyətlərə malik ola biləcəyini bilmədiyiniz zaman, lakin onların tiplərini təyin etmək istədiyiniz hallarda faydalıdır. İndeks imzaları `[key: T]: U` sintaksisi ilə təyin edilir, burada `T` adətən `string` və ya `number` tipində olur, `U` isə xüsusiyyətlərin dəyər tipidir. Məsələn, bir obyektin istənilən string açarına malik xüsusiyyətləri ola bilər və bu xüsusiyyətlərin dəyərləri `number` tipindədirsə, indeks imzası bunu təmin edir. JavaScript-də obyektlər dinamik olduğundan, xüsusiyyətlərin tipləri təyin edilmir və bu, runtime səhvlərinə səbəb ola bilər. TypeScript-də indeks imzaları kompilyasiya zamanı tip təhlükəsizliyini təmin edir. Bu JSON faylda indeks imzalarının tərifi, istifadə məqsədləri, JavaScript ilə fərqləri, tip aliasları ilə fərqləri, sintaksisi, interfeyslərdə istifadəsi, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "İndeks İmzalarının Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeks imzaları TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Dinamik xüsusiyyətlər**: Obyektin bilinməyən açar adları ilə xüsusiyyətlərini təyin etmək.\n- **Tip təhlükəsizliyi**: Dinamik xüsusiyyətlərin dəyər tiplərini yoxlamaq.\n- **Oxunaqlılıq**: Kodun strukturunu və məqsədini aydın ifadə etmək.\n- **Real dünya ssenariləri**: API cavabları, JSON obyektləri və ya dinamik məlumat strukturları kimi hallarda çeviklik təmin etmək.\n- **Çeviklik**: Müxtəlif açar adları ilə eyni tipdə xüsusiyyətləri dəstəkləmək.\nJavaScript-də obyektlər dinamik olduğundan, xüsusiyyətlərin tipləri təyin edilmir və bu, səhvlərə yol aça bilər. TypeScript-də indeks imzaları bu problemi həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "İndeks İmzalarının Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeks imzaları interfeyslərdə və ya tip aliaslarında `[key: T]: U` sintaksisi ilə təyin edilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// İndeks imzalarının sintaksisi\ninterface Dictionary {\n  [key: string]: number;\n}\n\nlet scores: Dictionary = {\n  math: 90,\n  science: 85\n};\n\nconsole.log(scores); // { math: 90, science: 85 }\nscores.history = 88; // Keçərlidir\nconsole.log(scores); // { math: 90, science: 85, history: 88 }\n// scores.math = '90'; // Xəta: string tipi number tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Dictionary` interfeysi istənilən string açarına malik xüsusiyyətləri `number` tipində təyin edir.\n- `scores` obyektinə yeni xüsusiyyətlər əlavə etmək mümkündür, lakin dəyərlər `number` olmalıdır.\n- Yanlış tipdə dəyər təyin etmək kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "String və Number İndeks İmzaları"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeks imzaları `string` və ya `number` tipli açarlarla istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// String və number indeks imzaları\ninterface StringMap {\n  [key: string]: string;\n}\n\ninterface NumberMap {\n  [index: number]: string;\n}\n\nlet stringMap: StringMap = {\n  name: 'Ali',\n  city: 'Baku'\n};\n\nlet numberMap: NumberMap = {\n  0: 'zero',\n  1: 'one'\n};\n\nconsole.log(stringMap); // { name: 'Ali', city: 'Baku' }\nconsole.log(numberMap); // { 0: 'zero', 1: 'one' }\nstringMap.country = 'Azerbaijan'; // Keçərlidir\nnumberMap[2] = 'two'; // Keçərlidir\n// stringMap.age = 25; // Xəta: number tipi string tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `StringMap` string açarları ilə string dəyərləri dəstəkləyir.\n- `NumberMap` number açarları ilə string dəyərləri dəstəkləyir.\n- Yanlış tipdə dəyər təyin etmək kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "İndeks İmzaları ilə Tip Aliaslarının Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeks imzaları həm interfeyslərdə, həm də tip aliaslarında istifadə oluna bilər, lakin fərqlər var:\n- **İnterfeyslər**: Obyekt tipləri üçün istifadə olunur və siniflər tərəfindən `implements` ilə icra edilə bilər.\n- **Tip aliasları**: Daha çevikdir, primitiv tiplər, union tipləri və intersection tipləri də daxil olmaqla istifadə edilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// İndeks imzaları ilə tip aliasları\ntype StringDictionary = {\n  [key: string]: string;\n};\n\ninterface NumberDictionary {\n  [key: number]: number;\n}\n\nlet stringDict: StringDictionary = { name: 'Ali', role: 'Developer' };\nlet numberDict: NumberDictionary = { 1: 100, 2: 200 };\n\nconsole.log(stringDict); // { name: 'Ali', role: 'Developer' }\nconsole.log(numberDict); // { 1: 100, 2: 200 }\nstringDict.status = 'Active'; // Keçərlidir\nnumberDict[3] = 300; // Keçərlidir\n// stringDict.age = 25; // Xəta: number tipi string tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `StringDictionary` tip aliası string açarları ilə string dəyərləri təyin edir.\n- `NumberDictionary` interfeysi number açarları ilə number dəyərləri təyin edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly İndeks İmzaları"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeks imzaları `readonly` açar sözü ilə birləşdirilə bilər ki, xüsusiyyətlər dəyişdirilə bilməsin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly indeks imzaları\ninterface ReadonlyDictionary {\n  readonly [key: string]: string;\n}\n\nlet dict: ReadonlyDictionary = {\n  name: 'Ali',\n  city: 'Baku'\n};\n\nconsole.log(dict); // { name: 'Ali', city: 'Baku' }\n// dict.name = 'Vəli'; // Xəta: name yalnız oxuna biləndir\n// dict.country = 'Azerbaijan'; // Xəta: country yalnız oxuna biləndir\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ReadonlyDictionary` interfeysində bütün xüsusiyyətlər `readonly` olaraq təyin edilib.\n- Xüsusiyyətlərə yeni dəyər təyin etmək və ya yeni xüsusiyyət əlavə etmək mümkün deyil.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "İndeks İmzaları ilə Optional Xüsusiyyətlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeks imzaları ilə optional xüsusiyyətlər birləşdirilə bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// İndeks imzaları ilə optional xüsusiyyətlər\ninterface User {\n  name: string;\n  [key: string]: string | number;\n}\n\nlet user: User = {\n  name: 'Ali',\n  age: 25,\n  city: 'Baku'\n};\n\nconsole.log(user); // { name: 'Ali', age: 25, city: 'Baku' }\nuser.country = 'Azerbaijan'; // Keçərlidir\n// user.status = true; // Xəta: boolean tipi string və ya number tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `User` interfeysində `name` məcburi, digər xüsusiyyətlər isə indeks imzası ilə dinamikdir.\n- Dinamik xüsusiyyətlərin dəyərləri `string` və ya `number` olmalıdır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiyalarda İndeks İmzaları"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeks imzaları funksiya parametrlərində və ya qaytarma tiplərində istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Funksiyalarda indeks imzaları\ninterface Settings {\n  [key: string]: string;\n}\n\nfunction printSettings(settings: Settings): string {\n  let result = '';\n  for (const key in settings) {\n    result += `${key}: ${settings[key]}, `;\n  }\n  return result;\n}\n\nlet settings: Settings = { theme: 'dark', language: 'en' };\nconsole.log(printSettings(settings)); // theme: dark, language: en, \nsettings.font = 'Arial'; // Keçərlidir\nconsole.log(printSettings(settings)); // theme: dark, language: en, font: Arial, \n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Settings` interfeysi string açarları ilə string dəyərləri təyin edir.\n- `printSettings` funksiyası dinamik xüsusiyyətləri oxuyur.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: İndeks İmzaları ilə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeks imzaları real layihələrdə müxtəlif ssenarilərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Praktik nümunə\ninterface ProductAttributes {\n  [key: string]: string | number;\n}\n\nfunction displayProductAttributes(attrs: ProductAttributes): string {\n  let result = '';\n  for (const key in attrs) {\n    result += `${key}: ${attrs[key]}, `;\n  }\n  return result;\n}\n\nlet product: ProductAttributes = {\n  name: 'Phone',\n  price: 1000,\n  brand: 'BrandX'\n};\n\nconsole.log(displayProductAttributes(product)); // name: Phone, price: 1000, brand: BrandX, \nproduct.color = 'Black'; // Keçərlidir\nconsole.log(displayProductAttributes(product)); // name: Phone, price: 1000, brand: BrandX, color: Black, \n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ProductAttributes` interfeysi dinamik xüsusiyyətləri `string` və ya `number` tipində təyin edir.\n- `displayProductAttributes` funksiyası dinamik xüsusiyyətləri oxuyur.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeks imzaları kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- İndeks imzalarının dəyər tiplərini dəqiq təyin edin.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\ninterface UserData {\n  [key: string]: string;\n}\n\nfunction getUserData(data: UserData, key: string): string {\n  return data[key] ?? 'Unknown';\n}\n\nlet user: UserData = { name: 'Ali', role: 'Developer' };\nconsole.log(getUserData(user, 'name')); // Ali\nconsole.log(getUserData(user, 'role')); // Developer\n// user.age = 25; // Xəta: number tipi string tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `UserData` interfeysi string açarları ilə string dəyərləri təyin edir.\n- Yanlış tipdə dəyər təyin etmək kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet unsafe: any = { name: 'Ali', age: 25 };\nconsole.log(unsafe.name, unsafe.age); // Ali, 25, lakin tip təhlükəsizliyi yoxdur\nunsafe.status = true; // Keçərlidir, lakin təhlükəsiz deyil\n\n// Düzgün yol\ninterface SafeDictionary {\n  [key: string]: string | number;\n}\n\nlet safe: SafeDictionary = { name: 'Ali', age: 25 };\nconsole.log(safe.name, safe.age); // Ali, 25\nsafe.city = 'Baku'; // Keçərlidir\n// safe.status = true; // Xəta: boolean tipi string və ya number tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime səhvlərinə səbəb ola bilər.\n- İndeks imzaları ilə tip təhlükəsizliyi təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "İndeks imzaları real layihələrdə geniş istifadə olunur:\n- **API cavabları**: Dinamik xüsusiyyətləri olan JSON məlumatlarını təyin etmək.\n- **Konfiqurasiya obyektləri**: Müxtəlif açar-dəyər cütləri ilə işləmək.\n- **Dinamik form məlumatları**: İstifadəçi formalarından gələn dinamik sahələri dəstəkləmək.\n- **Məlumat strukturları**: Müxtəlif xüsusiyyətləri olan obyektləri idarə etmək.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface ApiResponse {\n  id: number;\n  [key: string]: string | number;\n}\n\nfunction processApiResponse(response: ApiResponse): string {\n  let result = `ID: ${response.id}`;\n  for (const key in response) {\n    if (key !== 'id') {\n      result += `, ${key}: ${response[key]}`;\n    }\n  }\n  return result;\n}\n\nlet response: ApiResponse = {\n  id: 1,\n  name: 'ProductX',\n  price: 1000,\n  category: 'Electronics'\n};\n\nconsole.log(processApiResponse(response)); // ID: 1, name: ProductX, price: 1000, category: Electronics\nresponse.brand = 'BrandY'; // Keçərlidir\nconsole.log(processApiResponse(response)); // ID: 1, name: ProductX, price: 1000, category: Electronics, brand: BrandY\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ApiResponse` interfeysi `id` ilə yanaşı dinamik xüsusiyyətləri təyin edir.\n- `processApiResponse` funksiyası dinamik xüsusiyyətləri oxuyur.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: İndeks imzalarını dinamik xüsusiyyətlər və çevik məlumat strukturları üçün istifadə edin. Dəyər tiplərini dəqiq təyin edin. `any` əvəzinə dəqiq tipləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: İndeks imzaları əvəzinə `Map` və ya `Record` utility tipləri istifadə edilə bilər, lakin indeks imzaları daha oxunaqlı və çevikdir.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün indeks imzaları nümunəsi\ninterface Dictionary {\n  [key: string]: string;\n}\n\nconst dict: Dictionary = { name: 'Məmməd', city: 'Baku' };\nconsole.log(dict.name, dict.city); // Məmməd, Baku\ndict.role = 'Developer'; // Keçərlidir\nconsole.log(dict.role); // Developer\n// dict.age = 25; // Xəta: number tipi string tipinə uyğun deyil\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Index Signatures",
+    "icon": "FiHash",
+    "language": "typescript",
+    "description": "Objects with dynamic property names.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Index Signatures?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, index signatures allow you to define objects with dynamic property names. This is useful when you don’t know the property names in advance but want to specify their value types. Index signatures are defined using the `[key: T]: U` syntax, where `T` is typically `string` or `number`, and `U` is the type of the property values. For example, if an object can have any string key with `number` values, an index signature ensures this. In JavaScript, objects are dynamic, and property types are not enforced, which can lead to runtime errors. TypeScript’s index signatures provide compile-time type safety. This JSON file explains the definition, purposes, differences from JavaScript, differences from type aliases, syntax, use in interfaces, type safety, and real-world usage scenarios of index signatures in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Index Signatures"
+      },
+      {
+        "type": "paragraph",
+        "text": "Index signatures in TypeScript serve the following purposes:\n- **Dynamic properties**: Define objects with unknown property names.\n- **Type safety**: Enforce the types of dynamic property values.\n- **Readability**: Clearly express the structure and intent of the code.\n- **Real-world scenarios**: Support cases like API responses, JSON objects, or dynamic data structures.\n- **Flexibility**: Allow objects with varying property names but consistent value types.\nIn JavaScript, objects are dynamic, and property types are not enforced, which can lead to errors. TypeScript’s index signatures address this issue."
+      },
+      {
+        "type": "heading",
+        "text": "Syntax of Index Signatures"
+      },
+      {
+        "type": "paragraph",
+        "text": "Index signatures are defined in interfaces or type aliases using the `[key: T]: U` syntax.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Syntax of index signatures\ninterface Dictionary {\n  [key: string]: number;\n}\n\nlet scores: Dictionary = {\n  math: 90,\n  science: 85\n};\n\nconsole.log(scores); // { math: 90, science: 85 }\nscores.history = 88; // Valid\nconsole.log(scores); // { math: 90, science: 85, history: 88 }\n// scores.math = '90'; // Error: string is not assignable to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Dictionary` interface allows any string key with `number` values.\n- New properties can be added to `scores`, but their values must be `number`.\n- Assigning a wrong type triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "String and Number Index Signatures"
+      },
+      {
+        "type": "paragraph",
+        "text": "Index signatures can use `string` or `number` keys.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// String and number index signatures\ninterface StringMap {\n  [key: string]: string;\n}\n\ninterface NumberMap {\n  [index: number]: string;\n}\n\nlet stringMap: StringMap = {\n  name: 'Alice',\n  city: 'London'\n};\n\nlet numberMap: NumberMap = {\n  0: 'zero',\n  1: 'one'\n};\n\nconsole.log(stringMap); // { name: 'Alice', city: 'London' }\nconsole.log(numberMap); // { 0: 'zero', 1: 'one' }\nstringMap.country = 'UK'; // Valid\nnumberMap[2] = 'two'; // Valid\n// stringMap.age = 25; // Error: number is not assignable to string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `StringMap` supports string keys with string values.\n- `NumberMap` supports number keys with string values.\n- Assigning a wrong type triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Index Signatures vs. Type Aliases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Index signatures can be used in both interfaces and type aliases, but there are differences:\n- **Interfaces**: Used for object types and can be implemented by classes with `implements`.\n- **Type aliases**: More flexible, supporting primitives, union types, and intersections.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Index signatures with type aliases\ntype StringDictionary = {\n  [key: string]: string;\n};\n\ninterface NumberDictionary {\n  [key: number]: number;\n}\n\nlet stringDict: StringDictionary = { name: 'Alice', role: 'Developer' };\nlet numberDict: NumberDictionary = { 1: 100, 2: 200 };\n\nconsole.log(stringDict); // { name: 'Alice', role: 'Developer' }\nconsole.log(numberDict); // { 1: 100, 2: 200 }\nstringDict.status = 'Active'; // Valid\nnumberDict[3] = 300; // Valid\n// stringDict.age = 25; // Error: number is not assignable to string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `StringDictionary` type alias defines string keys with string values.\n- `NumberDictionary` interface defines number keys with number values.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Readonly Index Signatures"
+      },
+      {
+        "type": "paragraph",
+        "text": "Index signatures can be combined with the `readonly` keyword to make properties non-modifiable.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Readonly index signatures\ninterface ReadonlyDictionary {\n  readonly [key: string]: string;\n}\n\nlet dict: ReadonlyDictionary = {\n  name: 'Alice',\n  city: 'London'\n};\n\nconsole.log(dict); // { name: 'Alice', city: 'London' }\n// dict.name = 'Bob'; // Error: name is read-only\n// dict.country = 'UK'; // Error: country is read-only\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `ReadonlyDictionary` interface makes all properties readonly.\n- Properties cannot be modified or added.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Index Signatures with Optional Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Index signatures can be combined with optional properties.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Index signatures with optional properties\ninterface User {\n  name: string;\n  [key: string]: string | number;\n}\n\nlet user: User = {\n  name: 'Alice',\n  age: 25,\n  city: 'London'\n};\n\nconsole.log(user); // { name: 'Alice', age: 25, city: 'London' }\nuser.country = 'UK'; // Valid\n// user.status = true; // Error: boolean is not assignable to string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `User` interface requires `name` but allows dynamic properties with `string` or `number` values.\n- Invalid value types trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Index Signatures in Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Index signatures can be used in function parameters or return types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Index signatures in functions\ninterface Settings {\n  [key: string]: string;\n}\n\nfunction printSettings(settings: Settings): string {\n  let result = '';\n  for (const key in settings) {\n    result += `${key}: ${settings[key]}, `;\n  }\n  return result;\n}\n\nlet settings: Settings = { theme: 'dark', language: 'en' };\nconsole.log(printSettings(settings)); // theme: dark, language: en, \nsettings.font = 'Arial'; // Valid\nconsole.log(printSettings(settings)); // theme: dark, language: en, font: Arial, \n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Settings` interface defines string keys with string values.\n- The `printSettings` function reads dynamic properties.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Working with Index Signatures"
+      },
+      {
+        "type": "paragraph",
+        "text": "Index signatures are used in various scenarios in real projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Practical example\ninterface ProductAttributes {\n  [key: string]: string | number;\n}\n\nfunction displayProductAttributes(attrs: ProductAttributes): string {\n  let result = '';\n  for (const key in attrs) {\n    result += `${key}: ${attrs[key]}, `;\n  }\n  return result;\n}\n\nlet product: ProductAttributes = {\n  name: 'Phone',\n  price: 1000,\n  brand: 'BrandX'\n};\n\nconsole.log(displayProductAttributes(product)); // name: Phone, price: 1000, brand: BrandX, \nproduct.color = 'Black'; // Valid\nconsole.log(displayProductAttributes(product)); // name: Phone, price: 1000, brand: BrandX, color: Black, \n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `ProductAttributes` interface defines dynamic properties with `string` or `number` values.\n- The `displayProductAttributes` function reads dynamic properties.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Index signatures enhance code safety, but caution is needed:\n- Define value types precisely for index signatures.\n- Avoid `any` as it reduces type safety.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\ninterface UserData {\n  [key: string]: string;\n}\n\nfunction getUserData(data: UserData, key: string): string {\n  return data[key] ?? 'Unknown';\n}\n\nlet user: UserData = { name: 'Alice', role: 'Developer' };\nconsole.log(getUserData(user, 'name')); // Alice\nconsole.log(getUserData(user, 'role')); // Developer\n// user.age = 25; // Error: number is not assignable to string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `UserData` interface defines string keys with string values.\n- Assigning a wrong type triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet unsafe: any = { name: 'Alice', age: 25 };\nconsole.log(unsafe.name, unsafe.age); // Alice, 25, but no type safety\nunsafe.status = true; // Valid, but unsafe\n\n// Correct approach\ninterface SafeDictionary {\n  [key: string]: string | number;\n}\n\nlet safe: SafeDictionary = { name: 'Alice', age: 25 };\nconsole.log(safe.name, safe.age); // Alice, 25\nsafe.city = 'London'; // Valid\n// safe.status = true; // Error: boolean is not assignable to string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and may cause runtime errors.\n- Index signatures ensure type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Index signatures are widely used in real projects:\n- **API responses**: Defining JSON data with dynamic properties.\n- **Configuration objects**: Handling various key-value pairs.\n- **Dynamic form data**: Supporting dynamic fields from user forms.\n- **Data structures**: Managing objects with varying properties.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface ApiResponse {\n  id: number;\n  [key: string]: string | number;\n}\n\nfunction processApiResponse(response: ApiResponse): string {\n  let result = `ID: ${response.id}`;\n  for (const key in response) {\n    if (key !== 'id') {\n      result += `, ${key}: ${response[key]}`;\n    }\n  }\n  return result;\n}\n\nlet response: ApiResponse = {\n  id: 1,\n  name: 'ProductX',\n  price: 1000,\n  category: 'Electronics'\n};\n\nconsole.log(processApiResponse(response)); // ID: 1, name: ProductX, price: 1000, category: Electronics\nresponse.brand = 'BrandY'; // Valid\nconsole.log(processApiResponse(response)); // ID: 1, name: ProductX, price: 1000, category: Electronics, brand: BrandY\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `ApiResponse` interface defines `id` and dynamic properties.\n- The `processApiResponse` function reads dynamic properties.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use index signatures for dynamic properties and flexible data structures. Define value types precisely. Prefer precise types over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Instead of index signatures, `Map` or `Record` utility types can be used, but index signatures are more readable and flexible.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself index signatures example\ninterface Dictionary {\n  [key: string]: string;\n}\n\nconst dict: Dictionary = { name: 'John', city: 'London' };\nconsole.log(dict.name, dict.city); // John, London\ndict.role = 'Developer'; // Valid\nconsole.log(dict.role); // Developer\n// dict.age = 25; // Error: number is not assignable to string\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Индексные подписи",
+    "icon": "FiHash",
+    "language": "typescript",
+    "description": "Объекты с динамическими именами свойств.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое индексные подписи?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript индексные подписи (index signatures) позволяют определять объекты с динамическими именами свойств. Это полезно, когда имена свойств заранее неизвестны, но вы хотите указать их типы значений. Индексные подписи определяются с использованием синтаксиса `[key: T]: U`, где `T` обычно `string` или `number`, а `U` — тип значений свойств. Например, если объект может иметь любые строковые ключи со значениями типа `number`, индексная подпись обеспечивает это. В JavaScript объекты динамические, и типы свойств не контролируются, что может привести к ошибкам во время выполнения. Индексные подписи в TypeScript обеспечивают безопасность типов на этапе компиляции. Этот JSON-файл подробно объясняет определение, назначение, отличия от JavaScript, отличия от псевдонимов типов, синтаксис, использование в интерфейсах, безопасность типов и сценарии использования индексных подписей в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение индексных подписей"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексные подписи в TypeScript используются для следующих целей:\n- **Динамические свойства**: Определение объектов с неизвестными именами свойств.\n- **Безопасность типов**: Контроль типов значений динамических свойств.\n- **Читаемость**: Четкое выражение структуры и назначения кода.\n- **Реальные сценарии**: Поддержка случаев, таких как ответы API, JSON-объекты или динамические структуры данных.\n- **Гибкость**: Поддержка объектов с различными именами свойств, но с согласованными типами значений.\nВ JavaScript объекты динамические, и типы свойств не контролируются, что может привести к ошибкам. Индексные подписи в TypeScript решают эту проблему."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис индексных подписей"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексные подписи определяются в интерфейсах или псевдонимах типов с использованием синтаксиса `[key: T]: U`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Синтаксис индексных подписей\ninterface Dictionary {\n  [key: string]: number;\n}\n\nlet scores: Dictionary = {\n  math: 90,\n  science: 85\n};\n\nconsole.log(scores); // { math: 90, science: 85 }\nscores.history = 88; // Валидно\nconsole.log(scores); // { math: 90, science: 85, history: 88 }\n// scores.math = '90'; // Ошибка: string не соответствует number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Dictionary` позволяет задавать любые строковые ключи со значениями типа `number`.\n- В объект `scores` можно добавлять новые свойства, но их значения должны быть `number`.\n- Присвоение неверного типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Строковые и числовые индексные подписи"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексные подписи могут использовать ключи типа `string` или `number`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Строковые и числовые индексные подписи\ninterface StringMap {\n  [key: string]: string;\n}\n\ninterface NumberMap {\n  [index: number]: string;\n}\n\nlet stringMap: StringMap = {\n  name: 'Алиса',\n  city: 'Лондон'\n};\n\nlet numberMap: NumberMap = {\n  0: 'ноль',\n  1: 'один'\n};\n\nconsole.log(stringMap); // { name: 'Алиса', city: 'Лондон' }\nconsole.log(numberMap); // { 0: 'ноль', 1: 'один' }\nstringMap.country = 'Великобритания'; // Валидно\nnumberMap[2] = 'два'; // Валидно\n// stringMap.age = 25; // Ошибка: number не соответствует string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `StringMap` поддерживает строковые ключи со строковыми значениями.\n- `NumberMap` поддерживает числовые ключи со строковыми значениями.\n- Присвоение неверного типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Индексные подписи против псевдонимов типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексные подписи могут использоваться как в интерфейсах, так и в псевдонимах типов, но есть различия:\n- **Интерфейсы**: Используются для объектных типов и могут быть реализованы классами с помощью `implements`.\n- **Псевдонимы типов**: Более гибкие, поддерживают примитивы, объединения типов и пересечения.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Индексные подписи с псевдонимами типов\ntype StringDictionary = {\n  [key: string]: string;\n};\n\ninterface NumberDictionary {\n  [key: number]: number;\n}\n\nlet stringDict: StringDictionary = { name: 'Алиса', role: 'Разработчик' };\nlet numberDict: NumberDictionary = { 1: 100, 2: 200 };\n\nconsole.log(stringDict); // { name: 'Алиса', role: 'Разработчик' }\nconsole.log(numberDict); // { 1: 100, 2: 200 }\nstringDict.status = 'Активен'; // Валидно\nnumberDict[3] = 300; // Валидно\n// stringDict.age = 25; // Ошибка: number не соответствует string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдоним типа `StringDictionary` определяет строковые ключи со строковыми значениями.\n- Интерфейс `NumberDictionary` определяет числовые ключи с числовыми значениями.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Индексные подписи только для чтения"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексные подписи могут комбинироваться с ключевым словом `readonly`, чтобы сделать свойства неизменяемыми.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Индексные подписи только для чтения\ninterface ReadonlyDictionary {\n  readonly [key: string]: string;\n}\n\nlet dict: ReadonlyDictionary = {\n  name: 'Алиса',\n  city: 'Лондон'\n};\n\nconsole.log(dict); // { name: 'Алиса', city: 'Лондон' }\n// dict.name = 'Боб'; // Ошибка: name только для чтения\n// dict.country = 'Великобритания'; // Ошибка: country только для чтения\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `ReadonlyDictionary` делает все свойства только для чтения.\n- Свойства нельзя изменить или добавить.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Индексные подписи с необязательными свойствами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексные подписи могут комбинироваться с необязательными свойствами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Индексные подписи с необязательными свойствами\ninterface User {\n  name: string;\n  [key: string]: string | number;\n}\n\nlet user: User = {\n  name: 'Алиса',\n  age: 25,\n  city: 'Лондон'\n};\n\nconsole.log(user); // { name: 'Алиса', age: 25, city: 'Лондон' }\nuser.country = 'Великобритания'; // Валидно\n// user.status = true; // Ошибка: boolean не соответствует string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `User` требует `name`, но позволяет динамические свойства с типами `string` или `number`.\n- Присвоение неверного типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Индексные подписи в функциях"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексные подписи могут использоваться в параметрах или возвращаемых типах функций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Индексные подписи в функциях\ninterface Settings {\n  [key: string]: string;\n}\n\nfunction printSettings(settings: Settings): string {\n  let result = '';\n  for (const key in settings) {\n    result += `${key}: ${settings[key]}, `;\n  }\n  return result;\n}\n\nlet settings: Settings = { theme: 'темная', language: 'ru' };\nconsole.log(printSettings(settings)); // theme: темная, language: ru, \nsettings.font = 'Arial'; // Валидно\nconsole.log(printSettings(settings)); // theme: темная, language: ru, font: Arial, \n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `Settings` определяет строковые ключи со строковыми значениями.\n- Функция `printSettings` читает динамические свойства.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Работа с индексными подписями"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексные подписи используются в различных сценариях в реальных проектах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Практический пример\ninterface ProductAttributes {\n  [key: string]: string | number;\n}\n\nfunction displayProductAttributes(attrs: ProductAttributes): string {\n  let result = '';\n  for (const key in attrs) {\n    result += `${key}: ${attrs[key]}, `;\n  }\n  return result;\n}\n\nlet product: ProductAttributes = {\n  name: 'Телефон',\n  price: 1000,\n  brand: 'BrandX'\n};\n\nconsole.log(displayProductAttributes(product)); // name: Телефон, price: 1000, brand: BrandX, \nproduct.color = 'Черный'; // Валидно\nconsole.log(displayProductAttributes(product)); // name: Телефон, price: 1000, brand: BrandX, color: Черный, \n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `ProductAttributes` определяет динамические свойства с типами `string` или `number`.\n- Функция `displayProductAttributes` читает динамические свойства.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексные подписи повышают безопасность кода, но требуется осторожность:\n- Точно определяйте типы значений для индексных подписей.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\ninterface UserData {\n  [key: string]: string;\n}\n\nfunction getUserData(data: UserData, key: string): string {\n  return data[key] ?? 'Неизвестно';\n}\n\nlet user: UserData = { name: 'Алиса', role: 'Разработчик' };\nconsole.log(getUserData(user, 'name')); // Алиса\nconsole.log(getUserData(user, 'role')); // Разработчик\n// user.age = 25; // Ошибка: number не соответствует string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `UserData` определяет строковые ключи со строковыми значениями.\n- Присвоение неверного типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet unsafe: any = { name: 'Алиса', age: 25 };\nconsole.log(unsafe.name, unsafe.age); // Алиса, 25, но без безопасности типов\nunsafe.status = true; // Валидно, но небезопасно\n\n// Правильный подход\ninterface SafeDictionary {\n  [key: string]: string | number;\n}\n\nlet safe: SafeDictionary = { name: 'Алиса', age: 25 };\nconsole.log(safe.name, safe.age); // Алиса, 25\nsafe.city = 'Лондон'; // Валидно\n// safe.status = true; // Ошибка: boolean не соответствует string | number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Индексные подписи обеспечивают безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Индексные подписи широко используются в реальных проектах:\n- **Ответы API**: Определение JSON-данных с динамическими свойствами.\n- **Конфигурационные объекты**: Работа с различными парами ключ-значение.\n- **Динамические данные форм**: Поддержка динамических полей из пользовательских форм.\n- **Структуры данных**: Управление объектами с различными свойствами.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface ApiResponse {\n  id: number;\n  [key: string]: string | number;\n}\n\nfunction processApiResponse(response: ApiResponse): string {\n  let result = `ID: ${response.id}`;\n  for (const key in response) {\n    if (key !== 'id') {\n      result += `, ${key}: ${response[key]}`;\n    }\n  }\n  return result;\n}\n\nlet response: ApiResponse = {\n  id: 1,\n  name: 'ProductX',\n  price: 1000,\n  category: 'Электроника'\n};\n\nconsole.log(processApiResponse(response)); // ID: 1, name: ProductX, price: 1000, category: Электроника\nresponse.brand = 'BrandY'; // Валидно\nconsole.log(processApiResponse(response)); // ID: 1, name: ProductX, price: 1000, category: Электроника, brand: BrandY\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Интерфейс `ApiResponse` определяет `id` и динамические свойства.\n- Функция `processApiResponse` читает динамические свойства.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте индексные подписи для динамических свойств и гибких структур данных. Точно определяйте типы значений. Предпочитайте точные типы вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо индексных подписей можно использовать `Map` или утилиту `Record`, но индексные подписи более читаемы и гибки.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример индексных подписей для самостоятельного тестирования\ninterface Dictionary {\n  [key: string]: string;\n}\n\nconst dict: Dictionary = { name: 'Джон', city: 'Лондон' };\nconsole.log(dict.name, dict.city); // Джон, Лондон\ndict.role = 'Разработчик'; // Валидно\nconsole.log(dict.role); // Разработчик\n// dict.age = 25; // Ошибка: number не соответствует string\n"
+      }
+    ]
+  }
+}

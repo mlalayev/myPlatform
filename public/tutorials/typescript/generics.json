@@ -1,0 +1,645 @@
+{
+  "id": "generics",
+  "az": {
+    "title": "Generiklər",
+    "icon": "FiCode",
+    "language": "typescript",
+    "description": "Yenidən istifadə edilə bilən tip parametrləri.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Generiklər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də generiklər (generics) kodun yenidən istifadəsini asanlaşdırmaq və tip təhlükəsizliyini təmin etmək üçün istifadə olunan güclü bir vasitədir. Generiklər funksiyalara, siniflərə və ya interfeyslərə tip parametri əlavə etməyə imkan verir, beləliklə eyni kod müxtəlif tiplərlə işləyə bilər. Məsələn, bir funksiya yaradırsınızsa və onun müxtəlif tiplərdəki dəyərlərlə (sətir, rəqəm, obyekt) işləməsini istəyirsinizsə, generiklər bu çevikliyi təmin edir, lakin eyni zamanda tip təhlükəsizliyini qoruyur. JavaScript-də generiklər yoxdur, buna görə adətən `any` tipi istifadə olunur, bu da tip təhlükəsizliyini azaldır. TypeScript-də generiklər kompilyasiya zamanı tip yoxlamasını gücləndirir və səhvləri azaltmağa kömək edir. Bu JSON faylda generiklərin tərifi, istifadə məqsədləri, adi tiplərdən fərqləri, JavaScript ilə fərqləri, sintaksisi, tip aliasları ilə istifadəsi, funksiyalarda, siniflərdə, interfeyslərdə istifadəsi, məhdudiyyətlər (constraints), tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generiklərin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generiklər TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Yenidən istifadə**: Eyni kodun müxtəlif tiplərlə işləməsini təmin etmək.\n- **Tip təhlükəsizliyi**: Dəyərlərin düzgün tiplərlə istifadəsini kompilyasiya zamanı yoxlamaq.\n- **Oxunaqlılıq**: Kodun məqsədini və strukturunu aydın ifadə etmək.\n- **Çeviklik**: Funksiyalar, siniflər və interfeyslər üçün ümumi tip strukturları yaratmaq.\n- **Səhvlərin qarşısını almaq**: Yanlış tiplərin istifadəsini kompilyasiya zamanı aşkar etmək.\nJavaScript-də oxşar funksionallıq üçün adətən `any` tipi istifadə olunur, lakin bu, tip təhlükəsizliyini təmin etmir və runtime səhvlərinə yol aça bilər. Generiklər bu problemi həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Generiklərin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generiklər `<T>` kimi tip parametri ilə təyin edilir, burada `T` istənilən tip üçün yer tutucudur. Bu parametr funksiyalarda, siniflərdə və ya interfeyslərdə istifadə olunur.\nNümunə (sadə generik funksiya):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Sadə generik funksiya\nfunction identity<T>(value: T): T {\n  return value;\n}\n\nlet numberResult = identity<number>(42);\nlet stringResult = identity<string>('Hello');\n\nconsole.log(numberResult); // 42\nconsole.log(stringResult); // Hello\n// let errorResult = identity<number>('test'); // Xəta: 'test' number tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `T` generik tip parametridir və funksiyanın qəbul etdiyi və qaytardığı tipi təyin edir.\n- `identity` funksiyası istənilən tipdə dəyər qəbul edir və eyni tipi qaytarır.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generiklər ilə Adi Tiplərin Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generiklər və adi tiplər (məsələn, `number`, `string`) arasında əsas fərqlər:\n- **Çeviklik**: Generiklər müxtəlif tiplərlə işləməyə imkan verir, adi tiplər isə sabitdir.\n- **Yenidən istifadə**: Generiklər eyni kodun fərqli tiplərlə işləməsini təmin edir.\n- **Tip təhlükəsizliyi**: Generiklər `any` istifadə etmədən tip təhlükəsizliyini qoruyur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Adi tip ilə generik müqayisəsi\nfunction returnNumber(value: number): number {\n  return value;\n}\n\nfunction returnGeneric<T>(value: T): T {\n  return value;\n}\n\nlet num = returnNumber(10); // Yalnız number tipi\nlet anyType = returnGeneric<string>('Hello'); // İstənilən tip\n\nconsole.log(num); // 10\nconsole.log(anyType); // Hello\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `returnNumber` yalnız `number` tipi ilə işləyir.\n- `returnGeneric` generik olduğu üçün istənilən tip ilə işləyə bilər.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generiklər ilə Tip Aliaslarının İstifadəsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generiklər tip aliasları ilə birlikdə istifadə edilərək çevik tip strukturları yarada bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generik tip aliası\ntype Pair<K, V> = {\n  key: K;\n  value: V;\n};\n\nlet numberStringPair: Pair<number, string> = { key: 1, value: 'one' };\nlet stringBooleanPair: Pair<string, boolean> = { key: 'active', value: true };\n\nconsole.log(numberStringPair); // { key: 1, value: 'one' }\nconsole.log(stringBooleanPair); // { key: 'active', value: true }\n// let errorPair: Pair<number, string> = { key: 'test', value: 'test' }; // Xəta: 'test' number tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Pair` generik tip aliası iki fərqli tip üçün (`K` və `V`) struktur təyin edir.\n- Fərqli tip kombinasiyaları ilə işləyə bilər.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generik Funksiyalar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generik funksiyalar müxtəlif tiplərlə işləyən funksiyalar yaratmaq üçün istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generik funksiya nümunəsi\nfunction getFirstElement<T>(arr: T[]): T {\n  return arr[0];\n}\n\nlet numbers = [1, 2, 3];\nlet strings = ['a', 'b', 'c'];\n\nconsole.log(getFirstElement(numbers)); // 1\nconsole.log(getFirstElement(strings)); // a\n// console.log(getFirstElement<number>(strings)); // Xəta: strings number[] tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `getFirstElement` generik funksiyası istənilən tipdə massiv qəbul edir və ilk elementi qaytarır.\n- Tip təhlükəsizliyi kompilyasiya zamanı təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generik Siniflər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generiklər siniflərdə də istifadə oluna bilər, bu da siniflərin müxtəlif tiplərlə işləməsini təmin edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generik sinif nümunəsi\nclass Box<T> {\n  content: T;\n  constructor(value: T) {\n    this.content = value;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet numberBox = new Box<number>(123);\nlet stringBox = new Box<string>('Hello');\n\nconsole.log(numberBox.getContent()); // 123\nconsole.log(stringBox.getContent()); // Hello\n// let errorBox = new Box<number>('test'); // Xəta: 'test' number tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Box` generik sinfi istənilən tipdə məzmun saxlaya bilər.\n- `content` xüsusiyyəti və `getContent` metodu generik tip `T` ilə işləyir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generik Interfeyslər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generiklər interfeyslərdə istifadə olunaraq çevik tip strukturları təyin edir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generik interfeys nümunəsi\ninterface Container<T> {\n  value: T;\n  display(): string;\n}\n\nclass StringContainer implements Container<string> {\n  value: string;\n  constructor(value: string) {\n    this.value = value;\n  }\n  display(): string {\n    return `Value: ${this.value}`;\n  }\n}\n\nlet container = new StringContainer('Test');\nconsole.log(container.display()); // Value: Test\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Container` generik interfeysi istənilən tipdə `value` saxlaya bilər.\n- `StringContainer` sinfi `Container<string>` interfeysini həyata keçirir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generik Məhdudiyyətlər (Constraints)"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generik tiplərə məhdudiyyətlər (`extends` ilə) əlavə edilərək onların xüsusi tiplərlə məhdudlaşdırılması təmin edilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generik məhdudiyyət nümunəsi\nfunction printLength<T extends { length: number }>(item: T): number {\n  return item.length;\n}\n\nlet str = 'Hello';\nlet arr = [1, 2, 3];\n\nconsole.log(printLength(str)); // 5\nconsole.log(printLength(arr)); // 3\n// console.log(printLength(42)); // Xəta: 42-də length xüsusiyyəti yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `T extends { length: number }` məhdudiyyəti `T` tipinin `length` xüsusiyyətinə malik olmasını tələb edir.\n- Yalnız uyğun tiplər (sətir, massiv) funksiyada istifadə oluna bilər.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generiklər kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Generik tipləri dəqiq təyin edin.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- Məhdudiyyətlərdən (`extends`) istifadə edərək tipləri məhdudlaşdırın.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\nfunction getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}\n\nlet person = { name: 'Alice', age: 30 };\n\nconsole.log(getProperty(person, 'name')); // Alice\nconsole.log(getProperty(person, 'age')); // 30\n// console.log(getProperty(person, 'address')); // Xəta: 'address' person obyektində yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `keyof T` məhdudiyyəti `key` parametrinin yalnız obyektin mövcud xüsusiyyətləri ilə işləməsini təmin edir.\n- Yanlış açar istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nfunction unsafeIdentity(value: any): any {\n  return value;\n}\n\nlet unsafeResult = unsafeIdentity('Hello');\nconsole.log(unsafeResult); // Hello, lakin tip təhlükəsizliyi yoxdur\nunsafeResult = 42; // Keçərlidir, lakin təhlükəsiz deyil\n\n// Düzgün yol\nfunction safeIdentity<T>(value: T): T {\n  return value;\n}\n\nlet safeResult = safeIdentity<string>('Hello');\nconsole.log(safeResult); // Hello\n// safeResult = 42; // Xəta: 42 string tipinə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime səhvlərinə səbəb ola bilər.\n- Generiklər ilə tip təhlükəsizliyi təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generiklər real layihələrdə geniş istifadə olunur:\n- **Məlumat strukturları**: Massivlər, siyahılar, ağaclar kimi strukturlarda müxtəlif tiplərlə işləmək.\n- **API cavabları**: API-dən gələn müxtəlif tipli məlumatları idarə etmək.\n- **Komponent kitabxanaları**: React və ya Angular kimi kitabxanalarda generik komponentlər.\n- **Yenidən istifadə edilə bilən funksiyalar**: Müxtəlif tiplərlə işləyən ümumi funksiyalar.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface ApiResponse<T> {\n  data: T;\n  status: number;\n}\n\nfunction processApiResponse<T>(response: ApiResponse<T>): T {\n  return response.data;\n}\n\nlet userResponse: ApiResponse<{ name: string; age: number }> = {\n  data: { name: 'Alice', age: 30 },\n  status: 200\n};\n\nlet productResponse: ApiResponse<{ id: number; name: string }> = {\n  data: { id: 1, name: 'Laptop' },\n  status: 200\n};\n\nconsole.log(processApiResponse(userResponse)); // { name: 'Alice', age: 30 }\nconsole.log(processApiResponse(productResponse)); // { id: 1, name: 'Laptop' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ApiResponse` generik interfeysi müxtəlif tipli məlumatları idarə edir.\n- `processApiResponse` funksiyası istənilən tipdə məlumat qaytarır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generiklər qabaqcıl TypeScript xüsusiyyətləri ilə də istifadə oluna bilər:\n- **Şərti tiplər (Conditional Types)**: Tipləri şərtlərə əsasən təyin etmək.\n- **Mapped Types**: Obyekt tiplərini dinamik olaraq dəyişdirmək.\n- **Infer**: Generik tiplərdən avtomatik tip çıxarılması.\nBu mövzular haqqında ətraflı məlumat üçün TypeScript sənədlərinə (https://www.typescriptlang.org/docs) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Generikləri yenidən istifadə edilə bilən və tip təhlükəsiz kod üçün istifadə edin. `any` əvəzinə dəqiq tipləri və məhdudiyyətləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Generiklər əvəzinə sabit tiplər və ya `any` istifadə edilə bilər, lakin generiklər daha təhlükəsiz və çevikdir.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün generik nümunə\nfunction swap<T, U>(tuple: [T, U]): [U, T] {\n  return [tuple[1], tuple[0]];\n}\n\nlet result = swap<number, string>([1, 'one']);\nconsole.log(result); // ['one', 1]\n// let error = swap<number, string>(['test', 42]); // Xəta: 'test' number tipinə uyğun deyil\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Generics",
+    "icon": "FiCode",
+    "language": "typescript",
+    "description": "Reusable type parameters.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Generics?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, generics are a powerful tool for creating reusable code while maintaining type safety. Generics allow you to add type parameters to functions, classes, or interfaces, enabling the same code to work with different types. For example, if you want a function to work with various types (string, number, object), generics provide this flexibility while ensuring type safety. JavaScript does not have generics, so developers often use `any`, which compromises type safety. TypeScript generics enforce type checking at compile time and help reduce errors. This JSON file explains the definition, purposes, differences from regular types, differences from JavaScript, syntax, usage with type aliases, functions, classes, interfaces, constraints, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Generics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics in TypeScript serve the following purposes:\n- **Reusability**: Enable the same code to work with different types.\n- **Type safety**: Ensure values are used with the correct types at compile time.\n- **Readability**: Clearly express the intent and structure of the code.\n- **Flexibility**: Create generic type structures for functions, classes, and interfaces.\n- **Error prevention**: Detect incorrect type usage at compile time.\nIn JavaScript, similar functionality is achieved using `any`, which lacks type safety and can lead to runtime errors. Generics solve this issue."
+      },
+      {
+        "type": "heading",
+        "text": "Syntax of Generics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics are defined using `<T>`, where `T` is a placeholder for any type. This parameter is used in functions, classes, or interfaces.\nExample (simple generic function):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Simple generic function\nfunction identity<T>(value: T): T {\n  return value;\n}\n\nlet numberResult = identity<number>(42);\nlet stringResult = identity<string>('Hello');\n\nconsole.log(numberResult); // 42\nconsole.log(stringResult); // Hello\n// let errorResult = identity<number>('test'); // Error: 'test' is not assignable to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `T` is a generic type parameter that defines the type of the input and output.\n- The `identity` function accepts and returns any type while maintaining type safety.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Generics vs. Regular Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics differ from regular types (e.g., `number`, `string`) in the following ways:\n- **Flexibility**: Generics work with multiple types, while regular types are fixed.\n- **Reusability**: Generics allow the same code to work with different types.\n- **Type safety**: Generics maintain type safety without resorting to `any`.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Regular type vs. generic\nfunction returnNumber(value: number): number {\n  return value;\n}\n\nfunction returnGeneric<T>(value: T): T {\n  return value;\n}\n\nlet num = returnNumber(10); // Only number type\nlet anyType = returnGeneric<string>('Hello'); // Any type\n\nconsole.log(num); // 10\nconsole.log(anyType); // Hello\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `returnNumber` works only with `number`.\n- `returnGeneric` is generic and works with any type.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Generics with Type Aliases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics can be used with type aliases to create flexible type structures.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic type alias\ntype Pair<K, V> = {\n  key: K;\n  value: V;\n};\n\nlet numberStringPair: Pair<number, string> = { key: 1, value: 'one' };\nlet stringBooleanPair: Pair<string, boolean> = { key: 'active', value: true };\n\nconsole.log(numberStringPair); // { key: 1, value: 'one' }\nconsole.log(stringBooleanPair); // { key: 'active', value: true }\n// let errorPair: Pair<number, string> = { key: 'test', value: 'test' }; // Error: 'test' is not assignable to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Pair` generic type alias defines a structure for two different types (`K` and `V`).\n- It works with different type combinations.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic functions are used to create functions that work with multiple types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic function example\nfunction getFirstElement<T>(arr: T[]): T {\n  return arr[0];\n}\n\nlet numbers = [1, 2, 3];\nlet strings = ['a', 'b', 'c'];\n\nconsole.log(getFirstElement(numbers)); // 1\nconsole.log(getFirstElement(strings)); // a\n// console.log(getFirstElement<number>(strings)); // Error: strings is not assignable to number[]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `getFirstElement` generic function accepts an array of any type and returns its first element.\n- Type safety is enforced at compile time.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics can be used in classes to allow them to work with multiple types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic class example\nclass Box<T> {\n  content: T;\n  constructor(value: T) {\n    this.content = value;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet numberBox = new Box<number>(123);\nlet stringBox = new Box<string>('Hello');\n\nconsole.log(numberBox.getContent()); // 123\nconsole.log(stringBox.getContent()); // Hello\n// let errorBox = new Box<number>('test'); // Error: 'test' is not assignable to number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Box` generic class can store content of any type.\n- The `content` property and `getContent` method work with the generic type `T`.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Interfaces"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics can be used in interfaces to define flexible type structures.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic interface example\ninterface Container<T> {\n  value: T;\n  display(): string;\n}\n\nclass StringContainer implements Container<string> {\n  value: string;\n  constructor(value: string) {\n    this.value = value;\n  }\n  display(): string {\n    return `Value: ${this.value}`;\n  }\n}\n\nlet container = new StringContainer('Test');\nconsole.log(container.display()); // Value: Test\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Container` generic interface can hold a `value` of any type.\n- The `StringContainer` class implements the `Container<string>` interface.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Constraints"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generic types can be constrained using `extends` to restrict them to specific types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic constraint example\nfunction printLength<T extends { length: number }>(item: T): number {\n  return item.length;\n}\n\nlet str = 'Hello';\nlet arr = [1, 2, 3];\n\nconsole.log(printLength(str)); // 5\nconsole.log(printLength(arr)); // 3\n// console.log(printLength(42)); // Error: 42 does not have a length property\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `T extends { length: number }` constraint ensures `T` has a `length` property.\n- Only types with `length` (e.g., string, array) can be used.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics enhance code safety, but caution is needed:\n- Define generic types precisely.\n- Avoid `any` as it reduces type safety.\n- Use constraints (`extends`) to restrict types.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\nfunction getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}\n\nlet person = { name: 'Alice', age: 30 };\n\nconsole.log(getProperty(person, 'name')); // Alice\nconsole.log(getProperty(person, 'age')); // 30\n// console.log(getProperty(person, 'address')); // Error: 'address' does not exist on person\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `keyof T` constraint ensures `key` is a valid property of the object.\n- Invalid keys trigger a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nfunction unsafeIdentity(value: any): any {\n  return value;\n}\n\nlet unsafeResult = unsafeIdentity('Hello');\nconsole.log(unsafeResult); // Hello, but no type safety\nunsafeResult = 42; // Valid, but unsafe\n\n// Correct approach\nfunction safeIdentity<T>(value: T): T {\n  return value;\n}\n\nlet safeResult = safeIdentity<string>('Hello');\nconsole.log(safeResult); // Hello\n// safeResult = 42; // Error: 42 is not assignable to string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and may cause runtime errors.\n- Generics ensure type safety.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics are widely used in real projects:\n- **Data structures**: Arrays, lists, trees working with different types.\n- **API responses**: Handling different types of data from APIs.\n- **Component libraries**: Generic components in React or Angular.\n- **Reusable functions**: General-purpose functions working with various types.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface ApiResponse<T> {\n  data: T;\n  status: number;\n}\n\nfunction processApiResponse<T>(response: ApiResponse<T>): T {\n  return response.data;\n}\n\nlet userResponse: ApiResponse<{ name: string; age: number }> = {\n  data: { name: 'Alice', age: 30 },\n  status: 200\n};\n\nlet productResponse: ApiResponse<{ id: number; name: string }> = {\n  data: { id: 1, name: 'Laptop' },\n  status: 200\n};\n\nconsole.log(processApiResponse(userResponse)); // { name: 'Alice', age: 30 }\nconsole.log(processApiResponse(productResponse)); // { id: 1, name: 'Laptop' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `ApiResponse` generic interface handles different types of data.\n- The `processApiResponse` function returns data of any type.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Generics can be used with advanced TypeScript features:\n- **Conditional Types**: Define types based on conditions.\n- **Mapped Types**: Dynamically transform object types.\n- **Infer**: Automatically infer types within generics.\nFor more details, refer to the TypeScript documentation (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use generics for reusable and type-safe code. Prefer precise types and constraints over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Instead of generics, fixed types or `any` can be used, but generics are safer and more flexible.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself generic example\nfunction swap<T, U>(tuple: [T, U]): [U, T] {\n  return [tuple[1], tuple[0]];\n}\n\nlet result = swap<number, string>([1, 'one']);\nconsole.log(result); // ['one', 1]\n// let error = swap<number, string>(['test', 42]); // Error: 'test' is not assignable to number\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Дженерики",
+    "icon": "FiCode",
+    "language": "typescript",
+    "description": "Повторно используемые параметры типов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое дженерики?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript дженерики (generics) — это мощный инструмент для создания повторно используемого кода с сохранением безопасности типов. Дженерики позволяют добавлять параметры типов к функциям, классам или интерфейсам, что позволяет одному и тому же коду работать с разными типами. Например, если вы хотите, чтобы функция работала с разными типами (строка, число, объект), дженерики обеспечивают эту гибкость, сохраняя безопасность типов. В JavaScript дженериков нет, поэтому обычно используется тип `any`, что снижает безопасность типов. Дженерики в TypeScript усиливают проверку типов во время компиляции и помогают уменьшить ошибки. Этот JSON-файл подробно объясняет определение, назначение, отличия от обычных типов, отличия от JavaScript, синтаксис, использование с псевдонимами типов, функциями, классами, интерфейсами, ограничения (constraints), безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение дженериков"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерики в TypeScript используются для следующих целей:\n- **Повторное использование**: Позволяют одному и тому же коду работать с разными типами.\n- **Безопасность типов**: Обеспечивают проверку типов во время компиляции.\n- **Читаемость**: Четко выражают назначение и структуру кода.\n- **Гибкость**: Создают общие структуры типов для функций, классов и интерфейсов.\n- **Предотвращение ошибок**: Обнаруживают неправильное использование типов на этапе компиляции.\nВ JavaScript для аналогичной функциональности обычно используется `any`, что не обеспечивает безопасность типов и может привести к ошибкам во время выполнения. Дженерики решают эту проблему."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис дженериков"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерики определяются с помощью `<T>`, где `T` — это заполнитель для любого типа. Этот параметр используется в функциях, классах или интерфейсах.\nПример (простая дженерик-функция):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Простая дженерик-функция\nfunction identity<T>(value: T): T {\n  return value;\n}\n\nlet numberResult = identity<number>(42);\nlet stringResult = identity<string>('Hello');\n\nconsole.log(numberResult); // 42\nconsole.log(stringResult); // Hello\n// let errorResult = identity<number>('test'); // Ошибка: 'test' не соответствует типу number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `T` — это параметр дженерик-типа, определяющий тип входных и выходных данных.\n- Функция `identity` принимает и возвращает любой тип, сохраняя безопасность типов.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Дженерики против обычных типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерики отличаются от обычных типов (например, `number`, `string`) следующими особенностями:\n- **Гибкость**: Дженерики работают с несколькими типами, тогда как обычные типы фиксированы.\n- **Повторное использование**: Дженерики позволяют одному и тому же коду работать с разными типами.\n- **Безопасность типов**: Дженерики обеспечивают безопасность типов без использования `any`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Обычный тип против дженерика\nfunction returnNumber(value: number): number {\n  return value;\n}\n\nfunction returnGeneric<T>(value: T): T {\n  return value;\n}\n\nlet num = returnNumber(10); // Только тип number\nlet anyType = returnGeneric<string>('Hello'); // Любой тип\n\nconsole.log(num); // 10\nconsole.log(anyType); // Hello\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `returnNumber` работает только с типом `number`.\n- `returnGeneric` является дженериком и работает с любым типом.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Дженерики с псевдонимами типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерики могут использоваться с псевдонимами типов для создания гибких структур типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Дженерик-псевдоним типа\ntype Pair<K, V> = {\n  key: K;\n  value: V;\n};\n\nlet numberStringPair: Pair<number, string> = { key: 1, value: 'one' };\nlet stringBooleanPair: Pair<string, boolean> = { key: 'active', value: true };\n\nconsole.log(numberStringPair); // { key: 1, value: 'one' }\nconsole.log(stringBooleanPair); // { key: 'active', value: true }\n// let errorPair: Pair<number, string> = { key: 'test', value: 'test' }; // Ошибка: 'test' не соответствует типу number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдоним типа `Pair` определяет структуру для двух разных типов (`K` и `V`).\n- Он работает с разными комбинациями типов.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Дженерик-функции"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-функции используются для создания функций, работающих с несколькими типами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример дженерик-функции\nfunction getFirstElement<T>(arr: T[]): T {\n  return arr[0];\n}\n\nlet numbers = [1, 2, 3];\nlet strings = ['a', 'b', 'c'];\n\nconsole.log(getFirstElement(numbers)); // 1\nconsole.log(getFirstElement(strings)); // a\n// console.log(getFirstElement<number>(strings)); // Ошибка: strings не соответствует типу number[]\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Дженерик-функция `getFirstElement` принимает массив любого типа и возвращает его первый элемент.\n- Безопасность типов обеспечивается во время компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Дженерик-классы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерики могут использоваться в классах, чтобы они работали с несколькими типами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример дженерик-класса\nclass Box<T> {\n  content: T;\n  constructor(value: T) {\n    this.content = value;\n  }\n  getContent(): T {\n    return this.content;\n  }\n}\n\nlet numberBox = new Box<number>(123);\nlet stringBox = new Box<string>('Hello');\n\nconsole.log(numberBox.getContent()); // 123\nconsole.log(stringBox.getContent()); // Hello\n// let errorBox = new Box<number>('test'); // Ошибка: 'test' не соответствует типу number\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Дженерик-класс `Box` может хранить содержимое любого типа.\n- Свойство `content` и метод `getContent` работают с дженерик-типом `T`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Дженерик-интерфейсы"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерики могут использоваться в интерфейсах для определения гибких структур типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример дженерик-интерфейса\ninterface Container<T> {\n  value: T;\n  display(): string;\n}\n\nclass StringContainer implements Container<string> {\n  value: string;\n  constructor(value: string) {\n    this.value = value;\n  }\n  display(): string {\n    return `Value: ${this.value}`;\n  }\n}\n\nlet container = new StringContainer('Test');\nconsole.log(container.display()); // Value: Test\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Дженерик-интерфейс `Container` может содержать `value` любого типа.\n- Класс `StringContainer` реализует интерфейс `Container<string>`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Ограничения дженериков"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерик-типы можно ограничивать с помощью `extends`, чтобы ограничить их определенными типами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример ограничения дженериков\nfunction printLength<T extends { length: number }>(item: T): number {\n  return item.length;\n}\n\nlet str = 'Hello';\nlet arr = [1, 2, 3];\n\nconsole.log(printLength(str)); // 5\nconsole.log(printLength(arr)); // 3\n// console.log(printLength(42)); // Ошибка: у 42 нет свойства length\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ограничение `T extends { length: number }` гарантирует, что `T` имеет свойство `length`.\n- Могут использоваться только типы с `length` (например, строка, массив).\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерики повышают безопасность кода, но требуется осторожность:\n- Точно определяйте дженерик-типы.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Используйте ограничения (`extends`) для ограничения типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\nfunction getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}\n\nlet person = { name: 'Alice', age: 30 };\n\nconsole.log(getProperty(person, 'name')); // Alice\nconsole.log(getProperty(person, 'age')); // 30\n// console.log(getProperty(person, 'address')); // Ошибка: 'address' не существует в person\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Ограничение `keyof T` гарантирует, что `key` является допустимым свойством объекта.\n- Недопустимые ключи вызывают ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nfunction unsafeIdentity(value: any): any {\n  return value;\n}\n\nlet unsafeResult = unsafeIdentity('Hello');\nconsole.log(unsafeResult); // Hello, но без безопасности типов\nunsafeResult = 42; // Валидно, но небезопасно\n\n// Правильный подход\nfunction safeIdentity<T>(value: T): T {\n  return value;\n}\n\nlet safeResult = safeIdentity<string>('Hello');\nconsole.log(safeResult); // Hello\n// safeResult = 42; // Ошибка: 42 не соответствует типу string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Дженерики обеспечивают безопасность типов.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерики широко используются в реальных проектах:\n- **Структуры данных**: Массивы, списки, деревья, работающие с разными типами.\n- **Ответы API**: Обработка данных разных типов из API.\n- **Библиотеки компонентов**: Дженерик-компоненты в React или Angular.\n- **Повторно используемые функции**: Универсальные функции, работающие с разными типами.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface ApiResponse<T> {\n  data: T;\n  status: number;\n}\n\nfunction processApiResponse<T>(response: ApiResponse<T>): T {\n  return response.data;\n}\n\nlet userResponse: ApiResponse<{ name: string; age: number }> = {\n  data: { name: 'Alice', age: 30 },\n  status: 200\n};\n\nlet productResponse: ApiResponse<{ id: number; name: string }> = {\n  data: { id: 1, name: 'Laptop' },\n  status: 200\n};\n\nconsole.log(processApiResponse(userResponse)); // { name: 'Alice', age: 30 }\nconsole.log(processApiResponse(productResponse)); // { id: 1, name: 'Laptop' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Дженерик-интерфейс `ApiResponse` обрабатывает данные разных типов.\n- Функция `processApiResponse` возвращает данные любого типа.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Дженерики могут использоваться с продвинутыми возможностями TypeScript:\n- **Условные типы (Conditional Types)**: Определение типов на основе условий.\n- **Сопоставленные типы (Mapped Types)**: Динамическое преобразование типов объектов.\n- **Infer**: Автоматический вывод типов внутри дженериков.\nДля получения дополнительной информации обратитесь к документации TypeScript (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте дженерики для повторно используемого и безопасного кода. Предпочитайте точные типы и ограничения вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо дженериков можно использовать фиксированные типы или `any`, но дженерики более безопасны и гибки.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример дженерика для самостоятельного тестирования\nfunction swap<T, U>(tuple: [T, U]): [U, T] {\n  return [tuple[1], tuple[0]];\n}\n\nlet result = swap<number, string>([1, 'one']);\nconsole.log(result); // ['one', 1]\n// let error = swap<number, string>(['test', 42]); // Ошибка: 'test' не соответствует типу number\n"
+      }
+    ]
+  }
+}

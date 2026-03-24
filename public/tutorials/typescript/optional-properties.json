@@ -1,0 +1,570 @@
+{
+  "id": "optional-properties",
+  "az": {
+    "title": "Optional Xüsusiyyətlər",
+    "icon": "FiBox",
+    "language": "typescript",
+    "description": "Obyektlərdə məcburi olmayan xüsusiyyətlər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Optional Xüsusiyyətlər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də optional xüsusiyyətlər interfeyslərdə və ya tip aliaslarında obyektin məcburi olmayan xüsusiyyətlərini təyin etmək üçün istifadə olunur. Bu xüsusiyyətlər `?` işarəsi ilə qeyd edilir və obyektin bu xüsusiyyəti ehtiva etməsi isteğe bağlı olur. Məsələn, bir `Person` interfeysində `name` xüsusiyyəti məcburi, `age` isə optional ola bilər. Bu, obyektin yalnız `name` ilə təyin oluna biləcəyini, lakin `age` olmadan da keçərli olacağını bildirir. JavaScript-də xüsusiyyətlər dinamik olduğundan, onların məcburi və ya isteğe bağlı olması təyin edilmir, bu da runtime səhvlərinə səbəb ola bilər. TypeScript-də optional xüsusiyyətlər kompilyasiya zamanı tip təhlükəsizliyini təmin edir. Bu JSON faylda optional xüsusiyyətlərin tərifi, istifadə məqsədləri, JavaScript ilə fərqləri, tip aliasları ilə fərqləri, sintaksisi, interfeyslərdə və siniflərdə istifadəsi, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Optional Xüsusiyyətlərin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional xüsusiyyətlər TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Çeviklik**: Obyektlərin yalnız müəyyən xüsusiyyətlərlə təyin oluna bilməsini təmin etmək.\n- **Tip təhlükəsizliyi**: Məcburi olmayan xüsusiyyətlərin istifadəsini yoxlamaq.\n- **Oxunaqlılıq**: Kodun strukturunu və məqsədini daha aydın ifadə etmək.\n- **Real dünya ssenariləri**: API cavabları və ya dinamik məlumat strukturları kimi hallarda çeviklik təmin etmək.\n- **Kodun təkrar istifadəsi**: Müxtəlif strukturlarda eyni interfeysi istifadə etmək.\nJavaScript-də obyektlər dinamik olduğundan, xüsusiyyətlərin isteğe bağlı olması təyin edilmir və bu, səhvlərə yol aça bilər. TypeScript-də optional xüsusiyyətlər bu problemi həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Optional Xüsusiyyətlərin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional xüsusiyyətlər interfeyslərdə və ya tip aliaslarında `?` işarəsi ilə təyin edilir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Optional xüsusiyyətlərin sintaksisi\ninterface Person {\n  name: string;\n  age?: number;\n}\n\nlet person1: Person = { name: 'Ali' };\nlet person2: Person = { name: 'Vəli', age: 25 };\n\nconsole.log(person1); // { name: 'Ali' }\nconsole.log(person2); // { name: 'Vəli', age: 25 }\n// let invalid: Person = { age: 30 }; // Xəta: name xüsusiyyəti yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Person` interfeysində `name` məcburi, `age` isə optional xüsusiyyətdir.\n- `person1` yalnız `name` ilə təyin olunub və keçərlidir.\n- `person2` həm `name`, həm də `age` ilə təyin olunub və keçərlidir.\n- `name` olmadan obyekt təyin etsək, kompilyasiya xətası yaranır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Optional Xüsusiyyətlər ilə Tip Aliaslarının Fərqi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional xüsusiyyətlər həm interfeyslərdə, həm də tip aliaslarında istifadə oluna bilər, lakin fərqlər var:\n- **İnterfeyslər**: Obyekt tipləri üçün istifadə olunur və siniflər tərəfindən `implements` ilə icra edilə bilər.\n- **Tip aliasları**: Daha çevikdir, primitiv tiplər, union tipləri və intersection tipləri də daxil olmaqla istifadə edilə bilər.\n- **Birləşmə**: İnterfeyslər və tip aliasları birgə istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Optional xüsusiyyətlər ilə tip aliasları\ntype Id = number | string;\n\ninterface User {\n  id: Id;\n  name: string;\n  email?: string;\n}\n\nlet user1: User = { id: 1, name: 'Ali' };\nlet user2: User = { id: 'abc', name: 'Vəli', email: 'veli@example.com' };\n\nconsole.log(user1); // { id: 1, name: 'Ali' }\nconsole.log(user2); // { id: 'abc', name: 'Vəli', email: 'veli@example.com' }\n// let invalid: User = { id: 2 }; // Xəta: name xüsusiyyəti yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Id` tip aliası `number` və ya `string` ola bilər.\n- `User` interfeysində `email` optional xüsusiyyətdir.\n- `user1` yalnız `id` və `name` ilə, `user2` isə əlavə olaraq `email` ilə təyin olunub.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Optional Xüsusiyyətlər Siniflərdə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional xüsusiyyətlər siniflər tərəfindən icra edilən interfeyslərdə də istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Optional xüsusiyyətlər siniflərdə\ninterface Person {\n  name: string;\n  age?: number;\n}\n\nclass Employee implements Person {\n  name: string;\n  age?: number;\n\n  constructor(name: string, age?: number) {\n    this.name = name;\n    this.age = age;\n  }\n}\n\nlet employee1 = new Employee('Ali');\nlet employee2 = new Employee('Vəli', 30);\n\nconsole.log(employee1); // Employee { name: 'Ali' }\nconsole.log(employee2); // Employee { name: 'Vəli', age: 30 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Employee` sinfi `Person` interfeysini icra edir.\n- `age` optional olduğu üçün `employee1` obyektində təyin olunmayıb.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Funksiyalarda Optional Xüsusiyyətlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional xüsusiyyətlər funksiya parametrlərində və ya qaytarma tiplərində istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Funksiyalarda optional xüsusiyyətlər\ninterface User {\n  name: string;\n  email?: string;\n}\n\nfunction printUser(user: User): string {\n  return user.email ? `${user.name} (${user.email})` : user.name;\n}\n\nlet user1: User = { name: 'Ali' };\nlet user2: User = { name: 'Vəli', email: 'veli@example.com' };\n\nconsole.log(printUser(user1)); // Ali\nconsole.log(printUser(user2)); // Vəli (veli@example.com)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `User` interfeysində `email` optional xüsusiyyətdir.\n- `printUser` funksiyası `email` xüsusiyyətinin mövcudluğunu yoxlayır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Optional Parametrlər ilə Optional Xüsusiyyətlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional xüsusiyyətlər funksiyalarda optional parametrlərlə birlikdə istifadə oluna bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Optional parametrlər ilə optional xüsusiyyətlər\ninterface Product {\n  name: string;\n  price?: number;\n}\n\nfunction createProduct(name: string, price?: number): Product {\n  return { name, price };\n}\n\nlet product1 = createProduct('Phone');\nlet product2 = createProduct('Laptop', 1000);\n\nconsole.log(product1); // { name: 'Phone' }\nconsole.log(product2); // { name: 'Laptop', price: 1000 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Product` interfeysində `price` optional xüsusiyyətdir.\n- `createProduct` funksiyasında `price` optional parametrdir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Optional Xüsusiyyətlər ilə İşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional xüsusiyyətlər real layihələrdə müxtəlif ssenarilərdə istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Praktik nümunə\ninterface Order {\n  id: number;\n  product: string;\n  quantity?: number;\n}\n\nfunction processOrder(order: Order): string {\n  const qty = order.quantity ?? 1;\n  return `Order ${order.id}: ${order.product} (Qty: ${qty})`;\n}\n\nlet order1: Order = { id: 1, product: 'Phone' };\nlet order2: Order = { id: 2, product: 'Laptop', quantity: 3 };\n\nconsole.log(processOrder(order1)); // Order 1: Phone (Qty: 1)\nconsole.log(processOrder(order2)); // Order 2: Laptop (Qty: 3)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Order` interfeysində `quantity` optional xüsusiyyətdir.\n- `processOrder` funksiyası `quantity` olmadıqda 1 dəyərini istifadə edir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional xüsusiyyətlər kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Optional xüsusiyyətlərin mövcudluğunu yoxlamaq üçün `if` və ya `??` (nullish coalescing) operatorundan istifadə edin.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\ninterface User {\n  name: string;\n  email?: string;\n}\n\nfunction getUserInfo(user: User): string {\n  return user.email ? `${user.name} (${user.email})` : user.name;\n}\n\nlet user: User = { name: 'Ali' };\nconsole.log(getUserInfo(user)); // Ali\n// let invalid: User = { email: 'ali@example.com' }; // Xəta: name yoxdur\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `email` optional xüsusiyyətdir və yoxlanılır.\n- Yanlış struktur kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nlet unsafe: any = { name: 'Ali', email: 'ali@example.com' };\nconsole.log(unsafe.name, unsafe.email); // Ali, ali@example.com, lakin tip təhlükəsizliyi yoxdur\nunsafe = { name: 'Vəli' };\nconsole.log(unsafe.name, unsafe.email); // Vəli, undefined, runtime xətası ola bilər\n\n// Düzgün yol\ninterface User {\n  name: string;\n  email?: string;\n}\n\nlet user: User = { name: 'Ali', email: 'ali@example.com' };\nconsole.log(user.name, user.email ?? 'No email'); // Ali, ali@example.com\nlet user2: User = { name: 'Vəli' };\nconsole.log(user2.name, user2.email ?? 'No email'); // Vəli, No email\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime xətalarına səbəb ola bilər.\n- Optional xüsusiyyətlərlə tip təhlükəsizliyi təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional xüsusiyyətlər real layihələrdə geniş istifadə olunur:\n- **API cavabları**: API-dən gələn məlumatlarda bəzi xüsusiyyətlərin olmaması halları.\n- **Form məlumatları**: İstifadəçi formalarında bəzi sahələrin isteğe bağlı olması.\n- **Komponent props**: UI komponentlərinin props strukturlarında çeviklik təmin etmək.\n- **Dinamik strukturlar**: Məlumat strukturlarının müxtəlif konfiqurasiyalarını dəstəkləmək.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ninterface UserProfile {\n  id: number;\n  username: string;\n  bio?: string;\n  avatarUrl?: string;\n}\n\nfunction displayProfile(profile: UserProfile): string {\n  let result = `User: ${profile.username} (ID: ${profile.id})`;\n  if (profile.bio) result += `, Bio: ${profile.bio}`;\n  if (profile.avatarUrl) result += `, Avatar: ${profile.avatarUrl}`;\n  return result;\n}\n\nlet profile1: UserProfile = { id: 1, username: 'ali123' };\nlet profile2: UserProfile = { id: 2, username: 'veli456', bio: 'Developer', avatarUrl: 'avatar.png' };\n\nconsole.log(displayProfile(profile1)); // User: ali123 (ID: 1)\nconsole.log(displayProfile(profile2)); // User: veli456 (ID: 2), Bio: Developer, Avatar: avatar.png\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `UserProfile` interfeysində `bio` və `avatarUrl` optional xüsusiyyətlərdir.\n- `displayProfile` funksiyası optional xüsusiyyətləri yoxlayır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Optional xüsusiyyətləri obyekt tipləri və dinamik strukturlar üçün istifadə edin. Optional xüsusiyyətləri yoxlamaq üçün `if` və ya `??` operatorundan istifadə edin. `any` əvəzinə dəqiq tipləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Optional xüsusiyyətlər əvəzinə union tipləri ilə standart dəyərlər (`undefined` və ya `null`) istifadə edilə bilər, lakin optional xüsusiyyətlər daha oxunaqlıdır.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün optional xüsusiyyətlər nümunəsi\ninterface User {\n  name: string;\n  email?: string;\n}\n\nconst user1: User = { name: 'Məmməd' };\nconst user2: User = { name: 'Vəli', email: 'veli@example.com' };\n\nconsole.log(user1.name, user1.email ?? 'No email'); // Məmməd, No email\nconsole.log(user2.name, user2.email ?? 'No email'); // Vəli, veli@example.com\n// const invalid: User = { email: 'ali@example.com' }; // Xəta: name yoxdur\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Optional Properties",
+    "icon": "FiBox",
+    "language": "typescript",
+    "description": "Non-mandatory properties in objects.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Optional Properties?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, optional properties are used to define non-mandatory properties in interfaces or type aliases, marked with the `?` symbol. These properties are not required to be present in an object. For example, in a `Person` interface, `name` might be mandatory, while `age` is optional, meaning an object can be defined with only `name` and still be valid. In JavaScript, properties are dynamic, and there’s no way to enforce whether they are required or optional, which can lead to runtime errors. TypeScript’s optional properties ensure type safety at compile time. This JSON file explains the definition, purposes, differences from JavaScript, differences from type aliases, syntax, use in interfaces and classes, type safety, and real-world usage scenarios of optional properties in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Optional Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional properties in TypeScript serve the following purposes:\n- **Flexibility**: Allow objects to be defined with only some properties.\n- **Type safety**: Check the usage of non-mandatory properties.\n- **Readability**: Clearly express the structure and intent of the code.\n- **Real-world scenarios**: Support cases like API responses or dynamic data structures.\n- **Code reuse**: Enable the same interface to be used in different contexts.\nIn JavaScript, objects are dynamic, and there’s no enforcement of optional properties, which can lead to errors. TypeScript’s optional properties address this issue."
+      },
+      {
+        "type": "heading",
+        "text": "Syntax of Optional Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional properties are defined in interfaces or type aliases using the `?` symbol.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Syntax of optional properties\ninterface Person {\n  name: string;\n  age?: number;\n}\n\nlet person1: Person = { name: 'Alice' };\nlet person2: Person = { name: 'Bob', age: 25 };\n\nconsole.log(person1); // { name: 'Alice' }\nconsole.log(person2); // { name: 'Bob', age: 25 }\n// let invalid: Person = { age: 30 }; // Error: property 'name' is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- In the `Person` interface, `name` is mandatory, while `age` is optional.\n- `person1` is defined with only `name` and is valid.\n- `person2` includes both `name` and `age` and is valid.\n- Omitting `name` triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Optional Properties vs. Type Aliases"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional properties can be used in both interfaces and type aliases, but there are differences:\n- **Interfaces**: Used for object types and can be implemented by classes with `implements`.\n- **Type aliases**: More flexible, supporting primitives, union types, and intersections.\n- **Interoperability**: Interfaces and type aliases can be used together.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Optional properties with type aliases\ntype Id = number | string;\n\ninterface User {\n  id: Id;\n  name: string;\n  email?: string;\n}\n\nlet user1: User = { id: 1, name: 'Alice' };\nlet user2: User = { id: 'abc', name: 'Bob', email: 'bob@example.com' };\n\nconsole.log(user1); // { id: 1, name: 'Alice' }\nconsole.log(user2); // { id: 'abc', name: 'Bob', email: 'bob@example.com' }\n// let invalid: User = { id: 2 }; // Error: property 'name' is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Id` type alias can be a `number` or `string`.\n- In the `User` interface, `email` is optional.\n- `user1` is defined with only `id` and `name`, while `user2` includes `email`.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Optional Properties in Classes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional properties can be used in interfaces implemented by classes.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Optional properties in classes\ninterface Person {\n  name: string;\n  age?: number;\n}\n\nclass Employee implements Person {\n  name: string;\n  age?: number;\n\n  constructor(name: string, age?: number) {\n    this.name = name;\n    this.age = age;\n  }\n}\n\nlet employee1 = new Employee('Alice');\nlet employee2 = new Employee('Bob', 30);\n\nconsole.log(employee1); // Employee { name: 'Alice' }\nconsole.log(employee2); // Employee { name: 'Bob', age: 30 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `Employee` class implements the `Person` interface.\n- `age` is optional, so `employee1` omits it.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Optional Properties in Functions"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional properties can be used in function parameters or return types.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Optional properties in functions\ninterface User {\n  name: string;\n  email?: string;\n}\n\nfunction printUser(user: User): string {\n  return user.email ? `${user.name} (${user.email})` : user.name;\n}\n\nlet user1: User = { name: 'Alice' };\nlet user2: User = { name: 'Bob', email: 'bob@example.com' };\n\nconsole.log(printUser(user1)); // Alice\nconsole.log(printUser(user2)); // Bob (bob@example.com)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- In the `User` interface, `email` is optional.\n- The `printUser` function checks for the presence of `email`.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Optional Parameters with Optional Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional properties can be used with optional function parameters.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Optional parameters with optional properties\ninterface Product {\n  name: string;\n  price?: number;\n}\n\nfunction createProduct(name: string, price?: number): Product {\n  return { name, price };\n}\n\nlet product1 = createProduct('Phone');\nlet product2 = createProduct('Laptop', 1000);\n\nconsole.log(product1); // { name: 'Phone' }\nconsole.log(product2); // { name: 'Laptop', price: 1000 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- In the `Product` interface, `price` is optional.\n- The `createProduct` function has an optional `price` parameter.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Working with Optional Properties"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional properties are used in various scenarios in real projects.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Practical example\ninterface Order {\n  id: number;\n  product: string;\n  quantity?: number;\n}\n\nfunction processOrder(order: Order): string {\n  const qty = order.quantity ?? 1;\n  return `Order ${order.id}: ${order.product} (Qty: ${qty})`;\n}\n\nlet order1: Order = { id: 1, product: 'Phone' };\nlet order2: Order = { id: 2, product: 'Laptop', quantity: 3 };\n\nconsole.log(processOrder(order1)); // Order 1: Phone (Qty: 1)\nconsole.log(processOrder(order2)); // Order 2: Laptop (Qty: 3)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- In the `Order` interface, `quantity` is optional.\n- The `processOrder` function uses a default value of 1 if `quantity` is missing.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional properties enhance code safety, but caution is needed:\n- Check for the presence of optional properties using `if` or the `??` (nullish coalescing) operator.\n- Avoid `any` as it reduces type safety.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\ninterface User {\n  name: string;\n  email?: string;\n}\n\nfunction getUserInfo(user: User): string {\n  return user.email ? `${user.name} (${user.email})` : user.name;\n}\n\nlet user: User = { name: 'Alice' };\nconsole.log(getUserInfo(user)); // Alice\n// let invalid: User = { email: 'alice@example.com' }; // Error: name is missing\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `email` is optional and checked for presence.\n- Incorrect structure triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nlet unsafe: any = { name: 'Alice', email: 'alice@example.com' };\nconsole.log(unsafe.name, unsafe.email); // Alice, alice@example.com, but no type safety\nunsafe = { name: 'Bob' };\nconsole.log(unsafe.name, unsafe.email); // Bob, undefined, may cause runtime errors\n\n// Correct approach\ninterface User {\n  name: string;\n  email?: string;\n}\n\nlet user: User = { name: 'Alice', email: 'alice@example.com' };\nconsole.log(user.name, user.email ?? 'No email'); // Alice, alice@example.com\nlet user2: User = { name: 'Bob' };\nconsole.log(user2.name, user2.email ?? 'No email'); // Bob, No email\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `any` is unsafe and may cause runtime errors.\n- Optional properties with type safety prevent such issues.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Optional properties are widely used in real projects:\n- **API responses**: Handling cases where some properties may be missing in API data.\n- **Form data**: Supporting optional fields in user forms.\n- **Component props**: Providing flexibility in UI component props structures.\n- **Dynamic structures**: Supporting various configurations of data structures.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ninterface UserProfile {\n  id: number;\n  username: string;\n  bio?: string;\n  avatarUrl?: string;\n}\n\nfunction displayProfile(profile: UserProfile): string {\n  let result = `User: ${profile.username} (ID: ${profile.id})`;\n  if (profile.bio) result += `, Bio: ${profile.bio}`;\n  if (profile.avatarUrl) result += `, Avatar: ${profile.avatarUrl}`;\n  return result;\n}\n\nlet profile1: UserProfile = { id: 1, username: 'alice123' };\nlet profile2: UserProfile = { id: 2, username: 'bob456', bio: 'Developer', avatarUrl: 'avatar.png' };\n\nconsole.log(displayProfile(profile1)); // User: alice123 (ID: 1)\nconsole.log(displayProfile(profile2)); // User: bob456 (ID: 2), Bio: Developer, Avatar: avatar.png\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- In the `UserProfile` interface, `bio` and `avatarUrl` are optional.\n- The `displayProfile` function checks for optional properties.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use optional properties for object types and dynamic structures. Check optional properties with `if` or the `??` operator. Prefer precise types over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Instead of optional properties, union types with default values (`undefined` or `null`) can be used, but optional properties are more readable.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself optional properties example\ninterface User {\n  name: string;\n  email?: string;\n}\n\nconst user1: User = { name: 'John' };\nconst user2: User = { name: 'Bob', email: 'bob@example.com' };\n\nconsole.log(user1.name, user1.email ?? 'No email'); // John, No email\nconsole.log(user2.name, user2.email ?? 'No email'); // Bob, bob@example.com\n// const invalid: User = { email: 'alice@example.com' }; // Error: name is missing\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Необязательные свойства",
+    "icon": "FiBox",
+    "language": "typescript",
+    "description": "Немандатные свойства в объектах.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое необязательные свойства?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript необязательные свойства используются для определения немандатных свойств в интерфейсах или псевдонимах типов, обозначаемых символом `?`. Эти свойства не обязательны для наличия в объекте. Например, в интерфейсе `Person` свойство `name` может быть обязательным, а `age` — необязательным, что означает, что объект может быть определен только с `name` и все равно будет валидным. В JavaScript свойства объектов динамические, и нет способа указать, обязательны они или нет, что может привести к ошибкам во время выполнения. Необязательные свойства в TypeScript обеспечивают безопасность типов на этапе компиляции. Этот JSON-файл подробно объясняет определение, назначение, отличия от JavaScript, отличия от псевдонимов типов, синтаксис, использование в интерфейсах и классах, безопасность типов и сценарии использования необязательных свойств в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение необязательных свойств"
+      },
+      {
+        "type": "paragraph",
+        "text": "Необязательные свойства в TypeScript используются для следующих целей:\n- **Гибкость**: Позволяют определять объекты только с некоторыми свойствами.\n- **Безопасность типов**: Проверяют использование немандатных свойств.\n- **Читаемость**: Четко выражают структуру и назначение кода.\n- **Реальные сценарии**: Поддерживают случаи, такие как ответы API или динамические структуры данных.\n- **Повторное использование кода**: Позволяют использовать один и тот же интерфейс в разных контекстах.\nВ JavaScript объекты динамические, и нет принудительного определения необязательных свойств, что может привести к ошибкам. Необязательные свойства TypeScript решают эту проблему."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис необязательных свойств"
+      },
+      {
+        "type": "paragraph",
+        "text": "Необязательные свойства определяются в интерфейсах или псевдонимах типов с помощью символа `?`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Синтаксис необязательных свойств\ninterface Person {\n  name: string;\n  age?: number;\n}\n\nlet person1: Person = { name: 'Алиса' };\nlet person2: Person = { name: 'Боб', age: 25 };\n\nconsole.log(person1); // { name: 'Алиса' }\nconsole.log(person2); // { name: 'Боб', age: 25 }\n// let invalid: Person = { age: 30 }; // Ошибка: отсутствует свойство 'name'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- В интерфейсе `Person` свойство `name` обязательно, а `age` — необязательное.\n- `person1` определен только с `name` и валиден.\n- `person2` включает и `name`, и `age` и также валиден.\n- Пропуск `name` вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Необязательные свойства против псевдонимов типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Необязательные свойства могут использоваться как в интерфейсах, так и в псевдонимах типов, но есть различия:\n- **Интерфейсы**: Используются для объектных типов и могут быть реализованы классами с помощью `implements`.\n- **Псевдонимы типов**: Более гибкие, поддерживают примитивы, объединения типов и пересечения.\n- **Взаимодействие**: Интерфейсы и псевдонимы типов могут использоваться вместе.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Необязательные свойства с псевдонимами типов\ntype Id = number | string;\n\ninterface User {\n  id: Id;\n  name: string;\n  email?: string;\n}\n\nlet user1: User = { id: 1, name: 'Алиса' };\nlet user2: User = { id: 'abc', name: 'Боб', email: 'bob@example.com' };\n\nconsole.log(user1); // { id: 1, name: 'Алиса' }\nconsole.log(user2); // { id: 'abc', name: 'Боб', email: 'bob@example.com' }\n// let invalid: User = { id: 2 }; // Ошибка: отсутствует свойство 'name'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Псевдоним типа `Id` может быть `number` или `string`.\n- В интерфейсе `User` свойство `email` необязательное.\n- `user1` определен только с `id` и `name`, а `user2` включает `email`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Необязательные свойства в классах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Необязательные свойства могут использоваться в интерфейсах, реализуемых классами.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Необязательные свойства в классах\ninterface Person {\n  name: string;\n  age?: number;\n}\n\nclass Employee implements Person {\n  name: string;\n  age?: number;\n\n  constructor(name: string, age?: number) {\n    this.name = name;\n    this.age = age;\n  }\n}\n\nlet employee1 = new Employee('Алиса');\nlet employee2 = new Employee('Боб', 30);\n\nconsole.log(employee1); // Employee { name: 'Алиса' }\nconsole.log(employee2); // Employee { name: 'Боб', age: 30 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Employee` реализует интерфейс `Person`.\n- `age` необязательное, поэтому `employee1` его не включает.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Необязательные свойства в функциях"
+      },
+      {
+        "type": "paragraph",
+        "text": "Необязательные свойства могут использоваться в параметрах или возвращаемых типах функций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Необязательные свойства в функциях\ninterface User {\n  name: string;\n  email?: string;\n}\n\nfunction printUser(user: User): string {\n  return user.email ? `${user.name} (${user.email})` : user.name;\n}\n\nlet user1: User = { name: 'Алиса' };\nlet user2: User = { name: 'Боб', email: 'bob@example.com' };\n\nconsole.log(printUser(user1)); // Алиса\nconsole.log(printUser(user2)); // Боб (bob@example.com)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- В интерфейсе `User` свойство `email` необязательное.\n- Функция `printUser` проверяет наличие `email`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Необязательные параметры с необязательными свойствами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Необязательные свойства могут использоваться с необязательными параметрами функций.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Необязательные параметры с необязательными свойствами\ninterface Product {\n  name: string;\n  price?: number;\n}\n\nfunction createProduct(name: string, price?: number): Product {\n  return { name, price };\n}\n\nlet product1 = createProduct('Телефон');\nlet product2 = createProduct('Ноутбук', 1000);\n\nconsole.log(product1); // { name: 'Телефон' }\nconsole.log(product2); // { name: 'Ноутбук', price: 1000 }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- В интерфейсе `Product` свойство `price` необязательное.\n- Функция `createProduct` имеет необязательный параметр `price`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Работа с необязательными свойствами"
+      },
+      {
+        "type": "paragraph",
+        "text": "Необязательные свойства используются в различных сценариях в реальных проектах.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Практический пример\ninterface Order {\n  id: number;\n  product: string;\n  quantity?: number;\n}\n\nfunction processOrder(order: Order): string {\n  const qty = order.quantity ?? 1;\n  return `Order ${order.id}: ${order.product} (Qty: ${qty})`;\n}\n\nlet order1: Order = { id: 1, product: 'Телефон' };\nlet order2: Order = { id: 2, product: 'Ноутбук', quantity: 3 };\n\nconsole.log(processOrder(order1)); // Order 1: Телефон (Qty: 1)\nconsole.log(processOrder(order2)); // Order 2: Ноутбук (Qty: 3)\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- В интерфейсе `Order` свойство `quantity` необязательное.\n- Функция `processOrder` использует значение по умолчанию 1, если `quantity` отсутствует.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Необязательные свойства повышают безопасность кода, но требуется осторожность:\n- Проверяйте наличие необязательных свойств с помощью `if` или оператора `??` (nullish coalescing).\n- Избегайте `any`, так как это снижает безопасность типов.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\ninterface User {\n  name: string;\n  email?: string;\n}\n\nfunction getUserInfo(user: User): string {\n  return user.email ? `${user.name} (${user.email})` : user.name;\n}\n\nlet user: User = { name: 'Алиса' };\nconsole.log(getUserInfo(user)); // Алиса\n// let invalid: User = { email: 'alice@example.com' }; // Ошибка: отсутствует name\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `email` — необязательное свойство и проверяется на наличие.\n- Неправильная структура вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nlet unsafe: any = { name: 'Алиса', email: 'alice@example.com' };\nconsole.log(unsafe.name, unsafe.email); // Алиса, alice@example.com, но без безопасности типов\nunsafe = { name: 'Боб' };\nconsole.log(unsafe.name, unsafe.email); // Боб, undefined, может вызвать ошибки во время выполнения\n\n// Правильный подход\ninterface User {\n  name: string;\n  email?: string;\n}\n\nlet user: User = { name: 'Алиса', email: 'alice@example.com' };\nconsole.log(user.name, user.email ?? 'No email'); // Алиса, alice@example.com\nlet user2: User = { name: 'Боб' };\nconsole.log(user2.name, user2.email ?? 'No email'); // Боб, No email\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `any` небезопасен и может вызвать ошибки во время выполнения.\n- Необязательные свойства с безопасностью типов предотвращают такие проблемы.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Необязательные свойства широко используются в реальных проектах:\n- **Ответы API**: Обработка случаев, когда некоторые свойства могут отсутствовать в данных API.\n- **Данные форм**: Поддержка необязательных полей в формах пользователей.\n- **Props компонентов**: Обеспечение гибкости в структурах props UI-компонентов.\n- **Динамические структуры**: Поддержка различных конфигураций структур данных.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ninterface UserProfile {\n  id: number;\n  username: string;\n  bio?: string;\n  avatarUrl?: string;\n}\n\nfunction displayProfile(profile: UserProfile): string {\n  let result = `User: ${profile.username} (ID: ${profile.id})`;\n  if (profile.bio) result += `, Bio: ${profile.bio}`;\n  if (profile.avatarUrl) result += `, Avatar: ${profile.avatarUrl}`;\n  return result;\n}\n\nlet profile1: UserProfile = { id: 1, username: 'alice123' };\nlet profile2: UserProfile = { id: 2, username: 'bob456', bio: 'Developer', avatarUrl: 'avatar.png' };\n\nconsole.log(displayProfile(profile1)); // User: alice123 (ID: 1)\nconsole.log(displayProfile(profile2)); // User: bob456 (ID: 2), Bio: Developer, Avatar: avatar.png\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- В интерфейсе `UserProfile` свойства `bio` и `avatarUrl` необязательные.\n- Функция `displayProfile` проверяет наличие необязательных свойств.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте необязательные свойства для объектных типов и динамических структур. Проверяйте необязательные свойства с помощью `if` или оператора `??`. Предпочитайте точные типы вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо необязательных свойств можно использовать объединения типов с значениями по умолчанию (`undefined` или `null`), но необязательные свойства более читаемы.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример необязательных свойств для самостоятельного тестирования\ninterface User {\n  name: string;\n  email?: string;\n}\n\nconst user1: User = { name: 'Джон' };\nconst user2: User = { name: 'Боб', email: 'bob@example.com' };\n\nconsole.log(user1.name, user1.email ?? 'No email'); // Джон, No email\nconsole.log(user2.name, user2.email ?? 'No email'); // Боб, bob@example.com\n// const invalid: User = { email: 'alice@example.com' }; // Ошибка: отсутствует name\n"
+      }
+    ]
+  }
+}

@@ -11,6 +11,7 @@ import { useSession } from "next-auth/react";
 import { useMemo } from "react";
 import { useAppContext } from "../../../../../../contexts/AppContext";
 import mainPageTryEditorStyles from "../../../../components/mainpageTryEditor/MainPageTryEditor.module.css";
+import FavoriteButton from "../../../../../../components/FavoriteButton";
 
 interface ContentBlock {
   type: "heading" | "paragraph" | "code" | "editor" | "list";
@@ -49,6 +50,13 @@ const languageShortMap: Record<string, string> = {
   scala: "SC",
   bash: "SH",
   matlab: "ML",
+  // Framework mappings
+  react: "RE",
+  vue: "VU",
+  angular: "AN",
+  svelte: "SV",
+  nextjs: "NX",
+  nodejs: "ND",
 };
 
 function languageAlias(lang: string) {
@@ -254,9 +262,11 @@ export default function TutorialTopicPage() {
             JSON.stringify(visitedLessonsByLang)
           );
         } catch (e) {
+          console.log('🔥 fetchVisited - error, setting empty array');
           setVisitedLessons([]);
         }
       } else {
+        console.log('🔥 fetchVisited - setting state from localStorage:', visited);
         setVisitedLessons(visited);
       }
     };
@@ -266,7 +276,7 @@ export default function TutorialTopicPage() {
   // Mark as visited on mount (only if not already visited)
   useEffect(() => {
     // Skip if any required data is missing
-    if (!safeTopicId || !safeLanguage || !session?.user) {
+    if (!safeTopicId || !safeLanguage) {
       return;
     }
 
@@ -278,61 +288,71 @@ export default function TutorialTopicPage() {
         ? visitedLessonsByLang[safeLanguage] || []
         : [];
       
-      // Only mark as visited if it's not already in the list
+      // Always update the state first to show the tick immediately
       if (!visited.includes(safeTopicId)) {
-        console.log('Marking lesson as visited:', safeTopicId, 'language:', safeLanguage);
+        const newVisited = [...visited, safeTopicId];
+        console.log('🔥 Setting visitedLessons state to:', newVisited);
+        setVisitedLessons(newVisited);
         
-        visited.push(safeTopicId);
-        if (safeLanguage) visitedLessonsByLang[safeLanguage] = visited;
+        // Update localStorage
+        if (safeLanguage) visitedLessonsByLang[safeLanguage] = newVisited;
         localStorage.setItem(
           "visitedLessons",
           JSON.stringify(visitedLessonsByLang)
         );
-        setVisitedLessons(visited);
         
-        // Sync to server ONLY for new lessons (not duplicates)
-        try {
-          const response = await fetch("/api/user/lessons", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              language: safeLanguage,
-              lessonId: safeTopicId,
-            }),
-          });
-          
-          const result = await response.json();
-
-          // Only log activity if the lesson was actually added (not already visited)
-          if (result.added) {
-            console.log('Logging lesson view activity for:', safeTopicId, 'language:', safeLanguage);
-            console.log('Metadata being sent:', {
-              language: safeLanguage,
-              lessonId: safeTopicId,
+        // Dispatch custom event to notify other components (with small delay)
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('visitedLessonsUpdated', {
+            detail: { language: safeLanguage, lessonId: safeTopicId }
+          }));
+        }, 100);
+        
+        console.log('🔥 Marking lesson as visited:', safeTopicId, 'language:', safeLanguage);
+        console.log('🔥 Updated localStorage visitedLessons:', JSON.parse(localStorage.getItem("visitedLessons") || "{}"));
+        
+        // Sync to server only if user is logged in
+        if (session?.user) {
+          try {
+            const response = await fetch("/api/user/lessons", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                language: safeLanguage,
+                lessonId: safeTopicId,
+              }),
             });
-      logActivity(
-        'LESSON_VIEW',
-              `Viewed lesson: ${safeTopicId}`,
-        {
-          language: safeLanguage,
-          lessonId: safeTopicId,
-              }
-            );
-          } else {
-            console.log('Lesson already visited on server:', safeTopicId);
+            
+            const result = await response.json();
+
+            if (result.added) {
+              console.log('Logging lesson view activity for:', safeTopicId, 'language:', safeLanguage);
+              logActivity(
+                'LESSON_VIEW',
+                `Viewed lesson: ${safeTopicId}`,
+                {
+                  language: safeLanguage,
+                  lessonId: safeTopicId,
+                }
+              );
+            } else {
+              console.log('Lesson already visited on server:', safeTopicId);
+            }
+          } catch (e) {
+            console.error('Failed to sync lesson to server:', e);
           }
-        } catch (e) {
-          console.error('Failed to sync lesson to server:', e);
-    }
+        }
       } else {
         console.log('Lesson already visited locally:', safeTopicId);
-        // Already visited, just set the state
-        setVisitedLessons(visited);
+        // Even if already visited, make sure state includes this lesson and is up to date
+        const newVisited = visited.includes(safeTopicId) ? visited : [...visited, safeTopicId];
+        setVisitedLessons(newVisited);
       }
     };
     
     markVisited();
-  }, [safeTopicId, safeLanguage, session?.user?.email]); // Only depend on essential values
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [safeTopicId, safeLanguage]);
 
   // Algoritm mövzusu üçün localStorage-dan oxu
   useEffect(() => {
@@ -499,9 +519,13 @@ export default function TutorialTopicPage() {
               const visitedArr = Array.isArray(visitedLessons)
                 ? visitedLessons
                 : [];
-              const isVisited = visitedArr.includes(topic.id);
-              if (isVisited) {
-                console.log(`[Sidebar] Topic ${topic.id} is visited`);
+              // Check if topic is visited in state OR if it's the current topic (which should always be marked as visited)
+              // Also check localStorage directly for the most up-to-date info
+              const currentVisitedLessons = JSON.parse(localStorage.getItem("visitedLessons") || "{}");
+              const currentVisitedArr = safeLanguage ? (currentVisitedLessons[safeLanguage] || []) : [];
+              const isVisited = visitedArr.includes(topic.id) || currentVisitedArr.includes(topic.id) || topic.id === safeTopicId;
+              if (topic.id === safeTopicId) {
+                console.log(`🔥 [Sidebar] Current topic ${topic.id} - visitedArr:`, visitedArr, 'isVisited:', isVisited, 'isCurrent:', topic.id === safeTopicId);
               }
               return (
                 <button
@@ -515,7 +539,7 @@ export default function TutorialTopicPage() {
                   title={topic.title}
                 >
                   <Icon className={styles.topicIconNew} />
-                  {!collapsed && <span>{topic.title}</span>}
+                  {!collapsed && <span>{topic.title} {} </span>}
                   {isVisited && (
                     <FiIcons.FiCheck
                       style={{
@@ -544,7 +568,13 @@ export default function TutorialTopicPage() {
                 marginLeft: "auto",
               }}
             >
-              {/* Removed completion/scroll icons */}
+              <FavoriteButton
+                type="LESSON"
+                itemId={`languages/${safeLanguage}/${safeTopicId}`}
+                title={topicContent?.title || selectedTopic?.title || "Mövzu"}
+                description={topicContent?.description || selectedTopic?.description}
+                language={decodeURIComponent(safeLanguage)}
+              />
               <button className={styles.backButtonNew} onClick={handleBack}>
                 <FiIcons.FiChevronLeft /> Geri
               </button>

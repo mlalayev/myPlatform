@@ -1,0 +1,570 @@
+{
+  "id": "performance",
+  "az": {
+    "title": "Performans və Optimallaşdırma",
+    "icon": "FiMonitor",
+    "language": "php",
+    "description": "PHP performansı, keşləmə və optimallaşdırma.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "PHP-də Performans və Optimallaşdırma Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də performans proqramın daha sürətli və effektiv işləməsi üçün tətbiq olunan texnikalar toplusudur. Optimallaşdırma isə resurs istifadəsini (yaddaş, CPU, disk) azaltmaq və cavab müddətini minimuma endirmək deməkdir. Keşləmə (caching) tez-tez istifadə olunan məlumatları saxlayaraq təkrar hesablamaların qarşısını alır. Bu JSON faylda PHP-də performansın artırılması, keşləmə növləri (opcode, data, HTTP), alətlər (OPcache, Memcached, Redis), performans ölçülməsi, təhlükəsizlik aspektləri və praktik nümunələr çox detallı şəkildə izah olunacaq. Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz. Bunun üçün XAMPP kimi bir localhost mühitindən istifadə edə bilərsiniz. PHP 8.1 və ya daha yeni versiyadan istifadə etdiyinizə əmin olun. Keşləmə alətləri üçün Composer və ya PECL ilə quraşdırma tələb oluna bilər."
+      },
+      {
+        "type": "heading",
+        "text": "Performansın Əsasları"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də performansın artırılması proqramın sürətini və resurs istifadəsini optimallaşdırmaqla mümkündür. Əsas yanaşmalar:\n- Kodun effektiv yazılması (məsələn, lazımsız dövrələrdən qaçınma).\n- Keşləmənin istifadəsi (məlumatların və ya hesablamaların saxlanması).\n- Lazımsız hesablamaların azaldılması.\n- Server tərəfi optimallaşdırmalar (məsələn, OPcache).\nNümunə (səmərəsiz vs səmərəli kod):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səmərəsiz kod\n$start = microtime(true);\nfor ($i = 0; $i < 1000000; $i++) {\n  $array[] = $i * $i;\n}\n$end = microtime(true);\necho 'Səmərəsiz kod müddəti: ' . ($end - $start) . ' saniyə\\n';\n\n// Səmərəli kod\n$start = microtime(true);\n$array = array_map(function($i) { return $i * $i; }, range(0, 999999));\n$end = microtime(true);\necho 'Səmərəli kod müddəti: ' . ($end - $start) . ' saniyə\\n';\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk nümunədə dövrə ilə massiv doldurulur (yavaş).\n- İkinci nümunədə `array_map` və `range` istifadə olunur (daha sürətli).\n- `microtime(true)` ilə icra müddəti ölçülür.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Keşləmə Növləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "PHP-də keşləmə üç əsas kateqoriyaya bölünür:\n- **Opcode Keşləmə**: PHP kodunun tərtib edilmiş versiyasını saxlayır (məsələn, OPcache).\n- **Məlumat Keşləmə**: Verilənlər bazası sorğuları və ya hesablamalar kimi məlumatları saxlayır (məsələn, Memcached, Redis).\n- **HTTP Keşləmə**: Brauzer və ya proksi tərəfindən veb səhifələrin keşlənməsi (məsələn, `ETag`, `Cache-Control`)."
+      },
+      {
+        "type": "heading",
+        "text": "OPcache ilə Opcode Keşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "OPcache PHP kodunun tərtib edilmiş (opcode) versiyasını yaddaşa saxlayaraq təkrar tərtib etməni aradan qaldırır. PHP 5.5-dən etibarən daxili moduldur.\nQuraşdırma: `php.ini`-də `[opcache]` bölməsini aktivləşdirin:\n```ini\n[opcache]\nopcache.enable=1\nopcache.memory_consumption=128\nopcache.interned_strings_buffer=8\nopcache.max_accelerated_files=10000\n```\nNümunə (OPcache statusunu yoxlama):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// OPcache statusunu yoxlama\nif (function_exists('opcache_get_status')) {\n  $status = opcache_get_status();\n  echo 'OPcache aktivdir: ' . ($status['opcache_enabled'] ? 'Bəli' : 'Xeyr') . \"\\n\";\n  echo 'İstifadə olunan yaddaş: ' . $status['memory_usage']['used_memory'] . ' bayt\\n';\n} else {\n  echo 'OPcache quraşdırılmayıb!';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `opcache_get_status()` OPcache-in vəziyyətini qaytarır.\n- Aktivlik və yaddaş istifadəsi göstərilir.\n- Qeyd: OPcache-in `php.ini`-də aktiv olduğundan əmin olun.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Məlumat Keşləmə: Redis"
+      },
+      {
+        "type": "paragraph",
+        "text": "Redis sürətli yaddaşda məlumat keşləmə sistemidir. Verilənlər bazası sorğularını və ya hesablamaları saxlamaq üçün istifadə olunur.\nQuraşdırma: `pecl install redis` və ya `composer require predis/predis`\nNümunə (Redis ilə məlumat keşləmə):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Redis ilə məlumat keşləmə\nrequire 'vendor/autoload.php';\n\nuse Predis\\Client;\n\n$redis = new Client(['host' => '127.0.0.1', 'port' => 6379]);\n\n$key = 'test_key';\nif ($redis->exists($key)) {\n  $data = $redis->get($key);\n  echo 'Keşdən alınan məlumat: ' . $data . \"\\n\";\n} else {\n  $data = 'Bu məlumat Redis-də saxlanılır.';\n  $redis->set($key, $data, 'EX', 3600); // 1 saat keşləmə\n  echo 'Yeni məlumat keşləndi: ' . $data . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Predis\\Client` Redis-ə qoşulur.\n- `exists()` açarın mövcudluğunu yoxlayır.\n- `set()` məlumatı 1 saat saxlayır.\n- Qeyd: Redis serveri işləməlidir (`sudo apt install redis-server` və ya oxşar).\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Məlumat Keşləmə: Memcached"
+      },
+      {
+        "type": "paragraph",
+        "text": "Memcached başqa bir yaddaşda keşləmə sistemidir, sadə və sürətlidir.\nQuraşdırma: `pecl install memcached`\nNümunə (Memcached ilə məlumat keşləmə):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Memcached ilə məlumat keşləmə\n$memcached = new Memcached();\n$memcached->addServer('127.0.0.1', 11211);\n\n$key = 'test_key';\n$data = $memcached->get($key);\nif ($data) {\n  echo 'Keşdən alınan məlumat: ' . $data . \"\\n\";\n} else {\n  $data = 'Bu məlumat Memcached-də saxlanılır.';\n  $memcached->set($key, $data, 3600); // 1 saat keşləmə\n  echo 'Yeni məlumat keşləndi: ' . $data . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Memcached` sinfi ilə serverə qoşulur.\n- `get()` və `set()` ilə məlumatlar idarə olunur.\n- Qeyd: Memcached serveri işləməlidir (`sudo apt install memcached`).\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "HTTP Keşləmə"
+      },
+      {
+        "type": "paragraph",
+        "text": "HTTP keşləmə brauzer və ya proksi tərəfindən səhifələrin saxlanmasını təmin edir. `Cache-Control` və `ETag` başlıqları istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// HTTP keşləmə\nheader('Cache-Control: max-age=3600, public');\nheader('ETag: \"' . md5('test_content') . '\"');\n\necho 'Bu məzmun brauzerdə 1 saat keşlənəcək.';\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `Cache-Control: max-age=3600` məzmunu 1 saat keşləyir.\n- `ETag` ilə məzmunun unikal identifikatoru təyin olunur.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Performans Ölçülməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Performansı ölçmək üçün `microtime()` və ya xarici alətlər (Xdebug, Blackfire) istifadə olunur.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Performans ölçülməsi\n$start = microtime(true);\n\n// Test əməliyyatı\n$sum = 0;\nfor ($i = 0; $i < 1000000; $i++) {\n  $sum += $i;\n}\n\n$end = microtime(true);\necho 'İcra müddəti: ' . ($end - $start) . ' saniyə\\n';\necho 'Nəticə: ' . $sum . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `microtime(true)` ilə icra müddəti ölçülür.\n- Sadə bir dövrənin performansı yoxlanılır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Keşləmə və optimallaşdırmada təhlükəsizlik vacibdir:\n- Keşlənmiş məlumatlarda həssas məlumatları saxlamayın.\n- Redis və Memcached-də autentifikasiya qurun.\n- HTTP keşləməsində `Cache-Control: private` istifadə edin (həssas səhifələr üçün).\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Təhlükəsiz keşləmə\nrequire 'vendor/autoload.php';\n\nuse Predis\\Client;\n\n$redis = new Client(['host' => '127.0.0.1', 'port' => 6379, 'password' => 'your_password']);\n\n$key = 'safe_key';\nif ($redis->exists($key)) {\n  $data = $redis->get($key);\n  echo 'Keşdən alınan təhlükəsiz məlumat: ' . htmlspecialchars($data) . \"\\n\";\n} else {\n  $data = 'Bu təhlükəsiz məlumatdır.';\n  $redis->set($key, $data, 'EX', 3600);\n  echo 'Təhlükəsiz məlumat keşləndi: ' . htmlspecialchars($data) . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Redis-ə autentifikasiya ilə qoşulur.\n- `htmlspecialchars()` ilə məlumat təmizlənir.\n- Qeyd: Redis serverində autentifikasiya aktiv olmalıdır.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Praktik Nümunə: Verilənlər Bazası Sorğusunun Keşlənməsi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Verilənlər bazası sorğusunu Redis ilə keşləyək.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Verilənlər bazası sorğusunun keşlənməsi\nrequire 'vendor/autoload.php';\n\nuse Predis\\Client;\n\n$redis = new Client(['host' => '127.0.0.1', 'port' => 6379]);\n$key = 'db_query_cache';\n\nif ($redis->exists($key)) {\n  $data = json_decode($redis->get($key), true);\n  echo 'Keşdən alınan sorğu nəticəsi: ' . $data[0]['title'] . \"\\n\";\n} else {\n  // Simulyasiya edilmiş DB sorğusu\n  $data = [['id' => 1, 'title' => 'Test başlıq']];\n  $redis->set($key, json_encode($data), 'EX', 3600);\n  echo 'Yeni sorğu keşləndi: ' . $data[0]['title'] . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- Verilənlər bazası sorğusu simulyasiya edilir.\n- Nəticə Redis-də 1 saat saxlanılır.\n- Qeyd: Real layihədə PDO və ya MySQLi ilə DB sorğusu əlavə edin.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Səhvə yol açan nümunə\n// Keşlənməmiş ağır sorğu\n$start = microtime(true);\nfor ($i = 0; $i < 1000000; $i++) {\n  $sum += sin($i);\n}\n$end = microtime(true);\necho 'Keşlənməmiş müddət: ' . ($end - $start) . ' saniyə\\n';\n\n// Düzgün yol: Redis ilə keşləmə\nrequire 'vendor/autoload.php';\nuse Predis\\Client;\n\n$redis = new Client(['host' => '127.0.0.1', 'port' => 6379]);\n$key = 'heavy_calc';\n\nif ($redis->exists($key)) {\n  $sum = $redis->get($key);\n} else {\n  $sum = 0;\n  for ($i = 0; $i < 1000000; $i++) {\n    $sum += sin($i);\n  }\n  $redis->set($key, $sum, 'EX', 3600);\n}\n$end = microtime(true);\necho 'Keşlənmiş müddət: ' . ($end - $start) . ' saniyə\\n';\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- İlk nümunə ağır hesablamanı hər dəfə təkrar edir.\n- Düzgün yolda Redis ilə nəticə keşlənir.\n- Aşağıda bu kodu sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: OPcache-i aktivləşdirin. Redis və ya Memcached ilə məlumat keşləmə istifadə edin. HTTP başlıqları ilə brauzer keşləməsini optimallaşdırın. PHP-nin rəsmi sənədlərindən (https://www.php.net/manual/en/book.opcache.php) faydalanın.\n- **Alternativlər**: Laravel kimi çərçivələr keşləməni asanlaşdırır. Varnish kimi proksi serverləri HTTP keşləməsi üçün istifadə edilə bilər.\n- Aşağıda kodları sadə bir PHP faylında yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Sınaq üçün keşləmə nümunəsi\n$start = microtime(true);\n\n$cache = [];\n$key = 'test_data';\nif (isset($cache[$key])) {\n  $data = $cache[$key];\n  echo 'Keşdən alınan məlumat: ' . $data . \"\\n\";\n} else {\n  $data = 'Bu məlumat yaddaşda saxlanılır.';\n  $cache[$key] = $data;\n  echo 'Yeni məlumat keşləndi: ' . $data . \"\\n\";\n}\n\n$end = microtime(true);\necho 'İcra müddəti: ' . ($end - $start) . ' saniyə\\n';\n?>"
+      }
+    ]
+  },
+  "en": {
+    "title": "Performance and Optimization",
+    "icon": "FiMonitor",
+    "language": "php",
+    "description": "PHP performance, caching, and optimization.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What is Performance and Optimization in PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Performance in PHP refers to techniques that make programs run faster and more efficiently. Optimization involves reducing resource usage (memory, CPU, disk) and minimizing response times. Caching stores frequently used data to avoid redundant computations. This JSON file explains PHP performance, caching types (opcode, data, HTTP), tools (OPcache, Memcached, Redis), performance measurement, security aspects, and practical examples in detail. You can test the code below in a simple PHP file using a localhost environment like XAMPP. Ensure you are using PHP 8.1 or a newer version. Caching tools may require installation via Composer or PECL."
+      },
+      {
+        "type": "heading",
+        "text": "Performance Basics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Improving performance in PHP involves optimizing code execution and resource usage. Key approaches include:\n- Writing efficient code (e.g., avoiding unnecessary loops).\n- Using caching (storing data or computations).\n- Reducing redundant calculations.\n- Server-side optimizations (e.g., OPcache).\nExample (inefficient vs efficient code):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Inefficient code\n$start = microtime(true);\nfor ($i = 0; $i < 1000000; $i++) {\n  $array[] = $i * $i;\n}\n$end = microtime(true);\necho 'Inefficient code time: ' . ($end - $start) . ' seconds\\n';\n\n// Efficient code\n$start = microtime(true);\n$array = array_map(function($i) { return $i * $i; }, range(0, 999999));\n$end = microtime(true);\necho 'Efficient code time: ' . ($end - $start) . ' seconds\\n';\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first example uses a loop to populate an array (slower).\n- The second uses `array_map` and `range` (faster).\n- `microtime(true)` measures execution time.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Caching Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Caching in PHP is divided into three main categories:\n- **Opcode Caching**: Stores compiled PHP code (e.g., OPcache).\n- **Data Caching**: Stores database queries or computations (e.g., Memcached, Redis).\n- **HTTP Caching**: Caches web pages in browsers or proxies (e.g., `ETag`, `Cache-Control`)."
+      },
+      {
+        "type": "heading",
+        "text": "Opcode Caching with OPcache"
+      },
+      {
+        "type": "paragraph",
+        "text": "OPcache stores compiled (opcode) PHP code in memory, eliminating repeated compilation. It’s built into PHP since 5.5.\nSetup: Enable in `php.ini`:\n```ini\n[opcache]\nopcache.enable=1\nopcache.memory_consumption=128\nopcache.interned_strings_buffer=8\nopcache.max_accelerated_files=10000\n```\nExample (checking OPcache status):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Check OPcache status\nif (function_exists('opcache_get_status')) {\n  $status = opcache_get_status();\n  echo 'OPcache enabled: ' . ($status['opcache_enabled'] ? 'Yes' : 'No') . \"\\n\";\n  echo 'Memory used: ' . $status['memory_usage']['used_memory'] . ' bytes\\n';\n} else {\n  echo 'OPcache not installed!';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `opcache_get_status()` returns OPcache status.\n- It displays whether OPcache is enabled and memory usage.\n- Note: Ensure OPcache is enabled in `php.ini`.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Data Caching: Redis"
+      },
+      {
+        "type": "paragraph",
+        "text": "Redis is a fast in-memory caching system for storing database queries or computations.\nInstallation: `pecl install redis` or `composer require predis/predis`\nExample (data caching with Redis):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Data caching with Redis\nrequire 'vendor/autoload.php';\n\nuse Predis\\Client;\n\n$redis = new Client(['host' => '127.0.0.1', 'port' => 6379]);\n\n$key = 'test_key';\nif ($redis->exists($key)) {\n  $data = $redis->get($key);\n  echo 'Data from cache: ' . $data . \"\\n\";\n} else {\n  $data = 'This data is stored in Redis.';\n  $redis->set($key, $data, 'EX', 3600); // Cache for 1 hour\n  echo 'New data cached: ' . $data . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Predis\\Client` connects to Redis.\n- `exists()` checks if the key exists.\n- `set()` stores data for 1 hour.\n- Note: Redis server must be running (`sudo apt install redis-server` or similar).\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Data Caching: Memcached"
+      },
+      {
+        "type": "paragraph",
+        "text": "Memcached is another fast in-memory caching system, simple and lightweight.\nInstallation: `pecl install memcached`\nExample (data caching with Memcached):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Data caching with Memcached\n$memcached = new Memcached();\n$memcached->addServer('127.0.0.1', 11211);\n\n$key = 'test_key';\n$data = $memcached->get($key);\nif ($data) {\n  echo 'Data from cache: ' . $data . \"\\n\";\n} else {\n  $data = 'This data is stored in Memcached.';\n  $memcached->set($key, $data, 3600); // Cache for 1 hour\n  echo 'New data cached: ' . $data . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Memcached` class connects to the server.\n- `get()` and `set()` manage data.\n- Note: Memcached server must be running (`sudo apt install memcached`).\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "HTTP Caching"
+      },
+      {
+        "type": "paragraph",
+        "text": "HTTP caching enables browsers or proxies to cache web pages using `Cache-Control` and `ETag` headers.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// HTTP caching\nheader('Cache-Control: max-age=3600, public');\nheader('ETag: \"' . md5('test_content') . '\"');\n\necho 'This content will be cached by the browser for 1 hour.';\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `Cache-Control: max-age=3600` caches content for 1 hour.\n- `ETag` provides a unique identifier for the content.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Performance Measurement"
+      },
+      {
+        "type": "paragraph",
+        "text": "Measure performance using `microtime()` or external tools like Xdebug or Blackfire.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Performance measurement\n$start = microtime(true);\n\n// Test operation\n$sum = 0;\nfor ($i = 0; $i < 1000000; $i++) {\n  $sum += $i;\n}\n\n$end = microtime(true);\necho 'Execution time: ' . ($end - $start) . ' seconds\\n';\necho 'Result: ' . $sum . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `microtime(true)` measures execution time.\n- A simple loop’s performance is tested.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Security is critical in caching and optimization:\n- Avoid storing sensitive data in caches.\n- Configure authentication for Redis and Memcached.\n- Use `Cache-Control: private` for sensitive pages in HTTP caching.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Secure caching\nrequire 'vendor/autoload.php';\n\nuse Predis\\Client;\n\n$redis = new Client(['host' => '127.0.0.1', 'port' => 6379, 'password' => 'your_password']);\n\n$key = 'safe_key';\nif ($redis->exists($key)) {\n  $data = $redis->get($key);\n  echo 'Secure data from cache: ' . htmlspecialchars($data) . \"\\n\";\n} else {\n  $data = 'This is secure data.';\n  $redis->set($key, $data, 'EX', 3600);\n  echo 'Secure data cached: ' . htmlspecialchars($data) . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- Redis connects with authentication.\n- `htmlspecialchars()` sanitizes data.\n- Note: Ensure Redis authentication is enabled.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Practical Example: Caching Database Queries"
+      },
+      {
+        "type": "paragraph",
+        "text": "Cache a database query using Redis.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Caching database query\nrequire 'vendor/autoload.php';\n\nuse Predis\\Client;\n\n$redis = new Client(['host' => '127.0.0.1', 'port' => 6379]);\n$key = 'db_query_cache';\n\nif ($redis->exists($key)) {\n  $data = json_decode($redis->get($key), true);\n  echo 'Cached query result: ' . $data[0]['title'] . \"\\n\";\n} else {\n  // Simulated DB query\n  $data = [['id' => 1, 'title' => 'Test title']];\n  $redis->set($key, json_encode($data), 'EX', 3600);\n  echo 'New query cached: ' . $data[0]['title'] . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- A database query is simulated.\n- The result is cached in Redis for 1 hour.\n- Note: In real projects, use PDO or MySQLi for DB queries.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Error-prone example\n// Uncached heavy query\n$start = microtime(true);\nfor ($i = 0; $i < 1000000; $i++) {\n  $sum += sin($i);\n}\n$end = microtime(true);\necho 'Uncached time: ' . ($end - $start) . ' seconds\\n';\n\n// Correct approach: Caching with Redis\nrequire 'vendor/autoload.php';\nuse Predis\\Client;\n\n$redis = new Client(['host' => '127.0.0.1', 'port' => 6379]);\n$key = 'heavy_calc';\n\nif ($redis->exists($key)) {\n  $sum = $redis->get($key);\n} else {\n  $sum = 0;\n  for ($i = 0; $i < 1000000; $i++) {\n    $sum += sin($i);\n  }\n  $redis->set($key, $sum, 'EX', 3600);\n}\n$end = microtime(true);\necho 'Cached time: ' . ($end - $start) . ' seconds\\n';\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The first example repeats a heavy calculation every time.\n- The correct approach caches the result in Redis.\n- You can test this code in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Enable OPcache. Use Redis or Memcached for data caching. Optimize browser caching with HTTP headers. Refer to PHP’s official documentation (https://www.php.net/manual/en/book.opcache.php).\n- **Alternatives**: Frameworks like Laravel simplify caching. Varnish can be used for HTTP caching.\n- You can test the code below in a simple PHP file."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Try it yourself caching example\n$start = microtime(true);\n\n$cache = [];\n$key = 'test_data';\nif (isset($cache[$key])) {\n  $data = $cache[$key];\n  echo 'Data from cache: ' . $data . \"\\n\";\n} else {\n  $data = 'This data is stored in memory.';\n  $cache[$key] = $data;\n  echo 'New data cached: ' . $data . \"\\n\";\n}\n\n$end = microtime(true);\necho 'Execution time: ' . ($end - $start) . ' seconds\\n';\n?>"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Производительность и оптимизация",
+    "icon": "FiMonitor",
+    "language": "php",
+    "description": "Производительность PHP, кэширование и оптимизация.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое производительность и оптимизация в PHP?"
+      },
+      {
+        "type": "paragraph",
+        "text": "Производительность в PHP относится к техникам, которые делают программы быстрее и эффективнее. Оптимизация подразумевает снижение использования ресурсов (память, процессор, диск) и минимизацию времени ответа. Кэширование сохраняет часто используемые данные, чтобы избежать повторных вычислений. Этот JSON-файл подробно объясняет производительность PHP, типы кэширования (opcode, данные, HTTP), инструменты (OPcache, Memcached, Redis), измерение производительности, аспекты безопасности и практические примеры. Вы можете протестировать код ниже в простом PHP-файле, используя локальную среду, например XAMPP. Убедитесь, что вы используете PHP 8.1 или новее. Инструменты кэширования могут потребовать установки через Composer или PECL."
+      },
+      {
+        "type": "heading",
+        "text": "Основы производительности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Повышение производительности в PHP включает оптимизацию выполнения кода и использования ресурсов. Основные подходы:\n- Написание эффективного кода (например, избегание ненужных циклов).\n- Использование кэширования (хранение данных или вычислений).\n- Снижение избыточных вычислений.\n- Серверные оптимизации (например, OPcache).\nПример (неэффективный vs эффективный код):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Неэффективный код\n$start = microtime(true);\nfor ($i = 0; $i < 1000000; $i++) {\n  $array[] = $i * $i;\n}\n$end = microtime(true);\necho 'Время неэффективного кода: ' . ($end - $start) . ' секунд\\n';\n\n// Эффективный код\n$start = microtime(true);\n$array = array_map(function($i) { return $i * $i; }, range(0, 999999));\n$end = microtime(true);\necho 'Время эффективного кода: ' . ($end - $start) . ' секунд\\n';\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый пример использует цикл для заполнения массива (медленнее).\n- Второй использует `array_map` и `range` (быстрее).\n- `microtime(true)` измеряет время выполнения.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Типы кэширования"
+      },
+      {
+        "type": "paragraph",
+        "text": "Кэширование в PHP делится на три основные категории:\n- **Кэширование опкода**: Хранит скомпилированный PHP-код (например, OPcache).\n- **Кэширование данных**: Хранит запросы к базе данных или вычисления (например, Memcached, Redis).\n- **HTTP-кэширование**: Кэширует веб-страницы в браузере или прокси (например, `ETag`, `Cache-Control`)."
+      },
+      {
+        "type": "heading",
+        "text": "Кэширование опкода с OPcache"
+      },
+      {
+        "type": "paragraph",
+        "text": "OPcache сохраняет скомпилированный (opcode) PHP-код в памяти, устраняя повторную компиляцию. Встроен в PHP с версии 5.5.\nНастройка: Включите в `php.ini`:\n```ini\n[opcache]\nopcache.enable=1\nopcache.memory_consumption=128\nopcache.interned_strings_buffer=8\nopcache.max_accelerated_files=10000\n```\nПример (проверка статуса OPcache):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Проверка статуса OPcache\nif (function_exists('opcache_get_status')) {\n  $status = opcache_get_status();\n  echo 'OPcache включен: ' . ($status['opcache_enabled'] ? 'Да' : 'Нет') . \"\\n\";\n  echo 'Используемая память: ' . $status['memory_usage']['used_memory'] . ' байт\\n';\n} else {\n  echo 'OPcache не установлен!';\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `opcache_get_status()` возвращает статус OPcache.\n- Показывает, включен ли OPcache и использование памяти.\n- Примечание: Убедитесь, что OPcache включен в `php.ini`.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Кэширование данных: Redis"
+      },
+      {
+        "type": "paragraph",
+        "text": "Redis — это быстрая система кэширования в памяти для хранения запросов к базе данных или вычислений.\nУстановка: `pecl install redis` или `composer require predis/predis`\nПример (кэширование данных с Redis):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Кэширование данных с Redis\nrequire 'vendor/autoload.php';\n\nuse Predis\\Client;\n\n$redis = new Client(['host' => '127.0.0.1', 'port' => 6379]);\n\n$key = 'test_key';\nif ($redis->exists($key)) {\n  $data = $redis->get($key);\n  echo 'Данные из кэша: ' . $data . \"\\n\";\n} else {\n  $data = 'Эти данные хранятся в Redis.';\n  $redis->set($key, $data, 'EX', 3600); // Кэширование на 1 час\n  echo 'Новые данные закэшированы: ' . $data . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Predis\\Client` подключается к Redis.\n- `exists()` проверяет наличие ключа.\n- `set()` сохраняет данные на 1 час.\n- Примечание: Сервер Redis должен быть запущен (`sudo apt install redis-server` или аналог).\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Кэширование данных: Memcached"
+      },
+      {
+        "type": "paragraph",
+        "text": "Memcached — еще одна быстрая система кэширования в памяти, простая и легковесная.\nУстановка: `pecl install memcached`\nПример (кэширование данных с Memcached):"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Кэширование данных с Memcached\n$memcached = new Memcached();\n$memcached->addServer('127.0.0.1', 11211);\n\n$key = 'test_key';\n$data = $memcached->get($key);\nif ($data) {\n  echo 'Данные из кэша: ' . $data . \"\\n\";\n} else {\n  $data = 'Эти данные хранятся в Memcached.';\n  $memcached->set($key, $data, 3600); // Кэширование на 1 час\n  echo 'Новые данные закэшированы: ' . $data . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Класс `Memcached` подключается к серверу.\n- `get()` и `set()` управляют данными.\n- Примечание: Сервер Memcached должен быть запущен (`sudo apt install memcached`).\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "HTTP-кэширование"
+      },
+      {
+        "type": "paragraph",
+        "text": "HTTP-кэширование позволяет браузерам или прокси кэшировать веб-страницы с помощью заголовков `Cache-Control` и `ETag`.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// HTTP-кэширование\nheader('Cache-Control: max-age=3600, public');\nheader('ETag: \"' . md5('test_content') . '\"');\n\necho 'Это содержимое будет закэшировано браузером на 1 час.';\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `Cache-Control: max-age=3600` кэширует содержимое на 1 час.\n- `ETag` задает уникальный идентификатор содержимого.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Измерение производительности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Измеряйте производительность с помощью `microtime()` или внешних инструментов, таких как Xdebug или Blackfire.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Измерение производительности\n$start = microtime(true);\n\n// Тестовая операция\n$sum = 0;\nfor ($i = 0; $i < 1000000; $i++) {\n  $sum += $i;\n}\n\n$end = microtime(true);\necho 'Время выполнения: ' . ($end - $start) . ' секунд\\n';\necho 'Результат: ' . $sum . \"\\n\";\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `microtime(true)` измеряет время выполнения.\n- Тестируется производительность простого цикла.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Безопасность важна при кэшировании и оптимизации:\n- Не храните конфиденциальные данные в кэше.\n- Настройте аутентификацию для Redis и Memcached.\n- Используйте `Cache-Control: private` для конфиденциальных страниц в HTTP-кэшировании.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Безопасное кэширование\nrequire 'vendor/autoload.php';\n\nuse Predis\\Client;\n\n$redis = new Client(['host' => '127.0.0.1', 'port' => 6379, 'password' => 'your_password']);\n\n$key = 'safe_key';\nif ($redis->exists($key)) {\n  $data = $redis->get($key);\n  echo 'Безопасные данные из кэша: ' . htmlspecialchars($data) . \"\\n\";\n} else {\n  $data = 'Это безопасные данные.';\n  $redis->set($key, $data, 'EX', 3600);\n  echo 'Безопасные данные закэшированы: ' . htmlspecialchars($data) . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Redis подключается с аутентификацией.\n- `htmlspecialchars()` очищает данные.\n- Примечание: Убедитесь, что аутентификация Redis включена.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Практический пример: Кэширование запросов к базе данных"
+      },
+      {
+        "type": "paragraph",
+        "text": "Закэшируем запрос к базе данных с помощью Redis.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Кэширование запросов к базе данных\nrequire 'vendor/autoload.php';\n\nuse Predis\\Client;\n\n$redis = new Client(['host' => '127.0.0.1', 'port' => 6379]);\n$key = 'db_query_cache';\n\nif ($redis->exists($key)) {\n  $data = json_decode($redis->get($key), true);\n  echo 'Результат запроса из кэша: ' . $data[0]['title'] . \"\\n\";\n} else {\n  // Симулированный запрос к БД\n  $data = [['id' => 1, 'title' => 'Тестовый заголовок']];\n  $redis->set($key, json_encode($data), 'EX', 3600);\n  echo 'Новый запрос закэширован: ' . $data[0]['title'] . \"\\n\";\n}\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Запрос к базе данных симулируется.\n- Результат кэшируется в Redis на 1 час.\n- Примечание: В реальных проектах используйте PDO или MySQLi для запросов к БД.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "php",
+        "code": "<?php\n// Пример, вызывающий ошибку\n// Некэшированный тяжелый запрос\n$start = microtime(true);\nfor ($i = 0; $i < 1000000; $i++) {\n  $sum += sin($i);\n}\n$end = microtime(true);\necho 'Время без кэша: ' . ($end - $start) . ' секунд\\n';\n\n// Правильный подход: кэширование с Redis\nrequire 'vendor/autoload.php';\nuse Predis\\Client;\n\n$redis = new Client(['host' => '127.0.0.1', 'port' => 6379]);\n$key = 'heavy_calc';\n\nif ($redis->exists($key)) {\n  $sum = $redis->get($key);\n} else {\n  $sum = 0;\n  for ($i = 0; $i < 1000000; $i++) {\n    $sum += sin($i);\n  }\n  $redis->set($key, $sum, 'EX', 3600);\n}\n$end = microtime(true);\necho 'Время с кэшем: ' . ($end - $start) . ' секунд\\n';\n?>"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Первый пример повторяет тяжелое вычисление каждый раз.\n- Правильный подход кэширует результат в Redis.\n- Вы можете протестировать этот код в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Включите OPcache. Используйте Redis или Memcached для кэширования данных. Оптимизируйте кэширование браузера с помощью HTTP-заголовков. Обратитесь к официальной документации PHP (https://www.php.net/manual/en/book.opcache.php).\n- **Альтернативы**: Фреймворки, такие как Laravel, упрощают кэширование. Varnish можно использовать для HTTP-кэширования.\n- Вы можете протестировать код ниже в простом PHP-файле."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "<?php\n// Пример кэширования для самостоятельного тестирования\n$start = microtime(true);\n\n$cache = [];\n$key = 'test_data';\nif (isset($cache[$key])) {\n  $data = $cache[$key];\n  echo 'Данные из кэша: ' . $data . \"\\n\";\n} else {\n  $data = 'Эти данные хранятся в памяти.';\n  $cache[$key] = $data;\n  echo 'Новые данные закэшированы: ' . $data . \"\\n\";\n}\n\n$end = microtime(true);\necho 'Время выполнения: ' . ($end - $start) . ' секунд\\n';\n?>"
+      }
+    ]
+  }
+}

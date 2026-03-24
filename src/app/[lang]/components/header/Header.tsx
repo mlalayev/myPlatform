@@ -18,6 +18,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
+import { useAchievement } from "@/contexts/AchievementContext";
+
 
 const languages = [
   { code: "en", label: "EN" },
@@ -30,23 +32,15 @@ const Header: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useI18n();
+
+  
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Debug logging for session data
-  useEffect(() => {
-    if (session?.user) {
-      console.log("Header - Session user data:", {
-        id: (session.user as unknown as { id: string }).id,
-        name: session.user.name,
-        email: session.user.email,
-        avatarUrl: (session.user as unknown as { avatarUrl: string }).avatarUrl,
-        role: (session.user as unknown as { role: string }).role
-      });
-    }
-  }, [session]);
+  // OPTIMIZED: Removed debug logging for better performance
 
   // Make currentLang reactive to route changes
   const currentLang = pathname.split("/")[1] || "en";
@@ -267,6 +261,8 @@ const Header: React.FC = () => {
           </div>
         )}
       </div>
+      
+
     </header>
   );
 };

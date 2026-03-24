@@ -1,0 +1,327 @@
+{
+    "id": "context-api",
+    "az": {
+      "title": "Context API və useContext",
+      "icon": "FiShare2",
+      "language": "javascript",
+      "description": "Provider, Consumer və useContext ilə qlobal məlumat idarəetməsi",
+      "content": [
+        {
+          "type": "heading",
+          "text": "// Context API Nədir?"
+        },
+        {
+          "type": "paragraph",
+          "text": "React-də **Context API** komponent ağacında qlobal məlumatları (məsələn, tema, istifadəçi məlumatları) paylaşmaq üçün istifadə olunur. Bu, props drilling (məlumatları bir neçə səviyyədə ötürmək) problemini həll edir. Context Provider ilə məlumat təmin edilir və Consumer və ya useContext hook-u ilə istifadə olunur. Bu dərsdə Context API-nin necə işlədiyini, Provider, Consumer və useContext-in istifadəsini öyrənəcəksiniz. Kod nümunələri sadədir, istifadəçi girişi tələb etmir və aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// Context Yaratmaq və Provider"
+        },
+        {
+          "type": "paragraph",
+          "text": "Context yaratmaq üçün `createContext` istifadə olunur. Provider komponent ağacına məlumat təmin edir.\nNümunə:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import React, { createContext, useContext } from 'react';\n\nconst ThemeContext = createContext('light');\n\nfunction App() {\n  return (\n    <ThemeContext.Provider value=\"dark\">\n      <Child />\n    </ThemeContext.Provider>\n  );\n}\n\nfunction Child() {\n  const theme = useContext(ThemeContext);\n  return <p>Tema: {theme}</p>;\n}\n\nconsole.log('Context API ilə Provider yaradıldı');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- `createContext('light')` ilə default dəyər 'light' olan context yaradılır.\n- `Provider` ilə value=\"dark\" təyin edilir.\n- `useContext` ilə child komponentdə tema oxunur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// useContext Hook-u"
+        },
+        {
+          "type": "paragraph",
+          "text": "`useContext` context dəyərini oxumaq üçün ən sadə yoldur. Consumer komponenti əvəzinə istifadə olunur.\nNümunə:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import React, { createContext, useContext, useState } from 'react';\n\nconst UserContext = createContext();\n\nfunction GrandParent() {\n  const [user, setUser] = useState('Aysel');\n  return (\n    <UserContext.Provider value={{ user, setUser }}>\n      <Parent />\n    </UserContext.Provider>\n  );\n}\n\nfunction Parent() {\n  return <Child />;\n}\n\nfunction Child() {\n  const { user, setUser } = useContext(UserContext);\n  return (\n    <div>\n      <p>İstifadəçi: {user}</p>\n      <button onClick={() => setUser('Günel')}>Adı dəyiş</button>\n    </div>\n  );\n}\n\nconsole.log('useContext ilə qlobal məlumat yaradıldı');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- `UserContext` yaradılır və Provider ilə `user` və `setUser` paylaşılır.\n- `Child` komponenti `useContext` ilə məlumatı oxuyur və dəyişir.\n- Props drilling olmadan məlumat paylaşılır.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// Context Consumer"
+        },
+        {
+          "type": "paragraph",
+          "text": "Əvvəlki metod – Consumer komponenti ilə context oxumaq. useContext daha sadədir, lakin Consumer hələ də istifadə olunur.\nNümunə:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import React, { createContext } from 'react';\n\nconst ThemeContext = createContext('light');\n\nfunction App() {\n  return (\n    <ThemeContext.Provider value=\"dark\">\n      <Child />\n    </ThemeContext.Provider>\n  );\n}\n\nfunction Child() {\n  return (\n    <ThemeContext.Consumer>\n      {theme => <p>Tema: {theme}</p>}\n    </ThemeContext.Consumer>\n  );\n}\n\nconsole.log('Context Consumer ilə komponent yaradıldı');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- `Consumer` render prop pattern ilə context dəyərini oxuyur.\n- useContext daha müasir və sadədir.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// Bir Neçə Context"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bir neçə context-i birləşdirmək mümkündür.\nNümunə:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import React, { createContext, useContext } from 'react';\n\nconst ThemeContext = createContext('light');\nconst LangContext = createContext('az');\n\nfunction App() {\n  return (\n    <ThemeContext.Provider value=\"dark\">\n      <LangContext.Provider value=\"en\">\n        <Child />\n      </LangContext.Provider>\n    </ThemeContext.Provider>\n  );\n}\n\nfunction Child() {\n  const theme = useContext(ThemeContext);\n  const lang = useContext(LangContext);\n  return <p>Tema: {theme}, Dil: {lang}</p>;\n}\n\nconsole.log('Bir neçə context ilə komponent yaradıldı');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bu kodda:\n- İki context (Theme və Lang) yaradılır.\n- Provider-lər iç-içə yerləşdirilir.\n- Child komponenti hər ikisini oxuyur.\nAşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// Context API-nin Üstünlükləri və Məhdudiyyətləri"
+        },
+        {
+          "type": "paragraph",
+          "text": "Üstünlükləri:\n- Props drilling qarşısını alır.\n- Qlobal məlumatları asan paylaşır (tema, autentikasiya).\n- Dinamik dəyişikliklərə reaksiya verir.\nMəhdudiyyətləri:\n- Çox istifadə performans problemlərinə səbəb ola bilər (lazımsız renderlər).\n- Böyük tətbiqlərdə Redux kimi state management kitabxanaları daha uyğundur."
+        },
+        {
+          "type": "heading",
+          "text": "// Tövsiyələr və Resurslar"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Tövsiyələr**: Context-i qlobal məlumatlar üçün istifadə edin (tema, user). Kiçik tətbiqlərdə Redux əvəzinə Context kifayətdir.\n- **Resurslar**: Rəsmi React sənədləri (https://react.dev/reference/react/createContext), Context API haqqında dərslər.\nAşağıda nümunə kodu sınaqdan keçirə bilərsiniz."
+        },
+        {
+          "type": "heading",
+          "text": "// Sınaq Üçün Nümunə"
+        },
+        {
+          "type": "editor",
+          "initialCode": "import React, { createContext, useContext, useState } from 'react';\n\nconst CountContext = createContext();\n\nfunction App() {\n  const [count, setCount] = useState(0);\n  return (\n    <CountContext.Provider value={{ count, setCount }}>\n      <Child />\n    </CountContext.Provider>\n  );\n}\n\nfunction Child() {\n  const { count, setCount } = useContext(CountContext);\n  return (\n    <div>\n      <p>Say: {count}</p>\n      <button onClick={() => setCount(count + 1)}>Artır</button>\n    </div>\n  );\n}\n\nconsole.log('Sadə Context API komponenti');\n"
+        }
+      ]
+    },
+    "en": {
+      "title": "Context API and useContext",
+      "icon": "FiShare2",
+      "language": "javascript",
+      "description": "Global data management with Provider, Consumer, and useContext",
+      "content": [
+        {
+          "type": "heading",
+          "text": "// What is Context API?"
+        },
+        {
+          "type": "paragraph",
+          "text": "The **Context API** in React is used to share global data (e.g., theme, user info) across the component tree. It solves the props drilling problem (passing data through multiple levels). Context provides data via Provider and consumes it with Consumer or useContext hook. This lesson covers how Context API works, Provider, Consumer, and useContext usage. Code examples are simple, require no user input, and you can test them in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// Creating Context and Provider"
+        },
+        {
+          "type": "paragraph",
+          "text": "Create context with `createContext`. Provider supplies data to the component tree.\nExample:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import React, { createContext, useContext } from 'react';\n\nconst ThemeContext = createContext('light');\n\nfunction App() {\n  return (\n    <ThemeContext.Provider value=\"dark\">\n      <Child />\n    </ThemeContext.Provider>\n  );\n}\n\nfunction Child() {\n  const theme = useContext(ThemeContext);\n  return <p>Theme: {theme}</p>;\n}\n\nconsole.log('Context API with Provider created');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- `createContext('light')` creates context with default 'light'.\n- `Provider` sets value to \"dark\".\n- `useContext` reads the theme in the child component.\nYou can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// useContext Hook"
+        },
+        {
+          "type": "paragraph",
+          "text": "`useContext` is the simplest way to read context values. Preferred over Consumer.\nExample:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import React, { createContext, useContext, useState } from 'react';\n\nconst UserContext = createContext();\n\nfunction GrandParent() {\n  const [user, setUser] = useState('Aysel');\n  return (\n    <UserContext.Provider value={{ user, setUser }}>\n      <Parent />\n    </UserContext.Provider>\n  );\n}\n\nfunction Parent() {\n  return <Child />;\n}\n\nfunction Child() {\n  const { user, setUser } = useContext(UserContext);\n  return (\n    <div>\n      <p>User: {user}</p>\n      <button onClick={() => setUser('Günel')}>Change Name</button>\n    </div>\n  );\n}\n\nconsole.log('Global data with useContext created');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- `UserContext` is created and Provider shares `user` and `setUser`.\n- `Child` reads and updates data with `useContext`.\n- Data is shared without props drilling.\nYou can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// Context Consumer"
+        },
+        {
+          "type": "paragraph",
+          "text": "The older way – reading context with Consumer component. useContext is simpler but Consumer is still used.\nExample:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import React, { createContext } from 'react';\n\nconst ThemeContext = createContext('light');\n\nfunction App() {\n  return (\n    <ThemeContext.Provider value=\"dark\">\n      <Child />\n    </ThemeContext.Provider>\n  );\n}\n\nfunction Child() {\n  return (\n    <ThemeContext.Consumer>\n      {theme => <p>Theme: {theme}</p>}\n    </ThemeContext.Consumer>\n  );\n}\n\nconsole.log('Component with Context Consumer created');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- `Consumer` reads context value with render prop pattern.\n- useContext is more modern and simpler.\nYou can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// Multiple Contexts"
+        },
+        {
+          "type": "paragraph",
+          "text": "Multiple contexts can be nested.\nExample:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import React, { createContext, useContext } from 'react';\n\nconst ThemeContext = createContext('light');\nconst LangContext = createContext('en');\n\nfunction App() {\n  return (\n    <ThemeContext.Provider value=\"dark\">\n      <LangContext.Provider value=\"az\">\n        <Child />\n      </LangContext.Provider>\n    </ThemeContext.Provider>\n  );\n}\n\nfunction Child() {\n  const theme = useContext(ThemeContext);\n  const lang = useContext(LangContext);\n  return <p>Theme: {theme}, Language: {lang}</p>;\n}\n\nconsole.log('Component with multiple contexts created');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this code:\n- Two contexts (Theme and Lang) are created.\n- Providers are nested.\n- Child reads both values.\nYou can test this code in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// Advantages and Limitations of Context API"
+        },
+        {
+          "type": "paragraph",
+          "text": "Advantages:\n- Avoids props drilling.\n- Easily shares global data (theme, authentication).\n- Reacts to dynamic changes.\nLimitations:\n- Overuse can cause performance issues (unnecessary re-renders).\n- For large apps, state management libraries like Redux may be better."
+        },
+        {
+          "type": "heading",
+          "text": "// Recommendations and Resources"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Recommendations**: Use Context for global data (theme, user). In small apps, Context is sufficient instead of Redux.\n- **Resources**: Official React documentation (https://react.dev/reference/react/createContext), Context API tutorials.\nYou can test the example code below in our site’s editor."
+        },
+        {
+          "type": "heading",
+          "text": "// Try It Yourself"
+        },
+        {
+          "type": "editor",
+          "initialCode": "import React, { createContext, useContext, useState } from 'react';\n\nconst CountContext = createContext();\n\nfunction App() {\n  const [count, setCount] = useState(0);\n  return (\n    <CountContext.Provider value={{ count, setCount }}>\n      <Child />\n    </CountContext.Provider>\n  );\n}\n\nfunction Child() {\n  const { count, setCount } = useContext(CountContext);\n  return (\n    <div>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount(count + 1)}>Increment</button>\n    </div>\n  );\n}\n\nconsole.log('Simple Context API component');\n"
+        }
+      ]
+    },
+    "ru": {
+      "title": "Context API и useContext",
+      "icon": "FiShare2",
+      "language": "javascript",
+      "description": "Глобальное управление данными с Provider, Consumer и useContext",
+      "content": [
+        {
+          "type": "heading",
+          "text": "// Что такое Context API?"
+        },
+        {
+          "type": "paragraph",
+          "text": "**Context API** в React используется для передачи глобальных данных (например, тема, информация о пользователе) по дереву компонентов. Это решает проблему props drilling (передача данных через несколько уровней). Context предоставляет данные через Provider и потребляет их с помощью Consumer или хука useContext. В этом уроке вы узнаете, как работает Context API, использование Provider, Consumer и useContext. Примеры кода просты, не требуют ввода пользователя, и вы можете протестировать их в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// Создание Context и Provider"
+        },
+        {
+          "type": "paragraph",
+          "text": "Context создается с помощью `createContext`. Provider предоставляет данные дереву компонентов.\nПример:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import React, { createContext, useContext } from 'react';\n\nconst ThemeContext = createContext('light');\n\nfunction App() {\n  return (\n    <ThemeContext.Provider value=\"dark\">\n      <Child />\n    </ThemeContext.Provider>\n  );\n}\n\nfunction Child() {\n  const theme = useContext(ThemeContext);\n  return <p>Тема: {theme}</p>;\n}\n\nconsole.log('Context API с Provider создан');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- `createContext('light')` создает контекст с значением по умолчанию 'light'.\n- `Provider` устанавливает value в \"dark\".\n- `useContext` читает тему в дочернем компоненте.\nВы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// Хук useContext"
+        },
+        {
+          "type": "paragraph",
+          "text": "`useContext` — самый простой способ чтения значений контекста. Предпочтительнее Consumer.\nПример:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import React, { createContext, useContext, useState } from 'react';\n\nconst UserContext = createContext();\n\nfunction GrandParent() {\n  const [user, setUser] = useState('Айсель');\n  return (\n    <UserContext.Provider value={{ user, setUser }}>\n      <Parent />\n    </UserContext.Provider>\n  );\n}\n\nfunction Parent() {\n  return <Child />;\n}\n\nfunction Child() {\n  const { user, setUser } = useContext(UserContext);\n  return (\n    <div>\n      <p>Пользователь: {user}</p>\n      <button onClick={() => setUser('Гюнель')}>Изменить имя</button>\n    </div>\n  );\n}\n\nconsole.log('Глобальные данные с useContext созданы');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- `UserContext` создается и Provider делится `user` и `setUser`.\n- `Child` читает и обновляет данные с `useContext`.\n- Данные передаются без props drilling.\nВы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// Context Consumer"
+        },
+        {
+          "type": "paragraph",
+          "text": "Старый способ — чтение контекста с помощью компонента Consumer. useContext проще, но Consumer все еще используется.\nПример:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import React, { createContext } from 'react';\n\nconst ThemeContext = createContext('light');\n\nfunction App() {\n  return (\n    <ThemeContext.Provider value=\"dark\">\n      <Child />\n    </ThemeContext.Provider>\n  );\n}\n\nfunction Child() {\n  return (\n    <ThemeContext.Consumer>\n      {theme => <p>Тема: {theme}</p>}\n    </ThemeContext.Consumer>\n  );\n}\n\nconsole.log('Компонент с Context Consumer создан');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- `Consumer` читает значение контекста с помощью render prop.\n- useContext более современный и простой.\nВы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// Несколько контекстов"
+        },
+        {
+          "type": "paragraph",
+          "text": "Несколько контекстов можно вкладывать.\nПример:"
+        },
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "import React, { createContext, useContext } from 'react';\n\nconst ThemeContext = createContext('light');\nconst LangContext = createContext('en');\n\nfunction App() {\n  return (\n    <ThemeContext.Provider value=\"dark\">\n      <LangContext.Provider value=\"az\">\n        <Child />\n      </LangContext.Provider>\n    </ThemeContext.Provider>\n  );\n}\n\nfunction Child() {\n  const theme = useContext(ThemeContext);\n  const lang = useContext(LangContext);\n  return <p>Тема: {theme}, Язык: {lang}</p>;\n}\n\nconsole.log('Компонент с несколькими контекстами создан');\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "В этом коде:\n- Два контекста (Theme и Lang) созданы.\n- Provider-ы вложены.\n- Child читает оба значения.\nВы можете протестировать этот код в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// Преимущества и ограничения Context API"
+        },
+        {
+          "type": "paragraph",
+          "text": "Преимущества:\n- Избегает props drilling.\n- Легко делится глобальными данными (тема, аутентификация).\n- Реагирует на динамические изменения.\nОграничения:\n- Чрезмерное использование может вызвать проблемы с производительностью (ненужные перерендеры).\n- Для больших приложений лучше библиотеки управления состоянием, такие как Redux."
+        },
+        {
+          "type": "heading",
+          "text": "// Рекомендации и ресурсы"
+        },
+        {
+          "type": "paragraph",
+          "text": "- **Рекомендации**: Используйте Context для глобальных данных (тема, пользователь). В маленьких приложениях Context достаточно вместо Redux.\n- **Ресурсы**: Официальная документация React (https://react.dev/reference/react/createContext), уроки по Context API.\nВы можете протестировать пример кода ниже в редакторе на нашем сайте."
+        },
+        {
+          "type": "heading",
+          "text": "// Попробуйте сами"
+        },
+        {
+          "type": "editor",
+          "initialCode": "import React, { createContext, useContext, useState } from 'react';\n\nconst CountContext = createContext();\n\nfunction App() {\n  const [count, setCount] = useState(0);\n  return (\n    <CountContext.Provider value={{ count, setCount }}>\n      <Child />\n    </CountContext.Provider>\n  );\n}\n\nfunction Child() {\n  const { count, setCount } = useContext(CountContext);\n  return (\n    <div>\n      <p>Счет: {count}</p>\n      <button onClick={() => setCount(count + 1)}>Увеличить</button>\n    </div>\n  );\n}\n\nconsole.log('Простой компонент с Context API');\n"
+        }
+      ]
+    }
+  }

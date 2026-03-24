@@ -11,6 +11,11 @@ import {
   FiMessageCircle,
   FiAward,
   FiSettings,
+  FiTrash2,
+  FiSearch,
+  FiPlus,
+  FiChevronLeft,
+  FiChevronRight,
 } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 
@@ -32,14 +37,7 @@ const LANGUAGES = [
 ];
 
 const PANELS = [
-  { key: "dashboard", label: "Dashboard", icon: <FiHome /> },
   { key: "users", label: "Users", icon: <FiUsers /> },
-  { key: "topics", label: "Topics", icon: <FiLayers /> },
-  { key: "lessons", label: "Lessons", icon: <FiBookOpen /> },
-  { key: "questions", label: "Questions", icon: <FiEdit /> },
-  { key: "feedback", label: "Feedback", icon: <FiMessageCircle /> },
-  { key: "badges", label: "Badges", icon: <FiAward /> },
-  { key: "settings", label: "Settings", icon: <FiSettings /> },
 ];
 
 type User = {
@@ -47,6 +45,7 @@ type User = {
   name: string;
   email: string;
   role: string;
+  username?: string;
 };
 
 export default function AdminPanelPage() {
@@ -56,7 +55,7 @@ export default function AdminPanelPage() {
       ? window.location.pathname.split("/")[1] || "en"
       : "en";
 
-  const [panel, setPanel] = useState("dashboard");
+  const [panel, setPanel] = useState("users");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
@@ -64,22 +63,43 @@ export default function AdminPanelPage() {
   const [error, setError] = useState("");
   const [topicLang, setTopicLang] = useState("");
   const [questionLang, setQuestionLang] = useState("");
+  // Users panel UI state
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [total, setTotal] = useState(0);
+  const [showCreate, setShowCreate] = useState(false);
 
   // Fetch users
   useEffect(() => {
     if (panel !== "users") return;
     setLoading(true);
-    fetch("/api/admin/users")
-      .then((res) => res.json())
-      .then((data) => {
-        setUsers(data);
-        setLoading(false);
+    const params = new URLSearchParams({
+      q: search,
+      page: String(page),
+      pageSize: String(pageSize),
+      sortBy,
+      sortDir,
+    });
+    fetch(`/api/admin/users?${params.toString()}`)
+      .then(async (res) => {
+        const json = await res.json();
+        // Backward compatibility: API may return array for old path
+        if (Array.isArray(json)) {
+          setUsers(json);
+          setTotal(json.length);
+          return;
+        }
+        setUsers(json.data || []);
+        setTotal(json.total || 0);
       })
       .catch(() => {
         setError("Failed to load users");
-        setLoading(false);
-      });
-  }, [panel]);
+      })
+      .finally(() => setLoading(false));
+  }, [panel, search, sortBy, sortDir, page, pageSize]);
 
   // Delete user
   const handleDelete = async (id: number) => {
@@ -131,9 +151,40 @@ export default function AdminPanelPage() {
     setLoading(false);
   };
 
+  // Create user
+  const handleCreateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    const formData = new FormData(e.currentTarget);
+    const payload = {
+      name: (formData.get("name") as string) || undefined,
+      username: (formData.get("username") as string) || undefined,
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+      role: (formData.get("role") as string) || "USER",
+    };
+    const res = await fetch("/api/admin/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      setError(json?.error || "Failed to create user");
+      setLoading(false);
+      return;
+    }
+    // Prepend and close
+    setUsers((prev) => [json, ...prev]);
+    setShowCreate(false);
+    setLoading(false);
+    // Reset to first page to ensure visibility
+    setPage(1);
+  };
+
   return (
-    <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100vh'}}>
-      <div className={styles.container}>
+    <div className={styles.container}>
         <aside className={styles.sidebar}>
           {PANELS.map((p) => (
             <button
@@ -157,152 +208,157 @@ export default function AdminPanelPage() {
           </button>
         </aside>
         <main className={styles.panelContent}>
-          {panel === "dashboard" && (
-            <div>
-              <h2 className={styles.pageTitle}>Admin Dashboard</h2>
-              <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-                <div className={styles.card} style={{ minWidth: 220 }}>
-                  <div
-                    style={{
-                      fontWeight: 700,
-                      fontSize: "1.1rem",
-                      marginBottom: 8,
-                    }}
-                  >
-                    Total Users
-                  </div>
-                  <div style={{ fontSize: "2rem", color: "#6c3fc5" }}>1234</div>
-                </div>
-                <div className={styles.card} style={{ minWidth: 220 }}>
-                  <div
-                    style={{
-                      fontWeight: 700,
-                      fontSize: "1.1rem",
-                      marginBottom: 8,
-                    }}
-                  >
-                    Active Users (24h)
-                  </div>
-                  <div style={{ fontSize: "2rem", color: "#6c3fc5" }}>87</div>
-                </div>
-                <div className={styles.card} style={{ minWidth: 220 }}>
-                  <div
-                    style={{
-                      fontWeight: 700,
-                      fontSize: "1.1rem",
-                      marginBottom: 8,
-                    }}
-                  >
-                    Most Viewed Lesson
-                  </div>
-                  <div style={{ fontSize: "1.1rem", color: "#444" }}>
-                    JavaScript Variables
-                  </div>
-                </div>
-                <div className={styles.card} style={{ minWidth: 220 }}>
-                  <div
-                    style={{
-                      fontWeight: 700,
-                      fontSize: "1.1rem",
-                      marginBottom: 8,
-                    }}
-                  >
-                    Most Completed Topic
-                  </div>
-                  <div style={{ fontSize: "1.1rem", color: "#444" }}>
-                    DOM Manipulation
-                  </div>
-                </div>
-              </div>
-              <div className={styles.card} style={{ marginTop: 32 }}>
-                <div
-                  style={{
-                    fontWeight: 700,
-                    fontSize: "1.1rem",
-                    marginBottom: 8,
-                  }}
-                >
-                  Notifications
-                </div>
-                <ul style={{ paddingLeft: 18 }}>
-                  <li>
-                    New user registered: <b>Jane Doe</b>
-                  </li>
-                  <li>Feedback received: &quot;Great platform!&quot;</li>
-                  <li>Error report: &quot;Lesson not loading&quot;</li>
-                </ul>
-              </div>
-            </div>
-          )}
+          {/* Users is the only panel now */}
           {panel === "users" && (
             <div>
-              <h2 className={styles.pageTitle}>All Users</h2>
-              {loading && <div>Loading...</div>}
-              {error && <div className="text-red-500 mb-2">{error}</div>}
-              <div className={styles.card}>
-                {users.map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex items-center justify-between py-2 border-b last:border-b-0 cursor-pointer hover:bg-gray-50 rounded"
-                    onClick={() => setSelectedUser(user)}
-                  >
+              {/* Hero header like profile */}
+              <div className={styles.hero}>
+                <div className={styles.heroLeft}>
+                  <h2 className={styles.heroTitle}>Admin · Users</h2>
+                  <p className={styles.heroSubtitle}>Manage members, roles and access in one place</p>
+                </div>
+                <div className={styles.heroActions}>
+                  <div className={styles.searchWrap}>
+                    <FiSearch className={styles.searchIcon} />
+                    <input className={styles.searchInput} value={search} placeholder="Search users..." onChange={(e)=>{ setPage(1); setSearch(e.target.value); }} />
+                  </div>
+                  <button className={`${styles.button} ${styles.pill}`} onClick={() => setShowCreate(true)} style={{ background: '#fff', color: '#6c3fc5', border: 'none' }}><FiPlus /> New</button>
+                </div>
+              </div>
+
+              {error && <div className="text-red-500 mb-2" style={{ marginTop: 8 }}>{error}</div>}
+
+              {/* Users list cards */}
+              <div className={styles.list}>
+                {(loading ? Array.from({ length: 8 }) : users).map((u: any, i: number) => (
+                  <div key={u?.id || i} className={styles.userCard}>
+                    <div className={styles.avatarBubble}>{(u?.name || u?.email || 'U').toString().trim().charAt(0).toUpperCase()}</div>
                     <div>
-                      <span className="font-semibold text-gray-800">
-                        {user.name}
-                      </span>
-                      <span className="ml-2 text-xs text-gray-500">
-                        ({user.role})
-                      </span>
+                      <div className={styles.userMeta}>
+                        <div className={styles.userName}>{loading ? '••••••••' : (u?.name || '—')}</div>
+                        <div className={styles.userEmail}>{loading ? '••••@•••' : u?.email}</div>
+                        {!loading && (
+                          <div className={styles.chips}>
+                            <span className={styles.chip}>ID: {u.id}</span>
+                            <span className={styles.chip}>Username: {u.username || '—'}</span>
+                            <span className={styles.roleBadge}>{u.role}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        className={styles.button}
-                        style={{ background: "#eee", color: "#444" }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(user);
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className={styles.button}
-                        style={{ background: "#ffeaea", color: "#d32f2f" }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(user.id);
-                        }}
-                      >
-                        Delete
-                      </button>
+                    <div className={styles.actions}>
+                      <button className={styles.iconBtn} title="Edit" onClick={() => handleEdit(u)}><FiEdit /></button>
+                      <button className={styles.iconBtn} title="Delete" onClick={() => handleDelete(u.id)} style={{ color: '#d32f2f' }}><FiTrash2 /></button>
                     </div>
                   </div>
                 ))}
+                {!loading && users.length === 0 && (
+                  <div className={styles.card} style={{ alignItems: 'center', textAlign: 'center' }}>
+                    No users found
+                  </div>
+                )}
+              </div>
+
+              {/* Pagination */}
+              <div className={styles.paginationBar}>
+                <div>Showing {(users.length && (page - 1) * pageSize + 1) || 0}-{(page - 1) * pageSize + users.length} of {total}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <button disabled={page===1} className={styles.button} style={{ background: '#fff', color: '#374151', border: '1px solid #e5e7eb', opacity: page===1?0.6:1 }} onClick={()=> setPage(p=> Math.max(1, p-1))}><FiChevronLeft /> Prev</button>
+                  <div>Page {page}</div>
+                  <button disabled={(page*pageSize)>=total} className={styles.button} style={{ background: '#fff', color: '#374151', border: '1px solid #e5e7eb', opacity: (page*pageSize)>=total?0.6:1 }} onClick={()=> setPage(p=> p+1)}>Next <FiChevronRight /></button>
+                </div>
               </div>
               {selectedUser && (
-                <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-                  <div className="bg-white rounded-2xl shadow-xl p-8 min-w-[320px] max-w-[90vw]">
-                    <h3 className="text-xl font-bold mb-4">User Details</h3>
-                    <div className="mb-2">
-                      <b>Name:</b> {selectedUser.name}
+                <div className={styles.detailOverlay} onClick={() => setSelectedUser(null)}>
+                  <div className={styles.detailModal} onClick={(e)=> e.stopPropagation()}>
+                    <div className={styles.detailHeader}>
+                      <div className={styles.detailHeaderInner}>
+                        <div className={styles.detailAvatar}>
+                          {(selectedUser.name || selectedUser.email || 'U').toString().trim().charAt(0).toUpperCase()}
+                        </div>
+                        <div className={styles.detailTitleWrap}>
+                          <h3 className={styles.detailName}>{selectedUser.name || '—'}</h3>
+                          <p className={styles.detailSub}>{selectedUser.email}</p>
+                        </div>
+                      </div>
+                      <div className={styles.detailRole}>{selectedUser.role}</div>
                     </div>
-                    <div className="mb-2">
-                      <b>Email:</b> {selectedUser.email}
+                    <div className={styles.detailBody}>
+                      <div className={styles.detailChips}>
+                        <span className={styles.detailChip}>ID: {selectedUser.id}</span>
+                        <span className={styles.detailChip}>Username: {selectedUser.username || '—'}</span>
+                      </div>
+                      <div className={styles.detailRows}>
+                        <div className={styles.detailRow}>
+                          <div className={styles.detailRowLabel}>Name</div>
+                          <div className={styles.detailRowValue}>{selectedUser.name || '—'}</div>
+                        </div>
+                        <div className={styles.detailRow}>
+                          <div className={styles.detailRowLabel}>Email</div>
+                          <div className={styles.detailRowValue}>{selectedUser.email}</div>
+                        </div>
+                        <div className={styles.detailRow}>
+                          <div className={styles.detailRowLabel}>Role</div>
+                          <div className={styles.detailRowValue}>{selectedUser.role}</div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="mb-2">
-                      <b>Role:</b> {selectedUser.role}
+                    <div className={styles.detailActions}>
+                      <button className={styles.btnGhost} onClick={() => setSelectedUser(null)}>Close</button>
+                      <button className={styles.btnDanger} onClick={() => { handleDelete(selectedUser.id); setSelectedUser(null); }}>Delete User</button>
                     </div>
-                    <button
-                      className={styles.button}
-                      onClick={() => setSelectedUser(null)}
-                      style={{ marginTop: 16 }}
-                    >
-                      Close
-                    </button>
                   </div>
                 </div>
               )}
               {editUser && (
+                <div className={styles.detailOverlay}>
+                  <div className={styles.detailModal}>
+                    <div className={styles.detailHeader}>
+                      <div className={styles.detailHeaderInner}>
+                        <div className={styles.detailAvatar}>{(editUser.name || editUser.email || 'U').toString().trim().charAt(0).toUpperCase()}</div>
+                        <div className={styles.detailTitleWrap}>
+                          <h3 className={styles.detailName}>Edit User</h3>
+                          <p className={styles.detailSub}>Update user information</p>
+                        </div>
+                      </div>
+                      <div className={styles.detailRole}>{editUser.role}</div>
+                    </div>
+                    <form id="edit-user-form" onSubmit={handleEditSubmit}>
+                      <div className={styles.editBody}>
+                        <div className={styles.formGrid}>
+                          <div className={styles.formField}>
+                            <label className={styles.formLabel}>Name</label>
+                            <input name="name" defaultValue={editUser.name} className={styles.formInput} required />
+                          </div>
+                          <div className={styles.formField}>
+                            <label className={styles.formLabel}>Email</label>
+                            <input name="email" defaultValue={editUser.email} className={styles.formInput} required />
+                          </div>
+                          <div className={styles.formField}>
+                            <label className={styles.formLabel}>Role</label>
+                            <select name="role" defaultValue={editUser.role} className={styles.formSelect} required>
+                              <option value="USER">USER</option>
+                              <option value="ADMIN">ADMIN</option>
+                            </select>
+                          </div>
+                          <div className={styles.formField}>
+                            <label className={styles.formLabel}>New Password (optional)</label>
+                            <input name="password" type="password" className={styles.formInput} placeholder="Leave blank to keep current password" />
+                            <span className={styles.formHint}>Strong passwords are at least 8 characters and include a number</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className={styles.detailActions}>
+                        <button type="button" className={styles.btnGhost} onClick={() => setEditUser(null)}>Cancel</button>
+                        <button type="submit" form="edit-user-form" className={styles.button}>Save</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+
+              {/* Create User Modal */}
+              {showCreate && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
                   <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-0 overflow-hidden animate-fadeIn">
                     {/* Header */}
@@ -311,241 +367,46 @@ export default function AdminPanelPage() {
                         <FiUser className="text-purple-600 text-xl" />
                       </div>
                       <div>
-                        <div className="font-bold text-lg text-gray-900">
-                          Edit User
-                        </div>
-                        <div className="text-gray-500 text-sm">
-                          Update user information
-                        </div>
+                        <div className="font-bold text-lg text-gray-900">Create User</div>
+                        <div className="text-gray-500 text-sm">Add a new user</div>
                       </div>
                     </div>
-                    {/* Main Content */}
-                    <form
-                      id="edit-user-form"
-                      onSubmit={handleEditSubmit}
-                      className="px-6 py-4 flex flex-col gap-4"
-                    >
+                    <form id="create-user-form" onSubmit={handleCreateSubmit} className="px-6 py-4 flex flex-col gap-4">
                       <div>
-                        <label className="block text-gray-700 font-medium mb-1">
-                          Name
-                        </label>
-                        <input
-                          name="name"
-                          defaultValue={editUser.name}
-                          className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-200"
-                          required
-                        />
+                        <label className="block text-gray-700 font-medium mb-1">Name</label>
+                        <input name="name" className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-200" />
                       </div>
                       <div>
-                        <label className="block text-gray-700 font-medium mb-1">
-                          Email
-                        </label>
-                        <input
-                          name="email"
-                          defaultValue={editUser.email}
-                          className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-200"
-                          required
-                        />
+                        <label className="block text-gray-700 font-medium mb-1">Username</label>
+                        <input name="username" className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-200" />
                       </div>
                       <div>
-                        <label className="block text-gray-700 font-medium mb-1">
-                          Role
-                        </label>
-                        <select
-                          name="role"
-                          defaultValue={editUser.role}
-                          className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-200"
-                          required
-                        >
+                        <label className="block text-gray-700 font-medium mb-1">Email</label>
+                        <input name="email" type="email" required className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-200" />
+                      </div>
+                      <div>
+                        <label className="block text-gray-700 font-medium mb-1">Password</label>
+                        <input name="password" type="password" required className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-200" />
+                      </div>
+                      <div>
+                        <label className="block text-gray-700 font-medium mb-1">Role</label>
+                        <select name="role" defaultValue="USER" className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-200">
                           <option value="USER">USER</option>
                           <option value="ADMIN">ADMIN</option>
                         </select>
                       </div>
-                      <div>
-                        <label className="block text-gray-700 font-medium mb-1">
-                          New Password (optional)
-                        </label>
-                        <input
-                          name="password"
-                          type="password"
-                          className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-200"
-                          placeholder="Leave blank to keep current password"
-                        />
-                      </div>
                     </form>
-                    {/* Actions */}
                     <div className="flex items-center justify-end gap-2 px-6 pb-6 pt-2 border-t bg-gray-50">
-                      <button
-                        type="button"
-                        onClick={() => setEditUser(null)}
-                        className="px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 font-semibold hover:bg-gray-100 transition"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        form="edit-user-form"
-                        className="px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold shadow hover:bg-purple-700 transition"
-                      >
-                        Save
-                      </button>
+                      <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 font-semibold hover:bg-gray-100 transition">Cancel</button>
+                      <button type="submit" form="create-user-form" className="px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold shadow hover:bg-purple-700 transition">Create</button>
                     </div>
                   </div>
                 </div>
               )}
             </div>
           )}
-          {panel === "questions" && (
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Add Question</h2>
-              {!questionLang ? (
-                <div className={styles.card}>
-                  <label className="block mb-2 font-medium">
-                    Choose Language:
-                  </label>
-                  <select
-                    className={styles.select}
-                    value={questionLang}
-                    onChange={(e) => setQuestionLang(e.target.value)}
-                  >
-                    <option value="">Select language</option>
-                    {LANGUAGES.map((l) => (
-                      <option key={l} value={l}>
-                        {l}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ) : (
-                <form className={styles.card}>
-                  <div className={styles.formGroup}>
-                    <label>Title</label>
-                    <input
-                      className={styles.input}
-                      type="text"
-                      placeholder="Question title"
-                      required
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label>Description</label>
-                    <textarea
-                      className={styles.input}
-                      placeholder="Question description"
-                      required
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label>Difficulty</label>
-                    <select className={styles.select} required>
-                      <option value="">Select difficulty</option>
-                      <option value="easy">Easy</option>
-                      <option value="medium">Medium</option>
-                      <option value="hard">Hard</option>
-                    </select>
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label>Answer</label>
-                    <textarea
-                      className={styles.input}
-                      placeholder="Correct answer"
-                      required
-                    />
-                  </div>
-                  {/* Add more fields as needed */}
-                  <div className="flex gap-4 mt-2">
-                    <button type="submit" className={styles.button}>
-                      Add Question
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.button}
-                      style={{ background: "#eee", color: "#444" }}
-                      onClick={() => setQuestionLang("")}
-                    >
-                      Back
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-          )}
-          {panel === "topics" && (
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Add Topic</h2>
-              {!topicLang ? (
-                <div className={styles.card}>
-                  <label className="block mb-2 font-medium">
-                    Choose Language:
-                  </label>
-                  <select
-                    className={styles.select}
-                    value={topicLang}
-                    onChange={(e) => setTopicLang(e.target.value)}
-                  >
-                    <option value="">Select language</option>
-                    {LANGUAGES.map((l) => (
-                      <option key={l} value={l}>
-                        {l}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ) : (
-                <form className={styles.card}>
-                  <div className={styles.formGroup}>
-                    <label>Topic Name</label>
-                    <input
-                      className={styles.input}
-                      type="text"
-                      placeholder="Topic name"
-                      required
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label>Description</label>
-                    <textarea
-                      className={styles.input}
-                      placeholder="Topic description"
-                      required
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label>Difficulty</label>
-                    <select className={styles.select} required>
-                      <option value="">Select difficulty</option>
-                      <option value="easy">Easy</option>
-                      <option value="medium">Medium</option>
-                      <option value="hard">Hard</option>
-                    </select>
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label>Questions</label>
-                    <textarea
-                      className={styles.input}
-                      placeholder="Questions related to the topic"
-                      required
-                    />
-                  </div>
-                  <div className="flex gap-4 mt-2">
-                    <button type="submit" className={styles.button}>
-                      Add Topic
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.button}
-                      style={{ background: "#eee", color: "#444" }}
-                      onClick={() => setTopicLang("")}
-                    >
-                      Back
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-          )}
+          {/* Other panels removed as requested */}
         </main>
       </div>
-    </div>
   );
 }

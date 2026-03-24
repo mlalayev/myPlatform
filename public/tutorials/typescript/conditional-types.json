@@ -1,0 +1,543 @@
+{
+  "id": "conditional-types",
+  "az": {
+    "title": "Şərti Tiplər",
+    "icon": "FiHelpCircle",
+    "language": "typescript",
+    "description": "Tip şərtlərinə əsaslanan tiplər.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Şərti Tiplər Nədir?"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də şərti tiplər (conditional types) tipləri şərtlərə əsasən dinamik şəkildə təyin etmək üçün istifadə olunur. `T extends U ? X : Y` sintaksisi ilə təyin edilən şərti tiplər, bir tipin (`T`) başqa bir tipə (`U`) uyğun olub-olmamasından asılı olaraq fərqli bir tip (`X` və ya `Y`) seçir. Bu, xüsusilə generic tiplərlə işləyərkən çox faydalıdır, çünki kodun tip strukturunu çevik və təhlükəsiz şəkildə idarə etməyə imkan verir. Məsələn, bir funksiya yalnız müəyyən tiplər üçün xüsusi bir qaytarma tipi təyin etməlidirsə, şərti tiplər bunu asanlaşdırır. JavaScript-də belə bir mexanizm yoxdur, buna görə adətən `any` tipi istifadə olunur ki, bu da tip təhlükəsizliyini azaldır və runtime səhvlərinə səbəb ola bilər. TypeScript-də şərti tiplər kompilyasiya zamanı tip yoxlamasını gücləndirir və səhvləri azaltmağa kömək edir. Bu JSON faylda şərti tiplərin tərifi, istifadə məqsədləri, generic tiplər və məhdudiyyətlərlə əlaqəsi, JavaScript ilə fərqləri, sintaksisi, `infer` ilə istifadəsi, tip təhlükəsizliyi və real layihələrdə istifadə ssenariləri çox detallı şəkildə izah olunacaq. Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Şərti Tiplərin Məqsədi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Şərti tiplər TypeScript-də aşağıdakı məqsədlər üçün istifadə olunur:\n- **Dinamik tip təyini**: Tipləri şərtlərə əsasən təyin etmək.\n- **Tip təhlükəsizliyi**: Generic tiplərlə işləyərkən tip təhlükəsizliyini təmin etmək.\n- **Çeviklik**: Müxtəlif şərtlərə uyğun olaraq fərqli tiplər seçmək.\n- **Oxunaqlılıq**: Kodun məqsədini və tip strukturunu aydın ifadə etmək.\n- **Səhvlərin qarşısını almaq**: Yanlış tiplərin istifadəsini kompilyasiya zamanı aşkar etmək.\nJavaScript-də oxşar funksionallıq üçün `any` tipi istifadə olunur, lakin bu, tip təhlükəsizliyini təmin etmir və runtime səhvlərinə yol aça bilər. Şərti tiplər bu problemi həll edir."
+      },
+      {
+        "type": "heading",
+        "text": "Şərti Tiplərin Sintaksisi"
+      },
+      {
+        "type": "paragraph",
+        "text": "Şərti tiplər `T extends U ? X : Y` sintaksisi ilə təyin edilir, burada:\n- `T` şərt yoxlanılan tipdir.\n- `U` `T`-nin uyğun olmalı olduğu tipdir.\n- `X` şərt doğru olarsa seçiləcək tipdir.\n- `Y` şərt yalnış olarsa seçiləcək tipdir.\nNümunə (sadə şərti tip):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Sadə şərti tip\ntype IsString<T> = T extends string ? 'yes' : 'no';\n\ntype Test1 = IsString<string>; // 'yes'\ntype Test2 = IsString<number>; // 'no'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `IsString<T>` şərti tipi `T`-nin `string` tipinə uyğun olub-olmamasını yoxlayır.\n- Əgər `T` `string` olarsa, nəticə `'yes'` tipi, əks halda `'no'` tipidir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Generic Tiplərlə Şərti Tiplər"
+      },
+      {
+        "type": "paragraph",
+        "text": "Şərti tiplər generic tiplərlə birləşdirildikdə xüsusilə güclü olur, çünki tip təyinini şərtlərə əsasən dinamik şəkildə idarə etməyə imkan verir.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Generic tiplərlə şərti tip\ntype ReturnTypeBasedOnInput<T> = T extends string ? string : number;\n\nfunction processValue<T>(value: T): ReturnTypeBasedOnInput<T> {\n  return typeof value === 'string' ? value.toUpperCase() : 42 as any;\n}\n\nlet result1 = processValue('hello'); // string tipi, dəyər: 'HELLO'\nlet result2 = processValue(123); // number tipi, dəyər: 42\n// let error = processValue(true); // Xəta: boolean ReturnTypeBasedOnInput ilə uyğun deyil\n\nconsole.log(result1); // HELLO\nconsole.log(result2); // 42\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ReturnTypeBasedOnInput<T>` şərti tipi `T`-nin `string` olub-olmamasından asılı olaraq `string` və ya `number` qaytarır.\n- `processValue` funksiyası bu şərti tipə uyğun olaraq dəyər qaytarır.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Şərti Tiplər və Tip Məhdudiyyətləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Şərti tiplər generic tiplərlə və tip məhdudiyyətləri ilə birlikdə istifadə edilərək daha dəqiq tip təyinləri yarada bilər.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Şərti tiplər və tip məhdudiyyətləri\ntype NonNullable<T> = T extends null | undefined ? never : T;\n\nfunction getValue<T extends string | number>(value: T): NonNullable<T> {\n  if (value == null) throw new Error('Null or undefined is not allowed');\n  return value as NonNullable<T>;\n}\n\nlet result1 = getValue('Hello'); // string tipi\nlet result2 = getValue(42); // number tipi\n// let error = getValue(null); // Xəta: null NonNullable ilə uyğun deyil\n\nconsole.log(result1); // Hello\nconsole.log(result2); // 42\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `NonNullable<T>` şərti tipi `T`-nin `null` və ya `undefined` olub-olmamasını yoxlayır və uyğun olmayan tipləri `never` ilə əvəzləyir.\n- `getValue` funksiyası yalnız `string` və ya `number` tipləri ilə işləyir.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Infer ilə Şərti Tiplər"
+      },
+      {
+        "type": "paragraph",
+        "text": "TypeScript-də `infer` açar sözü şərti tiplər daxilində tipləri avtomatik çıxarmaq üçün istifadə olunur. Bu, kompleks tip strukturlarını idarə etmək üçün çox faydalıdır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Infer ilə şərti tip\ntype ElementType<T> = T extends (infer U)[] ? U : never;\n\ntype StringArrayElement = ElementType<string[]>; // string\ntype NumberArrayElement = ElementType<number[]>; // number\ntype Invalid = ElementType<string>; // never\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ElementType<T>` şərti tipi `T`-nin massiv olub-olmamasını yoxlayır və `infer U` ilə massivin element tipini çıxarır.\n- Əgər `T` massiv deyilsə, nəticə `never` olur.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "JavaScript ilə Fərqlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "JavaScript-də şərti tiplər yoxdur, çünki JavaScript dinamik tip sisteminə malikdir. Buna görə JavaScript-də oxşar funksionallıq üçün adətən `any` tipi istifadə olunur, lakin bu, tip təhlükəsizliyini təmin etmir. TypeScript-də şərti tiplər ilə:\n- Tiplər kompilyasiya zamanı dinamik şəkildə təyin olunur.\n- Yanlış tiplər istifadə edildikdə xəta aşkar edilir.\n- Kodun oxunaqlılığı və təhlükəsizliyi artır.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// JavaScript-də oxşar kod\nfunction processValueJS(value) {\n  return typeof value === 'string' ? value.toUpperCase() : 42;\n}\n\nconsole.log(processValueJS('Hello')); // HELLO\nconsole.log(processValueJS(123)); // 42\nconsole.log(processValueJS(true)); // 42, lakin xəta yoxdur\n\n// TypeScript-də təhlükəsiz kod\ntype ReturnTypeBasedOnInput<T> = T extends string ? string : number;\n\nfunction processValueTS<T extends string | number>(value: T): ReturnTypeBasedOnInput<T> {\n  return typeof value === 'string' ? value.toUpperCase() : 42 as any;\n}\n\nconsole.log(processValueTS('Hello')); // HELLO\nconsole.log(processValueTS(123)); // 42\n// console.log(processValueTS(true)); // Xəta: boolean ReturnTypeBasedOnInput ilə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- JavaScript-də `processValueJS` funksiyası `any` tipi ilə işləyir və runtime səhvlərinə yol aça bilər.\n- TypeScript-də `processValueTS` şərti tiplərlə təhlükəsizdir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Təhlükəsizlik Aspektləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Şərti tiplər kodun təhlükəsizliyini artırır, lakin diqqətli olmaq lazımdır:\n- Şərtləri dəqiq təyin edin.\n- `any` tipindən istifadə etməyin, çünki tip təhlükəsizliyini azaldır.\n- Lazım olduqda `infer` və ya məhdudiyyətlərdən istifadə edin.\n- `tsconfig.json`-da `\"strict\": true` parametrini aktivləşdirin.\nNümunə:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Təhlükəsizlik nümunəsi\ntype GetReturnType<T> = T extends (...args: any[]) => infer R ? R : never;\n\nfunction example(fn: () => string) {\n  return fn();\n}\n\ntype ExampleReturn = GetReturnType<typeof example>; // string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `GetReturnType<T>` şərti tipi funksiyanın qaytarma tipini `infer R` ilə çıxarır.\n- Yanlış tip istifadəsi kompilyasiya xətası yaradır.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Səhvə Yol Açan Nümunə"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Səhvə yol açan nümunə\nfunction unsafeProcessValue(value: any): any {\n  return typeof value === 'string' ? value.toUpperCase() : 42;\n}\n\nconsole.log(unsafeProcessValue('Hello')); // HELLO\nconsole.log(unsafeProcessValue(123)); // 42\nconsole.log(unsafeProcessValue(true)); // 42, lakin xəta yoxdur\n\n// Düzgün yol\ntype ReturnTypeBasedOnInput<T> = T extends string ? string : number;\n\nfunction safeProcessValue<T extends string | number>(value: T): ReturnTypeBasedOnInput<T> {\n  return typeof value === 'string' ? value.toUpperCase() : 42 as any;\n}\n\nconsole.log(safeProcessValue('Hello')); // HELLO\nconsole.log(safeProcessValue(123)); // 42\n// console.log(safeProcessValue(true)); // Xəta: boolean ReturnTypeBasedOnInput ilə uyğun deyil\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `any` tipi təhlükəsiz deyil və runtime səhvlərinə səbəb ola bilər.\n- Şərti tiplər ilə `safeProcessValue` funksiyası təhlükəsizdir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Real Layihələrdə İstifadə Ssenariləri"
+      },
+      {
+        "type": "paragraph",
+        "text": "Şərti tiplər real layihələrdə geniş istifadə olunur:\n- **API cavablarının idarə edilməsi**: API-dən gələn məlumatların tipinə görə fərqli tiplər təyin etmək.\n- **Komponent kitabxanaları**: React və ya Angular kimi kitabxanalarda dinamik tiplər.\n- **Utility tipləri**: `NonNullable`, `ReturnType` kimi daxili utility tipləri yaratmaq.\n- **Tip transformasiyaları**: Tipləri şərtlərə əsasən dəyişdirmək.\nNümunə (real ssenari):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real layihə ssenarisi\ntype ApiResponseType<T> = T extends { error: string } ? { status: 'error'; message: string } : { status: 'success'; data: T };\n\ninterface User {\n  id: number;\n  name: string;\n}\ninterface ErrorResponse {\n  error: string;\n}\n\nfunction handleResponse<T>(response: T): ApiResponseType<T> {\n  if ('error' in response) {\n    return { status: 'error', message: (response as ErrorResponse).error } as ApiResponseType<T>;\n  }\n  return { status: 'success', data: response } as ApiResponseType<T>;\n}\n\nlet success = handleResponse({ id: 1, name: 'Alice' });\nlet error = handleResponse({ error: 'Not found' });\n\nconsole.log(success); // { status: 'success', data: { id: 1, name: 'Alice' } }\nconsole.log(error); // { status: 'error', message: 'Not found' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "Bu kodda:\n- `ApiResponseType<T>` şərti tipi `T`-nin `error` xüsusiyyətinə malik olub-olmamasından asılı olaraq fərqli tiplər qaytarır.\n- Tip təhlükəsizliyi kompilyasiya zamanı təmin edilir.\n- Aşağıda bu kodu saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Qabaqcıl Mövzulara Qısa İstinad"
+      },
+      {
+        "type": "paragraph",
+        "text": "Şərti tiplər qabaqcıl TypeScript xüsusiyyətləri ilə də istifadə oluna bilər:\n- **Distributive Conditional Types**: Şərti tiplərin union tipləri ilə avtomatik paylanması.\n- **Mapped Types**: Obyekt tiplərini dinamik olaraq dəyişdirmək.\nBu mövzular haqqında ətraflı məlumat üçün TypeScript sənədlərinə (https://www.typescriptlang.org/docs) baxın."
+      },
+      {
+        "type": "heading",
+        "text": "Tövsiyələr və Alternativlər"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Tövsiyələr**: Şərti tipləri dinamik və təhlükəsiz tip təyinləri üçün istifadə edin. `any` əvəzinə dəqiq şərtləri seçin. `tsconfig.json`-da sərt yoxlamaları aktivləşdirin (`\"strict\": true`). Rəsmi sənədlərdən (https://www.typescriptlang.org/docs) faydalanın.\n- **Alternativlər**: Şərti tiplər əvəzinə `any` istifadə edilə bilər, lakin bu, təhlükəsiz deyil.\n- Aşağıda kodları saytımızdakı redaktorda yoxlaya bilərsiniz."
+      },
+      {
+        "type": "heading",
+        "text": "Sınaq Üçün Nümunə"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Sınaq üçün şərti tip nümunəsi\ntype IsString<T> = T extends string ? 'yes' : 'no';\n\ntype Test1 = IsString<string>; // 'yes'\ntype Test2 = IsString<number>; // 'no'\n"
+      }
+    ]
+  },
+  "en": {
+    "title": "Conditional Types",
+    "icon": "FiHelpCircle",
+    "language": "typescript",
+    "description": "Types based on type conditions.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "What Are Conditional Types?"
+      },
+      {
+        "type": "paragraph",
+        "text": "In TypeScript, conditional types are used to define types dynamically based on conditions. Defined with the `T extends U ? X : Y` syntax, conditional types select a type (`X` or `Y`) depending on whether a type (`T`) satisfies a condition (`U`). They are particularly useful with generics, allowing flexible and type-safe code structures. For example, if a function needs to return a specific type based on certain input types, conditional types make this possible. JavaScript has no equivalent mechanism, so developers often use `any`, which compromises type safety and can lead to runtime errors. TypeScript’s conditional types enforce type checking at compile time, reducing errors. This JSON file explains the definition, purposes, relation to generics and constraints, differences from JavaScript, syntax, usage with `infer`, type safety, and real-world usage scenarios in detail. You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Purpose of Conditional Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Conditional types in TypeScript serve the following purposes:\n- **Dynamic type selection**: Define types based on conditions.\n- **Type safety**: Ensure type safety when working with generics.\n- **Flexibility**: Select different types based on various conditions.\n- **Readability**: Clearly express the intent and structure of the code.\n- **Error prevention**: Detect incorrect type usage at compile time.\nIn JavaScript, similar functionality is achieved using `any`, which lacks type safety and can lead to runtime errors. Conditional types solve this issue."
+      },
+      {
+        "type": "heading",
+        "text": "Syntax of Conditional Types"
+      },
+      {
+        "type": "paragraph",
+        "text": "Conditional types are defined using `T extends U ? X : Y`, where:\n- `T` is the type being checked.\n- `U` is the type that `T` must conform to.\n- `X` is the type selected if the condition is true.\n- `Y` is the type selected if the condition is false.\nExample (simple conditional type):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Simple conditional type\ntype IsString<T> = T extends string ? 'yes' : 'no';\n\ntype Test1 = IsString<string>; // 'yes'\ntype Test2 = IsString<number>; // 'no'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `IsString<T>` checks if `T` is a `string` and resolves to `'yes'` or `'no'`.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Conditional Types with Generics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Conditional types are especially powerful when combined with generics, as they allow dynamic type selection based on conditions.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Conditional type with generics\ntype ReturnTypeBasedOnInput<T> = T extends string ? string : number;\n\nfunction processValue<T>(value: T): ReturnTypeBasedOnInput<T> {\n  return typeof value === 'string' ? value.toUpperCase() : 42 as any;\n}\n\nlet result1 = processValue('hello'); // string type, value: 'HELLO'\nlet result2 = processValue(123); // number type, value: 42\n// let error = processValue(true); // Error: boolean is not assignable to ReturnTypeBasedOnInput\n\nconsole.log(result1); // HELLO\nconsole.log(result2); // 42\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ReturnTypeBasedOnInput<T>` resolves to `string` or `number` based on whether `T` is a `string`.\n- The `processValue` function returns values according to this conditional type.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Conditional Types and Type Constraints"
+      },
+      {
+        "type": "paragraph",
+        "text": "Conditional types can be used with generics and type constraints to create more precise type definitions.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Conditional types with constraints\ntype NonNullable<T> = T extends null | undefined ? never : T;\n\nfunction getValue<T extends string | number>(value: T): NonNullable<T> {\n  if (value == null) throw new Error('Null or undefined is not allowed');\n  return value as NonNullable<T>;\n}\n\nlet result1 = getValue('Hello'); // string type\nlet result2 = getValue(42); // number type\n// let error = getValue(null); // Error: null is not assignable to NonNullable\n\nconsole.log(result1); // Hello\nconsole.log(result2); // 42\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `NonNullable<T>` checks if `T` is `null` or `undefined` and resolves to `never` if true, otherwise to `T`.\n- The `getValue` function only works with `string` or `number` types.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Conditional Types with Infer"
+      },
+      {
+        "type": "paragraph",
+        "text": "The `infer` keyword in TypeScript is used within conditional types to automatically infer types, making it powerful for handling complex type structures.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Conditional type with infer\ntype ElementType<T> = T extends (infer U)[] ? U : never;\n\ntype StringArrayElement = ElementType<string[]>; // string\ntype NumberArrayElement = ElementType<number[]>; // number\ntype Invalid = ElementType<string>; // never\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ElementType<T>` checks if `T` is an array and uses `infer U` to extract the element type.\n- If `T` is not an array, the result is `never`.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Differences from JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "JavaScript lacks conditional types due to its dynamic type system. Typically, `any` is used for similar functionality, but it does not provide type safety. With TypeScript’s conditional types:\n- Types are dynamically resolved at compile time.\n- Incorrect types are detected as errors.\n- Code readability and safety are improved.\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// JavaScript equivalent\nfunction processValueJS(value) {\n  return typeof value === 'string' ? value.toUpperCase() : 42;\n}\n\nconsole.log(processValueJS('Hello')); // HELLO\nconsole.log(processValueJS(123)); // 42\nconsole.log(processValueJS(true)); // 42, no error\n\n// TypeScript safe code\ntype ReturnTypeBasedOnInput<T> = T extends string ? string : number;\n\nfunction processValueTS<T extends string | number>(value: T): ReturnTypeBasedOnInput<T> {\n  return typeof value === 'string' ? value.toUpperCase() : 42 as any;\n}\n\nconsole.log(processValueTS('Hello')); // HELLO\nconsole.log(processValueTS(123)); // 42\n// console.log(processValueTS(true)); // Error: boolean is not assignable to ReturnTypeBasedOnInput\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The JavaScript `processValueJS` function uses `any` and may cause runtime errors.\n- The TypeScript `processValueTS` function is safe with conditional types.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Security Aspects"
+      },
+      {
+        "type": "paragraph",
+        "text": "Conditional types enhance code safety, but caution is needed:\n- Define conditions precisely.\n- Avoid `any` as it reduces type safety.\n- Use `infer` or constraints when necessary.\n- Enable strict checks in `tsconfig.json` (`\"strict\": true`).\nExample:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Security example\ntype GetReturnType<T> = T extends (...args: any[]) => infer R ? R : never;\n\nfunction example(fn: () => string) {\n  return fn();\n}\n\ntype ExampleReturn = GetReturnType<typeof example>; // string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `GetReturnType<T>` infers the return type of a function using `infer R`.\n- Incorrect type usage triggers a compilation error.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Error-Prone Example"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Error-prone example\nfunction unsafeProcessValue(value: any): any {\n  return typeof value === 'string' ? value.toUpperCase() : 42;\n}\n\nconsole.log(unsafeProcessValue('Hello')); // HELLO\nconsole.log(unsafeProcessValue(123)); // 42\nconsole.log(unsafeProcessValue(true)); // 42, no error\n\n// Correct approach\ntype ReturnTypeBasedOnInput<T> = T extends string ? string : number;\n\nfunction safeProcessValue<T extends string | number>(value: T): ReturnTypeBasedOnInput<T> {\n  return typeof value === 'string' ? value.toUpperCase() : 42 as any;\n}\n\nconsole.log(safeProcessValue('Hello')); // HELLO\nconsole.log(safeProcessValue(123)); // 42\n// console.log(safeProcessValue(true)); // Error: boolean is not assignable to ReturnTypeBasedOnInput\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- The `any` type is unsafe and may cause runtime errors.\n- The `safeProcessValue` function with conditional types is safe.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Real-World Usage Scenarios"
+      },
+      {
+        "type": "paragraph",
+        "text": "Conditional types are widely used in real projects:\n- **API response handling**: Assigning different types based on API response structure.\n- **Component libraries**: Dynamic types in React or Angular.\n- **Utility types**: Creating built-in utility types like `NonNullable` or `ReturnType`.\n- **Type transformations**: Transforming types based on conditions.\nExample (real-world scenario):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Real-world scenario\ntype ApiResponseType<T> = T extends { error: string } ? { status: 'error'; message: string } : { status: 'success'; data: T };\n\ninterface User {\n  id: number;\n  name: string;\n}\ninterface ErrorResponse {\n  error: string;\n}\n\nfunction handleResponse<T>(response: T): ApiResponseType<T> {\n  if ('error' in response) {\n    return { status: 'error', message: (response as ErrorResponse).error } as ApiResponseType<T>;\n  }\n  return { status: 'success', data: response } as ApiResponseType<T>;\n}\n\nlet success = handleResponse({ id: 1, name: 'Alice' });\nlet error = handleResponse({ error: 'Not found' });\n\nconsole.log(success); // { status: 'success', data: { id: 1, name: 'Alice' } }\nconsole.log(error); // { status: 'error', message: 'Not found' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "In this code:\n- `ApiResponseType<T>` resolves to different types based on whether `T` has an `error` property.\n- Type safety is enforced at compile time.\n- You can test this code in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Brief Reference to Advanced Topics"
+      },
+      {
+        "type": "paragraph",
+        "text": "Conditional types can be used with advanced TypeScript features:\n- **Distributive Conditional Types**: Automatic distribution of conditional types over union types.\n- **Mapped Types**: Dynamically transforming object types.\nFor more details, refer to the TypeScript documentation (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Recommendations and Alternatives"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Recommendations**: Use conditional types for dynamic and safe type definitions. Prefer precise conditions over `any`. Enable strict checks in `tsconfig.json` (`\"strict\": true`). Refer to the official documentation (https://www.typescriptlang.org/docs).\n- **Alternatives**: Instead of conditional types, `any` can be used, but it is unsafe.\n- You can test the code below in our site’s editor."
+      },
+      {
+        "type": "heading",
+        "text": "Try it Yourself"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Try it yourself conditional type example\ntype IsString<T> = T extends string ? 'yes' : 'no';\n\ntype Test1 = IsString<string>; // 'yes'\ntype Test2 = IsString<number>; // 'no'\n"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Условные типы",
+    "icon": "FiHelpCircle",
+    "language": "typescript",
+    "description": "Типы, основанные на условиях типов.",
+    "content": [
+      {
+        "type": "heading",
+        "text": "Что такое условные типы?"
+      },
+      {
+        "type": "paragraph",
+        "text": "В TypeScript условные типы (conditional types) используются для динамического определения типов на основе условий. Определяемые с помощью синтаксиса `T extends U ? X : Y`, условные типы выбирают тип (`X` или `Y`) в зависимости от того, удовлетворяет ли тип (`T`) условию (`U`). Они особенно полезны при работе с дженериками, позволяя создавать гибкие и безопасные структуры типов. Например, если функция должна возвращать определенный тип в зависимости от входных типов, условные типы упрощают эту задачу. В JavaScript такого механизма нет, поэтому обычно используется тип `any`, что снижает безопасность типов и может привести к ошибкам во время выполнения. Условные типы в TypeScript усиливают проверку типов во время компиляции и помогают уменьшить ошибки. Этот JSON-файл подробно объясняет определение, назначение, связь с дженериками и ограничениями, отличия от JavaScript, синтаксис, использование с `infer`, безопасность типов и сценарии использования в реальных проектах. Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Назначение условных типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Условные типы в TypeScript используются для следующих целей:\n- **Динамическое определение типов**: Определение типов на основе условий.\n- **Безопасность типов**: Обеспечение безопасности типов при работе с дженериками.\n- **Гибкость**: Выбор различных типов на основе разных условий.\n- **Читаемость**: Четкое выражение назначения и структуры кода.\n- **Предотвращение ошибок**: Обнаружение неправильного использования типов на этапе компиляции.\nВ JavaScript для аналогичной функциональности обычно используется `any`, что не обеспечивает безопасность типов и может привести к ошибкам во время выполнения. Условные типы решают эту проблему."
+      },
+      {
+        "type": "heading",
+        "text": "Синтаксис условных типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Условные типы определяются с помощью `T extends U ? X : Y`, где:\n- `T` — проверяемый тип.\n- `U` — тип, которому должен соответствовать `T`.\n- `X` — тип, выбираемый, если условие истинно.\n- `Y` — тип, выбираемый, если условие ложно.\nПример (простой условный тип):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Простой условный тип\ntype IsString<T> = T extends string ? 'yes' : 'no';\n\ntype Test1 = IsString<string>; // 'yes'\ntype Test2 = IsString<number>; // 'no'\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `IsString<T>` проверяет, является ли `T` строкой, и возвращает `'yes'` или `'no'`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Условные типы с дженериками"
+      },
+      {
+        "type": "paragraph",
+        "text": "Условные типы особенно мощны при использовании с дженериками, так как позволяют динамически выбирать типы на основе условий.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Условный тип с дженериками\ntype ReturnTypeBasedOnInput<T> = T extends string ? string : number;\n\nfunction processValue<T>(value: T): ReturnTypeBasedOnInput<T> {\n  return typeof value === 'string' ? value.toUpperCase() : 42 as any;\n}\n\nlet result1 = processValue('hello'); // тип string, значение: 'HELLO'\nlet result2 = processValue(123); // тип number, значение: 42\n// let error = processValue(true); // Ошибка: boolean не соответствует ReturnTypeBasedOnInput\n\nconsole.log(result1); // HELLO\nconsole.log(result2); // 42\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ReturnTypeBasedOnInput<T>` возвращает `string` или `number` в зависимости от того, является ли `T` строкой.\n- Функция `processValue` возвращает значения согласно этому условному типу.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Условные типы и ограничения типов"
+      },
+      {
+        "type": "paragraph",
+        "text": "Условные типы могут использоваться с дженериками и ограничениями типов для создания более точных определений типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Условные типы с ограничениями\ntype NonNullable<T> = T extends null | undefined ? never : T;\n\nfunction getValue<T extends string | number>(value: T): NonNullable<T> {\n  if (value == null) throw new Error('Null or undefined is not allowed');\n  return value as NonNullable<T>;\n}\n\nlet result1 = getValue('Hello'); // тип string\nlet result2 = getValue(42); // тип number\n// let error = getValue(null); // Ошибка: null не соответствует NonNullable\n\nconsole.log(result1); // Hello\nconsole.log(result2); // 42\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `NonNullable<T>` проверяет, является ли `T` `null` или `undefined`, и возвращает `never`, если это так, иначе возвращает `T`.\n- Функция `getValue` работает только с типами `string` или `number`.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Условные типы с Infer"
+      },
+      {
+        "type": "paragraph",
+        "text": "Ключевое слово `infer` в TypeScript используется в условных типах для автоматического вывода типов, что делает его мощным инструментом для работы с сложными структурами типов.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Условный тип с infer\ntype ElementType<T> = T extends (infer U)[] ? U : never;\n\ntype StringArrayElement = ElementType<string[]>; // string\ntype NumberArrayElement = ElementType<number[]>; // number\ntype Invalid = ElementType<string>; // never\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ElementType<T>` проверяет, является ли `T` массивом, и использует `infer U` для извлечения типа элемента.\n- Если `T` не массив, результат — `never`.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Отличия от JavaScript"
+      },
+      {
+        "type": "paragraph",
+        "text": "В JavaScript нет условных типов из-за его динамической системы типов. Обычно используется `any`, но это не обеспечивает безопасность типов. С условными типами в TypeScript:\n- Типы определяются динамически во время компиляции.\n- Неправильные типы обнаруживаются как ошибки.\n- Улучшается читаемость и безопасность кода.\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Эквивалент в JavaScript\nfunction processValueJS(value) {\n  return typeof value === 'string' ? value.toUpperCase() : 42;\n}\n\nconsole.log(processValueJS('Hello')); // HELLO\nconsole.log(processValueJS(123)); // 42\nconsole.log(processValueJS(true)); // 42, без ошибки\n\n// Безопасный код в TypeScript\ntype ReturnTypeBasedOnInput<T> = T extends string ? string : number;\n\nfunction processValueTS<T extends string | number>(value: T): ReturnTypeBasedOnInput<T> {\n  return typeof value === 'string' ? value.toUpperCase() : 42 as any;\n}\n\nconsole.log(processValueTS('Hello')); // HELLO\nconsole.log(processValueTS(123)); // 42\n// console.log(processValueTS(true)); // Ошибка: boolean не соответствует ReturnTypeBasedOnInput\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Функция `processValueJS` в JavaScript использует `any` и может вызвать ошибки во время выполнения.\n- Функция `processValueTS` в TypeScript безопасна благодаря условным типам.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Аспекты безопасности"
+      },
+      {
+        "type": "paragraph",
+        "text": "Условные типы повышают безопасность кода, но требуется осторожность:\n- Точно определяйте условия.\n- Избегайте `any`, так как это снижает безопасность типов.\n- Используйте `infer` или ограничения при необходимости.\n- Включите строгие проверки в `tsconfig.json` (`\"strict\": true`).\nПример:"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример безопасности\ntype GetReturnType<T> = T extends (...args: any[]) => infer R ? R : never;\n\nfunction example(fn: () => string) {\n  return fn();\n}\n\ntype ExampleReturn = GetReturnType<typeof example>; // string\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `GetReturnType<T>` выводит возвращаемый тип функции с помощью `infer R`.\n- Неправильное использование типа вызывает ошибку компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Пример, вызывающий ошибку"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Пример, вызывающий ошибку\nfunction unsafeProcessValue(value: any): any {\n  return typeof value === 'string' ? value.toUpperCase() : 42;\n}\n\nconsole.log(unsafeProcessValue('Hello')); // HELLO\nconsole.log(unsafeProcessValue(123)); // 42\nconsole.log(unsafeProcessValue(true)); // 42, без ошибки\n\n// Правильный подход\ntype ReturnTypeBasedOnInput<T> = T extends string ? string : number;\n\nfunction safeProcessValue<T extends string | number>(value: T): ReturnTypeBasedOnInput<T> {\n  return typeof value === 'string' ? value.toUpperCase() : 42 as any;\n}\n\nconsole.log(safeProcessValue('Hello')); // HELLO\nconsole.log(safeProcessValue(123)); // 42\n// console.log(safeProcessValue(true)); // Ошибка: boolean не соответствует ReturnTypeBasedOnInput\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- Тип `any` небезопасен и может вызвать ошибки во время выполнения.\n- Функция `safeProcessValue` с условными типами безопасна.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Сценарии использования в реальных проектах"
+      },
+      {
+        "type": "paragraph",
+        "text": "Условные типы широко используются в реальных проектах:\n- **Обработка ответов API**: Назначение разных типов в зависимости от структуры ответа API.\n- **Библиотеки компонентов**: Динамические типы в React или Angular.\n- **Утилитные типы**: Создание встроенных утилитных типов, таких как `NonNullable` или `ReturnType`.\n- **Трансформация типов**: Изменение типов на основе условий.\nПример (реальный сценарий):"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Реальный сценарий\ntype ApiResponseType<T> = T extends { error: string } ? { status: 'error'; message: string } : { status: 'success'; data: T };\n\ninterface User {\n  id: number;\n  name: string;\n}\ninterface ErrorResponse {\n  error: string;\n}\n\nfunction handleResponse<T>(response: T): ApiResponseType<T> {\n  if ('error' in response) {\n    return { status: 'error', message: (response as ErrorResponse).error } as ApiResponseType<T>;\n  }\n  return { status: 'success', data: response } as ApiResponseType<T>;\n}\n\nlet success = handleResponse({ id: 1, name: 'Alice' });\nlet error = handleResponse({ error: 'Not found' });\n\nconsole.log(success); // { status: 'success', data: { id: 1, name: 'Alice' } }\nconsole.log(error); // { status: 'error', message: 'Not found' }\n"
+      },
+      {
+        "type": "paragraph",
+        "text": "В этом коде:\n- `ApiResponseType<T>` возвращает разные типы в зависимости от наличия свойства `error` в `T`.\n- Безопасность типов обеспечивается во время компиляции.\n- Вы можете протестировать этот код в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Краткое упоминание продвинутых тем"
+      },
+      {
+        "type": "paragraph",
+        "text": "Условные типы могут использоваться с продвинутыми возможностями TypeScript:\n- **Распределенные условные типы (Distributive Conditional Types)**: Автоматическое распределение условных типов по объединениям типов.\n- **Сопоставленные типы (Mapped Types)**: Динамическое преобразование типов объектов.\nДля получения дополнительной информации обратитесь к документации TypeScript (https://www.typescriptlang.org/docs)."
+      },
+      {
+        "type": "heading",
+        "text": "Рекомендации и альтернативы"
+      },
+      {
+        "type": "paragraph",
+        "text": "- **Рекомендации**: Используйте условные типы для динамического и безопасного определения типов. Предпочитайте точные условия вместо `any`. Включите строгие проверки в `tsconfig.json` (`\"strict\": true`). Обращайтесь к официальной документации (https://www.typescriptlang.org/docs).\n- **Альтернативы**: Вместо условных типов можно использовать `any`, но это небезопасно.\n- Вы можете протестировать код ниже в редакторе на нашем сайте."
+      },
+      {
+        "type": "heading",
+        "text": "Попробуйте сами"
+      },
+      {
+        "type": "editor",
+        "initialCode": "// Пример условного типа для самостоятельного тестирования\ntype IsString<T> = T extends string ? 'yes' : 'no';\n\ntype Test1 = IsString<string>; // 'yes'\ntype Test2 = IsString<number>; // 'no'\n"
+      }
+    ]
+  }
+}
