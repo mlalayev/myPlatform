@@ -14,7 +14,7 @@ export async function GET(req: Request) {
   const sortBy = searchParams.get("sortBy") || "createdAt"; // createdAt, name, email, role
   const sortDir = (searchParams.get("sortDir") || "desc").toLowerCase() === "asc" ? "asc" : "desc";
 
-  const where = q
+  const where: any = q
     ? {
         OR: [
           { name: { contains: q, mode: "insensitive" } },

@@ -314,7 +314,7 @@ export default function ExerciseDetailPage({
     if (exercise) {
       refreshLatestSubmission();
     }
-  }, [exercise]); // Only run when exercise changes, not after every submission
+  }, [exercise, refreshLatestSubmission]); // Only run when exercise changes, not after every submission
 
   // Load status from localStorage on mount
   useEffect(() => {
@@ -344,7 +344,7 @@ export default function ExerciseDetailPage({
           }
         );
       }
-  }, [exercise, id, session]);
+  }, [exercise, id, session, logActivity]);
 
   // Autosave code to localStorage on every change
   useEffect(() => {
@@ -1229,7 +1229,6 @@ export default function ExerciseDetailPage({
       // Use default template for this language
       setUserCode(languageSamples[language as keyof typeof languageSamples]);
     }
-    // eslint-disable-next-line
   }, [language, exercise]);
 
   // Close dropdown on outside click

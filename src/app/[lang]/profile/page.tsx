@@ -131,6 +131,7 @@ const profileTabs = [
         setSelectedTab(tabParam);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch user stats from backend
@@ -256,6 +257,7 @@ const profileTabs = [
     if (session) {
       fetchUserStats();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
   // Trigger login point popup check when profile page loads

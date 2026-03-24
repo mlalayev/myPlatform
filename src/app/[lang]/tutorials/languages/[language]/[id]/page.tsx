@@ -351,7 +351,7 @@ export default function TutorialTopicPage() {
     };
     
     markVisited();
-  }, [safeTopicId, safeLanguage, session?.user]);
+  }, [safeTopicId, safeLanguage, session?.user, logActivity]);
 
   // Algoritm mövzusu üçün localStorage-dan oxu
   useEffect(() => {

@@ -201,7 +201,10 @@ export async function GET(request: NextRequest) {
         expectedDate.setDate(today.getDate() - loginStreak);
         expectedDate.setHours(0, 0, 0, 0);
         
-        if (dayDate.getTime() === expectedDate.getTime() && 
+        const dayDateStr = dayDate.toISOString().split('T')[0];
+        const expectedDateStr = expectedDate.toISOString().split('T')[0];
+        
+        if (dayDateStr === expectedDateStr && 
             (dayActivity.studyTime > 0 || dayActivity.exercisesSolved > 0 || dayActivity.lessonsViewed > 0)) {
           loginStreak++;
         } else if (loginStreak > 0) {

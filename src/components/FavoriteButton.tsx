@@ -37,6 +37,7 @@ export default function FavoriteButton({
 
   useEffect(() => {
     checkFavoriteStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, itemId]);
 
   const checkFavoriteStatus = async () => {

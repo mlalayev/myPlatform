@@ -100,7 +100,7 @@ export default function ProfileOverview({
     } else {
       setSolvedExercisesData([]);
     }
-  }, [userStats?.solvedExercisesData?.length]); // Only depend on length, not the entire array
+  }, [userStats?.solvedExercisesData]); // Depend on the entire array to detect changes
 
   if (loading) {
     return (

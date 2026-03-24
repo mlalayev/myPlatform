@@ -277,7 +277,7 @@ export default function TutorialFrameworkTopicPage() {
     };
     
     markVisited();
-  }, [safeTopicId, safeFramework, session?.user]);
+  }, [safeTopicId, safeFramework, session?.user, logActivity]);
 
   useEffect(() => {
     if (!framework || !topicId || !lang) return;

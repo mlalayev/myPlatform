@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   FiAward,
   FiGift,
@@ -44,8 +44,32 @@ export default function ProfileAchievements({
   const [dbAchievements, setDbAchievements] = useState<any[]>([]);
   const [syncingAchievements, setSyncingAchievements] = useState(false);
 
+  // Function to fetch achievements from database
+  const fetchAchievements = useCallback(async () => {
+    try {
+      const response = await fetch("/api/user/profile");
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Check if there are achievements in the profile data
+        if (data.achievements && Array.isArray(data.achievements)) {
+          const claimedNames = new Set<string>();
+          data.achievements.forEach((achievement: any) => {
+            if (achievement.claimed) {
+              claimedNames.add(achievement.name);
+            }
+          });
+          setClaimedAchievements(claimedNames);
+          console.log("Loaded claimed achievements:", Array.from(claimedNames));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching achievements:", error);
+    }
+  }, []);
+
   // Function to sync achievements with database
-  const syncAchievements = async () => {
+  const syncAchievements = useCallback(async () => {
     if (syncingAchievements) return;
     
     setSyncingAchievements(true);
@@ -98,31 +122,7 @@ export default function ProfileAchievements({
     } finally {
       setSyncingAchievements(false);
     }
-  };
-
-  // Function to fetch achievements from database
-  const fetchAchievements = async () => {
-    try {
-      const response = await fetch("/api/user/profile");
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Check if there are achievements in the profile data
-        if (data.achievements && Array.isArray(data.achievements)) {
-          const claimedNames = new Set<string>();
-          data.achievements.forEach((achievement: any) => {
-            if (achievement.claimed) {
-              claimedNames.add(achievement.name);
-            }
-          });
-          setClaimedAchievements(claimedNames);
-          console.log("Loaded claimed achievements:", Array.from(claimedNames));
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching achievements:", error);
-    }
-  };
+  }, [syncingAchievements, fetchAchievements, showAchievementPopup]);
 
   // Function to claim achievement rewards
   const claimAchievementReward = async (achievementName: string, coins: number) => {
@@ -175,7 +175,7 @@ export default function ProfileAchievements({
     if (!loading && userStats) {
       syncAchievements();
     }
-  }, [loading, userStats]);
+  }, [loading, userStats, syncAchievements]);
 
   // Achievement data structure with new achievements
   const achievementCategories = [

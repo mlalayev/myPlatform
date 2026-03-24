@@ -395,7 +395,7 @@ export default function TutorialLanguagePage() {
       window.removeEventListener('focus', handleWindowFocus);
       window.removeEventListener('visitedLessonsUpdated', handleVisitedLessonsUpdate as EventListener);
     };
-  }, [fetchAllProgress]);
+  }, [fetchAllProgress, languageProgress]);
 
   React.useEffect(() => {
     if (language !== "languages") return;
