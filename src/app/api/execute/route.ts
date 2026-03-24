@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { codeRunners, isLanguageSupported } from "@/lib/codeRunners";
 
+// Disable caching for this API route
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function POST(request: NextRequest) {
   try {
     const { language, code } = await request.json();
@@ -26,10 +30,19 @@ export async function POST(request: NextRequest) {
     // Execute code using the appropriate runner - O(1) lookup
     const { stdout, stderr } = await codeRunners[lang](code);
 
-    return NextResponse.json({
-      output: stdout.trim(),
-      error: stderr.trim(),
-    });
+    return NextResponse.json(
+      {
+        output: stdout.trim(),
+        error: stderr.trim(),
+      },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      }
+    );
   } catch (err) {
     console.error("Error executing code:", err);
     return NextResponse.json(

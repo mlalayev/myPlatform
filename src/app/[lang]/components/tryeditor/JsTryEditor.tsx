@@ -426,10 +426,12 @@ export default function JsTryEditor({
       ];
       if (backendLangs.includes(lang)) {
         try {
-          const response = await fetch("/api/execute", {
+          const timestamp = Date.now();
+          const response = await fetch(`/api/execute?t=${timestamp}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code, language: lang }),
+            cache: "no-store",
           });
           const result = await response.json();
           if (result.error) {

@@ -547,10 +547,11 @@ export default function ExerciseDetailPage({
           const callCode = `\nimport json\nresult = ${functionName}(${argsStr})\nif isinstance(result, (list, dict)):\n    print(json.dumps(result))\nelse:\n    print(result)`;
           const fullCode = `${userCode}${callCode}`;
           
-          const resp = await fetch("/api/execute", {
+          const resp = await fetch(`/api/execute?t=${Date.now()}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code: fullCode, language: "python" }),
+            cache: "no-store",
           });
           const data = await resp.json();
           
@@ -770,10 +771,11 @@ export default function ExerciseDetailPage({
           const callCode = `\nint main() {\n    vector<int> nums = ${numsArray};\n    int target = ${target};\n    auto result = ${functionName}(nums, target);\n    for (int i = 0; i < result.size(); i++) {\n        cout << result[i];\n        if (i < result.size() - 1) cout << " ";\n    }\n    return 0;\n}`;
           const fullCode = `${userCode}\n#include <iostream>\n#include <vector>\nusing namespace std;\n${callCode}`;
           
-          const resp = await fetch("/api/execute", {
+          const resp = await fetch(`/api/execute?t=${Date.now()}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code: fullCode, language: "cpp" }),
+            cache: "no-store",
           });
           const data = await resp.json();
           
@@ -826,10 +828,11 @@ export default function ExerciseDetailPage({
           const callCode = `\nint main() {\n    int returnSize;\n    int nums[] = ${numsArray};\n    int numsSize = ${numsSize};\n    int target = ${target};\n    int* result = ${functionName}(nums, numsSize, target, &returnSize);\n    for (int i = 0; i < returnSize; i++) {\n        printf("%d", result[i]);\n        if (i < returnSize - 1) printf(" ");\n    }\n    return 0;\n}`;
           const fullCode = `${userCode}\n#include <stdio.h>\n#include <stdlib.h>\n${callCode}`;
           
-          const resp = await fetch("/api/execute", {
+          const resp = await fetch(`/api/execute?t=${Date.now()}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code: fullCode, language: "c" }),
+            cache: "no-store",
           });
           const data = await resp.json();
           
@@ -883,10 +886,11 @@ export default function ExerciseDetailPage({
           const callCode = `\n    public static void main(String[] args) {\n        Solution solution = new Solution();\n        int[] result = solution.${functionName}(${numsArray}, ${target});\n        for (int i = 0; i < result.length; i++) {\n            System.out.print(result[i]);\n            if (i < result.length - 1) System.out.print(" ");\n        }\n    }`;
           const fullCode = `${imports}\npublic class Solution {\n${codeWithoutImports}${callCode}\n}`;
           
-          const resp = await fetch("/api/execute", {
+          const resp = await fetch(`/api/execute?t=${Date.now()}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code: fullCode, language: "java" }),
+            cache: "no-store",
           });
           const data = await resp.json();
           
@@ -940,10 +944,11 @@ export default function ExerciseDetailPage({
           const callCode = `\n    public static void Main(string[] args) {\n        Solution solution = new Solution();\n        int[] result = solution.${functionName}(${numsArray}, ${target});\n        Console.WriteLine(string.Join(" ", result));\n    }`;
           const fullCode = `${usings}\n\npublic class Solution {\n${codeWithoutUsings}${callCode}\n}`;
           
-          const resp = await fetch("/api/execute", {
+          const resp = await fetch(`/api/execute?t=${Date.now()}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code: fullCode, language: "csharp" }),
+            cache: "no-store",
           });
           const data = await resp.json();
           
@@ -992,10 +997,11 @@ export default function ExerciseDetailPage({
           const callCode = `\n$result = ${functionName}(${numsArray}, ${target});\necho implode(" ", $result);`;
           const fullCode = `<?php\n${userCode}${callCode}\n?>`;
           
-          const resp = await fetch("/api/execute", {
+          const resp = await fetch(`/api/execute?t=${Date.now()}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code: fullCode, language: "php" }),
+            cache: "no-store",
           });
           const data = await resp.json();
           

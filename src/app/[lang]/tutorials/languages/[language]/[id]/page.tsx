@@ -448,10 +448,11 @@ export default function TutorialTopicPage() {
   const runCode = (code: string, language: string) => {
     // Burada kodu backendə göndərmək üçün fetch və ya API call yaz
     // Məsələn:
-    fetch("/api/execute", {
+    fetch(`/api/execute?t=${Date.now()}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code, language }),
+      cache: "no-store",
     })
       .then((res) => res.json())
       .then((data) => {
