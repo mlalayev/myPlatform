@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import {
   FiStar,
   FiDollarSign,
@@ -159,10 +160,13 @@ export default function ProfileOverview({
             <div className={overviewStyles.avatarContainer}>
               <div className={overviewStyles.avatar}>
                 {userStats.user.avatarUrl ? (
-                  <img
+                  <Image
                     src={userStats.user.avatarUrl}
                     alt="Profile"
+                    width={100}
+                    height={100}
                     className={overviewStyles.avatarImage}
+                    unoptimized
                   />
                 ) : (
                   <span className={overviewStyles.avatarInitial}>
