@@ -1,7 +1,13 @@
 import { exec } from "child_process";
 import { promisify } from "util";
+import { randomBytes } from "crypto";
 
 const execAsync = promisify(exec);
+
+// Generate unique temp directory for each execution
+const generateTempDir = () => {
+  return `/tmp/code_${randomBytes(8).toString("hex")}`;
+};
 
 // Docker images for each language
 const images: Record<string, string> = {
@@ -17,38 +23,6 @@ const images: Record<string, string> = {
   typescript: "node:18",
 };
 
-// File names for each language
-const filenames: Record<string, string> = {
-  python: "main.py",
-  python3: "main.py",
-  cpp: "main.cpp",
-  c: "main.c",
-  java: "Main.java",
-  php: "main.php",
-  csharp: "Program.cs",
-  go: "main.go",
-  rust: "main.rs",
-  typescript: "main.ts",
-};
-
-// Base Docker command template
-const createDockerCommand = (
-  image: string,
-  code: string,
-  filename: string,
-  command: string
-) => {
-  return [
-    "docker run --rm",
-    "--network none",
-    "--memory=256m --cpus=0.5",
-    "-i",
-    image,
-    "sh -c",
-    `"mkdir -p /code && cat > /code/${filename} && ${command}"`,
-  ].join(" ");
-};
-
 // Python runner
 const pythonRunner = async (
   code: string
@@ -62,13 +36,14 @@ const pythonRunner = async (
 
     // Use base64 encoding to avoid shell escaping issues
     const base64Code = Buffer.from(cleanCode).toString("base64");
+    const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
       "--network none",
       "--memory=256m --cpus=0.5",
       images.python,
       "sh -c",
-      `"echo '${base64Code}' | base64 -d > /tmp/main.py && python /tmp/main.py"`,
+      `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/main.py && python ${tempDir}/main.py"`,
     ].join(" ");
 
     console.log(`[pythonRunner] executing: ${dockerCmd}`);
@@ -90,13 +65,14 @@ const cppRunner = async (
   try {
     // Use base64 encoding to avoid shell escaping issues
     const base64Code = Buffer.from(code).toString("base64");
+    const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
       "--network none",
       "--memory=256m --cpus=0.5",
       images.cpp,
       "sh -c",
-      `"echo '${base64Code}' | base64 -d > /tmp/main.cpp && g++ /tmp/main.cpp -o /tmp/a.out && chmod +x /tmp/a.out && /tmp/a.out"`,
+      `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/main.cpp && g++ ${tempDir}/main.cpp -o ${tempDir}/a.out && chmod +x ${tempDir}/a.out && ${tempDir}/a.out"`,
     ].join(" ");
 
     console.log(`[cppRunner] executing: ${dockerCmd}`);
@@ -118,13 +94,14 @@ const cRunner = async (
   try {
     // Use base64 encoding to avoid shell escaping issues
     const base64Code = Buffer.from(code).toString("base64");
+    const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
       "--network none",
       "--memory=256m --cpus=0.5",
       images.c,
       "sh -c",
-      `"echo '${base64Code}' | base64 -d > /tmp/main.c && gcc /tmp/main.c -o /tmp/a.out && chmod +x /tmp/a.out && /tmp/a.out"`,
+      `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/main.c && gcc ${tempDir}/main.c -o ${tempDir}/a.out && chmod +x ${tempDir}/a.out && ${tempDir}/a.out"`,
     ].join(" ");
 
     console.log(`[cRunner] executing: ${dockerCmd}`);
@@ -146,13 +123,14 @@ const javaRunner = async (
   try {
     // Use base64 encoding to avoid shell escaping issues
     const base64Code = Buffer.from(code).toString("base64");
+    const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
       "--network none",
       "--memory=256m --cpus=0.5",
       images.java,
       "sh -c",
-      `"echo '${base64Code}' | base64 -d > /tmp/Main.java && javac -encoding UTF-8 /tmp/Main.java && java -cp /tmp Main"`,
+      `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/Main.java && javac -encoding UTF-8 ${tempDir}/Main.java && java -cp ${tempDir} Main"`,
     ].join(" ");
 
     console.log(`[javaRunner] executing: ${dockerCmd}`);
@@ -174,13 +152,14 @@ const phpRunner = async (
   try {
     // Use base64 encoding to avoid shell escaping issues
     const base64Code = Buffer.from(code).toString("base64");
+    const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
       "--network none",
       "--memory=256m --cpus=0.5",
       images.php,
       "sh -c",
-      `"echo '${base64Code}' | base64 -d > /tmp/main.php && php /tmp/main.php"`,
+      `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/main.php && php ${tempDir}/main.php"`,
     ].join(" ");
 
     console.log(`[phpRunner] executing: ${dockerCmd}`);
@@ -202,13 +181,14 @@ const csharpRunner = async (
   try {
     // Use base64 encoding to avoid shell escaping issues
     const base64Code = Buffer.from(code).toString("base64");
+    const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
       "--network none",
       "--memory=256m --cpus=0.5",
       images.csharp,
       "sh -c",
-      `"echo '${base64Code}' | base64 -d > /tmp/Program.cs && dotnet new console -o /tmp/app --force && cp /tmp/Program.cs /tmp/app/Program.cs && cd /tmp/app && dotnet run"`,
+      `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/Program.cs && dotnet new console -o ${tempDir}/app --force && cp ${tempDir}/Program.cs ${tempDir}/app/Program.cs && cd ${tempDir}/app && dotnet run"`,
     ].join(" ");
 
     console.log(`[csharpRunner] executing: ${dockerCmd}`);
@@ -271,11 +251,18 @@ const csharpRunner = async (
 const goRunner = async (
   code: string
 ): Promise<{ stdout: string; stderr: string }> => {
-  const filename = filenames.go;
-
   try {
-    const command = `go run /code/${filename}`;
-    const dockerCmd = createDockerCommand(images.go, code, filename, command);
+    // Use base64 encoding to avoid shell escaping issues
+    const base64Code = Buffer.from(code).toString("base64");
+    const tempDir = generateTempDir();
+    const dockerCmd = [
+      "docker run --rm",
+      "--network none",
+      "--memory=256m --cpus=0.5",
+      images.go,
+      "sh -c",
+      `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/main.go && go run ${tempDir}/main.go"`,
+    ].join(" ");
 
     console.log(`[goRunner] executing: ${dockerCmd}`);
     const { stdout, stderr } = await execAsync(dockerCmd, { timeout: 30000 });
@@ -293,11 +280,18 @@ const goRunner = async (
 const rustRunner = async (
   code: string
 ): Promise<{ stdout: string; stderr: string }> => {
-  const filename = filenames.rust;
-
   try {
-    const command = `rustc /code/${filename} -o /code/a.out && /code/a.out`;
-    const dockerCmd = createDockerCommand(images.rust, code, filename, command);
+    // Use base64 encoding to avoid shell escaping issues
+    const base64Code = Buffer.from(code).toString("base64");
+    const tempDir = generateTempDir();
+    const dockerCmd = [
+      "docker run --rm",
+      "--network none",
+      "--memory=256m --cpus=0.5",
+      images.rust,
+      "sh -c",
+      `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/main.rs && rustc ${tempDir}/main.rs -o ${tempDir}/a.out && ${tempDir}/a.out"`,
+    ].join(" ");
 
     console.log(`[rustRunner] executing: ${dockerCmd}`);
     const { stdout, stderr } = await execAsync(dockerCmd, { timeout: 30000 });
@@ -318,13 +312,14 @@ const typescriptRunner = async (
   try {
     // Use base64 encoding to avoid shell escaping issues
     const base64Code = Buffer.from(code).toString("base64");
+    const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
       "--network none",
       "--memory=256m --cpus=0.5",
       images.typescript,
       "sh -c",
-      `"echo '${base64Code}' | base64 -d > /tmp/main.ts && npx --yes typescript@latest /tmp/main.ts --target es2020 --module commonjs --outDir /tmp --skipLibCheck --noEmitOnError && node /tmp/main.js"`,
+      `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/main.ts && npx --yes typescript@latest ${tempDir}/main.ts --target es2020 --module commonjs --outDir ${tempDir} --skipLibCheck --noEmitOnError && node ${tempDir}/main.js"`,
     ].join(" ");
 
     console.log(`[typescriptRunner] executing: ${dockerCmd}`);

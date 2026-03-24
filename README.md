@@ -139,9 +139,9 @@ Production üçün:
 npm run build
 ```
 
-2. **Docker ilə deploy edin:**
+2. **Production serverini başladın:**
 ```bash
-docker-compose -f docker-compose.prod.yml up -d
+npm start
 ```
 
 ## Təhlükəsizlik
