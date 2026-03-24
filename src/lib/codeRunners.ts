@@ -9,13 +9,28 @@ const generateTempDir = () => {
   return `/tmp/code_${randomBytes(8).toString("hex")}`;
 };
 
+// Security flags for Docker containers
+const getSecurityFlags = () => {
+  return [
+    "--network none",                      // Disable all network access
+    "--memory=256m",                       // Limit RAM to 256MB
+    "--cpus=0.5",                          // Limit CPU to 50%
+    "--pids-limit=50",                     // Limit processes to 50
+    "--read-only",                         // Read-only root filesystem
+    // rw + nosuid; must NOT use noexec — C/C++/Rust compile and run a.out under /tmp
+    "--tmpfs /tmp:rw,nosuid,size=100m",
+    "--security-opt=no-new-privileges",    // Prevent privilege escalation
+    "--cap-drop=ALL",                      // Drop all capabilities
+  ].join(" ");
+};
+
 // Docker images for each language
 const images: Record<string, string> = {
   python: "python:3.11",
   python3: "python:3.11",
   cpp: "gcc:13",
   c: "gcc:13",
-  java: "openjdk:17",
+  java: "eclipse-temurin:17-jdk",
   php: "php:8.2-cli",
   csharp: "mcr.microsoft.com/dotnet/sdk:8.0",
   go: "golang:1.21",
@@ -39,8 +54,7 @@ const pythonRunner = async (
     const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
-      "--network none",
-      "--memory=256m --cpus=0.5",
+      getSecurityFlags(),
       images.python,
       "sh -c",
       `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/main.py && python ${tempDir}/main.py"`,
@@ -68,8 +82,7 @@ const cppRunner = async (
     const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
-      "--network none",
-      "--memory=256m --cpus=0.5",
+      getSecurityFlags(),
       images.cpp,
       "sh -c",
       `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/main.cpp && g++ ${tempDir}/main.cpp -o ${tempDir}/a.out && chmod +x ${tempDir}/a.out && ${tempDir}/a.out"`,
@@ -97,8 +110,7 @@ const cRunner = async (
     const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
-      "--network none",
-      "--memory=256m --cpus=0.5",
+      getSecurityFlags(),
       images.c,
       "sh -c",
       `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/main.c && gcc ${tempDir}/main.c -o ${tempDir}/a.out && chmod +x ${tempDir}/a.out && ${tempDir}/a.out"`,
@@ -126,8 +138,7 @@ const javaRunner = async (
     const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
-      "--network none",
-      "--memory=256m --cpus=0.5",
+      getSecurityFlags(),
       images.java,
       "sh -c",
       `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/Main.java && javac -encoding UTF-8 ${tempDir}/Main.java && java -cp ${tempDir} Main"`,
@@ -155,8 +166,7 @@ const phpRunner = async (
     const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
-      "--network none",
-      "--memory=256m --cpus=0.5",
+      getSecurityFlags(),
       images.php,
       "sh -c",
       `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/main.php && php ${tempDir}/main.php"`,
@@ -184,8 +194,7 @@ const csharpRunner = async (
     const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
-      "--network none",
-      "--memory=256m --cpus=0.5",
+      getSecurityFlags(),
       images.csharp,
       "sh -c",
       `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/Program.cs && dotnet new console -o ${tempDir}/app --force && cp ${tempDir}/Program.cs ${tempDir}/app/Program.cs && cd ${tempDir}/app && dotnet run"`,
@@ -257,8 +266,7 @@ const goRunner = async (
     const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
-      "--network none",
-      "--memory=256m --cpus=0.5",
+      getSecurityFlags(),
       images.go,
       "sh -c",
       `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/main.go && go run ${tempDir}/main.go"`,
@@ -286,8 +294,7 @@ const rustRunner = async (
     const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
-      "--network none",
-      "--memory=256m --cpus=0.5",
+      getSecurityFlags(),
       images.rust,
       "sh -c",
       `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/main.rs && rustc ${tempDir}/main.rs -o ${tempDir}/a.out && ${tempDir}/a.out"`,
@@ -315,8 +322,7 @@ const typescriptRunner = async (
     const tempDir = generateTempDir();
     const dockerCmd = [
       "docker run --rm",
-      "--network none",
-      "--memory=256m --cpus=0.5",
+      getSecurityFlags(),
       images.typescript,
       "sh -c",
       `"mkdir -p ${tempDir} && echo '${base64Code}' | base64 -d > ${tempDir}/main.ts && npx --yes typescript@latest ${tempDir}/main.ts --target es2020 --module commonjs --outDir ${tempDir} --skipLibCheck --noEmitOnError && node ${tempDir}/main.js"`,
