@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React from "react";
 import styles from "./TutorialsMainPage.module.css";
@@ -16,48 +16,9 @@ import Link from "next/link";
 import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
 import HeroSection from "../components/heroSection/HeroSection";
-import { usePathname } from "next/navigation";
+import { useI18n } from "@/contexts/I18nContext";
+import PageStyle from "../../Page.module.css";
 
-const mainCategories = [
-  {
-    key: "languages",
-    name: "Proqramlaşdırma Dilləri",
-    icon: <FiCode size={32} color="#374151" />,
-    description: "JavaScript, Python, Java, C++ və s.",
-    stats: "12+ Dillər",
-    featured: true,
-  },
-  {
-    key: "algorithms",
-    name: "Alqoritmlər",
-    icon: <FiSettings size={32} color="#374151" />,
-    description: "Sorting, searching, dynamic programming",
-    stats: "25+ Alqoritm",
-  },
-  {
-    key: "data-structures",
-    name: "Məlumat Strukturları",
-    icon: <FiLayers size={32} color="#374151" />,
-    description: "Arrays, trees, graphs, heaps",
-    stats: "15+ Struktur",
-  },
-  {
-    key: "frameworks",
-    name: "Frameworklər",
-    icon: <FiPackage size={32} color="#374151" />,
-    description: "React, Vue, Angular, Svelte",
-    stats: "8+ Framework",
-  },
-  {
-    key: "topics",
-    name: "Proqramlaşdırma Mövzuları",
-    icon: <FiBook size={32} color="#374151" />,
-    description: "OOP, Design Patterns, Clean Code",
-    stats: "20+ Mövzu",
-  },
-];
-
-// Tutorial stats data
 const tutorialStats = {
   languages: 5,
   algorithms: 23,
@@ -65,11 +26,22 @@ const tutorialStats = {
   frameworks: 8,
 };
 
-export default function TutorialsPage() {
-  const pathname = usePathname();
-  const currentLang = pathname.split("/")[1] || "en";
+const categoryOrder: {
+  routeKey: string;
+  i18nKey: string;
+  Icon: typeof FiCode;
+  featured?: boolean;
+}[] = [
+  { routeKey: "languages", i18nKey: "languages", Icon: FiCode, featured: true },
+  { routeKey: "algorithms", i18nKey: "algorithms", Icon: FiSettings },
+  { routeKey: "data-structures", i18nKey: "dataStructures", Icon: FiLayers },
+  { routeKey: "frameworks", i18nKey: "frameworks", Icon: FiPackage },
+  { routeKey: "topics", i18nKey: "topics", Icon: FiBook },
+];
 
-  // Tutorial-specific hero boxes
+export default function TutorialsPage() {
+  const { t, lang } = useI18n();
+
   const tutorialHeroBoxes = [
     {
       key: "languages",
@@ -100,53 +72,65 @@ export default function TutorialsPage() {
   return (
     <>
       <Header />
-      
-      <HeroSection 
-        titleKey="tutorials.hero.title"
-        subtitleKey="tutorials.hero.subtitle"
-        boxes={tutorialHeroBoxes}
-      />
+      <div className={PageStyle.layout}>
+        <div className={PageStyle.contentOpen}>
+          <HeroSection
+            titleKey="tutorials.hero.title"
+            subtitleKey="tutorials.hero.subtitle"
+            boxes={tutorialHeroBoxes}
+          />
 
-      <div className={styles.tutorialsWrapper}>
-        <div className={styles.categoriesSection}>
-          <div className={styles.categoriesHeader}>
-            <h2 className={styles.categoriesTitle}>Öyrənmə Kateqoriyaları</h2>
-            <p className={styles.categoriesSubtitle}>
-              Proqramlaşdırma dünyasını kəşf edin
-            </p>
-          </div>
-          
-          <div className={styles.categoriesList}>
-            {mainCategories.map((cat, idx) => (
-              <Link
-                href={`/${currentLang}/tutorials/${cat.key}`}
-                className={`${styles.categoryItem} ${cat.featured ? styles.featuredItem : ''}`}
-                key={cat.key}
-              >
-                <div className={styles.itemContent}>
-                  <div className={styles.itemLeft}>
-                    <div className={styles.itemIcon}>
-                      {cat.icon}
-                    </div>
-                    <div className={styles.itemInfo}>
-                      <h3 className={styles.itemTitle}>{cat.name}</h3>
-                      <p className={styles.itemDescription}>{cat.description}</p>
-                    </div>
-                  </div>
-                  <div className={styles.itemRight}>
-                    <span className={styles.itemStats}>{cat.stats}</span>
-                    <div className={styles.itemArrow}>
-                      <FiChevronRight size={20} />
-                    </div>
-                  </div>
-                </div>
-                {cat.featured && <div className={styles.featuredBadge}>Əsas</div>}
-              </Link>
-            ))}
+          <div className={styles.tutorialsWrapper}>
+            <section className={styles.categoriesSection} aria-labelledby="tutorial-categories-heading">
+              <header className={styles.categoriesHeader}>
+                <h2 id="tutorial-categories-heading" className={styles.categoriesTitle}>
+                  {t("tutorials.categories.title")}
+                </h2>
+                <p className={styles.categoriesSubtitle}>{t("tutorials.categories.subtitle")}</p>
+              </header>
+
+              <ul className={styles.categoriesList}>
+                {categoryOrder.map((cat) => (
+                  <li key={cat.routeKey} className={styles.categoryListItem}>
+                    <Link
+                      href={`/${lang}/tutorials/${cat.routeKey}`}
+                      className={`${styles.categoryItem} ${cat.featured ? styles.featuredItem : ""}`}
+                    >
+                      <div className={styles.itemContent}>
+                        <div className={styles.itemLeft}>
+                          <div className={styles.itemIcon} aria-hidden>
+                            <cat.Icon className={styles.itemIconSvg} />
+                          </div>
+                          <div className={styles.itemInfo}>
+                            <h3 className={styles.itemTitle}>
+                              {t(`tutorials.categoryCards.${cat.i18nKey}.title`)}
+                            </h3>
+                            <p className={styles.itemDescription}>
+                              {t(`tutorials.categoryCards.${cat.i18nKey}.description`)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className={styles.itemRight}>
+                          {cat.featured && (
+                            <span className={styles.featuredBadge}>{t("tutorials.categories.featured")}</span>
+                          )}
+                          <span className={styles.itemStats}>
+                            {t(`tutorials.categoryCards.${cat.i18nKey}.stats`)}
+                          </span>
+                          <span className={styles.itemArrow} aria-hidden>
+                            <FiChevronRight className={styles.chevron} />
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
           </div>
         </div>
       </div>
-      
+
       <Footer />
     </>
   );

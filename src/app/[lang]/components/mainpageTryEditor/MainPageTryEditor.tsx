@@ -59,14 +59,7 @@ const MainPageTryEditor: React.FC = () => {
 
   return (
     <section className={styles.introSection}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          margin:"0 0 10px 0",
-          justifyContent: "space-between",
-        }}
-      >
+      <div className={styles.introHeader}>
         <h2 className={styles.introTitle}>{t("main.introTitle")}</h2>
         <div className={styles.languageDropdownWrapper} ref={dropdownRef}>
           <button
@@ -81,12 +74,8 @@ const MainPageTryEditor: React.FC = () => {
                 "Select Language"}
             </span>
             <FiChevronDown
-              style={{
-                marginLeft: 8,
-                fontSize: 16,
-                transition: "transform 0.2s ease",
-                transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
-              }}
+              className={`${styles.chevron} ${dropdownOpen ? styles.chevronOpen : ""}`}
+              aria-hidden
             />
           </button>
           {dropdownOpen && (
