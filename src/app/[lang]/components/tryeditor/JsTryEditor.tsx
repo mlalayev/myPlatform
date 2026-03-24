@@ -134,6 +134,29 @@ fn main() {
 
 const defaultCode = languageSamples.javascript;
 
+// Helper function to get file extension for each language
+const getFileExtension = (language: string): string => {
+  const extensions: Record<string, string> = {
+    javascript: 'js',
+    typescript: 'ts',
+    python: 'py',
+    python3: 'py',
+    cpp: 'cpp',
+    c: 'c',
+    java: 'java',
+    csharp: 'cs',
+    php: 'php',
+    swift: 'swift',
+    kotlin: 'kt',
+    dart: 'dart',
+    go: 'go',
+    ruby: 'rb',
+    scala: 'scala',
+    rust: 'rs',
+  };
+  return extensions[language] || 'txt';
+};
+
 // Fix: add index signature for string keys
 const tryeditorErrorOverrides: { [key: string]: { [key: string]: string } } = {
   az: {
@@ -164,8 +187,18 @@ export default function JsTryEditor({
   language = "typescript",
 }: JsTryEditorProps) {
   const { t, lang } = useI18n();
-  const [internalCode, setInternalCode] = useState(defaultCode);
-  const code = value !== undefined ? value : internalCode;
+  
+  // Store code separately for each language
+  const [languageCodes, setLanguageCodes] = useState<Record<string, string>>({});
+  
+  // Get current language code or default sample
+  const getCurrentCode = () => {
+    if (value !== undefined) return value;
+    if (languageCodes[language]) return languageCodes[language];
+    return languageSamples[language as keyof typeof languageSamples] || defaultCode;
+  };
+  
+  const code = getCurrentCode();
   const [output, setOutput] = useState("");
   const [error, setError] = useState("");
   const [showOutput, setShowOutput] = useState(false);
@@ -197,30 +230,26 @@ export default function JsTryEditor({
     );
   }
 
-  // Update sample code when language changes
+  // Initialize code for current language when it changes
   useEffect(() => {
-    if (!value && languageSamples[language as keyof typeof languageSamples]) {
-      setInternalCode(
-        languageSamples[language as keyof typeof languageSamples]
-      );
+    if (!value && !languageCodes[language]) {
+      const sampleCode = languageSamples[language as keyof typeof languageSamples] || defaultCode;
+      setLanguageCodes(prev => ({ ...prev, [language]: sampleCode }));
     }
-  }, [language, value]);
-
-  // Update editor language and code sample when dropdown changes
-  // const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   const newLang = e.target.value;
-  //   setSelectedLanguage(newLang);
-  //   if (languageSamples[newLang as keyof typeof languageSamples]) {
-  //     setInternalCode(languageSamples[newLang as keyof typeof languageSamples]);
-  //   }
-  //   setError("");
-  //   setOutput("");
-  //   setShowOutput(false);
-  // };
+    // Reset output when language changes
+    setOutput("");
+    setError("");
+    setShowOutput(false);
+    setParsedOutput([]);
+  }, [language, value, languageCodes]);
 
   const handleChange = (val: string | undefined) => {
-    if (onChange) onChange(val ?? "");
-    else setInternalCode(val ?? "");
+    const newCode = val ?? "";
+    if (onChange) {
+      onChange(newCode);
+    } else {
+      setLanguageCodes(prev => ({ ...prev, [language]: newCode }));
+    }
     setOutput("");
     setError("");
     setShowOutput(false);
@@ -495,6 +524,7 @@ export default function JsTryEditor({
           defaultLanguage={language}
           language={language}
           value={code}
+          path={`/${language}/main.${getFileExtension(language)}`} // Unique path per language
           onChange={handleChange}
           theme="vs-dark"
           options={{
